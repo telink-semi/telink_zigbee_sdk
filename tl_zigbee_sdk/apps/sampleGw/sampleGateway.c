@@ -1,0 +1,265 @@
+/********************************************************************************************************
+ * @file     sampleGateway.c
+ *
+ * @brief    HA coordinator
+ *
+ * @author
+ * @date     Dec. 1, 2016
+ *
+ * @par      Copyright (c) 2016, Telink Semiconductor (Shanghai) Co., Ltd.
+ *           All rights reserved.
+ *
+ *			 The information contained herein is confidential and proprietary property of Telink
+ * 		     Semiconductor (Shanghai) Co., Ltd. and is available under the terms
+ *			 of Commercial License Agreement between Telink Semiconductor (Shanghai)
+ *			 Co., Ltd. and the licensee in separate contract or the terms described here-in.
+ *           This heading MUST NOT be removed from this file.
+ *
+ * 			 Licensees are granted free, non-transferable use of the information in this
+ *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ *
+ *******************************************************************************************************/
+
+#if (__PROJECT_TL_GW__)
+
+/**********************************************************************
+ * INCLUDES
+ */
+#include "tl_common.h"
+#include "zb_api.h"
+#include "zcl_include.h"
+#include "bdb.h"
+#include "ota.h"
+#include "gp.h"
+#include "sampleGateway.h"
+#include "app_ui.h"
+#if ZBHCI_EN
+#include "zbhci.h"
+#endif
+
+
+/**********************************************************************
+ * LOCAL CONSTANTS
+ */
+
+
+/**********************************************************************
+ * TYPEDEFS
+ */
+
+
+/**********************************************************************
+ * GLOBAL VARIABLES
+ */
+app_ctx_t g_appGwCtx;
+
+
+#if ZBHCI_EN
+extern mac_appIndCb_t macAppIndCbList;
+#endif
+
+#ifdef ZCL_OTA
+//running code firmware information
+ota_preamble_t sampleGW_otaInfo = {
+		.fileVer = CURRENT_FILE_VERSION,
+		.imageType = IMAGE_TYPE,
+		.manufaurerCode = TELINK_MANUFACTURER_CODE,
+};
+#endif
+
+extern void bdb_zdoStartDevCnf(void *arg);
+
+//Must declare the application call back function which used by ZDO layer
+const zdo_appIndCb_t appCbLst = {
+		bdb_zdoStartDevCnf,//start device cnf cb
+		NULL,//reset cnf cb
+		sampleGW_devAnnHandler,//device announce indication cb
+		sampleGW_leaveIndHandler,//leave ind cb
+		sampleGW_leaveCnfHandler,//leave cnf cb
+		sampleGW_nwkUpdateIndicateHandler,//nwk update ind cb
+		NULL,//permit join ind cb
+		NULL,//nlme sync cnf cb
+};
+
+
+/**
+ *  @brief Definition for bdb commissioning setting
+ */
+bdb_commissionSetting_t g_bdbCommissionSetting = {
+	.usedInstallCode = 0,
+
+	.linkKey.tcLinkKey.keyType = SS_GLOBAL_LINK_KEY,
+	.linkKey.tcLinkKey.key = (u8 *)tcLinkKeyCentralDefault,       		//can use unique link key stored in NV
+
+	.linkKey.distributeLinkKey.keyType = MASTER_KEY,
+	.linkKey.distributeLinkKey.key = (u8 *)linkKeyDistributedMaster,  	//use linkKeyDistributedCertification before testing
+
+	.linkKey.touchLinkKey.keyType = MASTER_KEY,
+	.linkKey.touchLinkKey.key = (u8 *)touchLinkKeyMaster,   			//use touchLinkKeyCertification before testing
+
+	.touchlinkEnable = 0,			 									/* disable touch link for coordinator */
+};
+
+/**********************************************************************
+ * LOCAL VARIABLES
+ */
+
+
+/**********************************************************************
+ * FUNCTIONS
+ */
+
+/*********************************************************************
+ * @fn      stack_init
+ *
+ * @brief   This function initialize the ZigBee stack and related profile. If HA/ZLL profile is
+ *          enabled in this application, related cluster should be registered here.
+ *
+ * @param   None
+ *
+ * @return  None
+ */
+void stack_init(void)
+{
+	zb_init();
+
+#if ZBHCI_EN
+	zb_macCbRegister((mac_appIndCb_t *)&macAppIndCbList);
+#endif
+	zb_zdoCbRegister((zdo_appIndCb_t *)&appCbLst);
+}
+
+/*********************************************************************
+ * @fn      user_app_init
+ *
+ * @brief   This function initialize the application(Endpoint) information for this node.
+ *
+ * @param   None
+ *
+ * @return  None
+ */
+void user_app_init(void)
+{
+	af_nodeDescManuCodeUpdate(TELINK_MANUFACTURER_CODE);
+
+    /* Initialize ZCL layer */
+	/* Register Incoming ZCL Foundation command/response messages */
+	zcl_init(sampleGW_zclProcessIncomingMsg);
+
+	/* Register endPoint */
+	af_endpointRegister(SAMPLE_GW_ENDPOINT, (af_simple_descriptor_t *)&sampleGW_simpleDesc, zcl_rx_handler, sampleGW_dataSendConfirm);
+#if AF_TEST_ENABLE
+	/* A sample of AF data handler. */
+	af_endpointRegister(SAMPLE_TEST_ENDPOINT, (af_simple_descriptor_t *)&sampleTestDesc, afTest_rx_handler, afTest_dataSendConfirm);
+#endif
+
+	/* Register ZCL specific cluster information */
+	zcl_register(SAMPLE_GW_ENDPOINT, SAMPLE_GW_CB_CLUSTER_NUM, g_sampleGwClusterList);
+
+#ifdef ZCL_GREEN_POWER
+	gp_init();
+#endif
+
+#ifdef ZCL_OTA
+    ota_init(OTA_TYPE_SERVER, (af_simple_descriptor_t *)&sampleGW_simpleDesc, &sampleGW_otaInfo, NULL);
+#endif
+}
+
+
+void led_init(void)
+{
+	led_off(LED_PERMIT);
+	light_init();
+}
+
+void app_task(void)
+{
+	static bool assocPermit = 0;
+	if(assocPermit != zb_getMacAssocPermit()){
+		assocPermit = zb_getMacAssocPermit();
+		if(assocPermit){
+			led_on(LED_PERMIT);
+		}else{
+			led_off(LED_PERMIT);
+		}
+	}
+
+	if(BDB_STATE_GET() == BDB_STATE_IDLE){
+		app_key_handler();
+	}
+}
+
+static void sampleGwSysException(void)
+{
+	SYSTEM_RESET();
+	//light_off();
+	//while(1);
+}
+
+
+
+/*********************************************************************
+ * @fn      user_init
+ *
+ * @brief   User level initialization code.
+ *
+ * @param   None
+ *
+ * @return  None
+ */
+void user_init(void)
+{
+#if defined(MCU_CORE_8258)
+	extern u8 firmwareCheckWithUID(void);
+	if(firmwareCheckWithUID()){
+		while(1);
+	}
+#if (ZBHCI_USB_PRINT || ZBHCI_USB_CDC || ZBHCI_USB_HID)
+	/* Enable USB Port*/
+	gpio_set_func(GPIO_PA5, AS_USB);
+	gpio_set_func(GPIO_PA6, AS_USB);
+#endif
+#endif
+
+	/* Initialize LEDs*/
+	led_init();
+
+#if PA_ENABLE
+	/* external RF PA used */
+	rf_paInit(PA_TX, PA_RX);
+#endif
+
+	/* Initialize Stack */
+	stack_init();
+
+	sys_exceptHandlerRegister(sampleGwSysException);
+
+	/* Initialize user application */
+	user_app_init();
+
+	/* User's Task */
+#if ZBHCI_EN
+    /*
+     * define ZBHCI_USB_PRINT, ZBHCI_USB_CDC or ZBHCI_UART as 1 in app_cfg.h
+     * if needing to enable ZBHCI_EN
+     *
+     * */
+    zbhciInit();
+	ev_on_poll(EV_POLL_HCI, zbhciTask);
+#endif
+	ev_on_poll(EV_POLL_IDLE, app_task);
+
+	//af_nodeDescStackRevisionSet(20);
+
+	/* load pre-install code from NV */
+	zb_pre_install_code_load(&g_bdbCommissionSetting.linkKey, &g_appGwCtx.linkKey);
+	/*
+	 * bdb initialization start,
+	 * once initialization is done, the g_zbDemoBdbCb.bdbInitCb() will be called
+	 *
+	 * */
+    bdb_init((af_simple_descriptor_t *)&sampleGW_simpleDesc, &g_bdbCommissionSetting, &g_zbDemoBdbCb, 1);
+}
+
+#endif  /* __PROJECT_TL_GW__ */
+

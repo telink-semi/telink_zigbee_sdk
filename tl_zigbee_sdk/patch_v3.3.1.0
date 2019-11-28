@@ -1,0 +1,4546 @@
+ zigbee_release_version/apps/common/main.c          |   5 +-
+ zigbee_release_version/apps/common/module_test.c   |  18 +-
+ zigbee_release_version/apps/common/pm_interface.c  |  43 ++-
+ zigbee_release_version/apps/common/pm_interface.h  |   2 +
+ zigbee_release_version/apps/common/user_config.h   |   2 +
+ .../apps/dualModeLight/sampleLight.c               |   6 +-
+ .../apps/dualModeLight/stack_cfg.h                 |   5 -
+ .../apps/sampleContactSensor/sampleSensor.c        |  11 +-
+ .../apps/sampleContactSensor/stack_cfg.h           |  23 +-
+ zigbee_release_version/apps/sampleGw/app_cfg.h     |  11 +-
+ .../apps/sampleGw/board_8258_dongle.h              |   9 +-
+ .../apps/sampleGw/sampleGateway.c                  |  16 +-
+ .../apps/sampleGw/sampleGateway.h                  |  11 +-
+ .../apps/sampleGw/sampleGatewayEpCfg.c             |  48 +++
+ zigbee_release_version/apps/sampleGw/stack_cfg.h   |   5 -
+ zigbee_release_version/apps/sampleGw/zb_appCb.c    |  26 +-
+ zigbee_release_version/apps/sampleLight/app_cfg.h  |  10 +-
+ .../apps/sampleLight/board_8258_dongle.h           |  25 +-
+ .../apps/sampleLight/sampleLight.c                 |  12 +-
+ .../apps/sampleLight/sampleLight.h                 |  10 +
+ .../apps/sampleLight/sampleLightEpCfg.c            |  47 +++
+ .../apps/sampleLight/stack_cfg.h                   |   5 -
+ zigbee_release_version/apps/sampleLight/zb_appCb.c |   3 +
+ .../apps/sampleSwitch/sampleSwitch.c               |  10 +-
+ .../apps/sampleSwitch/stack_cfg.h                  |  23 +-
+ .../apps/sampleSwitch_8258/sampleSwitch.c          |  49 ++-
+ .../apps/sampleSwitch_8258/stack_cfg.h             |  23 +-
+ .../apps/sampleSwitch_8258/zb_appCb.c              |  12 +-
+ zigbee_release_version/platform/chip_8258/adc.c    |   2 +-
+ zigbee_release_version/platform/chip_8258/bsp.h    |   7 -
+ .../platform/chip_8258/cstartup_8258_ed.S          |  15 +-
+ zigbee_release_version/platform/chip_8258/emi.h    |  90 ++++-
+ zigbee_release_version/platform/chip_8258/pm.c     |  60 +++-
+ zigbee_release_version/platform/chip_8258/pm.h     |  56 +--
+ zigbee_release_version/platform/chip_8258/rf_drv.h |   4 +-
+ zigbee_release_version/platform/chip_8258/uart.h   |   2 +-
+ .../platform/chip_826x/includes/bsp.h              |  14 -
+ .../platform/chip_826x/includes/pm_826x.h          |   9 +-
+ .../platform/lib/libdrivers_8258.a                 | Bin 62328 -> 62196 bytes
+ .../platform/lib/libdrivers_826x.a                 | Bin 46088 -> 48388 bytes
+ zigbee_release_version/proj/common/compiler.h      |   8 +-
+ zigbee_release_version/proj/drivers/drv_i2c.c      |   4 +-
+ zigbee_release_version/proj/drivers/drv_pm.c       |  71 +++-
+ zigbee_release_version/proj/drivers/drv_pm.h       |   7 +-
+ zigbee_release_version/proj/drivers/drv_uart.c     |  10 +
+ zigbee_release_version/proj/drivers/drv_uart.h     |  10 +
+ zigbee_release_version/proj/drivers/nv.h           |   4 -
+ .../proj/drivers/usb/usbCDC/usb_cdc.c              |   7 +-
+ .../proj/drivers/usb/usbHID/my_usb.c               |   5 +-
+ zigbee_release_version/proj/os/ev.h                |   2 +
+ zigbee_release_version/proj/os/ev_buffer.c         |  15 +
+ zigbee_release_version/proj/os/ev_buffer.h         |   2 +-
+ zigbee_release_version/proj/os/ev_timer.h          |   2 +-
+ zigbee_release_version/proj/os/irq_handler.c       |   7 +
+ zigbee_release_version/proj/os/timer.c             | 144 ++++++--
+ zigbee_release_version/proj/os/timer.h             |  10 +-
+ zigbee_release_version/zigbee/aps/aps_api.h        |  48 ++-
+ zigbee_release_version/zigbee/bdb/bdb.c            |   9 +-
+ zigbee_release_version/zigbee/bdb/includes/bdb.h   |   2 +-
+ .../zigbee/common/includes/zb_task_queue.h         |   1 +
+ zigbee_release_version/zigbee/common/zb_config.c   |  15 +-
+ zigbee_release_version/zigbee/include/zb_common.h  |   5 +-
+ .../zigbee/lib/libzb_coordinator.a                 | Bin 332752 -> 336904 bytes
+ zigbee_release_version/zigbee/lib/libzb_ed.a       | Bin 225198 -> 229334 bytes
+ zigbee_release_version/zigbee/lib/libzb_router.a   | Bin 323554 -> 327818 bytes
+ .../zigbee/mac/includes/mac_trx_api.h              |  18 +
+ .../zigbee/mac/includes/phy_radio_8258.h           |   4 +-
+ .../zigbee/mac/includes/phy_radio_826x.h           |   5 +-
+ .../zigbee/mac/includes/tl_zb_mac.h                |  29 +-
+ zigbee_release_version/zigbee/mac/mac_phy.c        |  12 +-
+ zigbee_release_version/zigbee/mac/mac_pib.c        |  19 +
+ zigbee_release_version/zigbee/nwk/includes/nwk.h   |   5 +-
+ .../zigbee/nwk/includes/nwk_ctx.h                  |  12 +-
+ .../zigbee/nwk/includes/nwk_neighbor.h             |   4 +-
+ .../zigbee/ss/security_service.h                   |   7 +
+ zigbee_release_version/zigbee/zbapi/zb_api.h       |  16 -
+ .../zigbee/zbhci/uart/hci_uart.c                   |   2 -
+ .../zigbee/zbhci/usbCDC/zbhci_usb_cdc.c            |  26 +-
+ zigbee_release_version/zigbee/zbhci/zbhci.c        |  33 +-
+ zigbee_release_version/zigbee/zbhci/zbhci.h        | 383 ++++++++++-----------
+ .../zigbee/zbhci/zbhciCmdProcess.c                 | 325 +++++++++++------
+ .../zigbee/zbhci/zbhci_zclHandler.c                |   2 +-
+ zigbee_release_version/zigbee/zcl/zcl.c            |  10 +-
+ zigbee_release_version/zigbee/zcl/zcl.h            |  10 -
+ zigbee_release_version/zigbee/zcl/zcl_const.h      |   8 +-
+ .../zcl_zllTouchLinkJoinOrStart.c                  |   5 +-
+ .../zcl_zll_commissioning_internal.h               |   2 +
+ zigbee_release_version/zigbee/zdo/app_framework.c  |  69 +++-
+ zigbee_release_version/zigbee/zdo/zb_af.h          |  26 +-
+ zigbee_release_version/zigbee/zdo/zdo_api.h        |  11 +-
+ zigbee_release_version/zigbee/zdo/zdp.c            |   5 +-
+ 94 files changed, 1407 insertions(+), 782 deletions(-)
+
+diff --git a/zigbee_release_version/apps/common/main.c b/zigbee_release_version/apps/common/main.c
+index 1cb09c9..b975c25 100644
+--- a/zigbee_release_version/apps/common/main.c
++++ b/zigbee_release_version/apps/common/main.c
+@@ -78,11 +78,12 @@ static u8 platform_init(void){
+ #if defined(MCU_CORE_8258)
+ 	extern void bss_section_clear(void);
+ 	extern void data_section_load();
+-	if( (analog_read(0x7f) & 0x01) ){
++	if((analog_read(0x7f) & 0x01)){
++		/* Boot from brom. */
+ 		bss_section_clear();
+ 		data_section_load();
+ 	}else{
+-		//recovery from deep sleep
++		/* Recovery from deep retention. */
+ 		ret = SYSTEM_RETENTION_EN;
+ 	}
+ #endif
+diff --git a/zigbee_release_version/apps/common/module_test.c b/zigbee_release_version/apps/common/module_test.c
+index 5dcacdf..943236a 100644
+--- a/zigbee_release_version/apps/common/module_test.c
++++ b/zigbee_release_version/apps/common/module_test.c
+@@ -434,16 +434,16 @@ void moduleTest_pwm(void){
+ 	PWM_W_CHANNEL_SET();
+ 	drv_pwm_init();
+ 
+-	u8 level = 1;
+-	u32 max_tick = CLOCK_SYS_CLOCK_HZ/38000;
+-	u32 cmp_tick = max_tick * level * level / (256 * 256);
+-	u32 ch = PWM_W_CHANNEL;
++	u8 duty = 5;
++	u8 fullDuty = 100;
++	u32 max_tick = CLOCK_SYS_CLOCK_HZ / 1000;
++	u32 cmp_tick = (duty * max_tick) / fullDuty;
++
++	drv_pwm_cfg(PWM_W_CHANNEL, (u16)cmp_tick, (u16)max_tick);
++	drv_pwm_start(PWM_W_CHANNEL);
++
+ 	while(1){
+-		cmp_tick = max_tick * level * level / (256 * 256);
+-		drv_pwm_cfg(ch, (u16)cmp_tick, (u16)max_tick);
+-		drv_pwm_start(ch);
+-		level++;
+-		WaitUs(20*1000);
++
+ 	}
+ }
+ #else
+diff --git a/zigbee_release_version/apps/common/pm_interface.c b/zigbee_release_version/apps/common/pm_interface.c
+index d2fe649..05a628a 100644
+--- a/zigbee_release_version/apps/common/pm_interface.c
++++ b/zigbee_release_version/apps/common/pm_interface.c
+@@ -85,7 +85,7 @@ void pm_lowPowerEnter(platform_mode_e mode, int wakeUpSrc, u32 ms){
+ 			extern void rf_paShutDown(void);
+ 			rf_paShutDown();
+ 
+-			if(mode == PLATFORM_MODE_DEEPSLEEP){
++			if(mode == PLATFORM_MODE_DEEPSLEEP || mode == PLATFORM_MODE_DEEP_WITH_RETENTION){
+ 				deep_sleep_flag_set(ss_outgoingFrameCntGet());
+ 			}
+ 			platform_lowpower_enter(mode, wakeUpSrc, interval);
+@@ -100,8 +100,49 @@ void pm_suspendEnter(int wakeUpSrc, u32 ms){
+ }
+ 
+ void pm_deepSleepEnter(int wakeUpSrc, u32 ms){
++#if defined(MCU_CORE_826x)
+ 	pm_lowPowerEnter(PLATFORM_MODE_DEEPSLEEP, wakeUpSrc, ms);
++#elif defined(MCU_CORE_8258)
++	pm_lowPowerEnter(PLATFORM_MODE_DEEP_WITH_RETENTION, wakeUpSrc, ms);
++#endif
+ }
+ 
++u8 pm_interleaveSleepEnter(int wakeUpSrc, u32 ms){
++	if(!tl_stackBusy() && zb_isTaskDone()){
++		u8 r = irq_disable();
++
++		u32 interval = ev_nearestInterval();
++
++		/* Go to long sleep mode if there is no timer event exist.
++		 * Otherwise enter suspend or deep with retention mode according to the platform.
++		 * 826x --> suspend mode.
++		 * 8258 --> deep with retention mode.
++		 */
++		if(interval == 0xFFFFFFFF){
++			/* Set sleep flag */
++			deep_sleep_flag_set(ss_outgoingFrameCntGet());
++
++			platform_longLowpower_enter(PLATFORM_MODE_DEEPSLEEP, wakeUpSrc, ms);
++		}else{
++#if defined(MCU_CORE_826x)
++			platform_mode_e mode = PLATFORM_MODE_SUSPEND;
++#elif defined(MCU_CORE_8258)
++			platform_mode_e mode = PLATFORM_MODE_DEEP_WITH_RETENTION;
++
++			/* Set sleep flag */
++			deep_sleep_flag_set(ss_outgoingFrameCntGet());
++#endif
++
++			interval = interval / (CLOCK_SYS_CLOCK_1US * 1000);
++
++			platform_lowpower_enter(mode, wakeUpSrc, interval);
++		}
+ 
++		irq_restore(r);
++	}else{
++		return FAILURE;
++	}
++
++	return SUCCESS;
++}
+ #endif
+diff --git a/zigbee_release_version/apps/common/pm_interface.h b/zigbee_release_version/apps/common/pm_interface.h
+index f7e6c71..37fb8d8 100644
+--- a/zigbee_release_version/apps/common/pm_interface.h
++++ b/zigbee_release_version/apps/common/pm_interface.h
+@@ -37,4 +37,6 @@ void pm_suspendEnter(int wakeUpSrc, u32 ms);
+ 
+ void pm_deepSleepEnter(int wakeUpSrc, u32 ms);
+ 
++u8 pm_interleaveSleepEnter(int wakeUpSrc, u32 ms);
++
+ #endif
+diff --git a/zigbee_release_version/apps/common/user_config.h b/zigbee_release_version/apps/common/user_config.h
+index 43c3188..9b2a0fa 100644
+--- a/zigbee_release_version/apps/common/user_config.h
++++ b/zigbee_release_version/apps/common/user_config.h
+@@ -35,6 +35,8 @@
+ 	#include "../sampleContactSensor/app_cfg.h"
+ #elif (__PROJECT_TL_TEMPERATURE_SENSOR_8258__)
+ 	#include "../sampleTemperatureSensor_8258/app_cfg.h"
++#elif (__PROJECT_TL_TEMPERATURE_SENSOR__)
++	#include "../sampleTemperatureSensor/app_cfg.h"
+ #elif (__PROJECT_TL_DOOR_LOCK_8258__)
+ 	#include "../sampleDoorLock_8258/app_cfg.h"
+ #elif (__PROJECT_TL_SWITCH_HAWK__)
+diff --git a/zigbee_release_version/apps/dualModeLight/sampleLight.c b/zigbee_release_version/apps/dualModeLight/sampleLight.c
+index ed386a9..23ac74a 100644
+--- a/zigbee_release_version/apps/dualModeLight/sampleLight.c
++++ b/zigbee_release_version/apps/dualModeLight/sampleLight.c
+@@ -38,10 +38,6 @@
+ #if ZBHCI_EN
+ #include "zbhci.h"
+ #endif
+-#if ZB_TEST_ENABLE
+-#include "../../zigbee/testcase/test_profile.h"
+-#endif
+-
+ 
+ 
+ /**********************************************************************
+@@ -71,7 +67,7 @@ ota_preamble_t sampleLight_otaInfo = {
+ };
+ #endif
+ 
+-extern void bdb_zdoStartDevCnf(zdo_start_device_confirm_t* startDevCnf);
++extern void bdb_zdoStartDevCnf(void* arg);
+ 
+ //Must declare the application call back function which used by ZDO layer
+ const zdo_appIndCb_t appCbLst = {
+diff --git a/zigbee_release_version/apps/dualModeLight/stack_cfg.h b/zigbee_release_version/apps/dualModeLight/stack_cfg.h
+index 6900dd4..ec19b28 100644
+--- a/zigbee_release_version/apps/dualModeLight/stack_cfg.h
++++ b/zigbee_release_version/apps/dualModeLight/stack_cfg.h
+@@ -65,11 +65,6 @@ typedef enum{
+ #define NV_ENABLE                                 1
+ 
+ 
+-#if ZB_TEST_ENABLE
+-#define	ZBHCI_USB_PRINT							  1
+-#endif
+-
+-
+ /**********************************************************************
+  * Following parameter need user to adjust according the app requirement
+  */
+diff --git a/zigbee_release_version/apps/sampleContactSensor/sampleSensor.c b/zigbee_release_version/apps/sampleContactSensor/sampleSensor.c
+index a7b7247..7398ae2 100644
+--- a/zigbee_release_version/apps/sampleContactSensor/sampleSensor.c
++++ b/zigbee_release_version/apps/sampleContactSensor/sampleSensor.c
+@@ -25,7 +25,6 @@
+ /**********************************************************************
+  * INCLUDES
+  */
+- 
+ #include "tl_common.h"
+ #include "zb_api.h"
+ #include "zcl_include.h"
+@@ -36,9 +35,7 @@
+ #if PM_ENABLE
+ #include "pm_interface.h"
+ #endif
+-#if ZB_TEST_ENABLE
+-#include "../../zigbee/testcase/test_profile.h"
+-#endif
++
+ 
+ /**********************************************************************
+  * LOCAL CONSTANTS
+@@ -67,7 +64,7 @@ ota_preamble_t sampleSensor_otaInfo = {
+ };
+ #endif
+ 
+-extern void bdb_zdoStartDevCnf(zdo_start_device_confirm_t* startDevCnf);
++extern void bdb_zdoStartDevCnf(void* arg);
+ 
+ //Must declare the application call back function which used by ZDO layer
+ const zdo_appIndCb_t appCbLst = {
+@@ -171,10 +168,6 @@ void user_app_init(void)
+ 	/* Register ZCL specific cluster information */
+ 	zcl_register(SAMPLE_SENSOR_ENDPOINT, SAMPLE_SENSOR_CB_CLUSTER_NUM, g_sampleSensorClusterList);
+ 
+-#if ZB_TEST_ENABLE
+-	testProfileInit();
+-#endif
+-
+ #ifdef ZCL_OTA
+     ota_init(OTA_TYPE_CLIENT, (af_simple_descriptor_t *)&sampleSensor_simpleDesc, &sampleSensor_otaInfo, &sampleSensor_otaCb);
+ #endif
+diff --git a/zigbee_release_version/apps/sampleContactSensor/stack_cfg.h b/zigbee_release_version/apps/sampleContactSensor/stack_cfg.h
+index 01f43e6..17d42b0 100644
+--- a/zigbee_release_version/apps/sampleContactSensor/stack_cfg.h
++++ b/zigbee_release_version/apps/sampleContactSensor/stack_cfg.h
+@@ -66,17 +66,6 @@ typedef enum{
+  */
+ #define NV_ENABLE                                 1
+ 
+-#if ZB_TEST_ENABLE
+-	#ifdef MCU_CORE_HAWK
+-		#define	ZBHCI_USB_PRINT							  0
+-	#else
+-		#define	ZBHCI_USB_PRINT							  1
+-	#endif
+-
+-#endif
+-
+-
+-
+ 
+ /**********************************************************************
+  * Following parameter need user to adjust according the app requirement
+@@ -140,9 +129,17 @@ typedef enum{
+ 	#define GP_SUPPORT_ENABLE					  1
+ #endif
+ 
++/***********************************************************************
++ * If PM_ENABLE is set, the macro ZB_MAC_RX_ON_WHEN_IDLE must be ZERO.
++ */
+ #if ZB_ED_ROLE
+-/*NOTE: If set MAC_CAP_RX_ON_WHEN_IDLE, PM_ENABLE must be CLEAR (apps/sampleSwitch_xx/app_cfg.h). */
+-#define ZB_MAC_RX_ON_WHEN_IDEL					  0
++	#if PM_ENABLE
++		#define ZB_MAC_RX_ON_WHEN_IDLE			  0
++	#endif
++
++	#ifndef ZB_MAC_RX_ON_WHEN_IDLE
++		#define ZB_MAC_RX_ON_WHEN_IDLE			  0
++	#endif
+ #endif
+ 
+ 
+diff --git a/zigbee_release_version/apps/sampleGw/app_cfg.h b/zigbee_release_version/apps/sampleGw/app_cfg.h
+index 1c8d873..0cbe15c 100644
+--- a/zigbee_release_version/apps/sampleGw/app_cfg.h
++++ b/zigbee_release_version/apps/sampleGw/app_cfg.h
+@@ -34,22 +34,19 @@ extern "C" {
+ /* debug mode config */
+ #define	UART_PRINTF_MODE			0
+ #define USB_PRINTF_MODE         	0
+-#define	ZBHCI_UART					0
++#define	ZBHCI_UART					1
+ #define ZBHCI_USB_CDC				0
+ 
+ #define PA_ENABLE					0
+ 
+ 
+-/* Running chip flash size select. If '1' - 1M, otherwise (or undefined) - 512K. */
+-#define FLASH_SIZE_1M				0
+-
+-
+ /* board ID */
+ #define BOARD_826x_EVK				0
+ #define BOARD_826x_DONGLE			1
+ #define BOARD_826x_DONGLE_PA		2
+ #define BOARD_8258_EVK				3
+ #define BOARD_8258_DONGLE			4
++#define BOARD_8258_DONGLE_1M		5
+ 
+ 
+ #ifdef MCU_CORE_8258
+@@ -71,7 +68,7 @@ extern "C" {
+ 	#include "board_826x_dongle.h"
+ #elif(BOARD == BOARD_826x_DONGLE_PA)
+ 	#include "board_826x_dongle_pa.h"
+-#elif(BOARD	== BOARD_8258_DONGLE)
++#elif((BOARD == BOARD_8258_DONGLE) || (BOARD == BOARD_8258_DONGLE_1M))
+ 	#include "board_8258_dongle.h"
+ #elif(BOARD	== BOARD_8258_EVK)
+ 	#include "board_8258_evk.h"
+@@ -108,6 +105,8 @@ extern "C" {
+ #define ZCL_POLL_CTRL_SUPPORT						1
+ #define ZCL_OTA_SUPPORT								1
+ 
++#define AF_TEST_ENABLE								0
++
+ 
+     ///////////////////  Zigbee Profile Configuration /////////////////////////////////
+ #include "stack_cfg.h"
+diff --git a/zigbee_release_version/apps/sampleGw/board_8258_dongle.h b/zigbee_release_version/apps/sampleGw/board_8258_dongle.h
+index ba202e1..67ee05b 100644
+--- a/zigbee_release_version/apps/sampleGw/board_8258_dongle.h
++++ b/zigbee_release_version/apps/sampleGw/board_8258_dongle.h
+@@ -27,8 +27,13 @@
+ extern "C" {
+ #endif
+ 
+-#define DONGLE_8258_32		0
+-#define	DONGLE_8258_48		1
++#if (BOARD == BOARD_8258_DONGLE_1M)
++	/* Running chip flash size select. If '1' - 1M, otherwise (or undefined) - 512K. */
++	#define FLASH_SIZE_1M			1
++#endif
++
++#define DONGLE_8258_32				0
++#define	DONGLE_8258_48				1
+ 
+ #if defined DONGLE_8258_32 && (DONGLE_8258_32 == 1)
+ /*******************************************************************************************************
+diff --git a/zigbee_release_version/apps/sampleGw/sampleGateway.c b/zigbee_release_version/apps/sampleGw/sampleGateway.c
+index 9a8243c..1353aaf 100644
+--- a/zigbee_release_version/apps/sampleGw/sampleGateway.c
++++ b/zigbee_release_version/apps/sampleGw/sampleGateway.c
+@@ -36,9 +36,7 @@
+ #if ZBHCI_EN
+ #include "zbhci.h"
+ #endif
+-#if ZB_TEST_ENABLE
+-#include "../../zigbee/testcase/test_profile.h"
+-#endif
++
+ 
+ /**********************************************************************
+  * LOCAL CONSTANTS
+@@ -69,7 +67,7 @@ ota_preamble_t sampleGW_otaInfo = {
+ };
+ #endif
+ 
+-extern void bdb_zdoStartDevCnf(zdo_start_device_confirm_t* startDevCnf);
++extern void bdb_zdoStartDevCnf(void *arg);
+ 
+ //Must declare the application call back function which used by ZDO layer
+ const zdo_appIndCb_t appCbLst = {
+@@ -78,7 +76,7 @@ const zdo_appIndCb_t appCbLst = {
+ 		sampleGW_devAnnHandler,//device announce indication cb
+ 		sampleGW_leaveIndHandler,//leave ind cb
+ 		sampleGW_leaveCnfHandler,//leave cnf cb
+-		NULL,//nwk update ind cb
++		sampleGW_nwkUpdateIndicateHandler,//nwk update ind cb
+ 		NULL,//permit join ind cb
+ 		NULL,//nlme sync cnf cb
+ };
+@@ -150,14 +148,14 @@ void user_app_init(void)
+ 
+ 	/* Register endPoint */
+ 	af_endpointRegister(SAMPLE_GW_ENDPOINT, (af_simple_descriptor_t *)&sampleGW_simpleDesc, zcl_rx_handler, sampleGW_dataSendConfirm);
++#if AF_TEST_ENABLE
++	/* A sample of AF data handler. */
++	af_endpointRegister(SAMPLE_TEST_ENDPOINT, (af_simple_descriptor_t *)&sampleTestDesc, afTest_rx_handler, afTest_dataSendConfirm);
++#endif
+ 
+ 	/* Register ZCL specific cluster information */
+ 	zcl_register(SAMPLE_GW_ENDPOINT, SAMPLE_GW_CB_CLUSTER_NUM, g_sampleGwClusterList);
+ 
+-#if ZB_TEST_ENABLE
+-    testProfileInit();
+-#endif
+-
+ #ifdef ZCL_GREEN_POWER
+ 	gp_init();
+ #endif
+diff --git a/zigbee_release_version/apps/sampleGw/sampleGateway.h b/zigbee_release_version/apps/sampleGw/sampleGateway.h
+index c19a5e1..02cd5cb 100644
+--- a/zigbee_release_version/apps/sampleGw/sampleGateway.h
++++ b/zigbee_release_version/apps/sampleGw/sampleGateway.h
+@@ -28,6 +28,7 @@
+  * CONSTANT
+  */
+ #define SAMPLE_GW_ENDPOINT      0x01
++#define SAMPLE_TEST_ENDPOINT	0x02
+ 
+ /**********************************************************************
+  * TYPEDEFS
+@@ -47,7 +48,6 @@ typedef struct{
+ typedef struct{
+ 	ev_time_event_t *timerLedEvt;
+ 	u32 keyPressedTime;
+-	u16	dataAckNumForTest;
+ 
+ 	u16 ledOnTime;
+ 	u16 ledOffTime;
+@@ -56,7 +56,6 @@ typedef struct{
+ 	u8 	times;		//blink times
+ 	u8  state;
+ 	u8	keyPressed;
+-	u8	dataSendApsCnt;
+ 
+ 	app_linkkey_info_t linkKey;
+ }app_ctx_t;
+@@ -93,6 +92,9 @@ extern bdb_appCb_t g_zbDemoBdbCb;
+ extern u8 SAMPLE_GW_CB_CLUSTER_NUM;
+ extern zcl_specClusterInfo_t g_sampleGwClusterList[];
+ extern const af_simple_descriptor_t sampleGW_simpleDesc;
++#if AF_TEST_ENABLE
++extern const af_simple_descriptor_t sampleTestDesc;
++#endif
+ 
+ /* Attributes */
+ extern zcl_basicAttr_t g_zcl_basicAttrs;
+@@ -124,6 +126,11 @@ void sampleGW_leaveIndHandler(void *arg);
+ 
+ void sampleGW_dataSendConfirm(void *arg);
+ 
++u8 sampleGW_nwkUpdateIndicateHandler(void *arg);
+ 
++#if AF_TEST_ENABLE
++void afTest_rx_handler(void *arg);
++void afTest_dataSendConfirm(void *arg);
++#endif
+ 
+ #endif /* _SAMPLE_GW_H_ */
+diff --git a/zigbee_release_version/apps/sampleGw/sampleGatewayEpCfg.c b/zigbee_release_version/apps/sampleGw/sampleGatewayEpCfg.c
+index ff3d542..38da9b5 100644
+--- a/zigbee_release_version/apps/sampleGw/sampleGatewayEpCfg.c
++++ b/zigbee_release_version/apps/sampleGw/sampleGatewayEpCfg.c
+@@ -107,6 +107,54 @@ const af_simple_descriptor_t sampleGW_simpleDesc =
+ };
+ 
+ 
++#if AF_TEST_ENABLE
++/**
++ *  @brief Definition for Incoming cluster / Sever Cluster
++ */
++const u16 sampleTest_inClusterList[] =
++{
++	ZCL_CLUSTER_TELINK_SDK_TEST_REQ,
++	ZCL_CLUSTER_TELINK_SDK_TEST_RSP,
++	ZCL_CLUSTER_TELINK_SDK_TEST_CLEAR_REQ,
++	ZCL_CLUSTER_TELINK_SDK_TEST_CLEAR_RSP,
++};
++
++
++/**
++ *  @brief Definition for Outgoing cluster / Client Cluster
++ */
++const u16 sampleTest_outClusterList[] =
++{
++	ZCL_CLUSTER_TELINK_SDK_TEST_REQ,
++	ZCL_CLUSTER_TELINK_SDK_TEST_RSP,
++	ZCL_CLUSTER_TELINK_SDK_TEST_CLEAR_REQ,
++	ZCL_CLUSTER_TELINK_SDK_TEST_CLEAR_RSP,
++};
++
++/**
++ *  @brief Definition for Server cluster number and Client cluster number
++ */
++#define SAMPLE_TEST_IN_CLUSTER_NUM		(sizeof(sampleTest_inClusterList)/sizeof(sampleTest_inClusterList[0]))
++#define SAMPLE_TEST_OUT_CLUSTER_NUM		(sizeof(sampleTest_outClusterList)/sizeof(sampleTest_outClusterList[0]))
++
++/**
++ *  @brief Definition for simple description for HA profile
++ */
++const af_simple_descriptor_t sampleTestDesc =
++{
++	HA_PROFILE_ID,                      /* Application profile identifier */
++	HA_DEV_HOME_GATEWAY,                /* Application device identifier */
++	SAMPLE_TEST_ENDPOINT,               /* Endpoint */
++	0,                                  /* Application device version */
++	0,									/* Reserved */
++	SAMPLE_TEST_IN_CLUSTER_NUM,         /* Application input cluster count */
++	SAMPLE_TEST_OUT_CLUSTER_NUM,        /* Application output cluster count */
++	(u16 *)sampleTest_inClusterList,    /* Application input cluster list */
++	(u16 *)sampleTest_outClusterList,   /* Application output cluster list */
++};
++#endif	/* AF_TEST_ENABLE */
++
++
+ /* Basic */
+ zcl_basicAttr_t g_zcl_basicAttrs =
+ {
+diff --git a/zigbee_release_version/apps/sampleGw/stack_cfg.h b/zigbee_release_version/apps/sampleGw/stack_cfg.h
+index ac6c491..c0651a0 100644
+--- a/zigbee_release_version/apps/sampleGw/stack_cfg.h
++++ b/zigbee_release_version/apps/sampleGw/stack_cfg.h
+@@ -66,11 +66,6 @@ typedef enum{
+ #define NV_ENABLE                                 1
+ 
+ 
+-#if ZB_TEST_ENABLE
+-#define	ZBHCI_USB_PRINT							  1
+-#endif
+-
+-
+ /**********************************************************************
+  * Following parameter need user to adjust according the app requirement
+  */
+diff --git a/zigbee_release_version/apps/sampleGw/zb_appCb.c b/zigbee_release_version/apps/sampleGw/zb_appCb.c
+index 1ac7194..b618e50 100644
+--- a/zigbee_release_version/apps/sampleGw/zb_appCb.c
++++ b/zigbee_release_version/apps/sampleGw/zb_appCb.c
+@@ -227,7 +227,7 @@ void sampleGW_leaveIndHandler(void* arg)
+ 	//zbhciLeaveIndMsgPush(p);
+ #if 0
+ 	static u16 leaveNodeCnt = 0;
+-	hci_nodeLeaveInd_t ind;
++	zbhci_nodeLeaveInd_t ind;
+ 	ind.totalCnt = leaveNodeCnt++;
+ 	memcpy(ind.macAddr, arg, 8);
+ 	zbhciAppNodeLeaveIndPush((void *)&ind);
+@@ -236,26 +236,11 @@ void sampleGW_leaveIndHandler(void* arg)
+ }
+ 
+ void sampleGW_dataSendConfirm(void *arg){
++#if ZBHCI_EN
+ 	apsdeDataConf_t *pApsDataCnf = (apsdeDataConf_t *)arg;
+ 
+-	app_data_confirm_t *conf = (app_data_confirm_t *)ev_buf_allocate(sizeof(app_data_confirm_t));
+-	if(conf){
+-		conf->ep = pApsDataCnf->srcEndpoint;
+-		conf->status = pApsDataCnf->status;
+-		conf->apsCnt = pApsDataCnf->apsCnt;
+-
+-		if(g_appGwCtx.dataSendApsCnt == pApsDataCnf->apsCnt){
+-			if(pApsDataCnf->status == APS_STATUS_SUCCESS){
+-				g_appGwCtx.dataAckNumForTest++;
+-			}
+-		}
+-
+-#if ZBHCI_EN
+-		zbhciAppDataSendConfirmPush((void *)conf);
++	zbhciAppDataSendConfirmPush((void *)pApsDataCnf);
+ #endif
+-
+-		ev_buf_free((u8 *)conf);
+-	}
+ }
+ 
+ #if ZBHCI_EN
+@@ -266,4 +251,9 @@ bool sampleGw_macAssocReqIndHandler(void *arg){
+ }
+ #endif
+ 
++
++u8 sampleGW_nwkUpdateIndicateHandler(void *arg){
++	return FAILURE;
++}
++
+ #endif  /* __PROJECT_TL_GW__ */
+diff --git a/zigbee_release_version/apps/sampleLight/app_cfg.h b/zigbee_release_version/apps/sampleLight/app_cfg.h
+index c15894d..66f14e8 100644
+--- a/zigbee_release_version/apps/sampleLight/app_cfg.h
++++ b/zigbee_release_version/apps/sampleLight/app_cfg.h
+@@ -42,15 +42,15 @@ extern "C" {
+ #define	UART_PRINTF_MODE		0
+ #define USB_PRINTF_MODE         0
+ 
+-/* Running chip flash size select. If '1' - 1M, otherwise (or undefined) - 512K. */
+-#define FLASH_SIZE_1M			0
++#define	ZBHCI_UART				0
++
+ 
+ /* board ID */
+ #define BOARD_826x_EVK			0
+ #define BOARD_826x_DONGLE		1
+ #define BOARD_8258_EVK			2
+ #define BOARD_8258_DONGLE		3
+-
++#define BOARD_8258_DONGLE_1M	4
+ 
+ /* board define */
+ #ifdef MCU_CORE_8258
+@@ -66,7 +66,7 @@ extern "C" {
+ 
+ #if	(BOARD == BOARD_826x_DONGLE)
+ 	#include "board_826x_dongle.h"
+-#elif(BOARD == BOARD_8258_DONGLE)
++#elif((BOARD == BOARD_8258_DONGLE) || (BOARD == BOARD_8258_DONGLE_1M))
+ 	#include "board_8258_dongle.h"
+ #elif(BOARD == BOARD_8258_EVK)
+ 	#include "board_8258_evk.h"
+@@ -104,6 +104,8 @@ extern "C" {
+ #define ZCL_ZLL_COMMISSIONING_SUPPORT				1
+ #endif
+ 
++#define AF_TEST_ENABLE								0
++
+ 
+ ///////////////////  Zigbee Profile Configuration /////////////////////////////////
+ #include "stack_cfg.h"
+diff --git a/zigbee_release_version/apps/sampleLight/board_8258_dongle.h b/zigbee_release_version/apps/sampleLight/board_8258_dongle.h
+index 3666b97..77f27f0 100644
+--- a/zigbee_release_version/apps/sampleLight/board_8258_dongle.h
++++ b/zigbee_release_version/apps/sampleLight/board_8258_dongle.h
+@@ -27,8 +27,13 @@
+ extern "C" {
+ #endif
+ 
+-#define DONGLE_8258_32		0
+-#define	DONGLE_8258_48		1
++#if (BOARD == BOARD_8258_DONGLE_1M)
++	/* Running chip flash size select. If '1' - 1M, otherwise (or undefined) - 512K. */
++	#define FLASH_SIZE_1M			1
++#endif
++
++#define DONGLE_8258_32				0
++#define	DONGLE_8258_48				1
+ 
+ #if defined DONGLE_8258_32 && (DONGLE_8258_32 == 1)
+ /*******************************************************************************************************
+@@ -253,8 +258,22 @@ extern "C" {
+ 
+ #endif
+ 
++
+ #if ZBHCI_UART
+-	#error please configurate uart PIN!!!!!!
++#define UART_TX_PIN         		GPIO_PD7
++#define PD7_FUNC                	AS_UART
++#define PD7_INPUT_ENABLE        	0
++#define PD7_OUTPUT_ENABLE       	1
++#define PD7_DATA_STRENGTH       	0
++
++#define UART_RX_PIN         		GPIO_PA0
++#define PA0_FUNC                	AS_UART
++#define PA0_INPUT_ENABLE        	1
++#define PA0_OUTPUT_ENABLE       	0
++#define PA0_DATA_STRENGTH       	0
++#define PULL_WAKEUP_SRC_PA0     	PM_PIN_PULLUP_10K
++
++#define UART_PIN_CFG				uart_gpio_set(UART_TX_PD7, UART_RX_PA0);// uart tx/rx pin set
+ #endif
+ 
+ 
+diff --git a/zigbee_release_version/apps/sampleLight/sampleLight.c b/zigbee_release_version/apps/sampleLight/sampleLight.c
+index 8fa001d..e96cee7 100644
+--- a/zigbee_release_version/apps/sampleLight/sampleLight.c
++++ b/zigbee_release_version/apps/sampleLight/sampleLight.c
+@@ -37,9 +37,7 @@
+ #if ZBHCI_EN
+ #include "zbhci.h"
+ #endif
+-#if ZB_TEST_ENABLE
+-#include "../../zigbee/testcase/test_profile.h"
+-#endif
++
+ 
+ /**********************************************************************
+  * LOCAL CONSTANTS
+@@ -68,7 +66,7 @@ ota_preamble_t sampleLight_otaInfo = {
+ };
+ #endif
+ 
+-extern void bdb_zdoStartDevCnf(zdo_start_device_confirm_t* startDevCnf);
++extern void bdb_zdoStartDevCnf(void* arg);
+ 
+ //Must declare the application call back function which used by ZDO layer
+ const zdo_appIndCb_t appCbLst = {
+@@ -77,7 +75,7 @@ const zdo_appIndCb_t appCbLst = {
+ 		NULL,//device announce indication cb
+ 		sampleLight_leaveIndHandler,//leave ind cb
+ 		sampleLight_leaveCnfHandler,//leave cnf cb
+-		NULL,//nwk update ind cb
++		sampleLight_nwkUpdateIndicateHandler,//nwk update ind cb
+ 		NULL,//permit join ind cb
+ 		NULL,//nlme sync cnf cb
+ };
+@@ -153,6 +151,10 @@ void user_app_init(void)
+ 
+ 	/* Register endPoint */
+ 	af_endpointRegister(SAMPLE_LIGHT_ENDPOINT, (af_simple_descriptor_t *)&sampleLight_simpleDesc, zcl_rx_handler, NULL);
++#if AF_TEST_ENABLE
++	/* A sample of AF data handler. */
++	af_endpointRegister(SAMPLE_TEST_ENDPOINT, (af_simple_descriptor_t *)&sampleTestDesc, afTest_rx_handler, afTest_dataSendConfirm);
++#endif
+ 
+ 	/* Initialize or restore attributes, this must before 'zcl_register()' */
+ 	zcl_sampleLightAttrsInit();
+diff --git a/zigbee_release_version/apps/sampleLight/sampleLight.h b/zigbee_release_version/apps/sampleLight/sampleLight.h
+index fdcbcbc..d0d7c24 100644
+--- a/zigbee_release_version/apps/sampleLight/sampleLight.h
++++ b/zigbee_release_version/apps/sampleLight/sampleLight.h
+@@ -29,6 +29,7 @@
+  * CONSTANT
+  */
+ #define SAMPLE_LIGHT_ENDPOINT   0x01
++#define SAMPLE_TEST_ENDPOINT	0x02
+ 
+ /**********************************************************************
+  * TYPEDEFS
+@@ -188,6 +189,9 @@ extern bdb_appCb_t g_zbDemoBdbCb;
+ extern u8 SAMPLELIGHT_CB_CLUSTER_NUM;
+ extern zcl_specClusterInfo_t g_sampleLightClusterList[];
+ extern const af_simple_descriptor_t sampleLight_simpleDesc;
++#if AF_TEST_ENABLE
++extern const af_simple_descriptor_t sampleTestDesc;
++#endif
+ 
+ /* Attributes */
+ extern zcl_basicAttr_t g_zcl_basicAttrs;
+@@ -218,6 +222,7 @@ status_t sampleLight_colorCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, voi
+ void sampleLight_leaveCnfHandler(void *p);
+ void sampleLight_leaveIndHandler(void *p);
+ void sampleLight_otaProcessMsgHandler(u8 evt, u8 status);
++u8 sampleLight_nwkUpdateIndicateHandler(void *arg);
+ 
+ void sampleLight_onoff(u8 cmd);
+ 
+@@ -226,4 +231,9 @@ nv_sts_t zcl_onOffAttr_save(void);
+ nv_sts_t zcl_levelAttr_save(void);
+ nv_sts_t zcl_colorCtrlAttr_save(void);
+ 
++#if AF_TEST_ENABLE
++void afTest_rx_handler(void *arg);
++void afTest_dataSendConfirm(void *arg);
++#endif
++
+ #endif /* _SAMPLE_LIGHT_H_ */
+diff --git a/zigbee_release_version/apps/sampleLight/sampleLightEpCfg.c b/zigbee_release_version/apps/sampleLight/sampleLightEpCfg.c
+index ea21cb1..d970f65 100644
+--- a/zigbee_release_version/apps/sampleLight/sampleLightEpCfg.c
++++ b/zigbee_release_version/apps/sampleLight/sampleLightEpCfg.c
+@@ -116,6 +116,53 @@ const af_simple_descriptor_t sampleLight_simpleDesc =
+ };
+ 
+ 
++#if AF_TEST_ENABLE
++/**
++ *  @brief Definition for Incoming cluster / Sever Cluster
++ */
++const u16 sampleTest_inClusterList[] =
++{
++	ZCL_CLUSTER_TELINK_SDK_TEST_REQ,
++	ZCL_CLUSTER_TELINK_SDK_TEST_RSP,
++	ZCL_CLUSTER_TELINK_SDK_TEST_CLEAR_REQ,
++	ZCL_CLUSTER_TELINK_SDK_TEST_CLEAR_RSP,
++};
++
++
++/**
++ *  @brief Definition for Outgoing cluster / Client Cluster
++ */
++const u16 sampleTest_outClusterList[] =
++{
++	ZCL_CLUSTER_TELINK_SDK_TEST_REQ,
++	ZCL_CLUSTER_TELINK_SDK_TEST_RSP,
++	ZCL_CLUSTER_TELINK_SDK_TEST_CLEAR_REQ,
++	ZCL_CLUSTER_TELINK_SDK_TEST_CLEAR_RSP,
++};
++
++/**
++ *  @brief Definition for Server cluster number and Client cluster number
++ */
++#define SAMPLE_TEST_IN_CLUSTER_NUM		(sizeof(sampleTest_inClusterList)/sizeof(sampleTest_inClusterList[0]))
++#define SAMPLE_TEST_OUT_CLUSTER_NUM		(sizeof(sampleTest_outClusterList)/sizeof(sampleTest_outClusterList[0]))
++
++/**
++ *  @brief Definition for simple description for HA profile
++ */
++const af_simple_descriptor_t sampleTestDesc =
++{
++	HA_PROFILE_ID,                      /* Application profile identifier */
++	HA_DEV_DIMMABLE_LIGHT,              /* Application device identifier */
++	SAMPLE_TEST_ENDPOINT,               /* Endpoint */
++	0,                                  /* Application device version */
++	0,									/* Reserved */
++	SAMPLE_TEST_IN_CLUSTER_NUM,         /* Application input cluster count */
++	SAMPLE_TEST_OUT_CLUSTER_NUM,        /* Application output cluster count */
++	(u16 *)sampleTest_inClusterList,    /* Application input cluster list */
++	(u16 *)sampleTest_outClusterList,   /* Application output cluster list */
++};
++#endif	/* AF_TEST_ENABLE */
++
+ 
+ /* Basic */
+ zcl_basicAttr_t g_zcl_basicAttrs =
+diff --git a/zigbee_release_version/apps/sampleLight/stack_cfg.h b/zigbee_release_version/apps/sampleLight/stack_cfg.h
+index 6900dd4..ec19b28 100644
+--- a/zigbee_release_version/apps/sampleLight/stack_cfg.h
++++ b/zigbee_release_version/apps/sampleLight/stack_cfg.h
+@@ -65,11 +65,6 @@ typedef enum{
+ #define NV_ENABLE                                 1
+ 
+ 
+-#if ZB_TEST_ENABLE
+-#define	ZBHCI_USB_PRINT							  1
+-#endif
+-
+-
+ /**********************************************************************
+  * Following parameter need user to adjust according the app requirement
+  */
+diff --git a/zigbee_release_version/apps/sampleLight/zb_appCb.c b/zigbee_release_version/apps/sampleLight/zb_appCb.c
+index caa8ebb..843c59e 100644
+--- a/zigbee_release_version/apps/sampleLight/zb_appCb.c
++++ b/zigbee_release_version/apps/sampleLight/zb_appCb.c
+@@ -261,5 +261,8 @@ void sampleLight_leaveIndHandler(void *p)
+ 
+ }
+ 
++u8 sampleLight_nwkUpdateIndicateHandler(void *arg){
++	return FAILURE;
++}
+ 
+ #endif  /* __PROJECT_TL_DIMMABLE_LIGHT__ */
+diff --git a/zigbee_release_version/apps/sampleSwitch/sampleSwitch.c b/zigbee_release_version/apps/sampleSwitch/sampleSwitch.c
+index 6384f9a..01ab026 100644
+--- a/zigbee_release_version/apps/sampleSwitch/sampleSwitch.c
++++ b/zigbee_release_version/apps/sampleSwitch/sampleSwitch.c
+@@ -38,9 +38,7 @@
+ #if ZBHCI_EN
+ #include "zbhci.h"
+ #endif
+-#if ZB_TEST_ENABLE
+-#include "../../zigbee/testcase/test_profile.h"
+-#endif
++
+ 
+ /**********************************************************************
+  * LOCAL CONSTANTS
+@@ -69,7 +67,7 @@ ota_preamble_t sampleSwitch_otaInfo = {
+ };
+ #endif
+ 
+-extern void bdb_zdoStartDevCnf(zdo_start_device_confirm_t* startDevCnf);
++extern void bdb_zdoStartDevCnf(void* arg);
+ 
+ //Must declare the application call back function which used by ZDO layer
+ const zdo_appIndCb_t appCbLst = {
+@@ -189,10 +187,6 @@ void user_app_init(void)
+ 	/* Register ZCL specific cluster information */
+ 	zcl_register(SAMPLE_SWITCH_ENDPOINT, SAMPLE_SWITCH_CB_CLUSTER_NUM, g_sampleSwitchClusterList);
+ 
+-#if ZB_TEST_ENABLE
+-	testProfileInit();
+-#endif
+-
+ #ifdef ZCL_OTA
+     ota_init(OTA_TYPE_CLIENT, (af_simple_descriptor_t *)&sampleSwitch_simpleDesc, &sampleSwitch_otaInfo, &sampleSwitch_otaCb);
+ #endif
+diff --git a/zigbee_release_version/apps/sampleSwitch/stack_cfg.h b/zigbee_release_version/apps/sampleSwitch/stack_cfg.h
+index 6a7487a..2aec6cd 100644
+--- a/zigbee_release_version/apps/sampleSwitch/stack_cfg.h
++++ b/zigbee_release_version/apps/sampleSwitch/stack_cfg.h
+@@ -65,17 +65,6 @@ typedef enum{
+  */
+ #define NV_ENABLE                                 1
+ 
+-#if ZB_TEST_ENABLE
+-	#ifdef MCU_CORE_HAWK
+-		#define	ZBHCI_USB_PRINT							  0
+-	#else
+-		#define	ZBHCI_USB_PRINT							  1
+-	#endif
+-
+-#endif
+-
+-
+-
+ 
+ /**********************************************************************
+  * Following parameter need user to adjust according the app requirement
+@@ -139,9 +128,17 @@ typedef enum{
+ 	#define GP_SUPPORT_ENABLE					  1
+ #endif
+ 
++/***********************************************************************
++ * If PM_ENABLE is set, the macro ZB_MAC_RX_ON_WHEN_IDLE must be ZERO.
++ */
+ #if ZB_ED_ROLE
+-/*NOTE: If set MAC_CAP_RX_ON_WHEN_IDLE, PM_ENABLE must be CLEAR (apps/sampleSwitch_xx/app_cfg.h). */
+-#define ZB_MAC_RX_ON_WHEN_IDEL					  0
++	#if PM_ENABLE
++		#define ZB_MAC_RX_ON_WHEN_IDLE			  0
++	#endif
++
++	#ifndef ZB_MAC_RX_ON_WHEN_IDLE
++		#define ZB_MAC_RX_ON_WHEN_IDLE			  0
++	#endif
+ #endif
+ 
+ #if (SECURITY_ENABLE)
+diff --git a/zigbee_release_version/apps/sampleSwitch_8258/sampleSwitch.c b/zigbee_release_version/apps/sampleSwitch_8258/sampleSwitch.c
+index 9e6d4c6..68ef59c 100644
+--- a/zigbee_release_version/apps/sampleSwitch_8258/sampleSwitch.c
++++ b/zigbee_release_version/apps/sampleSwitch_8258/sampleSwitch.c
+@@ -38,9 +38,7 @@
+ #if ZBHCI_EN
+ #include "zbhci.h"
+ #endif
+-#if ZB_TEST_ENABLE
+-#include "../../zigbee/testcase/test_profile.h"
+-#endif
++
+ 
+ /**********************************************************************
+  * LOCAL CONSTANTS
+@@ -69,7 +67,7 @@ ota_preamble_t sampleSwitch_otaInfo = {
+ };
+ #endif
+ 
+-extern void bdb_zdoStartDevCnf(zdo_start_device_confirm_t* startDevCnf);
++extern void bdb_zdoStartDevCnf(void* arg);
+ 
+ //Must declare the application call back function which used by ZDO layer
+ const zdo_appIndCb_t appCbLst = {
+@@ -189,10 +187,6 @@ void user_app_init(void)
+ 	/* Register ZCL specific cluster information */
+ 	zcl_register(SAMPLE_SWITCH_ENDPOINT, SAMPLE_SWITCH_CB_CLUSTER_NUM, g_sampleSwitchClusterList);
+ 
+-#if ZB_TEST_ENABLE
+-	testProfileInit();
+-#endif
+-
+ #ifdef ZCL_OTA
+     ota_init(OTA_TYPE_CLIENT, (af_simple_descriptor_t *)&sampleSwitch_simpleDesc, &sampleSwitch_otaInfo, &sampleSwitch_otaCb);
+ #endif
+@@ -211,14 +205,38 @@ void app_task(void)
+ 
+ 	if(bdb_isIdle()){
+ #if PM_ENABLE
++#if INTERLEAVE_SLEEP_MODE
++		if(!tl_stackBusy() && zb_isTaskDone()){
++			if(zb_getPollRate()){
++				zb_setPollRate(0);
++			}
++
++			if(!zb_getPollRate()){
++				keepaliveMsgSendStop();
++			}
++		}
++#endif
++
+ 		/* if PAD wake up, wait until de-bounce finished*/
+ 		if(g_switchAppCtx.restartLoopTimes++ >= KEY_PRESSED_CHECK_TIMES && !g_switchAppCtx.keyPressed){
++#if INTERLEAVE_SLEEP_MODE
++			u32 sleepMs = 2 * 60 * 1000;
++			pm_interleaveSleepEnter(PLATFORM_WAKEUP_TIMER | PLATFORM_WAKEUP_PAD, sleepMs);
++#else
+ 			pm_deepSleepEnter(PLATFORM_WAKEUP_TIMER | PLATFORM_WAKEUP_PAD, zb_getPollRate());
++#endif
+ 		}
+ #endif
+ 	}
+ }
+ 
++static void sampleSwitchSysException(void)
++{
++	SYSTEM_RESET();
++	//light_on();
++	//while(1);
++}
++
+ /*********************************************************************
+  * @fn      user_init
+  *
+@@ -251,7 +269,7 @@ void user_init(void)
+ 		g_switchAppCtx.restartLoopTimes = KEY_PRESSED_CHECK_TIMES;
+ 	}
+ 
+-	if(!pmParam.is_deepRetn_back){
++	if(pmParam.back_mode == BACK_FROM_REPOWER || pmParam.back_mode == BACK_FROM_DEEP){
+ 		/* Initialize Stack */
+ 		stack_init();
+ 
+@@ -270,10 +288,21 @@ void user_init(void)
+ 		bdb_findBindMatchClusterSet(FIND_AND_BIND_CLUSTER_NUM, bdb_findBindClusterList);
+ 
+ 		/* Initialize BDB */
+-		bdb_init((af_simple_descriptor_t *)&sampleSwitch_simpleDesc, &g_bdbCommissionSetting, &g_zbDemoBdbCb, 1);
++		u8 repower = deep_sleep_flag_get() ? 0 : 1;
++
++		bdb_init((af_simple_descriptor_t *)&sampleSwitch_simpleDesc, &g_bdbCommissionSetting, &g_zbDemoBdbCb, repower);
+ 	}else{
+ 		mac_phyReconfig();
+ 	}
++
++	/* Register except handler for test */
++	sys_exceptHandlerRegister(sampleSwitchSysException);
++
++#if INTERLEAVE_SLEEP_MODE
++	if(!zb_getPollRate() && zb_isDeviceJoinedNwk()){
++		zb_endDeviceSyncReq();
++	}
++#endif
+ }
+ 
+ #endif  /* __PROJECT_TL_SWITCH_8258__ */
+diff --git a/zigbee_release_version/apps/sampleSwitch_8258/stack_cfg.h b/zigbee_release_version/apps/sampleSwitch_8258/stack_cfg.h
+index 6a7487a..2aec6cd 100644
+--- a/zigbee_release_version/apps/sampleSwitch_8258/stack_cfg.h
++++ b/zigbee_release_version/apps/sampleSwitch_8258/stack_cfg.h
+@@ -65,17 +65,6 @@ typedef enum{
+  */
+ #define NV_ENABLE                                 1
+ 
+-#if ZB_TEST_ENABLE
+-	#ifdef MCU_CORE_HAWK
+-		#define	ZBHCI_USB_PRINT							  0
+-	#else
+-		#define	ZBHCI_USB_PRINT							  1
+-	#endif
+-
+-#endif
+-
+-
+-
+ 
+ /**********************************************************************
+  * Following parameter need user to adjust according the app requirement
+@@ -139,9 +128,17 @@ typedef enum{
+ 	#define GP_SUPPORT_ENABLE					  1
+ #endif
+ 
++/***********************************************************************
++ * If PM_ENABLE is set, the macro ZB_MAC_RX_ON_WHEN_IDLE must be ZERO.
++ */
+ #if ZB_ED_ROLE
+-/*NOTE: If set MAC_CAP_RX_ON_WHEN_IDLE, PM_ENABLE must be CLEAR (apps/sampleSwitch_xx/app_cfg.h). */
+-#define ZB_MAC_RX_ON_WHEN_IDEL					  0
++	#if PM_ENABLE
++		#define ZB_MAC_RX_ON_WHEN_IDLE			  0
++	#endif
++
++	#ifndef ZB_MAC_RX_ON_WHEN_IDLE
++		#define ZB_MAC_RX_ON_WHEN_IDLE			  0
++	#endif
+ #endif
+ 
+ #if (SECURITY_ENABLE)
+diff --git a/zigbee_release_version/apps/sampleSwitch_8258/zb_appCb.c b/zigbee_release_version/apps/sampleSwitch_8258/zb_appCb.c
+index 180f109..78f8f59 100644
+--- a/zigbee_release_version/apps/sampleSwitch_8258/zb_appCb.c
++++ b/zigbee_release_version/apps/sampleSwitch_8258/zb_appCb.c
+@@ -71,7 +71,7 @@ ota_callBack_t sampleSwitch_otaCb =
+ #endif
+ 
+ 
+-volatile u8 T_zbdemoBdbInfo[6] = {0};
++volatile u8 T_zbdemoBdbInfo[8] = {0};
+ 
+ 
+ 
+@@ -162,8 +162,9 @@ void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
+ u8 sleepCnt = 0;
+ void zbdemo_bdbCommissioningCb(u8 status, void *arg){
+ 	T_zbdemoBdbInfo[3]++;
++	T_zbdemoBdbInfo[4] = status;
+ 	if(status == BDB_COMMISSION_STA_SUCCESS){
+-		T_zbdemoBdbInfo[4]++;
++		T_zbdemoBdbInfo[5]++;
+ 
+ 		zb_setPollRate(POLL_RATE * 3);
+ 
+@@ -188,10 +189,11 @@ void zbdemo_bdbCommissioningCb(u8 status, void *arg){
+ 	}else if(status == BDB_COMMISSION_STA_NOT_AA_CAPABLE){
+ 
+ 	}else if(status == BDB_COMMISSION_STA_NO_NETWORK){
+-		if(sleepCnt++ >= 5){
++		/*if(sleepCnt++ >= 5){
+ 			sleepCnt = 0;
+ 			zb_setPollRate(0);
+-		}else{
++		}else*/
++		{
+ 			u16 jitter = zb_random();
+ 			jitter &= 0xfff;
+ 			TL_ZB_TIMER_SCHEDULE(sampleSwitch_bdbNetworkSteerStart, NULL, jitter * 1000);
+@@ -211,7 +213,7 @@ void zbdemo_bdbCommissioningCb(u8 status, void *arg){
+ 	}else if(status == BDB_COMMISSION_STA_TCLK_EX_FAILURE){
+ 
+ 	}else if(status == BDB_COMMISSION_STA_PARENT_LOST){
+-		zb_setPollRate(0);
++		T_zbdemoBdbInfo[7]++;
+ 	}
+ }
+ 
+diff --git a/zigbee_release_version/platform/chip_8258/adc.c b/zigbee_release_version/platform/chip_8258/adc.c
+index f85082b..5ff0f69 100644
+--- a/zigbee_release_version/platform/chip_8258/adc.c
++++ b/zigbee_release_version/platform/chip_8258/adc.c
+@@ -464,7 +464,7 @@ _attribute_ram_code_ unsigned int adc_sample_and_get_result(void)
+ 	while(!clock_time_exceed(t0, 25));  //wait at least 2 sample cycle(f = 96K, T = 10.4us)
+ 
+ 	//dfifo setting will lose in suspend/deep, so we need config it every time
+-	adc_config_misc_channel_buf((signed short *)adc_dat_buf, ADC_SAMPLE_NUM<<2);  //size: ADC_SAMPLE_NUM*4
++	adc_config_misc_channel_buf((unsigned short *)adc_dat_buf, ADC_SAMPLE_NUM<<2);  //size: ADC_SAMPLE_NUM*4
+ 	dfifo_enable_dfifo2();
+ 
+ 
+diff --git a/zigbee_release_version/platform/chip_8258/bsp.h b/zigbee_release_version/platform/chip_8258/bsp.h
+index 16f69b5..3f2efeb 100644
+--- a/zigbee_release_version/platform/chip_8258/bsp.h
++++ b/zigbee_release_version/platform/chip_8258/bsp.h
+@@ -150,11 +150,4 @@ void sub_wr(unsigned int addr, unsigned char value, unsigned char e, unsigned ch
+ void mcu_reset(void);
+ #define SYSTEM_RESET	mcu_reset
+ 
+-void deep_sleep_flag_set(unsigned int a);
+-unsigned char deep_sleep_flag_get(void);
+-unsigned int deep_sleep_framecount_get(void);
+-void deep_sleep_except_set(void);
+-void deep_sleep_except_clr(void);
+-unsigned char deep_sleep_except_get(void);
+-
+ #endif /* BSP_H_ */
+diff --git a/zigbee_release_version/platform/chip_8258/cstartup_8258_ed.S b/zigbee_release_version/platform/chip_8258/cstartup_8258_ed.S
+index 32eb62c..952c8c4 100644
+--- a/zigbee_release_version/platform/chip_8258/cstartup_8258_ed.S
++++ b/zigbee_release_version/platform/chip_8258/cstartup_8258_ed.S
+@@ -353,6 +353,17 @@ MULTI_ADDRESS_BEGIN:
+ MULTI_ADDRESS_END:
+ #endif
+ 
++ZERO_CUSTOM:
++	tmov    r0, #0
++	tloadr	r1, DAT0 + 40					@r1 = _start_custom_
++	tloadr	r2, DAT0 + 44					@r2 = _end_custom_
++ZERO_CUSTOM_BEGIN:
++	tcmp	r1, r2
++	tjge	ZERO_CUSTOM_END					@r1>=r2 jump to ZERO_BSS_END
++	tstorer	r0, [r1, #0]					@*(unsigned int*)(_start_bss_)=r0=0
++	tadd    r1, #4							@r1 = r1 + 4
++	tj		ZERO_CUSTOM_BEGIN				@jump to ZERO_BSS_BEGIN
++ZERO_CUSTOM_END:
+ 
+ ENTER_MAIN:
+ 	tjl	main
+@@ -363,7 +374,7 @@ DAT0:
+ 	.word	0x12			    		@0		IRQ
+ 	.word	0x13			    		@4		SVC
+ 	.word	(irq_stk + IRQ_STK_SIZE)	@8
+-	.word	(_stack_end_)		    		@12  	stack end
++	.word	(_stack_end_)		    	@12  	stack end
+ 	.word	(_start_bss_)               @16
+ 	.word	(_end_bss_)                 @20
+ 	.word	(0x80060c)                  @24
+@@ -373,6 +384,8 @@ DAT0:
+ 	.word	(0x00ff00)    				@36
+ #endif
+ 	.word	_ramcode_size_align_256_    @36
++	.word	_start_custom_              @40
++	.word	_end_custom_	            @44
+ 
+ DATA_I:	
+ 	.word   (_rstored_)                 @0
+diff --git a/zigbee_release_version/platform/chip_8258/emi.h b/zigbee_release_version/platform/chip_8258/emi.h
+index 757abf9..f90d4bc 100644
+--- a/zigbee_release_version/platform/chip_8258/emi.h
++++ b/zigbee_release_version/platform/chip_8258/emi.h
+@@ -25,25 +25,99 @@
+ 
+ #include "driver_8258.h"
+ 
+-//singletone mode
++/**
++ * @brief   This function serves to set singletone power and channel.
++ * @param   power_level - index of the power level.
++ * @param   rf_chn - the rf channel from 5 to 80 and step is 5.
++ * @return  none.
++ */
+ void rf_emi_single_tone(RF_PowerTypeDef power_level,signed char rf_chn);
+ 
+-//rx function
++/**
++ * @brief   This function serves to close RF
++ * @param   none.
++ * @return  none.
++ */
++void rf_emi_stop(void);
++
++/**
++ * @brief   This function serves to set rx mode and channel.
++ * @param   mode - mode of RF
++ * @param   rf_chn - the rx channel.
++ * @return  none.
++ */
+ void rf_emi_rx(RF_ModeTypeDef mode,signed char rf_chn);
++
++/**
++ * @brief   This function serves is receiving service program
++ * @param   none.
++ * @return  none.
++ */
+ void rf_emi_rx_loop(void);
++
++/**
++ * @brief   This function serves to get the number of packets received
++ * @param   none.
++ * @return  the number of packets received.
++ */
+ unsigned int rf_emi_get_rxpkt_cnt(void);
++
++/**
++ * @brief   This function serves to get the RSSI of packets received
++ * @param   none.
++ * @return  the RSSI of packets received.
++ */
+ char rf_emi_get_rssi_avg(void);
++
++/**
++ * @brief   This function serves to get the address of the received packets
++ * @param   none.
++ * @return  the address of the received packets
++ */
+ unsigned char *rf_emi_get_rxpkt(void);
+ 
+-//tx cd mode
++/**
++ * @brief   This function serves to continue to send CD mode.
++ * @param   none.
++ * @return  none.
++ */
++void rf_continue_mode_run(void);
++
++/**
++ * @brief   This function serves to init the CD mode.
++ * @param   rf_mode - mode of RF.
++ * @param   power_level - power level of RF.
++ * @param   rf_chn - channel of RF.
++ * @param 	pkt_type - The type of data sent
++ * 					   0:random data
++ * 					   1:0xf0
++ * 					   2:0x55
++ * @return  none.
++ */
+ void rf_emi_tx_continue_setup(RF_ModeTypeDef rf_mode,RF_PowerTypeDef power_level,signed char rf_chn,unsigned char pkt_type);
+-void rf_continue_mode_loop(void);
+ 
+-//tx brust mode
++/**
++ * @brief   This function serves to init the burst mode.
++ * @param   rf_mode - mode of RF.
++ * @param   power_level - power level of RF.
++ * @param   rf_chn - channel of RF.
++ * @param 	pkt_type - The type of data sent
++ * 					   0:random data
++ * 					   1:0xf0
++ * 					   2:0x55
++ * @return  none.
++ */
+ void rf_emi_tx_brust_setup(RF_ModeTypeDef rf_mode,RF_PowerTypeDef power_level,signed char rf_chn,unsigned char pkt_type);
+-void rf_emi_tx_brust_loop(RF_ModeTypeDef rf_mode,unsigned char pkt_type);
+ 
+-//stop tx rx
+-void rf_emi_stop(void);
++/**
++ * @brief   This function serves to send packets in the burst mode
++ * @param   rf_mode - mode of RF.
++ * @param 	pkt_type - The type of data sent
++ * 					   0:random data
++ * 					   1:0xf0
++ * 					   2:0x55
++ * @return  none.
++ */
++void rf_emi_tx_brust_loop(RF_ModeTypeDef rf_mode,unsigned char pkt_type);
+ 
+ #endif /* EMI_H_ */
+diff --git a/zigbee_release_version/platform/chip_8258/pm.c b/zigbee_release_version/platform/chip_8258/pm.c
+index 1756437..ec85fcf 100644
+--- a/zigbee_release_version/platform/chip_8258/pm.c
++++ b/zigbee_release_version/platform/chip_8258/pm.c
+@@ -9,6 +9,8 @@
+ #include "rf_drv.h"
+ #include "pm.h"
+ 
++extern void start_suspend(void);
++
+ #define 	BLT_RESET_WAKEUP_TIME_1000		1
+ #define 	BLT_RESET_WAKEUP_TIME_1500		0
+ #define 	BLT_RESET_WAKEUP_TIME_2000		0
+@@ -339,20 +341,29 @@ _attribute_ram_code_ void cpu_wakeup_init(void)    //must on ramcode
+ 	write_reg16(0x750, 8000);    			//set 32KTimer cal Result reg a value
+ //	write_reg8(0x74f, 0x01);    			//enable system timer and 32KTimer's cal
+ 
+-
+-	if( !(analog_read(0x7f) & 0x01) ){
+-		pmParam.is_deepRetn_back = 1;
++	if(analog_read(REG_DEEP_BACK_FLAG) == DATA_STORE_FLAG){
++		if(!(analog_read(0x7f) & 0x01)){
++			pmParam.back_mode = BACK_FROM_DEEP_RETENTION;
++		}else{
++			pmParam.back_mode = BACK_FROM_DEEP;
++		}
++	}else{
++		pmParam.back_mode = BACK_FROM_REPOWER;
+ 	}
+ 
+-
+-	if( pmParam.is_deepRetn_back){
+-
++	/* If back from deep or deep retention mode, check wakeup source. */
++	if(pmParam.back_mode){
+ 		pmParam.wakeup_src = analog_read(0x44);
+-		if ( (analog_read(0x44) & WAKEUP_STATUS_TIMER_PAD ) == WAKEUP_STATUS_PAD)  //pad, no timer
++
++		if((pmParam.wakeup_src & WAKEUP_STATUS_TIMER_PAD ) == WAKEUP_STATUS_PAD)  //pad, no timer
+ 		{
+ 			pmParam.is_pad_wakeup = 1;
++		}else{
++			pmParam.is_pad_wakeup = 0;
+ 		}
++	}
+ 
++	if(pmParam.back_mode == BACK_FROM_DEEP_RETENTION){
+ 		unsigned int deepRet_32k_tick = cpu_get_32k_tick();
+ 		unsigned int span = (unsigned int)(deepRet_32k_tick - tick_32k_cur) / 16 * tick_32k_calib;
+ 
+@@ -360,8 +371,7 @@ _attribute_ram_code_ void cpu_wakeup_init(void)    //must on ramcode
+ 		REG_ADDR8(0x74c) = 0x00;
+ 		REG_ADDR8(0x74c) = 0x92;
+ 		REG_ADDR8(0x74f) = BIT(0);    //enable system tick
+-	}
+-	else{
++	}else{
+ 		REG_ADDR8(0x74f) = BIT(0);    //enable system tick
+ 
+ 		rc_32k_cal();  //6.69 ms/6.7 ms
+@@ -498,6 +508,8 @@ int cpu_sleep_wakeup (SleepMode_TypeDef sleep_mode, SleepWakeupSrc_TypeDef wakeu
+ 	else if(sleep_mode){  //deepsleep no retention
+ 		bit567_ana2c = 0xc0;  //ana_2c<7:5>: 110
+ 		bit012_ana07 = 0x05;  //ana_07<2:0>: 101
++		analog_write(0x02, 0xa4); //set default
++		analog_write(0x7e, 0); //set default
+ 	}
+ 	else{  //suspend
+ 		bit567_ana2c = 0x80;  //ana_2c<7:5>: 100    //BIT<5>: iso_ana,  set 0 now
+@@ -518,6 +530,12 @@ int cpu_sleep_wakeup (SleepMode_TypeDef sleep_mode, SleepWakeupSrc_TypeDef wakeu
+ 		analog_write(0x7f, 0x01);
+ 	}
+ 
++	/* Before enter deep mode, store a flag in power on reset analog register. */
++	if(sleep_mode){
++		analog_write(REG_DEEP_BACK_FLAG, DATA_STORE_FLAG);
++	}else{
++		analog_write(REG_DEEP_BACK_FLAG, 0);
++	}
+ 
+ 	//set xtal delay duration
+ 	span = (PM_XTAL_DELAY_DURATION * (sys_tick_per_us>>1) * 16 + tick_32k_halfCalib)/ tick_32k_calib;
+@@ -591,7 +609,7 @@ int cpu_sleep_wakeup (SleepMode_TypeDef sleep_mode, SleepWakeupSrc_TypeDef wakeu
+ 	return anareg44;
+ }
+ 
+-#if 0
++#if 1
+ 
+ //definitions for U64 operations
+ typedef struct {            /*The result of the multiplication with 64 bits.*/
+@@ -1075,22 +1093,17 @@ int pm_long_sleep_wakeup (SleepMode_TypeDef sleep_mode, SleepWakeupSrc_TypeDef w
+ 	unsigned short  tick_32k_halfCalib = tl_tick_32k_calib>>1;
+ #endif
+ 
+-	unsigned int span = SleepDurationUs * sys_tick_per_us ;
+-
++	unsigned int span = SleepDurationUs;
+ 
+ 	if(timer_wakeup_enable){
+-		if (span > 0xE0000000)  //BIT(31)+BIT(30)+BIT(19)   7/8 cylce of 32bit
+-		{
+-			return  analog_read (0x44) & 0x0f;
+-		}
+-		else if (span < EMPTYRUN_TIME_US * sys_tick_per_us) // 0 us base
++		if (span < EMPTYRUN_TIME_US) // 0 us base
+ 		{
+ 			analog_write (0x44, 0x0f);			//clear all status
+ 
+ 			unsigned char st;
+ 			do {
+ 				st = analog_read (0x44) & 0x0f;
+-			} while ( ((unsigned int)clock_time() - t0 < span) && !st);
++			} while ( ((unsigned int)clock_time() - t0 < (span * sys_tick_per_us)) && !st);
+ 			return st;
+ 		}
+ 	}
+@@ -1172,6 +1185,8 @@ int pm_long_sleep_wakeup (SleepMode_TypeDef sleep_mode, SleepWakeupSrc_TypeDef w
+ 	else if(sleep_mode){  //deepsleep no retention
+ 		bit567_ana2c = 0xc0;  //ana_2c<7:5>: 110
+ 		bit012_ana07 = 0x05;  //ana_07<2:0>: 101
++		analog_write(0x02, 0xa4); //set default
++		analog_write(0x7e, 0); //set default
+ 	}
+ 	else{  //suspend
+ 		bit567_ana2c = 0x80;  //ana_2c<7:5>: 100    //BIT<5>: iso_ana,  set 0 now
+@@ -1197,6 +1212,13 @@ int pm_long_sleep_wakeup (SleepMode_TypeDef sleep_mode, SleepWakeupSrc_TypeDef w
+ 		analog_write(0x7f, 0x01);
+ 	}
+ 
++	/* Before enter deep mode, store a flag in power on reset analog register. */
++	if(sleep_mode){
++		analog_write(REG_DEEP_BACK_FLAG, DATA_STORE_FLAG);
++	}else{
++		analog_write(REG_DEEP_BACK_FLAG, 0);
++	}
++
+ #if(!CLK_32K_XTAL_EN)
+ 	//set xtal delay duration
+ 	span = (PM_XTAL_DELAY_DURATION * (sys_tick_per_us>>1) * 16 + tick_32k_halfCalib)/ tl_tick_32k_calib;
+@@ -1298,7 +1320,7 @@ int pm_long_sleep_wakeup (SleepMode_TypeDef sleep_mode, SleepWakeupSrc_TypeDef w
+ 	}
+ 	else if ( (anareg44 & WAKEUP_STATUS_TIMER) && timer_wakeup_enable )	//wakeup from timer only
+ 	{
+-		while ((unsigned int)(get_sys_tick () -  wakeup_tick) > BIT(30));
++		while ((unsigned int)(clock_time () -  wakeup_tick) > BIT(30));
+ 	}
+ 
+ 	irq_restore(r);
+diff --git a/zigbee_release_version/platform/chip_8258/pm.h b/zigbee_release_version/platform/chip_8258/pm.h
+index 2a37824..50bef21 100644
+--- a/zigbee_release_version/platform/chip_8258/pm.h
++++ b/zigbee_release_version/platform/chip_8258/pm.h
+@@ -43,27 +43,28 @@ static inline void usb_dp_pullup_en (int en)
+ 
+ 
+ 
+-//analog register below can store infomation when MCU in deepsleep mode
++//analog register below can store information when MCU in deepsleep mode
+ //store your information in these ana_regs before deepsleep by calling analog_write function
+ //when MCU wakeup from deepsleep, read the information by by calling analog_read function
+ 
+ //these five below are stable
+-#define DEEP_ANA_REG0    0x3a
+-#define DEEP_ANA_REG1    0x3b
+-#define DEEP_ANA_REG2    0x3c
+-#define DEEP_ANA_REG3    0x3d
+-#define DEEP_ANA_REG4  	 0x3e
++/* buffer clean at power on */
++#define DEEP_ANA_REG0    0x3a//initial value =0x00
++#define DEEP_ANA_REG1    0x3b//initial value =0x00
++#define DEEP_ANA_REG2    0x3c//initial value =0x00
++
+ 
+ 
+ //these analog register below may have some problem when user enter deepsleep but ERR wakeup
+-// for example, when set a GPIO PAD high wakeup deepsleep, but this gpio is high before
+-// you call func cpu_sleep_wakeup, then deepsleep will be ERR wakeup, these analog register
+-//   infomation loss.
+-#define DEEP_ANA_REG6    0x35
+-#define DEEP_ANA_REG7    0x36
+-#define DEEP_ANA_REG8    0x37
+-#define DEEP_ANA_REG9    0x38
+-#define DEEP_ANA_REG10   0x39
++//for example, when set a GPIO PAD high wakeup deepsleep, but this gpio is high before
++//you call func cpu_sleep_wakeup, then deepsleep will be ERR wakeup, these analog register
++//information loss.
++/* buffer clean at watch dog */
++#define DEEP_ANA_REG6    0x35//initial value =0x20
++#define DEEP_ANA_REG7    0x36//initial value =0x00
++#define DEEP_ANA_REG8    0x37//initial value =0x00
++#define DEEP_ANA_REG9    0x38//initial value =0x00
++#define DEEP_ANA_REG10   0x39//initial value =0xff
+ 
+ 
+ #define ADV_DEEP_FLG	 0x01
+@@ -123,10 +124,21 @@ enum {
+ #define 	WAKEUP_STATUS_TIMER_CORE	( WAKEUP_STATUS_TIMER | WAKEUP_STATUS_CORE)
+ #define 	WAKEUP_STATUS_TIMER_PAD		( WAKEUP_STATUS_TIMER | WAKEUP_STATUS_PAD)
+ 
++/* used to restore data during deep sleep mode or reset by software */
++#define DATA_STORE_FLAG				0x55
++
++#define	REG_DEEP_BACK_FLAG			DEEP_ANA_REG0//0x3A, power on reset clean
++#define	REG_DEEP_FLAG				DEEP_ANA_REG6//0x35, watch dog reset clean
++#define	REG_FRAMECOUNT				DEEP_ANA_REG7//0x36, watch dog reset clean, 4Bytes from 0x36 to 0x39
+ 
++enum{
++	BACK_FROM_REPOWER,
++	BACK_FROM_DEEP,
++	BACK_FROM_DEEP_RETENTION,
++};
+ 
+ typedef struct{
+-	unsigned char is_deepRetn_back;
++	unsigned char back_mode;
+ 	unsigned char is_pad_wakeup;
+ 	unsigned char wakeup_src;
+ }pm_para_t;
+@@ -140,7 +152,7 @@ void cpu_stall_wakeup_by_timer1(unsigned int tick_stall);
+ void cpu_stall_wakeup_by_timer2(unsigned int tick_stall);
+ 
+ typedef int (*suspend_handler_t)(void);
+-void	bls_pm_registerFuncBeforeSuspend (suspend_handler_t func );
++void bls_pm_registerFuncBeforeSuspend(suspend_handler_t func );
+ 
+ 
+ 
+@@ -153,18 +165,6 @@ int cpu_sleep_wakeup (SleepMode_TypeDef sleep_mode, SleepWakeupSrc_TypeDef wakeu
+ int pm_long_sleep_wakeup (SleepMode_TypeDef sleep_mode, SleepWakeupSrc_TypeDef wakeup_src, unsigned int SleepDurationUs);
+ 
+ 
+-static inline int pm_is_MCU_deepRetentionWakeup(void)
+-{
+-	return pmParam.is_deepRetn_back;
+-}
+-
+-
+-
+-static inline int pm_is_deepPadWakeup(void)
+-{
+-	return pmParam.is_pad_wakeup;
+-}
+-
+ 
+ //only for debug below, will remove them later
+ void shutdown_gpio(void);  //for debug
+diff --git a/zigbee_release_version/platform/chip_8258/rf_drv.h b/zigbee_release_version/platform/chip_8258/rf_drv.h
+index 8493223..80a41c2 100644
+--- a/zigbee_release_version/platform/chip_8258/rf_drv.h
++++ b/zigbee_release_version/platform/chip_8258/rf_drv.h
+@@ -109,7 +109,7 @@ typedef enum {
+  RF_POWER_N25p18dBm,
+ } RF_PowerTypeDef;
+ 
+-
++extern const unsigned char rf_power_Level_list[];
+ 
+ #define		RF_PACKET_LENGTH_OK(p)		(p[0] == p[12]+13)
+ #define		RF_PACKET_CRC_OK(p)			((p[p[0]+3] & 0x51) == 0x10)
+@@ -230,6 +230,8 @@ static inline void rf_reset_sn (void)
+ 	write_reg8  (0x800f01, 0x00);
+ }
+ 
++void rf_set_power_level (unsigned char level);
++
+ void rf_set_power_level_index (RF_PowerTypeDef level);     //@@@
+ 
+ void 	rf_drv_init (RF_ModeTypeDef rf_mode);   				//@@@
+diff --git a/zigbee_release_version/platform/chip_8258/uart.h b/zigbee_release_version/platform/chip_8258/uart.h
+index 3fe85ad..83362fb 100644
+--- a/zigbee_release_version/platform/chip_8258/uart.h
++++ b/zigbee_release_version/platform/chip_8258/uart.h
+@@ -159,7 +159,7 @@ extern unsigned char uart_ndmairq_get(void);
+  * @return    1: send success ;
+  *            0: DMA busy
+  */
+-extern volatile unsigned char uart_dma_send(unsigned short* Addr);
++extern unsigned char uart_dma_send(unsigned char* Addr);
+ /**
+  * @brief     uart send data function, this  function tell the DMA to get data from the RAM and start
+  *            the DMA transmission
+diff --git a/zigbee_release_version/platform/chip_826x/includes/bsp.h b/zigbee_release_version/platform/chip_826x/includes/bsp.h
+index 8c86995..b84c028 100644
+--- a/zigbee_release_version/platform/chip_826x/includes/bsp.h
++++ b/zigbee_release_version/platform/chip_826x/includes/bsp.h
+@@ -199,12 +199,6 @@ typedef struct TBLCMDSET {
+ 	unsigned char	cmd;
+ } TBLCMDSET;
+ 
+-/* used to restore data during deep sleep mode or reset by software */
+-#define DATA_STORE_FLAG				0x55
+-#define	REG_DEEP_FLAG				0x34
+-#define	REG_DEEP_EXCEPT_FLAG		0x3A
+-#define	REG_FRAMECOUNT				0x35   //4Bytes, from 0x35 to 0x38
+-
+ int LoadTblCmdSet(const TBLCMDSET *pt, int size);
+ 
+ void cacheFlush(void);
+@@ -235,14 +229,6 @@ static inline void dma_chn_irq_status_clr(unsigned char irq_status)
+ 	reg_dma_irq_src |= irq_status;
+ }
+ 
+-void deep_sleep_flag_set(unsigned int a);
+-u8 deep_sleep_flag_get(void);
+-u32 deep_sleep_framecount_get(void);
+-void deep_sleep_except_set(void);
+-void deep_sleep_except_clr(void);
+-u8 deep_sleep_except_get(void);
+-
+-
+ _attribute_ram_code_ void mcu_reset(void);
+ #define SYSTEM_RESET		mcu_reset
+ 
+diff --git a/zigbee_release_version/platform/chip_826x/includes/pm_826x.h b/zigbee_release_version/platform/chip_826x/includes/pm_826x.h
+index e08586a..38dc58e 100644
+--- a/zigbee_release_version/platform/chip_826x/includes/pm_826x.h
++++ b/zigbee_release_version/platform/chip_826x/includes/pm_826x.h
+@@ -143,13 +143,20 @@ typedef enum{
+     GROUPE_ALL   = 0X400 | 0x000f,
+ }Pin_TypeDef;
+ 
++/* used to restore data during deep sleep mode or reset by software */
++#define DATA_STORE_FLAG				0x55
++
++#define	REG_DEEP_BACK_FLAG			0x3A//power on reset clean
++#define	REG_DEEP_FLAG				0x34//watch dog reset clean
++#define	REG_FRAMECOUNT				0x35//watch dog reset clean, 4Bytes from 0x35 to 0x38
++
+ extern void PM_PadSet(Pin_TypeDef pin, int pol, int en);
+ extern void PM_GPIOSet(Pin_TypeDef pin, int pol, int en);
+ extern void PM_WakeupInit(void);
+ extern int  PM_LowPwrEnter(int DeepSleep, int WakeupSrc, unsigned long WakeupTick);
+ extern int  PM_LowPwrEnter2(int DeepSleep, int WakeupSrc, unsigned long SleepDurationUs);
+ extern int  cpu_sleep_wakeup(int DeepSleep, int WakeupSrc, unsigned long WakeupTick);
+-extern void cpu_wakeup_init();
++extern void cpu_wakeup_init(void);
+ extern void sleep_start(void);
+ extern void suspend_start(void);
+ 
+diff --git a/zigbee_release_version/platform/lib/libdrivers_8258.a b/zigbee_release_version/platform/lib/libdrivers_8258.a
+index 31a6062..fa93fdd 100644
+Binary files a/zigbee_release_version/platform/lib/libdrivers_8258.a and b/zigbee_release_version/platform/lib/libdrivers_8258.a differ
+diff --git a/zigbee_release_version/platform/lib/libdrivers_826x.a b/zigbee_release_version/platform/lib/libdrivers_826x.a
+index d0cacf3..35d7bd5 100644
+Binary files a/zigbee_release_version/platform/lib/libdrivers_826x.a and b/zigbee_release_version/platform/lib/libdrivers_826x.a differ
+diff --git a/zigbee_release_version/proj/common/compiler.h b/zigbee_release_version/proj/common/compiler.h
+index 65b44cb..51d67ef 100644
+--- a/zigbee_release_version/proj/common/compiler.h
++++ b/zigbee_release_version/proj/common/compiler.h
+@@ -26,17 +26,11 @@
+ #define _attribute_aligned_(s)	__attribute__((aligned(s)))
+ #define _attribute_session_(s)	__attribute__((section(s)))
+ #define _attribute_ram_code_  	_attribute_session_(".ram_code")
+-#define _attribute_custom_code_  	_attribute_session_(".custom") volatile
++#define _attribute_custom_code_  	_attribute_session_(".custom")
+ #define _attribute_no_inline_   __attribute__((noinline)) 
+ // #define _inline_ 				extern __attribute__ ((gnu_inline)) inline
+ 
+ #define _attribute_data_retention_
+ 
+-#ifdef MCU_CORE_826x
+-#define _DATA_SECT_RETENTION
+-#else
+-#define _DATA_SECT_RETENTION
+-#endif
+-
+ #define _inline_ 				inline				//   C99 meaning
+ 
+diff --git a/zigbee_release_version/proj/drivers/drv_i2c.c b/zigbee_release_version/proj/drivers/drv_i2c.c
+index a600e8b..7961d47 100644
+--- a/zigbee_release_version/proj/drivers/drv_i2c.c
++++ b/zigbee_release_version/proj/drivers/drv_i2c.c
+@@ -95,7 +95,7 @@ void drv_i2c_write_byte(unsigned int Addr, unsigned int AddrLen, unsigned char D
+ void drv_i2c_write_series(unsigned int Addr, unsigned int AddrLen, unsigned char *dataBuf, int dataLen)
+ {
+ #if	defined (MCU_CORE_826x)
+-	I2C_Write(Addr, AddrLen, dataBuf, dataLen);
++	I2C_WriteDataSlaveDMA(Addr, AddrLen, dataBuf, dataLen);
+ #elif defined(MCU_CORE_HAWK)
+ 
+ #else
+@@ -137,7 +137,7 @@ unsigned char drv_i2c_read_byte(unsigned int Addr, unsigned int AddrLen)
+ void drv_i2c_read_series(unsigned int Addr, unsigned int AddrLen, unsigned char *dataBuf, int dataLen)
+ {
+ #if	defined (MCU_CORE_826x)
+-	I2C_Read(Addr, AddrLen, dataBuf, dataLen);
++	I2C_ReadDataSlaveDMA(Addr, AddrLen, dataBuf, dataLen);
+ #elif defined(MCU_CORE_HAWK)
+ 
+ #else
+diff --git a/zigbee_release_version/proj/drivers/drv_pm.c b/zigbee_release_version/proj/drivers/drv_pm.c
+index 4062af2..84094bd 100644
+--- a/zigbee_release_version/proj/drivers/drv_pm.c
++++ b/zigbee_release_version/proj/drivers/drv_pm.c
+@@ -36,7 +36,7 @@ void platform_wakeup_pad_cfg(u32 pin, platform_wakeup_level_e pol, int en){
+ #endif
+ }
+ 
+-void platform_lowpower_enter(platform_mode_e mode, platform_wakeup_e src, u32 cycle_ms ){
++void platform_lowpower_enter(platform_mode_e mode, platform_wakeup_e src, u32 cycle_ms){
+ #if defined (MCU_CORE_826x) || defined (MCU_CORE_HAWK)
+ 	u8 sleep_mode = 0;
+ 	if(mode == PLATFORM_MODE_DEEPSLEEP){
+@@ -50,12 +50,12 @@ void platform_lowpower_enter(platform_mode_e mode, platform_wakeup_e src, u32 cy
+ 	if(src & PLATFORM_WAKEUP_TIMER){
+ 		srcType |= WAKEUP_SRC_TIMER;
+ 	}
+-	PM_LowPwrEnter (sleep_mode, srcType, clock_time() + cycle_ms*1000*CLOCK_SYS_CLOCK_1US);
++	PM_LowPwrEnter(sleep_mode, srcType, clock_time() + cycle_ms*1000*CLOCK_SYS_CLOCK_1US);
+ #else
+ 	SleepMode_TypeDef sleep_mode = SUSPEND_MODE;
+ 	if(mode == PLATFORM_MODE_SUSPEND){
+ 		sleep_mode = SUSPEND_MODE;
+-	}else if(mode == PLATFORM_MODE_DEEPSLEEP){
++	}else if(mode == PLATFORM_MODE_DEEP_WITH_RETENTION){
+ 		sleep_mode = DEEPSLEEP_MODE_RET_SRAM_LOW32K;
+ 	}
+ 
+@@ -66,7 +66,7 @@ void platform_lowpower_enter(platform_mode_e mode, platform_wakeup_e src, u32 cy
+ 	if(src & PLATFORM_WAKEUP_TIMER){
+ 		srcType |= PM_WAKEUP_TIMER;
+ 	}
+-	cpu_sleep_wakeup (sleep_mode, srcType, clock_time() + cycle_ms*1000*CLOCK_SYS_CLOCK_1US);
++	cpu_sleep_wakeup(sleep_mode, srcType, clock_time() + cycle_ms*1000*CLOCK_SYS_CLOCK_1US);
+ 
+ 	/* reconfigure some module used */
+ 	ZB_RADIO_INIT();
+@@ -77,3 +77,66 @@ void platform_lowpower_enter(platform_mode_e mode, platform_wakeup_e src, u32 cy
+ 	ZB_TRANSCEIVER_SET_CHANNEL(value);
+ #endif
+ }
++
++void platform_longLowpower_enter(platform_mode_e mode, platform_wakeup_e src, u32 durationMs)
++{
++#if defined (MCU_CORE_826x) || defined (MCU_CORE_HAWK)
++	u8 sleep_mode = 0;
++	if(mode == PLATFORM_MODE_DEEPSLEEP){
++		sleep_mode = 1;
++	}
++
++	WakeupSrc_TypeDef srcType = 0;
++	if(src & PLATFORM_WAKEUP_PAD){
++		srcType |= WAKEUP_SRC_PAD;
++	}
++	if(src & PLATFORM_WAKEUP_TIMER){
++		srcType |= WAKEUP_SRC_TIMER;
++	}
++	PM_LowPwrEnter2(sleep_mode, srcType, durationMs * 1000);
++#else
++	SleepMode_TypeDef sleep_mode = SUSPEND_MODE;
++	if(mode == PLATFORM_MODE_SUSPEND){
++		sleep_mode = SUSPEND_MODE;
++	}else if(mode == PLATFORM_MODE_DEEPSLEEP){
++		sleep_mode = DEEPSLEEP_MODE;
++	}
++
++	SleepWakeupSrc_TypeDef srcType = 0;
++	if(src & PLATFORM_WAKEUP_PAD){
++		srcType |= PM_WAKEUP_PAD;
++	}
++	if(src & PLATFORM_WAKEUP_TIMER){
++		srcType |= PM_WAKEUP_TIMER;
++	}
++
++	pm_long_sleep_wakeup(sleep_mode, srcType, durationMs * 1000);
++
++	/* reconfigure some module used */
++	ZB_RADIO_INIT();
++
++	u8 value;
++	u8 len;
++	tl_zbMacAttrGet(MAC_PHY_ATTR_CURRENT_CHANNEL, &value, &len);
++	ZB_TRANSCEIVER_SET_CHANNEL(value);
++#endif
++}
++
++
++void deep_sleep_flag_set(unsigned int a){
++	analog_write(REG_DEEP_FLAG, DATA_STORE_FLAG);
++
++	analog_write(REG_FRAMECOUNT,   (a));
++	analog_write(REG_FRAMECOUNT+1, (a)>>8);
++	analog_write(REG_FRAMECOUNT+2, (a)>>16);
++	analog_write(REG_FRAMECOUNT+3, (a)>>24);
++}
++
++u8 deep_sleep_flag_get(void){
++	return ((analog_read(REG_DEEP_FLAG) == DATA_STORE_FLAG) && (analog_read(REG_DEEP_BACK_FLAG) == DATA_STORE_FLAG));
++}
++
++u32 deep_sleep_framecount_get(void){
++	return ((analog_read(REG_FRAMECOUNT+3) << 24) | (analog_read(REG_FRAMECOUNT+2) << 16) | (analog_read(REG_FRAMECOUNT+1) << 8) | analog_read(REG_FRAMECOUNT) );
++}
++
+diff --git a/zigbee_release_version/proj/drivers/drv_pm.h b/zigbee_release_version/proj/drivers/drv_pm.h
+index 8b7fdda..a080731 100644
+--- a/zigbee_release_version/proj/drivers/drv_pm.h
++++ b/zigbee_release_version/proj/drivers/drv_pm.h
+@@ -29,6 +29,7 @@ typedef enum{
+ 	PLATFORM_MODE_SUSPEND,
+ 	PLATFORM_MODE_DEEPSLEEP,
+ 	PLATFORM_MODE_MCU_STALL,
++	PLATFORM_MODE_DEEP_WITH_RETENTION,//826x not support
+ }platform_mode_e;
+ 
+ typedef enum{
+@@ -47,4 +48,8 @@ void platform_wakeup_pad_cfg(u32 pin, platform_wakeup_level_e pol, int en);
+ 
+ void platform_lowpower_enter(platform_mode_e mode, platform_wakeup_e src, u32 cycle_ms);
+ 
+-void platform_longLowpower_enter(platform_mode_e mode, platform_wakeup_e src, u32 durationUs);
++void platform_longLowpower_enter(platform_mode_e mode, platform_wakeup_e src, u32 durationMs);
++
++void deep_sleep_flag_set(unsigned int a);
++u8 deep_sleep_flag_get(void);
++u32 deep_sleep_framecount_get(void);
+diff --git a/zigbee_release_version/proj/drivers/drv_uart.c b/zigbee_release_version/proj/drivers/drv_uart.c
+index 3f950f9..53878fa 100644
+--- a/zigbee_release_version/proj/drivers/drv_uart.c
++++ b/zigbee_release_version/proj/drivers/drv_uart.c
+@@ -109,3 +109,13 @@ u8 uart_tx_start(u8 *data, u32 len){
+ 	return 0;
+ }
+ 
++void uart_exceptionProcess(void){
++#if	defined (MCU_CORE_826x)
++	uart_ErrorCLR();
++#elif defined(MCU_CORE_8258)
++	if(uart_is_parity_error()){
++		uart_clear_parity_error();
++	}
++#endif
++}
++
+diff --git a/zigbee_release_version/proj/drivers/drv_uart.h b/zigbee_release_version/proj/drivers/drv_uart.h
+index 42114e5..b1ba024 100644
+--- a/zigbee_release_version/proj/drivers/drv_uart.h
++++ b/zigbee_release_version/proj/drivers/drv_uart.h
+@@ -85,3 +85,13 @@ u8 uart_tx_done(void);
+ 
+ 
+ u8 uart_tx_start(u8 *data, u32 len);
++
++
++/****************************************************************************************
++*
++*	@brief	check if exception occurs
++*
++*	@param
++*
++*/
++void uart_exceptionProcess(void );
+diff --git a/zigbee_release_version/proj/drivers/nv.h b/zigbee_release_version/proj/drivers/nv.h
+index b00ae1a..670960c 100644
+--- a/zigbee_release_version/proj/drivers/nv.h
++++ b/zigbee_release_version/proj/drivers/nv.h
+@@ -31,10 +31,6 @@
+ #define FLASH_PAGE_SIZE					256
+ #define	FLASH_SECTOR_SIZE				4096//4K
+ 
+-
+-#define FLASH_FW_IMAGE_ADDR				0x00000
+-#define	FLASH_OTA_NEWIMAGE_ADDR			0x40000
+-
+ /*******************************************************************************************************
+  * Following configuration could NOT be changed by customer.
+  */
+diff --git a/zigbee_release_version/proj/drivers/usb/usbCDC/usb_cdc.c b/zigbee_release_version/proj/drivers/usb/usbCDC/usb_cdc.c
+index a354963..422f0c7 100644
+--- a/zigbee_release_version/proj/drivers/usb/usbCDC/usb_cdc.c
++++ b/zigbee_release_version/proj/drivers/usb/usbCDC/usb_cdc.c
+@@ -237,7 +237,12 @@ unsigned char usbWriteByte(u8 byte){
+ 	REG_USB_EP_DAT(CDC_TX_EPNUM) = byte;
+ 	/* Write ACK */
+ 	REG_USB_EP_CTRL(CDC_TX_EPNUM) = FLD_EP_DAT_ACK;        // ACK
+-	while(USBHW_IsEpBusy(CDC_TX_EPNUM));
++	unsigned short t = 0;
++	while(USBHW_IsEpBusy(CDC_TX_EPNUM)) {
++		if (t++ > 10000) {
++			REG_USB_EP_CTRL(CDC_TX_EPNUM) &= 0xfe; // clear bit(0)
++		}
++	}
+ 	return 1;
+ }
+ 
+diff --git a/zigbee_release_version/proj/drivers/usb/usbHID/my_usb.c b/zigbee_release_version/proj/drivers/usb/usbHID/my_usb.c
+index 3bda970..7e9844c 100644
+--- a/zigbee_release_version/proj/drivers/usb/usbHID/my_usb.c
++++ b/zigbee_release_version/proj/drivers/usb/usbHID/my_usb.c
+@@ -25,6 +25,7 @@
+  *******************************************************************************************************/
+ #include "my_usb.h"
+ #include "usbhw_i.h"
++#include "usbhw.h"
+ #include "my_usbdesc.h"
+ 
+ 
+@@ -546,7 +547,7 @@ void my_usb_handle_irq(void) {
+ 		usbhw_reset_ep_ptr(EDP_ID_KEYBOARD_OUT);
+ 		my_g_stall = 0;
+ 
+-		u8 led_state = usbhw_read_ep_data(EDP_ID_KEYBOARD_OUT);
++		//u8 led_state = usbhw_read_ep_data(EDP_ID_KEYBOARD_OUT);
+ 		//printf("read 1 byte:data = 0x%01X", led_state);
+ 
+ 		//Num Lock   :bit0
+@@ -572,7 +573,7 @@ void my_usb_handle_irq(void) {
+ 		usbhw_reset_ep_ptr(EDP_ID_KEYS_OUT);
+ 		my_g_stall = 0;
+ 
+-		u8 led_state = usbhw_read_ep_data(EDP_ID_KEYS_OUT);
++		//u8 led_state = usbhw_read_ep_data(EDP_ID_KEYS_OUT);
+ 		//printf("read 1 byte:data = 0x%01X", led_state);
+ 
+ 		//Num Lock   :bit0
+diff --git a/zigbee_release_version/proj/os/ev.h b/zigbee_release_version/proj/os/ev.h
+index 6ec98e0..b2c3958 100644
+--- a/zigbee_release_version/proj/os/ev.h
++++ b/zigbee_release_version/proj/os/ev.h
+@@ -61,12 +61,14 @@ enum{
+ 	SYS_EXCEPTTION_ZB_MAC_TX_IRQ = 0x20,
+ 	SYS_EXCEPTTION_ZB_MAC_TX_TIMER,
+ 	SYS_EXCEPTTION_ZB_MAC_CSMA,
++	SYS_EXCEPTTION_ZB_MAC_TRX_TASK,
+ 
+ 	SYS_EXCEPTTION_ZB_NWK_ADDR_IDX = 0x30,
+ 	SYS_EXCEPTTION_ZB_NWK_BRC_INFO,
+ 	SYS_EXCEPTTION_ZB_NWK_GET_ENTRY,
+ 	SYS_EXCEPTTION_ZB_NWK_NEIGHBOR_TABLE,
+ 	SYS_EXCEPTTION_ZB_NWK_ROUTE_TABLE,
++	SYS_EXCEPTTION_ZB_NWK_LINK_STA_MEM_ALLOC_FAIL,
+ 
+ 	SYS_EXCEPTTION_ZB_SS_KEY_INDEX = 0x40,
+ 
+diff --git a/zigbee_release_version/proj/os/ev_buffer.c b/zigbee_release_version/proj/os/ev_buffer.c
+index 4e4391a..49269ee 100644
+--- a/zigbee_release_version/proj/os/ev_buffer.c
++++ b/zigbee_release_version/proj/os/ev_buffer.c
+@@ -290,6 +290,21 @@ u8 is_ev_buf(void *arg){
+ 	 return 0;
+ }
+ 
++u16 ev_buf_getFreeMaxSize(void)
++{
++	u16 size = 0;
++
++	for(u8 i = 0; i < DEFAULT_BUFFER_GROUP_NUM; i++){
++		if(ev_buf_v->bufGroups[i].availBufNum){
++			if((ev_buf_v->bufGroups[i].size - OFFSETOF(ev_bufItem_t, data)) > size){
++				size = ev_buf_v->bufGroups[i].size - OFFSETOF(ev_bufItem_t, data);
++			}
++		}
++	}
++
++	return size;
++}
++
+ #endif  /* MODULE_BUFM_ENABLE */
+ 
+ 
+diff --git a/zigbee_release_version/proj/os/ev_buffer.h b/zigbee_release_version/proj/os/ev_buffer.h
+index 421e48e..da73984 100644
+--- a/zigbee_release_version/proj/os/ev_buffer.h
++++ b/zigbee_release_version/proj/os/ev_buffer.h
+@@ -175,7 +175,7 @@ ev_bufItem_t* ev_buf_getHead(u8* pd);
+  */
+ u8 is_ev_buf(void *arg);
+ 
+-
++u16 ev_buf_getFreeMaxSize(void);
+ /**  @} end of group EV_BUFFER_FUNCTIONS */
+ 
+ /**  @} end of group EV_BUFFER */
+diff --git a/zigbee_release_version/proj/os/ev_timer.h b/zigbee_release_version/proj/os/ev_timer.h
+index 8856bce..80be60d 100644
+--- a/zigbee_release_version/proj/os/ev_timer.h
++++ b/zigbee_release_version/proj/os/ev_timer.h
+@@ -45,7 +45,7 @@ typedef void (*ev_zb_callback_t)(u8 param) ;
+ /**
+  *  @brief Definition for timer event
+  */
+-#define TIMER_EVENT_NUM		18
++#define TIMER_EVENT_NUM		24
+ 
+ typedef struct ev_time_event_t {
+     ev_timer_callback_t     cb;            //!< Callback function when expire, this must be specified
+diff --git a/zigbee_release_version/proj/os/irq_handler.c b/zigbee_release_version/proj/os/irq_handler.c
+index 2124b37..7e77e40 100644
+--- a/zigbee_release_version/proj/os/irq_handler.c
++++ b/zigbee_release_version/proj/os/irq_handler.c
+@@ -34,6 +34,7 @@ void timer_irq2_handler(void);
+ #include "../drivers/drv_uart.h"
+ #endif
+ 
++volatile u8 T_DBG_CSMA_IRQ = 0;
+ _attribute_ram_code_ void irq_handler(void){
+ 
+ 	u16  src_rf = rf_irq_src_get();
+@@ -56,6 +57,12 @@ _attribute_ram_code_ void irq_handler(void){
+ 		reg_irq_src = FLD_IRQ_TMR2_EN;
+ 	}
+ 
++    if((src & FLD_IRQ_SYSTEM_TIMER)){
++    	reg_irq_src = FLD_IRQ_SYSTEM_TIMER;
++    	T_DBG_CSMA_IRQ++;
++    	timer_irq3_handler();
++    }
++
+ 	if((src & FLD_IRQ_GPIO_EN)==FLD_IRQ_GPIO_EN){
+ 		reg_irq_src = FLD_IRQ_GPIO_EN;
+ 		gpio_irq_handler(GPIO_IRQ_MODE);
+diff --git a/zigbee_release_version/proj/os/timer.c b/zigbee_release_version/proj/os/timer.c
+index 7d5107c..8b93495 100644
+--- a/zigbee_release_version/proj/os/timer.c
++++ b/zigbee_release_version/proj/os/timer.c
+@@ -56,27 +56,43 @@ hwTmr_ctrl_t hwTmr_vars;
+ 
+ 
+ void hwTmr_reset(u8 tmrIdx){
+-    memset((u8*)&hwTmr_vars.timerInfo[tmrIdx], 0x00, sizeof(hwTmr_info_t));
++	if(tmrIdx < TIMER_NUM){
++		memset((u8*)&hwTmr_vars.timerInfo[tmrIdx], 0x00, sizeof(hwTmr_info_t));
++	}
+ }
+ 
+ void hwTmr_init(u8 tmrIdx, u8 mode){
+-    hwTmr_reset(tmrIdx);
+-    TIMER_INIT(tmrIdx, mode);
++	if(tmrIdx < TIMER_NUM){
++		hwTmr_reset(tmrIdx);
++
++		if(tmrIdx < TIMER_IDX_3){
++			TIMER_INIT(tmrIdx, mode);
++		}else{
++			reg_system_tick_mode &= ~(u8)FLD_SYSTEM_TICK_IRQ_EN;
++			reg_irq_mask &= ~(u32)FLD_IRQ_SYSTEM_TIMER;
++		}
++	}
+ }
+ 
+ 
+-void hwTmr_cancel(u8 tmrIdx)
+-{
+-    u8 r = irq_disable();
++void hwTmr_cancel(u8 tmrIdx){
++	if(tmrIdx < TIMER_NUM){
++		u8 r = irq_disable();
+ 
+-    /* Write 1 to clear, even if the timer is already set, cancel */
+-    TIMER_STATE_CLEAR(tmrIdx);
+-    TIMER_STOP(tmrIdx);
++		if(tmrIdx < TIMER_IDX_3){
++			/* Write 1 to clear, even if the timer is already set, cancel */
++			TIMER_STATE_CLEAR(tmrIdx);
++			TIMER_STOP(tmrIdx);
++		}else{
++			reg_system_tick_mode &= ~(u8)FLD_SYSTEM_TICK_IRQ_EN;
++			reg_irq_mask &= ~(u32)FLD_IRQ_SYSTEM_TIMER;
++		}
+ 
+-    hwTmr_info_t *pTimer = &hwTmr_vars.timerInfo[tmrIdx];
+-    memset(pTimer, 0, sizeof(hwTmr_info_t));
++		hwTmr_info_t *pTimer = &hwTmr_vars.timerInfo[tmrIdx];
++		memset(pTimer, 0, sizeof(hwTmr_info_t));
+ 
+-    irq_restore(r);
++		irq_restore(r);
++	}
+ }
+ 
+ hw_timer_sts_t hwTmr_setAbs(u8 tmrIdx, ext_clk_t* absTimer, timerCb_t func, void* arg)
+@@ -111,12 +127,18 @@ hw_timer_sts_t hwTmr_setAbs(u8 tmrIdx, ext_clk_t* absTimer, timerCb_t func, void
+ 		}
+         return (hw_timer_sts_t)SUCCESS;
+     } else {
+-        /* Set compare value */
+-        TIMER_TICK_CLEAR(tmrIdx);
+-        TIMER_INTERVAL_SET(tmrIdx, pTimer->expireInfo.high ? TIMER_OVERFLOW_VALUE : pTimer->expireInfo.low);
+-
+-        /* Enable Timer */
+-        TIMER_START(tmrIdx);
++    	if(tmrIdx < TIMER_IDX_3){
++			/* Set compare value */
++			TIMER_TICK_CLEAR(tmrIdx);
++			TIMER_INTERVAL_SET(tmrIdx, pTimer->expireInfo.high ? TIMER_OVERFLOW_VALUE : pTimer->expireInfo.low);
++
++			/* Enable Timer */
++			TIMER_START(tmrIdx);
++    	}else{
++    		reg_system_tick_mode |= FLD_SYSTEM_TICK_IRQ_EN;
++    		reg_irq_mask |= FLD_IRQ_SYSTEM_TIMER;
++    		reg_system_tick_irq = clock_time() + (pTimer->expireInfo.high ? TIMER_OVERFLOW_VALUE : pTimer->expireInfo.low);
++    	}
+     }
+ 
+     irq_restore(r);
+@@ -127,10 +149,14 @@ hw_timer_sts_t hwTmr_setAbs(u8 tmrIdx, ext_clk_t* absTimer, timerCb_t func, void
+ 
+ 
+ 
+-hw_timer_sts_t hwTmr_set(u8 tmrIdx, u32 t_us, timerCb_t func, void* arg){
++hw_timer_sts_t hwTmr_set(u8 tmrIdx, u32 t_us, timerCb_t func, void *arg){
+     ext_clk_t t;
+     t.high = 0;
+-    t.low = t_us * MASTER_CLK_FREQ;
++    if(tmrIdx < TIMER_IDX_3){
++    	t.low = t_us * MASTER_CLK_FREQ;
++    }else{
++    	t.low = t_us * CLOCK_SYS_CLOCK_1US;
++    }
+     return hwTmr_setAbs(tmrIdx, &t, func, arg);
+ }
+ 
+@@ -139,10 +165,16 @@ void timer_irq_handler(u8 tmrIdx)
+ {
+     hwTmr_info_t *pTimer = &hwTmr_vars.timerInfo[tmrIdx];
+ 
+-    /* Write 1 to clear */
+-    TIMER_STATE_CLEAR(tmrIdx);
+-    TIMER_STOP(tmrIdx);
+-    TIMER_TICK_CLEAR(tmrIdx);
++    if(tmrIdx < TIMER_IDX_3){
++		/* Write 1 to clear */
++		TIMER_STATE_CLEAR(tmrIdx);
++		TIMER_STOP(tmrIdx);
++		TIMER_TICK_CLEAR(tmrIdx);
++    }else{
++    	reg_system_tick_irq ^= BIT(31);
++    	reg_system_tick_mode &= ~(u8)FLD_SYSTEM_TICK_IRQ_EN;
++    	reg_irq_mask &= ~(u32)FLD_IRQ_SYSTEM_TIMER;
++    }
+ 
+     if (TIMER_WTO == pTimer->flags.bf.status) {
+         /* Expired, callback */
+@@ -154,35 +186,70 @@ void timer_irq_handler(u8 tmrIdx)
+         	if(t < 0){
+         		memset(pTimer, 0, sizeof(hwTmr_info_t));
+         	}else if(t == 0){
+-                TIMER_INTERVAL_SET(tmrIdx, pTimer->expireInfo.high ? TIMER_OVERFLOW_VALUE : pTimer->expireInfo.low);
+-
+-                /* Enable Timer */
+-                TIMER_START(tmrIdx);
++        		if(tmrIdx < TIMER_IDX_3){
++					TIMER_INTERVAL_SET(tmrIdx, pTimer->expireInfo.high ? TIMER_OVERFLOW_VALUE : pTimer->expireInfo.low);
++					/* Enable Timer */
++					TIMER_START(tmrIdx);
++        		}else{
++					reg_system_tick_irq = clock_time() + (pTimer->expireInfo.high ? TIMER_OVERFLOW_VALUE : pTimer->expireInfo.low);
++					reg_irq_mask |= FLD_IRQ_SYSTEM_TIMER;
++					reg_system_tick_mode |= FLD_SYSTEM_TICK_IRQ_EN;
++        		}
+         	}else{
+         		pTimer->expireInfo.low = t * MASTER_CLK_FREQ;
+ 
+-                TIMER_INTERVAL_SET(tmrIdx, pTimer->expireInfo.high ? TIMER_OVERFLOW_VALUE : pTimer->expireInfo.low);
+-
+-                /* Enable Timer */
+-                TIMER_START(tmrIdx);
++        		if(tmrIdx < TIMER_IDX_3){
++					TIMER_INTERVAL_SET(tmrIdx, pTimer->expireInfo.high ? TIMER_OVERFLOW_VALUE : pTimer->expireInfo.low);
++					/* Enable Timer */
++					TIMER_START(tmrIdx);
++        		}else{
++					reg_system_tick_irq = clock_time() + (pTimer->expireInfo.high ? TIMER_OVERFLOW_VALUE : pTimer->expireInfo.low);
++					reg_irq_mask |= FLD_IRQ_SYSTEM_TIMER;
++					reg_system_tick_mode |= FLD_SYSTEM_TICK_IRQ_EN;
++        		}
+         	}
+         }
+     } else{
+         if (--pTimer->expireInfo.high) {
+-        	TIMER_INTERVAL_SET(tmrIdx, TIMER_OVERFLOW_VALUE);
++        	if(tmrIdx < TIMER_IDX_3){
++        		TIMER_INTERVAL_SET(tmrIdx, TIMER_OVERFLOW_VALUE);
++        	}else{
++        		reg_system_tick_irq = clock_time() + TIMER_OVERFLOW_VALUE;
++        	}
+         } else {
+-        	TIMER_INTERVAL_SET(tmrIdx, pTimer->expireInfo.low);
++        	if(tmrIdx < TIMER_IDX_3){
++        		TIMER_INTERVAL_SET(tmrIdx, pTimer->expireInfo.low);
++        	}else{
++        		reg_system_tick_irq = clock_time() + pTimer->expireInfo.low;
++        	}
+             pTimer->flags.bf.status = TIMER_WTO;
+         }
+ 
+         /* Enable Timer again */
+-        TIMER_START(tmrIdx);
++        if(tmrIdx < TIMER_IDX_3){
++        	TIMER_START(tmrIdx);
++        }else{
++        	reg_irq_mask |= FLD_IRQ_SYSTEM_TIMER;
++        	reg_system_tick_mode |= FLD_SYSTEM_TICK_IRQ_EN;
++        }
++    }
++}
++
++void timer_irq0_process(u8 tmrIdx){
++    hwTmr_info_t *pTimer = &hwTmr_vars.timerInfo[tmrIdx];
++
++    /* Write 1 to clear */
++    TIMER_STATE_CLEAR(tmrIdx);
++
++    if(pTimer->cb){
++    	pTimer->cb(pTimer->arg);
+     }
+ }
+ 
+ void timer_irq0_handler(void)
+ {
+-    timer_irq_handler(TIMER_IDX_0);
++	timer_irq_handler(TIMER_IDX_0);
++	//timer_irq0_process(TIMER_IDX_0);
+ }
+ 
+ void timer_irq1_handler(void)
+@@ -195,3 +262,8 @@ void timer_irq2_handler(void)
+     timer_irq_handler(TIMER_IDX_2);
+ }
+ 
++void timer_irq3_handler(void)
++{
++    timer_irq_handler(TIMER_IDX_3);
++}
++
+diff --git a/zigbee_release_version/proj/os/timer.h b/zigbee_release_version/proj/os/timer.h
+index 0e3f982..b236060 100644
+--- a/zigbee_release_version/proj/os/timer.h
++++ b/zigbee_release_version/proj/os/timer.h
+@@ -39,9 +39,10 @@
+  * @{
+  */
+ #define TIMER_IDX_0             0                   //!< Timer0
+-#define TIMER_IDX_1             1                   //!< Timer1, for MAC-CSMA.
++#define TIMER_IDX_1             1                   //!< Timer1
+ #define TIMER_IDX_2             2                   //!< Timer2, for Watch dog.
+-#define TIMER_NUM               3                   //!< Total number of timer
++#define TIMER_IDX_3				3					//!< SYS Timer, for MAC-CSMA.
++#define TIMER_NUM               4                   //!< Total number of timer
+ /** @} end of group hardware_timer_index */
+ 
+ /** @addtogroup hardware_timer_mode Hardware Timer Mode
+@@ -156,14 +157,15 @@ hw_timer_sts_t hwTmr_setAbs(u8 tmrIdx, ext_clk_t* absTimer, timerCb_t func, void
+ void hwTmr_cancel(u8 tmrIdx);
+ 
+ /**
+-  * @brief       Interrupt handler of Timer1
++  * @brief       Interrupt handler of Timer
+   *
+   * @param       None
+   *
+   * @return      None
+   */
++void timer_irq0_handler(void);
+ void timer_irq1_handler(void);
+-
++void timer_irq3_handler(void);
+ 
+ /**  @} end of group HARDWARETIMER_Functions */
+ 
+diff --git a/zigbee_release_version/zigbee/aps/aps_api.h b/zigbee_release_version/zigbee/aps/aps_api.h
+index cceddd4..a182092 100644
+--- a/zigbee_release_version/zigbee/aps/aps_api.h
++++ b/zigbee_release_version/zigbee/aps/aps_api.h
+@@ -104,11 +104,11 @@ typedef union
+ typedef enum
+ {
+ 	APS_TX_OPT_SECURITY_ENABLED = BIT(0), //0x01 = Security enabled transmission
+-	APS_TX_OPT_USE_NWK_KEY = BIT(1),      //0x02 = Use NWK key
+-	APS_TX_OPT_ACK_TX = BIT(2),           //0x04 = Acknowledged transmission
+-	APS_TX_OPT_FRAG_PERMITTED = BIT(3),   //0x08 = Fragmentation permitted
+-	APS_TX_OPT_INCLUDE_NONCE	= BIT(4),	//0x10 = Include extended nonce in APS security frame
+-	APS_TX_OPT_INTRA_PAN = BIT(7)        //0x80 = Intra-PAN delivery
++	APS_TX_OPT_DISABLE_NWK_KEY 	= BIT(1), //0x02 = Disable NWK key
++	APS_TX_OPT_ACK_TX 			= BIT(2), //0x04 = Acknowledged transmission
++	APS_TX_OPT_FRAG_PERMITTED 	= BIT(3), //0x08 = Fragmentation permitted
++	APS_TX_OPT_INCLUDE_NONCE	= BIT(4), //0x10 = Include extended nonce in APS security frame
++	APS_TX_OPT_INTRA_PAN 		= BIT(7)  //0x80 = Intra-PAN delivery
+ }aps_tx_options;
+ 
+ typedef enum{
+@@ -116,7 +116,6 @@ typedef enum{
+ 	APS_SHORT_GROUPADDR_NOEP,			/* for group-casting: only need group address */
+ 	APS_SHORT_DSTADDR_WITHEP,			/* for unicasting with nwk address, with Endpoint */
+ 	APS_LONG_DSTADDR_WITHEP,			/* for unicasting with ieee address, with Endpoint */
+-	APS_LONG_DSTADDR_NOEP				/* for unicasting with ieee address, without Endpoint */
+ }aps_dst_addr_mode;
+ 
+ typedef enum{
+@@ -416,13 +415,20 @@ typedef struct{
+ 
+ 	//default value 2
+ 	u8		aps_nonmember_radius;//The value to be used for the NonmemberRadius  parameter when using NWK layer multicast.
++
++	u8		aps_interframe_delay;
++	u8		aps_max_window_size;
++	u8		aps_fragment_payload_size;
++
+ 	u8		aps_use_insecure_join:1;//A flag controlling the use of insecure join at startup. Default TRUE
+ 	u8		aps_authenticated:1;//authenticted or not
+ 	u8		aps_reserved:6;
+ 	u8		aps_flags;//Flag used in APS layers, see the enum of aps_flag_e
+ }aps_pib_attributes_t;
+ 
+-
++extern u8 APS_INTERFRAME_DELAY;
++extern u8 APS_MAX_WINDOW_SIZE;
++extern u8 APS_FRAGMEMT_PAYLOAD_SIZE;
+ extern u8 APS_BINDING_TABLE_SIZE;
+ extern u8 APS_GROUP_TABLE_SIZE;
+ extern aps_binding_table_t aps_binding_tbl;
+@@ -430,7 +436,7 @@ extern aps_group_tbl_ent_t aps_group_tbl[];
+ 
+ extern aps_pib_attributes_t aps_ib;
+ 
+-#define APS_IB()			 aps_ib
++#define APS_IB() aps_ib
+ 
+ /******************************************************************************
+                               Prototypes section
+@@ -453,6 +459,16 @@ void aps_init(void);
+  **************************************************************************/
+ u8 aps_get_current_counter_value(void );
+ 
++/***********************************************************************//**
++ * @brief   get the sequence number for the new aps frame
++ *
++ * @param
++ *
++ * @return	the sequence number
++ *
++ **************************************************************************/
++u8 aps_get_counter_value(void);
++
+ zdo_status_t aps_me_bind_req(aps_me_bind_req_t *amr);
+ 
+ zdo_status_t aps_me_unbind_req(aps_me_unbind_req_t *amr);
+@@ -581,3 +597,19 @@ u8 aps_me_find_dst_ref(aps_me_bind_req_t *req);
+  *
+  **************************************************************************/
+ u8 aps_me_free_src_table_find(void);
++
++/***********************************************************************//**
++ * @brief       Send an APS data request
++ *
++ * @param[in]   dataReq - Pointer to the apsde data request structure
++ *
++ * @param[in]   asdu    - Pointer to the asdu
++ *
++ * @param[in]   length  - Length of asdu
++ *
++ * @return      Status
++ *
++ **************************************************************************/
++u8 apsDataRequest(aps_data_req_t *dataReq, u8 *asdu, u8 length);
++
++u8 apsDataFragmentRequest(aps_data_req_t *dataReq, u8 *asdu, u16 length);
+diff --git a/zigbee_release_version/zigbee/bdb/bdb.c b/zigbee_release_version/zigbee/bdb/bdb.c
+index 7ae18e5..cadd98f 100644
+--- a/zigbee_release_version/zigbee/bdb/bdb.c
++++ b/zigbee_release_version/zigbee/bdb/bdb.c
+@@ -988,7 +988,8 @@ static void bdb_task(void *arg)
+ 					nv_nwkFrameCountSaveToFlash(ss_ib.outgoingFrameCounter);
+ 
+ 					if(g_bdbCtx.initResult == BDB_INIT_STATUS_SUCCESS){
+-						if(zdo_ssInfoKeyGet() != ss_ib.activeSecureMaterialIndex){
++						if((zdo_ssInfoKeyGet() != ss_ib.activeSecureMaterialIndex) || g_zbNwkCtx.parentIsChanged){
++							g_zbNwkCtx.parentIsChanged = 0;
+ 							TL_SCHEDULE_TASK(bdb_commissioningInfoSave, NULL);  //for tcRejoin when the network key is changed
+ 						}
+ 
+@@ -1134,7 +1135,8 @@ _CODE_BDB_ static s32 bdb_task_delay(void *arg)
+  *
+  * @return
+  */
+-_CODE_BDB_ void bdb_zdoStartDevCnf(zdo_start_device_confirm_t* startDevCnf){
++_CODE_BDB_ void bdb_zdoStartDevCnf(void *arg){
++	zdo_start_device_confirm_t *startDevCnf = (zdo_start_device_confirm_t *)arg;
+ 	u32 evt = BDB_EVT_IDLE;
+ 	u8 state = BDB_STATE_GET();
+ 
+@@ -1144,7 +1146,8 @@ _CODE_BDB_ void bdb_zdoStartDevCnf(zdo_start_device_confirm_t* startDevCnf){
+ 			if(startDevCnf->status == SUCCESS){
+ 				//g_bdbAttrs.commissioningStatus = BDB_COMMISSION_STA_SUCCESS;
+ 				BDB_STATUS_SET(BDB_COMMISSION_STA_SUCCESS);
+-				if(zdo_ssInfoKeyGet() != ss_ib.activeSecureMaterialIndex){
++				if((zdo_ssInfoKeyGet() != ss_ib.activeSecureMaterialIndex) || g_zbNwkCtx.parentIsChanged){
++					g_zbNwkCtx.parentIsChanged = 0;
+ 					TL_SCHEDULE_TASK(bdb_commissioningInfoSave, NULL);
+ 				}
+ 			}else{
+diff --git a/zigbee_release_version/zigbee/bdb/includes/bdb.h b/zigbee_release_version/zigbee/bdb/includes/bdb.h
+index e6ab3ec..cc3ad0b 100644
+--- a/zigbee_release_version/zigbee/bdb/includes/bdb.h
++++ b/zigbee_release_version/zigbee/bdb/includes/bdb.h
+@@ -545,7 +545,7 @@ status_t bdb_defaultReportingCfg(u8 endpoint, u16 profileID, u16 clusterID, u16
+  * @param 	startDevCnf
+  *
+  */
+-void bdb_zdoStartDevCnf(zdo_start_device_confirm_t* startDevCnf);
++void bdb_zdoStartDevCnf(void *arg);   //zdo_start_device_confirm_t* startDevCnf);
+ 
+ /**
+  * @brief      bdb attribute initialization
+diff --git a/zigbee_release_version/zigbee/common/includes/zb_task_queue.h b/zigbee_release_version/zigbee/common/includes/zb_task_queue.h
+index 8c01fe2..0835da7 100644
+--- a/zigbee_release_version/zigbee/common/includes/zb_task_queue.h
++++ b/zigbee_release_version/zigbee/common/includes/zb_task_queue.h
+@@ -161,6 +161,7 @@ u8 tl_zbTaskPost(tl_zb_callback_t func, void *arg);
+ #define	TL_SCHEDULE_TASK	tl_zbTaskPost
+ 
+ u8 zb_timerTaskIdle(void);
++u8 zb_isTimerTaskQEnough(void);
+ u8 zb_isTaskDone(void);
+ bool tl_stackBusy(void);
+ 
+diff --git a/zigbee_release_version/zigbee/common/zb_config.c b/zigbee_release_version/zigbee/common/zb_config.c
+index ff3efb9..a34c7e8 100644
+--- a/zigbee_release_version/zigbee/common/zb_config.c
++++ b/zigbee_release_version/zigbee/common/zb_config.c
+@@ -40,6 +40,11 @@
+ #define FILTER_PANID		MAC_INVALID_PANID
+ u16 TL_ZB_ASSOCJOIN_FILTER_PANID = FILTER_PANID;
+ 
++/* APS data fragmentation setting */
++u8 APS_INTERFRAME_DELAY = 100;
++u8 APS_MAX_WINDOW_SIZE = 1;
++u8 APS_FRAGMEMT_PAYLOAD_SIZE = 64;
++
+ /* queue size of the software timer event */
+ u8 TIMER_EVENT_SIZE = TIMER_EVENT_NUM;
+ 
+@@ -104,7 +109,15 @@ aps_group_tbl_ent_t aps_group_tbl[APS_GROUP_TABLE_NUM];
+ /* the offset of the rx buffer to the zb-buffer*/
+ u8 RX_ZBBUF_OFFSET = TL_RXPRIMITIVEHDR;
+ 
++/* MAC layer TX Queue size */
++u8 MAC_TX_QUEUE_SIZE = TX_QUEUE_BN;
++
+ //default network key
++/* If all zero, will generate 16-bytes network key randomly. */
++/*
++const u8 nwkKeyDefault[] = {0, 0, 0, 0, 0, 0, 0, 0,
++							  0, 0, 0, 0, 0, 0, 0, 0};
++*/	
+ const u8 nwkKeyDefault[] = { 0x12, 0x23, 0x34, 0x45, 0x56, 0x67, 0x78, 0x89,
+ 			  	  	  	0x9a, 0xab, 0xbc, 0xcd, 0xde, 0xef, 0xf0, 0x01};
+ 
+@@ -145,7 +158,7 @@ const tl_zb_mac_pib_t macPibDefault = {
+ 	.associationPermit = 0,
+ 	.coordShortAddress = 0xffff,
+ #if ZB_ED_ROLE
+-	.rxOnWhenIdle = ZB_MAC_RX_ON_WHEN_IDEL,/*NOTE: If set MAC_CAP_RX_ON_WHEN_IDLE, PM_ENABLE must be CLEAR (apps/sampleSwitch_xx/app_cfg.h). */
++	.rxOnWhenIdle = ZB_MAC_RX_ON_WHEN_IDLE,
+ #else
+ 	.rxOnWhenIdle = 1,
+ #endif
+diff --git a/zigbee_release_version/zigbee/include/zb_common.h b/zigbee_release_version/zigbee/include/zb_common.h
+index 8e82955..6ea7450 100644
+--- a/zigbee_release_version/zigbee/include/zb_common.h
++++ b/zigbee_release_version/zigbee/include/zb_common.h
+@@ -258,8 +258,9 @@ enum{
+ 
+ #define ZB_SEC_KEY_IS_NULL			ZB_IS_16BIT_SECURITY_KEY_ZERO
+ 
+-#define ZB_NWKC_MAC_FRAME_OVERHEAD 0xB
+-#define ZB_NWKC_MIN_HEADER_OVERHEAD 0x8
++#define ZB_MAC_FRAME_HEADER			9
++#define ZB_NWK_FRAME_HEADER			(8 + NWK_MAX_SOURCE_ROUTE * 2 + 14 + 4)
++#define ZB_APS_FRAME_HEADER			10
+ /*typedef struct{
+ 	u8	altPanCoord: 	1;
+ 	u8	devType: 		1;
+diff --git a/zigbee_release_version/zigbee/lib/libzb_coordinator.a b/zigbee_release_version/zigbee/lib/libzb_coordinator.a
+index a511e4d..2627034 100644
+Binary files a/zigbee_release_version/zigbee/lib/libzb_coordinator.a and b/zigbee_release_version/zigbee/lib/libzb_coordinator.a differ
+diff --git a/zigbee_release_version/zigbee/lib/libzb_ed.a b/zigbee_release_version/zigbee/lib/libzb_ed.a
+index 1d2fa24..b936298 100644
+Binary files a/zigbee_release_version/zigbee/lib/libzb_ed.a and b/zigbee_release_version/zigbee/lib/libzb_ed.a differ
+diff --git a/zigbee_release_version/zigbee/lib/libzb_router.a b/zigbee_release_version/zigbee/lib/libzb_router.a
+index 6639c4e..e049f7a 100644
+Binary files a/zigbee_release_version/zigbee/lib/libzb_router.a and b/zigbee_release_version/zigbee/lib/libzb_router.a differ
+diff --git a/zigbee_release_version/zigbee/mac/includes/mac_trx_api.h b/zigbee_release_version/zigbee/mac/includes/mac_trx_api.h
+index 39b41c9..344d88e 100644
+--- a/zigbee_release_version/zigbee/mac/includes/mac_trx_api.h
++++ b/zigbee_release_version/zigbee/mac/includes/mac_trx_api.h
+@@ -135,6 +135,24 @@ typedef enum {
+     PHY_CCA_BUSY       = 0x00,
+ } phy_ccaSts_t;
+ 
++/**
++ *  @brief Definition of MAC generic frame type, used in both TX and RX
++ */
++typedef struct {
++	u8		fAck; //--                /*!< Used in TX  */
++	u8		fFramePending;//--        /*!< Used in Poll  */
++	u8		psduLen;//--
++	u8		cnfStatus;//--
++    u8		*txData;//--
++} mac_genFrame_t;
++
++typedef	mac_genFrame_t	tx_data_queue;
++
++#define	TX_QUEUE_BN		8
++
++tx_data_queue *tx_queue[TX_QUEUE_BN];
++
++extern u8 MAC_TX_QUEUE_SIZE;
+ extern u8 rf_busyFlag;
+ 
+ u8 mac_getTrxState(void);
+diff --git a/zigbee_release_version/zigbee/mac/includes/phy_radio_8258.h b/zigbee_release_version/zigbee/mac/includes/phy_radio_8258.h
+index f726150..1e2d44f 100644
+--- a/zigbee_release_version/zigbee/mac/includes/phy_radio_8258.h
++++ b/zigbee_release_version/zigbee/mac/includes/phy_radio_8258.h
+@@ -112,8 +112,8 @@
+ /* radio initialization */
+ #define ZB_RADIO_INIT()					rf_drv_init(RF_MODE_ZIGBEE_250K)
+ 
+-/* hardware timer initialization for mac-csma */
+-#define ZB_TIMER_INIT()					hwTmr_init(TIMER_IDX_1, TIMER_MODE_SCLK)
++/* sys timer initialization for mac-csma */
++#define ZB_TIMER_INIT()					hwTmr_init(TIMER_IDX_3, TIMER_MODE_SCLK)
+ 
+ static inline u8 ZB_RADIO_RSSI_TO_LQI(rf_rxGainMode_t mode, u8 inRssi){
+ 	u8 lqi;
+diff --git a/zigbee_release_version/zigbee/mac/includes/phy_radio_826x.h b/zigbee_release_version/zigbee/mac/includes/phy_radio_826x.h
+index 23321e2..d9ea20f 100644
+--- a/zigbee_release_version/zigbee/mac/includes/phy_radio_826x.h
++++ b/zigbee_release_version/zigbee/mac/includes/phy_radio_826x.h
+@@ -128,8 +128,7 @@ static inline u8 ZB_RADIO_RSSI_TO_LQI(rf_rxGainMode_t mode, u8 inRssi){
+ /* radio initialization */
+ #define ZB_RADIO_INIT()		RF_Init(RF_OSC_12M,RF_MODE_ZIGBEE_250K)
+ 
+-/* hardware timer initialization for mac-csma */
+-#define ZB_TIMER_INIT()		hwTmr_init(TIMER_IDX_1, TIMER_MODE_SCLK)
+-
++/* sys timer initialization for mac-csma */
++#define ZB_TIMER_INIT()		hwTmr_init(TIMER_IDX_3, TIMER_MODE_SCLK)
+ 
+ #endif  /* __RF_H__ */
+diff --git a/zigbee_release_version/zigbee/mac/includes/tl_zb_mac.h b/zigbee_release_version/zigbee/mac/includes/tl_zb_mac.h
+index fe31ce6..b2c6834 100644
+--- a/zigbee_release_version/zigbee/mac/includes/tl_zb_mac.h
++++ b/zigbee_release_version/zigbee/mac/includes/tl_zb_mac.h
+@@ -1143,22 +1143,21 @@ void  tl_zbMacTaskProc(void);
+  * */
+ u8 tl_zbMacAttrSet(u8 attribute, u8 *value, u8 len);
+ 
++/*
++* MLME-GET.request to get MAC pib attribute from upper layer to MAC layer
++*
++* @param attribute MAC PIB attribut MAC PIB attributee id(Table 86 ?a MAC PIB attributes)
++*
++* @param value the pointer to the value of the attribute
++*
++* @param len the length of the attribute vlaue
++*
++* @return MAC_SUCCESS if it's successful, or MAC_INVALID_PARAMETER
++*
++* */
++u8 tl_zbMacAttrGet(u8 attribute, u8* value, u8* len);
+ 
+-
+- /*
+-  * MLME-GET.request to get MAC pib attribute from upper layer to MAC layer
+-  *
+-  * @param attribute MAC PIB attribut MAC PIB attributee id(Table 86 ?a MAC PIB attributes)
+-  *
+-  * @param value the pointer to the value of the attribute
+-  *
+-  * @param len the length of the attribute vlaue
+-  *
+-  * @return MAC_SUCCESS if it's successful, or MAC_INVALID_PARAMETER
+-  *
+-  * */
+- u8 tl_zbMacAttrGet(u8 attribute, u8* value, u8* len);
+-
++void generateIEEEAddr(void);
+ 
+ /*
+  * MAC layer to NWK layer primitive
+diff --git a/zigbee_release_version/zigbee/mac/mac_phy.c b/zigbee_release_version/zigbee/mac/mac_phy.c
+index 82d3cf0..49ceb46 100644
+--- a/zigbee_release_version/zigbee/mac/mac_phy.c
++++ b/zigbee_release_version/zigbee/mac/mac_phy.c
+@@ -435,19 +435,23 @@ u8 rf_stopED(void)
+ #endif
+ }
+ 
++
+ _attribute_ram_code_ u8 rf_performCCA(void)
+ {
+ 	u32 t1 = clock_time();
+ 	s8 rssi_peak = -110;
+ 	s8 rssi_cur = -110;
++	s32 rssiSum = 0;
++	s32 cnt = 1;
+ 
++	rssi_cur = ZB_RADIO_RSSI_GET();
++	rssiSum += rssi_cur;
+ 	while(!clock_time_exceed(t1,128)){
+ 		rssi_cur = ZB_RADIO_RSSI_GET();
+-		if (rssi_cur > rssi_peak) {
+-			rssi_peak = rssi_cur;
+-		}
++		rssiSum += rssi_cur;
++		cnt++;
+ 	}
+-
++	rssi_peak = rssiSum/cnt;
+ 	if (rssi_peak > -60 || (rf_busyFlag & TX_BUSY)) {//Return if currently in TX state
+ 		return PHY_CCA_BUSY;
+ 	} else {
+diff --git a/zigbee_release_version/zigbee/mac/mac_pib.c b/zigbee_release_version/zigbee/mac/mac_pib.c
+index 6cc4ebc..ad8076f 100644
+--- a/zigbee_release_version/zigbee/mac/mac_pib.c
++++ b/zigbee_release_version/zigbee/mac/mac_pib.c
+@@ -8,6 +8,8 @@ PURPOSE: MAC layer main module
+ */
+ #include "../include/zb_common.h"
+ 
++//Telink ieee address range
++const u8 startIEEEAddr[] = {0x38, 0xc1, 0xa4};
+ 
+ const mac_pibTbl_t g_zbMacPibTbl[] = {
+ 	{OFFSETOF(tl_zb_mac_pib_t, ackWaitDuration), 	sizeof(u8), 54, 54},                         /* MAC_ACK_WAIT_DURATION */
+@@ -110,5 +112,22 @@ _CODE_MAC_ u8 tl_zbMacAttrGet(u8 attribute, u8* value, u8* len){
+ 	return MAC_SUCCESS;
+ }
+ 
++_CODE_MAC_ void generateIEEEAddr(void){
++	u8 addr[8];
++
++	flash_read(CFG_MAC_ADDRESS, 8, addr);
++
++	if(ZB_IEEE_ADDR_IS_INVAILD(addr)){
++		generateRandomData(addr, 8);
++		memcpy(addr+5, startIEEEAddr, 3);
++		memcpy(ZB_PIB_EXTENDED_ADDRESS(), addr, 8);
++		flash_write(CFG_MAC_ADDRESS, 6, addr + 2);
++		flash_write(CFG_MAC_ADDRESS + 6, 2, addr);
++	}else{
++		flash_read(CFG_MAC_ADDRESS, 6, addr + 2);
++		flash_read(CFG_MAC_ADDRESS + 6, 2, addr);
++		ZB_IEEE_ADDR_COPY(ZB_PIB_EXTENDED_ADDRESS(), addr);
++	}
++}
+ 
+ /*! @} */
+diff --git a/zigbee_release_version/zigbee/nwk/includes/nwk.h b/zigbee_release_version/zigbee/nwk/includes/nwk.h
+index 0ed8e00..c7ec04a 100644
+--- a/zigbee_release_version/zigbee/nwk/includes/nwk.h
++++ b/zigbee_release_version/zigbee/nwk/includes/nwk.h
+@@ -80,7 +80,7 @@
+ //#define NWK_BROADCAST_DELIVERY_TIME	  (2*NWK_NIB().maxDepth*(((50+(NWK_MAX_BROADCAST_JITTER*1000)/2)) + NWK_NIB().passiveAckTimeout*NWK_MAX_BROADCAST_RETRIES)/1000)
+ #define NWK_BROADCAST_DELIVERY_TIME	  (2*NWK_MAX_DEPTH*(((50+(NWK_MAX_BROADCAST_JITTER*1000)/2)) + NWK_PASSIVE_ACK_TIMEOUT*NWK_MAX_BROADCAST_RETRIES)/1000)
+ #else
+-#define NWK_BROADCAST_DELIVERY_TIME	 	2000//ms
++#define NWK_BROADCAST_DELIVERY_TIME	 	5000//ms
+ #endif
+ 
+ /****************************************************************************
+@@ -890,7 +890,6 @@ typedef struct
+ 	}linkStatus;
+ }linkStatus_entry_t;
+ 
+-#define	LINK_ST_PAYLOADHDRLEN			2
+ /****************************************************************************
+ * @brief	Link status command payload
+ */
+@@ -1307,7 +1306,7 @@ void tl_zbNwkLinkStatusStop(void);
+ void tl_zbNwkRouteDiscStart(void *arg);
+ 
+ void nwkEndDevTimeoutReqSend(reqTimeoutEnum_t reqTimeoutEnum, u8 endDevCfg);
+-
++void keepaliveMsgSendStop(void);
+ /**
+    Confirms start procedure.
+    @param - reference to buffer.
+diff --git a/zigbee_release_version/zigbee/nwk/includes/nwk_ctx.h b/zigbee_release_version/zigbee/nwk/includes/nwk_ctx.h
+index 3cd97eb..bff2e26 100644
+--- a/zigbee_release_version/zigbee/nwk/includes/nwk_ctx.h
++++ b/zigbee_release_version/zigbee/nwk/includes/nwk_ctx.h
+@@ -139,7 +139,8 @@ typedef struct
+ 	u8	joinAccept:1;
+ 	u8	known_panids_cnt:4;
+ 	u8	discoverRoute:1;	/*!< Always TRUE for NLDE data request! see 2.2.4.1.1.3 */
+-	u8  resv:3;
++	u8  resv:2;
++	u8	parentIsChanged:1;	/*!< A flag indicates that the device's parent is changed through rejoin */
+ 	u8 	user_state:4;		/*!< Current network user_state_t */
+ 	u8 	state:4; 			/*!< Current network subsystem state nlme_state_t */
+ 
+@@ -158,15 +159,6 @@ typedef struct
+ nwk_ctx_t g_zbNwkCtx;
+ 
+ 
+-
+-
+-
+-
+-
+-
+-#define ZB_SET_USER_STATE(_state_)    	(g_zbNwkCtx.user_state = _state_)
+-#define ZB_GET_USER_STATE()    			(g_zbNwkCtx.user_state)
+-
+ #define ZB_SET_DISCOVER_ROUTE(v)		(g_zbNwkCtx.discoverRoute = v)
+ #define ZB_GET_DISCOVER_ROUTE			(g_zbNwkCtx.discoverRoute)
+ 
+diff --git a/zigbee_release_version/zigbee/nwk/includes/nwk_neighbor.h b/zigbee_release_version/zigbee/nwk/includes/nwk_neighbor.h
+index 9fc4ad6..0f9882f 100644
+--- a/zigbee_release_version/zigbee/nwk/includes/nwk_neighbor.h
++++ b/zigbee_release_version/zigbee/nwk/includes/nwk_neighbor.h
+@@ -157,12 +157,10 @@ s32 tl_neighborTblSave2Flash(void *arg);
+ 
+ u8 tl_zbNeighborTableNumGet(void);
+ 
+-u8 tl_zbNeighborTableRouterNumGet(void);
++u8 tl_zbNeighborTableRouterValidNumGet(void);
+ 
+ u8 tl_zbNeighborTableChildEDNumGet(void);
+ 
+-u8 tl_zbNeighborTableValidNumGet(void);
+-
+ bool tl_nwkChildrenExist(void );
+ u8 tl_zbNeighborTableChildrenNumGet(void);
+ 
+diff --git a/zigbee_release_version/zigbee/ss/security_service.h b/zigbee_release_version/zigbee/ss/security_service.h
+index 0a0cd40..dc2bc1d 100644
+--- a/zigbee_release_version/zigbee/ss/security_service.h
++++ b/zigbee_release_version/zigbee/ss/security_service.h
+@@ -352,4 +352,11 @@ void ss_zdoInit(bool enSecurity,ss_preconfiguredKey_e type);
+  * */
+ void ss_securityModeSet(ss_securityMode_e m);
+ 
++/*
++ * @brief	judge if it's a distribute security mode
++ *
++ *
++ * */
++bool ss_securityModeIsDistributed(void);
++
+ #endif	/* SECURITY_SERVICE_H */
+diff --git a/zigbee_release_version/zigbee/zbapi/zb_api.h b/zigbee_release_version/zigbee/zbapi/zb_api.h
+index 515beb6..b64a2e5 100644
+--- a/zigbee_release_version/zigbee/zbapi/zb_api.h
++++ b/zigbee_release_version/zigbee/zbapi/zb_api.h
+@@ -152,22 +152,6 @@ u32 zb_getPollRate(void);
+  * @return
+  */
+ void zb_endDeviceSyncReq(void);
+-/*******************************************************************************************//**
+- * @brief       Send an APSDE data request
+- *
+- * @param[in]   dataReq - Pointer to the apsde data request structure
+- *
+- * @param[in]   handle	- the handle used in stack
+- *
+- * @param[in]   asdu    - Pointer to the asdu
+- *
+- * @param[in]   length  - Length of asdu
+- *
+- * @return      Status
+- *
+- **************************************************************************/
+-u8 zb_apsdeDataRequest(aps_data_req_t *dataReq, u8 handle, u8* asdu, u8 length);
+-
+ 
+ /***********************************************************************//**
+  * @brief       Send a mac layer scan request
+diff --git a/zigbee_release_version/zigbee/zbhci/uart/hci_uart.c b/zigbee_release_version/zigbee/zbhci/uart/hci_uart.c
+index dbb6644..8c295b6 100644
+--- a/zigbee_release_version/zigbee/zbhci/uart/hci_uart.c
++++ b/zigbee_release_version/zigbee/zbhci/uart/hci_uart.c
+@@ -38,8 +38,6 @@ typedef struct{
+ __attribute__((aligned(4))) u8 uartTxBuf[UART_TX_BUF_SIZE] = {0};
+ __attribute__((aligned(4))) u8 uartRxBuf[UART_RX_BUF_SIZE] = {0};
+ 
+-extern void zbhciCmdHandler(u16 msgType, u16 msgLen, u8 *p);
+-
+ void uart_data_handler(void *arg){
+ 
+ 	 /*
+diff --git a/zigbee_release_version/zigbee/zbhci/usbCDC/zbhci_usb_cdc.c b/zigbee_release_version/zigbee/zbhci/usbCDC/zbhci_usb_cdc.c
+index bae20f6..5f9bc9d 100644
+--- a/zigbee_release_version/zigbee/zbhci/usbCDC/zbhci_usb_cdc.c
++++ b/zigbee_release_version/zigbee/zbhci/usbCDC/zbhci_usb_cdc.c
+@@ -25,11 +25,16 @@
+ #include "../zbhci.h"
+ 
+ #if (ZBHCI_EN && ZBHCI_USB_CDC)
++
++typedef void (*zbhciRxCbFun)(u8 *buf, u8 len);
++typedef void (*zbhciTxDoneCbFun)(u8 *buf);
++
+ //define rx buffer
+-#define RX_BUF_LEN    64 //in bytes
+-#define TX_BUF_LEN    64 //in bytes
+-#define RX_BUF_NUM    4
+-#define RX_NDATA_LEN	7
++#define RX_BUF_LEN    		64 //in bytes
++#define TX_BUF_LEN    		64 //in bytes
++#define RX_BUF_NUM    		4
++#define RX_NDATA_LEN		7
++
+ static unsigned char rx_buf[RX_BUF_NUM][RX_BUF_LEN];
+ static unsigned char rx_ptr = 0;
+ __attribute__((aligned(4))) u8 usb_cdcTxbuf[TX_BUF_LEN] = {0};
+@@ -37,6 +42,9 @@ __attribute__((aligned(4))) u8 usb_cdcTxbuf[TX_BUF_LEN] = {0};
+ u8 tx_rdPtr = 0;
+ zbhciRxCbFun hciCb = NULL;
+ zbhciTxDoneCbFun hciTxDoneCb = NULL;
++
++void usbcdc_data_handler(void *arg);
++
+ static void USBCDC_RxCb(unsigned char *data){
+     USBCDC_RxBufSet(rx_buf[(rx_ptr++&0x03)]);
+     if(hciCb){
+@@ -53,8 +61,7 @@ u8 checksum(u8 *data,u8 len){
+ 	return ret;
+ }
+ 
+-
+-bool usbRwBusy(void ){
++bool usbRwBusy(void){
+ 	return (!USBCDC_IsAvailable());
+ }
+ 
+@@ -124,7 +131,6 @@ bool zbhciPacketRxCompleted(u8 **buf){
+ 	return FALSE;
+ }
+ 
+-void usbcdc_data_handler(void *arg);
+ void zbhciRxCb(u8 *buf,u8 len){
+ 	if(zbhciPacketRxCompleted(&buf)!=TRUE){
+ 		return;
+@@ -164,7 +170,6 @@ void usbcdc_data_handler(void *arg){
+ 		st = ZBHCI_MSG_STATUS_ERROR_START_CHAR;
+ 	}
+ 
+-
+ 	if(st == SUCCESS){
+ 		u16 pktLen = (msg->msgLen16H << 8) | msg->msgLen16L;
+ 		u16 msgType = (msg->msgType16H<<8) + msg->msgType16L;
+@@ -186,19 +191,16 @@ void usbcdc_data_handler(void *arg){
+ 	}
+ }
+ 
+-
+ void USB_LogInit(void)
+ {
+     write_reg8(0x80013c, 0x40);
+     write_reg8(0x80013d, 0x09);
+ }
+ 
+-
+ void zbhciTxDoneCb(u8 *buf){
+ 
+ }
+ 
+-
+ void usb_cdc_init(void){
+ 	USB_Init();
+ 	USB_LogInit();
+@@ -211,7 +213,7 @@ void usb_cdc_init(void){
+ 	hciTxDoneCb = zbhciTxDoneCb;
+ }
+ 
+-void usbRwTask(void ){
++void usbRwTask(void){
+ 	USB_IrqHandle();
+ }
+ #endif
+diff --git a/zigbee_release_version/zigbee/zbhci/zbhci.c b/zigbee_release_version/zigbee/zbhci/zbhci.c
+index d183a13..68cb2e1 100644
+--- a/zigbee_release_version/zigbee/zbhci/zbhci.c
++++ b/zigbee_release_version/zigbee/zbhci/zbhci.c
+@@ -20,13 +20,28 @@
+  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+  *
+  *******************************************************************************************************/
++
++/**********************************************************************
++ * INCLUDES
++ */
+ #include "../include/zb_common.h"
+ #include "zbhci.h"
+ 
+ 
+-
+ #if ZBHCI_EN
++/**********************************************************************
++ * LOCAL CONSTANTS
++ */
++
++
++/**********************************************************************
++ * TYPEDEFS
++ */
+ 
++
++/**********************************************************************
++ * LOCAL FUNCTIONS
++ */
+ #if ZBHCI_USB_PRINT
+ 	extern void usb_print_init(void);
+ 	extern u8 usb_printTxMsg(u16 u16Type, u16 u16Length, u8 *pu8Data);
+@@ -60,7 +75,7 @@ u8 crc8Calculate(u16 type, u16 length, u8 *data){
+ 		crc8 ^= data[n];
+ 	}
+ 
+-	return(crc8);
++	return crc8;
+ }
+ 
+ 
+@@ -71,14 +86,11 @@ u8 crc8Calculate(u16 type, u16 length, u8 *data){
+ zbhciTx_e zbhciTx(u16 u16Type, u16 u16Length, u8 *pu8Data){
+ #if ZBHCI_USB_PRINT
+ 	return usb_printTxMsg(u16Type, u16Length, pu8Data);
+-
+ #elif ZBHCI_USB_CDC
+ 	return usb_cdc_txMsg(u16Type,u16Length,pu8Data);
+-
+ #elif ZBHCI_UART
+     uart_txMsg(u16Type, u16Length, pu8Data);
+     return ZBHCI_TX_SUCCESS;
+-
+ #elif ZBHCI_SPI
+ 
+ #elif ZBHCI_I2C
+@@ -90,13 +102,10 @@ zbhciTx_e zbhciTx(u16 u16Type, u16 u16Length, u8 *pu8Data){
+ void zbhciInit(void){
+ #if ZBHCI_USB_PRINT
+ 	usb_print_init();
+-
+ #elif ZBHCI_USB_CDC
+-	usb_cdc_init(); //zbhciRxCb, zbhciTxDoneCb);
+-
++	usb_cdc_init();
+ #elif ZBHCI_UART
+     hci_uart_init();
+-
+ #elif ZBHCI_USB_HID
+     usb_hid_init();
+ #elif ZBHCI_SPI
+@@ -104,20 +113,18 @@ void zbhciInit(void){
+ #elif ZBHCI_I2C
+ 
+ #endif
+-
+ }
+ 
+ void zbhciTask(void){
+ #if ZBHCI_USB_PRINT
+ 	usbPrintTask();
+-
+ #elif ZBHCI_USB_CDC
+ 	usbRwTask();
+ #elif ZBHCI_USB_HID
+ 	usbHidTask();
+ #elif ZBHCI_UART
+-	/* process in the uart ISR */
+-
++	/* process messages in the uart ISR, and we must check the uart RX state in main loop. */
++	uart_exceptionProcess();
+ #elif ZBHCI_SPI
+ 
+ #elif ZBHCI_I2C
+diff --git a/zigbee_release_version/zigbee/zbhci/zbhci.h b/zigbee_release_version/zigbee/zbhci/zbhci.h
+index 063a28a..4df1720 100644
+--- a/zigbee_release_version/zigbee/zbhci/zbhci.h
++++ b/zigbee_release_version/zigbee/zbhci/zbhci.h
+@@ -32,22 +32,17 @@
+ /****************************************************************************/
+ /***        Type Definitions                                              ***/
+ /****************************************************************************/
+-#define	USE_NXP_SFTWARE				1
+-#define UART_DEBUG                  0
+-
+-#define MAX_ZCL_FRAME_LEN           32
+-
+ #if (ZBHCI_UART || ZBHCI_USB_CDC)
+-#define        ZBHCI_MSG_STATUS_ERROR_START_CHAR    0xe0
+-#define        ZBHCI_MSG_STATUS_MSG_OVERFLOW        0xe1
+-#define        ZBHCI_MSG_STATUS_ERROR_END_CHAR      0xe2
+-#define        ZBHCI_MSG_STATUS_BAD_MSG             0xe3
+-#define        ZBHCI_MSG_STATUS_UART_EXCEPT         0xe4
++#define ZBHCI_MSG_STATUS_ERROR_START_CHAR    0xe0
++#define ZBHCI_MSG_STATUS_MSG_OVERFLOW        0xe1
++#define ZBHCI_MSG_STATUS_ERROR_END_CHAR      0xe2
++#define ZBHCI_MSG_STATUS_BAD_MSG             0xe3
++#define ZBHCI_MSG_STATUS_UART_EXCEPT         0xe4
+ #endif
+ 
+-#define			ZBHCI_MSG_START_FLAG				0x55
+-#define			ZBHCI_MSG_END_FLAG					0xAA
+-#define			ZBHCI_MSG_HDR_LEN					0x07
++#define	ZBHCI_MSG_START_FLAG				 0x55
++#define	ZBHCI_MSG_END_FLAG					 0xAA
++#define	ZBHCI_MSG_HDR_LEN					 0x07
+ 
+ 
+ typedef enum{
+@@ -56,100 +51,103 @@ typedef enum{
+ }workingMode_e;
+ 
+ typedef enum{
+-	ZBHCI_CMD_BDB_COMMISSION_FORMATION  = 0x0001,
+-	ZBHCI_CMD_BDB_COMMISSION_STEER      ,//= 0x0002,
+-	ZBHCI_CMD_BDB_COMMISSION_TOUCHLINK  ,//= 0x0003,
+-	ZBHCI_CMD_BDB_COMMISSION_FINDBIND   ,//= 0x0004,
+-	ZBHCI_CMD_BDB_FACTORY_RESET         ,//= 0x0005,
+-	ZBHCI_CMD_BDB_PRE_INSTALL_CODE      ,//= 0x0006,
++	ZBHCI_CMD_BDB_COMMISSION_FORMATION  	= 0x0001,
++	ZBHCI_CMD_BDB_COMMISSION_STEER      	,//= 0x0002,
++	ZBHCI_CMD_BDB_COMMISSION_TOUCHLINK  	,//= 0x0003,
++	ZBHCI_CMD_BDB_COMMISSION_FINDBIND   	,//= 0x0004,
++	ZBHCI_CMD_BDB_FACTORY_RESET         	,//= 0x0005,
++	ZBHCI_CMD_BDB_PRE_INSTALL_CODE      	,//= 0x0006,
+ 	ZBHCI_CMD_BDB_CHANNEL_SET,
+ 	ZBHCI_CMD_BDB_DONGLE_WORKING_MODE_SET,
+ 	ZBHCI_CMD_BDB_NODE_DELETE,
+-	ZBHCI_CMD_ACK  						= 0x8000,
+-
+-	ZBHCI_CMD_DISCOVERY_NWK_ADDR_REQ	= 0x0010,
+-	ZBHCI_CMD_DISCOVERY_IEEE_ADDR_REQ   ,//= 0x0011,
+-	ZBHCI_CMD_DISCOVERY_NODE_DESC_REQ	,//= 0x0012,
+-	ZBHCI_CMD_DISCOVERY_SIMPLE_DESC_REQ	,//= 0x0013,
+-	ZBHCI_CMD_DISCOVERY_MATCH_DESC_REQ	,//= 0x0014,
+-	ZBHCI_CMD_DISCOVERY_ACTIVE_EP_REQ	,//= 0x0015,
+-	ZBHCI_CMD_DISCOVERY_LEAVE_REQ		,//= 0x0016,
+-
+-	ZBHCI_CMD_DISCOVERY_NWK_ADDR_RSP	= 0x8010,
+-	ZBHCI_CMD_DISCOVERY_IEEE_ADDR_RSP   ,//= 0x0011,
+-	ZBHCI_CMD_DISCOVERY_NODE_DESC_RSP	,//= 0x0012,
+-	ZBHCI_CMD_DISCOVERY_SIMPLE_DESC_RSP	,//= 0x0013,
+-	ZBHCI_CMD_DISCOVERY_MATCH_DESC_RSP	,//= 0x0014,
+-	ZBHCI_CMD_DISCOVERY_ACTIVE_EP_RSP	,//= 0x0015,
+-
+-	ZBHCI_CMD_BINDING_REQ				= 0x0020,
+-	ZBHCI_CMD_UNBINDING_REQ				,//= 0x0021,
+-
+-	ZBHCI_CMD_BINDING_RSP				= 0x8020,
+-	ZBHCI_CMD_UNBINDING_RSP				,//= 0x0021,
+-
+-	ZBHCI_CMD_MGMT_LQI_REQ				= 0x0030,
+-	ZBHCI_CMD_MGMT_BIND_REQ				,//= 0x0031,
+-	ZBHCI_CMD_MGMT_LEAVE_REQ			,//= 0x0032,
+-	ZBHCI_CMD_MGMT_DIRECT_JOIN_REQ		,//= 0x0033,
+-	ZBHCI_CMD_MGMT_PERMIT_JOIN_REQ		,//= 0x0034,
+-	ZBHCI_CMD_MGMT_NWK_UPDATE_REQ		,//= 0x0035,
+-
+-	ZBHCI_CMD_MGMT_LQI_RSP				= 0x8030,
+-	ZBHCI_CMD_MGMT_BIND_RSP				,//= 0x0031,
+-	ZBHCI_CMD_MGMT_LEAVE_RSP			,//= 0x0032,
+-	ZBHCI_CMD_MGMT_DIRECT_JOIN_RSP		,//= 0x0033,
+-	ZBHCI_CMD_MGMT_PERMIT_JOIN_RSP		,//= 0x0034,
+-	ZBHCI_CMD_MGMT_NWK_UPDATE_RSP		,//= 0x0035,
+-
+-	ZBHCI_CMD_NODES_JOINED_GET_REQ		= 0x0040,
+-	ZBHCI_CMD_NODES_TOGLE_TEST_REQ		= 0x0041,
+-	ZBHCI_CMD_TXRX_PERFORMANCE_TEST_REQ	= 0x0042,
+-
+-	ZBHCI_CMD_NODES_JOINED_GET_RSP		= 0x8040,
+-	ZBHCI_CMD_NODES_TOGLE_TEST_RSP		= 0x8041,
+-	ZBHCI_CMD_TXRX_PERFORMANCE_TEST_RSP	= 0x8042,
+-	ZBHCI_CMD_NODES_DEV_ANNCE_IND		= 0x8043,
+-
+-	ZBHCI_CMD_ZCL_ATTR_READ				= 0x0100,
+-	ZBHCI_CMD_ZCL_ATTR_WRITE			,//= 0x0101,
+-	ZBHCI_CMD_ZCL_CONFIG_REPORT			,//= 0x0102,
+-	ZBHCI_CMD_ZCL_READ_REPORT_CFG		,//= 0x0103,
+-
+-	ZBHCI_CMD_ZCL_ATTR_READ_RSP			= 0x8100,
++	ZBHCI_CMD_BDB_TX_POWER_SET,
++	ZBHCI_CMD_ACK  							= 0x8000,
++
++	ZBHCI_CMD_DISCOVERY_NWK_ADDR_REQ		= 0x0010,
++	ZBHCI_CMD_DISCOVERY_IEEE_ADDR_REQ   	,//= 0x0011,
++	ZBHCI_CMD_DISCOVERY_NODE_DESC_REQ		,//= 0x0012,
++	ZBHCI_CMD_DISCOVERY_SIMPLE_DESC_REQ		,//= 0x0013,
++	ZBHCI_CMD_DISCOVERY_MATCH_DESC_REQ		,//= 0x0014,
++	ZBHCI_CMD_DISCOVERY_ACTIVE_EP_REQ		,//= 0x0015,
++	ZBHCI_CMD_DISCOVERY_LEAVE_REQ			,//= 0x0016,
++
++	ZBHCI_CMD_DISCOVERY_NWK_ADDR_RSP		= 0x8010,
++	ZBHCI_CMD_DISCOVERY_IEEE_ADDR_RSP   	,//= 0x0011,
++	ZBHCI_CMD_DISCOVERY_NODE_DESC_RSP		,//= 0x0012,
++	ZBHCI_CMD_DISCOVERY_SIMPLE_DESC_RSP		,//= 0x0013,
++	ZBHCI_CMD_DISCOVERY_MATCH_DESC_RSP		,//= 0x0014,
++	ZBHCI_CMD_DISCOVERY_ACTIVE_EP_RSP		,//= 0x0015,
++
++	ZBHCI_CMD_BINDING_REQ					= 0x0020,
++	ZBHCI_CMD_UNBINDING_REQ					,//= 0x0021,
++
++	ZBHCI_CMD_BINDING_RSP					= 0x8020,
++	ZBHCI_CMD_UNBINDING_RSP					,//= 0x0021,
++
++	ZBHCI_CMD_MGMT_LQI_REQ					= 0x0030,
++	ZBHCI_CMD_MGMT_BIND_REQ					,//= 0x0031,
++	ZBHCI_CMD_MGMT_LEAVE_REQ				,//= 0x0032,
++	ZBHCI_CMD_MGMT_DIRECT_JOIN_REQ			,//= 0x0033,
++	ZBHCI_CMD_MGMT_PERMIT_JOIN_REQ			,//= 0x0034,
++	ZBHCI_CMD_MGMT_NWK_UPDATE_REQ			,//= 0x0035,
++
++	ZBHCI_CMD_MGMT_LQI_RSP					= 0x8030,
++	ZBHCI_CMD_MGMT_BIND_RSP					,//= 0x0031,
++	ZBHCI_CMD_MGMT_LEAVE_RSP				,//= 0x0032,
++	ZBHCI_CMD_MGMT_DIRECT_JOIN_RSP			,//= 0x0033,
++	ZBHCI_CMD_MGMT_PERMIT_JOIN_RSP			,//= 0x0034,
++	ZBHCI_CMD_MGMT_NWK_UPDATE_RSP			,//= 0x0035,
++
++	ZBHCI_CMD_NODES_JOINED_GET_REQ			= 0x0040,
++	ZBHCI_CMD_NODES_TOGLE_TEST_REQ			= 0x0041,
++	ZBHCI_CMD_TXRX_PERFORMANCE_TEST_REQ		= 0x0042,
++	ZBHCI_CMD_AF_DATA_SEND_TEST_REQ			= 0x0044,
++
++	ZBHCI_CMD_NODES_JOINED_GET_RSP			= 0x8040,
++	ZBHCI_CMD_NODES_TOGLE_TEST_RSP			= 0x8041,
++	ZBHCI_CMD_TXRX_PERFORMANCE_TEST_RSP		= 0x8042,
++	ZBHCI_CMD_NODES_DEV_ANNCE_IND			= 0x8043,
++	ZBHCI_CMD_AF_DATA_SEND_TEST_RSP			= 0x8044,
++
++	ZBHCI_CMD_ZCL_ATTR_READ					= 0x0100,
++	ZBHCI_CMD_ZCL_ATTR_WRITE				,//= 0x0101,
++	ZBHCI_CMD_ZCL_CONFIG_REPORT				,//= 0x0102,
++	ZBHCI_CMD_ZCL_READ_REPORT_CFG			,//= 0x0103,
++
++	ZBHCI_CMD_ZCL_ATTR_READ_RSP				= 0x8100,
+ 	ZBHCI_CMD_ZCL_ATTR_WRITE_RSP			,//= 0x0101,
+ 	ZBHCI_CMD_ZCL_CONFIG_REPORT_RSP			,//= 0x0102,
+ 	ZBHCI_CMD_ZCL_READ_REPORT_CFG_RSP		,//= 0x0103,
+ 	ZBHCI_CMD_ZCL_REPORT_MSG_RCV,
+ 
+-	ZBHCI_CMD_ZCL_BASIC					= 0x0110,
+-	ZBHCI_CMD_ZCL_BASIC_RESET			= 0x0110,
++	ZBHCI_CMD_ZCL_BASIC						= 0x0110,
++	ZBHCI_CMD_ZCL_BASIC_RESET				= 0x0110,
+ 
+-	ZBHCI_CMD_ZCL_GROUP					= 0x0120,
+-	ZBHCI_CMD_ZCL_GROUP_ADD				= 0x0120,
++	ZBHCI_CMD_ZCL_GROUP						= 0x0120,
++	ZBHCI_CMD_ZCL_GROUP_ADD					= 0x0120,
+ 	ZBHCI_CMD_ZCL_GROUP_VIEW,
+ 	ZBHCI_CMD_ZCL_GROUP_GET_MEMBERSHIP,
+ 	ZBHCI_CMD_ZCL_GROUP_REMOVE,
+ 	ZBHCI_CMD_ZCL_GROUP_REMOVE_ALL,
+ 	ZBHCI_CMD_ZCL_GROUP_ADD_IF_IDENTIFY,
+ 
+-	ZBHCI_CMD_ZCL_GROUP_ADD_RSP			= 0x8120,
++	ZBHCI_CMD_ZCL_GROUP_ADD_RSP				= 0x8120,
+ 	ZBHCI_CMD_ZCL_GROUP_VIEW_RSP,
+ 	ZBHCI_CMD_ZCL_GROUP_GET_MEMBERSHIP_RSP,
+ 	ZBHCI_CMD_ZCL_GROUP_REMOVE_RSP,
+ 
+-	ZBHCI_CMD_ZCL_IDENTIFY 				= 0x0130,
++	ZBHCI_CMD_ZCL_IDENTIFY 					= 0x0130,
+ 	ZBHCI_CMD_ZCL_IDENTIFY_QUERY,
+ 
+-	ZBHCI_CMD_ZCL_IDENTIFY_QUERY_RSP	= 0x8131,
++	ZBHCI_CMD_ZCL_IDENTIFY_QUERY_RSP		= 0x8131,
+ 
+-	ZBHCI_CMD_ZCL_ONOFF					= 0x0140,
+-	ZBHCI_CMD_ZCL_ONOFF_ON				= 0x0140,
++	ZBHCI_CMD_ZCL_ONOFF						= 0x0140,
++	ZBHCI_CMD_ZCL_ONOFF_ON					= 0x0140,
+ 	ZBHCI_CMD_ZCL_ONOFF_OFF,
+ 	ZBHCI_CMD_ZCL_ONOFF_TOGGLE,
+ 
+-	ZBHCI_CMD_ZCL_LEVEL					= 0x0150,
+-	ZBHCI_CMD_ZCL_LEVEL_MOVE2LEVEL		= 0x0150,
++	ZBHCI_CMD_ZCL_LEVEL						= 0x0150,
++	ZBHCI_CMD_ZCL_LEVEL_MOVE2LEVEL			= 0x0150,
+ 	ZBHCI_CMD_ZCL_LEVEL_MOVE,
+ 	ZBHCI_CMD_ZCL_LEVEL_STEP,
+ 	ZBHCI_CMD_ZCL_LEVEL_STOP,
+@@ -158,8 +156,8 @@ typedef enum{
+ 	ZBHCI_CMD_ZCL_LEVEL_STEP_WITHONOFF,
+ 	ZBHCI_CMD_ZCL_LEVEL_STOP_WITHONOFF,
+ 
+-	ZBHCI_CMD_ZCL_SCENE					= 0x0160,
+-	ZBHCI_CMD_ZCL_SCENE_ADD				= 0x0160,
++	ZBHCI_CMD_ZCL_SCENE						= 0x0160,
++	ZBHCI_CMD_ZCL_SCENE_ADD					= 0x0160,
+ 	ZBHCI_CMD_ZCL_SCENE_VIEW,
+ 	ZBHCI_CMD_ZCL_SCENE_REMOVE,
+ 	ZBHCI_CMD_ZCL_SCENE_REMOVE_ALL,
+@@ -174,81 +172,32 @@ typedef enum{
+ 	ZBHCI_CMD_ZCL_SCENE_STORE_RSP,
+ 	ZBHCI_CMD_ZCL_SCENE_GET_MEMBERSHIP_RSP	= 0x8166,
+ 
+-	ZBHCI_CMD_ZCL_COLOR					= 0x0170,
+-	ZBHCI_CMD_ZCL_COLOR_MOVE2HUE        = 0x0170,
++	ZBHCI_CMD_ZCL_COLOR						= 0x0170,
++	ZBHCI_CMD_ZCL_COLOR_MOVE2HUE        	= 0x0170,
+ 	ZBHCI_CMD_ZCL_COLOR_MOVE2COLOR,
+ 	ZBHCI_CMD_ZCL_COLOR_MOVE2SAT,
+ 	ZBHCI_CMD_ZCL_COLOR_MOVE2TEMP,
+ 
+-	ZBHCI_CMD_ZCL_IAS_ZONE				= 0x0180,
++	ZBHCI_CMD_ZCL_IAS_ZONE					= 0x0180,
+ 
+-	ZBHCI_CMD_ZCL_OTA_IMAGE_NOTIFY		= 0x0190,
++	ZBHCI_CMD_ZCL_OTA_IMAGE_NOTIFY			= 0x0190,
+ 
+-	ZBHCI_CMD_DATA_CONFIRM				= 0x8200,    //data confirm
+-	ZBHCI_CMD_MAC_ADDR_IND				= 0x8201,
+-	ZBHCI_CMD_NODE_LEAVE_IND			= 0x8202
++	ZBHCI_CMD_DATA_CONFIRM					= 0x8200,//data confirm
++	ZBHCI_CMD_MAC_ADDR_IND					= 0x8201,
++	ZBHCI_CMD_NODE_LEAVE_IND				= 0x8202
+ }teHCI_MsgType;
+ 
+-
+-
+-typedef enum
+-{
+-	ZBHCI_MSG_AHI_START									= 0x0800,
+-	ZBHCI_MSG_AHI_END									= 0x0A00,
+-
+-}teSL_MsgTypeRange;
+-
+-
+-
+ /** Status message */
+-typedef struct
++typedef enum
+ {
+-    enum
+-    {
+-        ZBHCI_MSG_STATUS_SUCCESS,
+-        ZBHCI_MSG_STATUS_INCORRECT_PARAMETERS,
+-        ZBHCI_MSG_STATUS_UNHANDLED_COMMAND,
+-        ZBHCI_MSG_STATUS_BUSY,
+-        ZBHCI_MSG_STATUS_NO_MEMORY,
+-        ZBHCI_MSG_STATUS_STACK_ALREADY_STARTED,
+-    }  eStatus;
+-    u8 u8SeqNum;
+-    char                acMessage[];            /**< Optional message */
+-}  tsSL_Msg_Status;
++    ZBHCI_MSG_STATUS_SUCCESS,
++    ZBHCI_MSG_STATUS_INCORRECT_PARAMETERS,
++    ZBHCI_MSG_STATUS_UNHANDLED_COMMAND,
++    ZBHCI_MSG_STATUS_BUSY,
++    ZBHCI_MSG_STATUS_NO_MEMORY,
++    ZBHCI_MSG_STATUS_STACK_ALREADY_STARTED,
++}zbhci_msgStatus_e;
+ 
+-
+-typedef struct{
+-	u8  startFlag;
+-	u8	msgType16H;
+-	u8	msgType16L;
+-
+-	u8	msgLen16H;
+-	u8	msgLen16L;
+-
+-	u8	checkSum;
+-	u8	pData[1];
+-}zbhci_msg_t;
+-
+-
+-/** Structure containing a log message for passing to the host via the serial link */
+-typedef struct
+-{
+-    enum
+-    {
+-        ZBHCI_LOG_EMERG,
+-        ZBHCI_LOG_ALERT,
+-        ZBHCI_LOG_CRIT,
+-        ZBHCI_LOG_ERR,
+-        ZBHCI_LOG_WARNING,
+-        ZBHCI_LOG_NOTICE,
+-        ZBHCI_LOG_INFO,
+-        ZBHCI_LOG_DEBUG,
+-    }eLevel;
+-    u8 au8Message[256];
+-} tsSL_Msg_Log;
+-
+-
+-//define the spp rx cb function
+ typedef enum{
+ 	ZBHCI_TX_SUCCESS,
+ 	ZBHCI_TX_BUFFERFULL,
+@@ -256,8 +205,19 @@ typedef enum{
+ 	ZBHCI_TX_FAILED
+ }zbhciTx_e;
+ 
++typedef enum{
++	ZBHCI_ADDRMODE_BOUND,
++	ZBHCI_ADDRMODE_GROUP,
++	ZBHCI_ADDRMODE_SHORT,
++	ZBHCI_ADDRMODE_IEEE,
++	ZBHCI_ADDRMODE_BRC,
++	ZBHCI_ADDRMODE_BOUNDNOACK,
++	ZBHCI_ADDRMODE_SHORTNOACK,
++	ZBHCI_ADDRMODE_IEEENOACK
++}zbhciTxMode_e;
++
+ #define ZB_LEBESWAP(ptr,len)								\
+-	for(int i=0; i<(len>>1);i++){						\
++	for(int i=0; i<(len>>1);i++){							\
+ 		unsigned char temp = ptr[len - i - 1];				\
+ 		ptr[len - i - 1] = ptr[i];							\
+ 		ptr[i] = temp;										\
+@@ -266,43 +226,36 @@ typedef enum{
+ 
+ #define ZB_IEEE_ADDR_REVERT(tar,addr)						\
+ 	for(int i=0; i<EXT_ADDR_LEN;i++){						\
+-		(tar)[i]=(addr)[EXT_ADDR_LEN - i - 1];					\
++		(tar)[i]=(addr)[EXT_ADDR_LEN - i - 1];				\
+ 	}														\
+ 
+ #define ZB_LINK_KEY_REVERT(tar,addr)						\
+ 	for(int i=0; i<SEC_KEY_LEN;i++){						\
+-		(tar)[i]=(addr)[SEC_KEY_LEN - i - 1];					\
++		(tar)[i]=(addr)[SEC_KEY_LEN - i - 1];				\
+ 	}
+ 
+-#define ZB_16BIT_REVERT(tar,addr)						\
+-	for(int i=0; i<2;i++){						\
+-		(tar)[i]=(addr)[2 - i - 1];					\
++#define ZB_16BIT_REVERT(tar,addr)							\
++	for(int i=0; i<2;i++){									\
++		(tar)[i]=(addr)[2 - i - 1];							\
+ 	}
+ 
+-#define			ZB_LEBESWAPU16(u16Value)						(u16Value = (u16Value>>8)|(u16Value<<8))
+-
+-typedef struct{
+-	u16 cmdType;
+-	u16 len;
+-	u8 payLoad[];
+-}hci_dataPush_t;
++#define	ZB_LEBESWAPU16(u16Value)	(u16Value = (u16Value>>8)|(u16Value<<8))
+ 
+-typedef enum{
+-	ZBHCI_ADDRMODE_BOUND,
+-	ZBHCI_ADDRMODE_GROUP,
+-	ZBHCI_ADDRMODE_SHORT,
+-	ZBHCI_ADDRMODE_IEEE,
+-	ZBHCI_ADDRMODE_BRC,
+-	ZBHCI_ADDRMODE_BOUNDNOACK,
+-	ZBHCI_ADDRMODE_SHORTNOACK,
+-	ZBHCI_ADDRMODE_IEEENOACK
+-}zbhciTxMode_e;
+ 
++typedef struct{
++	u8  startFlag;
++	u8	msgType16H;
++	u8	msgType16L;
++	u8	msgLen16H;
++	u8	msgLen16L;
++	u8	checkSum;
++	u8	pData[1];
++}zbhci_msg_t;
+ 
+ typedef struct{
+ 	u16 cmdId;
+ 	u16 resv;
+-	u8 payload[1];
++	u8  payload[1];
+ }zbhci_cmdHandler_t;
+ 
+ 
+@@ -312,7 +265,7 @@ typedef struct{
+  * */
+ typedef struct{
+ 	u16 startIndex;
+-}mgmt_nodesJoined_req_t;
++}zbhci_mgmt_nodesJoined_req_t;
+ 
+ 
+ /*
+@@ -322,14 +275,14 @@ typedef struct{
+ typedef struct{
+ 	u16 totalCnt;				/*!	the total count of the joined nodes */
+ 	u16 startIndex;				/*!	the start index */
+-	u8 listCnt;					/*!	the count of the mac address list */
+-	u8 status;					/*!	the status */
+-}mgmt_nodesJoined_rsp_hdr_t;
++	u8  listCnt;				/*!	the count of the mac address list */
++	u8  status;					/*!	the status */
++}zbhci_mgmt_nodesJoined_rsp_hdr_t;
+ 
+ typedef struct{
+-	mgmt_nodesJoined_rsp_hdr_t hdr;
++	zbhci_mgmt_nodesJoined_rsp_hdr_t hdr;
+ 	addrExt_t macAddrList[6];		//[6];	/*!	the mac address list */
+-}mgmt_nodesJoined_rsp_t;
++}zbhci_mgmt_nodesJoined_rsp_t;
+ 
+ 
+ /*
+@@ -341,12 +294,11 @@ typedef struct{
+ 	u8	srcEp;
+ 	u8	dstEp;
+ 	u16	sendCnt;
+-	u8	interval;    //unit: 100ms
++	u8	interval;    //unit: 10ms
+ 	u8	txPowerSet;
+ 	u8	payload[6];
+ }txrx_performce_test_req_t;
+ 
+-
+ typedef struct{
+ 	u16 dstAddr;
+ 	u16	sendCnt;
+@@ -354,53 +306,64 @@ typedef struct{
+ }txrx_performce_test_rsp_t;
+ 
+ typedef struct{
++	u16 dstAddr;
++	u8	srcEp;
++	u8	dstEp;
++	u16 clusterId;
++	u8  dataLen;
++	u8  payload[];
++}zbhci_afDataSend_req_t;
++
++typedef struct{
++	u16 srcAddr;
++	u8	srcEp;
++	u8	dstEp;
++	u16 clusterId;
++	u8  dataLen;
++	u8  payload[];
++}zbhci_afDataSend_rsp_t;
++
++typedef struct{
+ 	addrExt_t	macAddr;
+-}mgmt_nodeDeleteReq_t;
++}zbhci_mgmt_nodeDeleteReq_t;
+ 
+ typedef struct{
+ 	u16			totalCnt;
+ 	addrExt_t	macAddr;
+-}hci_nodeLeaveInd_t;
++}zbhci_nodeLeaveInd_t;
+ 
+ typedef struct{
+-	u16		app_profile_id;			//APP profile ID specifies the profile which supported on this EP.
+-	u16		app_dev_id;				//APP DEV ID specifies the device description supported on this EP.
+-	u8		endpoint;				//end-point num of the simple descriptor 1 ~ 240
+-	u8		app_dev_ver:4;			//APP DEV version specifies the version of the device description supported
+-	u8		reserved:4;				//Reserved
+-	u8		app_in_cluster_count;	//The number of input clusters supported on this EP
+-	u8		app_out_cluster_count;	//The number of output clusters supported on this EP
+-	//u16		*app_in_cluster_lst;	//Input cluster list address
+-	//u16		*app_out_cluster_lst;	//Output cluster list address
+-	u16		app_cluster_lst[1];
+-}zdp_simpleDesc_user_t;
+-
++	u8 ep;
++	u8 status;
++	u8 apsCnt;
++}zbhci_app_data_confirm_t;
+ 
+ typedef struct{
+-	u8 			seq_num;  /*! Sequence number which same with the request value */
+-	u8 			status;	  /*! Response status */
+-	u16			nwk_addr_interest;
+-	u8			length;
+-	u8  		resv;
+-	zdp_simpleDesc_user_t	simple_descriptor;
+-} zdo_simpleDescRsp_user_t;
++	ev_time_event_t	*performaceTestTmrEvt;
++	u16 sendTotalCnt;
++	u16 sendSuccessCnt;
++	u16 rcvTotalCnt;
++	u16 dstAddr;
++	u8	dstEp;
++	u8  dataApsCnt;
++	u8	performaceTest;
++}zbhci_afTestReq_t;
+ 
++extern zbhci_afTestReq_t g_afTestReq;
+ 
+-typedef void (*zbhciRxCbFun)(u8 *buf, u8 len);
+-typedef void (*zbhciTxDoneCbFun)(u8 *buf);
+ 
+-extern zbhciTx_e zbhciTx(u16 u16Type, u16 u16Length, u8 *pu8Data);
+-extern void zbhciInit(void);
+-extern void zbhciTask(void);
+ u8 crc8Calculate(u16 type, u16 length, u8 *data);
+-
+ void zbhciCmdHandler(u16 msgType, u16 msgLen, u8 *p);
+-
+ void zbhciAppDataSendConfirmPush(void *arg);
+-
++void zbhciAppNodeLeaveIndPush(void *arg);
++void zbhciAfDataRcvIndPush(void *arg);
++void zbhciAfDataRcvIndPush(void *arg);
++void zbhciAfDataCnfPush(void *arg);
+ bool zbhciMacAddrGetPush(addrExt_t devExtAddr);
+ 
+-void zbhciAppNodeLeaveIndPush(void *arg);
++extern zbhciTx_e zbhciTx(u16 u16Type, u16 u16Length, u8 *pu8Data);
++extern void zbhciInit(void);
++extern void zbhciTask(void);
+ 
+ #endif
+ 
+diff --git a/zigbee_release_version/zigbee/zbhci/zbhciCmdProcess.c b/zigbee_release_version/zigbee/zbhci/zbhciCmdProcess.c
+index 459f5e8..0b1139e 100644
+--- a/zigbee_release_version/zigbee/zbhci/zbhciCmdProcess.c
++++ b/zigbee_release_version/zigbee/zbhci/zbhciCmdProcess.c
+@@ -19,43 +19,61 @@
+  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+  *
+  *******************************************************************************************************/
++
++/**********************************************************************
++ * INCLUDES
++ */
+ #include "../zcl/zcl_include.h"
+ #include "../ota/ota.h"
+ #include "zbhci.h"
+ 
+ 
+ #if ZBHCI_EN
++/**********************************************************************
++ * LOCAL CONSTANTS
++ */
++
++
++/**********************************************************************
++ * TYPEDEFS
++ */
++typedef struct{
++	u16			targetAddr;
++	addrExt_t	macAddr;
++	u8			apsCnt;
++	u8			rejoin;
++}zb_hciCmdInfo_t;
++
++/**********************************************************************
++ * LOCAL VARIABLES
++ */
++zb_hciCmdInfo_t  g_hciCmd;
++
++zbhci_afTestReq_t g_afTestReq;
+ 
++/**********************************************************************
++ * GLOBAL VARIABLES
++ */
+ workingMode_e zbhciWorkingMode = ZBHCI_NORMAL_MODE;
+ 
++/**********************************************************************
++ * EXTERNED FUNCTIONS
++ */
+ extern void zbhci_zclIdentifyCmdHandle(void *arg);
+-
+ extern void zbhci_zclOnoffCmdHandle(void *arg);
+-
+ extern void zbhci_zclLevelCtrlCmdHandle(void *arg);
+-
+ extern void zbhci_zclColorCtrlCmdHandle(void *arg);
+-
+ extern void zbhci_clusterGroupHandle(void *arg);
+-
+ extern void zbhci_clusterSceneHandle(void *arg);
+-
+ extern void zbhci_clusterOTAHandle(void *arg);
+-
+-void zbhci_clusterBasicHandle(void *arg);
+-
++extern void zbhci_clusterBasicHandle(void *arg);
+ extern void zbhci_clusterCommonCmdHandle(void *arg);
+-
+ extern void zbhci_clusterOTAHandle(void *arg);
+ 
+-typedef struct{
+-	u16			targetAddr;
+-	addrExt_t	macAddr;
+-	u8			apsCnt;
+-	u8			rejoin;
+-}zb_hciCmdInfo_t;
+-zb_hciCmdInfo_t  g_hciCmd;
+ 
++/**********************************************************************
++ * FUNCTIONS
++ */
+ static u8 zbhciResolveAddrRspMsg(zdo_ieee_addr_resp_t *rsp){
+ 	u8 len = OFFSETOF(zdo_ieee_addr_resp_t, num_assoc_dev);
+ 	ZB_LEBESWAP(rsp->ieee_addr_remote,EXT_ADDR_LEN);
+@@ -70,7 +88,7 @@ static u8 zbhciResolveAddrRspMsg(zdo_ieee_addr_resp_t *rsp){
+ 	return len;
+ }
+ 
+-void zbhciNwkAddrRspMsgPush(void* arg){
++static void zbhciNwkAddrRspMsgPush(void* arg){
+ 	zdo_zdpDataInd_t *p = (zdo_zdpDataInd_t *)arg;
+ 	zdo_nwk_addr_resp_t *rsp = (zdo_nwk_addr_resp_t *)p->zpdu;
+ 
+@@ -81,7 +99,7 @@ void zbhciNwkAddrRspMsgPush(void* arg){
+ 	zbhciTx(ZBHCI_CMD_DISCOVERY_NWK_ADDR_RSP, p->length, (u8 *)rsp);
+ }
+ 
+-void zbhciIeeeAddrRspMsgPush(void* arg){
++static void zbhciIeeeAddrRspMsgPush(void* arg){
+ 	zdo_zdpDataInd_t *p = (zdo_zdpDataInd_t *)arg;
+ 	zdo_ieee_addr_resp_t *rsp = (zdo_ieee_addr_resp_t*)p->zpdu;
+ 
+@@ -92,21 +110,21 @@ void zbhciIeeeAddrRspMsgPush(void* arg){
+ 	zbhciTx(ZBHCI_CMD_DISCOVERY_IEEE_ADDR_RSP, p->length, (u8 *)rsp);
+ }
+ 
+-void zbhciMatchDescRspPush(void* arg){
++static void zbhciMatchDescRspPush(void* arg){
+ 	zdo_zdpDataInd_t *p = (zdo_zdpDataInd_t *)arg;
+ 	zdo_match_descriptor_resp_t *rsp = (zdo_match_descriptor_resp_t *)p->zpdu;
+ 	ZB_LEBESWAP(((u8 *)&rsp->nwk_addr_interest), 2);
+ 	zbhciTx(ZBHCI_CMD_DISCOVERY_MATCH_DESC_RSP, p->length, (u8 *)rsp);
+ }
+ 
+-void zbhciActiveEpRspMsgPush(void* arg){
++static void zbhciActiveEpRspMsgPush(void* arg){
+ 	zdo_zdpDataInd_t *p = (zdo_zdpDataInd_t *)arg;
+ 	zdo_active_ep_resp_t *rsp = (zdo_active_ep_resp_t *)p->zpdu;
+ 	ZB_LEBESWAPU16(rsp->nwk_addr_interest);
+ 	zbhciTx(ZBHCI_CMD_DISCOVERY_ACTIVE_EP_RSP, p->length, (u8 *)rsp);
+ }
+ 
+-void zbhciNodeDescRspMsgPush(void* arg){
++static void zbhciNodeDescRspMsgPush(void* arg){
+ 	zdo_zdpDataInd_t *p = (zdo_zdpDataInd_t *)arg;
+ 	zdo_node_descript_resp_t *rsp = (zdo_node_descript_resp_t*)p->zpdu;
+ 	ZB_LEBESWAP(((u8 *)&rsp->nwk_addr_interest), 2);
+@@ -121,8 +139,7 @@ void zbhciNodeDescRspMsgPush(void* arg){
+ 	zbhciTx(ZBHCI_CMD_DISCOVERY_NODE_DESC_RSP, p->length, (u8 *)rsp);
+ }
+ 
+-
+-void zbhciSimpleDescRspMsgPush(void* arg){
++static void zbhciSimpleDescRspMsgPush(void* arg){
+ 	zdo_zdpDataInd_t *p = (zdo_zdpDataInd_t *)arg;
+ 	zdo_simple_descriptor_resp_t *rsp = (zdo_simple_descriptor_resp_t *)p->zpdu;
+ 
+@@ -148,20 +165,19 @@ void zbhciSimpleDescRspMsgPush(void* arg){
+ 	zbhciTx(ZBHCI_CMD_DISCOVERY_SIMPLE_DESC_RSP, p->length, (u8 *)rsp);
+ }
+ 
+-
+-void zbhciBindRspPush(void* arg){
++static void zbhciBindRspPush(void* arg){
+ 	zdo_zdpDataInd_t *p = (zdo_zdpDataInd_t *)arg;
+ 	zdo_bind_resp_t *rsp = (zdo_bind_resp_t*)p->zpdu;
+ 	zbhciTx(ZBHCI_CMD_BINDING_RSP, ZDO_ZDP_RSP_FRAME_HEADERSIZE, (u8 *)rsp);
+ }
+ 
+-void zbhciUnbindRspPush(void* arg){
++static void zbhciUnbindRspPush(void* arg){
+ 	zdo_zdpDataInd_t *p = (zdo_zdpDataInd_t *)arg;
+ 	zdo_unbind_resp_t *rsp = (zdo_unbind_resp_t*)p->zpdu;
+ 	zbhciTx(ZBHCI_CMD_UNBINDING_RSP, ZDO_ZDP_RSP_FRAME_HEADERSIZE, (u8 *)rsp);
+ }
+ 
+-void zbhciMgmtLqiRspMsgPush(void* arg){
++static void zbhciMgmtLqiRspMsgPush(void* arg){
+ 	zdo_zdpDataInd_t *p = (zdo_zdpDataInd_t *)arg;
+ 	zdo_mgmt_lqi_resp_t *rsp = (zdo_mgmt_lqi_resp_t *)p->zpdu;
+ 	u8 num = rsp->neighbor_tbl_lst_cnt;
+@@ -178,7 +194,7 @@ void zbhciMgmtLqiRspMsgPush(void* arg){
+ 	zbhciTx(ZBHCI_CMD_MGMT_LQI_RSP, p->length, (u8 *)rsp);
+ }
+ 
+-void zbhciMgmtBindRspMsgPush(void* arg){
++static void zbhciMgmtBindRspMsgPush(void* arg){
+ 	zdo_zdpDataInd_t *p = (zdo_zdpDataInd_t *)arg;
+ 	zdo_mgmt_bind_resp_t *rsp = (zdo_mgmt_bind_resp_t *)p->zpdu;
+ 	u8 num = rsp->bind_tbl_lst_cnt;
+@@ -199,11 +215,11 @@ void zbhciMgmtBindRspMsgPush(void* arg){
+ 	zbhciTx(ZBHCI_CMD_MGMT_BIND_RSP, p->length, (u8 *)rsp);
+ }
+ 
+-void zbhciMgmtLeaveRspMsgPush(void *arg){
++static void zbhciMgmtLeaveRspMsgPush(void *arg){
+ 	zdo_zdpDataInd_t *p = (zdo_zdpDataInd_t *)arg;
+ 	zdo_mgmt_leave_resp_t *rsp = (zdo_mgmt_leave_resp_t *)p->zpdu;
+ 	u16 leaveNodeCnt = 0;
+-	hci_nodeLeaveInd_t ind;
++	zbhci_nodeLeaveInd_t ind;
+ 	if(g_hciCmd.apsCnt == rsp->seq_num && rsp->status == 0){
+ //		if(!g_hciCmd.rejoin){
+ //			ss_devKeyPairDelete(g_hciCmd.macAddr);
+@@ -217,13 +233,91 @@ void zbhciMgmtLeaveRspMsgPush(void *arg){
+ //		}
+ 		ind.totalCnt = leaveNodeCnt++;
+ 		memcpy(ind.macAddr, g_hciCmd.macAddr, 8);
+-		zbhciTx(ZBHCI_CMD_MGMT_LEAVE_RSP, sizeof(hci_nodeLeaveInd_t), (u8 *)&ind);
++		zbhciTx(ZBHCI_CMD_MGMT_LEAVE_RSP, sizeof(zbhci_nodeLeaveInd_t), (u8 *)&ind);
+ 	}
+ }
+ 
++s32 rxtx_performance_result_start(void *arg){
++	txrx_performce_test_rsp_t rsp;
++
++	COPY_BUFFERTOU16_BE(rsp.dstAddr, (u8 *)&g_afTestReq.dstAddr);
++	COPY_BUFFERTOU16_BE(rsp.sendCnt, (u8 *)&g_afTestReq.sendSuccessCnt);
++	COPY_BUFFERTOU16_BE(rsp.ackCnt, (u8 *)&g_afTestReq.rcvTotalCnt);
++
++	zbhciTx(ZBHCI_CMD_TXRX_PERFORMANCE_TEST_RSP, sizeof(txrx_performce_test_rsp_t), (u8 *)&rsp);
++
++	memset((u8 *)&g_afTestReq, 0, sizeof(zbhci_afTestReq_t));
++
++	g_afTestReq.performaceTestTmrEvt = NULL;
++	return -1;
++}
++
++void zbhciAfDataPerformanceResultPush(void){
++#if AF_TEST_ENABLE
++	if(!g_afTestReq.performaceTest){
++		return;
++	}
++
++	g_afTestReq.rcvTotalCnt++;
++
++	if(g_afTestReq.performaceTestTmrEvt){
++		TL_ZB_TIMER_CANCEL(&g_afTestReq.performaceTestTmrEvt);
++	}
++	g_afTestReq.performaceTestTmrEvt = TL_ZB_TIMER_SCHEDULE(rxtx_performance_result_start, NULL, 1 * 1000 * 1000);
++#endif
++}
++
++void zbhciAfDataRcvIndPush(void *arg){
++#if AF_TEST_ENABLE
++	apsdeDataInd_t *pApsdeInd = (apsdeDataInd_t *)arg;
++
++	if(g_afTestReq.performaceTest){
++		return;
++	}
++
++	zbhci_afDataSend_rsp_t *pRsp = (zbhci_afDataSend_rsp_t *)ev_buf_allocate(sizeof(zbhci_afDataSend_rsp_t) + pApsdeInd->asduLen);
++	if(pRsp){
++		COPY_BUFFERTOU16_BE(pRsp->clusterId, (u8 *)&(pApsdeInd->indInfo.cluster_id));
++		pRsp->srcAddr = pApsdeInd->indInfo.src_short_addr;
++		pRsp->srcEp = pApsdeInd->indInfo.src_ep;
++		pRsp->dstEp = pApsdeInd->indInfo.dst_ep;
++		pRsp->dataLen = pApsdeInd->asduLen;
++		if(pApsdeInd->asduLen){
++			memcpy(pRsp->payload, pApsdeInd->asdu, pApsdeInd->asduLen);
++		}
++
++		zbhciTx(ZBHCI_CMD_AF_DATA_SEND_TEST_RSP, sizeof(zbhci_afDataSend_rsp_t) + pApsdeInd->asduLen, (u8 *)pRsp);
++
++		ev_buf_free((u8 *)pRsp);
++	}
++#endif
++}
++
++void zbhciAfDataCnfPush(void *arg){
++#if AF_TEST_ENABLE
++	apsdeDataConf_t *pApsDataCnf = (apsdeDataConf_t *)arg;
++
++	if( (pApsDataCnf->dstEndpoint == g_afTestReq.dstEp) &&
++		(pApsDataCnf->dstAddr.addr_short == g_afTestReq.dstAddr) &&
++		(pApsDataCnf->status == APS_STATUS_SUCCESS) ){
++		g_afTestReq.sendSuccessCnt++;
++	}
++#endif
++}
++
+ void zbhciAppDataSendConfirmPush(void *arg){
+-	app_data_confirm_t *pCnf = (app_data_confirm_t *)arg;
+-	zbhciTx(ZBHCI_CMD_DATA_CONFIRM, sizeof(app_data_confirm_t), (u8 *)pCnf);
++	apsdeDataConf_t *pApsDataCnf = (apsdeDataConf_t *)arg;
++
++	zbhci_app_data_confirm_t *conf = (zbhci_app_data_confirm_t *)ev_buf_allocate(sizeof(zbhci_app_data_confirm_t));
++	if(conf){
++		conf->ep = pApsDataCnf->srcEndpoint;
++		conf->status = pApsDataCnf->status;
++		conf->apsCnt = pApsDataCnf->apsCnt;
++
++		zbhciTx(ZBHCI_CMD_DATA_CONFIRM, sizeof(zbhci_app_data_confirm_t), (u8 *)conf);
++
++		ev_buf_free((u8 *)conf);
++	}
+ }
+ 
+ bool zbhciMacAddrGetPush(addrExt_t devExtAddr){
+@@ -235,12 +329,12 @@ bool zbhciMacAddrGetPush(addrExt_t devExtAddr){
+ }
+ 
+ void zbhciAppNodeLeaveIndPush(void *arg){
+-	hci_nodeLeaveInd_t *ind = (hci_nodeLeaveInd_t *)arg;
++	zbhci_nodeLeaveInd_t *ind = (zbhci_nodeLeaveInd_t *)arg;
+ 	ZB_LEBESWAP((ind->macAddr), 8);
+-	zbhciTx(ZBHCI_CMD_NODE_LEAVE_IND, sizeof(hci_nodeLeaveInd_t), (u8 *)ind);
++	zbhciTx(ZBHCI_CMD_NODE_LEAVE_IND, sizeof(zbhci_nodeLeaveInd_t), (u8 *)ind);
+ }
+ 
+-void match_desc_req_handler(void *arg){
++static void match_desc_req_handler(void *arg){
+ 	u8 *ptr = arg;
+ 
+ 	u16 targetAddr;
+@@ -311,7 +405,7 @@ static void zbhci_bdbCmdHandler(void *arg){
+ 	}else if(cmdID == ZBHCI_CMD_BDB_DONGLE_WORKING_MODE_SET){
+ 		zbhciWorkingMode = p[0];
+ 	}else if(cmdID == ZBHCI_CMD_BDB_NODE_DELETE){
+-		mgmt_nodeDeleteReq_t delNodeAddr;
++		zbhci_mgmt_nodeDeleteReq_t delNodeAddr;
+ 		ZB_IEEE_ADDR_REVERT(delNodeAddr.macAddr, &p[0]);
+ 		ss_devKeyPairDelete(delNodeAddr.macAddr);
+ 
+@@ -319,6 +413,9 @@ static void zbhci_bdbCmdHandler(void *arg){
+ 		if(nbt){
+ 			zdo_nlmeForgetDev(nbt, delNodeAddr.macAddr, 0);
+ 		}
++	}else if(cmdID == ZBHCI_CMD_BDB_TX_POWER_SET){
++		/* Set TX power, value is RF_PowerTypeDef. */
++		rf_setTxPower(p[0]);
+ 	}
+ 
+ 	ev_buf_free(arg);
+@@ -443,9 +540,9 @@ static void zbhci_mgmtCmdHandler(void *arg){
+ 		u8 sn = 0;
+ 		u16 dstAddr;
+ 		zdo_mgmt_nwk_update_req_t req;
+-		memcpy(&dstAddr, p, 2);
+-		memcpy(&req.nwk_manager_addr, &p[2], 2);
+-		memcpy(&req.scan_ch, &p[4], 4);
++		COPY_BUFFERTOU16_BE(dstAddr, p);
++		COPY_BUFFERTOU16_BE(req.nwk_manager_addr, &p[2]);
++		COPY_BUFFERTOU32_BE(req.scan_ch, &p[4]);
+ 		req.scan_duration = p[8];
+ 		req.scan_cnt = p[9];
+ 		zb_mgmtNwkUpdateReq(dstAddr, &req, &sn);
+@@ -454,7 +551,7 @@ static void zbhci_mgmtCmdHandler(void *arg){
+ 	ev_buf_free(arg);
+ }
+ 
+-void zbhci_bindCmdHandler(void *arg){
++static void zbhci_bindCmdHandler(void *arg){
+ 	zbhci_cmdHandler_t *cmdInfo = arg;
+ 	u16 cmdID = cmdInfo->cmdId;
+ 	u8 *p = cmdInfo->payload;
+@@ -493,8 +590,9 @@ void zbhci_bindCmdHandler(void *arg){
+ 
+ 
+ s32 node_toggle_test(void *arg){
+-	u32 onOff = (u32)arg;
++	//u32 onOff = (u32)arg;
+ 	static s32 startIdx = 0;
++	static u32 onOff = 0;
+ 	itemIfno_t itemInfo;
+ 	ss_dev_pair_set_t keyPair;
+ 	addrExt_t extAddr;
+@@ -514,10 +612,10 @@ s32 node_toggle_test(void *arg){
+ 	u8 srcEp = 1;
+ 	epInfo_t dstEpInfo;
+ 	memset(&dstEpInfo, 0, sizeof(epInfo_t));
+-	dstEpInfo.dstAddrMode = 0x03;
++	dstEpInfo.dstAddrMode = APS_LONG_DSTADDR_WITHEP;
+ 	ZB_IEEE_ADDR_COPY(dstEpInfo.dstAddr.extAddr,extAddr);
+ 	dstEpInfo.dstEp = 1;
+-	dstEpInfo.profileId = 0x0104;
++	dstEpInfo.profileId = HA_PROFILE_ID;
+ 	//dstEpInfo.txOptions |= APS_TX_OPT_ACK_TX;
+ 
+ 	if(onOff){
+@@ -529,18 +627,18 @@ s32 node_toggle_test(void *arg){
+ 	if(i >= itemInfo.opIndex){
+ 		startIdx = 0;
+ 		zbhciTx(ZBHCI_CMD_NODES_TOGLE_TEST_RSP, 0, NULL);
+-		return -1;
++		onOff ^= 1;
++		return 0;
+ 	}
+ 
+ 	return 0;
+ }
+ 
+ 
+-#include "../../apps/sampleGW/sampleGateway.h"
+ s32 rxtx_performance_test(void *arg){
+-	static u16 testCnt = 0;
+ 	txrx_performce_test_req_t *txrxTest = (txrx_performce_test_req_t *)arg;
+ 	epInfo_t dstEpInfo;
++	TL_SETSTRUCTCONTENT(dstEpInfo, 0);
+ 
+ 	u16 dstAddr = 0xffff;
+ 	COPY_BUFFERTOU16_BE(dstAddr, ((u8 *)&(txrxTest->dstAddr)));
+@@ -548,73 +646,39 @@ s32 rxtx_performance_test(void *arg){
+ 	u16 totalNum = 0;
+ 	COPY_BUFFERTOU16_BE(totalNum, ((u8 *)&(txrxTest->sendCnt)));
+ 
+-	if(totalNum&0x1000){
+-		TL_SETSTRUCTCONTENT(dstEpInfo, 0);
+-
+-		dstEpInfo.dstAddrMode = APS_SHORT_DSTADDR_WITHEP;
+-		dstEpInfo.dstEp = txrxTest->dstEp;
+-		dstEpInfo.profileId = HA_PROFILE_ID;
+-		dstEpInfo.txOptions = APS_TX_OPT_USE_NWK_KEY;
+-		dstEpInfo.radius = 0;
+-
+-		dstEpInfo.dstAddr.shortAddr = dstAddr;
+-		zcl_telinkTest_t *pCmd = (zcl_telinkTest_t *)ev_buf_allocate(16);
+-		if(pCmd){
+-			u8 *ptr = txrxTest->payload;
+-			memcpy((u8 *)pCmd, ptr, 6);
+-			ZB_LEBESWAP((ptr+2), 2);
+-			ZB_LEBESWAP((ptr+4), 2);
+-			af_dataSend(txrxTest->srcEp, &dstEpInfo, ZCL_CLUSTER_TELINK_SDK_TEST, 6, (u8 *)pCmd, &g_appGwCtx.dataSendApsCnt);
+-			ev_buf_free((u8 *)pCmd);
+-
+-			testCnt = totalNum = 0;
+-		}
+-	}
+-
+-	if(testCnt == 0){
+-		/* set tx power */
+-		rf_setTxPower(txrxTest->txPowerSet);
+-	}
+-
+-	if(testCnt >= totalNum){
+-		txrx_performce_test_rsp_t rsp;
+-		rsp.dstAddr = txrxTest->dstAddr;
+-		rsp.sendCnt = txrxTest->sendCnt;
+-		COPY_BUFFERTOU16_BE(rsp.ackCnt, ((u8 *)&g_appGwCtx.dataAckNumForTest));
+-		zbhciTx(ZBHCI_CMD_TXRX_PERFORMANCE_TEST_RSP, sizeof(txrx_performce_test_rsp_t), (u8 *)&rsp);
+-
+-		g_appGwCtx.dataAckNumForTest = 0;
+-		testCnt = 0;
+-		ev_buf_free((u8 *)txrxTest);
++	if(g_afTestReq.sendTotalCnt >= totalNum){
++		ev_buf_free((u8 *)arg);
+ 		return -1;
+ 	}
+ 
+ 	u8 dataLen = 50;
+-	zcl_telinkTest_t *pData = (zcl_telinkTest_t *)ev_buf_allocate(dataLen);
+-	if(pData){
+-		pData->seqNo = testCnt;
+-		pData->ackNum = g_appGwCtx.dataAckNumForTest;
+-		for(s32 i = 0; i < dataLen - 4; i++){
+-			pData->payload[i] = i;
+-		}
+-
+-		TL_SETSTRUCTCONTENT(dstEpInfo, 0);
++	u8 *pBuf = (u8 *)ev_buf_allocate(dataLen);
++	if(pBuf){
++		g_afTestReq.sendTotalCnt++;
++		g_afTestReq.dstAddr = dstAddr;
++		g_afTestReq.dstEp = txrxTest->dstEp;
+ 
+ 		dstEpInfo.dstAddrMode = APS_SHORT_DSTADDR_WITHEP;
++		dstEpInfo.dstAddr.shortAddr = dstAddr;
+ 		dstEpInfo.dstEp = txrxTest->dstEp;
+ 		dstEpInfo.profileId = HA_PROFILE_ID;
+-		dstEpInfo.txOptions = APS_TX_OPT_USE_NWK_KEY;
+ 		dstEpInfo.radius = 0;
+ 
+-		dstEpInfo.dstAddr.shortAddr = dstAddr;
+-		if(pData){
+-			testCnt++;
+-			af_dataSend(txrxTest->srcEp, &dstEpInfo, ZCL_CLUSTER_TELINK_SDK_TEST, dataLen, (u8 *)pData, &g_appGwCtx.dataSendApsCnt);
+-			ev_buf_free((u8 *)pData);
++		u8 *pData = pBuf;
++
++		*pData++ = LO_UINT16(g_afTestReq.sendTotalCnt);
++		*pData++ = HI_UINT16(g_afTestReq.sendTotalCnt);
++
++		for(u8 i = 0; i < dataLen - 2; i++){
++			*pData++ = i;
+ 		}
++
++		af_dataSend(txrxTest->srcEp, &dstEpInfo, ZCL_CLUSTER_TELINK_SDK_TEST_REQ, dataLen, pBuf, &g_afTestReq.dataApsCnt);
++
++		ev_buf_free(pBuf);
+ 	}
+ 
+-	return (txrxTest->interval * 100 * 1000);
++	return (txrxTest->interval * 10 * 1000);
+ }
+ 
+ s32 zbhci_nodeManageCmdHandler(void *arg){
+@@ -624,11 +688,12 @@ s32 zbhci_nodeManageCmdHandler(void *arg){
+ 	u8 len = 0;
+ 
+ 	if(cmdID == ZBHCI_CMD_NODES_JOINED_GET_REQ){
++#if ZB_COORDINATOR_ROLE
+ 		u16 startIdx = (p[0] << 8) + p[1];
+ 
+ 		u8 bufFree = 0;
+-		mgmt_nodesJoined_rsp_hdr_t hdr;
+-		mgmt_nodesJoined_rsp_t *rsp = (mgmt_nodesJoined_rsp_t*) ev_buf_allocate(sizeof(mgmt_nodesJoined_rsp_t));
++		zbhci_mgmt_nodesJoined_rsp_hdr_t hdr;
++		zbhci_mgmt_nodesJoined_rsp_t *rsp = (zbhci_mgmt_nodesJoined_rsp_t*) ev_buf_allocate(sizeof(zbhci_mgmt_nodesJoined_rsp_t));
+ 		if(rsp){
+ 			u8 validcnt = 0;
+ 			u16 totalCnt = ss_nodeMacAddrFromdevKeyPair(startIdx, 6, &validcnt, rsp->macAddrList);
+@@ -643,31 +708,65 @@ s32 zbhci_nodeManageCmdHandler(void *arg){
+ 			COPY_BUFFERTOU16_BE(rsp->hdr.totalCnt, (u8 *)&totalCnt);
+ 			COPY_BUFFERTOU16_BE(rsp->hdr.startIndex, (u8 *)&startIdx);
+ 			rsp->hdr.listCnt = validcnt;
+-			len = OFFSETOF(mgmt_nodesJoined_rsp_t, macAddrList) + sizeof(addrExt_t) * validcnt;
++			len = OFFSETOF(zbhci_mgmt_nodesJoined_rsp_t, macAddrList) + sizeof(addrExt_t) * validcnt;
+ 			bufFree = 1;
+ 		}else{
+ 			hdr.listCnt = 0;
+ 			hdr.startIndex = startIdx;
+ 			hdr.status = ZBHCI_MSG_STATUS_NO_MEMORY;
+-			len = sizeof(mgmt_nodesJoined_rsp_hdr_t);
+-			rsp = (mgmt_nodesJoined_rsp_t *)&hdr;
++			len = sizeof(zbhci_mgmt_nodesJoined_rsp_hdr_t);
++			rsp = (zbhci_mgmt_nodesJoined_rsp_t *)&hdr;
+ 		}
++
+ 		zbhciTx(ZBHCI_CMD_NODES_JOINED_GET_RSP, len, (u8 *)rsp);
+ 
+ 		if(bufFree){
+ 			ev_buf_free((u8 *)rsp);
+ 		}
++#endif
+ 	}else if(cmdID == ZBHCI_CMD_NODES_TOGLE_TEST_REQ){
++#if ZB_COORDINATOR_ROLE
+ 		u32 onOff = *p;
+ 		u8 interval = *(p+1);
+ 
+-		TL_ZB_TIMER_SCHEDULE(node_toggle_test, (void *)onOff, interval * 100 * 1000);
++		TL_ZB_TIMER_SCHEDULE(node_toggle_test, (void *)onOff, interval * 10 * 1000);
++#endif
+ 	}else if(cmdID == ZBHCI_CMD_TXRX_PERFORMANCE_TEST_REQ){
+-		txrx_performce_test_req_t *txrxTest = (txrx_performce_test_req_t *)ev_buf_allocate(sizeof(txrx_performce_test_req_t));
+-		if(txrxTest){
+-			memcpy(txrxTest, p, sizeof(txrx_performce_test_req_t));
+-			TL_ZB_TIMER_SCHEDULE(rxtx_performance_test, txrxTest, 10 * 1000);
++#if AF_TEST_ENABLE
++		if(!g_afTestReq.performaceTest){
++			g_afTestReq.performaceTest = 1;
++
++			txrx_performce_test_req_t *txrxTest = (txrx_performce_test_req_t *)ev_buf_allocate(sizeof(txrx_performce_test_req_t));
++			if(txrxTest){
++				memcpy(txrxTest, p, sizeof(txrx_performce_test_req_t));
++				TL_ZB_TIMER_SCHEDULE(rxtx_performance_test, txrxTest, 10 * 1000);
++			}
+ 		}
++#endif
++	}else if(cmdID == ZBHCI_CMD_AF_DATA_SEND_TEST_REQ){
++#if AF_TEST_ENABLE
++		u8 len = p[6];
++		zbhci_afDataSend_req_t *pAfDataSendReq = (zbhci_afDataSend_req_t *)ev_buf_allocate(sizeof(zbhci_afDataSend_req_t) + len);
++		if(pAfDataSendReq){
++			memcpy((u8 *)pAfDataSendReq, p, sizeof(zbhci_afDataSend_req_t));
++			memcpy(pAfDataSendReq->payload, &p[7], pAfDataSendReq->dataLen);
++
++			u16 clusterId = 0;
++			epInfo_t dstEpInfo;
++			TL_SETSTRUCTCONTENT(dstEpInfo, 0);
++
++			dstEpInfo.dstEp = pAfDataSendReq->dstEp;
++			dstEpInfo.profileId = HA_PROFILE_ID;
++			dstEpInfo.dstAddrMode = APS_SHORT_DSTADDR_WITHEP;
++			COPY_BUFFERTOU16_BE(dstEpInfo.dstAddr.shortAddr, (u8 *)&(pAfDataSendReq->dstAddr));
++			COPY_BUFFERTOU16_BE(clusterId, (u8 *)&(pAfDataSendReq->clusterId));
++
++			u8 apsCnt = 0;
++			af_dataSend(pAfDataSendReq->srcEp, &dstEpInfo, clusterId, pAfDataSendReq->dataLen, pAfDataSendReq->payload, &apsCnt);
++
++			ev_buf_free((u8 *)pAfDataSendReq);
++		}
++#endif
+ 	}
+ 
+ 	ev_buf_free(arg);
+@@ -695,6 +794,7 @@ void zbhciCmdHandler(u16 msgType, u16 msgLen, u8 *p){
+ 			case ZBHCI_CMD_BDB_CHANNEL_SET:
+ 			case ZBHCI_CMD_BDB_DONGLE_WORKING_MODE_SET:
+ 			case ZBHCI_CMD_BDB_NODE_DELETE:
++			case ZBHCI_CMD_BDB_TX_POWER_SET:
+ 				TL_SCHEDULE_TASK(zbhci_bdbCmdHandler, cmdInfo);
+ 				break;
+ 
+@@ -726,6 +826,7 @@ void zbhciCmdHandler(u16 msgType, u16 msgLen, u8 *p){
+ 			case ZBHCI_CMD_NODES_JOINED_GET_REQ:
+ 			case ZBHCI_CMD_NODES_TOGLE_TEST_REQ:
+ 			case ZBHCI_CMD_TXRX_PERFORMANCE_TEST_REQ:
++			case ZBHCI_CMD_AF_DATA_SEND_TEST_REQ:
+ 				TL_ZB_TIMER_SCHEDULE(zbhci_nodeManageCmdHandler, cmdInfo, 100 * 1000);
+ 				break;
+ 
+diff --git a/zigbee_release_version/zigbee/zbhci/zbhci_zclHandler.c b/zigbee_release_version/zigbee/zbhci/zbhci_zclHandler.c
+index 599edbf..ec6fca9 100644
+--- a/zigbee_release_version/zigbee/zbhci/zbhci_zclHandler.c
++++ b/zigbee_release_version/zigbee/zbhci/zbhci_zclHandler.c
+@@ -51,7 +51,7 @@ void zbhciTxClusterCmdAddrResolve(epInfo_t *dstEpInfo, u8 *srcEp, u8 **payload){
+ 	}
+ 	dstEpInfo->profileId = 0x0104;//HA_PROFILE_ID
+ 	dstEpInfo->dstAddrMode = zbhciConvertSet[apsTxMode];
+-	if(dstEpInfo->dstAddrMode == APS_LONG_DSTADDR_WITHEP || dstEpInfo->dstAddrMode == APS_LONG_DSTADDR_NOEP){
++	if(dstEpInfo->dstAddrMode == APS_LONG_DSTADDR_WITHEP){
+ 		ZB_IEEE_ADDR_REVERT(dstEpInfo->dstAddr.extAddr,*payload);
+ 		(*payload) += EXT_ADDR_LEN;
+ 	}else if(dstEpInfo->dstAddrMode == APS_DSTADDR_EP_NOTPRESETNT){
+diff --git a/zigbee_release_version/zigbee/zcl/zcl.c b/zigbee_release_version/zigbee/zcl/zcl.c
+index b6a16bd..8e714de 100644
+--- a/zigbee_release_version/zigbee/zcl/zcl.c
++++ b/zigbee_release_version/zigbee/zcl/zcl.c
+@@ -640,9 +640,7 @@ _CODE_ZCL_ status_t zcl_sendCmd(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, u
+ 	
+ 	/* Add ZCL payload */
+ 	memcpy(pAsdu, cmdPld, cmdPldLen);
+-	u8 asdulength = pAsdu - asdu + cmdPldLen;
+-
+-	pDstEpInfo->txOptions |= APS_TX_OPT_USE_NWK_KEY;   //force to enable nwk security for ZCL
++	u16 asdulength = pAsdu - asdu + cmdPldLen;
+ 
+ 	u8 apsCnt = 0;
+ 	u8 status = af_dataSend(srcEp, pDstEpInfo, clusterId, asdulength, asdu, &apsCnt);
+@@ -662,16 +660,12 @@ _CODE_ZCL_ status_t zcl_sendInterPANCmd(u8 srcEp, epInfo_t *pDstEpInfo, u16 clus
+ 
+ 	u8 *pAsdu = asdu;
+ 
+-	aps_data_req_t apsdeData;
+-	TL_SETSTRUCTCONTENT(apsdeData, 0);
+-    u8 asdulength;
+-
+ 	/* Build ZCL header */
+ 	pAsdu += zcl_buildHdr(asdu, specific, direction, disableDefaultRsp, manuCode, seqNo, cmd);
+ 
+ 	/* Add ZCL payload */
+ 	memcpy(pAsdu, cmdPld, cmdPldLen);
+-	asdulength = pAsdu - asdu + cmdPldLen;
++	u16 asdulength = pAsdu - asdu + cmdPldLen;
+ 
+ 	if(ZCL_CLUSTER_TOUCHLINK_COMMISSIONING == clusterId){
+ 		pDstEpInfo->txOptions |= APS_TX_OPT_INTRA_PAN;
+diff --git a/zigbee_release_version/zigbee/zcl/zcl.h b/zigbee_release_version/zigbee/zcl/zcl.h
+index 08b6bc1..a7050a3 100644
+--- a/zigbee_release_version/zigbee/zcl/zcl.h
++++ b/zigbee_release_version/zigbee/zcl/zcl.h
+@@ -447,16 +447,6 @@ typedef struct {
+ extern zcl_reportingTab_t reportingTab;
+ 
+ /**
+- *  @brief  Definition for ZCL TELINK TEST
+- */
+-typedef struct {
+-	u16 seqNo;
+-	u16 ackNum;
+-	u8  payload[1];
+-} zcl_telinkTest_t;
+-
+-
+-/**
+  *  @brief  Definition for the incoming cluster command address information
+  */
+ typedef struct {
+diff --git a/zigbee_release_version/zigbee/zcl/zcl_const.h b/zigbee_release_version/zigbee/zcl/zcl_const.h
+index 849bcc8..00e66a3 100644
+--- a/zigbee_release_version/zigbee/zcl/zcl_const.h
++++ b/zigbee_release_version/zigbee/zcl/zcl_const.h
+@@ -26,8 +26,8 @@
+  *  @{
+  */
+ 
+-#define HA_PROFILE_ID                      				0x0104
+-#define LL_PROFILE_ID                      				0xC05E
++//#define HA_PROFILE_ID                      				0x0104
++//#define LL_PROFILE_ID                      				0xC05E
+ 
+ /** @addtogroup  ZCL_Module ZCL
+  *  @{
+@@ -147,6 +147,10 @@
+ 
+ // test cluster
+ #define ZCL_CLUSTER_TELINK_SDK_TEST						  0xFF00
++#define ZCL_CLUSTER_TELINK_SDK_TEST_REQ					  0xFF01
++#define ZCL_CLUSTER_TELINK_SDK_TEST_RSP					  0xFF02
++#define ZCL_CLUSTER_TELINK_SDK_TEST_CLEAR_REQ			  0xFF03
++#define ZCL_CLUSTER_TELINK_SDK_TEST_CLEAR_RSP			  0xFF04
+ 
+ /** @} end of group zcl_cluster_id */
+ 
+diff --git a/zigbee_release_version/zigbee/zcl/zll_commissioning/zcl_zllTouchLinkJoinOrStart.c b/zigbee_release_version/zigbee/zcl/zll_commissioning/zcl_zllTouchLinkJoinOrStart.c
+index 0f0cbf6..6d9c807 100644
+--- a/zigbee_release_version/zigbee/zcl/zll_commissioning/zcl_zllTouchLinkJoinOrStart.c
++++ b/zigbee_release_version/zigbee/zcl/zll_commissioning/zcl_zllTouchLinkJoinOrStart.c
+@@ -195,7 +195,9 @@ _CODE_ZCL_ void zcl_zllTouchLinkNetworkStartDirectJoin(void *arg){
+ 	if(g_zllTouchLink.transId){
+ 		g_zbNwkCtx.joined = 1;
+ 
++#ifdef ZB_ROUTER_ROLE
+ 		zcl_zllTouchLinkNetworkStartReq_t *pInitiator = &g_zllTouchLink.networkStartInfo->params.networkStartCmd;
++#endif
+ 		if((g_zllTouchLink.networkStartInfo->joinNetworkMode == ZCL_ZLL_COMMISSIONING_TOUCH_LICK_MODE_START)
+ 			&& (g_zllTouchLink.networkStartInfo->params.networkStartCmd.initiatorNwkAddr != 0)){
+ #ifdef ZB_ROUTER_ROLE
+@@ -373,8 +375,6 @@ _CODE_ZCL_ static s32 zcl_zllTouchLinkNetworkStartOrJoinNwkLeave(void *arg){
+  *
+  */
+ _CODE_ZCL_ static void zcl_zllTouchLinNetworkStartRespCmdSend(void *arg){
+-	u32 status = (u32)arg;
+-
+ 	if(!g_zllTouchLink.networkStartInfo){
+ 		return;
+ 	}
+@@ -383,6 +383,7 @@ _CODE_ZCL_ static void zcl_zllTouchLinNetworkStartRespCmdSend(void *arg){
+ 	}
+ 
+ #ifdef ZB_ROUTER_ROLE
++	u32 status = (u32)arg;
+ 	zcl_zllTouchLinkNetworkStartReq_t *startParams = &g_zllTouchLink.networkStartInfo->params.networkStartCmd;
+ 	u8 tcAddr[8] = { 0 };
+ 	zcl_zllTouchLinkNetworkStartResp_t startResp = { 0 };
+diff --git a/zigbee_release_version/zigbee/zcl/zll_commissioning/zcl_zll_commissioning_internal.h b/zigbee_release_version/zigbee/zcl/zll_commissioning/zcl_zll_commissioning_internal.h
+index e172e26..af9173b 100644
+--- a/zigbee_release_version/zigbee/zcl/zll_commissioning/zcl_zll_commissioning_internal.h
++++ b/zigbee_release_version/zigbee/zcl/zll_commissioning/zcl_zll_commissioning_internal.h
+@@ -91,4 +91,6 @@ void zcl_zllTouchLinkDeviceInformationRequestHandler(epInfo_t *dstEp,u8 start_id
+ 
+ void zcl_zllTouchLinkDeviceInformationResponseHandler(zcl_zllTouchLinkDeviceInfoResp_t *dev_info_resp);
+ 
++s32 zcl_zllTouchLinkStartNetworkStartOrJoinTimerStop(void);
++
+ void ll_zllAttrClr(void);
+diff --git a/zigbee_release_version/zigbee/zdo/app_framework.c b/zigbee_release_version/zigbee/zdo/app_framework.c
+index 6da82b8..4c99bc5 100644
+--- a/zigbee_release_version/zigbee/zdo/app_framework.c
++++ b/zigbee_release_version/zigbee/zdo/app_framework.c
+@@ -12,7 +12,7 @@
+ #elif defined ZB_ED_ROLE && (ZB_ED_ROLE == 1)
+ 	#define LOGICAL_TYPE			DEVICE_TYPE_END_DEVICE
+ 	#define SERVER_MASK				(ND_SERVER_MASK_REV21)
+-#if ZB_MAC_RX_ON_WHEN_IDEL
++#if ZB_MAC_RX_ON_WHEN_IDLE
+ 	#define MAC_CAPABILITY_FLAGS	(MAC_CAP_DEVICE_TYPE_RFD | MAC_CAP_RX_ON_WHEN_IDLE | MAC_CAP_ALLOCATE_ADDRESS)
+ #else
+ 	#define MAC_CAPABILITY_FLAGS	(MAC_CAP_DEVICE_TYPE_RFD | MAC_CAP_ALLOCATE_ADDRESS)
+@@ -255,17 +255,21 @@ _CODE_ZDO_ zdo_status_t af_clusterMatchedLocal(u16 clusterID, u8 ep){
+ }
+ 
+ 
+-_CODE_ZDO_ zdo_status_t af_profileMatchedLocal(u16 profileID){
+-	for(u8 i=0; i<available_active_ep_num;i++){
+-		if(aed[i].correspond_simple_desc->app_profile_id == profileID){
+-			return ZDO_SUCCESS;
+-		}
++_CODE_ZDO_ zdo_status_t af_profileMatchedLocal(u16 profileID, u8 ep){
++	if(profileID == LL_PROFILE_ID){
++		return ZDO_SUCCESS;
+ 	}
+ 
+-	if(zdo_epDesc.correspond_simple_desc->app_profile_id == profileID){
++	if((ep == ZDO_EP) && (profileID == ZDO_PROFILE_ID)){
+ 		return ZDO_SUCCESS;
+ 	}
+ 
++	for(u8 i=0; i < available_active_ep_num; i++){
++		if(((aed[i].ep == ep) || (ep == 0xFF)) && ((aed[i].correspond_simple_desc->app_profile_id == profileID) || (profileID == 0xFFFF))){
++			return ZDO_SUCCESS;
++		}
++	}
++
+ 	return ZDO_NO_DESCRIPTOR;
+ }
+ 
+@@ -423,7 +427,9 @@ _CODE_ZDO_ void af_dataSendCnfCb(apsdeDataConf_t *pApsDataCnf){
+ 	}
+ }
+ 
+-u8 af_dataSend(u8 srcEp, epInfo_t* pDstEpInfo, u16 clusterId, u8 cmdPldLen, u8* cmdPld, u8 *seqNo){
++u8 af_dataSend(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, u16 cmdPldLen, u8 *cmdPld, u8 *apsCnt){
++	u8 status = RET_OK;
++
+ 	aps_data_req_t apsdeData;
+ 	TL_SETSTRUCTCONTENT(apsdeData, 0);
+ 
+@@ -439,7 +445,7 @@ u8 af_dataSend(u8 srcEp, epInfo_t* pDstEpInfo, u16 clusterId, u8 cmdPldLen, u8*
+ 			ZB_IEEE_ADDR_COPY(apsdeData.aps_addr.dst_ext_addr, pDstEpInfo->dstAddr.extAddr);
+ 		}
+ 	}else if(APS_SHORT_GROUPADDR_NOEP == pDstEpInfo->dstAddrMode){
+-		apsdeData.aps_addr.dst_short_addr = pDstEpInfo->dstAddr.shortAddr;
++		apsdeData.aps_addr.dst_group_addr = pDstEpInfo->dstAddr.shortAddr;
+ 	}else{
+ 		//APS_DSTADDR_EP_NOTPRESETNT
+ 	}
+@@ -448,18 +454,47 @@ u8 af_dataSend(u8 srcEp, epInfo_t* pDstEpInfo, u16 clusterId, u8 cmdPldLen, u8*
+ 	apsdeData.profile_id = pDstEpInfo->profileId; //TODO: which place to decide the profile ID
+ 	apsdeData.tx_options = pDstEpInfo->txOptions;
+ 	apsdeData.radius = pDstEpInfo->radius;
+-	apsdeData.enableNWKsecurity = 1;
+-	if((pDstEpInfo->txOptions & APS_TX_OPT_USE_NWK_KEY) == 0){
+-		apsdeData.enableNWKsecurity = 0;
+-	}
+-
++	apsdeData.enableNWKsecurity = (pDstEpInfo->txOptions & APS_TX_OPT_DISABLE_NWK_KEY) ? 0 : 1;
+ 	apsdeData.useAlias = pDstEpInfo->useAlias;
+ 	apsdeData.aliasSrcAddr = pDstEpInfo->aliasSrcAddr;
+ 	apsdeData.aliasSeqNum = pDstEpInfo->aliasSeqNum;
++	apsdeData.handle = (apsdeData.profile_id == ZDO_PROFILE_ID && apsdeData.cluster_id == DEVICE_ANNCE_CLID) ? APS_CMD_HANDLE_DEVICE_ANNOUNCE : af_handleGet();
++	apsdeData.apsCnt = aps_get_counter_value();
++
++	*apsCnt = apsdeData.apsCnt;
++
++	if(apsdeData.tx_options & APS_TX_OPT_FRAG_PERMITTED){
++		if(aps_ib.aps_fragment_payload_size){
++			if((apsdeData.dst_addr_mode == APS_SHORT_GROUPADDR_NOEP) ||
++				((apsdeData.dst_addr_mode == APS_SHORT_DSTADDR_WITHEP) && ZB_NWK_IS_ADDRESS_BROADCAST(apsdeData.aps_addr.dst_short_addr))){
++				/* Multicast and broadcast transmissions are not permitted to use fragmentation. */
++				status = RET_ERROR;
++			}else{
++				if(cmdPldLen > aps_ib.aps_fragment_payload_size){
++					/* Fragmentation need aps acknowledgements. */
++					apsdeData.tx_options |= APS_TX_OPT_ACK_TX;
++				}else{
++					/* If the payload length is less then fragment payload size, clear it. */
++					apsdeData.tx_options &= (u8)(~(u16)APS_TX_OPT_FRAG_PERMITTED);
++				}
++			}
++		}else{
++			/* Not support. */
++			status = RET_ERROR;
++		}
++	}
++
++	if(status == RET_OK){
++		if(apsdeData.tx_options & APS_TX_OPT_FRAG_PERMITTED){
++			/* Fragmented transmissions. */
++			//TODO, not support
++			status = apsDataFragmentRequest(&apsdeData, cmdPld, cmdPldLen);
++		}else{
++			/* Single frame request. */
++			status = apsDataRequest(&apsdeData, cmdPld, (u8)cmdPldLen);
++		}
++	}
+ 
+-	u8 handle = (apsdeData.profile_id == ZDO_PROFILE_ID && apsdeData.cluster_id == DEVICE_ANNCE_CLID) ? APS_CMD_HANDLE_DEVICE_ANNOUNCE : af_handleGet();
+-	u8 status = zb_apsdeDataRequest(&apsdeData, handle, cmdPld, cmdPldLen);
+-	*seqNo = aps_get_current_counter_value();
+ 	return status;
+ }
+ 
+diff --git a/zigbee_release_version/zigbee/zdo/zb_af.h b/zigbee_release_version/zigbee/zdo/zb_af.h
+index 287cae9..41cfe13 100644
+--- a/zigbee_release_version/zigbee/zdo/zb_af.h
++++ b/zigbee_release_version/zigbee/zdo/zb_af.h
+@@ -50,7 +50,7 @@
+ 
+ 
+ /* max nsdulength = aMaxPHYFrameSize -(nwkcMACFrameOverhead + nwkcMinHeaderOverhead) (D.4 aMaxMACFrameSize) */
+-#define			AF_NSDU_MAX_LEN					(MAX_PHY_FRM_SIZE - (ZB_NWKC_MAC_FRAME_OVERHEAD + ZB_NWKC_MIN_HEADER_OVERHEAD))
++#define			AF_NSDU_MAX_LEN					(MAX_PHY_FRM_SIZE - (ZB_MAC_FRAME_HEADER + ZB_NWK_FRAME_HEADER + ZB_APS_FRAME_HEADER))
+ 
+ 
+ typedef enum{
+@@ -114,7 +114,7 @@ typedef struct {
+ 	u8 	 dstAddrMode;
+ 	u8   dstEp;
+ 
+-	u8   txOptions;
++	u8   txOptions;//aps_tx_options
+ 	u8   radius;
+ } epInfo_t;
+ 
+@@ -266,13 +266,6 @@ typedef void (*af_endpoint_cb_t)(void *p);
+ 
+ typedef void (*af_dataCnf_cb_t)(void *p);
+ 
+-
+-typedef struct{
+-	u8 ep;
+-	u8 status;
+-	u8 apsCnt;
+-}app_data_confirm_t;
+-
+ typedef struct{
+ 	af_endpoint_cb_t				cb_rx;		/* data indication callback for this endoint */
+ 	af_dataCnf_cb_t					cb_cnf;		/* data transmission confirm callback for this endpoint */
+@@ -503,10 +496,12 @@ u8 af_clusterMatchedLocal(u16 clusterID, u8 ep);
+  *
+  * @param	profileID - profile identifier to compare
+  *
++ * @param	ep 		  - end point to compare
++ *
+  * @return	INVALID_CMP_RESULT - Not matched
+  * 			i - idnex of the local information base
+  */
+-u8 af_profileMatchedLocal(u16 profileID);
++u8 af_profileMatchedLocal(u16 profileID, u8 ep);
+ 
+ 
+ /**************************************************************************************
+@@ -516,7 +511,7 @@ u8 af_profileMatchedLocal(u16 profileID);
+  *
+  * @return	number of active end point
+  */
+-af_endpoint_descriptor_t *af_epDescriptorGet(void );
++af_endpoint_descriptor_t *af_epDescriptorGet(void);
+ 
+ 
+ /**************************************************************************************
+@@ -528,6 +523,7 @@ af_endpoint_descriptor_t *af_epDescriptorGet(void );
+  */
+ af_endpoint_descriptor_t *af_zdoSimpleDescriptorGet(void);
+ 
++
+ /*******************************************************************************************//**
+  * @brief       Send an APSDE data request
+  *
+@@ -537,16 +533,16 @@ af_endpoint_descriptor_t *af_zdoSimpleDescriptorGet(void);
+  *
+  * @param[in]   clusterId  		- cluster indentifer
+  *
+- * @param[in]   cmdPldLen   	- date length
++ * @param[in]   cmdPldLen   	- data length
+  *
+- * @param[in]   cmdPldLen   	- date payload
++ * @param[in]   cmdPld		   	- data payload
+  *
+- * @param[in]   seqNo   		- the APS count
++ * @param[in]   apsCnt   		- the APS count
+  *
+  * @return      Status
+  *
+  **************************************************************************/
+-u8 af_dataSend(u8 srcEp, epInfo_t* pDstEpInfo, u16 clusterId, u8 cmdPldLen, u8* cmdPld, u8 *seqNo);
++u8 af_dataSend(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, u16 cmdPldLen, u8 *cmdPld, u8 *apsCnt);
+ 
+ /****************************************************************************************************
+  * @brief	Theb:Config_Parent_Link_Retry_Thres hold is either created when the  application is first loaded or
+diff --git a/zigbee_release_version/zigbee/zdo/zdo_api.h b/zigbee_release_version/zigbee/zdo/zdo_api.h
+index f3cdffc..78db7f5 100644
+--- a/zigbee_release_version/zigbee/zdo/zdo_api.h
++++ b/zigbee_release_version/zigbee/zdo/zdo_api.h
+@@ -140,6 +140,7 @@ typedef enum
+ 
+ #define		ZDO_CB_NO_FREE			0xff
+ typedef void (*zdo_callback)(void *p);
++typedef u8 (*zdo_nwkupdate_cb)(void *p);
+ 
+ typedef struct{
+ 	zdo_callback		zdpStartDevCnfCb;
+@@ -147,7 +148,7 @@ typedef struct{
+ 	zdo_callback		zdpDevAnnounceIndCb;
+ 	zdo_callback		zdpLeaveIndCb;
+ 	zdo_callback		zdpLeaveCnfCb;
+-	zdo_callback		zdpNwkUpdateIndCb;
++	zdo_nwkupdate_cb	zdpNwkUpdateIndCb;
+ 	zdo_callback		zdpPermitJoinIndCb;
+ 	zdo_callback		zdoNlmeSyncCnfCb;
+ }zdo_appIndCb_t;
+@@ -192,9 +193,9 @@ typedef struct{
+ 	u32		config_nwk_indirectPollRate;//in ms
+ 
+ 	u16		config_nwk_time_btwn_scans;//in ms, default value, 100ms on 2.4GHz
+-	u16		config_rejoin_interval;//The units of this attribute are seconds and the default value is ZDO_CFG_ATTR_REJOIN_INTERVAL (900s = 15min).
+-
+-	u16		config_max_rejoin_interval;//The units of this attribute are seconds and the default value is (no used).
++	u16		config_rejoin_interval;//The units of this attribute are seconds and the default value is ZDO_REJOIN_INTERVAL.
++	/* The units of this attribute are seconds and the default value is ZDO_MAX_REJOIN_INTERVAL. If set ZERO, means it will not do rejoin. */
++	u16		config_max_rejoin_interval;
+ 
+ 	/*The :Config_NWK_Scan_Attempts is employed within ZDO to call the NLME-NETWORKDISCOVERY.
+ 	 request primitive the indicated number of times (for routers and end devices).Integer value
+@@ -202,7 +203,7 @@ typedef struct{
+ 	 coordinator or router to associate with*/
+ 	u8		config_nwk_scan_attempts;//This attribute has default value of 5 and valid values between 1 and 255.
+ 	u8		config_permit_join_duration; //< Permit join duration, 0x00 - disable join, 0xff - join is allowed forever
+-	u8		config_parent_link_retry_threshold;//number of retry parent syns before judged as connection lost
++	u8		config_parent_link_retry_threshold;//number of retry parent syns before judged as connection lost and the default value is ZDO_MAX_PARENT_THRESHOLD_RETRY
+ }zdo_attrCfg_t;
+ 
+ 
+diff --git a/zigbee_release_version/zigbee/zdo/zdp.c b/zigbee_release_version/zigbee/zdo/zdp.c
+index dfabb0a..154ba8f 100644
+--- a/zigbee_release_version/zigbee/zdo/zdp.c
++++ b/zigbee_release_version/zigbee/zdo/zdp.c
+@@ -59,10 +59,9 @@ const u16 zdoOutCluster[8] = {
+ };
+ 
+ const af_simple_descriptor_t zdoSd = {
+-	TL_ZB_PROFILE_ID,		//Profile id
++	ZDO_PROFILE_ID,			/* Profile id */
+ 	0,              		/* Application device identifier */
+-
+-	ZDO_EP,					//EP
++	ZDO_EP,					/* EP */
+ 	0,                      /* Application device version */
+ 	0,						/* Reserved */
+ 	7,              		/* Application input cluster count */

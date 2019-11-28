@@ -1,0 +1,297 @@
+/********************************************************************************************************
+ * @file     zdo_api.h
+ *
+ * @brief	 contains define, MACRO and interfaces used by ZDO up layers
+ *
+ * @author
+ * @date     June. 10, 2017
+ *
+ * @par      Copyright (c) 2016, Telink Semiconductor (Shanghai) Co., Ltd.
+ *           All rights reserved.
+ *
+ *			 The information contained herein is confidential and proprietary property of Telink
+ * 		     Semiconductor (Shanghai) Co., Ltd. and is available under the terms
+ *			 of Commercial License Agreement between Telink Semiconductor (Shanghai)
+ *			 Co., Ltd. and the licensee in separate contract or the terms described here-in.
+ *           This heading MUST NOT be removed from this file.
+ *
+ * 			 Licensees are granted free, non-transferable use of the information in this
+ *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ *
+ *******************************************************************************************************/
+
+#ifndef ZDP_H
+#define	ZDP_H
+
+/*
+ * ZDO cluster identifier
+ * */
+typedef enum{
+	NWK_ADDR_CLID                = 0x0000,
+	IEEE_ADDR_CLID               = 0x0001,
+	NODE_DESCRIPTOR_CLID         = 0x0002,
+	POWER_DESCRIPTOR_CLID        = 0x0003,
+	SIMPLE_DESCRIPTOR_CLID       = 0x0004,
+	ACTIVE_ENDPOINTS_CLID        = 0x0005,
+	MATCH_DESCRIPTOR_CLID        = 0x0006,
+	COMPLEX_DESCRIPTOR_CLID      = 0x0010,
+	USER_DESCRIPTOR_CLID         = 0x0011,
+	DISCOVERY_CASH_CLID          = 0x0012,
+	DEVICE_ANNCE_CLID            = 0x0013,
+	USER_DESC_CONF_CLID          = 0x0014,
+	SYSTEM_SERVER_DISCOVERY_CLID = 0x0015,
+	DISCOVERY_STORE_CLID         = 0x0016,
+	NODE_DESC_STORE_CLID         = 0x0017,
+	POWER_DESC_STORE_CLID        = 0x0018,
+	ACTIVE_EP_STORE_CLID         = 0x0019,
+	SIMPLE_DESC_STORE_CLID       = 0x001A,
+	REMOVE_NODE_CACHE_CLID       = 0x001B,
+	FIND_NODE_CACHE_CLID         = 0x001C,
+	EXTENDED_SIMPLE_DESC_CLID    = 0x001D,
+	EXTENDED_ACTIVE_EP_CLID      = 0x001E,
+	PARENT_ANNCE_CLID			 = 0x001F,
+	END_DEVICE_BIND_CLID         = 0x0020,
+	BIND_CLID                    = 0x0021,
+	UNBIND_CLID                  = 0x0022,
+	BIND_REGISTER_CLID           = 0x0023,
+	REPLACE_DEVICE_CLID          = 0x0024,
+	STORE_BCKUP_BIND_ENTRY_CLID  = 0x0025,
+	REMOVE_BCKUP_BIND_ENTRY_CLID = 0x0026,
+	BACKUP_BIND_TABLE_CLID       = 0x0027,
+	RECOVER_BIND_TABLE_CLID      = 0x0028,
+	BACKUP_SOURCE_BIND_CLID      = 0x0029,
+	RECOVER_SOURCE_BIND_CLID     = 0x002A,
+	MGMT_NWK_DISC_CLID           = 0x0030,
+	MGMT_LQI_CLID                = 0x0031,
+	MGMT_RTG_CLID                = 0x0032,
+	MGMT_BIND_CLID               = 0x0033,
+	MGMT_LEAVE_CLID              = 0x0034,
+	MGMT_DIRECT_JOIN_CLID        = 0x0035,
+	MGMT_PERMIT_JOINING_CLID     = 0x0036,
+	MGMT_CACHE_CLID              = 0x0037,
+	MGMT_NWK_UPDATE_CLID	     = 0x0038,
+
+	//	Response
+	NWK_ADDR_RESP_CLID 						= 0x8000,
+	IEEE_ADDR_RESP_CLID						= 0x8001,
+	NODE_DESC_RESP_CLID 					= 0x8002,
+	POWER_DESC_RESP_CLID					= 0x8003,
+	SIMPLE_DESC_RESP_CLID					= 0x8004,
+	ACTIVE_EP_RESP_CLID						= 0x8005,
+	MATCH_DESC_RESP_CLID					= 0x8006,
+	COMPLEX_DESC_RESP_CLID					= 0x8010,
+	SYSTEM_SERVER_DISCOVERY_RESP_CLID		= 0x8015,
+	PARENT_ANNCE_RESP_CLID			    	= 0x801F,
+	END_DEVICE_BIND_RESP_CLID				= 0x8020,
+	BIND_RESP_CLID							= 0x8021,
+	UNBIND_RESP_CLID						= 0x8022,
+	MGMT_LQI_RESP_CLID						= 0x8031,
+	MGMT_BIND_RESP_CLID						= 0x8033,
+	MGMT_LEAVE_RESP_CLID					= 0x8034,
+	MGMT_PERMIT_JOINING_RESP_CLID			= 0x8036,
+	MGMT_NWK_UPDATE_NOTIFY_CLID				= 0x8038,
+}zdp_clusterId_e;
+
+
+typedef struct{
+	u16	src_addr; /*! the nwk address of the node that send this response */
+	u16	clusterId;/*! cluster identifier */
+	u8 	seq_num;  /*! Sequence number which same with the request value */
+	u8 	status;	  /*! Response status */
+	u8  length;
+	u8  *zpdu;
+}zdo_zdpDataInd_t;
+
+
+/*********************************************************************
+ * @brief	call back list structure which internal used for response message deliver
+ */
+typedef struct {
+	zdo_callback cb;
+	/*The transaction sequence number field is eight bits in length and specifies an
+	identification number for the ZDP transaction so that a response command frame
+	can be related to the request frame. The application object itself shall maintain an
+	eight-bit counter that is copied into this field and incremented by one for each
+	command sent. When a value of 0xff is reached, the next command shall restart
+	the counter with a value of 0x00.*/
+	u16 transaction_seq_num;
+	/*To indication when to free the call  back info, when this value reached to zero,
+	  the callback structure should be freed. Most call back this value should be set to 1 which means
+	  the callback only process once and should be freed. But for ED/active scans this value may be larger
+	  than 1
+	 */
+	u8 valid_flag;
+	u8 used_flag;
+}zdp_callback_t;
+
+
+/***************************************************************************************
+ * @brief	The NWK_addr_rsp is generated by a Remote Device in response to a
+			NWK_addr_req command inquiring as to the NWK address of the Remote Device
+			or the NWK address of an address held in a local discovery cache (see subclause
+			2.4.3.1.1.2 for a detailed description). The destination addressing on this
+			command is unicast.
+ * @param	buf: received packet info with APS data indication primitive
+ *
+ * @return	none
+ */
+void zdo_nwkAddrIndicate(void *buf);
+
+
+/***************************************************************************************
+ * @brief	The NWK_addr_rsp is generated by a Remote Device in response to a
+			NWK_addr_req command inquiring as to the NWK address of the Remote Device
+			or the NWK address of an address held in a local discovery cache (see subclause
+			2.4.3.1.1.2 for a detailed description). The destination addressing on this
+			command is unicast.
+ * @param	buf: received packet info with APS data indication primitive
+ *
+ * @return	none
+ */
+void zdo_ieeeAddrIndicate(void *buf);
+
+
+
+/***************************************************************************************
+ * @brief	Interface to process node descriptor, power descriptor and simple descriptor request CMD
+ *
+ * @param	buf: received packet info with APS data indication primitive
+ *
+ * @return	none
+ */
+void zdo_descriptorsIndicate(void *buf);
+
+
+/***************************************************************************************
+ * @brief	The Active_EP_rsp is generated by a remote device in response to an
+			Active_EP_req directed to the remote device. This command shall be unicast to
+			the originator of the Active_EP_req command.
+ * @param	buf: received packet info with APS data indication primitive
+ *
+ * @return	none
+ */
+void zdo_activeEpIndicate(void *buf);
+
+
+/***************************************************************************************
+ * @brief	The Match_Desc_rsp is generated by a remote device in response to a
+			Match_Desc_req either broadcast or directed to the remote device. This command
+			shall be unicast to the originator of the Match_Desc_req command.
+ * @param	buf: received packet info with APS data indication primitive
+ *
+ * @return	none
+ */
+void zdo_matchDescriptorIndicate(void *buf);
+
+
+void zdo_SysServerDiscoveryIndiate(void *buf);
+
+#if ZB_COORDINATOR_ROLE
+void zdo_manyToOneRouteDisc(void *buf);
+#endif
+
+/*************************************************************************************************
+ * @brief	Upon receipt, the Remote Device shall use the IEEEAddr in the message to find a
+			match with any other IEEE address held in the Remote Device. If a match is
+			detected, the Remote Device shall update the nwkAddressMap attribute of the NIB
+			with the updated NWKAddr corresponding to the IEEEAddr received.
+
+			The Remote Device shall also use the NWKAddr in the message to find a match
+			with any other 16-bit NWK address held in the Remote Device. If a match is
+			detected for a device with an IEEE address other than that indicated in the
+			IEEEAddr field received, then this entry shall be marked as not having a known
+			valid 16-bit NWK address.
+ */
+void zdo_deviceAnnounceIndicate(void *buf);
+
+void zdo_parentAnnounceIndicate(void *buf);
+
+void zdo_parentAnnounceNotify(void *buf);
+
+void zdo_remoteAddrNotify(void *buf);
+
+/*****************************************************************************************************
+ * @brief	Interface used to manage end device bind request CMD
+ *
+ * @param	buf: received end device bind REQ CMD
+ *
+ * @return	none
+ */
+void zdo_endDeviceBindIndicate(void *buf);
+
+
+/***************************************************************************************************
+ * @brief	Interface called when receive bind/unbind request message from a remote device
+ *
+ * @param	buf: Received packet
+ *
+ * @return	none
+ */
+void zdo_bindOrUnbindIndicate(void *buf);
+
+
+/**************************************************************************************************************
+ * @brief	zdo_lqi_resp_send interface after receive LQI reqeust cmd
+ *
+ * @param	buf: received packet
+ *
+ * @return	void
+ */
+void zdo_mgmtLqiIndictate(void *buf);
+
+void zdo_mgmtBindIndicate(void *buf);
+
+void zdo_mgmtPermitJoinIndicate(void *p);
+
+/*****************************************************************************************
+ * @brief	Interface to process mgmt leave cmd, after receive MGMT_LEAVE_CLID, and also this function
+ * 			can be called by local. After receive this cmd, this interface try to add the leave entry
+ * 			to the leave req table in the NWK layer. If add failed, send out leave req immediately. If success,
+ * 			would call nlme_leave_request later
+ *
+ * @param	buf: address of the received packet
+ *
+ * @return	none
+ */
+
+void zdo_mgmtLeaveIndicate(void *buf);
+
+/**************************************************************************************************************
+ * @brief	Interface invoked when receive MGMT_NWK_UPDATE_CLID, process channel update, attributes change or ED
+ * 			scan requests
+ *
+ * @param	buf: received packet
+ *
+ * @return	void
+ */
+void zdo_mgmNwkUpdateIndicate(void *buf);
+
+void zdo_nwkUpdateNotifyRespSend(void *param);
+
+void zdo_unsupportedCmdIndicate(void *buf);
+
+/**************************************************************************************************
+ * @brief	ZDO layer callback function find and execute interface
+ *
+ * @param	tsn: transaction sequence number used for callback function sort or internal defined SQ number(start 0xf001
+ * 				 check the details of zdo_user_cb_seq_enum)
+ * 			buf: call back data address
+ *
+ * @return	ZDO_SUCCESS/ZDO_FAIL
+ */
+zdo_status_t zdp_cb_process(u16 tsn,void *buf);
+
+
+/**************************************************************************************************
+ *
+ * @brief get the sequence number of the ZDP
+ *
+ */
+u8 zdp_get_transaction_sn(void);
+
+
+void zdo_zdp_init(void);
+
+
+#endif
+
