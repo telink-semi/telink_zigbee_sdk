@@ -126,7 +126,7 @@ const zclAttrInfo_t gp_attrTbl[] =
 /**
  *  @brief Definition for Green Power ZCL specific cluster
  */
-zcl_specClusterInfo_t g_gpClusterList[] =
+const zcl_specClusterInfo_t g_gpClusterList[] =
 {
 	{ZCL_CLUSTER_GEN_GREEN_POWER, ZCL_GP_ATTR_NUM,	gp_attrTbl, zcl_gp_register, zcl_gpCb},
 };

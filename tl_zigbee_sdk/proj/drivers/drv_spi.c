@@ -58,6 +58,17 @@ void drv_spi_slave_init(unsigned char DivClock, drv_spi_mode_type_def Mode)
 #endif
 }
 
+#if	defined (MCU_CORE_8278)
+/**
+ * @brief     This function selects a pin port for the SPI interface
+ * @param[in] PinGpio - the selected pin
+ * @return    none
+ */
+void drv_spi_master_pin_select(SPI_GPIO_SclkTypeDef sclk_pin,SPI_GPIO_CsTypeDef cs_pin,SPI_GPIO_SdoTypeDef sdo_pin, SPI_GPIO_SdiTypeDef sdi_pin)
+{
+	spi_master_gpio_set(sclk_pin, cs_pin, sdo_pin, sdi_pin);
+}
+#else
 /**
  * @brief     This function selects a pin port for the SPI interface
  * @param[in] PinGrp - the selected pin group port
@@ -73,6 +84,7 @@ void drv_spi_master_pin_select(drv_spi_pin_group PinGrp)
 	spi_master_gpio_set(PinGrp);
 #endif
 }
+#endif
 
 /**
  * @brief     This function selects a GPIO pin as CS of SPI function.
@@ -90,6 +102,18 @@ void drv_spi_master_cspin_select(GPIO_PinTypeDef CSPin)
 #endif
 }
 
+
+#if	defined (MCU_CORE_8278)
+/**
+ * @brief     This function selects a pin port for the SPI interface
+ * @param[in] PinGpio - the selected pin
+ * @return    none
+ */
+void drv_spi_slave_pin_select(SPI_GPIO_SclkTypeDef sclk_pin,SPI_GPIO_CsTypeDef cs_pin,SPI_GPIO_SdoTypeDef sdo_pin, SPI_GPIO_SdiTypeDef sdi_pin)
+{
+	spi_slave_gpio_set(sclk_pin, cs_pin, sdo_pin, sdi_pin);
+}
+#else
 /**
  * @brief     This function selects a pin port for the SPI interface
  * @param[in] PinGrp - the selected pin port
@@ -105,6 +129,8 @@ void drv_spi_slave_pin_select(drv_spi_pin_group PinGrp)
 	spi_slave_gpio_set(PinGrp);
 #endif
 }
+#endif
+
 
 /**
  * @brief      This function serves to write a bulk of data to the SPI slave

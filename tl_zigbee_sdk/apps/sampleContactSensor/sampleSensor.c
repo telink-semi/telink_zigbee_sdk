@@ -166,7 +166,7 @@ void user_app_init(void)
 	af_endpointRegister(SAMPLE_SENSOR_ENDPOINT, (af_simple_descriptor_t *)&sampleSensor_simpleDesc, zcl_rx_handler, NULL);
 
 	/* Register ZCL specific cluster information */
-	zcl_register(SAMPLE_SENSOR_ENDPOINT, SAMPLE_SENSOR_CB_CLUSTER_NUM, g_sampleSensorClusterList);
+	zcl_register(SAMPLE_SENSOR_ENDPOINT, SAMPLE_SENSOR_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_sampleSensorClusterList);
 
 #ifdef ZCL_OTA
     ota_init(OTA_TYPE_CLIENT, (af_simple_descriptor_t *)&sampleSensor_simpleDesc, &sampleSensor_otaInfo, &sampleSensor_otaCb);

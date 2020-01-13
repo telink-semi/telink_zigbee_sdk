@@ -501,7 +501,7 @@ u8 rf_busyFlag = 0;
 void rf_802154_init(void);
 void rf_802154_reset(void);
 
-rf_specificFunc_t rf_802154_funcs =
+const rf_specificFunc_t rf_802154_funcs =
 {
 	rf_802154_init,
 	rf_802154_reset,

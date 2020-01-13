@@ -188,7 +188,7 @@ extern u16 zcl_attr_imageTypeID;
 extern u16 zcl_attr_minBlockPeriod;//in seconds
 //extern u32 zcl_attr_imageStamp;
 
-extern zcl_specClusterInfo_t g_otaClusterList[];
+extern const zcl_specClusterInfo_t g_otaClusterList[];
 extern u8 OTA_CB_CLUSTER_NUM;
 
 

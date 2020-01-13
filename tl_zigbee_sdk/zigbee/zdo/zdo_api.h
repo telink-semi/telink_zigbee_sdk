@@ -26,6 +26,7 @@
 #include "tl_common.h"
 #include "../mac/includes/tl_zb_mac.h"
 #include "../nwk/includes/nwk.h"
+#include "../nwk/includes/nwk_ctx.h"
 #include "zb_af.h"
 
 #define	DEBUG_ZDO_LAYER		0
@@ -892,7 +893,7 @@ void zdo_nlmeChannelShift(u8 ch);
  *
  * @return	none
  */
-void zdo_nwk_discovery_Start(nlme_nwkDisc_req_t *pReq);
+void zdo_nwk_discovery_Start(nlme_nwkDisc_req_t *pReq, nwkDiscoveryUserCb_t cb);
 
 
 void zdo_zdpCbTblRegister(zdo_appIndCb_t *cbTbl);
@@ -939,5 +940,5 @@ void zdo_af_set_rejoin_interval(u16 interval);
 void zdo_af_set_max_rejoin_interval(u16 interval);
 void zdo_af_set_scan_attempts(u8 attempts);
 
-
+void zdo_nlmeForgetDev(addrExt_t nodeIeeeAddr, bool rejoin);
 #endif

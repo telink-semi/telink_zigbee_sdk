@@ -53,7 +53,7 @@ typedef struct{
 #define 		ZB_BUF_SIZE 			(160 + TL_RXPRIMITIVEHDR)
 
 #ifndef  ZB_BUF_POOL_NUM
-	#if defined(MCU_CORE_8258)
+	#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 		#define ZB_BUF_POOL_NUM			36
 	#else
 		#ifdef CHIP_8269

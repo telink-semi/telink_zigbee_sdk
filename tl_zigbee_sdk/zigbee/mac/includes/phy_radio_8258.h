@@ -110,7 +110,10 @@
 #define ZB_RADIO_TX_0DBM				RF_POWER_P0p04dBm
 
 /* radio initialization */
-#define ZB_RADIO_INIT()					rf_drv_init(RF_MODE_ZIGBEE_250K)
+#define ZB_RADIO_INIT()					do{\
+											rf_drv_init(RF_MODE_ZIGBEE_250K); \
+											rf_drv_cap(CFG_FREQUENCY_OFFSET); \
+										}while(0);
 
 /* sys timer initialization for mac-csma */
 #define ZB_TIMER_INIT()					hwTmr_init(TIMER_IDX_3, TIMER_MODE_SCLK)

@@ -451,4 +451,8 @@ extern u8 g_zb_txPowerSet;
 	#include "./phy_radio_8258.h"
 #endif
 
+#if defined (MCU_CORE_8278)
+	#include "./phy_radio_8278.h"
+#endif
+
 #endif  /* __RF_H__ */

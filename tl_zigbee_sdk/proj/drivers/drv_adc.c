@@ -50,30 +50,14 @@ unsigned char drv_adc_init()
 */
 unsigned short drv_get_adc_data()
 {
-#if defined (MCU_CORE_8258)
-	return (unsigned short)adc_sample_and_get_result();
-#else
+#if defined (MCU_CORE_826x) || defined (MCU_CORE_HAWK)
 	return ADC_SampleValueGet();
+#else	//8258/8278
+	return (unsigned short)adc_sample_and_get_result();
 #endif
 }
 
-#if defined (MCU_CORE_8258)
-void drv_adc_mode_pin_set(Drv_ADC_Mode mode, GPIO_PinTypeDef pin)
-{
-	if(mode == Drv_ADC_BASE_MODE){
-		adc_base_init(pin);
-	}else if(mode == Drv_ADC_VBAT_MODE){
-		adc_vbat_init(pin);
-	}
-}
-
-
-void drv_adc_enable(bool enable)
-{
-	adc_power_on_sar_adc((unsigned char)enable);
-}
-
-#else
+#if defined (MCU_CORE_826x) || defined (MCU_CORE_HAWK)
 /****
 * brief: Set ADC channel,8269 only support the left and misc channel
 * param[in] ad_ch, enum the channel
@@ -165,4 +149,31 @@ void drv_ADC_ParamSetting(Drv_ADC_ChTypeDef ad_ch,DRV_ADC_InputModeTypeDef mode,
 	drv_set_ref_vol(ad_ch, ref_vol);
 	drv_set_resolution(ad_ch, res);
 }
+#else	//8258/8278
+/****
+* brief: Set ADC mode and pin
+* param[in] mode, base or vbat mode
+* param[in] pin, the output pin number
+* @return
+*/
+void drv_adc_mode_pin_set(Drv_ADC_Mode mode, GPIO_PinTypeDef pin)
+{
+	if(mode == Drv_ADC_BASE_MODE){
+		adc_base_init(pin);
+	}else if(mode == Drv_ADC_VBAT_MODE){
+		adc_vbat_init(pin);
+	}
+}
+
+
+/**
+ * @brief      This function sets sar_adc power.
+ * @param[in]  enable enable=1 : power on. enable=0: power off.
+ * @return     none
+ */
+void drv_adc_enable(bool enable)
+{
+	adc_power_on_sar_adc((unsigned char)enable);
+}
+
 #endif

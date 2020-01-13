@@ -117,9 +117,12 @@ _CODE_ZCL_ void tl_zbNwkZllCommissionScanConfirm(void *arg){
 	}else{
 		/* network info backup */
 		zcl_zllTouchLinkNetworkStartReq_t *startParams = (zcl_zllTouchLinkNetworkStartReq_t *)&g_zllTouchLink.networkStartInfo->params.networkStartCmd;
-
-		memcpy(startParams->epanId, extPanId, 8);
-		startParams->panId = panId;
+		if(ZB_EXTPANID_IS_ZERO(startParams->epanId)){
+			memcpy(startParams->epanId, extPanId, 8);
+		}
+		if(startParams->panId == 0){
+			startParams->panId = panId;
+		}
 		startParams->logicalChannel = g_zllTouchLink.workingChannelBackUp;//channel;
 
 		if(g_zllTouchLink.transId != 0 && channel != 0xff){

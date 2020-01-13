@@ -278,9 +278,12 @@ _CODE_ZCL_  void zcl_zllTouchLinkScanRequestHandler(epInfo_t *srcEp, u8 seqNo){
 		resp.panId = MAC_IB().panId;
 		resp.nwkAddr = NIB_NETWORK_ADDRESS();
 	}else{ //is_device_factory_new() || resp.zbInfo.bf.logicDevType != DEVICE_TYPE_ROUTER
-		resp.nwkUpdateId =0;
+		resp.nwkUpdateId = 0;
 		memset(resp.epanId, 0, 8);
-		resp.panId = 0;
+		if(MAC_IB().panId == MAC_INVALID_PANID){
+			MAC_IB().panId = ZB_RANDOM();
+		}
+		resp.panId = MAC_IB().panId;
 	}
 
 	resp.keyBitmask = 0;

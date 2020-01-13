@@ -7,7 +7,7 @@ typedef struct{
 	zdp_funcCb		func;
 }zdp_funcList_t;
 
-zdp_funcList_t g_zdpClientFunc[] = {
+const zdp_funcList_t g_zdpClientFunc[] = {
 	{NWK_ADDR_CLID,  				zdo_nwkAddrIndicate},
 	{IEEE_ADDR_CLID,  				zdo_ieeeAddrIndicate},
 	{NODE_DESCRIPTOR_CLID, 			zdo_descriptorsIndicate},

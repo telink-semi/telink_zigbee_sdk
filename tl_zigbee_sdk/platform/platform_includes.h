@@ -68,3 +68,8 @@
 #include "./chip_hawk/timer.h"
 #include "./chip_hawk/uart.h"
 #endif
+
+
+#if defined (MCU_CORE_8278)
+#include "./chip_8278/driver_8278.h"
+#endif

@@ -154,7 +154,7 @@ void user_app_init(void)
 #endif
 
 	/* Register ZCL specific cluster information */
-	zcl_register(SAMPLE_GW_ENDPOINT, SAMPLE_GW_CB_CLUSTER_NUM, g_sampleGwClusterList);
+	zcl_register(SAMPLE_GW_ENDPOINT, SAMPLE_GW_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_sampleGwClusterList);
 
 #ifdef ZCL_GREEN_POWER
 	gp_init();
@@ -209,7 +209,7 @@ static void sampleGwSysException(void)
  */
 void user_init(void)
 {
-#if defined(MCU_CORE_8258)
+#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	extern u8 firmwareCheckWithUID(void);
 	if(firmwareCheckWithUID()){
 		while(1);

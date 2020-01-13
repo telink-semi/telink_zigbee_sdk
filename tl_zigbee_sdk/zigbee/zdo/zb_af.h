@@ -43,7 +43,7 @@
 
 #define 		ZDO_MAX_ALLOWED_LINK_FAILURE_CNT	12
 
-#define			MAX_ACTIVE_EP_NUMBER				16
+#define			MAX_ACTIVE_EP_NUMBER				8
 
 #define			INVALID_CMP_RESULT					0xff
 #define			AF_BROADCAST_EP						0xff

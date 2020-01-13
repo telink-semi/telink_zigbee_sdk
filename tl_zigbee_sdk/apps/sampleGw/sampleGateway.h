@@ -90,7 +90,7 @@ extern app_ctx_t g_appGwCtx;
 extern bdb_appCb_t g_zbDemoBdbCb;
 
 extern u8 SAMPLE_GW_CB_CLUSTER_NUM;
-extern zcl_specClusterInfo_t g_sampleGwClusterList[];
+extern const zcl_specClusterInfo_t g_sampleGwClusterList[];
 extern const af_simple_descriptor_t sampleGW_simpleDesc;
 #if AF_TEST_ENABLE
 extern const af_simple_descriptor_t sampleTestDesc;

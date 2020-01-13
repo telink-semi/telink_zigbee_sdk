@@ -231,8 +231,7 @@ void ota_init(ota_type_e type, af_simple_descriptor_t *simpleDesc, ota_preamble_
 	zcl_attr_currZigbeeStackVer = ZB_STACKVER_PRO;
 	zcl_attr_imageUpgradeStatus = IMAGE_UPGRADE_STATUS_NORMAL;
 
-	//zcl_ota_register(simpleDesc->endpoint, &zcl_otaCb);
-	zcl_register(simpleDesc->endpoint, OTA_CB_CLUSTER_NUM, g_otaClusterList);
+	zcl_register(simpleDesc->endpoint, OTA_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_otaClusterList);
 
 	if(g_otaCtx.isOtaServer){
 		ota_loadImageInfo(NULL);

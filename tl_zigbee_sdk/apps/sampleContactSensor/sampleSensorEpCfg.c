@@ -139,7 +139,7 @@ const zclAttrInfo_t identify_attrTbl[] =
 
 #define ZCL_IDENTIFY_ATTR_NUM			sizeof(identify_attrTbl) / sizeof(zclAttrInfo_t)
 
-
+#ifdef ZCL_IAS_ZONE
 /* IAS Zone */
 zcl_iasZoneAttr_t g_zcl_iasZoneAttrs =
 {
@@ -162,8 +162,9 @@ const zclAttrInfo_t iasZone_attrTbl[] =
 };
 
 #define	ZCL_IASZONE_ATTR_NUM		 sizeof(iasZone_attrTbl) / sizeof(zclAttrInfo_t)
+#endif
 
-
+#ifdef ZCL_POLL_CTRL
 /* Poll Control */
 zcl_pollCtrlAttr_t g_zcl_pollCtrlAttrs =
 {
@@ -190,12 +191,12 @@ const zclAttrInfo_t pollCtrl_attrTbl[] =
 };
 
 #define	ZCL_POLLCTRL_ATTR_NUM		 sizeof(pollCtrl_attrTbl) / sizeof(zclAttrInfo_t)
-
+#endif
 
 /**
  *  @brief Definition for simple contact sensor ZCL specific cluster
  */
-zcl_specClusterInfo_t g_sampleSensorClusterList[] =
+const zcl_specClusterInfo_t g_sampleSensorClusterList[] =
 {
 	{ZCL_CLUSTER_GEN_BASIC,			ZCL_BASIC_ATTR_NUM, 	basic_attrTbl,  	zcl_basic_register,		sampleSensor_basicCb},
 	{ZCL_CLUSTER_GEN_IDENTIFY,		ZCL_IDENTIFY_ATTR_NUM,	identify_attrTbl,	zcl_identify_register,	sampleSensor_identifyCb},

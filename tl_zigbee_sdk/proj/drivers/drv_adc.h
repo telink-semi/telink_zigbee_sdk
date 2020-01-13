@@ -43,8 +43,33 @@ unsigned char drv_adc_init();
 unsigned short drv_get_adc_data();
 
 
-#if defined (MCU_CORE_8258)
+#if defined (MCU_CORE_826x) || defined (MCU_CORE_HAWK)
+typedef enum{
+	Drv_ADC_LEFT_CHN 	= BIT(0),
+	Drv_ADC_RIGHT_CHN	= BIT(1),
+	Drv_ADC_MISC_CHN	= BIT(2),
+	Drv_ADC_RNS_CHN		= BIT(3),
+}Drv_ADC_ChTypeDef;
 
+typedef enum{
+	Drv_SINGLE_ENDED_MODE = 0,  //single-ended mode
+	Drv_DIFFERENTIAL_MODE = 1,  //differential mode
+}DRV_ADC_InputModeTypeDef;
+
+/****
+* brief: set the ADC setting parameter
+* param[in] adc_chan, enum the channel
+* param[in] mode,single or differential mode
+* param[in] pcha_p,the positive input pin
+* param[in] pcha_n,the negative input,if the mode is the single mode,it is GND
+* param[in] sample_time,the sample time cycle,reference to the API.
+* param[in] ref_vol,the reference voltage,should be the enum mode,reference to the API.
+* param[in] res,the sample resolution,should be the enum mode,reference to the API.
+* @return
+*/
+void drv_ADC_ParamSetting(Drv_ADC_ChTypeDef ad_ch,DRV_ADC_InputModeTypeDef mode,u8 pcha_p, u8 pcha_n,u8 sample_time,u8 ref_vol,u8 res);
+
+#else		//8258/8278
 typedef enum{
 	Drv_ADC_BASE_MODE,
 	Drv_ADC_VBAT_MODE,
@@ -71,30 +96,4 @@ void drv_adc_set_calValue(unsigned short value);
 */
 void drv_adc_enable(bool enable);
 
-#else
-
-typedef enum{
-	Drv_ADC_LEFT_CHN 	= BIT(0),
-	Drv_ADC_RIGHT_CHN	= BIT(1),
-	Drv_ADC_MISC_CHN	= BIT(2),
-	Drv_ADC_RNS_CHN		= BIT(3),
-}Drv_ADC_ChTypeDef;
-
-typedef enum{
-	Drv_SINGLE_ENDED_MODE = 0,  //single-ended mode
-	Drv_DIFFERENTIAL_MODE = 1,  //differential mode
-}DRV_ADC_InputModeTypeDef;
-
-/****
-* brief: set the ADC setting parameter
-* param[in] adc_chan, enum the channel
-* param[in] mode,single or differential mode
-* param[in] pcha_p,the positive input pin
-* param[in] pcha_n,the negative input,if the mode is the single mode,it is GND
-* param[in] sample_time,the sample time cycle,reference to the API.
-* param[in] ref_vol,the reference voltage,should be the enum mode,reference to the API.
-* param[in] res,the sample resolution,should be the enum mode,reference to the API.
-* @return
-*/
-void drv_ADC_ParamSetting(Drv_ADC_ChTypeDef ad_ch,DRV_ADC_InputModeTypeDef mode,u8 pcha_p, u8 pcha_n,u8 sample_time,u8 ref_vol,u8 res);
 #endif

@@ -64,14 +64,22 @@ const u16 sampleSwitch_inClusterList[] =
  */
 const u16 sampleSwitch_outClusterList[] =
 {
+#ifdef ZCL_GROUP
 	ZCL_CLUSTER_GEN_GROUPS,
+#endif
+#ifdef ZCL_SCENE
 	ZCL_CLUSTER_GEN_SCENES,
+#endif
+#ifdef ZCL_ON_OFF
 	ZCL_CLUSTER_GEN_ON_OFF,
+#endif
+#ifdef ZCL_LEVEL_CTRL
 	ZCL_CLUSTER_GEN_LEVEL_CONTROL,
+#endif
 #ifdef ZCL_OTA
     ZCL_CLUSTER_OTA,
 #endif
-#if TOUCHLINK_SUPPORT
+#ifdef ZCL_ZLL_COMMISSIONING
 	ZCL_CLUSTER_TOUCHLINK_COMMISSIONING,
 #endif
 };
@@ -144,7 +152,7 @@ const zclAttrInfo_t identify_attrTbl[] =
 
 #define	ZCL_IDENTIFY_ATTR_NUM			sizeof(identify_attrTbl) / sizeof(zclAttrInfo_t)
 
-
+#ifdef ZCL_POLL_CTRL
 /* Poll Control */
 zcl_pollCtrlAttr_t g_zcl_pollCtrlAttrs =
 {
@@ -171,17 +179,21 @@ const zclAttrInfo_t pollCtrl_attrTbl[] =
 };
 
 #define	ZCL_POLLCTRL_ATTR_NUM			sizeof(pollCtrl_attrTbl) / sizeof(zclAttrInfo_t)
-
+#endif
 
 /**
  *  @brief Definition for simple switch ZCL specific cluster
  */
-zcl_specClusterInfo_t g_sampleSwitchClusterList[] =
+const zcl_specClusterInfo_t g_sampleSwitchClusterList[] =
 {
 	{ZCL_CLUSTER_GEN_BASIC,				ZCL_BASIC_ATTR_NUM, 	basic_attrTbl,  	zcl_basic_register,		sampleSwitch_basicCb},
 	{ZCL_CLUSTER_GEN_IDENTIFY,			ZCL_IDENTIFY_ATTR_NUM,	identify_attrTbl,	zcl_identify_register,	sampleSwitch_identifyCb},
+#ifdef ZCL_GROUP
 	{ZCL_CLUSTER_GEN_GROUPS,			0, 						NULL,  				zcl_group_register,		sampleSwitch_groupCb},
+#endif
+#ifdef ZCL_SCENE
 	{ZCL_CLUSTER_GEN_SCENES,			0,						NULL,				zcl_scene_register,		sampleSwitch_sceneCb},
+#endif
 #ifdef ZCL_POLL_CTRL
 	{ZCL_CLUSTER_GEN_POLL_CONTROL,		ZCL_POLLCTRL_ATTR_NUM,	pollCtrl_attrTbl, 	zcl_pollCtrl_register, 	sampleSwitch_pollCtrlCb},
 #endif

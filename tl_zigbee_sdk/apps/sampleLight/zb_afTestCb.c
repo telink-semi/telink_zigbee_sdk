@@ -136,6 +136,7 @@ void afTest_rx_handler(void *arg)
 
 void afTest_dataSendConfirm(void *arg)
 {
+//	apsdeDataConf_t *pApsDataCnf = (apsdeDataConf_t *)arg;
 
 }
 

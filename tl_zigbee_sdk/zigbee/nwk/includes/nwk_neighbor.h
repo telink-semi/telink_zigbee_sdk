@@ -40,7 +40,7 @@
 #define TL_ZB_NEIGHBOR_TABLE_NUM			26
 #define TL_ZB_CHILD_TABLE_NUM				16
 #else
-#define TL_ZB_NEIGHBOR_TABLE_NUM			8
+#define TL_ZB_NEIGHBOR_TABLE_NUM			2
 #define TL_ZB_CHILD_TABLE_NUM				0
 #endif
 #endif

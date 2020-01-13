@@ -221,16 +221,9 @@ static void zbhciMgmtLeaveRspMsgPush(void *arg){
 	u16 leaveNodeCnt = 0;
 	zbhci_nodeLeaveInd_t ind;
 	if(g_hciCmd.apsCnt == rsp->seq_num && rsp->status == 0){
-//		if(!g_hciCmd.rejoin){
-//			ss_devKeyPairDelete(g_hciCmd.macAddr);
-//
-//			u16 shortAddr;
-//			u16 idx;
-//			tl_zb_normal_neighbor_entry_t *pEntry = tl_zbNeighborTableSearchFromExtAddr(&shortAddr, g_hciCmd.macAddr, &idx);
-//			if(pEntry){
-//				zdo_nlmeForgetDev(pEntry, g_hciCmd.macAddr, g_hciCmd.rejoin);
-//			}
-//		}
+		if(!g_hciCmd.rejoin){
+			zdo_nlmeForgetDev(g_hciCmd.macAddr, g_hciCmd.rejoin);
+		}
 		ind.totalCnt = leaveNodeCnt++;
 		memcpy(ind.macAddr, g_hciCmd.macAddr, 8);
 		zbhciTx(ZBHCI_CMD_MGMT_LEAVE_RSP, sizeof(zbhci_nodeLeaveInd_t), (u8 *)&ind);
@@ -407,12 +400,8 @@ static void zbhci_bdbCmdHandler(void *arg){
 	}else if(cmdID == ZBHCI_CMD_BDB_NODE_DELETE){
 		zbhci_mgmt_nodeDeleteReq_t delNodeAddr;
 		ZB_IEEE_ADDR_REVERT(delNodeAddr.macAddr, &p[0]);
-		ss_devKeyPairDelete(delNodeAddr.macAddr);
 
-		tl_zb_normal_neighbor_entry_t *nbt = nwk_neTblGetByExtAddr(delNodeAddr.macAddr);
-		if(nbt){
-			zdo_nlmeForgetDev(nbt, delNodeAddr.macAddr, 0);
-		}
+		zdo_nlmeForgetDev(delNodeAddr.macAddr, 0);
 	}else if(cmdID == ZBHCI_CMD_BDB_TX_POWER_SET){
 		/* Set TX power, value is RF_PowerTypeDef. */
 		rf_setTxPower(p[0]);
@@ -489,7 +478,7 @@ static void zbhci_discoveryCmdHandler(void *arg){
 			req.lr_bitfields.reserved = 0;
 
 			memcpy(g_hciCmd.macAddr, req.device_addr, 8);
-			//g_hciCmd.rejoin = req.lr_bitfields.rejoin;
+			g_hciCmd.rejoin = req.lr_bitfields.rejoin;
 			zb_mgmtLeaveReq(targetAddr, &req, &sn, zbhciMgmtLeaveRspMsgPush);
 			g_hciCmd.apsCnt = sn;
 		}
@@ -588,7 +577,7 @@ static void zbhci_bindCmdHandler(void *arg){
 	ev_buf_free(arg);
 }
 
-
+ev_time_event_t *hci_nodeToggleTestEvt = NULL;
 s32 node_toggle_test(void *arg){
 	//u32 onOff = (u32)arg;
 	static s32 startIdx = 0;
@@ -728,8 +717,12 @@ s32 zbhci_nodeManageCmdHandler(void *arg){
 #if ZB_COORDINATOR_ROLE
 		u32 onOff = *p;
 		u8 interval = *(p+1);
-
-		TL_ZB_TIMER_SCHEDULE(node_toggle_test, (void *)onOff, interval * 10 * 1000);
+		if(hci_nodeToggleTestEvt){
+			TL_ZB_TIMER_CANCEL(&hci_nodeToggleTestEvt);
+		}
+		if(interval){
+			hci_nodeToggleTestEvt = TL_ZB_TIMER_SCHEDULE(node_toggle_test, (void *)onOff, interval * 10 * 1000);
+		}
 #endif
 	}else if(cmdID == ZBHCI_CMD_TXRX_PERFORMANCE_TEST_REQ){
 #if AF_TEST_ENABLE

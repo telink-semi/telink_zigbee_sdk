@@ -319,8 +319,6 @@ typedef struct{
 
 typedef		aps_me_bind_req_t	aps_me_unbind_req_t;
 
-extern u8 APS_GROUP_TABLE_SIZE;
-
 
 //APSME-ADD-GROUP.request Parameters
 typedef struct{
@@ -426,6 +424,7 @@ typedef struct{
 	u8		aps_flags;//Flag used in APS layers, see the enum of aps_flag_e
 }aps_pib_attributes_t;
 
+extern bool APS_SECUTIRY_ENABLE;
 extern u8 APS_INTERFRAME_DELAY;
 extern u8 APS_MAX_WINDOW_SIZE;
 extern u8 APS_FRAGMEMT_PAYLOAD_SIZE;
@@ -613,3 +612,7 @@ u8 aps_me_free_src_table_find(void);
 u8 apsDataRequest(aps_data_req_t *dataReq, u8 *asdu, u8 length);
 
 u8 apsDataFragmentRequest(aps_data_req_t *dataReq, u8 *asdu, u16 length);
+
+
+typedef void (*apsDataIndCb_t)(void *p);
+void tl_apsDataIndRegister(apsDataIndCb_t cb);

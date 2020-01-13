@@ -120,14 +120,24 @@ _CODE_MAC_ void generateIEEEAddr(void){
 	if(ZB_IEEE_ADDR_IS_INVAILD(addr)){
 		generateRandomData(addr, 8);
 		memcpy(addr+5, startIEEEAddr, 3);
-		memcpy(ZB_PIB_EXTENDED_ADDRESS(), addr, 8);
 		flash_write(CFG_MAC_ADDRESS, 6, addr + 2);
 		flash_write(CFG_MAC_ADDRESS + 6, 2, addr);
 	}else{
-		flash_read(CFG_MAC_ADDRESS, 6, addr + 2);
-		flash_read(CFG_MAC_ADDRESS + 6, 2, addr);
-		ZB_IEEE_ADDR_COPY(ZB_PIB_EXTENDED_ADDRESS(), addr);
+		/* MAC address format in TLSR serial chips:
+		 * xx xx xx 38 C1 A4 xx xx
+  	  	 * xx xx xx D1 19 C4 xx xx
+  	  	 * xx xx xx CB 0B D8 xx xx
+		 *
+		 * so, it need to do shift
+		 * */
+		if((addr[3] == 0x38 && addr[4] == 0xC1 && addr[5] == 0xA4) ||
+		   (addr[3] == 0xD1 && addr[4] == 0x19 && addr[5] == 0xC4) ||
+		   (addr[3] == 0xCB && addr[4] == 0x0B && addr[5] == 0xD8)){
+			flash_read(CFG_MAC_ADDRESS, 6, addr + 2);
+			flash_read(CFG_MAC_ADDRESS + 6, 2, addr);
+		}
 	}
+	ZB_IEEE_ADDR_COPY(ZB_PIB_EXTENDED_ADDRESS(), addr);
 }
 
 /*! @} */

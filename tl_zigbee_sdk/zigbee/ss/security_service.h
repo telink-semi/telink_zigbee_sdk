@@ -23,6 +23,7 @@
 #define SECURITY_SERVICE_H	1
 
 #include "tl_common.h"
+#include "../aps/aps_api.h"
 #include "../include/tl_config.h"
 
 
@@ -233,9 +234,7 @@ enum AES_OPT {
 };
 
 extern ss_info_base_t ss_ib;
-
-#define SS_IB()			ss_ib
-
+#define SS_IB()							ss_ib
 
 // for CCM
 u8 aes_ccmAuthTran(u8 M, u8 *key, u8 *iv, u8 *mStr, u16 mStrLen, u8 *aStr, u8 aStrLen, u8 *result);
@@ -243,18 +242,12 @@ u8 aes_ccmEncTran(u8 M, u8 *key, u8 *iv, u8 *mStr, u16 mStrLen, u8 *aStr, u8 aSt
 u8 aes_ccmDecTran(u8 micLen, u8 *key, u8 *iv, u8 *mStr, u16 mStrLen, u8 *aStr, u8 aStrLen, u8 *mic);
 u8 aes_ccmDecAuthTran(u8 micLen, u8 *key, u8 *iv, u8 *mStr, u16 mStrLen, u8 *aStr, u8 aStrLen, u8 *mic);
 
-bool ss_keyPreconfigured(void );
-bool ss_linkKeyPreconfigured(void );
-bool ss_masterKeyPreconfigured(void );
+bool ss_keyPreconfigured(void);
 void ss_zdoNwkKeyConfigure(const u8 *key, u8 i,u8 keyType);
 u8 ss_apsAuxHdrfill(void *p, bool nwkKey/*, u8 cmdId*/);
 u8 ss_apsDecryptFrame(void *p);
 u8 ss_apsSecureFrame(void *p, u8 apsHdrAuxLen,u8 apsHdrLen, addrExt_t extAddr);
 u8 ss_apsDeviceRemoveReq(ss_apsDevRemoveReq_t *p);
-
-void zdo_ssInfoUpdate(void);
-u8 zdo_ssInfoInit(void);
-void zdo_ssInfoSaveToFlash();
 
 u8 ss_devKeyPairFind(addrExt_t extAddr, ss_dev_pair_set_t *keyPair);
 void ss_devKeyPairSave(ss_dev_pair_set_t *keyPair);
@@ -277,25 +270,6 @@ u8 ss_devKeyPairDelete(addrExt_t extAddr);
  * */
 u16 ss_nodeMacAddrFromdevKeyPair(u16 start_idx, u8 num, u8 *validNum, addrExt_t *nodeMacAddrList);
 
-
-extern u8 apsLayerSecurity;
-#define APS_SECURITY_EN_SET(v)			apsLayerSecurity = v
-
-/********************************************************************************************************
- * @brief	External used function for security service initialization
- *
- * @param	*nwkKey: parameter only used for TC, configured network key to be used in NWK layer security,
- * 						if NULL should use the default key
- * 			*linkKey: configured link key used during transport key procedure
- * 			keyType:	link key type used, global or private
- * 			enSecurity:	enable or disable security used
- * 			seMode: centralized mode or distributed mode
- * @return none
- */
-void ss_securityModeInit(u8 *nwkKey, u8 *linkKey, ss_linkKeytype_e type, bool enSecurity, ss_securityMode_e seMode);
-
-extern	ss_info_base_t ss_ib;
-
 u32 ss_outgoingFrameCntGet(void);
 
 void ss_zdoUseKey(u8 index);
@@ -304,6 +278,7 @@ void ss_apsKeySwitchReq(void *p);
 
 void ss_zdoNwkKeyUpdateReq(void *p);
 
+aps_status_t ss_apsmeRequestKeyReq(u8 keyType, addrExt_t dstAddr, addrExt_t partnerAddr);
 
 /*
  * @brief 	save ssib to flash
@@ -318,6 +293,11 @@ void zdo_ssInfoSaveToFlash();
  * */
 u8 zdo_ssInfoInit(void);
 
+/*
+ * @brief 	update ssib to flash
+ *
+ * */
+void zdo_ssInfoUpdate(void);
 
 /*
  * @brief 	get network key index from flash

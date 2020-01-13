@@ -65,6 +65,7 @@ typedef enum
 	NLME_IDLE,
 	NLME_PERMIT_JOIN_REQ,
 	NLME_SEND_DEV_ANN,
+	NLME_LEAVING,
 }user_state_t;
 
 typedef struct
@@ -162,5 +163,7 @@ nwk_ctx_t g_zbNwkCtx;
 #define ZB_SET_DISCOVER_ROUTE(v)		(g_zbNwkCtx.discoverRoute = v)
 #define ZB_GET_DISCOVER_ROUTE			(g_zbNwkCtx.discoverRoute)
 
+#define ZB_SET_USER_STATE(v)			(g_zbNwkCtx.user_state = v)
+#define ZB_GET_USER_STATE				(g_zbNwkCtx.user_state)
 
 #endif /* ZB_NWK_GLOBALS_H */

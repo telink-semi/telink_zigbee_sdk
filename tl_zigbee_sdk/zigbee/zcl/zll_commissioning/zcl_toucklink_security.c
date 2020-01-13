@@ -110,18 +110,18 @@ void ll_decrypt_network_key(u8 key_index, u8 *encrypted_network_key,
 
 	if(key_index == DEVELOPMENT_KEY)
 	{
-		AES_Decrypt(AES_input, encrypted_network_key, network_key);
+		aes_decrypt(AES_input, encrypted_network_key, network_key);
 	}
 	else if(key_index == MASTER_KEY)
 	{
 
-		AES_Encrypt(SS_IB().touchLinkKey, AES_input, transport_key);
-		AES_Decrypt(transport_key, encrypted_network_key, network_key);
+		aes_encrypt(SS_IB().touchLinkKey, AES_input, transport_key);
+		aes_decrypt(transport_key, encrypted_network_key, network_key);
 	}
 	else if(key_index == CERTIFICATION_KEY)
 	{
-		AES_Encrypt(SS_IB().touchLinkKey, AES_input, transport_key);
-		AES_Decrypt(transport_key, encrypted_network_key, network_key);
+		aes_encrypt(SS_IB().touchLinkKey, AES_input, transport_key);
+		aes_decrypt(transport_key, encrypted_network_key, network_key);
 	}
 
 	memcpy(encrypted_network_key, network_key, CCM_KEY_SIZE);
@@ -164,17 +164,17 @@ void ll_get_encrypted_network_key(u8 key_index, u32 transactionID,
 	
 	if(key_index == DEVELOPMENT_KEY)
 	{
-		AES_Encrypt(AES_input, network_key, encrypted_network_key);
+		aes_encrypt(AES_input, network_key, encrypted_network_key);
 	}
 	else if(key_index == MASTER_KEY)
 	{
-		AES_Encrypt(SS_IB().touchLinkKey, AES_input, transport_key);
-		AES_Encrypt(transport_key, network_key, encrypted_network_key);
+		aes_encrypt(SS_IB().touchLinkKey, AES_input, transport_key);
+		aes_encrypt(transport_key, network_key, encrypted_network_key);
 	}
 	else if(key_index == CERTIFICATION_KEY)
 	{
-		AES_Encrypt(SS_IB().touchLinkKey, AES_input, transport_key);
-		AES_Encrypt(transport_key, network_key, encrypted_network_key);
+		aes_encrypt(SS_IB().touchLinkKey, AES_input, transport_key);
+		aes_encrypt(transport_key, network_key, encrypted_network_key);
 	}
 
 	if (!APS_IB().aps_authenticated){

@@ -112,8 +112,6 @@ static s32 sampleLight_levelTimerEvtCb(void * arg)
 	zcl_levelAttr_t *pLevel = zcl_levelAttrGet();
 
 	if(pLevel->remainingTime){
-		levelInfo.currentLevel256 = (u16)(pLevel->curLevel) << 8;
-
 		light_applyUpdate(&pLevel->curLevel, &levelInfo.currentLevel256, &levelInfo.stepLevel256, &pLevel->remainingTime,
 								ZCL_LEVEL_ATTR_MIN_LEVEL, ZCL_LEVEL_ATTR_MAX_LEVEL, FALSE);
 	}

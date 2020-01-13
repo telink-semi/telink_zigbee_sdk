@@ -47,10 +47,15 @@ extern "C" {
 #define BOARD_8258_EVK				3
 #define BOARD_8258_DONGLE			4
 #define BOARD_8258_DONGLE_1M		5
-
+#define BOARD_8278_EVK				6
+#define BOARD_8278_DONGLE			7
 
 #ifdef MCU_CORE_8258
 	#define BOARD					BOARD_8258_DONGLE//BOARD_8258_EVK
+	/* system clock config */
+	#define CLOCK_SYS_CLOCK_HZ  	48000000
+#elif defined(MCU_CORE_8278)
+	#define BOARD					BOARD_8278_DONGLE//BOARD_8278_EVK
 	/* system clock config */
 	#define CLOCK_SYS_CLOCK_HZ  	48000000
 #else
@@ -72,6 +77,10 @@ extern "C" {
 	#include "board_8258_dongle.h"
 #elif(BOARD	== BOARD_8258_EVK)
 	#include "board_8258_evk.h"
+#elif(BOARD == BOARD_8278_EVK)
+	#include "board_8278_evk.h"
+#elif(BOARD == BOARD_8278_DONGLE)
+	#include "board_8278_dongle.h"
 #else
 	#include "board_826x_evk.h"
 #endif
@@ -103,6 +112,8 @@ extern "C" {
 #define ZCL_TEMPERATURE_MEASUREMENT_SUPPORT			1
 #define ZCL_IAS_ZONE_SUPPORT						1
 #define ZCL_POLL_CTRL_SUPPORT						1
+#define ZCL_GROUP_SUPPORT							1
+#define ZCL_SCENE_SUPPORT							1
 #define ZCL_OTA_SUPPORT								1
 
 #define AF_TEST_ENABLE								0

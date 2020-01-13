@@ -379,7 +379,8 @@ _CODE_ZCL_ static u8 zcl_touchLinkClientCmdHandler(zclIncoming_t *pInMsg){
 				}
 			}
 
-			g_zllTouchLink.respId = (u32)ZB_RANDOM();
+			g_zllTouchLink.respId = ZB_RANDOM() << 16;
+			g_zllTouchLink.respId += ZB_RANDOM();
 			g_zllTouchLink.transId = scanReq.transId;
 			g_zllTouchLink.state = ZCL_ZLL_COMMISSION_STATE_TOUCHLINK_DISCOVERY;
 
@@ -395,6 +396,7 @@ _CODE_ZCL_ static u8 zcl_touchLinkClientCmdHandler(zclIncoming_t *pInMsg){
 			 * */
 			g_zllTouchLink.networkStartInfo = (zcl_zllTouckLinkNetworkStartParams *)ev_buf_allocate(sizeof(zcl_zllTouckLinkNetworkStartParams));
 			if(g_zllTouchLink.networkStartInfo){
+				memset((u8 *)g_zllTouchLink.networkStartInfo, 0, sizeof(zcl_zllTouckLinkNetworkStartParams));
 				zcl_zllTouchLinkNetworkStartReq_t *pReq = &g_zllTouchLink.networkStartInfo->params.networkStartCmd;
 				memcpy(pReq, (u8 *)pInMsg->pData, sizeof(zcl_zllTouchLinkNetworkStartReq_t));
 
@@ -575,7 +577,6 @@ _CODE_ZCL_ static u8 zcl_zllCommissionServerCmdHandler(zclIncoming_t *pInMsg){
 	TL_SETSTRUCTCONTENT(dstEp, 0);
 
 	dstEp.dstAddrMode = APS_LONG_DSTADDR_WITHEP;
-	//memcpy(dstEp.dstAddr.extAddr, zcl_command_source_address, 8);
 	memcpy(dstEp.dstAddr.extAddr, pApsdeInd->indInfo.src_ext_addr, 8);
 	dstEp.dstEp = pApsdeInd->indInfo.src_ep;
 	dstEp.profileId = pApsdeInd->indInfo.profile_id;
@@ -737,12 +738,12 @@ _CODE_ZCL_ u8 zcl_touchLinkInit(void){
 	g_zllTouchLink.zbInfo.bf.logicDevType = af_nodeDevTypeGet();
 	g_zllTouchLink.startNetworkAllowed = 1;
 	g_zllTouchLink.zllInfo.byte = 0;
-	g_zllTouchLink.zllInfo.bf.addrAssign = 1;
-	
-	if(zb_isDeviceFactoryNew()){  //new device, set priority as 1
-		g_zllTouchLink.zllInfo.bf.priorityReq = 1;
-		g_zllTouchLink.zllInfo.bf.factoryNew = 1;
-	}
+//	g_zllTouchLink.zllInfo.bf.addrAssign = 1;
+//
+//	if(zb_isDeviceFactoryNew()){  //new device, set priority as 1
+//		g_zllTouchLink.zllInfo.bf.priorityReq = 1;
+//		g_zllTouchLink.zllInfo.bf.factoryNew = 1;
+//	}
 	g_zllTouchLink.scanListNum = (ZB_BUF_SIZE - OFFSETOF(zcl_zllTouckLinkDisc_t, scanList))/sizeof(zll_touchLinkScanInfo);
 
 	af_endpoint_descriptor_t *aed = af_epDescriptorGet();

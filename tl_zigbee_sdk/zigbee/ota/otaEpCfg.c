@@ -78,7 +78,7 @@ const zclAttrInfo_t ota_attrTbl[] =
 /**
  *  @brief Definition for OTA ZCL specific cluster
  */
-zcl_specClusterInfo_t g_otaClusterList[] =
+const zcl_specClusterInfo_t g_otaClusterList[] =
 {
 	{ZCL_CLUSTER_OTA, ZCL_OTA_ATTR_NUM,	ota_attrTbl, zcl_ota_register, zcl_otaCb},
 };

@@ -63,14 +63,22 @@ const u16 sampleLight_inClusterList[] =
 {
 	ZCL_CLUSTER_GEN_BASIC,
 	ZCL_CLUSTER_GEN_IDENTIFY,
+#ifdef ZCL_GROUP
 	ZCL_CLUSTER_GEN_GROUPS,
+#endif
+#ifdef ZCL_SCENE
 	ZCL_CLUSTER_GEN_SCENES,
+#endif
+#ifdef ZCL_ON_OFF
 	ZCL_CLUSTER_GEN_ON_OFF,
+#endif
+#ifdef ZCL_LEVEL_CTRL
 	ZCL_CLUSTER_GEN_LEVEL_CONTROL,
+#endif
 #ifdef ZCL_LIGHT_COLOR_CONTROL
 	ZCL_CLUSTER_LIGHTING_COLOR_CONTROL,
 #endif
-#if TOUCHLINK_SUPPORT
+#ifdef ZCL_ZLL_COMMISSIONING
 	ZCL_CLUSTER_TOUCHLINK_COMMISSIONING,
 #endif
 };
@@ -164,7 +172,7 @@ const zclAttrInfo_t identify_attrTbl[] =
 
 #define ZCL_IDENTIFY_ATTR_NUM	 sizeof(identify_attrTbl) / sizeof(zclAttrInfo_t)
 
-
+#ifdef ZCL_GROUP
 /* Group */
 zcl_groupAttr_t g_zcl_groupAttrs =
 {
@@ -179,8 +187,9 @@ const zclAttrInfo_t group_attrTbl[] =
 };
 
 #define ZCL_GROUP_ATTR_NUM	  sizeof(group_attrTbl) / sizeof(zclAttrInfo_t)
+#endif
 
-
+#ifdef ZCL_SCENE
 /* Scene */
 zcl_sceneAttr_t g_zcl_sceneAttrs =
 {
@@ -203,8 +212,9 @@ const zclAttrInfo_t scene_attrTbl[] =
 };
 
 #define ZCL_SCENE_ATTR_NUM	 sizeof(scene_attrTbl) / sizeof(zclAttrInfo_t)
+#endif
 
-
+#ifdef ZCL_ON_OFF
 /* On/Off */
 zcl_onOffAttr_t g_zcl_onOffAttrs =
 {
@@ -227,8 +237,9 @@ const zclAttrInfo_t onOff_attrTbl[] =
 };
 
 #define ZCL_ONOFF_ATTR_NUM	 sizeof(onOff_attrTbl) / sizeof(zclAttrInfo_t)
+#endif
 
-
+#ifdef ZCL_LEVEL_CTRL
 /* Level */
 zcl_levelAttr_t g_zcl_levelAttrs =
 {
@@ -247,8 +258,9 @@ const zclAttrInfo_t level_attrTbl[] =
 };
 
 #define ZCL_LEVEL_ATTR_NUM	 sizeof(level_attrTbl) / sizeof(zclAttrInfo_t)
+#endif
 
-
+#ifdef ZCL_LIGHT_COLOR_CONTROL
 /* Color Control */
 zcl_lightColorCtrlAttr_t g_zcl_colorCtrlAttrs =
 {
@@ -300,20 +312,30 @@ const zclAttrInfo_t lightColorCtrl_attrTbl[] =
 };
 
 #define ZCL_COLOR_ATTR_NUM	 sizeof(lightColorCtrl_attrTbl) / sizeof(zclAttrInfo_t)
-
+#endif
 
 /**
  *  @brief Definition for simple light ZCL specific cluster
  */
-zcl_specClusterInfo_t g_sampleLightClusterList[] =
+const zcl_specClusterInfo_t g_sampleLightClusterList[] =
 {
 	{ZCL_CLUSTER_GEN_BASIC,				 ZCL_BASIC_ATTR_NUM, 	basic_attrTbl,  		zcl_basic_register,			 sampleLight_basicCb},
 	{ZCL_CLUSTER_GEN_IDENTIFY,			 ZCL_IDENTIFY_ATTR_NUM,	identify_attrTbl,		zcl_identify_register,		 sampleLight_identifyCb},
+#ifdef ZCL_GROUP
 	{ZCL_CLUSTER_GEN_GROUPS,			 ZCL_GROUP_ATTR_NUM, 	group_attrTbl,  		zcl_group_register,			 NULL},
+#endif
+#ifdef ZCL_SCENE
 	{ZCL_CLUSTER_GEN_SCENES,			 ZCL_SCENE_ATTR_NUM,	scene_attrTbl,			zcl_scene_register,			 sampleLight_sceneCb},
+#endif
+#ifdef ZCL_ON_OFF
 	{ZCL_CLUSTER_GEN_ON_OFF,			 ZCL_ONOFF_ATTR_NUM,	onOff_attrTbl,			zcl_onOff_register,			 sampleLight_onOffCb},
+#endif
+#ifdef ZCL_LEVEL_CTRL
 	{ZCL_CLUSTER_GEN_LEVEL_CONTROL,		 ZCL_LEVEL_ATTR_NUM,	level_attrTbl,			zcl_level_register,			 sampleLight_levelCb},
+#endif
+#ifdef ZCL_LIGHT_COLOR_CONTROL
 	{ZCL_CLUSTER_LIGHTING_COLOR_CONTROL, ZCL_COLOR_ATTR_NUM,	lightColorCtrl_attrTbl,	zcl_lightColorCtrl_register, sampleLight_colorCtrlCb},
+#endif
 };
 
 u8 SAMPLELIGHT_CB_CLUSTER_NUM = (sizeof(g_sampleLightClusterList)/sizeof(g_sampleLightClusterList[0]));

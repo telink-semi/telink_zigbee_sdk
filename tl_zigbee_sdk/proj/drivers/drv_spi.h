@@ -37,8 +37,8 @@ typedef enum {
  *  @brief  Define the pin port for SPI interface
  */
 typedef enum {
-    SPI_PIN_GPIO1 = 0,	//826x:SPI_PIN_GPIOA 8258:SPI_GPIO_GROUP_A2A3A4D6
-    SPI_PIN_GPIO2,		//826x:SPI_PIN_GPIOB 8258:SPI_GPIO_GROUP_B6B7D2D7
+    SPI_PIN_GPIO1 = 0,	//826x:SPI_PIN_GPIOA 8258/8278:SPI_GPIO_GROUP_A2A3A4D6
+    SPI_PIN_GPIO2,		//826x:SPI_PIN_GPIOB 8258/8278:SPI_GPIO_GROUP_B6B7D2D7
 } drv_spi_pin_group;
 
 /**
@@ -50,12 +50,22 @@ typedef enum {
  */
 extern void drv_spi_master_init(unsigned char DivClock, drv_spi_mode_type_def Mode);
 
+
+#if	defined (MCU_CORE_8278)
+/**
+ * @brief     This function selects a pin port for the SPI interface
+ * @param[in] PinGpio - the selected pin
+ * @return    none
+ */
+extern void drv_spi_master_pin_select(SPI_GPIO_SclkTypeDef sclk_pin,SPI_GPIO_CsTypeDef cs_pin,SPI_GPIO_SdoTypeDef sdo_pin, SPI_GPIO_SdiTypeDef sdi_pin);
+#else
 /**
  * @brief     This function selects a pin port for the SPI interface
  * @param[in] PinGrp - the selected pin group port
  * @return    none
  */
 extern void drv_spi_master_pin_select(drv_spi_pin_group PinGrp);
+#endif
 
 /**
  * @brief     This function selects a GPIO pin as CS of SPI function.
@@ -73,12 +83,21 @@ extern void drv_spi_master_cspin_select(GPIO_PinTypeDef CSPin);
  */
 extern void drv_spi_slave_init(unsigned char DivClock, drv_spi_mode_type_def Mode);
 
+#if	defined (MCU_CORE_8278)
+/**
+ * @brief     This function selects a pin port for the SPI interface
+ * @param[in] PinGpio - the selected pin
+ * @return    none
+ */
+extern void drv_spi_slave_pin_select(SPI_GPIO_SclkTypeDef sclk_pin,SPI_GPIO_CsTypeDef cs_pin,SPI_GPIO_SdoTypeDef sdo_pin, SPI_GPIO_SdiTypeDef sdi_pin);
+#else
 /**
  * @brief     This function selects a pin port for the SPI interface
  * @param[in] PinGrp - the selected pin port
  * @return    none
  */
 extern void drv_spi_slave_pin_select(drv_spi_pin_group PinGrp);
+#endif
 
 /**
  * @brief      This function serves to write a bulk of data to the SPI slave

@@ -809,10 +809,10 @@ _CODE_BDB_ static void bdb_nodeDescRespHandler(void *arg)
 	if((rsp->status == ZDO_SUCCESS)){
 		u8 stackRev = (rsp->node_descriptor.server_mask >> 9) & 0x3f;
 		if(stackRev >= 21){
-			extern aps_status_t ss_apsmeRequestKeyReq(u8 keyType, addrExt_t dstAddr, addrExt_t partnerAddr);
-			ss_apsmeRequestKeyReq(SS_KEYREQ_TYPE_TCLK, ss_ib.trust_center_address, NULL);
-			g_bdbAttrs.nodeIsOnANetwork = 0;
-			return;
+			if(ss_apsmeRequestKeyReq(SS_KEYREQ_TYPE_TCLK, ss_ib.trust_center_address, NULL) != APS_STATUS_ILLEGAL_REQUEST){
+				g_bdbAttrs.nodeIsOnANetwork = 0;
+				return;
+			}
 		}
 	}else{
 		return;
@@ -928,7 +928,7 @@ _CODE_BDB_ static void bdb_networkSteerFactoryNew(void)
 	req.scanChannels = scanChannels;
 	req.scanDuration = g_bdbAttrs.scanDuration;
 
-	zdo_nwk_discovery_Start(&req);
+	zdo_nwk_discovery_Start(&req, NULL);
 }
 
 /*********************************************************************
@@ -1168,9 +1168,9 @@ _CODE_BDB_ void bdb_zdoStartDevCnf(void *arg){
 			break;
 
 		case BDB_STATE_COMMISSIONING_TOUCHLINK:
-			
 			if(startDevCnf->status == SUCCESS){
 				g_bdbAttrs.nodeIsOnANetwork = 1;
+				g_zbNwkCtx.joinAccept = 1;
 				zcl_touchLinkDevStartIndicate();
 			}else{
 				//g_bdbAttrs.commissioningStatus = BDB_COMMISSION_STA_NO_NETWORK;

@@ -187,7 +187,7 @@ extern bdb_appCb_t g_zbDemoBdbCb;
 
 
 extern u8 SAMPLELIGHT_CB_CLUSTER_NUM;
-extern zcl_specClusterInfo_t g_sampleLightClusterList[];
+extern const zcl_specClusterInfo_t g_sampleLightClusterList[];
 extern const af_simple_descriptor_t sampleLight_simpleDesc;
 #if AF_TEST_ENABLE
 extern const af_simple_descriptor_t sampleTestDesc;

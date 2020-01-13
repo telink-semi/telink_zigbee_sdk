@@ -28,15 +28,15 @@ void drv_pwm_init(void);
 
 void drv_pwm_cfg(u32 pwmId, unsigned short cmp_tick, unsigned short cycle_tick);
 
-#ifdef MCU_CORE_8258
-#define drv_pwm_start(pwmId)		pwm_start(pwmId)
-#define drv_pwm_stop(pwmId)			pwm_stop(pwmId)
-#define drv_pwm_invert(pwmId)		pwm_revert(pwmId)
-#define drv_pwm_n_invert(pwmId)		pwm_n_revert(pwmId)
-#else
+#if defined (MCU_CORE_826x) || defined (MCU_CORE_HAWK)
 #define drv_pwm_start(pwmId)		pwm_Start(pwmId)
 #define drv_pwm_stop(pwmId)			pwm_Stop(pwmId)
 #define drv_pwm_invert(pwmId)		pwm_Invert(pwmId)
 #define drv_pwm_n_invert(pwmId)		pwm_INVInvert(pwmId)
+#else	//8258/8278
+#define drv_pwm_start(pwmId)		pwm_start(pwmId)
+#define drv_pwm_stop(pwmId)			pwm_stop(pwmId)
+#define drv_pwm_invert(pwmId)		pwm_revert(pwmId)
+#define drv_pwm_n_invert(pwmId)		pwm_n_revert(pwmId)
 #endif
 

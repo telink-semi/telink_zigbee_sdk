@@ -247,7 +247,7 @@ static void sampleLight_onoff_onWithRecallGlobalSceneProcess(void)
  * @param   cmdId - onoff cluster command id
  * @param	cmdPayload
  *
- * @return  None
+ * @return  status_t
  */
 status_t sampleLight_onOffCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
 {

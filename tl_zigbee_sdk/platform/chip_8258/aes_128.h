@@ -31,7 +31,7 @@
  * @return      0: success;
  *              not 0: failure
  */
-extern int AES_Encrypt(unsigned char *Key, unsigned char *Data, unsigned char *Result);
+extern int aes_encrypt(unsigned char *Key, unsigned char *Data, unsigned char *Result);
 
 /**
  * @brief       This function servers to perform aes_128 decryption for 16-Byte input data
@@ -42,10 +42,7 @@ extern int AES_Encrypt(unsigned char *Key, unsigned char *Data, unsigned char *R
  * @return      0: success; 
  *              not 0: failure
  */
-extern int AES_Decrypt(unsigned char *Key, unsigned char *Data, unsigned char *Result);
+extern int aes_decrypt(unsigned char *Key, unsigned char *Data, unsigned char *Result);
 
-
-int aes_encrypt(unsigned char *Key, unsigned char *Data, unsigned char *Result);
-int aes_decrypt(unsigned char *Key, unsigned char *Data, unsigned char *Result);
 
 #endif /* _AES_128_H_ */

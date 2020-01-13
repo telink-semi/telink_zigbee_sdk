@@ -50,7 +50,11 @@ void drv_uart_init(u32 baudrate, u8 *rxBuf, u16 rxBufLen, uart_irq_callback uart
 	uart_recbuff_init( (unsigned short *)rxBuf, rxBufLen);
 	uart_reset();  //will reset uart digital registers from 0x90 ~ 0x9f, so uart setting must set after this reset
 
+#if	defined(MCU_CORE_8278)
+	uart_init_baudrate(baudrate, (MASTER_CLK_FREQ*1000*1000), PARITY_NONE, STOP_BIT_ONE);//CLOCK_SYS_CLOCK_HZ
+#else
 	uart_init(baudrate, PARITY_NONE, STOP_BIT_ONE);
+#endif
 
 	// dma mode
 	uart_dma_enable(1, 1); 	//uart data in hardware buffer moved by dma, so we need enable them first
@@ -112,7 +116,7 @@ u8 uart_tx_start(u8 *data, u32 len){
 void uart_exceptionProcess(void){
 #if	defined (MCU_CORE_826x)
 	uart_ErrorCLR();
-#elif defined(MCU_CORE_8258)
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)  
 	if(uart_is_parity_error()){
 		uart_clear_parity_error();
 	}

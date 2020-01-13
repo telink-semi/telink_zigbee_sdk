@@ -111,7 +111,7 @@ void drv_gpio_irq_risc1_en(unsigned int pin)
 */
 void drv_gpio_irq_clr(unsigned int pin)
 {
-#if	defined (MCU_CORE_8258)
+#if	defined (MCU_CORE_8258) || defined (MCU_CORE_8278)
 	gpio_en_interrupt(pin,0);
 #else
 	gpio_clr_interrupt(pin);

@@ -47,10 +47,14 @@
 #define ZCL_IDENTIFY
 
 /********************* Group Cluster Configuration **********************/
+#if ZCL_GROUP_SUPPORT
 #define ZCL_GROUP
+#endif
 
 /********************* Scene Cluster Configuration **********************/
+#if ZCL_SCENE_SUPPORT
 #define ZCL_SCENE
+#endif
 
 /********************* OnOff Cluster Configuration **********************/
 #if ZCL_ON_OFF_SUPPORT

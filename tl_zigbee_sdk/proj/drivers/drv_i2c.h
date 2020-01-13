@@ -93,4 +93,8 @@ void  drv_i2c_read_series(unsigned int Addr, unsigned int AddrLen, unsigned char
  * @param[in]  PinGrp - the pin port selected as I2C interface pin port.
  * @return     none
  */
+#if defined(MCU_CORE_8278)
+void drv_i2c_gpio_set(I2C_GPIO_SdaTypeDef sda_pin,I2C_GPIO_SclTypeDef scl_pin);
+#else
 void drv_i2c_gpio_set(I2C_GPIO_GroupTypeDef i2c_pin_group);
+#endif

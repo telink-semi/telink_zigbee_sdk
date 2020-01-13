@@ -19,15 +19,48 @@
  *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#include "drv_flash.h"
-#include "nv.h"
-#include "../common/string.h"
-#include "../common/utility.h"
-#include "../os/ev_buffer.h"
+#include "tl_common.h"
 
 #if (FLASH_PROTECT)
 const u8 protect_flash_cmd = FLASH_PROTECT_CMD;
 #endif
+
+#if FLASH_SIZE_1M
+u32 g_u32MacFlashAddr = MAC_ADDR_1M_FLASH;
+u32 g_u32CfgFlashAddr = CFG_ADDR_1M_FLASH;
+#else
+u32 g_u32MacFlashAddr = MAC_ADDR_512K_FLASH;
+u32 g_u32CfgFlashAddr = CFG_ADDR_512K_FLASH;
+#endif
+
+/*********************************************************************
+ * @fn      internalFlashSizeCheck
+ *
+ * @brief   This function is provided to get and update to the correct flash address
+ * 			where are stored the right MAC address and pre-configured parameters.
+ * 			NOTE: It should be called before ZB_RADIO_INIT().
+ *
+ * @param   None
+ *
+ * @return  None
+ */
+void internalFlashSizeCheck(void){
+#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+	u8 mid[4] = {0};
+	flash_read_mid(mid);
+
+	if( ((mid[2] != FLASH_CAP_SIZE_512K) && (mid[2] != FLASH_CAP_SIZE_1M)) ||
+		((g_u32MacFlashAddr == MAC_ADDR_1M_FLASH) && (mid[2] != FLASH_CAP_SIZE_1M)) ){
+		/* Flash space not matched. */
+		while(1);
+	}
+
+	if( (g_u32MacFlashAddr == MAC_ADDR_512K_FLASH) && (mid[2] == FLASH_CAP_SIZE_1M) ){
+		g_u32MacFlashAddr = MAC_ADDR_1M_FLASH;
+		g_u32CfgFlashAddr = CFG_ADDR_1M_FLASH;
+	}
+#endif
+}
 
 nv_sts_t nv_index_update(u16 id, u8 opSect, u16 opItemIdx, nv_info_idx_t *idx){
 	u32 idxStartAddr = MODULE_IDX_START(id, opSect);

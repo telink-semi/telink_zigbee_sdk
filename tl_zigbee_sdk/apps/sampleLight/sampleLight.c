@@ -66,7 +66,7 @@ ota_preamble_t sampleLight_otaInfo = {
 };
 #endif
 
-extern void bdb_zdoStartDevCnf(void* arg);
+extern void bdb_zdoStartDevCnf(void *arg);
 
 //Must declare the application call back function which used by ZDO layer
 const zdo_appIndCb_t appCbLst = {
@@ -100,7 +100,7 @@ bdb_commissionSetting_t g_bdbCommissionSetting = {
 	.touchlinkEnable = 0,												/* disable touch-link */
 #endif
 	.touchlinkChannel = DEFAULT_CHANNEL, 								/* touch-link default operation channel for target */
-	.touchlinkLqiThreshold = 0xf0,			   							/* threshold for touch-link scan req/resp command */
+	.touchlinkLqiThreshold = 0xe0,			   							/* threshold for touch-link scan req/resp command */
 };
 
 /**********************************************************************
@@ -161,7 +161,7 @@ void user_app_init(void)
 	zcl_reportingTabInit();
 
 	/* Register ZCL specific cluster information */
-	zcl_register(SAMPLE_LIGHT_ENDPOINT, SAMPLELIGHT_CB_CLUSTER_NUM, g_sampleLightClusterList);
+	zcl_register(SAMPLE_LIGHT_ENDPOINT, SAMPLELIGHT_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_sampleLightClusterList);
 
 #ifdef ZCL_GREEN_POWER
 	/* Initialize GP */

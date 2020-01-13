@@ -65,11 +65,21 @@ const u16 sampleGW_inClusterList[] =
  */
 const u16 sampleGW_outClusterList[] =
 {
+#ifdef ZCL_GROUP
 	ZCL_CLUSTER_GEN_GROUPS,
+#endif
+#ifdef ZCL_SCENE
 	ZCL_CLUSTER_GEN_SCENES,
+#endif
+#ifdef ZCL_ON_OFF
 	ZCL_CLUSTER_GEN_ON_OFF,
+#endif
+#ifdef ZCL_LEVEL_CTRL
 	ZCL_CLUSTER_GEN_LEVEL_CONTROL,
+#endif
+#ifdef ZCL_LIGHT_COLOR_CONTROL
 	ZCL_CLUSTER_LIGHTING_COLOR_CONTROL,
+#endif
 #ifdef ZCL_DOOR_LOCK
 	ZCL_CLUSTER_CLOSURES_DOOR_LOCK,
 #endif
@@ -204,12 +214,16 @@ const zclAttrInfo_t identify_attrTbl[] =
 /**
  *  @brief Definition for simple GW ZCL specific cluster
  */
-zcl_specClusterInfo_t g_sampleGwClusterList[] =
+const zcl_specClusterInfo_t g_sampleGwClusterList[] =
 {
 	{ZCL_CLUSTER_GEN_BASIC,						ZCL_BASIC_ATTR_NUM, 	basic_attrTbl,  	zcl_basic_register,		sampleGW_basicCb},
 	{ZCL_CLUSTER_GEN_IDENTIFY,					ZCL_IDENTIFY_ATTR_NUM,	identify_attrTbl,	zcl_identify_register,	sampleGW_identifyCb},
+#ifdef ZCL_GROUP
 	{ZCL_CLUSTER_GEN_GROUPS,					0, 						NULL,  				zcl_group_register,		sampleGW_groupCb},
+#endif
+#ifdef ZCL_SCENE
 	{ZCL_CLUSTER_GEN_SCENES,					0,						NULL,				zcl_scene_register,		sampleGW_sceneCb},
+#endif
 #ifdef ZCL_DOOR_LOCK
 	{ZCL_CLUSTER_CLOSURES_DOOR_LOCK,			0, 						NULL, 				zcl_doorLock_register, 	&sampleGW_doorLockCb},
 #endif

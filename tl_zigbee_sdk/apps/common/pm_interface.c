@@ -102,7 +102,7 @@ void pm_suspendEnter(int wakeUpSrc, u32 ms){
 void pm_deepSleepEnter(int wakeUpSrc, u32 ms){
 #if defined(MCU_CORE_826x)
 	pm_lowPowerEnter(PLATFORM_MODE_DEEPSLEEP, wakeUpSrc, ms);
-#elif defined(MCU_CORE_8258)
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	pm_lowPowerEnter(PLATFORM_MODE_DEEP_WITH_RETENTION, wakeUpSrc, ms);
 #endif
 }
@@ -126,7 +126,7 @@ u8 pm_interleaveSleepEnter(int wakeUpSrc, u32 ms){
 		}else{
 #if defined(MCU_CORE_826x)
 			platform_mode_e mode = PLATFORM_MODE_SUSPEND;
-#elif defined(MCU_CORE_8258)
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 			platform_mode_e mode = PLATFORM_MODE_DEEP_WITH_RETENTION;
 
 			/* Set sleep flag */

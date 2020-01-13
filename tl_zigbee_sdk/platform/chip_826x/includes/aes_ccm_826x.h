@@ -22,9 +22,5 @@
 
 #pragma  once
 
-u8 AES_Encrypt(u8 *key, u8 *data, u8 *result);
-
-u8 AES_Decrypt(u8 *key, u8 *data, u8 *result);
-
-int aes_encrypt(unsigned char *Key, unsigned char *Data, unsigned char *Result);
-int aes_decrypt(unsigned char *Key, unsigned char *Data, unsigned char *Result);
+int aes_encrypt(unsigned char *key, unsigned char *data, unsigned char *result);
+int aes_decrypt(unsigned char *key, unsigned char *data, unsigned char *result);

@@ -106,6 +106,9 @@ aps_binding_table_t aps_binding_tbl;
 u8 APS_GROUP_TABLE_SIZE = APS_GROUP_TABLE_NUM;
 aps_group_tbl_ent_t aps_group_tbl[APS_GROUP_TABLE_NUM];
 
+/* APS layer security */
+bool APS_SECUTIRY_ENABLE = TRUE;
+
 /* the offset of the rx buffer to the zb-buffer*/
 u8 RX_ZBBUF_OFFSET = TL_RXPRIMITIVEHDR;
 
@@ -114,12 +117,13 @@ u8 MAC_TX_QUEUE_SIZE = TX_QUEUE_BN;
 
 //default network key
 /* If all zero, will generate 16-bytes network key randomly. */
-/*
+
 const u8 nwkKeyDefault[] = {0, 0, 0, 0, 0, 0, 0, 0,
 							  0, 0, 0, 0, 0, 0, 0, 0};
-*/	
-const u8 nwkKeyDefault[] = { 0x12, 0x23, 0x34, 0x45, 0x56, 0x67, 0x78, 0x89,
+
+/*const u8 nwkKeyDefault[] = { 0x12, 0x23, 0x34, 0x45, 0x56, 0x67, 0x78, 0x89,
 			  	  	  	0x9a, 0xab, 0xbc, 0xcd, 0xde, 0xef, 0xf0, 0x01};
+*/
 
 
 //Global trust center link key which used in centralized security network

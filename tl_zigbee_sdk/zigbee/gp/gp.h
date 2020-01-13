@@ -200,7 +200,7 @@ extern u8 zclGpAttr_gpSharedSecKey[];
 extern u8 zclGpAttr_gpLinkKey[];
 
 extern u8 GP_CB_CLUSTER_NUM;
-extern zcl_specClusterInfo_t g_gpClusterList[];
+extern const zcl_specClusterInfo_t g_gpClusterList[];
 extern const af_simple_descriptor_t gp_simpleDesc;
 
 

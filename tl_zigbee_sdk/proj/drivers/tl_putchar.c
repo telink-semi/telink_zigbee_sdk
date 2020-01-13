@@ -28,12 +28,12 @@
 
 
 #ifndef		BIT_INTERVAL
-#ifdef MCU_CORE_8258
-#define BAUDRATE			1000000//1M
-#define	BIT_INTERVAL	 	(16*1000*1000 / BAUDRATE)
-#else
+#if defined (MCU_CORE_826x) || defined (MCU_CORE_HAWK)
 #define BAUDRATE			2000000//2M
 #define	BIT_INTERVAL	 	(CLOCK_SYS_CLOCK_HZ / BAUDRATE)
+#else		//8258/8278
+#define BAUDRATE			1000000//1M
+#define	BIT_INTERVAL	 	(16*1000*1000 / BAUDRATE)
 #endif
 #endif
 

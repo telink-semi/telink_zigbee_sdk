@@ -41,7 +41,7 @@ extern void user_init();
 	#else
 		#error please config system clock
 	#endif
-#elif defined(MCU_CORE_8258)
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	#if(CLOCK_SYS_CLOCK_HZ == 24000000)
 		SYS_CLK_TYPEDEF g_sysClk = SYS_CLK_24M_Crystal;
 	#elif(CLOCK_SYS_CLOCK_HZ == 16000000)
@@ -75,7 +75,7 @@ enum{
 static u8 platform_init(void){
 	u8 ret = SYSTEM_RETENTION_NONE;
 
-#if defined(MCU_CORE_8258)
+#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	extern void bss_section_clear(void);
 	extern void data_section_load();
 	if((analog_read(0x7f) & 0x01)){
@@ -88,21 +88,28 @@ static u8 platform_init(void){
 	}
 #endif
 
-	cpu_wakeup_init();
+	platform_wakeup_init();
 
 	clock_init(g_sysClk);
 
-#if defined(MCU_CORE_8258)
 	if(ret == SYSTEM_RETENTION_NONE){
+#if defined(MCU_CORE_8258)
 		rng_init();
-	}
+#elif defined(MCU_CORE_8278)
+		random_generator_init();
 #endif
+
+#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+		internalFlashSizeCheck();
+#endif
+	}
 
 	gpio_init();
 
 	ZB_RADIO_INIT();
 
 	ZB_TIMER_INIT();
+
 	return ret;
 }
 

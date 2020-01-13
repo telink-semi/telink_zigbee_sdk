@@ -51,7 +51,7 @@ void platform_lowpower_enter(platform_mode_e mode, platform_wakeup_e src, u32 cy
 		srcType |= WAKEUP_SRC_TIMER;
 	}
 	PM_LowPwrEnter(sleep_mode, srcType, clock_time() + cycle_ms*1000*CLOCK_SYS_CLOCK_1US);
-#else
+#else		//8258/8278
 	SleepMode_TypeDef sleep_mode = SUSPEND_MODE;
 	if(mode == PLATFORM_MODE_SUSPEND){
 		sleep_mode = SUSPEND_MODE;
@@ -66,6 +66,10 @@ void platform_lowpower_enter(platform_mode_e mode, platform_wakeup_e src, u32 cy
 	if(src & PLATFORM_WAKEUP_TIMER){
 		srcType |= PM_WAKEUP_TIMER;
 	}
+
+#if defined(MCU_CORE_8278)
+	blc_pm_select_internal_32k_crystal();
+#endif
 	cpu_sleep_wakeup(sleep_mode, srcType, clock_time() + cycle_ms*1000*CLOCK_SYS_CLOCK_1US);
 
 	/* reconfigure some module used */

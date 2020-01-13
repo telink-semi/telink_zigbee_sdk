@@ -125,7 +125,7 @@ _attribute_ram_code_ _attribute_no_inline_ void  sleep_start(void)
 	WriteAnalogReg(0x34,0x80);  //BIT<2:0> audio/USB/ZB  power on
 }
 
-_attribute_ram_code_ unsigned int cpu_get_32k_tick_from_analog(void)
+unsigned int cpu_get_32k_tick_from_analog(void)
 {
     unsigned int t0 = 0;
     unsigned int t1 = 0;
@@ -304,7 +304,7 @@ void cpu_stall_wakeup_by_timer2(unsigned int tick_stall)
 
 
 
-_attribute_ram_code_ void cpu_wakeup_init(void)    //must on ramcode
+void cpu_wakeup_init(void)    //must on ramcode
 {
 #if 0
 	LoadTblCmdSet (tbl_cpu_wakeup_init, sizeof (tbl_cpu_wakeup_init)/sizeof (TBLCMDSET));
@@ -400,7 +400,7 @@ _attribute_ram_code_ void cpu_wakeup_init(void)    //must on ramcode
 #define AREG_PAD_WAKEUP_EN(i)				((i>>8) + 0x27)
 #define AREG_PAD_WAKEUP_POL(i)				((i>>8) + 0x21)
 
-_attribute_ram_code_ void cpu_set_gpio_wakeup (GPIO_PinTypeDef pin, GPIO_LevelTypeDef pol, int en)
+void cpu_set_gpio_wakeup (GPIO_PinTypeDef pin, GPIO_LevelTypeDef pol, int en)
 {
 	///////////////////////////////////////////////////////////
 	// 		  PA[7:0]	    PB[7:0]		PC[7:0]		PD[7:0]

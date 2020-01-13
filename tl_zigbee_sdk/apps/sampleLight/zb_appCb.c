@@ -225,7 +225,7 @@ s32 sampleLight_softReset(void *arg){
 }
 
 /*********************************************************************
-  * @fn      sampleGW_leaveCnfHandler
+  * @fn      sampleLight_leaveCnfHandler
   *
   * @brief   Handler for ZDO Leave Confirm message.
   *

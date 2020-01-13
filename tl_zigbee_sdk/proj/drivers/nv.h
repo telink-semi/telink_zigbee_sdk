@@ -31,22 +31,38 @@
 #define FLASH_PAGE_SIZE					256
 #define	FLASH_SECTOR_SIZE				4096//4K
 
+/* Flash address of MAC address. */
+enum{
+	MAC_ADDR_512K_FLASH		= 0x76000,
+	MAC_ADDR_1M_FLASH		= 0xFF000,
+};
+
+/* Flash address of factory pre-configured parameters. */
+enum{
+	CFG_ADDR_512K_FLASH		= 0x77000,
+	CFG_ADDR_1M_FLASH		= 0xFE000,
+};
+
+extern u32 g_u32MacFlashAddr;
+extern u32 g_u32CfgFlashAddr;
+
 /*******************************************************************************************************
  * Following configuration could NOT be changed by customer.
  */
-/* Modules start address  */
+/* NV modules start address */
 #if FLASH_SIZE_1M
-#define MAC_BASE_ADD					0xFF000
-#define FACTORY_CFG_BASE_ADD			0xFE000
 #define NV_BASE_ADDRESS					0x80000
 #define MODULES_START_ADDR(id)			(NV_BASE_ADDRESS + FLASH_SECTOR_SIZE * (2 * id))
 #else
-#define MAC_BASE_ADD					0x76000
-#define FACTORY_CFG_BASE_ADD			0x77000
 #define	NV_BASE_ADDRESS					0x34000//start from 208K address
 #define	NV_BASE_ADDRESS2				0x7A000//start from 488K address
 #define MODULES_START_ADDR(id)			((id<6) ? (NV_BASE_ADDRESS + FLASH_SECTOR_SIZE * (2 * id)) : (NV_BASE_ADDRESS2 + FLASH_SECTOR_SIZE * (2 * (id-6))))
 #endif
+
+
+/* Chipset pre-configured parameters */
+#define MAC_BASE_ADD					(g_u32MacFlashAddr)
+#define FACTORY_CFG_BASE_ADD			(g_u32CfgFlashAddr)
 
 /* 8 bytes for IEEE address */
 #define CFG_MAC_ADDRESS              	(MAC_BASE_ADD)
@@ -273,3 +289,16 @@ nv_sts_t nv_flashReadByIndex(u8 id, u8 itemId, u8 opSect, u16 opIdx, u16 len, u8
 nv_sts_t nv_resetToFactoryNew(void);
 nv_sts_t nv_nwkFrameCountSaveToFlash(u32 frameCount);
 nv_sts_t nv_nwkFrameCountFromFlash(u32 *frameCount);
+
+/*********************************************************************
+ * @fn      internalFlashSizeCheck
+ *
+ * @brief   This function is provided to get and update to the correct flash address
+ * 			where are stored the right MAC address and pre-configured parameters.
+ * 			NOTE: It should be called before ZB_RADIO_INIT().
+ *
+ * @param   None
+ *
+ * @return  None
+ */
+void internalFlashSizeCheck(void);

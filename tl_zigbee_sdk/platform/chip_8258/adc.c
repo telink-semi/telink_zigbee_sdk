@@ -32,7 +32,7 @@
 volatile unsigned short adc_cal_value = 0xffff;
 
 
-GPIO_PinTypeDef ADC_GPIO_tab[10] = {
+const GPIO_PinTypeDef ADC_GPIO_tab[10] = {
 		GPIO_PB0,GPIO_PB1,
 		GPIO_PB2,GPIO_PB3,
 		GPIO_PB4,GPIO_PB5,
@@ -443,7 +443,7 @@ void adc_set_ain_pre_scaler(ADC_PreScalingTypeDef v_scl)
  * @param[in]  none.
  * @return the result of sampling.
  */
-_attribute_ram_code_ unsigned int adc_sample_and_get_result(void)
+unsigned int adc_sample_and_get_result(void)
 {
 	unsigned short temp;
 	volatile signed int adc_dat_buf[ADC_SAMPLE_NUM];  //size must 16 byte aligned(16/32/64...)
@@ -516,8 +516,8 @@ _attribute_ram_code_ unsigned int adc_sample_and_get_result(void)
 
 	//////////////// adc sample data convert to voltage(mv) ////////////////
 	//                         (1175mV (Vref), 1/8 scaler)   (BIT<12~0> valid data)
-	//			 =  adc_result   *   1175(or Verf)     * 8        /        0x2000
-	//           =  adc_result * 1175(or Verf) >> 10
+	//			 =  adc_result * adc_cal_value(Vref) >> 10
+	//           =  adc_result * 1175(Vref) >> 10
 	if((adc_cal_value!=0xffff)&&(adc_cal_value != 0x0000))  //Already calibrated
 	{
 		adc_vol_mv  = (adc_result * adc_cal_value) >> 10;

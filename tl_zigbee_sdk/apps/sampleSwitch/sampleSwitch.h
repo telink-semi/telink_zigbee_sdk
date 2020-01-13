@@ -106,7 +106,7 @@ extern bdb_appCb_t g_zbDemoBdbCb;
 extern bdb_commissionSetting_t g_bdbCommissionSetting;
 
 extern u8 SAMPLE_SWITCH_CB_CLUSTER_NUM;
-extern zcl_specClusterInfo_t g_sampleSwitchClusterList[];
+extern const zcl_specClusterInfo_t g_sampleSwitchClusterList[];
 extern const af_simple_descriptor_t sampleSwitch_simpleDesc;
 
 /* Attributes */

@@ -229,7 +229,7 @@ static inline void dma_chn_irq_status_clr(unsigned char irq_status)
 	reg_dma_irq_src |= irq_status;
 }
 
-_attribute_ram_code_ void mcu_reset(void);
+void mcu_reset(void);
 #define SYSTEM_RESET		mcu_reset
 
 u32 rand(void);

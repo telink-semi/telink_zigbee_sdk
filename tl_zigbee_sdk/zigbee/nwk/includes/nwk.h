@@ -1368,9 +1368,8 @@ void tl_zbNwkNlmeSetRequestHandler(void *arg);
 #define tl_zbNwkNlmeNwkFormationConfirmPost(p)	tl_zbPrimitivePost(TL_Q_NWK2HIGH, NWK_NLME_NWK_FORMATION_CNF, p)
 #define tl_zbNwkNlmeNwkDiscConfirmPost(p)		tl_zbPrimitivePost(TL_Q_NWK2HIGH, NWK_NLME_NWK_DISCOVERY_CNF, p)
 
-typedef void (*edpollIndication2APS)(u16 dstAddr);
-
-void nwk_routingTabParamConfig(u8 tableNum);
+typedef void (*nwkDataIndCb_t)(void *p);
+void tl_nwkDataIndRegister(nwkDataIndCb_t cb);
 
 u8 is_device_factory_new(void);
 

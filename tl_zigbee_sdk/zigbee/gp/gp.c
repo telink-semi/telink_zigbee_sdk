@@ -77,7 +77,7 @@ void gp_init(void)
 	af_endpointRegister(GREEN_POWER_ENDPOINT, (af_simple_descriptor_t *)&gp_simpleDesc, zcl_rx_handler, NULL);
 
 	/* Register GP ZCL command callBacks */
-	zcl_register(GREEN_POWER_ENDPOINT, GP_CB_CLUSTER_NUM, g_gpClusterList);
+	zcl_register(GREEN_POWER_ENDPOINT, GP_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_gpClusterList);
 
 	gp_ProxyTabInit();
 

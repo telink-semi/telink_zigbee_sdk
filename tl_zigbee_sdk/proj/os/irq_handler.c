@@ -34,7 +34,6 @@ void timer_irq2_handler(void);
 #include "../drivers/drv_uart.h"
 #endif
 
-volatile u8 T_DBG_CSMA_IRQ = 0;
 _attribute_ram_code_ void irq_handler(void){
 
 	u16  src_rf = rf_irq_src_get();
@@ -59,7 +58,6 @@ _attribute_ram_code_ void irq_handler(void){
 
     if((src & FLD_IRQ_SYSTEM_TIMER)){
     	reg_irq_src = FLD_IRQ_SYSTEM_TIMER;
-    	T_DBG_CSMA_IRQ++;
     	timer_irq3_handler();
     }
 

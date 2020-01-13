@@ -99,7 +99,7 @@ extern bdb_appCb_t g_zbDemoBdbCb;
 extern bdb_commissionSetting_t g_bdbCommissionSetting;
 
 extern u8 SAMPLE_SENSOR_CB_CLUSTER_NUM;
-extern zcl_specClusterInfo_t g_sampleSensorClusterList[];
+extern const zcl_specClusterInfo_t g_sampleSensorClusterList[];
 extern const af_simple_descriptor_t sampleSensor_simpleDesc;
 
 /* Attributes */

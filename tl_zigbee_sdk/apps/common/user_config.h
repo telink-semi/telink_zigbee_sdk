@@ -31,6 +31,8 @@
 	#include "../sampleSwitch/app_cfg.h"
 #elif (__PROJECT_TL_SWITCH_8258__)
     #include "../sampleSwitch_8258/app_cfg.h"
+#elif (__PROJECT_TL_SWITCH_8278__)
+    #include "../sampleSwitch_8278/app_cfg.h"
 #elif (__PROJECT_TL_CONTACT_SENSOR__)
 	#include "../sampleContactSensor/app_cfg.h"
 #elif (__PROJECT_TL_TEMPERATURE_SENSOR_8258__)
