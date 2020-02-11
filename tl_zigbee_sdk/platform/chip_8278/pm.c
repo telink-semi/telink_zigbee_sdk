@@ -737,6 +737,8 @@ void cpu_wakeup_init(void)    //must on ramcode
 		}else{
 			pmParam.is_pad_wakeup = 0;
 		}
+	}
+	if(pmParam.back_mode == BACK_FROM_DEEP_RETENTION){
 		unsigned int deepRet_32k_tick = cpu_get_32k_tick();
 
 		unsigned int deepRet_tick = pm_tim_recover(deepRet_32k_tick);

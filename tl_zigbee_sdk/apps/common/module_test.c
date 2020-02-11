@@ -576,12 +576,13 @@ _attribute_ram_code_ void moduleTest_spi() //must on ramcode
 
 #if MODULE_TEST_GPIO_IRQ
 
-#if 0
+#if 1
 //8258
 #define TEST_LED1		GPIO_PA4
 #define TEST_LED2		GPIO_PB1
 #define TEST_SW1		GPIO_PD5
 #define TEST_SW2		GPIO_PD6
+#define TEST_GPIO		GPIO_PB2
 #else
 #if 0
 #define TEST_LED1		GPIO_PC2
@@ -611,6 +612,21 @@ void moduleTest_gpioIrqCb2(void)
 	gpio_toggle(TEST_LED2);
 }
 
+volatile u8 T_DBG_gpioIrqCb3 = 0;
+void moduleTest_gpioIrqCb3(void)
+{
+	T_DBG_gpioIrqCb3++;
+	gpio_toggle(TEST_LED1);
+
+	if(gpio_read(TEST_GPIO)){
+		gpio_setup_up_down_resistor(TEST_GPIO, PM_PIN_PULLUP_10K);
+		drv_gpio_irq_conf(GPIO_IRQ_MODE, TEST_GPIO, poll_falling, moduleTest_gpioIrqCb3);
+	}else{
+		gpio_setup_up_down_resistor(TEST_GPIO, PM_PIN_PULLDOWN_100K);
+		drv_gpio_irq_conf(GPIO_IRQ_MODE, TEST_GPIO, poll_rising, moduleTest_gpioIrqCb3);
+	}
+}
+
 volatile u8 T_DBG_mainCnt = 0;
 void moduleTest_gpioIrq(void)		//comment out user_init
 {
@@ -628,7 +644,7 @@ void moduleTest_gpioIrq(void)		//comment out user_init
 	gpio_set_input_en(TEST_LED2 ,0);			//disable input
 	gpio_write(TEST_LED2, 1);              	//LED On
 
-#if 1
+#if 0
 	gpio_set_func(TEST_SW1 ,AS_GPIO);
 	gpio_set_output_en(TEST_SW1, 0); 			//enable output
 	gpio_set_input_en(TEST_SW1 ,1);				//disable input
@@ -637,7 +653,7 @@ void moduleTest_gpioIrq(void)		//comment out user_init
 	drv_gpio_irq_en(TEST_SW1);
 #endif
 
-#if 1
+#if 0
 	gpio_set_func(TEST_SW2 ,AS_GPIO);
 	gpio_set_output_en(TEST_SW2, 0); 			//enable output
 	gpio_set_input_en(TEST_SW2 ,1);				//disable input
@@ -645,6 +661,18 @@ void moduleTest_gpioIrq(void)		//comment out user_init
 	drv_gpio_irq_conf(GPIO_IRQ_RISC0_MODE, TEST_SW2, poll_falling, moduleTest_gpioIrqCb2);
 	drv_gpio_irq_risc0_en(TEST_SW2);
 #endif
+
+	gpio_set_func(TEST_GPIO ,AS_GPIO);
+	gpio_set_output_en(TEST_GPIO, 0); 			//enable output
+	gpio_set_input_en(TEST_GPIO ,1);				//disable input
+	if(gpio_read(TEST_GPIO)){
+		gpio_setup_up_down_resistor(TEST_GPIO, PM_PIN_PULLUP_10K);
+		drv_gpio_irq_conf(GPIO_IRQ_MODE, TEST_GPIO, poll_falling, moduleTest_gpioIrqCb3);
+	}else{
+		gpio_setup_up_down_resistor(TEST_GPIO, PM_PIN_PULLDOWN_100K);
+		drv_gpio_irq_conf(GPIO_IRQ_MODE, TEST_GPIO, poll_rising, moduleTest_gpioIrqCb3);
+	}
+	drv_gpio_irq_en(TEST_GPIO);
 
 	while(1){
 		T_DBG_mainCnt++;

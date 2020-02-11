@@ -50,21 +50,43 @@ struct gpio_conf_list *list_head = NULL;
 */
 int drv_gpio_irq_conf(gpio_irq_mode_t mode, unsigned int pin, enum gpio_pol polarity, irq_callback gpio_irq_callback)
 {
-	if(listLength(gpioIrqHandlerQ) >= GPIO_IRQ_HANDLER_Q_NUM){
-		return -1;
+	unsigned int searched = 0;
+	if(listLength(gpioIrqHandlerQ)){
+		gpio_conf_list *pList = listHead(gpioIrqHandlerQ);
+		while(pList){
+			if(pList->mode == mode && pList->pin == pin){
+				if(pList->polarity != polarity){
+					pList->polarity = polarity;
+				}
+				if(pList->gpio_irq_callback != gpio_irq_callback){
+					pList->gpio_irq_callback = gpio_irq_callback;
+				}
+
+				searched = 1;
+				break;
+			}
+
+			pList = pList->next;
+		}
 	}
 
-	gpio_conf_list *list_node = (gpio_conf_list*)ev_buf_allocate(sizeof(gpio_conf_list));
-	if(!list_node){
-		return -1;
-	}
+	if(!searched){
+		if(listLength(gpioIrqHandlerQ) >= GPIO_IRQ_HANDLER_Q_NUM){
+			return -1;
+		}
 
-	memset((u8 *)list_node, 0, sizeof(gpio_conf_list));
-	list_node->mode = mode;
-	list_node->pin = pin;
-	list_node->polarity = polarity;
-	list_node->gpio_irq_callback = gpio_irq_callback;
-	listAdd(gpioIrqHandlerQ, (void *)list_node);
+		gpio_conf_list *list_node = (gpio_conf_list*)ev_buf_allocate(sizeof(gpio_conf_list));
+		if(!list_node){
+			return -1;
+		}
+
+		memset((u8 *)list_node, 0, sizeof(gpio_conf_list));
+		list_node->mode = mode;
+		list_node->pin = pin;
+		list_node->polarity = polarity;
+		list_node->gpio_irq_callback = gpio_irq_callback;
+		listAdd(gpioIrqHandlerQ, (void *)list_node);
+	}
 
 	if(mode == GPIO_IRQ_MODE){
 		reg_irq_src = FLD_IRQ_GPIO_EN;
