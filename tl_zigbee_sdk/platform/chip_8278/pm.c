@@ -641,11 +641,10 @@ void cpu_wakeup_init(void)    //must on ramcode
 	XTAL_TypeDef xtal = EXTERNAL_XTAL_24M;		//default
 	write_reg8(0x60, 0x00); 	//poweron_dft: 0x7c -> 0x00
 	write_reg8(0x61, 0x00); 	//poweron_dft: 0xff -> 0x00
-	write_reg8(0x62, 0x00); 	//poweron_dft: 0xcf -> 0xc8
+	write_reg8(0x62, 0x08); 	//poweron_dft: 0xcf -> 0xc8
 								//<7>:mcic1,R  	default:1
 								//<6>:risc1,R  	default:1
-								/*<3>:trng  	default:1,In order to keep consistent with the previous driver(Need's by Sihui), this bit needn't to set 1 here.
-	                                            Setting it to 0 will not affect the function. (By lirui)*/
+								//<3>:trng  	default:1,
 
 	write_reg8(0x63, 0xff); 	//poweron_dft: 0x83 -> 0xff
 	write_reg8(0x64, 0xff); 	//poweron_dft: 0x00 -> 0x9f
@@ -696,7 +695,12 @@ void cpu_wakeup_init(void)    //must on ramcode
 								//<7:4>=0000 : GPIO bug only need in A0, A1 should delete.
 
 	analog_write(0x8c, 0x02);  	//poweron_dft: 0x00,  <1> set 1: reg_xo_en_clk_ana_ana, to enable external 24M crystal
-	analog_write(0x02, 0xa5);  	//poweron_dft: 0xa4,  <2:0> ret_ldo_trim,  set 0x02: 1.05V(A0 version) (vA1 need modify)
+	analog_write(0x02, 0xa5);  	//poweron_dft: 0xa4,  <2:0> ret_ldo_trim,  set 0x05: 1.05V(A0 version) (vA1 need modify)
+
+	//pragram can crash in high temperature, ana_01 and ana_80 is order to solve this problem.
+	analog_write(0x01, 0x4e);	//dft: 0x4c, <6:4> bbpll LDO output voltage trim
+	analog_write(0x80, 0x70);	//dft: 		 <7:5>trim bit for bbpll PFD delay
+
 	if(xtal == EXTERNAL_XTAL_48M){		//use external 48M crystal instead of external 24M crystal
 		analog_write(0x2d, analog_read(0x2d) | BIT(6));  	//poweron_dft: 0x15, <6>: 0-24M XTAL , 1- 48M XTAL
 	}
@@ -752,6 +756,7 @@ void cpu_wakeup_init(void)    //must on ramcode
 
 		cpu_wakeup_no_deepretn_back_init(); // to save ramcode
 	}
+
 	reg_system_irq_mask |= BIT(2);   //enable system timer irq
 	//core_c20/c21 power on default all enable, so we disable them first,  then if use, enable them by manual
 	//note that: PWM/RF Tx/RF Rx/AES code/AES dcode dma may be affected by this, you must handle them when initialization
@@ -759,10 +764,6 @@ void cpu_wakeup_init(void)    //must on ramcode
 	reg_dma_chn_irq_msk = 0;
 	reg_gpio_wakeup_irq |= (FLD_GPIO_CORE_WAKEUP_EN | FLD_GPIO_CORE_INTERRUPT_EN);
 }
-
-
-
-
 
 
 

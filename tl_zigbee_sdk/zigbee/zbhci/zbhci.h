@@ -356,7 +356,7 @@ u8 crc8Calculate(u16 type, u16 length, u8 *data);
 void zbhciCmdHandler(u16 msgType, u16 msgLen, u8 *p);
 void zbhciAppDataSendConfirmPush(void *arg);
 void zbhciAppNodeLeaveIndPush(void *arg);
-void zbhciAfDataRcvIndPush(void *arg);
+void zbhciAfDataPerformanceResultPush(void);
 void zbhciAfDataRcvIndPush(void *arg);
 void zbhciAfDataCnfPush(void *arg);
 bool zbhciMacAddrGetPush(addrExt_t devExtAddr);

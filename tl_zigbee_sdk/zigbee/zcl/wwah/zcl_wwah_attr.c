@@ -44,39 +44,46 @@
 #ifdef ZCL_WWAH
 
 /* Attribute default */
-u8 zcl_attr_wwah_version = 1;
-addrExt_t zcl_attr_wwah_hubAddress = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
-bool zcl_attr_wwah_otaFromHubOnly = FALSE;
 bool zcl_attr_wwah_disableOTADowngrades = FALSE;
-bool zcl_attr_wwah_disableTCRejoins = FALSE;
-u8 zcl_attr_wwah_nwkRetryCount = 0;
-u8 zcl_attr_wwah_macRetryCount = 0;
+bool zcl_attr_wwah_mgmtLeaveWithoutRejoinEnabled = TRUE;
+u8 zcl_attr_wwah_nwkRetryCount = 3;
+u8 zcl_attr_wwah_macRetryCount = 3;
 bool zcl_attr_wwah_routerCheckInEnabled = FALSE;
-bool zcl_attr_wwah_routingCapability = TRUE;
-bool zcl_attr_wwah_parentingCapability = TRUE;
-bool zcl_attr_wwah_appEvtRetryEnabled = FALSE;
-u8 zcl_attr_wwah_appEvtRetryQueueSize = 0;
+bool zcl_attr_wwah_touchlinkInterpanEnabled = TRUE;
+bool zcl_attr_wwah_parentClassificationEnabled = FALSE;
+bool zcl_attr_wwah_appEvtRetryEnabled = TRUE;
+u8 zcl_attr_wwah_appEvtRetryQueueSize = 10;
 bool zcl_attr_wwah_rejoinEnabled = FALSE;
-u8 zcl_attr_wwah_macPollCCAWaitTime = 3;
-
+u8 zcl_attr_wwah_macPollFailureWaitTime = 3;
+bool zcl_attr_wwah_configurationModeEnabled = TRUE;
+u8 zcl_attr_wwah_currentDebugReportID = 0;
+bool zcl_attr_wwah_tcSecurityOnNwkKeyRotationEnabled = FALSE;
+bool zcl_attr_wwah_badParentRecoveryEnabled = FALSE;
+u8 zcl_attr_wwah_pendingNwkUpdateChannel = 0xFF;
+u16 zcl_attr_wwah_pendingNwkUpdatePanID = 0xFFFF;
+u16 zcl_attr_wwah_otaMaxOfflineDuration = 0;
 
 /* Attribute record list */
 const zclAttrInfo_t wwah_attrTbl[] =
 {
-	{ ZCL_ATTRID_WWAH_VERSION,  				ZCL_DATA_TYPE_UINT8,		ACCESS_CONTROL_READ, (u8*)&zcl_attr_wwah_version },
-	{ ZCL_ATTRID_WWAH_HUB_ADDRESS, 				ZCL_DATA_TYPE_IEEE_ADDR, 	ACCESS_CONTROL_READ, (u8*)zcl_attr_wwah_hubAddress },
-	{ ZCL_ATTRID_WWAH_FROM_HUB_ONLY, 			ZCL_DATA_TYPE_BOOLEAN, 		ACCESS_CONTROL_READ, (u8*)&zcl_attr_wwah_otaFromHubOnly },
-	{ ZCL_ATTRID_WWAH_DISABLE_OTA_DOWNGRADES, 	ZCL_DATA_TYPE_BOOLEAN, 		ACCESS_CONTROL_READ, (u8*)&zcl_attr_wwah_disableOTADowngrades },
-	{ ZCL_ATTRID_WWAH_DISABLE_TC_REJOINS, 		ZCL_DATA_TYPE_BOOLEAN, 		ACCESS_CONTROL_READ, (u8*)&zcl_attr_wwah_disableTCRejoins },
-	{ ZCL_ATTRID_WWAH_NWK_RETRY_COUNT, 			ZCL_DATA_TYPE_UINT8, 		ACCESS_CONTROL_READ, (u8*)&zcl_attr_wwah_nwkRetryCount },
-	{ ZCL_ATTRID_WWAH_MAC_RETRY_COUNT, 			ZCL_DATA_TYPE_UINT8 , 		ACCESS_CONTROL_READ, (u8*)&zcl_attr_wwah_macRetryCount },
-	{ ZCL_ATTRID_WWAH_ROUTER_CHECK_IN_ENABLED, 	ZCL_DATA_TYPE_BOOLEAN, 		ACCESS_CONTROL_READ, (u8*)&zcl_attr_wwah_routerCheckInEnabled },
-	{ ZCL_ATTRID_WWAH_ROUTING_CAPABILITY, 		ZCL_DATA_TYPE_BOOLEAN, 		ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_wwah_routingCapability },
-	{ ZCL_ATTRID_WWAH_PARENTING_CAPABILITY, 	ZCL_DATA_TYPE_BOOLEAN, 		ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_wwah_parentingCapability },
-	{ ZCL_ATTRID_WWAH_APP_EVT_RETRY_ENABLED, 	ZCL_DATA_TYPE_BOOLEAN, 		ACCESS_CONTROL_READ, (u8*)&zcl_attr_wwah_appEvtRetryEnabled },
-	{ ZCL_ATTRID_WWAH_APP_EVT_RETRY_QUEUE_SIZE, ZCL_DATA_TYPE_UINT8,  		ACCESS_CONTROL_READ,  (u8*)&zcl_attr_wwah_appEvtRetryQueueSize},
-	{ ZCL_ATTRID_WWAH_REJOIN_ENABLED, 			ZCL_DATA_TYPE_BOOLEAN,  	ACCESS_CONTROL_READ,  (u8*)&zcl_attr_wwah_rejoinEnabled},
-	{ ZCL_ATTRID_WWAH_MAC_POLL_CCA_WAIT_TIME, 	ZCL_DATA_TYPE_UINT8,  		ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE,  (u8*)&zcl_attr_wwah_macPollCCAWaitTime},
+	{ ZCL_ATTRID_WWAH_DISABLE_OTA_DOWNGRADES, 			ZCL_DATA_TYPE_BOOLEAN, 	ACCESS_CONTROL_READ, (u8*)&zcl_attr_wwah_disableOTADowngrades },
+	{ ZCL_ATTRID_WWAH_MGMT_LEAVE_WITHOUT_REJOIN_ENABLED,ZCL_DATA_TYPE_BOOLEAN, 	ACCESS_CONTROL_READ, (u8*)&zcl_attr_wwah_mgmtLeaveWithoutRejoinEnabled },
+	{ ZCL_ATTRID_WWAH_NWK_RETRY_COUNT, 					ZCL_DATA_TYPE_UINT8, 	ACCESS_CONTROL_READ, (u8*)&zcl_attr_wwah_nwkRetryCount },
+	{ ZCL_ATTRID_WWAH_MAC_RETRY_COUNT, 					ZCL_DATA_TYPE_UINT8 , 	ACCESS_CONTROL_READ, (u8*)&zcl_attr_wwah_macRetryCount },
+	{ ZCL_ATTRID_WWAH_ROUTER_CHECK_IN_ENABLED, 			ZCL_DATA_TYPE_BOOLEAN, 	ACCESS_CONTROL_READ, (u8*)&zcl_attr_wwah_routerCheckInEnabled },
+	{ ZCL_ATTRID_WWAH_TOUCHLINK_INTERPAN_ENABLED, 		ZCL_DATA_TYPE_BOOLEAN, 	ACCESS_CONTROL_READ, (u8*)&zcl_attr_wwah_touchlinkInterpanEnabled },
+	{ ZCL_ATTRID_WWAH_PARENT_CLASSIFICATION_ENABLED, 	ZCL_DATA_TYPE_BOOLEAN, 	ACCESS_CONTROL_READ, (u8*)&zcl_attr_wwah_parentClassificationEnabled },
+	{ ZCL_ATTRID_WWAH_APP_EVT_RETRY_ENABLED, 			ZCL_DATA_TYPE_BOOLEAN, 	ACCESS_CONTROL_READ, (u8*)&zcl_attr_wwah_appEvtRetryEnabled },
+	{ ZCL_ATTRID_WWAH_APP_EVT_RETRY_QUEUE_SIZE, 		ZCL_DATA_TYPE_UINT8,  	ACCESS_CONTROL_READ, (u8*)&zcl_attr_wwah_appEvtRetryQueueSize },
+	{ ZCL_ATTRID_WWAH_REJOIN_ENABLED, 					ZCL_DATA_TYPE_BOOLEAN,  ACCESS_CONTROL_READ, (u8*)&zcl_attr_wwah_rejoinEnabled },
+	{ ZCL_ATTRID_WWAH_MAC_POLL_FAILURE_WAIT_TIME, 		ZCL_DATA_TYPE_UINT8,  	ACCESS_CONTROL_READ, (u8*)&zcl_attr_wwah_macPollFailureWaitTime },
+	{ ZCL_ATTRID_WWAH_CONFIGURATION_MODE_ENABLED, 		ZCL_DATA_TYPE_BOOLEAN,  ACCESS_CONTROL_READ, (u8*)&zcl_attr_wwah_configurationModeEnabled },
+	{ ZCL_ATTRID_WWAH_CURRENT_DEBUG_REPORT_ID, 			ZCL_DATA_TYPE_UINT8,  	ACCESS_CONTROL_READ, (u8*)&zcl_attr_wwah_currentDebugReportID },
+	{ ZCL_ATTRID_WWAH_TC_SECURITY_ON_NWK_KEY_ROTATION_ENABLED, ZCL_DATA_TYPE_BOOLEAN,  	ACCESS_CONTROL_READ, (u8*)&zcl_attr_wwah_tcSecurityOnNwkKeyRotationEnabled },
+	{ ZCL_ATTRID_WWAH_BAD_PARENT_RECOVERY_ENABLED, 		ZCL_DATA_TYPE_BOOLEAN,  ACCESS_CONTROL_READ, (u8*)&zcl_attr_wwah_badParentRecoveryEnabled },
+	{ ZCL_ATTRID_WWAH_PENDING_NWK_UPDATE_CHANNEL, 		ZCL_DATA_TYPE_UINT8,  	ACCESS_CONTROL_READ, (u8*)&zcl_attr_wwah_pendingNwkUpdateChannel },
+	{ ZCL_ATTRID_WWAH_PENDING_NWK_UPDATE_PANID, 		ZCL_DATA_TYPE_UINT16,  	ACCESS_CONTROL_READ, (u8*)&zcl_attr_wwah_pendingNwkUpdatePanID },
+	{ ZCL_ATTRID_WWAH_OTA_MAX_OFFLINE_DURATION, 		ZCL_DATA_TYPE_UINT16,  	ACCESS_CONTROL_READ, (u8*)&zcl_attr_wwah_otaMaxOfflineDuration },
 };
 
 const u8 zcl_wwah_attrNum = ( sizeof(wwah_attrTbl) / sizeof(zclAttrInfo_t) );

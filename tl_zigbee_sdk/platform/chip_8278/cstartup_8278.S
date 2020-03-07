@@ -155,6 +155,35 @@ ZERO_BSS_END:
 
 __reset:
 
+#if FLASH_WAKEUP_EN
+
+FLASH_WAKEUP_BEGIN:
+	tloadr      r0,DATA_I+44
+	tmov		r1,#0
+	tstorerb    r1,[r0,#1]
+	tmov        r1,#171						@Flash deep cmd: 0xAB
+	tstorerb    r1,[r0,#0]
+	tmov		r2,#0
+	tmov        r3,#6
+TNOP:
+	tadd        r2,#1
+	tcmp        r2,r3
+	tjle        TNOP
+	tmov		r1,#1
+	tstorerb    r1,[r0,#1]
+FLASH_WAKEUP_END:
+
+#endif
+
+@ efuse load need delay about 18us
+	tmov 	r2,#0
+	tmov 	r3,#110
+EFUSE_DELAY:
+	tadd 	r2,#1
+	tcmp 	r2,r3
+	tjle 	EFUSE_DELAY
+EFUSE_DELAY_END:
+
 @********************************************************************************************************
 @                              		 FILL .DATA AND .BSS WITH 0xFF
 @********************************************************************************************************
@@ -233,25 +262,6 @@ SET_IC_END:
 	tloadr      r1,DATA_I+40				@dig_0x65=0xf7
 	tstorerb    r1,[r0,#5]
 
-#if FLASH_WAKEUP_EN
-
-FLASH_WAKEUP_BEGIN:
-	tloadr      r0,DATA_I+44
-	tmov		r1,#0
-	tstorerb    r1,[r0,#1]
-	tmov        r1,#171						@Flash deep cmd: 0xAB
-	tstorerb    r1,[r0,#0]
-	tmov		r2,#0
-	tmov        r3,#6
-TNOP:
-	tadd        r2,#1
-	tcmp        r2,r3
-	tjle        TNOP
-	tmov		r1,#1
-	tstorerb    r1,[r0,#1]
-FLASH_WAKEUP_END:
-
-#endif
     /*check ana_reg_0x7e*/
 	tloadr		r0,DATA_I+24				@0x7e
 

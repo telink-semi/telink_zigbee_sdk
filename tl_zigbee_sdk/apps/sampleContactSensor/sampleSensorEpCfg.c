@@ -1,10 +1,10 @@
 /********************************************************************************************************
- * @file     sampleSwitchEpCfg.c
+ * @file     sampleSensorEpCfg.c
  *
  * @brief
  *
  * @author
- * @date     Dec. 1, 2016
+ * @date     Dec. 1, 2018
  *
  * @par      Copyright (c) 2016, Telink Semiconductor (Shanghai) Co., Ltd.
  *           All rights reserved.

@@ -213,7 +213,7 @@ void sampleSensor_otaProcessMsgHandler(u8 evt, u8 status)
 #endif
 
 /*********************************************************************
-  * @fn      sampleSwitch_leaveCnfHandler
+  * @fn      sampleSensor_leaveCnfHandler
   *
   * @brief   Handler for ZDO Leave Confirm message.
   *
@@ -224,14 +224,14 @@ void sampleSensor_otaProcessMsgHandler(u8 evt, u8 status)
 void sampleSensor_leaveCnfHandler(void *p)
 {
 	nlmeLeaveConf_t *pCnf = (nlmeLeaveConf_t *)p;
-	//printf("sampleSwitch_leaveCnfHandler, status = %x\n", pCnf->status);
+	//printf("sampleSensor_leaveCnfHandler, status = %x\n", pCnf->status);
     if(pCnf->status == SUCCESS ){
     	//SYSTEM_RESET();
     }
 }
 
 /*********************************************************************
-  * @fn      sampleSwitch_leaveIndHandler
+  * @fn      sampleSensor_leaveIndHandler
   *
   * @brief   Handler for ZDO leave indication message.
   *
@@ -243,7 +243,7 @@ void sampleSensor_leaveCnfHandler(void *p)
 void sampleSensor_leaveIndHandler(void *p)
 {
 	//nlmeLeaveInd_t *pInd = (nlmeLeaveInd_t *)p;
-    //printf("sampleSwitch_leaveIndHandler, rejoin = %d\n", pInd->rejoin);
+    //printf("sampleSensor_leaveIndHandler, rejoin = %d\n", pInd->rejoin);
     //printfArray(pInd->device_address, 8);
 }
 

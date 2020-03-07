@@ -27,8 +27,8 @@
 extern "C" {
 #endif
 
-#define _USER_CONFIG_DEFINED_	1	// must define this macro to make others known
-#define	__LOG_RT_ENABLE__		0
+#define _USER_CONFIG_DEFINED_		1// must define this macro to make others known
+#define	__LOG_RT_ENABLE__			0
 
 //////////// product  Information  //////////////////////////////
 #define TOUCHLINK_SUPPORT			0

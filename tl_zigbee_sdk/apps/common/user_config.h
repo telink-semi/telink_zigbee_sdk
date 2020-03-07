@@ -35,6 +35,8 @@
     #include "../sampleSwitch_8278/app_cfg.h"
 #elif (__PROJECT_TL_CONTACT_SENSOR__)
 	#include "../sampleContactSensor/app_cfg.h"
+#elif (__PROJECT_TL_CONTACT_SENSOR_8258__)
+	#include "../sampleContactSensor_8258/app_cfg.h"
 #elif (__PROJECT_TL_TEMPERATURE_SENSOR_8258__)
 	#include "../sampleTemperatureSensor_8258/app_cfg.h"
 #elif (__PROJECT_TL_TEMPERATURE_SENSOR__)
@@ -51,8 +53,6 @@
 	#include "../telinkLight/app_cfg.h"
 #elif (__PROJECT_HUE_DIM_LIGHT__)
 	#include "../hueDimLight/app_cfg.h"
-#elif (__PROJECT_NANO_CONTACT_SENSOR__)
-	#include "../nanoContactSensor/app_cfg.h"
 #elif (__PROJECT_GW_MAIKE__)
 	#include "../gw_Maike/app_cfg.h"
 #elif (__PROJECT_LIGHTING_HT__)

@@ -58,9 +58,6 @@ static void sampleSensor_zclReportCmd(u16 clusterId, zclReportCmd_t *pReportCmd)
 #endif
 static void sampleSensor_zclDfltRspCmd(u16 clusterId, zclDefaultRspCmd_t *pDftRspCmd);
 
-#ifdef ZCL_POLL_CTRL
-void sampleSensor_zclCheckInStart(void);
-#endif
 /**********************************************************************
  * GLOBAL VARIABLES
  */
@@ -134,7 +131,7 @@ void sampleSensor_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg)
  */
 static void sampleSensor_zclReadRspCmd(u16 clusterId, zclReadRspCmd_t *pReadRspCmd)
 {
-    //printf("sampleSwitch_zclReadRspCmd\n");
+    //printf("sampleSensor_zclReadRspCmd\n");
 
 }
 #endif	/* ZCL_READ */
@@ -151,7 +148,7 @@ static void sampleSensor_zclReadRspCmd(u16 clusterId, zclReadRspCmd_t *pReadRspC
  */
 static void sampleSensor_zclWriteRspCmd(u16 clusterId, zclWriteRspCmd_t *pWriteRspCmd)
 {
-    //printf("sampleSwitch_zclWriteRspCmd\n");
+    //printf("sampleSensor_zclWriteRspCmd\n");
 
 }
 
@@ -164,7 +161,8 @@ static void sampleSensor_zclWriteRspCmd(u16 clusterId, zclWriteRspCmd_t *pWriteR
  *
  * @return  None
  */
-static void sampleSensor_zclWriteReqCmd(u16 clusterId, zclWriteCmd_t *pWriteReqCmd){
+static void sampleSensor_zclWriteReqCmd(u16 clusterId, zclWriteCmd_t *pWriteReqCmd)
+{
 #ifdef ZCL_POLL_CTRL
 	u8 numAttr = pWriteReqCmd->numAttr;
 	zclWriteRec_t *attr = pWriteReqCmd->attrList;
@@ -193,7 +191,7 @@ static void sampleSensor_zclWriteReqCmd(u16 clusterId, zclWriteCmd_t *pWriteReqC
  */
 static void sampleSensor_zclDfltRspCmd(u16 clusterId, zclDefaultRspCmd_t *pDftRspCmd)
 {
-    //printf("sampleSwitch_zclDfltRspCmd\n");
+    //printf("sampleSensor_zclDfltRspCmd\n");
 
 }
 
@@ -209,7 +207,7 @@ static void sampleSensor_zclDfltRspCmd(u16 clusterId, zclDefaultRspCmd_t *pDftRs
  */
 static void sampleSensor_zclCfgReportCmd(u16 clusterId, zclCfgReportCmd_t *pCfgReportCmd)
 {
-    //printf("sampleSwitch_zclCfgReportCmd\n");
+    //printf("sampleSensor_zclCfgReportCmd\n");
 
 }
 
@@ -224,7 +222,7 @@ static void sampleSensor_zclCfgReportCmd(u16 clusterId, zclCfgReportCmd_t *pCfgR
  */
 static void sampleSensor_zclCfgReportRspCmd(u16 clusterId, zclCfgReportRspCmd_t *pCfgReportRspCmd)
 {
-    //printf("sampleSwitch_zclCfgReportRspCmd\n");
+    //printf("sampleSensor_zclCfgReportRspCmd\n");
 
 }
 
@@ -239,7 +237,7 @@ static void sampleSensor_zclCfgReportRspCmd(u16 clusterId, zclCfgReportRspCmd_t 
  */
 static void sampleSensor_zclReportCmd(u16 clusterId, zclReportCmd_t *pReportCmd)
 {
-    //printf("sampleSwitch_zclReportCmd\n");
+    //printf("sampleSensor_zclReportCmd\n");
 
 }
 #endif	/* ZCL_REPORT */
@@ -556,8 +554,8 @@ void sampleSensor_zclSetFastPollMode(bool fastPollMode)
 
 s32 sampleSensor_zclFastPollTimeoutCb(void *arg)
 {
-	static u16 cnt = 0;
-	u16 fastPollTimeoutCnt = (u16)arg;
+	static u32 cnt = 0;
+	u32 fastPollTimeoutCnt = (u32)arg;
 
 	if(++cnt >= fastPollTimeoutCnt){
 		cnt = 0;
@@ -576,7 +574,7 @@ static status_t sampleSensor_zclPollCtrlChkInRspCmdHandler(zcl_chkInRsp_t *pCmd)
 	zcl_pollCtrlAttr_t *pPollCtrlAttr = zcl_pollCtrlAttrGet();
 
 	if(pCmd->startFastPolling){
-		u16 fastPollTimeoutCnt = 0;
+		u32 fastPollTimeoutCnt = 0;
 
 		if(pCmd->fastPollTimeout){
 			if(pCmd->fastPollTimeout > pPollCtrlAttr->fastPollTimeoutMax){

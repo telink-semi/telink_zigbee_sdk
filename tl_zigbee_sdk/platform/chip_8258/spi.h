@@ -1,12 +1,12 @@
 /********************************************************************************************************
- * @file     spi.h
+ * @file     spi.h 
  *
- * @brief    SPI interface for tlsr8258
+ * @brief    This is the header file for TLSR8258
  *
- * @author   jian.zhang@telink-semi.com
- * @date     Oct. 8, 2016
+ * @author	 Driver Group
+ * @date     May 8, 2018
  *
- * @par      Copyright (c) 2016, Telink Semiconductor (Shanghai) Co., Ltd.
+ * @par      Copyright (c) 2018, Telink Semiconductor (Shanghai) Co., Ltd.
  *           All rights reserved.
  *
  *           The information contained herein is confidential property of Telink
@@ -17,7 +17,11 @@
  *
  *           Licensees are granted free, non-transferable use of the information in this
  *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ * @par      History:
+ * 			 1.initial release(DEC. 26 2018)
  *
+ * @version  A001
+ *         
  *******************************************************************************************************/
 #pragma once
 #ifndef SPI_H
@@ -26,15 +30,17 @@
 #include "bsp.h"
 #include "gpio.h"
 
+/**
+ *  @brief  Define pin for SPI interface
+ *  		SDO  SDI  SCK  CN
+ *  		A2   A3   A4   D6
+ *  		B7   B6   D7   D2
+ */
 
-// SDO  SDI  SCK  CN
-// A2   A3   A4   D6
-// B7   B6   D7   D2
 typedef enum {
 	SPI_GPIO_GROUP_A2A3A4D6=0,
 	SPI_GPIO_GROUP_B6B7D2D7,
 }SPI_GPIO_GroupTypeDef;
-
 
 
 /**
@@ -46,6 +52,7 @@ typedef enum {
     SPI_MODE1,
     SPI_MODE3,
 } SPI_ModeTypeDef;
+
 /**
  *  @brief  Define the clk for SPI interface(system clock = 24M)
  */

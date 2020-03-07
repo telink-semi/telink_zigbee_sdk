@@ -580,7 +580,7 @@ static void sampleGW_zclViewGroupRspCmdHandler(zcl_viewGroupRsp_t *pViewGroupRsp
 	*pBuf++ = LO_UINT16(pViewGroupRsp->groupId);
 	if(pViewGroupRsp->status == ZCL_STA_SUCCESS){
 		*pBuf++ = pViewGroupRsp->pGroupName[0];
-		for(u8 i = 0; i < pViewGroupRsp->pGroupName[0]; i++){
+		if(pViewGroupRsp->pGroupName[0]){
 			memcpy(pBuf, &pViewGroupRsp->pGroupName[1], pViewGroupRsp->pGroupName[0]);
 			pBuf += pViewGroupRsp->pGroupName[0];
 		}
@@ -739,12 +739,12 @@ static void sampleGW_zclViewSceneRspCmdHandler(u8 cmdId, viewSceneRsp_t *pViewSc
 		*pBuf++ = HI_UINT16(pViewSceneRsp->scene.transTime);
 		*pBuf++ = LO_UINT16(pViewSceneRsp->scene.transTime);
 		*pBuf++ = pViewSceneRsp->scene.sceneName[0];
-		for(u8 i = 0; i < pViewSceneRsp->scene.sceneName[0]; i++){
+		if(pViewSceneRsp->scene.sceneName[0]){
 			memcpy(pBuf, &pViewSceneRsp->scene.sceneName[1], pViewSceneRsp->scene.sceneName[0]);
 			pBuf += pViewSceneRsp->scene.sceneName[0];
 		}
 		*pBuf++ = pViewSceneRsp->scene.extFieldLen;
-		for(u8 i = 0; i < pViewSceneRsp->scene.extFieldLen; i++){
+		if(pViewSceneRsp->scene.extFieldLen){
 			memcpy(pBuf, pViewSceneRsp->scene.extField, pViewSceneRsp->scene.extFieldLen);
 			pBuf += pViewSceneRsp->scene.extFieldLen;
 		}

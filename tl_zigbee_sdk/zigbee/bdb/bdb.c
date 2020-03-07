@@ -378,6 +378,7 @@ _CODE_BDB_ static void bdb_findingAndBinding(findBindDst_t *pDstInfo)
 	zdo_bind_dstAddr_t bindDstAddr;
 	memset((u8 *)&bindDstAddr, 0, sizeof(zdo_bind_dstAddr_t));
 
+#ifdef ZCL_GROUP
 	if(g_bdbAttrs.commissioningGroupId != 0xFFFF){
 		epInfo_t dstEpInfo;
 		TL_SETSTRUCTCONTENT(dstEpInfo, 0);
@@ -396,7 +397,9 @@ _CODE_BDB_ static void bdb_findingAndBinding(findBindDst_t *pDstInfo)
 		bindDstAddr.dstAddr.dstGroupId = g_bdbAttrs.commissioningGroupId;
 
 		bdb_binding(&bindDstAddr, g_bdbCtx.matchClusterNum, g_bdbCtx.matchClusterList);
-	}else{
+	}else
+#endif
+	{
 		addrExt_t dstExtAddr;
 		ZB_IEEE_ADDR_ZERO(dstExtAddr);
 

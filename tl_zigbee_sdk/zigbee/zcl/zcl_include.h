@@ -60,6 +60,9 @@
 /* Color Control */
 #include "light_color_control/zcl_light_colorCtrl.h"
 
+/* HVAC */
+#include "hvac/zcl_thermostat.h"
+
 /* Smart Energy */
 #include "smart_energy/zcl_metering.h"
 

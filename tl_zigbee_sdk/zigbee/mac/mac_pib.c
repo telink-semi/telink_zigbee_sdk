@@ -118,7 +118,15 @@ _CODE_MAC_ void generateIEEEAddr(void){
 	flash_read(CFG_MAC_ADDRESS, 8, addr);
 
 	if(ZB_IEEE_ADDR_IS_INVAILD(addr)){
-		generateRandomData(addr, 8);
+		unsigned int t0 = clock_time();
+		u32 jitter = 0;
+		do{
+			jitter = rand();
+			jitter &= 0xfff;
+		}while(jitter == 0);
+		while(!clock_time_exceed(t0, jitter));
+
+		generateRandomData(addr, 5);
 		memcpy(addr+5, startIEEEAddr, 3);
 		flash_write(CFG_MAC_ADDRESS, 6, addr + 2);
 		flash_write(CFG_MAC_ADDRESS + 6, 2, addr);

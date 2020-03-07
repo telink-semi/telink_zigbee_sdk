@@ -471,102 +471,143 @@ void moduleTest_pwm(void){
 #endif
 
 #define MODULE_TEST_SPI 0
+
 #if MODULE_TEST_SPI
 #include "../../proj/drivers/drv_spi.h"
-#define SPI_MASTER_MODE	1   //spi use master mode
-#define SPI_SLAVE_MODE	2   //spi use slave mode
-#define SPI_MODE	1
-#define SLAVE_REGADDR1  0x04
-#define SLAVE_REGADDR2  0x80
-#define SLAVE_REGADDR3  0x00
-#define SPI_READ_CMD  	0x80// spi read command
-#define SPI_WRITE_CMD 	0x00// spi write command
-#define DBG_DATA_LEN    16
 
-#define     SLAVE_TELINK_825x_DMA_MODE      1 //slave  825x/8278 dma mode, master send 3 byte sram address(0x40000~0x4ffff)
-#define     SLAVE_TELINK_826x_DMA_MODE      2 //slave  826x dma mode, master send 2 byte sram address(0x8000~0xffff)
-#define		PEER_SLAVE_DEVICE				SLAVE_TELINK_825x_DMA_MODE
-#define     SPI_CS_PIN				        GPIO_PD6//SPI CS pin 8258/8278
-//#define     SPI_CS_PIN				        GPIO_PB4//SPI CS pin 826x
+/**
+ *  @brief  SPI interface
+ *  -----------------------------------
+ *   	 |	SDO  SDI  SCK  CN |
+ *  826x |	A2   A3   A4   A5 |
+ *  	 |	B5   B6   B7   B4 |
+ *  -----------------------------------
+ *  	 |	SDO  SDI  SCK  CN |
+ *  8258 |	A2   A3   A4   D6 |
+ *  	 |	B7   B6   D7   D2 |
+ *  -----------------------------------
+ *  	 |	SDO  SDI  SCK  CN |
+ *  8278 |	A2   A3   A4   D6 |
+ *  	 |	B7   B6   D7   D2 |
+ *  -----------------------------------
+ */
 
-#if (PEER_SLAVE_DEVICE == SLAVE_TELINK_825x_DMA_MODE)
-    unsigned char slaveRegAddr_WriteCMD[] = {SLAVE_REGADDR1,SLAVE_REGADDR2,SLAVE_REGADDR3,SPI_WRITE_CMD};
-	unsigned char slaveRegAddr_ReadCMD[]  = {SLAVE_REGADDR1,SLAVE_REGADDR2,SLAVE_REGADDR3,SPI_READ_CMD};
-#elif(PEER_SLAVE_DEVICE == SLAVE_TELINK_826x_DMA_MODE)
-    unsigned char slaveRegAddr_WriteCMD[] = {SLAVE_REGADDR2,SLAVE_REGADDR3,SPI_WRITE_CMD};
-    unsigned char slaveRegAddr_ReadCMD[]  = {SLAVE_REGADDR2,SLAVE_REGADDR3,SPI_READ_CMD};
+#define SPI_MASTER_MODE					1
+#define SPI_SLAVE_MODE					2
+/* Select test mode. */
+#define SPI_MODE						1
+
+/* SPI read/write command. */
+#define SPI_READ_CMD  					0x80
+#define SPI_WRITE_CMD 					0x00
+#define CMD_BUF_LEN						4
+
+/* 826x sram address 		-- 0x8000 ~ 0xffff
+ * 8258/8278 sram address 	-- 0x40000 ~ 0x4ffff
+ */
+#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+#define SPI_SLAVE_ADDR					0x48000
+#define SPI_CS_PIN				        GPIO_PB2//SPI CS
+#elif MCU_CORE_826x
+#define SPI_SLAVE_ADDR					0x8800
+#define SPI_CS_PIN				        GPIO_PB4//SPI CS
+#else
+
 #endif
 
+
+#define DBG_DATA_LEN    				16
+
 //write buff
-volatile unsigned char spi_master_tx_buff[DBG_DATA_LEN]={0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xaa,0xbb,0xcc,0xdd,0xee,0xff};
+volatile unsigned char spi_master_tx_buff[DBG_DATA_LEN] = {0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xaa,0xbb,0xcc,0xdd,0xee,0xff};
 //read buff
-volatile unsigned char spi_master_rx_buff[DBG_DATA_LEN]={0x00};
+volatile unsigned char spi_master_rx_buff[DBG_DATA_LEN] = {0x00};
+
+unsigned char cmd_buf[CMD_BUF_LEN] = {0};
+
 
 void spi_master_test_init(void)
 {
-	//spi clock 500K, only master need set i2c clock
-	drv_spi_master_init((unsigned char)(CLOCK_SYS_CLOCK_HZ/(2*500000)-1),SPI_MODE_0);          //div_clock. spi_clk = sys_clk/((div_clk+1)*2),mode select
-#if defined(MCU_CORE_8278)
+	//spi clock 500K, only master need set spi clock
+	//div_clock. spi_clk = sys_clk/((div_clk+1)*2),mode select
+	drv_spi_master_init((unsigned char)(CLOCK_SYS_CLOCK_HZ/(2*500000)-1), SPI_MODE_0);
+
+#if	defined(MCU_CORE_8278)
 	drv_spi_master_pin_select(SPI_GPIO_SCL_A4, SPI_GPIO_CS_D6, SPI_GPIO_SDO_A2, SPI_GPIO_SDI_A3);
 #else
-	drv_spi_master_pin_select(SPI_PIN_GPIO2);    //master mode £ºspi pin set
+	drv_spi_master_pin_select(SPI_PIN_GPIO1);
 #endif
+
+	//switch CS pin
+	drv_spi_master_cspin_select(SPI_CS_PIN);
 }
 
 void spi_slave_test_init(void)
 {
-	drv_spi_slave_init((unsigned char)(CLOCK_SYS_CLOCK_HZ/(2*500000)-1),SPI_MODE_0);           //slave mode init
-#if defined(MCU_CORE_8278)
+	drv_spi_slave_init((unsigned char)(CLOCK_SYS_CLOCK_HZ/(2*500000)-1), SPI_MODE_0);//slave mode init
+
+#if	defined(MCU_CORE_8278)
 	drv_spi_slave_pin_select(SPI_GPIO_SCL_A4, SPI_GPIO_CS_D6, SPI_GPIO_SDO_A2, SPI_GPIO_SDI_A3);
 #else
-	drv_spi_slave_pin_select(SPI_PIN_GPIO1);      //slave mode £ºspi pin set
+	drv_spi_slave_pin_select(SPI_PIN_GPIO1);
 #endif
 }
 
 void spi_master_mainloop(void)
 {
 	WaitMs(1000);   //1S
+
 	spi_master_tx_buff[0] += 1;
 	spi_master_tx_buff[0] &= 0xff;
-#if (PEER_SLAVE_DEVICE == SLAVE_TELINK_825x_DMA_MODE)
-	drv_spi_write(slaveRegAddr_WriteCMD, 4,(unsigned char*)spi_master_tx_buff, DBG_DATA_LEN,SPI_CS_PIN);// pls refer to the datasheet for the write and read format of spi.
-    WaitMs(1000);
-    drv_spi_read( slaveRegAddr_ReadCMD , 4,(unsigned char*)spi_master_rx_buff,DBG_DATA_LEN,SPI_CS_PIN);
-#elif (PEER_SLAVE_DEVICE == SLAVE_TELINK_826x_DMA_MODE)
-	drv_spi_write(slaveRegAddr_WriteCMD, 3,(unsigned char*)spi_master_tx_buff, DBG_DATA_LEN,SPI_CS_PIN);// pls refer to the datasheet for the write and read format of spi.
-	WaitMs(1000);
-	drv_spi_read( slaveRegAddr_ReadCMD , 3,(unsigned char*)spi_master_rx_buff,DBG_DATA_LEN,SPI_CS_PIN);
+
+	u8 idx = 0;
+#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+	cmd_buf[idx++] = (SPI_SLAVE_ADDR >> 16) & 0xff;
+	cmd_buf[idx++] = (SPI_SLAVE_ADDR >> 8) & 0xff;
+	cmd_buf[idx++] = SPI_SLAVE_ADDR & 0xff;
+#elif MCU_CORE_826x
+	cmd_buf[idx++] = (SPI_SLAVE_ADDR >> 8) & 0xff;
+	cmd_buf[idx++] = SPI_SLAVE_ADDR & 0xff;
 #endif
+	cmd_buf[idx] = SPI_WRITE_CMD;
+
+	drv_spi_write((unsigned char*)cmd_buf, idx + 1, (unsigned char*)spi_master_tx_buff, DBG_DATA_LEN, SPI_CS_PIN);
+
+	WaitMs(1000);   //1S
+
+	cmd_buf[idx] = SPI_READ_CMD;
+
+	drv_spi_read((unsigned char*)cmd_buf, idx + 1, (unsigned char*)spi_master_rx_buff, DBG_DATA_LEN, SPI_CS_PIN);
 }
 
-void main_loop (void)
+void main_loop(void)
 {
 	WaitMs(1000);
-#if (SPI_MODE==SPI_MASTER_MODE)
-{
+
+#if(SPI_MODE == SPI_MASTER_MODE)
 	spi_master_mainloop();
-}
 #else
-		WaitMs(50);
+	WaitMs(50);
 #endif
 }
 
-volatile u8 spi_clock = 0;
-_attribute_ram_code_ void moduleTest_spi() //must on ramcode
+void moduleTest_spi(void)
 {
-	WaitMs(2000);  //leave enough time for SWS_reset when power on
-#if (SPI_MODE==SPI_MASTER_MODE)
+	WaitMs(2000);//leave enough time for SWS_reset when power on
+
+#if(SPI_MODE == SPI_MASTER_MODE)
 	 spi_master_test_init();
 #else
 	 spi_slave_test_init();
 #endif
 
 //	irq_enable();
-	while (1) {
-#if (MODULE_WATCHDOG_ENABLE)
+
+	while(1){
+#if(MODULE_WATCHDOG_ENABLE)
 		wd_clear(); //clear watch dog
 #endif
-		main_loop ();
+		main_loop();
 	}
 }
 #endif

@@ -121,6 +121,7 @@ status_t sampleSensor_identifyCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, voi
 status_t sampleSensor_iasZoneCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
 #ifdef ZCL_POLL_CTRL
 status_t sampleSensor_pollCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
+void sampleSensor_zclCheckInStart(void);
 #endif
 
 void sampleSensor_leaveCnfHandler(void *p);

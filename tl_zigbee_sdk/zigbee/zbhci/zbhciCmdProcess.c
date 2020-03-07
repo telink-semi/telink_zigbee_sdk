@@ -51,6 +51,10 @@ zb_hciCmdInfo_t  g_hciCmd;
 
 zbhci_afTestReq_t g_afTestReq;
 
+#if ZB_COORDINATOR_ROLE
+ev_time_event_t  *g_nodeTestTimer = NULL;
+#endif
+
 /**********************************************************************
  * GLOBAL VARIABLES
  */
@@ -234,7 +238,7 @@ s32 rxtx_performance_result_start(void *arg){
 	txrx_performce_test_rsp_t rsp;
 
 	COPY_BUFFERTOU16_BE(rsp.dstAddr, (u8 *)&g_afTestReq.dstAddr);
-	COPY_BUFFERTOU16_BE(rsp.sendCnt, (u8 *)&g_afTestReq.sendSuccessCnt);
+	COPY_BUFFERTOU16_BE(rsp.sendCnt, (u8 *)&g_afTestReq.sendTotalCnt); //sendSuccessCnt);
 	COPY_BUFFERTOU16_BE(rsp.ackCnt, (u8 *)&g_afTestReq.rcvTotalCnt);
 
 	zbhciTx(ZBHCI_CMD_TXRX_PERFORMANCE_TEST_RSP, sizeof(txrx_performce_test_rsp_t), (u8 *)&rsp);
@@ -298,17 +302,33 @@ void zbhciAfDataCnfPush(void *arg){
 #endif
 }
 
+
 void zbhciAppDataSendConfirmPush(void *arg){
 	apsdeDataConf_t *pApsDataCnf = (apsdeDataConf_t *)arg;
 
 	zbhci_app_data_confirm_t *conf = (zbhci_app_data_confirm_t *)ev_buf_allocate(sizeof(zbhci_app_data_confirm_t));
 	if(conf){
-		conf->ep = pApsDataCnf->srcEndpoint;
-		conf->status = pApsDataCnf->status;
-		conf->apsCnt = pApsDataCnf->apsCnt;
+		if(g_nodeTestTimer){
+			g_afTestReq.sendTotalCnt++;
+			if(pApsDataCnf->status == SUCCESS){
+				g_afTestReq.sendSuccessCnt++;
+			}
+			if(g_afTestReq.sendTotalCnt >= 100){
+				txrx_performce_test_rsp_t rsp;
+				COPY_BUFFERTOU16_BE(rsp.dstAddr, (u8 *)&g_afTestReq.dstAddr);
+				COPY_BUFFERTOU16_BE(rsp.sendCnt, (u8 *)&g_afTestReq.sendTotalCnt); //sendSuccessCnt);
+				COPY_BUFFERTOU16_BE(rsp.ackCnt, (u8 *)&g_afTestReq.sendSuccessCnt);
 
-		zbhciTx(ZBHCI_CMD_DATA_CONFIRM, sizeof(zbhci_app_data_confirm_t), (u8 *)conf);
+				zbhciTx(ZBHCI_CMD_TXRX_PERFORMANCE_TEST_RSP, sizeof(txrx_performce_test_rsp_t), (u8 *)&rsp);
+				memset((u8 *)&g_afTestReq, 0, sizeof(zbhci_afTestReq_t));
+			}
+		}else{
+			conf->ep = pApsDataCnf->srcEndpoint;
+			conf->status = pApsDataCnf->status;
+			conf->apsCnt = pApsDataCnf->apsCnt;
 
+			zbhciTx(ZBHCI_CMD_DATA_CONFIRM, sizeof(zbhci_app_data_confirm_t), (u8 *)conf);
+		}
 		ev_buf_free((u8 *)conf);
 	}
 }
@@ -577,8 +597,8 @@ static void zbhci_bindCmdHandler(void *arg){
 	ev_buf_free(arg);
 }
 
-ev_time_event_t *hci_nodeToggleTestEvt = NULL;
-s32 node_toggle_test(void *arg){
+
+s32 node_toggle_unicast_test(void *arg){
 	//u32 onOff = (u32)arg;
 	static s32 startIdx = 0;
 	static u32 onOff = 0;
@@ -620,6 +640,30 @@ s32 node_toggle_test(void *arg){
 		return 0;
 	}
 
+	return 0;
+}
+
+s32 node_toggle_broadcast_test(void *arg){
+	//u32 onOff = (u32)arg;
+	static u32 onOff = 0;
+
+	u8 srcEp = 1;
+	epInfo_t dstEpInfo;
+	memset(&dstEpInfo, 0, sizeof(epInfo_t));
+
+	dstEpInfo.dstAddrMode = APS_SHORT_DSTADDR_WITHEP;
+	dstEpInfo.dstEp = 1;
+	dstEpInfo.dstAddr.shortAddr = 0xffff;
+	dstEpInfo.profileId = HA_PROFILE_ID;
+	dstEpInfo.txOptions = 0;
+	dstEpInfo.radius = 0;
+	//dstEpInfo.txOptions |= APS_TX_OPT_ACK_TX;
+
+	if(onOff){
+		zcl_onOff_onCmd(srcEp, &dstEpInfo, 0);
+	}else{
+		zcl_onOff_offCmd(srcEp, &dstEpInfo, 0);
+	}
 	return 0;
 }
 
@@ -715,20 +759,25 @@ s32 zbhci_nodeManageCmdHandler(void *arg){
 #endif
 	}else if(cmdID == ZBHCI_CMD_NODES_TOGLE_TEST_REQ){
 #if ZB_COORDINATOR_ROLE
-		u32 onOff = *p;
+		u32 mode = *p;
 		u8 interval = *(p+1);
-		if(hci_nodeToggleTestEvt){
-			TL_ZB_TIMER_CANCEL(&hci_nodeToggleTestEvt);
+
+		if(g_nodeTestTimer){
+			TL_ZB_TIMER_CANCEL(&g_nodeTestTimer);
 		}
-		if(interval){
-			hci_nodeToggleTestEvt = TL_ZB_TIMER_SCHEDULE(node_toggle_test, (void *)onOff, interval * 10 * 1000);
+		if(interval != 0){
+			if(mode){
+				g_nodeTestTimer = TL_ZB_TIMER_SCHEDULE(node_toggle_unicast_test, NULL, interval * 10 * 1000);
+			}else{
+				g_nodeTestTimer = TL_ZB_TIMER_SCHEDULE(node_toggle_broadcast_test, NULL, interval * 10 * 1000);
+			}
 		}
 #endif
 	}else if(cmdID == ZBHCI_CMD_TXRX_PERFORMANCE_TEST_REQ){
 #if AF_TEST_ENABLE
 		if(!g_afTestReq.performaceTest){
+			memset((u8 *)&g_afTestReq, 0, sizeof(zbhci_afTestReq_t));
 			g_afTestReq.performaceTest = 1;
-
 			txrx_performce_test_req_t *txrxTest = (txrx_performce_test_req_t *)ev_buf_allocate(sizeof(txrx_performce_test_req_t));
 			if(txrxTest){
 				memcpy(txrxTest, p, sizeof(txrx_performce_test_req_t));

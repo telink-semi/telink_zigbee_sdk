@@ -71,6 +71,7 @@
 #define ZCL_CLUSTER_GEN_APPLIANCE_CONTROL				  0x001B
 #define ZCL_CLUSTER_GEN_POLL_CONTROL					  0x0020
 #define ZCL_CLUSTER_GEN_GREEN_POWER		                  0x0021
+#define ZCL_CLUSTER_GEN_KEEP_ALIVE		                  0x0025
 #define ZCL_CLUSTER_GEN_DIAGNOSTICS                       0x0B05
 
 // Closures Clusters
@@ -142,7 +143,7 @@
 #define ZCL_CLUSTER_TOUCHLINK_COMMISSIONING               0x1000
 
 // Work with all hub cluster
-#define ZCL_CLUSTER_WWAH								  0xFEDC
+#define ZCL_CLUSTER_WWAH								  0xFC57
 
 
 // test cluster

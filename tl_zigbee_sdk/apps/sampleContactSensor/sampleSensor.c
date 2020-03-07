@@ -1,7 +1,7 @@
 /********************************************************************************************************
  * @file     sampleSensor.c
  *
- * @brief    HA endDevice
+ * @brief    contact sensor
  *
  * @author
  * @date     Jan. 4, 2018
@@ -105,7 +105,7 @@ bdb_commissionSetting_t g_bdbCommissionSetting = {
 /**
  *  @brief Definition for wakeup source and level for PM
  */
-pm_pinCfg_t g_SensorPmCfg[] = {
+pm_pinCfg_t g_sensorPmCfg[] = {
 	{
 		BUTTON1,
 		PM_WAKEUP_LEVEL
@@ -243,7 +243,7 @@ void user_init(void)
 #endif
 
 #if PM_ENABLE
-	pm_wakeupPinConfig(g_SensorPmCfg, sizeof(g_SensorPmCfg)/sizeof(pm_pinCfg_t));
+	pm_wakeupPinConfig(g_sensorPmCfg, sizeof(g_sensorPmCfg)/sizeof(pm_pinCfg_t));
 #endif
 
 	ev_on_poll(EV_POLL_IDLE, app_task);

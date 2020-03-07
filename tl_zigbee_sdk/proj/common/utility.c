@@ -24,30 +24,17 @@
 
 
 
-#ifdef WIN32
-extern u16 my_random(void);
-#endif
-
-
-
 void generateRandomData(u8 *pData, u8 len)
 {
-	u8 i;
-	for (i=0; i<2; i++) {
-#ifdef WIN32
-		*((u16*)pData) = (u16)my_random(); //randomT();
-#else
-		*pData = rand(); //randomT();
-		*(pData + 1) = rand();
-#endif
+	int i;
+	unsigned int randNums = 0;
+	/* if len is odd */
+	for(i = 0; i < len; i++){
+		if((i & 3) == 0){
+			randNums = rand();
+		}
 
-	}
-	for (i=2; i<len; i+=2) {
-#ifdef WIN32
-		*((u16*)(pData + i)) = (u16)my_random(); //randomT();
-#else
-		*((u16*)(pData + i)) = (u16)rand(); //randomT();
-#endif
-
+		pData[i] = randNums & 0xff;
+		randNums >>= 8;
 	}
 }
