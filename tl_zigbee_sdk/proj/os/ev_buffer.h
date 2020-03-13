@@ -78,15 +78,15 @@
  *  @brief Definition of a buffer item, it is internal used.
  */
 typedef struct ev_bufItem {
-    struct ev_bufItem* next;
+    struct ev_bufItem *next;
 #if EV_BUFFER_DEBUG
-    u8 groupIndex;
-    u8 flag;
+    u8  groupIndex;
+    u8  flag;
     u16 line;
 #else
     u32 groupIndex;
 #endif
-    u8 data[1];
+    u8  data[1];
 } ev_bufItem_t;
 
 

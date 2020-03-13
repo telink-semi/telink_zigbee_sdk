@@ -42,7 +42,7 @@
 /**************************** Private Variable Definitions *******************/
 
 typedef struct {
-	ev_bufItem_t *qHead;
+	mem_pool_t *qHead;
 	u16 size;
 	u8 availBufNum;
 	u8 reserved;
@@ -67,25 +67,27 @@ MEMPOOL_DECLARE(size_2_pool, size_2_mem, BUFFER_GROUP_2, BUFFER_NUM_IN_GROUP2);
  *
  * @brief   Return whether the buffer is in the available buffer 
  *
- * @param   pd - the pointer of a data, which is previously allocated
+ * @param   index
+ * @param   block
  *
- * @return  Pointer of bufferItem
+ * @return  TRUE or FALSE
  */
-u8 ev_buf_isExisted(u8 index, mem_block_t* block)
+u8 ev_buf_isExisted(u8 index, mem_block_t *block)
 {
-    mem_pool_t *pool = (mem_pool_t*)ev_buf_v->bufGroups[index].qHead;
-    mem_block_t* curBlock = pool->free_list;
+    mem_pool_t *pool = (mem_pool_t *)ev_buf_v->bufGroups[index].qHead;
+    mem_block_t *curBlock = pool->free_list;
 
-    while (curBlock) {
-        if (block == curBlock) {
-            return 1;
+    while(curBlock){
+        if(block == curBlock){
+            return TRUE;
         } 
         curBlock = curBlock->next_block;
     }
-    return 0;
+
+    return FALSE;
 }
 
-u8* ev_buf_retriveMempoolHeader(u8* pd)
+u8 *ev_buf_retriveMempoolHeader(u8 *pd)
 {
     return pd - (OFFSETOF(ev_bufItem_t, data) - OFFSETOF(mem_block_t, data));
 }
@@ -100,11 +102,8 @@ u8* ev_buf_retriveMempoolHeader(u8* pd)
  *
  * @return  None
  */
-//volatile u8 wise_var = 1;
 void ev_buf_reset(void)
 {
-    int i;
-
     u16 size[DEFAULT_BUFFER_GROUP_NUM] = {BUFFER_GROUP_0, BUFFER_GROUP_1, BUFFER_GROUP_2};
     mem_pool_t *memPool[DEFAULT_BUFFER_GROUP_NUM] = {&size_0_pool, &size_1_pool, &size_2_pool};
     u8 *mem[DEFAULT_BUFFER_GROUP_NUM] = {size_0_mem, size_1_mem, size_2_mem};
@@ -113,9 +112,9 @@ void ev_buf_reset(void)
     memset((u8 *)ev_buf_v, 0, sizeof(ev_buf_vars_t));
 
     /* reinitialize available buffer */
-    for(i = 0; i < DEFAULT_BUFFER_GROUP_NUM; i++){
+    for(u8 i = 0; i < DEFAULT_BUFFER_GROUP_NUM; i++){
         ev_buf_v->bufGroups[i].availBufNum = buffCnt[i];
-        ev_buf_v->bufGroups[i].qHead = (ev_bufItem_t*)mempool_init(memPool[i], mem[i], size[i], buffCnt[i]);
+        ev_buf_v->bufGroups[i].qHead = mempool_init(memPool[i], mem[i], size[i], buffCnt[i]);
         ev_buf_v->bufGroups[i].size = size[i];
     }  
 }
@@ -159,7 +158,7 @@ u8 *ev_buf_allocate(u16 size)
     }
     u8 r = irq_disable();
     u8 index = U8_MAX;
-    ev_bufItem_t *pNewBuf;
+
     /* find related the buffer blocks */
     for(u8 i = 0; i < DEFAULT_BUFFER_GROUP_NUM; i++){
         if(size <= ev_buf_v->bufGroups[i].size - OFFSETOF(ev_bufItem_t, data)){
@@ -172,13 +171,14 @@ u8 *ev_buf_allocate(u16 size)
     	irq_restore(r);
         return NULL;
     }
-    u8 *temp = (u8*)mempool_alloc((mem_pool_t*)ev_buf_v->bufGroups[index].qHead);
+    u8 *temp = (u8 *)mempool_alloc(ev_buf_v->bufGroups[index].qHead);
     if(!temp){
     	irq_restore(r);
     	return NULL;
     }
     ev_buf_v->bufGroups[index].availBufNum--;
-    pNewBuf = (ev_bufItem_t*)(temp - 4);
+
+    ev_bufItem_t *pNewBuf = (ev_bufItem_t *)(temp - 4);
     pNewBuf->groupIndex = index;
 #if EV_BUFFER_DEBUG
     pNewBuf->line = line;
@@ -201,9 +201,9 @@ u8 *ev_buf_allocate(u16 size)
 #if EV_BUFFER_DEBUG
 volatile u32 T_DBG_evFreeBuf = 0;
 volatile u16 T_DBG_evFreeBufLine = 0;
-buf_sts_t my_ev_buf_free(u8* pBuf, u16 line)
+buf_sts_t my_ev_buf_free(u8 *pBuf, u16 line)
 #else
-buf_sts_t ev_buf_free(u8* pBuf)
+buf_sts_t ev_buf_free(u8 *pBuf)
 #endif
 {
     u8 r = irq_disable();
@@ -218,8 +218,9 @@ buf_sts_t ev_buf_free(u8* pBuf)
     }
 
     ev_bufItem_t *pDelBuf = ev_buf_getHead(pBuf);
+
     /* check whether the buffer is duplicated release */
-    if(ev_buf_isExisted(pDelBuf->groupIndex, (mem_block_t*)pDelBuf)){
+    if(ev_buf_isExisted(pDelBuf->groupIndex, (mem_block_t *)pDelBuf)){
 
 #if EV_BUFFER_DEBUG
     	T_DBG_evFreeBuf = (u32)pBuf;
@@ -232,7 +233,7 @@ buf_sts_t ev_buf_free(u8* pBuf)
         return BUFFER_DUPLICATE_FREE;
     }
 
-    mempool_free((mem_pool_t*)ev_buf_v->bufGroups[pDelBuf->groupIndex].qHead, ev_buf_retriveMempoolHeader(pBuf));
+    mempool_free(ev_buf_v->bufGroups[pDelBuf->groupIndex].qHead, ev_buf_retriveMempoolHeader(pBuf));
     ev_buf_v->bufGroups[pDelBuf->groupIndex].availBufNum++;    
 
 #if EV_BUFFER_DEBUG
@@ -255,9 +256,9 @@ buf_sts_t ev_buf_free(u8* pBuf)
  *
  * @return  Pointer of bufferItem
  */
-ev_bufItem_t* ev_buf_getHead(u8* pd)
+ev_bufItem_t *ev_buf_getHead(u8 *pd)
 {
-    return (ev_bufItem_t*)(pd - OFFSETOF(ev_bufItem_t, data));
+    return (ev_bufItem_t *)(pd - OFFSETOF(ev_bufItem_t, data));
 }
 
 /*********************************************************************
@@ -270,7 +271,7 @@ ev_bufItem_t* ev_buf_getHead(u8* pd)
  *
  * @return  Pointer of the specified memory
  */
-u8* ev_buf_getTail(u8* pd, int offsetToTail)
+u8 *ev_buf_getTail(u8 *pd, int offsetToTail)
 {
 	u32 index;
 	u16 size[DEFAULT_BUFFER_GROUP_NUM] = {BUFFER_GROUP_0, BUFFER_GROUP_1, BUFFER_GROUP_2};

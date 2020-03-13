@@ -73,7 +73,6 @@
 	.equ SVC_MODE, 		0x13	@ Supervisor mode 
 	.equ IRQ_STK_SIZE,	__IRQ_STK_SIZE__
 	.equ __LOAD_RAM, 	__LOAD_RAM_SIZE__
-	.equ RAM_END_ADDR, 	0x84f000
 	
 @********************************************************************************************************
 @                                            TC32 EXCEPTION VECTORS
@@ -353,7 +352,7 @@ DAT0:
 	.word	0x12			    		@0		IRQ
 	.word	0x13			    		@4		SVC
 	.word	(irq_stk + IRQ_STK_SIZE)	@8
-	.word	(RAM_END_ADDR)		    		@12  	stack end
+	.word	(_stack_end_)		    		@12  	stack end
 	.word	(_start_bss_)               @16
 	.word	(_end_bss_)                 @20
 	.word	(0x80060c)                  @24
@@ -381,7 +380,7 @@ DATA_I:
 FLL_D:
 	.word	0xffffffff                	@0
 	.word	(_end_bss_)    				@4
-	.word	(RAM_END_ADDR)                 	@8
+	.word	(_stack_end_)                 	@8
 	.word   _ramcode_size_div_256_      @12
 @	.word   _ramcode_size_div_256_      @16
 

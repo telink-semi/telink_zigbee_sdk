@@ -142,20 +142,26 @@ void app_key_handler(void){
 	}
 }
 
+
 void zb_pre_install_code_load(bdb_linkKey_info_t *bdbLinkKey, app_linkkey_info_t *appLinkKey){
-	flash_read(CFG_PRE_INSTALL_CODE, sizeof(app_linkkey_info_t), (u8*)appLinkKey);
-	if(appLinkKey->tcLinkKey.keyType != 0xff){
-		bdbLinkKey->tcLinkKey.keyType = appLinkKey->tcLinkKey.keyType;
-		bdbLinkKey->tcLinkKey.key = appLinkKey->tcLinkKey.key;
+	u8 invalidInstallCode[SEC_KEY_LEN] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+										   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
+	u8 installCode[SEC_KEY_LEN];
+
+	flash_read(CFG_PRE_INSTALL_CODE, SEC_KEY_LEN, (u8 *)installCode);
+
+	if(!memcmp((u8 *)installCode, (u8 *)invalidInstallCode, SEC_KEY_LEN)){
+		return;
 	}
-	if(appLinkKey->distributeLinkKey.keyType != 0xff){
-		bdbLinkKey->distributeLinkKey.keyType = appLinkKey->distributeLinkKey.keyType;
-		bdbLinkKey->distributeLinkKey.key = appLinkKey->distributeLinkKey.key;
-	}
-	if(appLinkKey->touchlinkKey.keyType != 0xff){
-		bdbLinkKey->touchLinkKey.keyType = appLinkKey->touchlinkKey.keyType;
-		bdbLinkKey->touchLinkKey.key = appLinkKey->touchlinkKey.key;
-	}
+
+	u8 key[SEC_KEY_LEN];
+	tl_bdbUseInstallCode(installCode, key);
+
+	appLinkKey->tcLinkKey.keyType = SS_UNIQUE_LINK_KEY;
+	memcpy(appLinkKey->tcLinkKey.key, key, SEC_KEY_LEN);
+
+	bdbLinkKey->tcLinkKey.keyType = appLinkKey->tcLinkKey.keyType;
+	bdbLinkKey->tcLinkKey.key = appLinkKey->tcLinkKey.key;
 }
 
 

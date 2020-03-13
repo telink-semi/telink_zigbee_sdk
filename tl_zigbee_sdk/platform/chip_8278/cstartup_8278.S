@@ -64,7 +64,6 @@
 	.equ SVC_MODE, 		0x13	@ Supervisor mode 
 	.equ IRQ_STK_SIZE,	__IRQ_STK_SIZE__
 	.equ __LOAD_RAM, 	__LOAD_RAM_SIZE__
-	.equ RAM_END_ADDR, 	0x84f000
 	
 @********************************************************************************************************
 @                                            TC32 EXCEPTION VECTORS

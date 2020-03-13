@@ -644,17 +644,20 @@ static inline void rf_drv_cap(unsigned long addr)
 	flash_read_page(addr, 1, &cap);
 	if(cap != 0xff){
 		cap &= 0x3f;
-		WriteAnalogReg(0x8a, ReadAnalogReg(0x8a) | cap);
+		WriteAnalogReg(0x8a, (ReadAnalogReg(0x8a) & 0xc0) | cap);
 	}
 }
 
 /**
-*	@brief	  	This function is to get energy value of the current channel for zigbee mode
-*				Before using it.
-*   @param[in]  none
-*	@return	 	energy value
+*	@brief	  	This function serves to get rssi
+*   @param[in]      none
+*	@return	 	none
 */
-extern signed char rf_rssi_get_154(void);
+
+static inline signed char rf_rssi_get_154(void)
+{
+	return (((signed char)(read_reg8(0X441))) - 110);
+}
 
 /**
 *	@brief	  	This function serves to start Tx.

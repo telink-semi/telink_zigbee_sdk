@@ -242,6 +242,8 @@ u8 aes_ccmEncTran(u8 M, u8 *key, u8 *iv, u8 *mStr, u16 mStrLen, u8 *aStr, u8 aSt
 u8 aes_ccmDecTran(u8 micLen, u8 *key, u8 *iv, u8 *mStr, u16 mStrLen, u8 *aStr, u8 aStrLen, u8 *mic);
 u8 aes_ccmDecAuthTran(u8 micLen, u8 *key, u8 *iv, u8 *mStr, u16 mStrLen, u8 *aStr, u8 aStrLen, u8 *mic);
 
+void ss_mmoHash(u8 *data, u8 len, u8 *result);
+
 bool ss_keyPreconfigured(void);
 void ss_zdoNwkKeyConfigure(const u8 *key, u8 i,u8 keyType);
 u8 ss_apsAuxHdrfill(void *p, bool nwkKey/*, u8 cmdId*/);

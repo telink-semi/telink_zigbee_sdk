@@ -39,6 +39,8 @@ bdb_ctx_t g_bdbCtx = {0};
 
 #define	BDB_TOUCHLINK_CAP_EN()		(g_bdbAttrs.nodeCommissioningCapability & BDB_NODE_COMMISSION_CAP_TOUCHLINK)
 
+#define POLY						0x8408
+
 /**********************************************************************
  * LOCAL FUNCTIONS
  */
@@ -1703,5 +1705,45 @@ _CODE_BDB_ void tl_bdbReset2FN(void)
 _CODE_BDB_ void tl_bdbAttrInit(void)
 {
 	memcpy(&g_bdbAttrs, &g_bdbAttrsDft, sizeof(bdb_attr_t));
+}
+
+_CODE_BDB_ u16 tl_bdbInstallCodeCRC16(u8 *pInstallCode, u8 len)
+{
+	u16 crc = 0xffff;
+
+	if(len == 0){
+		return (~crc);
+	}
+
+	u8 i;
+	u8 data;
+
+	do{
+		for(i = 0, data = 0xff & *pInstallCode++; i < 8; i++, data >>= 1){
+			if((crc & 0x0001) ^ (data & 0x0001)){
+				crc = (crc >> 1) ^ POLY;
+			}else{
+				crc >>= 1;
+			}
+		}
+	}while(--len);
+
+	crc = ~crc;
+
+	return crc;
+}
+
+_CODE_BDB_ void tl_bdbUseInstallCode(u8 *pInstallCode, u8 *pKey)
+{
+	u8 tmpBuf[SEC_KEY_LEN + 2];
+
+	memcpy((u8 *)tmpBuf, (u8 *)pInstallCode, SEC_KEY_LEN);
+
+	u16 crc = tl_bdbInstallCodeCRC16(pInstallCode, SEC_KEY_LEN);
+
+	tmpBuf[SEC_KEY_LEN] = (u8)(crc & 0xff);
+	tmpBuf[SEC_KEY_LEN + 1] = (u8)(crc >> 8);
+
+	ss_mmoHash(tmpBuf, SEC_KEY_LEN + 2, pKey);
 }
 

@@ -1008,11 +1008,6 @@ enum{
 	MIC_VOL_CONTROL_42DB  =     	0x3c,
 };
 
-#define	 reg_dfifo_manual_mode	REG_ADDR8(0xb2c)
-enum{
-	FLD_AUU_FIFO_AUTO_MODE 		    = BIT(1),
-	FLD_AUU_FIFO_MANUAL_MODE 		= BIT_RNG(0,1),
-};
 
 #define reg_set_filter_para     REG_ADDR8(0xb80)
 
@@ -1046,7 +1041,7 @@ enum{
 #define reg_dfifo1_num			REG_ADDR16(0xb24)
 #define reg_dfifo2_num			REG_ADDR16(0xb28)
 
-#define reg_dfifo0_manual		REG_ADDR8(0xb2c)
+#define reg_dfifo_manual_mode		REG_ADDR8(0xb2c)
 enum{
 	FLD_DFIFO_MANUAL_MODE_EN	= BIT(0),
 };

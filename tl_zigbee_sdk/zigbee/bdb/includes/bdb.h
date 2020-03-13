@@ -557,6 +557,16 @@ void bdb_zdoStartDevCnf(void *arg);   //zdo_start_device_confirm_t* startDevCnf)
 void tl_bdbAttrInit(void);
 
 /**
+ * @brief      bdb use install code
+ *
+ * @param[in]   pInstallCode
+ * @param[out]  pKey
+ *
+ * @return      None
+ */
+void tl_bdbUseInstallCode(u8 *pInstallCode, u8 *pKey);
+
+/**
  * @brief      bdb re-start
  *
  * @param[in]   none

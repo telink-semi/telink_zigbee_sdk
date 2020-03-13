@@ -38,6 +38,9 @@
 
 #define XTAL_READY_CHECK_TIMING_OPTIMIZE	1
 
+#define	RAM_CRC_EN							0
+#define	RAM_CRC_SIZE						(0x0f)    //(RAM_CRC_SIZE + 1) * 1k = the real size of RAM_CRC
+
 
 
 //when timer wakeup,the DCDC delay time is accurate,but other wake-up sources wake up,

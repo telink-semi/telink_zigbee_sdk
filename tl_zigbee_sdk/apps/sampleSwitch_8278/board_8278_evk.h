@@ -27,6 +27,8 @@
 extern "C" {
 #endif
 
+#define FLASH_SIZE_1M				  1
+
 #define PULL_WAKEUP_SRC_PA7           PM_PIN_PULLUP_1M  //SWS, should be pulled up, otherwise single wire would be triggered
 #define PULL_WAKEUP_SRC_PA5           PM_PIN_PULLUP_1M  //DM
 #define PULL_WAKEUP_SRC_PA6           PM_PIN_PULLUP_1M  //DP

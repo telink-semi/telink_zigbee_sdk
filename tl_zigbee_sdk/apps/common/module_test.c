@@ -322,6 +322,20 @@ void moduleTest_RF(){
 }
 #endif
 
+#define MODULE_TEST_MMOHASH 	0
+#if MODULE_TEST_MMOHASH
+u8 T_DBG_installCode[18] = {0x83,0xfe,0xd3,0x40,0x7a,0x93,0x97,0x23,0xa5,0xc6,0x39,0xb2,0x69,0x16,0xd5,0x05};
+u16 T_DBG_insCodeCRC;
+u8 T_DBG_hashOut[16] = {0};
+void moudleTest_hash(void)
+{
+	T_DBG_insCodeCRC = tl_bdbInstallCodeCRC16(T_DBG_installCode, 16);
+	T_DBG_installCode[16] = (u8)(T_DBG_insCodeCRC & 0xff);
+	T_DBG_installCode[17] = (u8)(T_DBG_insCodeCRC >> 8);
+	ss_mmoHash(T_DBG_installCode, 18, T_DBG_hashOut);
+	while(1);
+}
+#endif
 
 #define MODULE_TEST_CCM	0
 #if MODULE_TEST_CCM
@@ -723,6 +737,10 @@ void moduleTest_gpioIrq(void)		//comment out user_init
 
 
 void moduleTest_start(void){
+#if MODULE_TEST_MMOHASH
+	moudleTest_hash();
+#endif
+
 #if MODULE_TEST_CCM
 	moduleTest_ccm();
 #endif

@@ -137,8 +137,8 @@ typedef enum{
 
 /* flash write protect */
 #define FLASH_PROTECT_NONE              0x00  // unprotect
-#define FLASH_PROTECT_CMD_GIGADEVICE  	0x6c  //flash of telink evb
-#define FLASH_PROTECT_CMD_ADESTO      	0x3c  //flash of customer selection
+#define FLASH_PROTECT_CMD_GIGADEVICE  	0x6C  //flash of telink evb
+#define FLASH_PROTECT_CMD_ADESTO      	0x3C  //flash of customer selection
 
 #define FLASH_PROTECT_CMD       		FLASH_PROTECT_CMD_ADESTO
 
@@ -149,19 +149,19 @@ typedef enum{
 
 #define INVALID_NV_VALUE            	0xFF
 
-#define NV_SECTOR_VALID					0x5a5a
+#define NV_SECTOR_VALID					0x5A5A
 #define NV_SECTOR_INVALID				0x5050
 #define NV_SECTOR_IDLE					0xFFFF
 
-#define ITEM_FIELD_VALID				0x5a
+#define ITEM_FIELD_VALID				0x5A
 #define ITEM_FIELD_INVALID				0x50
-#define ITEM_FIELD_OPERATION			0xFa
+#define ITEM_FIELD_OPERATION			0xFA
 #define ITEM_FIELD_IDLE					0xFF
 
 #define FLASH_FIELD_IDLE				0xFFFF
 #define FLASH_FIELD_IDLE_WORD			0xFFFFFFFF
 
-/* sector info(4Bytes) + index info(8Bytes) + index info(8Bytes) + ...*/
+/* sector info(4Bytes) + index info(8Bytes) + index info(8Bytes) + ... */
 typedef struct{
 	u16 usedFlag;
 	u8  idName;
@@ -206,18 +206,20 @@ typedef struct{
  * NV_MAX_MODULS
  */
 typedef enum {
-	NV_MODULE_ZB_INFO 			= 0,
-	NV_MODULE_ADDRESS_TABLE 	= 1,
-    NV_MODULE_APS 				= 2,
-    NV_MODULE_ZCL 				= 3,
-	NV_MODULE_NWK_FRAME_COUNT 	= 4,
-	NV_MODULE_OTA 				= 5,
-	NV_MODULE_APP 				= 6,
-	NV_MODULE_KEYPAIR 			= 7,
+	NV_MODULE_ZB_INFO 				= 0,
+	NV_MODULE_ADDRESS_TABLE 		= 1,
+    NV_MODULE_APS 					= 2,
+    NV_MODULE_ZCL 					= 3,
+	NV_MODULE_NWK_FRAME_COUNT 		= 4,
+	NV_MODULE_OTA 					= 5,
+	NV_MODULE_APP 					= 6,
+	NV_MODULE_KEYPAIR 				= 7,
     NV_MAX_MODULS
 }nv_module_t;
 
 typedef enum {
+	NV_ITEM_ID_INVALID				= 0,/* Item id 0 should not be used. */
+
 	NV_ITEM_ZB_INFO 				= 1,
 	NV_ITEM_ADDRESS_FOR_NEIGHBOR,
 	NV_ITEM_ADDRESS_FOR_BIND,
@@ -243,6 +245,8 @@ typedef enum {
 	NV_ITEM_APP_SIMPLE_DESC,
 
 	NV_ITEM_APP_TEST1,
+
+	NV_ITEM_ID_MAX					= 0xFF,/* Item id 0xFF should not be used. */
 }nv_item_t;
 
 typedef enum nv_sts_e {
