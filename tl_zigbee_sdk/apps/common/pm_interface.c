@@ -59,7 +59,7 @@ void sys_enterLowPower(u8 mode){
         #endif
         ){
 		u8 r = irq_disable();
-		if(mode == PLATFORM_MODE_SUSPEND || !zb_timerTaskIdle()){
+		if(mode == PLATFORM_MODE_SUSPEND || !ev_timerTaskIdle()){
 			//10ms wakeup
 			interval = 50;  //unit: ms 50*CLOCK_SYS_CLOCK_1US*1000;
 			platform_lowpower_enter(PLATFORM_MODE_SUSPEND, PLATFORM_WAKEUP_TIMER, interval);

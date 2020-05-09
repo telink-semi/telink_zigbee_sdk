@@ -69,33 +69,28 @@ extern "C" {
 #else
 
 //PWM configuration, LED_B as warm light, LED_W as cool light.
-#define PWM_B						GPIO_PD2	//D2 -- blue		PWM0
-#define PWM_W						GPIO_PD4	//D4 -- yellow		PWM1_N
+#define PWM_B						GPIO_PD2	//D2 -- blue		PWM3
+#define PWM_W						GPIO_PD4	//D4 -- white		PWM2_N
 
-#define PWM_W_CHANNEL				1	//PWM1_N
+#define PWM_W_CHANNEL				2	//PWM1_N
 #define PWM_W_CHANNEL_SET()			do{\
-										gpio_set_func(GPIO_PD4, AS_PWM1_N); \
+										gpio_set_func(GPIO_PD4, AS_PWM2_N); \
 										drv_pwm_n_invert(PWM_W_CHANNEL); \
 									}while(0)
 
-#define PWM_B_CHANNEL				0	//PWM0
+#define PWM_B_CHANNEL				3	//PWM0
 #define PWM_B_CHANNEL_SET()			do{\
-										gpio_set_func(GPIO_PD2, AS_PWM0); \
+										gpio_set_func(GPIO_PD2, AS_PWM3); \
 									}while(0)
 
 #define WARM_LIGHT_PWM_CHANNEL		PWM_B_CHANNEL
 #define COOL_LIGHT_PWM_CHANNEL		PWM_W_CHANNEL
 #define WARM_LIGHT_PWM_SET()		PWM_B_CHANNEL_SET()
 #define COOL_LIGHT_PWM_SET()		PWM_W_CHANNEL_SET()
-#endif
+
 //LED_R and LED_G as GPIO.
 #define LED_R						GPIO_PD5
 #define LED_G						GPIO_PD3
-#define LED_W						GPIO_PD4
-
-#define PD4_FUNC					AS_GPIO
-#define PD4_OUTPUT_ENABLE			1
-#define PD4_INPUT_ENABLE			0
 
 #define PD3_FUNC					AS_GPIO
 #define PD3_OUTPUT_ENABLE			1
@@ -108,6 +103,7 @@ extern "C" {
 #define LED_POWER					LED_R
 #define LED_PERMIT					LED_G
 
+#endif
 
 //DEBUG
 #if UART_PRINTF_MODE

@@ -32,8 +32,10 @@
 
 
 typedef  enum{
+	GPIO_PA0_MDEC,
 	GPIO_PB7_MDEC,
-	GPIO_PC4_MDEC
+	GPIO_PC4_MDEC,
+	GPIO_PD0_MDEC
 }MDEC_PinTypeDef;
 
 /**

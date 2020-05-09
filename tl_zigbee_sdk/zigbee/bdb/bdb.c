@@ -58,7 +58,6 @@ static void bdb_retrieveTcLinkKeyTimerStop(void);
 static void bdb_touchLinkCallback(u8 status, void *arg);
 static void bdb_commssionUtilityCallback(u8 cmd, void *arg);
 
-extern void bdb_linkKeyCfg( bdb_commissionSetting_t *setting, u8 fn);
 extern void bdb_touchLinkPreCfg(u8 endpoint, bdb_commissionSetting_t *setting, const zcl_touchlinkAppCallbacks_t *tlCb);
 extern void bdb_coordinatorStart(void);
 extern void bdb_routerStart(void);
@@ -1156,8 +1155,12 @@ _CODE_BDB_ void bdb_zdoStartDevCnf(void *arg){
 					TL_SCHEDULE_TASK(bdb_commissioningInfoSave, NULL);
 				}
 			}else{
-				BDB_STATUS_SET(BDB_COMMISSION_STA_PARENT_LOST);
-				//g_bdbAttrs.commissioningStatus = BDB_COMMISSION_STA_TARGET_FAILURE;
+				if(startDevCnf->status == ZDO_NETWORK_LOST){
+					BDB_STATUS_SET(BDB_COMMISSION_STA_PARENT_LOST);
+				}else{
+					/* rejoin failed */
+					BDB_STATUS_SET(BDB_COMMISSION_STA_REJOIN_FAILURE);
+				}
 			}
 			evt = BDB_STATE_REJOIN_DONE;
 			TL_SCHEDULE_TASK(bdb_task, (void *)evt);
@@ -1195,13 +1198,7 @@ _CODE_BDB_ void bdb_zdoStartDevCnf(void *arg){
 				}else{
 					evt = BDB_EVT_COMMISSIONING_NETWORK_STEER_PERMITJOIN;
 				}
-
-	#if ZB_ED_ROLE
-				u32 nwkStartDelay = 3*1000*1000;
-	#else
-				u32 nwkStartDelay = 200*1000;
-	#endif
-				TL_ZB_TIMER_SCHEDULE(bdb_task_delay, (void *)evt, nwkStartDelay);
+				TL_ZB_TIMER_SCHEDULE(bdb_task_delay, (void *)evt, 200 * 1000);
 			}else{
 				//g_bdbAttrs.commissioningStatus = BDB_COMMISSION_STA_NO_NETWORK;
 				BDB_STATUS_SET(BDB_COMMISSION_STA_NO_NETWORK);

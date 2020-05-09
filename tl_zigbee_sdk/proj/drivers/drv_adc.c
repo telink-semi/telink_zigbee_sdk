@@ -30,7 +30,7 @@
 * @return	  1: set success ;
 *             0: set error
 */
-unsigned char drv_adc_init()
+unsigned char drv_adc_init(void)
 {
 #if	defined (MCU_CORE_826x)
 	//set the ADC clock details (4MHz) and start the ADC clock.
@@ -48,7 +48,7 @@ unsigned char drv_adc_init()
 * param[in] null
 * @return,the result
 */
-unsigned short drv_get_adc_data()
+unsigned short drv_get_adc_data(void)
 {
 #if defined (MCU_CORE_826x) || defined (MCU_CORE_HAWK)
 	return ADC_SampleValueGet();
@@ -56,6 +56,18 @@ unsigned short drv_get_adc_data()
 	return (unsigned short)adc_sample_and_get_result();
 #endif
 }
+
+/****
+* brief: get the sample temperature data
+* param[in] null
+* @return,the result
+*/
+#if defined (MCU_CORE_8278)
+unsigned short drv_get_temp_result(void){
+	return adc_temp_result();
+}
+#endif
+
 
 #if defined (MCU_CORE_826x) || defined (MCU_CORE_HAWK)
 /****
@@ -163,6 +175,13 @@ void drv_adc_mode_pin_set(Drv_ADC_Mode mode, GPIO_PinTypeDef pin)
 	}else if(mode == Drv_ADC_VBAT_MODE){
 		adc_vbat_init(pin);
 	}
+#if defined (MCU_CORE_8278)
+	else if(mode == Drv_ADC_VBAT_CHANNEL_MODE){
+		adc_vbat_channel_init();
+	}else if(mode == Drv_ADC_TEMP_MODE){
+		adc_temp_init();
+	}
+#endif
 }
 
 

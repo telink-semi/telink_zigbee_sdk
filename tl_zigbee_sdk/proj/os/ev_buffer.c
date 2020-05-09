@@ -161,7 +161,7 @@ u8 *ev_buf_allocate(u16 size)
 
     /* find related the buffer blocks */
     for(u8 i = 0; i < DEFAULT_BUFFER_GROUP_NUM; i++){
-        if(size <= ev_buf_v->bufGroups[i].size - OFFSETOF(ev_bufItem_t, data)){
+        if((size <= ev_buf_v->bufGroups[i].size - OFFSETOF(ev_bufItem_t, data)) && ev_buf_v->bufGroups[i].availBufNum){
             index = i;
             break;
         }

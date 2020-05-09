@@ -25,10 +25,11 @@
  * INCLUDES
  */
 #include "../include/zb_common.h"
+
+#if ZBHCI_EN
 #include "zbhci.h"
 
 
-#if ZBHCI_EN
 /**********************************************************************
  * LOCAL CONSTANTS
  */
@@ -44,14 +45,14 @@
  */
 #if ZBHCI_USB_PRINT
 	extern void usb_print_init(void);
-	extern u8 usb_printTxMsg(u16 u16Type, u16 u16Length, u8 *pu8Data);
-	extern void usbPrintTask(void);
-
+	extern u8 usb_print_txMsg(u16 u16Type, u16 u16Length, u8 *pu8Data);
+	extern void usb_print_task(void);
 #elif ZBHCI_USB_CDC
-	extern void zbhciRxCb(u8 *buf,u8 len);
 	extern void usb_cdc_init(void);
-	zbhciTx_e usb_cdc_txMsg(u16 u16Type, u16 u16Length, u8 *pu8Data);
-
+	extern zbhciTx_e usb_cdc_txMsg(u16 u16Type, u16 u16Length, u8 *pu8Data);
+#elif ZBHCI_USB_HID
+	extern void usb_hid_init(void);
+	extern zbhciTx_e usb_hid_txMsg(u16 u16Type, u16 u16Length, u8 *pu8Data);
 #elif ZBHCI_UART
 	extern void hci_uart_init(void);
 	extern void uart_txMsg(u16 u16Type, u16 u16Length, u8 *pu8Data);
@@ -85,12 +86,14 @@ u8 crc8Calculate(u16 type, u16 length, u8 *data){
  * */
 zbhciTx_e zbhciTx(u16 u16Type, u16 u16Length, u8 *pu8Data){
 #if ZBHCI_USB_PRINT
-	return usb_printTxMsg(u16Type, u16Length, pu8Data);
+	return usb_print_txMsg(u16Type, u16Length, pu8Data);
 #elif ZBHCI_USB_CDC
-	return usb_cdc_txMsg(u16Type,u16Length,pu8Data);
+	return usb_cdc_txMsg(u16Type, u16Length, pu8Data);
 #elif ZBHCI_UART
     uart_txMsg(u16Type, u16Length, pu8Data);
     return ZBHCI_TX_SUCCESS;
+#elif ZBHCI_USB_HID
+    return usb_hid_txMsg(u16Type, u16Length, pu8Data);
 #elif ZBHCI_SPI
 
 #elif ZBHCI_I2C
@@ -100,14 +103,18 @@ zbhciTx_e zbhciTx(u16 u16Type, u16 u16Length, u8 *pu8Data){
 }
 
 void zbhciInit(void){
+#if ZBHCI_USB_PRINT || ZBHCI_USB_CDC || ZBHCI_USB_HID
+	usb_dp_pullup_en(1);
 #if ZBHCI_USB_PRINT
 	usb_print_init();
 #elif ZBHCI_USB_CDC
 	usb_cdc_init();
-#elif ZBHCI_UART
-    hci_uart_init();
 #elif ZBHCI_USB_HID
     usb_hid_init();
+#endif
+    usb_init();
+#elif ZBHCI_UART
+    hci_uart_init();
 #elif ZBHCI_SPI
 
 #elif ZBHCI_I2C
@@ -117,11 +124,9 @@ void zbhciInit(void){
 
 void zbhciTask(void){
 #if ZBHCI_USB_PRINT
-	usbPrintTask();
-#elif ZBHCI_USB_CDC
-	usbRwTask();
-#elif ZBHCI_USB_HID
-	usbHidTask();
+	usb_print_task();
+#elif ZBHCI_USB_CDC || ZBHCI_USB_HID
+	usb_handle_irq();
 #elif ZBHCI_UART
 	/* process messages in the uart ISR, and we must check the uart RX state in main loop. */
 	uart_exceptionProcess();

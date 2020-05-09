@@ -41,7 +41,6 @@ enum{
 };
 
 void usb_print_init(void){
-	usb_dp_pullup_en(1);
 	u16 usbDeviceId = *((u16 *)CFG_TELINK_USB_ID);
 	write_reg8(0x800074, 0x53);
 
@@ -56,7 +55,7 @@ void usb_print_init(void){
 	write_reg16 (0x808006, (u16)usb_print_outbuf);/* read */
 }
 
-u8 usb_printTxMsg(u16 u16Type, u16 u16Length, u8 *pu8Data){
+u8 usb_print_txMsg(u16 u16Type, u16 u16Length, u8 *pu8Data){
 	 int n;
 	u8 crc8 = crc8Calculate(u16Type, u16Length, pu8Data);
 
@@ -75,7 +74,7 @@ u8 usb_printTxMsg(u16 u16Type, u16 u16Length, u8 *pu8Data){
 	return ZBHCI_TX_SUCCESS;
 }
 
-void usbPrintTask(void){
+void usb_print_task(void){
 	zbhci_msg_t *msg = (zbhci_msg_t *)usb_print_inbuf;
 	if(msg->startFlag == ZBHCI_MSG_START_FLAG){
 		u16 pLen = (msg->msgLen16H<<8) + msg->msgLen16L;

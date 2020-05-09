@@ -63,7 +63,7 @@ extern mac_appIndCb_t macAppIndCbList;
 ota_preamble_t sampleGW_otaInfo = {
 		.fileVer = CURRENT_FILE_VERSION,
 		.imageType = IMAGE_TYPE,
-		.manufaurerCode = TELINK_MANUFACTURER_CODE,
+		.manufacturerCode = TELINK_MANUFACTURER_CODE,
 };
 #endif
 
@@ -251,8 +251,6 @@ void user_init(void)
 
 	//af_nodeDescStackRevisionSet(20);
 
-	/* load pre-install code from NV */
-	zb_pre_install_code_load(&g_bdbCommissionSetting.linkKey, &g_appGwCtx.linkKey);
 	/*
 	 * bdb initialization start,
 	 * once initialization is done, the g_zbDemoBdbCb.bdbInitCb() will be called

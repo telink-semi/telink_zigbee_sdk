@@ -62,16 +62,15 @@ extern unsigned char system_clk_type;
  */
 #define  CLK_48M_XTAL_EN   			0
 
+#define  VULTURE_A0   				0
 /**
  * @brief 	Power type for different application
  */
 typedef enum{
 	LDO_MODE 		=0x40,	//LDO mode
+	DCDC_LDO_MODE	=0x41,	//DCDC_LDO mode
 	DCDC_MODE		=0x43,	//DCDC mode (16pin is not suported this mode.)
-	DCDC_LDO_MODE	=0x45,	//DCDC_LDO mode (synchronize mode,Use the asynchronize 
-								//mode with DCDC_LDO may cause the current abnormal(A0 version))
 }POWER_MODE_TypeDef;
-
 /**
  * @brief 	crystal for different application
  */
@@ -91,9 +90,9 @@ typedef enum{
 	SYS_CLK_48M_Crystal,
 	SYS_CLK_RC_THRES,
 
-	SYS_CLK_24M_RC,
-	SYS_CLK_32M_RC,
-	SYS_CLK_48M_RC,
+//	SYS_CLK_24M_RC,
+//	SYS_CLK_32M_RC,
+//	SYS_CLK_48M_RC,
 
 }SYS_CLK_TYPEDEF;
 
@@ -151,6 +150,13 @@ void rc_48m_cal (void);
  * @return    none.
  */
 void rc_32k_cal (void);
+
+/**
+ * @brief     This function performs to select 24M/2 RC as source of DMIC.
+ * @param[in] source clock to provide DMIC.
+ * @return    none.
+ */
+void dmic_prob_24M_rc(void);
 
 
 

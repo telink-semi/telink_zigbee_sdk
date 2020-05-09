@@ -47,6 +47,6 @@ enum{
 void led_init(void);
 void localPermitJoinState(void);
 void app_key_handler(void);
-void zb_pre_install_code_load(bdb_linkKey_info_t *bdbLinkKey, app_linkkey_info_t *appLinkKey);
+void zb_pre_install_code_load(app_linkkey_info_t *appLinkKey);
 
 #endif	/* _APP_UI_H_ */

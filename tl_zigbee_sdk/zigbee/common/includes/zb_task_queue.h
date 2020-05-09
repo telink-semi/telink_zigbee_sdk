@@ -78,9 +78,6 @@ typedef struct{
 
 #define		TL_QUEUE_HAS_SPACE(wptr,rptr,size)		((wptr - rptr) < (size))
 
-
-extern u8 TIMER_EVENT_SIZE;
-
 /**
    Initialize scheduler subsystem.
  */
@@ -111,41 +108,15 @@ tl_zb_task_t *tl_zbTaskQPop(u8 idx, tl_zb_task_t *taskInfo);
 u8 tl_zbTaskQPush(u8 idx, tl_zb_task_t *task);
 
 
-
-/**
-  * @brief       push timer task to task list
-  *
-  * @param[in]   func - the callback of the timer event
-  *
-  * @param[in]   arg - the parameter to the callback
-  *
-  * @param		 cycle - the timer interval
-  *
-  * @return      the status
-  */
-extern ev_time_event_t *tl_zbTimerTaskPost(ev_timer_callback_t func, void *arg, u32 t_us);
-#define TL_ZB_TIMER_SCHEDULE 	tl_zbTimerTaskPost
-
 #define		TL_SUPERFRAMETIME_TO_US(n)				(n*15360)
 #define		TL_TIMEUS_TO_SUPEFRAMETIME(t)			(t/15360)
-/**
-  * @brief       cancel timer task from task list
-  *
-  * @param[in]   te - the pointer to the the timer event pointer
-  *
-  * @return      the status
-  */
-u8 tl_zbTimerTaskCancel(ev_time_event_t **te);
-#define TL_ZB_TIMER_CANCEL 		tl_zbTimerTaskCancel
 
-void tl_zbTimerTaskChkAndDec(ev_time_event_t *e);
 
 #if 0
 u8 my_tl_zbPrimitivePost(u8 layerQ, u8 primitive, void *arg, u32 line, char *file);
 #define tl_zbPrimitivePost(layerQ, primitive, arg) my_tl_zbPrimitivePost(layerQ, primitive, arg, __LINE__, __FILE__)
 #else
 u8 tl_zbPrimitivePost(u8 layerQ, u8 primitive, void *arg);
-
 #endif
 
 /**
@@ -160,8 +131,7 @@ u8 tl_zbPrimitivePost(u8 layerQ, u8 primitive, void *arg);
 u8 tl_zbTaskPost(tl_zb_callback_t func, void *arg);
 #define	TL_SCHEDULE_TASK	tl_zbTaskPost
 
-u8 zb_timerTaskIdle(void);
-u8 zb_isTimerTaskQEnough(void);
+
 u8 zb_isTaskDone(void);
 bool tl_stackBusy(void);
 

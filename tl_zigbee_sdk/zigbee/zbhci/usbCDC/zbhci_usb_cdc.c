@@ -19,127 +19,32 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#include "../../include/zb_common.h"
-#include "../../../proj/drivers/usb/usbCDC/usb_ctrl.h"
-#include "../../../proj/drivers/usb/usbCDC/usb_cdc.h"
-#include "../zbhci.h"
+#include "../../proj/tl_common.h"
 
 #if (ZBHCI_EN && ZBHCI_USB_CDC)
+#include "../../proj/drivers/usb/app/usbcdc.h"
+#include "../../common/includes/zb_task_queue.h"
+#include "../zbhci.h"
 
-typedef void (*zbhciRxCbFun)(u8 *buf, u8 len);
-typedef void (*zbhciTxDoneCbFun)(u8 *buf);
 
-//define rx buffer
-#define RX_BUF_LEN    		64 //in bytes
-#define TX_BUF_LEN    		64 //in bytes
-#define RX_BUF_NUM    		4
-#define RX_NDATA_LEN		7
+#define RX_NDATA_LEN					7
+#define	GET_RXPACKETLEN(ptr)			(((ptr)[3] << 8) | ((ptr)[4]))
 
-static unsigned char rx_buf[RX_BUF_NUM][RX_BUF_LEN];
-static unsigned char rx_ptr = 0;
-__attribute__((aligned(4))) u8 usb_cdcTxbuf[TX_BUF_LEN] = {0};
+#define RX_BUF_LEN    					64 //in bytes
+#define TX_BUF_LEN    					64 //in bytes
 
-u8 tx_rdPtr = 0;
-zbhciRxCbFun hciCb = NULL;
-zbhciTxDoneCbFun hciTxDoneCb = NULL;
+static ev_queue_t usbcdc_txPendingQ;
 
-void usbcdc_data_handler(void *arg);
 
-static void USBCDC_RxCb(unsigned char *data){
-    USBCDC_RxBufSet(rx_buf[(rx_ptr++&0x03)]);
-    if(hciCb){
-    	hciCb(data,RX_BUF_LEN);
-    }
-}
-
-u8 push_data_flag = 0;
-u8 checksum(u8 *data,u8 len){
-	u8 ret = *data;
-	for(u8 i=0;i<len - 1;i++){
-		ret ^= data[i+1];
-	}
-	return ret;
-}
-
-bool usbRwBusy(void){
-	return (!USBCDC_IsAvailable());
-}
-
-zbhciTx_e usbRwTx(u8 *buf, u8 len){
-	if(USBCDC_IsAvailable()){
-		return USBCDC_DataSend(buf, len);
-	}
-	return ZBHCI_TX_BUSY;
-}
-
-zbhciTx_e usb_cdc_txMsg(u16 u16Type, u16 u16Length, u8 *pu8Data){
-	int n;
-	u8 crc8 = crc8Calculate(u16Type, u16Length, pu8Data);
-
-	u8 *p = usb_cdcTxbuf;
-	*p++ = 0x55;
-	*p++ = (u16Type >> 8) & 0xff;
-	*p++ = (u16Type >> 0) & 0xff;
-	*p++ = (u16Length >> 8) & 0xff;
-	*p++ = (u16Length >> 0) & 0xff;
-	*p++ = crc8;
-	for(n = 0; n < u16Length; n++)
-	{
-		*p++ = pu8Data[n];
-	}
-	*p++ = 0xAA;
-
-	return usbRwTx(usb_cdcTxbuf, p - usb_cdcTxbuf);
-}
-
-#define		GET_RXPACKETLEN(ptr)			(((ptr)[3]<<8)|((ptr)[4]))
-struct zbhci_waitMoreData_t{
-	u8					rxData[256];
-	ev_time_event_t		*wmTimer;
-	u8					wptrIndx;
-}zbhci;
-
-s32 zbhciPacketRxTimeoutCb(void *arg){
-	zbhci.wmTimer = NULL;
-	zbhci.wptrIndx = 0;
-	return -1;
-}
-
-bool zbhciPacketRxCompleted(u8 **buf){
-	u16 len = 0;
-	if(!zbhci.wptrIndx){
-		len = GET_RXPACKETLEN(*buf) + RX_NDATA_LEN;
+static void usb_cdc_send(usbcdc_txBuf_t *pTxBuf){
+	if(usbcdc_isAvailable()){
+		usbcdc_sendData(pTxBuf);
 	}else{
-		len = GET_RXPACKETLEN(zbhci.rxData) + RX_NDATA_LEN;
+		ev_queue_push(&usbcdc_txPendingQ, (u8*)pTxBuf);
 	}
-	if(len<RX_BUF_LEN){
-		return TRUE;
-	}
-
-	memcpy(zbhci.rxData + zbhci.wptrIndx,*buf,RX_BUF_LEN);
-	zbhci.wptrIndx += RX_BUF_LEN;
-
-	if(zbhci.wptrIndx >= len){
-		*buf = zbhci.rxData;
-		zbhci.wptrIndx = 0;
-		TL_ZB_TIMER_CANCEL(&zbhci.wmTimer);
-		return TRUE;
-	}
-	if(!zbhci.wmTimer){
-		zbhci.wmTimer = TL_ZB_TIMER_SCHEDULE(zbhciPacketRxTimeoutCb,NULL,30*1000);
-	}
-	return FALSE;
 }
 
-void zbhciRxCb(u8 *buf,u8 len){
-	if(zbhciPacketRxCompleted(&buf)!=TRUE){
-		return;
-	}
-
-	TL_SCHEDULE_TASK(usbcdc_data_handler, buf);
-}
-
-void usbcdc_data_handler(void *arg){
+static void usbcdc_data_handler(void *arg){
 	 /*
 	 * the format of the uart rx data: length(4 Bytes) + payload
 	 *
@@ -154,12 +59,10 @@ void usbcdc_data_handler(void *arg){
 	zbhci_msg_t *msg = (zbhci_msg_t *)arg;
 
 	if(msg->startFlag == ZBHCI_MSG_START_FLAG){
-
 		/* check the start flag */
 		u16 pktLen = (msg->msgLen16H << 8) | msg->msgLen16L;
 		if((pktLen + ZBHCI_MSG_HDR_LEN) < RX_BUF_LEN){
 			/* check the end flag */
-
 			if(endChar != ZBHCI_MSG_END_FLAG){
 			   st = ZBHCI_MSG_STATUS_ERROR_END_CHAR;
 			}
@@ -189,33 +92,81 @@ void usbcdc_data_handler(void *arg){
 
 		zbhciTx(ZBHCI_CMD_ACK, 4, ret);
 	}
+
+	ev_buf_free((u8 *)arg);
 }
 
-void USB_LogInit(void)
-{
-    write_reg8(0x80013c, 0x40);
-    write_reg8(0x80013d, 0x09);
+static void usbcdc_rxCb(u8 *pData){
+	TL_SCHEDULE_TASK(usbcdc_data_handler, pData);
+
+	/* Set the USB RX buffer again */
+	u8 *pBuf = ev_buf_allocate(RX_BUF_LEN);
+	if(!pBuf){
+		while(1);
+	}
+	memset(pBuf, 0, RX_BUF_LEN);
+	usbcdc_setRxBuf(pBuf);
 }
 
-void zbhciTxDoneCb(u8 *buf){
+static void usbcdc_txFinishCb(u8 *pData){
+    /* Free the TX buffer at first */
+    ev_buf_free(pData);
 
+    /* If there is pending data, send it again */
+    if(usbcdc_txPendingQ.curNum){
+    	usbcdc_txBuf_t *pTxBuf = (usbcdc_txBuf_t *)ev_queue_pop(&usbcdc_txPendingQ);
+    	usb_cdc_send(pTxBuf);
+    }
 }
 
 void usb_cdc_init(void){
-	USB_Init();
-	USB_LogInit();
-	usb_dp_pullup_en (1);
-	USBCDC_RxBufSet(rx_buf[(rx_ptr++&0x03)]);
+	/* Initialize USB-CDC parameters */
+	usbcdc_init();
 
-	USBCDC_CBSet(USBCDC_RxCb, zbhciTxDoneCb);
+	/* Register callback */
+	usbcdc_setCb(usbcdc_rxCb, usbcdc_txFinishCb);
 
-	hciCb = zbhciRxCb;
-	hciTxDoneCb = zbhciTxDoneCb;
+	/* Set RX buffer to USB-CDC */
+	u8 *pBuf = ev_buf_allocate(RX_BUF_LEN);
+	if(!pBuf){
+		while(1);
+	}
+	memset(pBuf, 0, RX_BUF_LEN);
+	usbcdc_setRxBuf(pBuf);
+
+    /* Initialize USB tx pending Queue */
+    ev_queue_init(&usbcdc_txPendingQ, NULL);
 }
 
-void usbRwTask(void){
-	USB_IrqHandle();
+zbhciTx_e usb_cdc_txMsg(u16 u16Type, u16 u16Length, u8 *pu8Data){
+	if(u16Length > TX_BUF_LEN){
+		return ZBHCI_TX_TOO_LONG;
+	}
+
+	usbcdc_txBuf_t *pTxBuf = (usbcdc_txBuf_t *)ev_buf_allocate(sizeof(u16) + u16Length + 7);
+	if(!pTxBuf){
+		return ZBHCI_TX_FAILED;
+	}
+
+	pTxBuf->len = u16Length + 7;
+	u8 *p = pTxBuf->data;
+
+	*p++ = 0x55;
+	*p++ = (u16Type >> 8) & 0xff;
+	*p++ = (u16Type >> 0) & 0xff;
+	*p++ = (u16Length >> 8) & 0xff;
+	*p++ = (u16Length >> 0) & 0xff;
+	*p++ = crc8Calculate(u16Type, u16Length, pu8Data);
+	for(u16 n = 0; n < u16Length; n++){
+		*p++ = pu8Data[n];
+	}
+	*p++ = 0xAA;
+
+	usb_cdc_send(pTxBuf);
+
+	return ZBHCI_TX_SUCCESS;
 }
+
 #endif
 
 

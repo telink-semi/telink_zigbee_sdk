@@ -143,7 +143,7 @@ void app_key_handler(void){
 }
 
 
-void zb_pre_install_code_load(bdb_linkKey_info_t *bdbLinkKey, app_linkkey_info_t *appLinkKey){
+void zb_pre_install_code_load(app_linkkey_info_t *appLinkKey){
 	u8 invalidInstallCode[SEC_KEY_LEN] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
 										   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 	u8 installCode[SEC_KEY_LEN];
@@ -160,8 +160,8 @@ void zb_pre_install_code_load(bdb_linkKey_info_t *bdbLinkKey, app_linkkey_info_t
 	appLinkKey->tcLinkKey.keyType = SS_UNIQUE_LINK_KEY;
 	memcpy(appLinkKey->tcLinkKey.key, key, SEC_KEY_LEN);
 
-	bdbLinkKey->tcLinkKey.keyType = appLinkKey->tcLinkKey.keyType;
-	bdbLinkKey->tcLinkKey.key = appLinkKey->tcLinkKey.key;
+	gLightCtx.installCodeAvailable = TRUE;
+	gLightCtx.useInstallCodeFlg = TRUE;
 }
 
 

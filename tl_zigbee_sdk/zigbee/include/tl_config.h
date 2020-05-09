@@ -88,9 +88,12 @@
 //Contents of the link retry threshold for parent link.
 #define	ZDO_MAX_PARENT_THRESHOLD_RETRY				5
 
-//Contents of the rejoin interval
-#define	ZDO_REJOIN_INTERVAL							30//900//15 minutes
-#define ZDO_MAX_REJOIN_INTERVAL						120
+//Contents of the rejoin interval in seconds
+#define ZDO_REJOIN_TIMES							2
+#define	ZDO_REJOIN_INTERVAL							6
+#define ZDO_MAX_REJOIN_INTERVAL						30
+#define ZDO_REJOIN_BACKOFF_TIME						30
+#define ZDO_MAX_REJOIN_BACKOFF_TIME					90
 /******************************************************************************************************************************/
 
 #if defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
@@ -133,7 +136,6 @@
 //SECUR: CCM M parameter. Fixed to 4 for security level 5
 #define	ZB_CCM_M									4
 
-#define ZB_DISABLE_REJOIN_AFTER_SEC_FAIL
 
 //if defined, enable APS security
 #define APS_FRAME_SECURITY

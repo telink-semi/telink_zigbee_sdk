@@ -60,6 +60,10 @@ typedef struct{
 	u8  restartLoopTimes;
 
 	app_linkkey_info_t linkKey;
+
+	bool installCodeAvailable:1;	//flag indicates if support install code
+	bool useInstallCodeFlg:1;		//flag indicates switch link key between install code and default link key
+	bool reserved:6;
 }app_ctx_t;
 
 /**

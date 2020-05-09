@@ -68,6 +68,7 @@ typedef struct ev_time_event_pool_s {
    s32 used_num;
 } ev_time_event_pool_t;
 
+extern u8 TIMER_EVENT_SIZE;
 
 /** @} end of group EV_TIMER_TYPE */
 
@@ -95,16 +96,6 @@ void ev_on_timer(ev_time_event_t *e, u32 t_us);
 void ev_unon_timer(ev_time_event_t *e);
 
 /**
-  * @brief       Check whether a specified timer expired or not
-  *
-  * @param[in]   e  - The specified timer event
-  *
-  * @return      True indicating the timer is already expired. <BR>
-  *              False indicating the timer is still exist. <BR>
-  */
-int is_timer_expired(ev_time_event_t *e);
-
-/**
   * @brief       Check whether a specified timer exist or not
   *
   * @param[in]   e  - The specified timer event
@@ -112,7 +103,7 @@ int is_timer_expired(ev_time_event_t *e);
   * @return      True indicating the timer is already exist. <BR>
   *              False indicating the timer is not exist. <BR>
   */
-u8 ev_timer_exist(const ev_time_event_t *e);
+bool ev_timer_exist(const ev_time_event_t *e);
 
 /**
   * @brief       Get the nearest fired timer interval
@@ -122,6 +113,34 @@ u8 ev_timer_exist(const ev_time_event_t *e);
   * @return      Value of the interval.
   */
 u32 ev_nearestInterval(void);
+
+/**
+  * @brief       push timer task to task list
+  *
+  * @param[in]   func - the callback of the timer event
+  *
+  * @param[in]   arg - the parameter to the callback
+  *
+  * @param		 cycle - the timer interval
+  *
+  * @return      the status
+  */
+ev_time_event_t *ev_timerTaskPost(ev_timer_callback_t func, void *arg, u32 t_us);
+#define TL_ZB_TIMER_SCHEDULE 	ev_timerTaskPost
+
+/**
+  * @brief       cancel timer task from task list
+  *
+  * @param[in]   te - the pointer to the the timer event pointer
+  *
+  * @return      the status
+  */
+u8 ev_timerTaskCancel(ev_time_event_t **te);
+#define TL_ZB_TIMER_CANCEL 		ev_timerTaskCancel
+
+bool ev_timerTaskIdle(void);
+bool ev_timerTaskQEnough(void);
+void ev_timerTaskQInit(void);
 
 /**  @} end of group EV_TIMER_FUNCTION */
 

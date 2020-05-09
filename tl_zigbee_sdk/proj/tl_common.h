@@ -55,6 +55,6 @@
 #include "drivers/keyboard.h"
 #include "drivers/tl_putchar.h"
 #include "drivers/nv.h"
-
-
-
+#if MODULE_USB_ENABLE
+#include "drivers/usb/usb.h"
+#endif

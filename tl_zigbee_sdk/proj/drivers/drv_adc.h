@@ -33,14 +33,24 @@
 * @return	  1: set success ;
 *             0: set error
 */
-unsigned char drv_adc_init();
+unsigned char drv_adc_init(void);
 
 /****
 * brief: get the sample data
 * param[in] null
 * @return,the result
 */
-unsigned short drv_get_adc_data();
+unsigned short drv_get_adc_data(void);
+
+
+/****
+* brief: get the sample temperature data
+* param[in] null
+* @return,the result
+*/
+#if defined (MCU_CORE_8278)
+unsigned short drv_get_temp_result(void);
+#endif
 
 
 #if defined (MCU_CORE_826x) || defined (MCU_CORE_HAWK)
@@ -73,6 +83,10 @@ void drv_ADC_ParamSetting(Drv_ADC_ChTypeDef ad_ch,DRV_ADC_InputModeTypeDef mode,
 typedef enum{
 	Drv_ADC_BASE_MODE,
 	Drv_ADC_VBAT_MODE,
+#if defined (MCU_CORE_8278)
+	Drv_ADC_VBAT_CHANNEL_MODE,
+	Drv_ADC_TEMP_MODE,
+#endif
 }Drv_ADC_Mode;
 
 /****

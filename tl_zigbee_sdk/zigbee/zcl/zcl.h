@@ -122,7 +122,8 @@
 /**
  *  @brief  Definition for ZCL Attribute Information Entry
  */
-typedef struct zclAttrInfo {
+typedef struct zclAttrInfo
+{
     u16 id;                     //!< Attribute ID
     u8  type;                   //!< Attribute type
     u8  access;                 //!< Attribute access control
@@ -132,7 +133,8 @@ typedef struct zclAttrInfo {
 /**
  *  @brief  Definition for ZCL Frame control format
  */
-typedef union zclFrmCtrl {
+typedef union zclFrmCtrl
+{
 	struct {
 		u8 type:2;              //!< ZCL Frame type
 		u8 manufSpec:1;         //!< Manufacturer specific frame
@@ -146,7 +148,8 @@ typedef union zclFrmCtrl {
 /**
  *  @brief  Definition for ZCL header format
  */
-typedef struct zclHdr {
+typedef struct zclHdr
+{
 	zclFrmCtrl_t frmCtrl;       //!< Frame control field structure
 	u16 manufCode;              //!< Manufacturer code
 	u8 seqNum;                  //!< Sequence number - used to identify response frame
@@ -501,8 +504,8 @@ typedef struct {
 	cluster_cmdHdlr_t 	cmdHandlerFunc;
 	cluster_forAppCb_t 	clusterAppCb;
 	u16 clusterID;
-	u8 endpoint;
-	u8 attrNum;
+	u8 	endpoint;
+	u8 	attrNum;
 } clusterInfo_t;
 
 typedef struct {
@@ -511,7 +514,7 @@ typedef struct {
 	const zclAttrInfo_t 	*attrTbl;
 	cluster_registerFunc_t	clusterRegisterFunc;
 	cluster_forAppCb_t 		clusterAppCb;
-}zcl_specClusterInfo_t;
+} zcl_specClusterInfo_t;
 
 
 #ifndef ZCL_CLUSTER_NUM_MAX

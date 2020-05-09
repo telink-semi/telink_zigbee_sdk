@@ -39,7 +39,8 @@ typedef struct{
 	u8 macTxFifo:1;
 	u8 mgmtLeave:1;
 	u8 active:1;			//only for mac command buffer
-	u8 resvHdr:4;
+	u8 pending:1;			//only for endDev, if parent has pending data for me
+	u8 resvHdr:3;
 }zb_buf_hdr_t;//4
 
 

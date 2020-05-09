@@ -35,8 +35,7 @@
  * @param[in] period_s - The seconds to set. unit is second
  * @return    none
  */
-extern void wd_set_interval_ms(unsigned int period_ms,unsigned long int tick_per_ms);
-
+extern void wd_setintervalms(unsigned int period_ms);
 /**
  * @brief     start watchdog. ie enable watchdog
  * @param[in] none

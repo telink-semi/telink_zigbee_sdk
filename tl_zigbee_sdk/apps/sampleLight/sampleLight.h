@@ -61,6 +61,10 @@ typedef struct{
 	bool lightAttrsChanged;
 
 	app_linkkey_info_t linkKey;
+
+	bool installCodeAvailable:1;	//flag indicates if support install code
+	bool useInstallCodeFlg:1;		//flag indicates switch link key between install code and default link key
+	bool reserved:6;
 }app_ctx_t;
 
 /**
@@ -182,7 +186,7 @@ typedef struct {
  * GLOBAL VARIABLES
  */
 extern app_ctx_t gLightCtx;
-
+extern bdb_commissionSetting_t g_bdbCommissionSetting;
 extern bdb_appCb_t g_zbDemoBdbCb;
 
 

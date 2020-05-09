@@ -68,60 +68,6 @@ extern "C" {
 #define UART_PIN_CFG				uart_gpio_set(UART_TX_PD0, UART_RX_PD6);// uart tx/rx pin set
 #endif
 
-//LED
-/***************************************************************
-* PWM_R						GPIO_PD0	//D5 -- red
-* PWM_G						GPIO_PD4	//D3 -- green
-* PWM_B						GPIO_PD5	//D2 -- blue
-* PWM_W						GPIO_PD3	//D4 -- yellow
-****************************************************************/
-#if defined COLOR_RGB_SUPPORT && (COLOR_RGB_SUPPORT == 1)
-
-#error "GPIO_PD0 can't be configured as PWM!"
-
-#else
-
-//PWM configuration, LED_B as warm light, LED_W as cool light.
-#define PWM_B						GPIO_PD2	//D2 -- blue		PWM0
-#define PWM_W						GPIO_PD4	//D4 -- yellow		PWM1_N
-
-#define PWM_W_CHANNEL				1	//PWM1_N
-#define PWM_W_CHANNEL_SET()			do{\
-										gpio_set_func(GPIO_PD4, AS_PWM1_N); \
-										drv_pwm_n_invert(PWM_W_CHANNEL); \
-									}while(0)
-
-#define PWM_B_CHANNEL				0	//PWM0
-#define PWM_B_CHANNEL_SET()			do{\
-										gpio_set_func(GPIO_PD2, AS_PWM0); \
-									}while(0)
-
-#define WARM_LIGHT_PWM_CHANNEL		PWM_B_CHANNEL
-#define COOL_LIGHT_PWM_CHANNEL		PWM_W_CHANNEL
-#define WARM_LIGHT_PWM_SET()		PWM_B_CHANNEL_SET()
-#define COOL_LIGHT_PWM_SET()		PWM_W_CHANNEL_SET()
-
-//LED_R and LED_G as GPIO.
-#define LED_R						GPIO_PD5
-#define LED_G						GPIO_PD3
-#define LED_W						GPIO_PD4
-
-#define PD4_FUNC					AS_GPIO
-#define PD4_OUTPUT_ENABLE			1
-#define PD4_INPUT_ENABLE			0
-
-#define PD3_FUNC					AS_GPIO
-#define PD3_OUTPUT_ENABLE			1
-#define PD3_INPUT_ENABLE			0
-
-#define PD5_FUNC					AS_GPIO
-#define PD5_OUTPUT_ENABLE			1
-#define PD5_INPUT_ENABLE			0
-
-#define LED_POWER					LED_R
-#define LED_PERMIT					LED_G
-
-#endif
 
 //DEBUG
 #if UART_PRINTF_MODE
@@ -129,6 +75,23 @@ extern "C" {
 	#define PA2_OUTPUT_ENABLE		1
 	#define PA2_INPUT_ENABLE		0
 #endif
+
+
+//LED
+//LED_R and LED_G as GPIO.
+#define LED_G						GPIO_PD3
+#define PD3_FUNC					AS_GPIO
+#define PD3_OUTPUT_ENABLE			1
+#define PD3_INPUT_ENABLE			0
+
+#define LED_R						GPIO_PD5
+#define PD5_FUNC					AS_GPIO
+#define PD5_OUTPUT_ENABLE			1
+#define PD5_INPUT_ENABLE			0
+
+#define LED_POWER					LED_R
+#define LED_PERMIT					LED_G
+
 
 enum{
 	VK_SW1 = 0x01,

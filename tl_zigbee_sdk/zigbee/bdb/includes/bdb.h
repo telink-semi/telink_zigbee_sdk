@@ -180,6 +180,7 @@ enum{
 	BDB_COMMISSION_STA_TCLK_EX_FAILURE,		//<! The Trust Center link key exchange procedure has failed attempting to join a centralized security network.
 
 	BDB_COMMISSION_STA_PARENT_LOST,
+	BDB_COMMISSION_STA_REJOIN_FAILURE,
 	BDB_COMMISSION_STA_FORMATION_DONE,
 };
 /** @} end of group CommissioningStatus */
@@ -593,16 +594,24 @@ void tl_bdbReset2FN(void);
  */
 void bdb_retrieveTcLinkKeyDone(u8 status);
 
-/*********************************************************************
- * @fn      check the bdb state
- *
- * @brief
+/**
+ * @brief	check the bdb state
  *
  * @param   1: idle, 0: busy
  *
  * @return
  */
 bool bdb_isIdle(void);
+
+/**
+ * @brief      bdb_linkKeyCfg
+ *
+ * @param[in]   setting
+ * @param[in]   isFactoryNew
+ *
+ * @return      None
+ */
+void bdb_linkKeyCfg(bdb_commissionSetting_t *setting, u8 isFactoryNew);
 
 /** @} end of group zb_bdb_attr */
 

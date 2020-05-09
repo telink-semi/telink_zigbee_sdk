@@ -734,7 +734,7 @@ _CODE_ZCL_ status_t zcl_foundationCmdHandler(zclIncoming_t *pCmd)
 			break;
 #endif
 		case ZCL_CMD_DEFAULT_RSP:
-			status  = zcl_dfltRspHandler(pCmd);
+			status = zcl_dfltRspHandler(pCmd);
 			break;
 #ifdef ZCL_DISCOVER
 		case ZCL_CMD_DISCOVER_ATTR:
@@ -786,8 +786,11 @@ _CODE_ZCL_ void zcl_cmdHandler(u8 *pCmd)
 	/* Parse Header */
 	if(pApsdeInd->asdu[0] & ZCL_FRAME_CONTROL_MANU_SPECIFIC){
 		if(pApsdeInd->asduLen >= 5){
-			memcpy(&inMsg.hdr, pApsdeInd->asdu, 5);
-			inMsg.pData = pApsdeInd->asdu + 5;
+			inMsg.hdr.frmCtrl.byte = pApsdeInd->asdu[0];
+			inMsg.hdr.manufCode = BUILD_U16(pApsdeInd->asdu[1], pApsdeInd->asdu[2]);
+			inMsg.hdr.seqNum = pApsdeInd->asdu[3];
+			inMsg.hdr.cmd = pApsdeInd->asdu[4];
+			inMsg.pData = &pApsdeInd->asdu[5];
 			inMsg.dataLen = pApsdeInd->asduLen - 5;
 		}else{
 			status = ZCL_STA_FAILURE;
@@ -1723,13 +1726,7 @@ _CODE_ZCL_ status_t zcl_report(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefault
 	*pBuf++ = dataType;
 	memcpy(pBuf, pData, attrSize);
 
-    u32 manuCode = 0;
-#if (__PROJECT_ONOFFSWITCH__)
-    if(attrID ==  ZCLATTRID_RESERVED_XIAOMI){
-    	manuCode = 0x80001234;
-    }
-#endif
-	u8 status = zcl_sendCmd(srcEp, pDstEpInfo, clusterId, ZCL_CMD_REPORT, FALSE, direction, disableDefaultRsp, manuCode, seqNo, len, buf);
+	u8 status = zcl_sendCmd(srcEp, pDstEpInfo, clusterId, ZCL_CMD_REPORT, FALSE, direction, disableDefaultRsp, 0, seqNo, len, buf);
 
 	ev_buf_free(buf);
 
@@ -2252,6 +2249,10 @@ _CODE_ZCL_ zclDefaultRspCmd_t *zcl_parseInDftRspCmd(zclIncoming_t *pCmd)
 _CODE_ZCL_ status_t zcl_dfltRspHandler(zclIncoming_t *pCmd)
 {
 	zclDefaultRspCmd_t *pDfltRspCmd = NULL;
+
+	if(!pCmd->hdr.frmCtrl.bf.disDefResp){
+		pCmd->hdr.frmCtrl.bf.disDefResp = 1;
+	}
 
 	/* Parse In Default Response Command */
 	pDfltRspCmd = zcl_parseInDftRspCmd(pCmd);

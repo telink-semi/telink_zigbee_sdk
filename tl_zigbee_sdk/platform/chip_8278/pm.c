@@ -36,11 +36,14 @@
 #include "pm.h"
 #include "adc.h"
 
+#include "flash.h"
+
 
 #define FLASH_DEEP_EN				1   //if flash sleep,  when deep retention, must wakeup flash in cstartup
 
 
-_attribute_data_retention_  unsigned char 		tl_multi_addr;
+_attribute_data_retention_  unsigned char 		tl_multi_addr_L;
+_attribute_data_retention_  unsigned char 		tl_multi_addr_H;
 _attribute_data_retention_  unsigned char 		tl_24mrc_cal = 0x80;
 _attribute_data_retention_  unsigned char       pm_long_suspend;
 
@@ -49,7 +52,7 @@ _attribute_data_retention_  _attribute_aligned_(4) misc_para_t 		blt_miscParam;
 cpu_pm_handler_t 		  	cpu_sleep_wakeup;  //no need retention,  cause it will be set every wake_up
 pm_tim_recover_handler_t    pm_tim_recover;
 
-
+_attribute_data_retention_  unsigned char PA5_PA6_DEEPSLEEP_LOW_LEVEL_WAKEUP_EN = 1;
 /* wakeup source :is_deepretn_back,is_pad_wakeup,wakeup_src*/
 _attribute_aligned_(4) pm_para_t pmParam;
 /* enable status :conn_mark,ext_cap_en,pad32k_en,pm_enter_en */
@@ -129,20 +132,56 @@ _attribute_ram_code_ _attribute_no_inline_   __attribute__((naked))  void  write
 }
 
 /**
+ * @brief     this function servers to wait bbpll clock lock.
+ * @param[in] none
+ * @return    none
+ */
+_attribute_ram_code_ void pm_wait_bbpll_done(void)
+{
+	unsigned char ana_81 = analog_read(0x81);
+	analog_write(0x81, ana_81 | BIT(6));
+	for(unsigned char j = 0; j < 3; j++)
+	{
+		for(volatile unsigned char i = 0; i < 30; i++){//20us
+			asm("tnop");
+			//if(BIT(5) != analog_read(0x88) & BIT(7)){}
+		}
+		if(BIT(5) == (analog_read(0x88) & BIT(5)))
+		{
+			analog_write(0x81, ana_81 & 0xbf);
+			break;
+		}
+		else
+		{
+			if(j == 0){
+				analog_write(0x01, 0x4e);
+			}
+			else if(j == 1){
+				analog_write(0x01, 0x4b);
+			}
+			else{
+				analog_write(0x81, ana_81 & 0xbf);
+			}
+		}
+	}
+}
+
+/**
  * @brief     this function srevers to start sleep mode.
  * @param[in] none
  * @return    none
  */
 _attribute_ram_code_ _attribute_no_inline_ void  sleep_start(void)
 {
-	analog_write(0x34,(0x80 | (ZB_POWER_DOWN ? BIT(0) : 0) | (USB_POWER_DOWN ? BIT(1) : 0) | (AUDIO_POWER_DOWN ? BIT(2) : 0)));
-										//BIT<2:0> audio/USB/ZB  power down, save 50uA +
+
+	analog_write(0x34,(0x80 | (ZB_POWER_DOWN ? BIT(0) : 0) | (PA5_PA6_DEEPSLEEP_LOW_LEVEL_WAKEUP_EN ? BIT(1) : 0) | (AUDIO_POWER_DOWN ? BIT(2) : 0)));
+											//BIT<2:0> audio/USB/ZB  power down, save 50uA +
 
 	analog_write(0xe4,0x10);  //<4>: power down vmid(audio enable)  avoid current leakage, save 2uA
 	analog_write(0x82,0x85);  //power down signal of bbpll to avoid current leakage(confired by wenfeng 20191017)
 
 
-	DBG_CHN0_LOW;
+//	DBG_CHN0_LOW;
 
 	volatile unsigned int i;
 
@@ -173,7 +212,7 @@ _attribute_ram_code_ _attribute_no_inline_ void  sleep_start(void)
 /**************************************************************************/
 
 
-    DBG_CHN0_HIGH;
+//    DBG_CHN0_HIGH;
 
 
 
@@ -223,7 +262,7 @@ _attribute_ram_code_ _attribute_no_inline_ void  sleep_start(void)
 	while( BIT(7) != (analog_read(0x88) & (BIT(7)))); //0x88<7>: xo_ready_ana
 	while( BIT(7) != (analog_read(0x88) & (BIT(7)))); //0x88<7>: xo_ready_ana
 
-
+	pm_wait_bbpll_done();
 }
 
 /**
@@ -238,7 +277,6 @@ _attribute_ram_code_ void start_reboot(void)
 	}
 
 	irq_disable ();
-	sleep_us(13000);   //delay 12ms to avoid soft start problem
 	REG_ADDR8(0x6f) = 0x20;  //reboot
 	while (1);
 }
@@ -286,16 +324,13 @@ _attribute_ram_code_ unsigned int pm_get_32k_tick(void)
  */
 _attribute_ram_code_ _attribute_no_inline_ unsigned int cpu_get_32k_tick (void)
 {
-	reg_system_irq_mask &= (~BIT(2));   //disableable system timer irq
+//	analog_write(0x44, analog_read(0x44) | BIT(1));				//clear timer wakeup flag(can not clear when read 32k)
+	reg_system_irq_mask &= (~BIT(2));   						//disable system timer irq
 	//system_timer and 32kshould_cal should be disable before suspend(added by Yi Bao, confired by junwen and zhidong 20191015)
-	reg_system_ctrl &= (~(FLD_SYSTEM_32K_WR_EN|FLD_SYSTEM_TIMER_MANUAL_EN|FLD_SYSTEM_32K_CAL_EN));             // <0>: 1- write , 0- read
-	reg_system_status |= FLD_SYSTEM_32K_TIMER_CLEAR_RD;  // clear 32k update flag
-	asm("tnop");asm("tnop");asm("tnop");asm("tnop");
-	asm("tnop");asm("tnop");asm("tnop");asm("tnop");
-	asm("tnop");asm("tnop");asm("tnop");asm("tnop");
-	asm("tnop");asm("tnop");asm("tnop");asm("tnop");
+	reg_system_ctrl &= (~(FLD_SYSTEM_32K_WR_EN|FLD_SYSTEM_TIMER_AUTO_EN|FLD_SYSTEM_TIMER_MANUAL_EN|FLD_SYSTEM_32K_CAL_EN));             // <0>: 1- write , 0- read
+	while((reg_system_status & FLD_SYSTEM_32K_TIMER_UPDATE_RD));
 	while(!(reg_system_status & FLD_SYSTEM_32K_TIMER_UPDATE_RD));
-
+	reg_system_ctrl |= FLD_SYSTEM_TIMER_AUTO_EN;
  	return reg_system_32k_tick_rd;
 }
 
@@ -313,7 +348,7 @@ _attribute_ram_code_ void cpu_set_32k_tick(unsigned int tick)
 
 	reg_system_32k_tick_wt = tick;
 
-	reg_system_status |= FLD_SYSTEM_32K_TIMER_SYCN_TRIG;
+	reg_system_status = FLD_SYSTEM_32K_TIMER_SYCN_TRIG;
 
 	asm("tnop");asm("tnop");asm("tnop");asm("tnop");
 	asm("tnop");asm("tnop");asm("tnop");asm("tnop");
@@ -620,11 +655,13 @@ static _attribute_no_inline_ void cpu_wakeup_no_deepretn_back_init(void)
 	//////////////////// get Efuse bit32~63 info ////////////////////
 	unsigned int  efuse_32to63bit_info = pm_get_info1();
 
-	/////////////  ADC vref calib //////////////////
-	if((efuse_32to63bit_info & 0xC0) == 0xC0){ //Efuse use new rule(efuse_bit38 and bit39 are all '1')
-		if(adc_vref_cfg.adc_calib_en){
-			unsigned char adc_ref_idx = efuse_32to63bit_info & 0x3f; //ADC Ref: efuse bit32~bit36
-			adc_vref_cfg.adc_vref = 1015 + adc_ref_idx * 5; //ADC ref voltage: g_adc_vref (unit: mV)
+	/////////////  ADC vref calib  //////////////////
+	if((efuse_32to63bit_info&0xff))//if there has cal_adc_ref value.
+	{
+		if(adc_vref_cfg.adc_calib_en)
+		{
+			unsigned char adc_ref_idx = efuse_32to63bit_info & 0xff; //ADC Ref: efuse bit32~bit39 8bits.
+			adc_vref_cfg.adc_vref = 1047 + adc_ref_idx ; //ADC ref voltage: g_adc_vref (unit: mV)
 		}
 	}
 }
@@ -637,7 +674,7 @@ static _attribute_no_inline_ void cpu_wakeup_no_deepretn_back_init(void)
 _attribute_ram_code_
 void cpu_wakeup_init(void)    //must on ramcode
 {
-	POWER_MODE_TypeDef power_mode = LDO_MODE;	//default
+	POWER_MODE_TypeDef power_mode = DCDC_MODE;	//default 2.1
 	XTAL_TypeDef xtal = EXTERNAL_XTAL_24M;		//default
 	write_reg8(0x60, 0x00); 	//poweron_dft: 0x7c -> 0x00
 	write_reg8(0x61, 0x00); 	//poweron_dft: 0xff -> 0x00
@@ -654,6 +691,10 @@ void cpu_wakeup_init(void)    //must on ramcode
 								//<0>:aif -> disable 32k for qdec
 								//<5/6>:undefined,default:0
 
+	//when load code twice without power down dut, dut will use crystal clock in here,
+	//xo_quick_settle manual mode need to use in RC colck. TODO
+	write_reg8(0x66, 0x06);		//poweron_dft :set RC clock as system clock.
+
 	analog_write(0x06, 0xce);  	//poweron_dft: 0xcf -> 0xce
 								//<0>: power on bbpll LDO
 	                          	//<4>: power on otp LDO
@@ -667,6 +708,7 @@ void cpu_wakeup_init(void)    //must on ramcode
 	analog_write(0x05, ana_05 | 0x08);   //0x05<3>: 24M_xtl_pd
 	analog_write(0x05, ana_05 & 0xf7);   //<3>1b'0: Power up 24MHz XTL oscillator
 										 //<3>1b'1: Power down 24MHz XTL oscillator
+
 
 #if (!XTAL_READY_CHECK_TIMING_OPTIMIZE)
 	while( BIT(7) != (analog_read(0x88) & (BIT(7)))); //0x88<7>: xo_ready_ana
@@ -685,28 +727,40 @@ void cpu_wakeup_init(void)    //must on ramcode
 	//When using the BDT tool to download a program through USB,
 	//if the dp pull-up is turned off, the device will be disconnected,so the dp pull-up is set to be keep
 	//modify by kaixin(2019.12.27)
-	analog_write(0x0b, (analog_read(0x0b)&0x80)|(0x38));  //default: 0x7b
+	analog_write(0x0b, (analog_read(0x0b) & 0x80) | (0x38));  //default: 0x7b
 									//<7>:enable_b signal of  1.5K pullup resistor for DP PAD--keep
 									//<6>:enable signal of 1M pullup resistor for mscn PAD,avoid current leakage 1->0
 		                            //<5:4>: reference scale select 11->11
 		                            //<1:0>: power on native 1.8v/1.4v 11->00
-
-	analog_write(0x17, 0x02);   //poweron_dft: 0xf2,  <7:4>=0000,enable pullup for sensor to avoid current leakage
-								//<7:4>=0000 : GPIO bug only need in A0, A1 should delete.
+	if(0xff == read_reg8(0x7d)){
+		analog_write(0x17, 0x02);   //poweron_dft: 0xf2,  <7:4>=0000,enable pullup for sensor to avoid current leakage
+									//<7:4>=0000 : GPIO bug only need in A0, A1 should delete.
+	}
 
 	analog_write(0x8c, 0x02);  	//poweron_dft: 0x00,  <1> set 1: reg_xo_en_clk_ana_ana, to enable external 24M crystal
-	analog_write(0x02, 0xa5);  	//poweron_dft: 0xa4,  <2:0> ret_ldo_trim,  set 0x05: 1.05V(A0 version) (vA1 need modify)
 
-	//pragram can crash in high temperature, ana_01 and ana_80 is order to solve this problem.
-	analog_write(0x01, 0x4e);	//dft: 0x4c, <6:4> bbpll LDO output voltage trim
-	analog_write(0x80, 0x70);	//dft: 		 <7:5>trim bit for bbpll PFD delay
+//	analog_write(0x00, 0x98);  	//poweron_dft: 0x18,  <7> MSB of ret_ldo_trim,  0: 0.8-1.15V; 1: 0.6-0.95V
+//	analog_write(0x02, 0xa0);  	//poweron_dft: 0xa4,  <2:0> ret_ldo_trim,  set 0x00: 0.6V
+	analog_write(0x00, analog_read(0x00) & 0x7f);  	//poweron_dft: 0x18,  <7> MSB of ret_ldo_trim,  0: 0.8-1.15V; 1: 0.6-0.95V
+	analog_write(0x02, 0xa4);  	//poweron_dft: 0xa4,  <2:0> ret_ldo_trim,  set 0x04: 1.00V
+
+	analog_write(0x01, 0x4d);//pragram can crash in high temperature, ana_01 and pm_wait_bbpll_done() is order to solve this problem.
 
 	if(xtal == EXTERNAL_XTAL_48M){		//use external 48M crystal instead of external 24M crystal
 		analog_write(0x2d, analog_read(0x2d) | BIT(6));  	//poweron_dft: 0x15, <6>: 0-24M XTAL , 1- 48M XTAL
 	}
-	analog_write(0x0a, power_mode);//poweron_dft: 0x40,  <1:0> 00-LDO, 01- LDO-DC, 11- DCDC
-									//when use the LDO_1P4_DCDC_1P8, should use synchronize mode(0x0a<2> 1-synchronize mode ,
-									//0-asynchronize mode) to avoid the current abnormal in A0.
+
+	if((0xff == read_reg8(0x7d)) && (DCDC_LDO_MODE == power_mode)){
+		analog_write(0x0a, power_mode | BIT(2));    //poweron_dft: 0x40,  <1:0> 00-LDO, 01- LDO-DC, 11- DCDC
+	}												//when use the LDO_1P4_DCDC_1P8, should use synchronize mode(0x0a<2> 1-synchronize mode ,
+	else{											//0-asynchronize mode) to avoid the current abnormal in A0.
+		analog_write(0x0a, power_mode);
+	}
+
+	if(LDO_MODE != power_mode)
+	{
+		analog_write(0x0c, 0xa4);		//poweron_dft: 0xc4 1.4v voltage turn dowm 100mv
+	}
 
 	analog_write(0x27, 0x00);   //poweron_dft: 0x00 PA gpio wakeup disable
 	analog_write(0x28, 0x00);   //poweron_dft: 0x00 PB gpio wakeup disable
@@ -723,6 +777,8 @@ void cpu_wakeup_init(void)    //must on ramcode
 	while( BIT(7) != (analog_read(0x88) & (BIT(7)))); //0x88<7>: xo_ready_ana
 #endif
 
+	pm_wait_bbpll_done();
+	
 	if(analog_read(REG_DEEP_BACK_FLAG) == DATA_STORE_FLAG){
 		if(!(analog_read(0x7f) & 0x01)){
 			pmParam.back_mode = BACK_FROM_DEEP_RETENTION;
@@ -1246,6 +1302,11 @@ int pm_long_sleep_wakeup (SleepMode_TypeDef sleep_mode, SleepWakeupSrc_TypeDef w
 	unsigned int   tl_tick_cur;
 	unsigned int   tl_tick_32k_cur;
 	int timer_wakeup_enable = (wakeup_src & PM_WAKEUP_TIMER);
+#if(RAM_CRC_EN)
+	unsigned char ana_00 = analog_read(0x00);
+	unsigned char ram_crc_en = 0;
+	unsigned short ram_crc_tick = 0;
+#endif
 	//NOTICE:We think that the external 32k crystal clock is very accurate, does not need to read 2 bytes through reg_750
 	//the conversion offset is less than 64ppm
 #if (!CLK_32K_XTAL_EN)
@@ -1268,6 +1329,16 @@ int pm_long_sleep_wakeup (SleepMode_TypeDef sleep_mode, SleepWakeupSrc_TypeDef w
 			return st;
 		}
 	}
+#if(RAM_CRC_EN)
+		if(wakeup_src == PM_WAKEUP_TIMER){
+			if(((sleep_mode == DEEPSLEEP_MODE_RET_SRAM_LOW16K)&&(span > 2500*16*1000)) \
+					|| ((sleep_mode == DEEPSLEEP_MODE_RET_SRAM_LOW32K)&&(span > 6*16*1000*1000))){
+				analog_write(0x00, ana_00 | BIT(7));  	//poweron_dft: 0x18,  <7> MSB of ret_ldo_trim,  0: 0.8-1.15V; 1: 0.6-0.95V
+				analog_write(0x02, 0xa0);  	//poweron_dft: 0xa4,  <2:0> ret_ldo_trim,  set 0x00: 0.6V in A1, 0.8V in A0
+				ram_crc_en = 1;
+			}
+		}
+#endif
 
 
 	////////// disable IRQ //////////////////////////////////////////
@@ -1308,8 +1379,11 @@ int pm_long_sleep_wakeup (SleepMode_TypeDef sleep_mode, SleepWakeupSrc_TypeDef w
     unsigned int M = 0;
     unsigned int m = 0;
 	unsigned int EARLYWAKEUP_TIME_US = EARLYWAKEUP_TIME_US_SUSPEND;
-	if(sleep_mode){
+	if(sleep_mode == DEEPSLEEP_MODE){
 		EARLYWAKEUP_TIME_US = EARLYWAKEUP_TIME_US_DEEP;
+	}
+	else if(sleep_mode & DEEPSLEEP_RETENTION_FLAG){
+		EARLYWAKEUP_TIME_US = EARLYWAKEUP_TIME_US_DEEP_RET;
 	}
 	TmpVal[0].Low32 = SleepDurationUs - (((unsigned int)(tl_tick_cur - t0)) / sys_tick_per_us) - EARLYWAKEUP_TIME_US;
 	TN_UINT64Multiply(&TmpVal[0], sys_tick_per_us, &TmpVal[1]);
@@ -1335,7 +1409,20 @@ int pm_long_sleep_wakeup (SleepMode_TypeDef sleep_mode, SleepWakeupSrc_TypeDef w
 
 	if(sleep_mode & 0x7f) { //deepsleep with retention
 		bit567_ana2c = 0x40;  //ana_2c<7:5>: 010
-		tl_multi_addr = read_reg8(0x63e);
+		tl_multi_addr_L = read_reg8(0x63e);
+		if(0 == tl_multi_addr_L)
+		{
+			tl_multi_addr_H = 0;
+		}else if(0xf9 == tl_multi_addr_L)
+		{
+			tl_multi_addr_H = 0x0;
+		}else if(0xfa == tl_multi_addr_L)
+		{
+			tl_multi_addr_H = 0x01;
+		}else if(0xfc == tl_multi_addr_L)
+		{
+			tl_multi_addr_H = 0x03;
+		}
 	}
 	else if(sleep_mode){  //deepsleep no retention
 		bit567_ana2c = 0xc0;  //ana_2c<7:5>: 110
@@ -1355,7 +1442,23 @@ int pm_long_sleep_wakeup (SleepMode_TypeDef sleep_mode, SleepWakeupSrc_TypeDef w
 	analog_write(0x06, (analog_read(0x06) & 0x3f) | bit567_ana2c);
 
 	if(sleep_mode & 0x7f ) {
+#if(RAM_CRC_EN)
+		if(ram_crc_en){
+			if((sleep_mode == DEEPSLEEP_MODE_RET_SRAM_LOW16K)){//16k retention,check 16k sram crc
+				write_reg8(0x40008,0x0f);					  // span > 2.5s or pad wakeup
+				ram_crc_tick = (200 * 16);//170*16
+			}
+			else if((sleep_mode == DEEPSLEEP_MODE_RET_SRAM_LOW32K)){//32k retention,check 32k sram crc
+				write_reg8(0x40008,0x1f);						   //span > 6s or pad wakeup
+				ram_crc_tick = (350 * 16);
+			}
+			write_reg8(0x6f, 0x10);
+			analog_write(0x7f, 0x02);
+			m -= ram_crc_tick;
+		}
+#else
 		analog_write(0x7f, 0x00);
+#endif
 	}
 	else{
 		write_reg8(0x602,0x08);
@@ -1365,7 +1468,11 @@ int pm_long_sleep_wakeup (SleepMode_TypeDef sleep_mode, SleepWakeupSrc_TypeDef w
 
 
 	//set DCDC delay duration
-	analog_write (0x1f, 0xff - PM_DCDC_DELAY_CYCLE);
+	if(sleep_mode == DEEPSLEEP_MODE){
+		analog_write (0x1f, 0xff - PM_DCDC_DELAY_CYCLE - SOFT_START_DELAY);//(0xff - n):  if timer wake up : ((n+1)*2) 32k cycle; else pad wake up: (((n+1)*2-1) ~ (n+1)*2 )32k cycle
+	}else{
+		analog_write (0x1f, 0xff - PM_DCDC_DELAY_CYCLE);//(0xff - n): if timer wake up : ((n+1)*2) 32k cycle; else pad wake up: (((n+1)*2-1) ~ (n+1)*2 )32k cycle
+	}
 
 	cpu_set_32k_tick(tl_tick_32k_cur + m);
 
@@ -1378,8 +1485,10 @@ int pm_long_sleep_wakeup (SleepMode_TypeDef sleep_mode, SleepWakeupSrc_TypeDef w
 	}
 
 	/* long press pad to wake up from deep */
-	if(sleep_mode == DEEPSLEEP_MODE){
-		write_reg8 (0x6f, 0x20);  //reboot
+	if(0xfe == read_reg8(0x7d)){
+		if(sleep_mode == DEEPSLEEP_MODE){ //
+		   write_reg8 (0x6f, 0x20);  //reboot
+		}
 	}
 	else if(sleep_mode&0x7f)
 	{

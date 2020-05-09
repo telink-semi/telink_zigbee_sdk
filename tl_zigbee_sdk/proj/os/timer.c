@@ -70,7 +70,7 @@ void hwTmr_init(u8 tmrIdx, u8 mode){
 		}else{
 
 #if defined (MCU_CORE_8278)
-			reg_system_ctrl &= ~(u8)FLD_SYSTEM_TIMER_AUTO_EN;
+			reg_system_irq_mask &= (~BIT(2));   						//disable system timer irq
 #else
 			reg_system_tick_mode &= ~(u8)FLD_SYSTEM_TICK_IRQ_EN;
 #endif
@@ -90,7 +90,7 @@ void hwTmr_cancel(u8 tmrIdx){
 			TIMER_STOP(tmrIdx);
 		}else{
 #if defined (MCU_CORE_8278)
-			reg_system_ctrl &= ~(u8)FLD_SYSTEM_TIMER_AUTO_EN;
+			reg_system_irq_mask &= (~BIT(2));   						//disable system timer irq
 #else
 			reg_system_tick_mode &= ~(u8)FLD_SYSTEM_TICK_IRQ_EN;
 #endif
@@ -145,7 +145,7 @@ hw_timer_sts_t hwTmr_setAbs(u8 tmrIdx, ext_clk_t* absTimer, timerCb_t func, void
 			TIMER_START(tmrIdx);
     	}else{
 #if defined (MCU_CORE_8278)
-    		reg_system_ctrl |= FLD_SYSTEM_TIMER_AUTO_EN;
+    		reg_system_irq_mask |= BIT(2);   										//enable system timer irq
 #else
     		reg_system_tick_mode |= FLD_SYSTEM_TICK_IRQ_EN;
 #endif
@@ -186,7 +186,7 @@ void timer_irq_handler(u8 tmrIdx)
     }else{
     	reg_system_tick_irq ^= BIT(31);
 #if defined (MCU_CORE_8278)
-    	reg_system_ctrl &= ~(u8)FLD_SYSTEM_TIMER_AUTO_EN;
+    	reg_system_irq_mask &= (~BIT(2));   						//disable system timer irq
 #else
     	reg_system_tick_mode &= ~(u8)FLD_SYSTEM_TICK_IRQ_EN;
 #endif
@@ -211,7 +211,7 @@ void timer_irq_handler(u8 tmrIdx)
 					reg_system_tick_irq = clock_time() + (pTimer->expireInfo.high ? TIMER_OVERFLOW_VALUE : pTimer->expireInfo.low);
 					reg_irq_mask |= FLD_IRQ_SYSTEM_TIMER;
 #if defined (MCU_CORE_8278)
-					reg_system_ctrl |= FLD_SYSTEM_TIMER_AUTO_EN;
+					reg_system_irq_mask |= BIT(2);   										//enable system timer irq
 #else
 					reg_system_tick_mode |= FLD_SYSTEM_TICK_IRQ_EN;
 #endif
@@ -227,7 +227,7 @@ void timer_irq_handler(u8 tmrIdx)
 					reg_system_tick_irq = clock_time() + (pTimer->expireInfo.high ? TIMER_OVERFLOW_VALUE : pTimer->expireInfo.low);
 					reg_irq_mask |= FLD_IRQ_SYSTEM_TIMER;
 #if defined (MCU_CORE_8278)
-					reg_system_ctrl |= FLD_SYSTEM_TIMER_AUTO_EN;
+					reg_system_irq_mask |= BIT(2);   										//enable system timer irq
 #else
 					reg_system_tick_mode |= FLD_SYSTEM_TICK_IRQ_EN;
 #endif
@@ -256,7 +256,7 @@ void timer_irq_handler(u8 tmrIdx)
         }else{
         	reg_irq_mask |= FLD_IRQ_SYSTEM_TIMER;
 #if defined (MCU_CORE_8278)
-					reg_system_ctrl |= FLD_SYSTEM_TIMER_AUTO_EN;
+					reg_system_irq_mask |= BIT(2);   										//enable system timer irq
 #else
 					reg_system_tick_mode |= FLD_SYSTEM_TICK_IRQ_EN;
 #endif

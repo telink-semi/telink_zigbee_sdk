@@ -189,22 +189,32 @@ typedef struct{
 
 
 typedef struct{
-	/*Integer value representing the time duration (in OctetDurations) between each NWK discovery attempt.
-	 It is employed within ZDO to provide a time duration between the NLME-NETWORKDISCOVERY.request attempts*/
-	u32		config_nwk_indirectPollRate;//in ms
+	/* Integer value representing the time duration (in OctetDurations) between each NWK discovery attempt.
+	 * It is employed within ZDO to provide a time duration between the NLME-NETWORKDISCOVERY.request attempts.
+	 */
+	u32	config_nwk_indirectPollRate;//In ms
 
-	u16		config_nwk_time_btwn_scans;//in ms, default value, 100ms on 2.4GHz
-	u16		config_rejoin_interval;//The units of this attribute are seconds and the default value is ZDO_REJOIN_INTERVAL.
-	/* The units of this attribute are seconds and the default value is ZDO_MAX_REJOIN_INTERVAL. If set ZERO, means it will not do rejoin. */
-	u16		config_max_rejoin_interval;
+	u16	config_nwk_time_btwn_scans;//In ms, default value, 100ms on 2.4GHz
 
-	/*The :Config_NWK_Scan_Attempts is employed within ZDO to call the NLME-NETWORKDISCOVERY.
-	 request primitive the indicated number of times (for routers and end devices).Integer value
-	 representing the number of scan attempts to make before the NWK layer decides which ZigBee
-	 coordinator or router to associate with*/
-	u8		config_nwk_scan_attempts;//This attribute has default value of 5 and valid values between 1 and 255.
-	u8		config_permit_join_duration; //< Permit join duration, 0x00 - disable join, 0xff - join is allowed forever
-	u8		config_parent_link_retry_threshold;//number of retry parent syns before judged as connection lost and the default value is ZDO_MAX_PARENT_THRESHOLD_RETRY
+	u16	config_rejoin_interval;//The units of this attribute are seconds and the default value is ZDO_REJOIN_INTERVAL.
+	u16	config_max_rejoin_interval;/* The units of this attribute are seconds and the default value is ZDO_MAX_REJOIN_INTERVAL. */
+
+	/* Addition rejoin backoff for devices.
+	 * Either config_rejoin_backoff_time, config_max_rejoin_backoff_time or config_rejoin_times is ZERO,
+	 * it will not start a rejoin backoff timer.
+	 */
+	u16	config_rejoin_backoff_time;
+	u16	config_max_rejoin_backoff_time;
+	u8	config_rejoin_times;//Rejoin config_rejoin_times times every config_rejoin_interval seconds.
+
+	/* The :Config_NWK_Scan_Attempts is employed within ZDO to call the NLME-NETWORKDISCOVERY.
+	 * request primitive the indicated number of times (for routers and end devices).Integer value
+	 * representing the number of scan attempts to make before the NWK layer decides which ZigBee
+	 * coordinator or router to associate with.
+	 */
+	u8	config_nwk_scan_attempts;//This attribute has default value of 5 and valid values between 1 and 255.
+	u8	config_permit_join_duration;//Permit join duration, 0x00 - disable join, 0xff - join is allowed forever
+	u8	config_parent_link_retry_threshold;//Number of retry parent syns before judged as connection lost and the default value is ZDO_MAX_PARENT_THRESHOLD_RETRY
 }zdo_attrCfg_t;
 
 
@@ -932,13 +942,7 @@ void zdo_send_req(zdo_zdp_req_t *req);
 
 zdo_status_t zdo_nwk_rejoin_req(rejoinNwk_method_t method, u32 chm);
 
-
 void zdo_devAnnce(u16 nwkAddr, addrExt_t ieeeAddr, u8 capabilities);
-
-void zdo_af_set_link_retry_threshold(u8 threshold);
-void zdo_af_set_rejoin_interval(u16 interval);
-void zdo_af_set_max_rejoin_interval(u16 interval);
-void zdo_af_set_scan_attempts(u8 attempts);
 
 void zdo_nlmeForgetDev(addrExt_t nodeIeeeAddr, bool rejoin);
 #endif

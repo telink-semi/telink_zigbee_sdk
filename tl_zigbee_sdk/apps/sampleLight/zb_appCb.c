@@ -63,7 +63,6 @@ ota_callBack_t sampleLight_otaCb =
 };
 #endif
 
-volatile u8 T_zbdemoBdbInfo[6] = {0};
 
 /**********************************************************************
  * LOCAL VARIABLES
@@ -87,20 +86,18 @@ s32 sampleLight_bdbFindAndBindStart(void *arg){
 #endif
 
 /*********************************************************************
-  * @fn      zbdemo_bdbInitCb
-  *
-  * @brief   application callback for bdb initiation
-  *
-  * @param   status - the status of bdb init BDB_INIT_STATUS_SUCCESS or BDB_INIT_STATUS_FAILURE
-  *
-  * @param   joinedNetwork  - 1: node is on a network, 0: node isn't on a network
-  *
-  * @return  None
-  */
+ * @fn      zbdemo_bdbInitCb
+ *
+ * @brief   application callback for bdb initiation
+ *
+ * @param   status - the status of bdb init BDB_INIT_STATUS_SUCCESS or BDB_INIT_STATUS_FAILURE
+ *
+ * @param   joinedNetwork  - 1: node is on a network, 0: node isn't on a network
+ *
+ * @return  None
+ */
 void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
 	if(status == BDB_INIT_STATUS_SUCCESS){
-		T_zbdemoBdbInfo[0]++;
-
 		/*
 		 * start bdb commissioning
 		 * */
@@ -119,26 +116,23 @@ void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
 #endif
 		}
 	}else{
-		T_zbdemoBdbInfo[1]++;
+
 	}
 }
 
 /*********************************************************************
-  * @fn      zbdemo_bdbCommissioningCb
-  *
-  * @brief   application callback for bdb commissioning
-  *
-  * @param   status - the status of bdb commissioning
-  *
-  * @param   arg
-  *
-  * @return  None
-  */
+ * @fn      zbdemo_bdbCommissioningCb
+ *
+ * @brief   application callback for bdb commissioning
+ *
+ * @param   status - the status of bdb commissioning
+ *
+ * @param   arg
+ *
+ * @return  None
+ */
 void zbdemo_bdbCommissioningCb(u8 status, void *arg){
-	T_zbdemoBdbInfo[2]++;
 	if(status == BDB_COMMISSION_STA_SUCCESS){
-	    T_zbdemoBdbInfo[3]++;
-
 #if FIND_AND_BIND_SUPPORT
 	    if(!gLightCtx.bdbFindBindFlg){
 	    	gLightCtx.bdbFindBindFlg = TRUE;
@@ -160,6 +154,20 @@ void zbdemo_bdbCommissioningCb(u8 status, void *arg){
 	}else if(status == BDB_COMMISSION_STA_NOT_AA_CAPABLE){
 
 	}else if((status == BDB_COMMISSION_STA_NO_NETWORK)||(status == BDB_COMMISSION_STA_TCLK_EX_FAILURE)){
+		if(gLightCtx.installCodeAvailable){
+			/* Switch the two kinds of link keys (default TCLK or install code derived key) to attempt join network. */
+			if(gLightCtx.useInstallCodeFlg){
+				g_bdbCommissionSetting.linkKey.tcLinkKey.keyType = gLightCtx.linkKey.tcLinkKey.keyType;
+				g_bdbCommissionSetting.linkKey.tcLinkKey.key = gLightCtx.linkKey.tcLinkKey.key;
+			}else{
+				g_bdbCommissionSetting.linkKey.tcLinkKey.keyType = SS_GLOBAL_LINK_KEY;
+				g_bdbCommissionSetting.linkKey.tcLinkKey.key = (u8 *)tcLinkKeyCentralDefault;
+			}
+
+			bdb_linkKeyCfg(&g_bdbCommissionSetting, TRUE);
+			gLightCtx.useInstallCodeFlg = !gLightCtx.useInstallCodeFlg;
+		}
+
 		u16 jitter = 0;
 		do{
 			jitter = zb_random();
@@ -178,14 +186,12 @@ void zbdemo_bdbCommissioningCb(u8 status, void *arg){
 
 	}else if(status == BDB_COMMISSION_STA_NOT_PERMITTED){
 
-//	}else if(status == BDB_COMMISSION_STA_TCLK_EX_FAILURE){
-
 	}else if(status == BDB_COMMISSION_STA_FORMATION_DONE){
-		T_zbdemoBdbInfo[4]++;
-		#if ZBHCI_EN
-		#else
-			tl_zbMacChannelSet(DEFAULT_CHANNEL);  //set default channel
-		#endif
+#if ZBHCI_EN
+
+#else
+		tl_zbMacChannelSet(DEFAULT_CHANNEL);  //set default channel
+#endif
 	}
 }
 
@@ -225,14 +231,14 @@ s32 sampleLight_softReset(void *arg){
 }
 
 /*********************************************************************
-  * @fn      sampleLight_leaveCnfHandler
-  *
-  * @brief   Handler for ZDO Leave Confirm message.
-  *
-  * @param   pRsp - parameter of leave confirm
-  *
-  * @return  None
-  */
+ * @fn      sampleLight_leaveCnfHandler
+ *
+ * @brief   Handler for ZDO Leave Confirm message.
+ *
+ * @param   pRsp - parameter of leave confirm
+ *
+ * @return  None
+ */
 void sampleLight_leaveCnfHandler(void *p)
 {
 	nlme_leave_cnf_t *pCnf = (nlme_leave_cnf_t *)p;
@@ -246,15 +252,14 @@ void sampleLight_leaveCnfHandler(void *p)
 }
 
 /*********************************************************************
-  * @fn      sampleLight_leaveIndHandler
-  *
-  * @brief   Handler for ZDO leave indication message.
-  *
-  * @param   pInd - parameter of leave indication
-  *
-  * @return  None
-  */
-
+ * @fn      sampleLight_leaveIndHandler
+ *
+ * @brief   Handler for ZDO leave indication message.
+ *
+ * @param   pInd - parameter of leave indication
+ *
+ * @return  None
+ */
 void sampleLight_leaveIndHandler(void *p)
 {
 //	nlmeLeaveInd_t *pInd = (nlmeLeaveInd_t *)p;

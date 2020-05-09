@@ -85,20 +85,22 @@ extern "C" {
 #endif
 
 
-#define 	MODULE_BUFM_ENABLE        1
-#define 	MODULE_PRIQ_ENABLE        1
-#define 	EV_POST_TASK_ENABLE       1
+#define MODULE_BUFM_ENABLE        	1
+#define MODULE_PRIQ_ENABLE        	1
+#define EV_POST_TASK_ENABLE       	1
 
 /* interrupt */
-#define IRQ_TIMER1_ENABLE         1
-#define	IRQ_GPIO_ENABLE			  0
+#define IRQ_TIMER1_ENABLE         	1
+#define	IRQ_GPIO_ENABLE			  	0
 
 /* module selection */
-#define MODULE_WATCHDOG_ENABLE	0
-#define	MODULE_UART_ENABLE		1
+#define MODULE_WATCHDOG_ENABLE		0
+#if ZBHCI_UART
+#define	MODULE_UART_ENABLE			1
+#endif
 
 /* Rf mode: 250K */
-#define	RF_MODE_250K		1
+#define	RF_MODE_250K				1
 
 
 /**

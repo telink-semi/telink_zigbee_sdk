@@ -403,6 +403,7 @@ typedef struct
 	u16		aliasSrcAddr;
 
 	u8		aliasSeqNum;
+	bool	unicastSkipRouting;
 }nlde_data_req_t;
 
 

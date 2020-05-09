@@ -61,14 +61,10 @@ void app_key_handler(void);
 /**
  * @brief      load pre-install key from NV
  *
- * @param[in]   bdbLinkKey poniter to bdb_commissionSetting_t
- *
- * @param[in]   appLinkKey restored in application layer for global distribute link key ,
- * 				touch link key,  global tc link key and unique tc link key for ZR/ZC
- *
+ * @param[out]   appLinkKey
  *
  * @return      None
  */
-void zb_pre_install_code_load(bdb_linkKey_info_t *bdbLinkKey, app_linkkey_info_t *appLinkKey);
+void zb_pre_install_code_load(app_linkkey_info_t *appLinkKey);
 
 #endif	/* _APP_UI_H_ */

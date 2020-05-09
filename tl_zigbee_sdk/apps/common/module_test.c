@@ -645,11 +645,12 @@ void moduleTest_spi(void)
 #define TEST_SW1		GPIO_PD2
 #define TEST_SW2		GPIO_PC5
 
-#else //8278
-#define TEST_LED1		GPIO_PD3
-#define TEST_LED2		GPIO_PD5
-#define TEST_SW1		GPIO_PB2
-#define TEST_SW2		GPIO_PB3
+#else //8278 dongle
+#define TEST_LED1		GPIO_PA2
+#define TEST_LED2		GPIO_PA3
+#define TEST_SW1		GPIO_PD6
+#define TEST_SW2		GPIO_PD5
+#define TEST_GPIO		TEST_SW1
 #endif
 #endif
 

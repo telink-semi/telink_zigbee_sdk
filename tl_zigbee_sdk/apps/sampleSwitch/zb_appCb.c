@@ -71,19 +71,9 @@ ota_callBack_t sampleSwitch_otaCb =
 #endif
 
 
-volatile u8 T_zbdemoBdbInfo[6] = {0};
-
-
-
-
 /**********************************************************************
  * FUNCTIONS
  */
-void sampleSwitch_bdbRejoinStart(void *arg){
-	zb_rejoin_mode_set(REJOIN_INSECURITY);
-	bdb_init((af_simple_descriptor_t *)&sampleSwitch_simpleDesc, &g_bdbCommissionSetting, &g_zbDemoBdbCb,1);
-}
-
 #if FIND_AND_BIND_SUPPORT
 s32 sampleSwitch_bdbFindAndBindStart(void *arg){
 	BDB_ATTR_GROUP_ID_SET(0x1234);//only for initiator
@@ -95,29 +85,26 @@ s32 sampleSwitch_bdbFindAndBindStart(void *arg){
 #endif
 
 /*********************************************************************
-  * @fn      zbdemo_bdbInitCb
-  *
-  * @brief   application callback for bdb initiation
-  *
-  * @param   status - the status of bdb init BDB_INIT_STATUS_SUCCESS or BDB_INIT_STATUS_FAILURE
-  *
-  * @param   joinedNetwork  - 1: node is on a network, 0: node isn't on a network
-  *
-  * @return  None
-  */
+ * @fn      zbdemo_bdbInitCb
+ *
+ * @brief   application callback for bdb initiation
+ *
+ * @param   status - the status of bdb init BDB_INIT_STATUS_SUCCESS or BDB_INIT_STATUS_FAILURE
+ *
+ * @param   joinedNetwork  - 1: node is on a network, 0: node isn't on a network
+ *
+ * @return  None
+ */
 void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
 	if(status == BDB_INIT_STATUS_SUCCESS){
-		T_zbdemoBdbInfo[0]++;
-
 		/*
 		 * for non-factory-new device:
 		 * 		load zcl data from NV, start poll rate, start ota query, bdb_networkSteerStart
 		 *
 		 * for factory-new device:
-		 * 		if ZBHCI_EN == 1, do noting until receiving a steer command
-		 * 		if ZBHCI_EN == 0, steer a network or initiate touch-link
+		 * 		steer a network or initiate touch-link
 		 *
-		 * */
+		 */
 		if(joinedNetwork){
 			zb_setPollRate(POLL_RATE * 3);
 
@@ -128,45 +115,31 @@ void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
 #ifdef ZCL_POLL_CTRL
 			sampleSwitch_zclCheckInStart();
 #endif
-		}
-
-#if	(!ZBHCI_EN)
-		/*
-		 * start bdb commissioning
-		 * */
-		if(!joinedNetwork){
+		}else{
 #if 1
 			bdb_networkSteerStart();
 #else
 			bdb_networkTouchLinkStart(BDB_COMMISSIONING_ROLE_INITIATOR);
 #endif
 		}
-#endif
 	}else{
-		T_zbdemoBdbInfo[1]++;
-		if(joinedNetwork){
-			T_zbdemoBdbInfo[2]++;
-			//TL_SCHEDULE_TASK(sampleSwitch_bdbRejoinStart, NULL);
-		}
+
 	}
 }
 
 /*********************************************************************
-  * @fn      zbdemo_bdbCommissioningCb
-  *
-  * @brief   application callback for bdb commissioning
-  *
-  * @param   status - the status of bdb commissioning
-  *
-  * @param   arg
-  *
-  * @return  None
-  */
+ * @fn      zbdemo_bdbCommissioningCb
+ *
+ * @brief   application callback for bdb commissioning
+ *
+ * @param   status - the status of bdb commissioning
+ *
+ * @param   arg
+ *
+ * @return  None
+ */
 void zbdemo_bdbCommissioningCb(u8 status, void *arg){
-	T_zbdemoBdbInfo[3]++;
 	if(status == BDB_COMMISSION_STA_SUCCESS){
-		T_zbdemoBdbInfo[4]++;
-
 		zb_setPollRate(POLL_RATE * 3);
 
 #ifdef ZCL_POLL_CTRL
@@ -206,6 +179,15 @@ void zbdemo_bdbCommissioningCb(u8 status, void *arg){
 	}else if(status == BDB_COMMISSION_STA_TCLK_EX_FAILURE){
 
 	}else if(status == BDB_COMMISSION_STA_PARENT_LOST){
+		/*
+		 * Becoming an orphan node now.
+		 * Attempt to join network by invoking rejoin request,
+		 * internal will start an rejoin backoff timer
+		 * based on 'config_rejoin_backoff_time' once rejoin failed.
+		 */
+		//zb_rejoin_mode_set(REJOIN_INSECURITY);
+		zb_rejoinReq(NLME_REJOIN_METHOD_REJOIN, zb_apsChannelMaskGet());
+	}else if(status == BDB_COMMISSION_STA_REJOIN_FAILURE){
 
 	}
 }
@@ -219,14 +201,14 @@ void zbdemo_bdbIdentifyCb(u8 endpoint, u16 srcAddr, u16 identifyTime){
 }
 
 /*********************************************************************
-  * @fn      zbdemo_bdbFindBindSuccessCb
-  *
-  * @brief   application callback for finding & binding
-  *
-  * @param   pDstInfo
-  *
-  * @return  None
-  */
+ * @fn      zbdemo_bdbFindBindSuccessCb
+ *
+ * @brief   application callback for finding & binding
+ *
+ * @param   pDstInfo
+ *
+ * @return  None
+ */
 void zbdemo_bdbFindBindSuccessCb(findBindDst_t *pDstInfo){
 #if FIND_AND_BIND_SUPPORT
 	epInfo_t dstEpInfo;
@@ -266,14 +248,14 @@ void sampleSwitch_otaProcessMsgHandler(u8 evt, u8 status)
 #endif
 
 /*********************************************************************
-  * @fn      sampleSwitch_leaveCnfHandler
-  *
-  * @brief   Handler for ZDO Leave Confirm message.
-  *
-  * @param   pRsp - parameter of leave confirm
-  *
-  * @return  None
-  */
+ * @fn      sampleSwitch_leaveCnfHandler
+ *
+ * @brief   Handler for ZDO Leave Confirm message.
+ *
+ * @param   pRsp - parameter of leave confirm
+ *
+ * @return  None
+ */
 void sampleSwitch_leaveCnfHandler(void *p)
 {
 	nlmeLeaveConf_t *pCnf = (nlmeLeaveConf_t *)p;
@@ -284,15 +266,14 @@ void sampleSwitch_leaveCnfHandler(void *p)
 }
 
 /*********************************************************************
-  * @fn      sampleSwitch_leaveIndHandler
-  *
-  * @brief   Handler for ZDO leave indication message.
-  *
-  * @param   pInd - parameter of leave indication
-  *
-  * @return  None
-  */
-
+ * @fn      sampleSwitch_leaveIndHandler
+ *
+ * @brief   Handler for ZDO leave indication message.
+ *
+ * @param   pInd - parameter of leave indication
+ *
+ * @return  None
+ */
 void sampleSwitch_leaveIndHandler(void *p)
 {
 	//nlmeLeaveInd_t *pInd = (nlmeLeaveInd_t *)p;

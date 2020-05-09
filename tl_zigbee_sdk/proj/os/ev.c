@@ -24,10 +24,27 @@
 #include "ev.h"
 #include "zb_task_queue.h"
 
+#define ZB_TIMER_EV_DBG_EN  		0
+
 #define EV_TIMER_SAFE_MARGIN(v)		(EV_TIMER_SAFE_MARGIN_US*v)
 
 static ev_loop_ctrl_t ev_loop, *loop = &ev_loop;
 sys_exception_cb_t g_sysExceptCallbak = NULL;
+
+#if ZB_TIMER_EV_DBG_EN
+typedef struct{
+	ev_timer_callback_t  cb;
+	u8 *p;
+}zb_timer_task_dbg_t;
+zb_timer_task_dbg_t  g_zbTimerTaskDbg[256];
+u32 g_zbTimerTaskDbgCnt = 0;
+#endif
+
+ev_time_event_pool_t g_timerEventPool;   //timer event pool
+
+static void ev_timerTaskQCheck(ev_time_event_t *e);
+
+
 
 void ev_on_poll(ev_poll_e e, ev_poll_callback_t cb){
     loop->poll[e].valid = 1;
@@ -43,9 +60,8 @@ void ev_disable_poll(ev_poll_e e){
 }
 
 /* Process poll */
-static void ev_poll(void) {
-    int i;
-    for(i = 0; i < EV_POLL_MAX; ++i){
+static void ev_poll(void){
+    for(u8 i = 0; i < EV_POLL_MAX; ++i){
         if(loop->poll[i].valid){
             loop->poll[i].cb();
         }
@@ -54,48 +70,43 @@ static void ev_poll(void) {
 
 
 static u32 inline ev_cal_timer_distant(u32 t, u32 now){
-    if((u32)(now - t) < EV_TIMER_SAFE_MARGIN(CLOCK_SYS_CLOCK_1US))
+    if((u32)(now - t) < EV_TIMER_SAFE_MARGIN(CLOCK_SYS_CLOCK_1US)){
         return 0;
-    else
+    }else{
         return (u32)(t - now);
+    }
 }
 
-static int ev_cmp_timer(ev_time_event_t *e1, ev_time_event_t *e2, u32 now){
+static s8 ev_cmp_timer(ev_time_event_t *e1, ev_time_event_t *e2, u32 now){
 	//fixed, to avoid unsigned to signed convert overflow problem
-	if(ev_cal_timer_distant(e1->t, now)<ev_cal_timer_distant(e2->t, now)){
+	if(ev_cal_timer_distant(e1->t, now) < ev_cal_timer_distant(e2->t, now)){
 		return -1;
-	}else if(ev_cal_timer_distant(e1->t, now)> ev_cal_timer_distant(e2->t, now)){
+	}else if(ev_cal_timer_distant(e1->t, now) > ev_cal_timer_distant(e2->t, now)){
 		return 1;
 	}else{
 		return 0;
 	}
 }
 
-void ev_reset_timer(ev_time_event_t *e){
+static void ev_reset_timer(ev_time_event_t *e){
     e->t = clock_time() + e->interval;    // be care of overflow
 }
 
-void ev_set_timer(ev_time_event_t *e, int t_us){
+void ev_set_timer(ev_time_event_t *e, u32 t_us){
     e->interval = t_us * CLOCK_SYS_CLOCK_1US;
     ev_reset_timer(e);
 }
 
-static int inline ev_is_timer_expired(ev_time_event_t *e, u32 now){
+static bool inline ev_is_timer_expired(ev_time_event_t *e, u32 now){
     return ((u32)(now - e->t) < EV_TIMER_SAFE_MARGIN(CLOCK_SYS_CLOCK_1US));
 }
 
-int ev_timer_expired(ev_time_event_t *e){
-    u32 now = clock_time();
-    return ev_is_timer_expired(e, now);
-}
-
-static ev_time_event_t *ev_search_nearest_timer()
-{
+static ev_time_event_t *ev_search_nearest_timer(void){
     ev_time_event_t *te = loop->timer_head;
-    ev_time_event_t *nearest = 0;
+    ev_time_event_t *nearest = NULL;
     u32 now = clock_time();
 
-    while(te) {
+    while(te){
         if(!nearest || ev_cmp_timer(te, nearest, now) < 0){
             nearest = te;
         }
@@ -104,18 +115,27 @@ static ev_time_event_t *ev_search_nearest_timer()
     return nearest;
 }
 
-u8 ev_timer_exist(const ev_time_event_t * e){
-    ev_time_event_t *te = loop->timer_head;
-    while(te){
-        if (te == e)
-            return 1;
-        te = te->next;
-    }
-    return 0;
+u32 ev_nearestInterval(void){
+	if(loop->timer_nearest){
+		return ev_cal_timer_distant(loop->timer_nearest->t, clock_time());
+	}
+	else{
+		return 0xFFFFFFFF;
+	}
 }
 
+bool ev_timer_exist(const ev_time_event_t *e){
+    ev_time_event_t *te = loop->timer_head;
+    while(te){
+        if(te == e){
+            return TRUE;
+        }
+        te = te->next;
+    }
+    return FALSE;
+}
 
-void ev_start_timer(ev_time_event_t * e){
+static void ev_start_timer(ev_time_event_t *e){
     u8 r = irq_disable();
     
     u32 now = clock_time();
@@ -123,7 +143,7 @@ void ev_start_timer(ev_time_event_t * e){
     u32 t = now + e->interval;    // becare of overflow
     
     // add to timer list
-    ev_time_event_t * out;
+    ev_time_event_t *out;
     LIST_EXIST(loop->timer_head, e, out);
     if(out){
         out->t = t;
@@ -146,21 +166,21 @@ void ev_start_timer(ev_time_event_t * e){
 	loop->timer_nearest = ev_search_nearest_timer();//need to search nearest timer in case of timer event stuck
 }
 
-void ev_on_timer(ev_time_event_t * e, u32 t_us){
-	if ( e == NULL ) {
+void ev_on_timer(ev_time_event_t *e, u32 t_us){
+	if(e == NULL){
 		ZB_EXCEPTION_POST(SYS_EXCEPTTION_COMMON_TIMER_EVEVT);
 	}
     e->interval = t_us * CLOCK_SYS_CLOCK_1US;
     ev_start_timer(e);
 }
 
-void ev_unon_timer(ev_time_event_t * e){
-	if ( e == NULL ) {
+void ev_unon_timer(ev_time_event_t *e){
+	if(e == NULL) {
 		ZB_EXCEPTION_POST(SYS_EXCEPTTION_COMMON_TIMER_EVEVT);
 	}
 	u8 r = irq_disable();
 
-	tl_zbTimerTaskChkAndDec(e);
+	ev_timerTaskQCheck(e);
 
     LIST_DELETE(loop->timer_head, e);
     loop->timer_nearest = ev_search_nearest_timer();
@@ -168,33 +188,17 @@ void ev_unon_timer(ev_time_event_t * e){
 	irq_restore(r);
 }
 
-
-#define ZB_TIMER_EV_DBG_EN  0
-#if ZB_TIMER_EV_DBG_EN
-typedef struct{
-	ev_timer_callback_t  cb;
-	u8 *p;
-}zb_timer_task_dbg_t;
-zb_timer_task_dbg_t  g_zbTimerTaskDbg[256];
-u32 g_zbTimerTaskDbgCnt = 0;
-#endif
-
 /* Process time events */
-static void ev_process_timer(){
-
+static void ev_process_timer(void){
     u32 now = clock_time();
-    if(!loop->timer_nearest || !ev_is_timer_expired(loop->timer_nearest, now))
+    if(!loop->timer_nearest || !ev_is_timer_expired(loop->timer_nearest, now)){
         return;
-    
+    }
     ev_time_event_t *te = loop->timer_head;
     ev_time_event_t *prev_head = te;
-    while(te){			            
-        if(ev_is_timer_expired(te, now)){            
-            int t;
-#ifndef WIN32
-			//assert(te->cb > 0x100 && te->cb < 0x20000);
-#endif
-			t = te->cb(te->data);
+    while(te){
+        if(ev_is_timer_expired(te, now)){
+			s32 t = te->cb(te->data);
 #if ZB_TIMER_EV_DBG_EN
 			g_zbTimerTaskDbg[g_zbTimerTaskDbgCnt&0xff].cb = te->cb;
 			g_zbTimerTaskDbg[g_zbTimerTaskDbgCnt&0xff].p = te->data;
@@ -221,29 +225,91 @@ static void ev_process_timer(){
     }
     // recalculate the nearest timer
     loop->timer_nearest = ev_search_nearest_timer();
-    
 }
 
 
-int is_timer_expired(ev_time_event_t *e)
-{
-	u8 r = irq_disable();
-    ev_time_event_t * out;
-    LIST_EXIST(loop->timer_head, e, out);
-	irq_restore(r);
-    if (out)
-    {
-        return FALSE;
-    }
-    return TRUE;
-}
 
-u32 ev_nearestInterval(void){
-	if(loop->timer_nearest){
-		return ev_cal_timer_distant(loop->timer_nearest->t,clock_time());
+
+volatile u32 T_DBG_zbTimerTaskPostCb = 0;
+volatile u32 T_DBG_zbTimerTaskPostArg = 0;
+ev_time_event_t *ev_timerTaskPost(ev_timer_callback_t func, void *arg, u32 t_us){
+	ev_time_event_t *te = NULL;
+
+	if(t_us == 0){
+		return te;
 	}
-	else
-		return 0xFFFFFFFF;
+
+	u8 r = irq_disable();
+
+	if(g_timerEventPool.used_num < TIMER_EVENT_SIZE){
+		for(s32 i = 0; i < TIMER_EVENT_SIZE; i++){
+			if(g_timerEventPool.evt[i].used == 0){
+				g_timerEventPool.evt[i].used = 1;
+				te = &g_timerEventPool.evt[i];
+				g_timerEventPool.used_num++;
+				break;
+			}
+		}
+	}
+
+	if(te){
+		te->cb = func;
+		te->data = arg;
+		te->resv = 0x5a;
+		ev_on_timer(te, t_us);
+
+		irq_restore(r);
+		return te;
+	}
+
+	T_DBG_zbTimerTaskPostCb = (u32)func;
+	T_DBG_zbTimerTaskPostArg = (u32)arg;
+	ZB_EXCEPTION_POST(SYS_EXCEPTTION_ZB_TIMER_TASK);
+
+	irq_restore(r);
+	return te;
+}
+
+u8 ev_timerTaskCancel(ev_time_event_t **te){
+	u8 ret = NO_TIMER_AVAIL;
+	ev_time_event_t *ev = *te;
+
+	if(ev == NULL){
+		return ret;
+	}
+
+	if(ev->used){
+		ev_unon_timer(ev);
+		*te = NULL;
+		return SUCCESS;
+	}
+
+	return ret;
+}
+
+static void ev_timerTaskQCheck(ev_time_event_t *e){
+	if((((u32)e) >= (u32)&(g_timerEventPool.evt[0]) && (((u32)e) <= (u32)&(g_timerEventPool.evt[TIMER_EVENT_SIZE-1]))) && e->used){
+		e->used = 0;
+		g_timerEventPool.used_num--;
+	}
+}
+
+bool ev_timerTaskIdle(void){
+	if(g_timerEventPool.used_num == 0){
+		return TRUE;
+	}
+	return FALSE;
+}
+
+bool ev_timerTaskQEnough(void){
+	if(g_timerEventPool.used_num < TIMER_EVENT_SIZE){
+		return TRUE;
+	}
+	return FALSE;
+}
+
+void ev_timerTaskQInit(void){
+	memset((u8 *)&g_timerEventPool, 0, sizeof(g_timerEventPool));
 }
 
 volatile u16 T_evtExcept[4] = {0};
@@ -300,8 +366,7 @@ void ev_synchronous_timer(void){
 
 	ev_time_event_t *te = loop->timer_head;
 	while(te){
-		if(te->t >= now)
-		{
+		if(te->t >= now){
 			te->t = te->t - now;
 		}
 		te = te->next;

@@ -522,7 +522,7 @@ void cust_ota_start_req(epInfo_t *dstEpInfo,u8 srcEp,u8 **payload)
 	in.payloadType = **payload;
 	(*payload) ++;
 	in.imageType = ota_hdr.imageType;
-	in.manuCode = ota_hdr.manufaurerCode;
+	in.manuCode = ota_hdr.manufacturerCode;
 	in.newFileVer = ota_hdr.fileVer;
 	in.queryJitter = **payload;
 

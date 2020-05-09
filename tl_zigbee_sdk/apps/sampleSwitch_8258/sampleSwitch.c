@@ -63,7 +63,7 @@ extern ota_callBack_t sampleSwitch_otaCb;
 ota_preamble_t sampleSwitch_otaInfo = {
 		.fileVer = CURRENT_FILE_VERSION,
 		.imageType = IMAGE_TYPE,
-		.manufaurerCode = TELINK_MANUFACTURER_CODE,
+		.manufacturerCode = TELINK_MANUFACTURER_CODE,
 };
 #endif
 
@@ -283,7 +283,7 @@ void user_init(void)
 		ev_on_poll(EV_POLL_IDLE, app_task);
 
 		/* read the pre-insatll code in NV, */
-		zb_pre_install_code_load(&g_bdbCommissionSetting.linkKey, &g_switchAppCtx.linkKey);
+		zb_pre_install_code_load(&g_switchAppCtx.linkKey);
 
 		bdb_findBindMatchClusterSet(FIND_AND_BIND_CLUSTER_NUM, bdb_findBindClusterList);
 

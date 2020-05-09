@@ -39,6 +39,7 @@
 #define OTA_UPGRADE_IMAGE_TAG_ID					0
 #define OTA_UPGRADE_FILE_ID							0x0BEEF11E
 
+#define OTA_CHECK_PERIOD_MIN 						30// Actual OTA check period, in minutes
 #define OTA_PERIODIC_QUERY_SERVER_INTERVAL_S		60//s
 #define OTA_MAX_IMAGE_BLOCK_RSP_WAIT_TIME			5//s
 
@@ -79,7 +80,7 @@ typedef struct{
 //	are included as part of the OTA Upgrade Image.
 	u16			otaHdrFC;
 
-	u16			manufaurerCode;
+	u16			manufacturerCode;
 
 	/*The manufacturer should assign an appropriate and unique image type value to each of its devices in
 	651 order to distinguish the products.*/
@@ -104,7 +105,7 @@ typedef struct{
 	//The value represents the total image size in bytes.
 	u32			totalImageSize;
 	u16			imageType;
-	u16			manufaurerCode;
+	u16			manufacturerCode;
 }ota_preamble_t;
 
 
@@ -165,6 +166,7 @@ typedef struct{
 
 typedef enum{
 	OTA_EVT_START,
+	OTA_EVT_IMAGE_DONE,
 	OTA_EVT_COMPLETE,
 }ota_evt_t;
 

@@ -1,10 +1,10 @@
 /********************************************************************************************************
  * @file     board_8258_evk.h
  *
- * @brief    board configuration for 8258 evk
+ * @brief    board configuration for 8258 evk v1.2
  *
  * @author
- * @date     Dec. 1, 2016
+ * @date     Dec. 1, 2018
  *
  * @par      Copyright (c) 2016, Telink Semiconductor (Shanghai) Co., Ltd.
  *           All rights reserved.
@@ -52,17 +52,12 @@ extern "C" {
 #define	PULL_WAKEUP_SRC_PB5	  		PM_PIN_PULLUP_10K
 
 // LED
-#define LED1     					GPIO_PD2
-#define PD3_FUNC					AS_GPIO
-#define PD3_OUTPUT_ENABLE			1
-#define PD3_INPUT_ENABLE			0
+#define LED1     					GPIO_PD5
+#define PD5_FUNC					AS_GPIO
+#define PD5_OUTPUT_ENABLE			1
+#define PD5_INPUT_ENABLE			0
 
-#define LED3     					GPIO_PD5
-#define PD4_FUNC					AS_GPIO
-#define PD4_OUTPUT_ENABLE			1
-#define PD4_INPUT_ENABLE			0
-
-#define PM_DEBUG_PIN				GPIO_PD3
+#define LED3     					GPIO_PD3
 #define PD3_FUNC					AS_GPIO
 #define PD3_OUTPUT_ENABLE			1
 #define PD3_INPUT_ENABLE			0
@@ -78,9 +73,9 @@ extern "C" {
 
 //DEBUG
 #if UART_PRINTF_MODE
-	#define	DEBUG_INFO_TX_PIN	    GPIO_PC7//print
-	#define PC7_OUTPUT_ENABLE		1
-	#define PC7_INPUT_ENABLE		0
+	#define	DEBUG_INFO_TX_PIN	    GPIO_PD0//print
+	#define PD0_OUTPUT_ENABLE		1
+	#define PD0_INPUT_ENABLE		0
 #endif
 
 

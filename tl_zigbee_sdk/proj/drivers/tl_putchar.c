@@ -41,6 +41,13 @@ _attribute_ram_code_ int soft_uart_putc(char byte) {
 #if UART_PRINTF_MODE
 	u8 j = 0;
 	u32 t1 = 0, t2 = 0;
+	static unsigned char init_flag = 1;
+	if(init_flag==1)
+	{
+		gpio_write(DEBUG_INFO_TX_PIN ,1);// Add this code to fix the problem that the first byte will be error.
+		init_flag = 0;
+	}
+
 	u32 pcTxReg = (0x800583 + ((DEBUG_INFO_TX_PIN >> 8) << 3)); //register GPIO output
 	u8 tmp_bit0 = read_reg8(pcTxReg) & (~(DEBUG_INFO_TX_PIN & 0xff));
 	u8 tmp_bit1 = read_reg8(pcTxReg) | (DEBUG_INFO_TX_PIN & 0xff);

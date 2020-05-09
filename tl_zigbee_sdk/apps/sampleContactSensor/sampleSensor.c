@@ -60,7 +60,7 @@ extern ota_callBack_t sampleSensor_otaCb;
 ota_preamble_t sampleSensor_otaInfo = {
 		.fileVer = CURRENT_FILE_VERSION,
 		.imageType = IMAGE_TYPE,
-		.manufaurerCode = TELINK_MANUFACTURER_CODE,
+		.manufacturerCode = TELINK_MANUFACTURER_CODE,
 };
 #endif
 

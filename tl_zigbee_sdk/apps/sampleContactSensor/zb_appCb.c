@@ -70,34 +70,23 @@ ota_callBack_t sampleSensor_otaCb =
 #endif
 
 
-volatile u8 T_zbdemoBdbInfo[6] = {0};
-
-
-
-
 /**********************************************************************
  * FUNCTIONS
  */
-void sampleSensor_bdbRejoinStart(void *arg){
-	zb_rejoin_mode_set(REJOIN_INSECURITY);
-	bdb_init((af_simple_descriptor_t *)&sampleSensor_simpleDesc, &g_bdbCommissionSetting, &g_zbDemoBdbCb, 1);
-}
 
 /*********************************************************************
-  * @fn      zbdemo_bdbInitCb
-  *
-  * @brief   application callback for bdb initiation
-  *
-  * @param   status - the status of bdb init BDB_INIT_STATUS_SUCCESS or BDB_INIT_STATUS_FAILURE
-  *
-  * @param   joinedNetwork  - 1: node is on a network, 0: node isn't on a network
-  *
-  * @return  None
-  */
+ * @fn      zbdemo_bdbInitCb
+ *
+ * @brief   application callback for bdb initiation
+ *
+ * @param   status - the status of bdb init BDB_INIT_STATUS_SUCCESS or BDB_INIT_STATUS_FAILURE
+ *
+ * @param   joinedNetwork  - 1: node is on a network, 0: node isn't on a network
+ *
+ * @return  None
+ */
 void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
 	if(status == BDB_INIT_STATUS_SUCCESS){
-		T_zbdemoBdbInfo[0]++;
-
 		if(joinedNetwork){
 			zb_setPollRate(POLL_RATE);
 
@@ -108,45 +97,27 @@ void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
 #ifdef ZCL_POLL_CTRL
 			sampleSensor_zclCheckInStart();
 #endif
-		}
-
-#if	(!ZBHCI_EN)
-		/*
-		 * start bdb commissioning
-		 * */
-		if(!joinedNetwork){
-#if 1
+		}else{
 			bdb_networkSteerStart();
-#else
-			bdb_networkTouchLinkStart(BDB_COMMISSIONING_ROLE_INITIATOR);
-#endif
 		}
-#endif
 	}else{
-		T_zbdemoBdbInfo[1]++;
-		if(joinedNetwork){
-			T_zbdemoBdbInfo[2]++;
-			//TL_SCHEDULE_TASK(sampleSensor_bdbRejoinStart, NULL);
-		}
+
 	}
 }
 
 /*********************************************************************
-  * @fn      zbdemo_bdbCommissioningCb
-  *
-  * @brief   application callback for bdb commissioning
-  *
-  * @param   status - the status of bdb commissioning
-  *
-  * @param   arg
-  *
-  * @return  None
-  */
+ * @fn      zbdemo_bdbCommissioningCb
+ *
+ * @brief   application callback for bdb commissioning
+ *
+ * @param   status - the status of bdb commissioning
+ *
+ * @param   arg
+ *
+ * @return  None
+ */
 void zbdemo_bdbCommissioningCb(u8 status, void *arg){
-	T_zbdemoBdbInfo[3]++;
 	if(status == BDB_COMMISSION_STA_SUCCESS){
-		T_zbdemoBdbInfo[4]++;
-
 		zb_setPollRate(POLL_RATE);
 
 #ifdef ZCL_POLL_CTRL
@@ -179,6 +150,9 @@ void zbdemo_bdbCommissioningCb(u8 status, void *arg){
 	}else if(status == BDB_COMMISSION_STA_TCLK_EX_FAILURE){
 
 	}else if(status == BDB_COMMISSION_STA_PARENT_LOST){
+		//zb_rejoin_mode_set(REJOIN_INSECURITY);
+		zb_rejoinReq(NLME_REJOIN_METHOD_REJOIN, zb_apsChannelMaskGet());
+	}else if(status == BDB_COMMISSION_STA_REJOIN_FAILURE){
 
 	}
 }
@@ -213,14 +187,14 @@ void sampleSensor_otaProcessMsgHandler(u8 evt, u8 status)
 #endif
 
 /*********************************************************************
-  * @fn      sampleSensor_leaveCnfHandler
-  *
-  * @brief   Handler for ZDO Leave Confirm message.
-  *
-  * @param   pRsp - parameter of leave confirm
-  *
-  * @return  None
-  */
+ * @fn      sampleSensor_leaveCnfHandler
+ *
+ * @brief   Handler for ZDO Leave Confirm message.
+ *
+ * @param   pRsp - parameter of leave confirm
+ *
+ * @return  None
+ */
 void sampleSensor_leaveCnfHandler(void *p)
 {
 	nlmeLeaveConf_t *pCnf = (nlmeLeaveConf_t *)p;
@@ -231,15 +205,14 @@ void sampleSensor_leaveCnfHandler(void *p)
 }
 
 /*********************************************************************
-  * @fn      sampleSensor_leaveIndHandler
-  *
-  * @brief   Handler for ZDO leave indication message.
-  *
-  * @param   pInd - parameter of leave indication
-  *
-  * @return  None
-  */
-
+ * @fn      sampleSensor_leaveIndHandler
+ *
+ * @brief   Handler for ZDO leave indication message.
+ *
+ * @param   pInd - parameter of leave indication
+ *
+ * @return  None
+ */
 void sampleSensor_leaveIndHandler(void *p)
 {
 	//nlmeLeaveInd_t *pInd = (nlmeLeaveInd_t *)p;

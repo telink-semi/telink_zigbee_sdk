@@ -61,7 +61,6 @@ bool sampleGw_macAssocReqIndHandler(void *arg);
 mac_appIndCb_t macAppIndCbList = {NULL, NULL, sampleGw_macAssocReqIndHandler};
 #endif
 
-volatile u8 T_zbdemoBdbInfo[6] = {0};
 
 /**********************************************************************
  * LOCAL VARIABLES
@@ -70,59 +69,54 @@ volatile u8 T_zbdemoBdbInfo[6] = {0};
 /**********************************************************************
  * FUNCTIONS
  */
+
 /*********************************************************************
-  * @fn      zbdemo_bdbInitCb
-  *
-  * @brief   application callback for bdb initiation
-  *
-  * @param   status - the status of bdb init BDB_INIT_STATUS_SUCCESS or BDB_INIT_STATUS_FAILURE
-  *
-  * @param   joinedNetwork  - 1: node is on a network, 0: node isn't on a network
-  *
-  * @return  None
-  */
+ * @fn      zbdemo_bdbInitCb
+ *
+ * @brief   application callback for bdb initiation
+ *
+ * @param   status - the status of bdb init BDB_INIT_STATUS_SUCCESS or BDB_INIT_STATUS_FAILURE
+ *
+ * @param   joinedNetwork  - 1: node is on a network, 0: node isn't on a network
+ *
+ * @return  None
+ */
 void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
 	if(status == BDB_INIT_STATUS_SUCCESS){
-		T_zbdemoBdbInfo[0]++;
 		/*
 		 * for a non-factory-new device:
 		 * 		steer a network
 		 *
 		 * for a factory-new device:
-		 * 	 	do nothing until receiving the command from host if HCI is enable, .
-		 * 		forms a central network if HCI is disable,
+		 * 	 	do nothing until receiving the command from host if HCI is enabled,
+		 * 		forms a central network if HCI is disabled.
 		 *
-		 * */
+		 */
 		if(joinedNetwork){
-			//bdb_networkSteerStart();
-		}
-#if	(!ZBHCI_EN)
-		else{
-			bdb_networkFormationStart();
-		}
-#endif
 
+		}else{
+#if	(!ZBHCI_EN)
+			bdb_networkFormationStart();
+#endif
+		}
 	}else{
-		T_zbdemoBdbInfo[1]++;
+
 	}
 }
 
 /*********************************************************************
-  * @fn      zbdemo_bdbCommissioningCb
-  *
-  * @brief   application callback for bdb commissioning
-  *
-  * @param   status - the status of bdb commissioning
-  *
-  * @param   arg
-  *
-  * @return  None
-  */
+ * @fn      zbdemo_bdbCommissioningCb
+ *
+ * @brief   application callback for bdb commissioning
+ *
+ * @param   status - the status of bdb commissioning
+ *
+ * @param   arg
+ *
+ * @return  None
+ */
 void zbdemo_bdbCommissioningCb(u8 status, void *arg){
-	T_zbdemoBdbInfo[2]++;
-
 	if(status == BDB_COMMISSION_STA_SUCCESS){
-	    T_zbdemoBdbInfo[3]++;
 
 	}else if(status == BDB_COMMISSION_STA_IN_PROGRESS){
 
@@ -145,11 +139,14 @@ void zbdemo_bdbCommissioningCb(u8 status, void *arg){
 	}else if(status == BDB_COMMISSION_STA_TCLK_EX_FAILURE){
 
 	}else if(status == BDB_COMMISSION_STA_FORMATION_DONE){
-#if COORDINATOR
-        #if ZBHCI_EN
-        #else
+#if ZBHCI_EN
+
+#else
+		/* If you comment out the channel setting,
+		 * this demo will automatically select a channel,
+		 * which is the result of the energy scan.
+		 */
 	    tl_zbMacChannelSet(DEFAULT_CHANNEL);  //set default channel
-	    #endif
 #endif
 	}
 }
@@ -163,15 +160,15 @@ void zbdemo_bdbIdentifyCb(u8 endpoint, u16 srcAddr, u16 identifyTime){
 
 
 /*********************************************************************
-  * @fn      sampleGW_devAnnHandler
-  *
-  * @brief   Handler for ZDO Device Announce message. When this function be called means
-  *          there is new node join PAN or a node rejoin the PAN.
-  *
-  * @param   pInd - parameter of device announce indication
-  *
-  * @return  None
-  */
+ * @fn      sampleGW_devAnnHandler
+ *
+ * @brief   Handler for ZDO Device Announce message. When this function be called means
+ *          there is new node join PAN or a node rejoin the PAN.
+ *
+ * @param   pInd - parameter of device announce indication
+ *
+ * @return  None
+ */
 void sampleGW_devAnnHandler(void *arg)
 {
 #if ZBHCI_EN
@@ -195,31 +192,29 @@ void sampleGW_devAnnHandler(void *arg)
 }
 
 /*********************************************************************
-  * @fn      sampleGW_leaveCnfHandler
-  *
-  * @brief   Handler for ZDO Leave Confirm message.
-  *
-  * @param   pRsp - parameter of leave confirm
-  *
-  * @return  None
-  */
+ * @fn      sampleGW_leaveCnfHandler
+ *
+ * @brief   Handler for ZDO Leave Confirm message.
+ *
+ * @param   pRsp - parameter of leave confirm
+ *
+ * @return  None
+ */
 void sampleGW_leaveCnfHandler(void *arg)
 {
 //	nlmeLeaveConf_t *pCnf = (nlmeLeaveConf_t *)arg;
 //	printf("sampleGW_leaveCnfHandler, status = %x\n", pCnf->status);
-
 }
 
 /*********************************************************************
-  * @fn      sampleGW_leaveIndHandler
-  *
-  * @brief   Handler for ZDO leave indication message.
-  *
-  * @param   pInd - parameter of leave indication
-  *
-  * @return  None
-  */
-
+ * @fn      sampleGW_leaveIndHandler
+ *
+ * @brief   Handler for ZDO leave indication message.
+ *
+ * @param   pInd - parameter of leave indication
+ *
+ * @return  None
+ */
 void sampleGW_leaveIndHandler(void* arg)
 {
 #if ZBHCI_EN

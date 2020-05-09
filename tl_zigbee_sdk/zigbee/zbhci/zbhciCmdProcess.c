@@ -308,6 +308,7 @@ void zbhciAppDataSendConfirmPush(void *arg){
 
 	zbhci_app_data_confirm_t *conf = (zbhci_app_data_confirm_t *)ev_buf_allocate(sizeof(zbhci_app_data_confirm_t));
 	if(conf){
+#if ZB_COORDINATOR_ROLE
 		if(g_nodeTestTimer){
 			g_afTestReq.sendTotalCnt++;
 			if(pApsDataCnf->status == SUCCESS){
@@ -329,6 +330,7 @@ void zbhciAppDataSendConfirmPush(void *arg){
 
 			zbhciTx(ZBHCI_CMD_DATA_CONFIRM, sizeof(zbhci_app_data_confirm_t), (u8 *)conf);
 		}
+#endif
 		ev_buf_free((u8 *)conf);
 	}
 }
@@ -536,6 +538,7 @@ static void zbhci_mgmtCmdHandler(void *arg){
 		req.lr_bitfields.rejoin = p[10];
 		req.lr_bitfields.remove_children = p[11];
 		req.lr_bitfields.reserved = 0;
+		g_hciCmd.rejoin = req.lr_bitfields.rejoin;
 		zb_mgmtLeaveReq(targetAddr, &req, &sn, zbhciMgmtLeaveRspMsgPush);
 		g_hciCmd.apsCnt = sn;
 		memcpy(g_hciCmd.macAddr, req.device_addr, 8);

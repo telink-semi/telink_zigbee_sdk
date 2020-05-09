@@ -36,6 +36,7 @@ extern "C" {
 #define USB_PRINTF_MODE         	0
 #define	ZBHCI_UART					0
 #define ZBHCI_USB_CDC				0
+#define ZBHCI_USB_HID				0
 
 #define PA_ENABLE					0
 
@@ -45,10 +46,11 @@ extern "C" {
 #define BOARD_826x_DONGLE			1
 #define BOARD_826x_DONGLE_PA		2
 #define BOARD_8258_EVK				3
-#define BOARD_8258_DONGLE			4
-#define BOARD_8258_DONGLE_1M		5
-#define BOARD_8278_EVK				6
-#define BOARD_8278_DONGLE			7
+#define BOARD_8258_EVK_V1P2			4//C1T139A30_V1.2
+#define BOARD_8258_DONGLE			5
+#define BOARD_8258_DONGLE_1M		6
+#define BOARD_8278_EVK				7
+#define BOARD_8278_DONGLE			8
 
 #ifdef MCU_CORE_8258
 	#define BOARD					BOARD_8258_DONGLE//BOARD_8258_EVK
@@ -77,6 +79,8 @@ extern "C" {
 	#include "board_8258_dongle.h"
 #elif(BOARD	== BOARD_8258_EVK)
 	#include "board_8258_evk.h"
+#elif(BOARD	== BOARD_8258_EVK_V1P2)
+	#include "board_8258_evk_v1p2.h"
 #elif(BOARD == BOARD_8278_EVK)
 	#include "board_8278_evk.h"
 #elif(BOARD == BOARD_8278_DONGLE)
@@ -96,7 +100,21 @@ extern "C" {
 
 /* module selection */
 #define MODULE_WATCHDOG_ENABLE		0
+#if ZBHCI_UART
 #define	MODULE_UART_ENABLE			1
+#endif
+
+/* USB */
+#if (ZBHCI_USB_CDC || ZBHCI_USB_HID)
+#define MODULE_USB_ENABLE			1
+#if ZBHCI_USB_CDC
+	#define USB_CDC_ENABLE			1
+	#define USB_VENDOR_ENABLE		0
+#elif ZBHCI_USB_HID
+	#define USB_CDC_ENABLE			0
+	#define USB_VENDOR_ENABLE		1
+#endif
+#endif
 
 /* Rf mode: 250K */
 #define	RF_MODE_250K				1

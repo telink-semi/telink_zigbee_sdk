@@ -38,14 +38,11 @@
 
 #define XTAL_READY_CHECK_TIMING_OPTIMIZE	1
 
-#define	RAM_CRC_EN							0
-#define	RAM_CRC_SIZE						(0x0f)    //(RAM_CRC_SIZE + 1) * 1k = the real size of RAM_CRC
-
-
+#define RAM_CRC_EN							0
 
 //when timer wakeup,the DCDC delay time is accurate,but other wake-up sources wake up,
 //this time is ((PM_DCDC_DELAY_CYCLE+1)*2-1)*32us ~ (PM_DCDC_DELAY_CYCLE+1)*2*32us
-#define PM_DCDC_DELAY_DURATION     					62   // delay_time_us = (PM_DCDC_DELAY_CYCLE+1)*2*32us
+#define PM_DCDC_DELAY_DURATION     			187   // delay_time_us = (PM_DCDC_DELAY_CYCLE+1)*2*32us
 												  // 2 * 1/16k = 125 uS, 3 * 1/16k = 187.5 uS  4*1/16k = 250 uS
 
 #define PM_XTAL_MANUAL_MODE_DELAY		    200  //150  200
@@ -60,9 +57,10 @@
 #define PM_DCDC_DELAY_CYCLE		3
 #endif
 
-
-#define EARLYWAKEUP_TIME_US_SUSPEND 		(PM_DCDC_DELAY_DURATION + PM_XTAL_MANUAL_MODE_DELAY + 175)  //100: code running time margin//154
-#define EARLYWAKEUP_TIME_US_DEEP    		(PM_DCDC_DELAY_DURATION  + 32)
+#define SOFT_START_DELAY       	    		(0x08)
+#define EARLYWAKEUP_TIME_US_SUSPEND 		(PM_DCDC_DELAY_DURATION + PM_XTAL_MANUAL_MODE_DELAY + 200)  //100: code running time margin//154  //175
+#define EARLYWAKEUP_TIME_US_DEEP_RET    	(PM_DCDC_DELAY_DURATION + 64)//(PM_DCDC_DELAY_DURATION + 32)
+#define EARLYWAKEUP_TIME_US_DEEP	    	(PM_DCDC_DELAY_DURATION + 32 + ((SOFT_START_DELAY)*62))
 #define EMPTYRUN_TIME_US       	    		(EARLYWAKEUP_TIME_US_SUSPEND + 200)
 
 
@@ -121,8 +119,9 @@ typedef enum {
 	//available mode for customer
 	SUSPEND_MODE						= 0x00,
 
-	DEEPSLEEP_MODE						= 0x30,
-	DEEPSLEEP_MODE_RET_SRAM_LOW16K  	= 0x21,  //for boot from sram
+	DEEPSLEEP_MODE						= 0x30,		//when use deep mode pad wakeup(low or high level), if the high(low) level always in
+													//the pad, system will not enter sleep and go to below of pm API, will reboot by core_6f = 0x20
+													//deep retention also had this issue, but not to reboot.	DEEPSLEEP_MODE_RET_SRAM_LOW16K  	= 0x21,  //for boot from sram
 	DEEPSLEEP_MODE_RET_SRAM_LOW32K  	= 0x03,  //for boot from sram
 
 	//not available mode
@@ -206,6 +205,34 @@ extern _attribute_aligned_(4) pm_tim_recover_t			pm_timRecover;
 
 typedef int (*suspend_handler_t)(void);
 extern  suspend_handler_t 		 func_before_suspend;
+
+/**
+ * @brief      This function serves to enable dp and dm deep gpio low level wakeup. if enable, current will
+ * 						add about 0.1uA
+ * @param[in]  none.
+ * @return     none.
+ */
+extern unsigned char PA5_PA6_DEEPSLEEP_LOW_LEVEL_WAKEUP_EN;
+static inline void deepsleep_dp_dm_gpio_low_wake_enable(void)
+{
+	PA5_PA6_DEEPSLEEP_LOW_LEVEL_WAKEUP_EN = 0;
+}
+/**
+ * @brief      This function serves to disable dp and dm deep gpio low level wakeup.
+ * @param[in]  none.
+ * @return     none.
+ */
+static inline void deepsleep_dp_dm_gpio_low_wake_disable(void)
+{
+	PA5_PA6_DEEPSLEEP_LOW_LEVEL_WAKEUP_EN = 1;
+}
+
+/**
+ * @brief     this function servers to wait bbpll clock lock
+ * @param[in] none
+ * @return    none
+ */
+void pm_wait_bbpll_done(void);
 
 void bls_pm_registerFuncBeforeSuspend (suspend_handler_t func );
 
@@ -381,8 +408,10 @@ static inline void blc_pm_select_external_32k_crystal(void)
 	blt_miscParam.pad32k_en 	= 1; // set '1': 32k clk src use external 32k crystal
 }
 
+
 /**********************************  Internal APIs (not for user)***************************************************/
-extern  unsigned char 		    tl_multi_addr;
+extern  unsigned char 		    tl_multi_addr_L;
+extern  unsigned char 		    tl_multi_addr_H;
 extern  unsigned char 		    tl_24mrc_cal;
 extern 	unsigned int 			tick_32k_calib;
 extern  unsigned int 			tick_cur;
@@ -482,4 +511,3 @@ int pm_long_sleep_wakeup (SleepMode_TypeDef sleep_mode, SleepWakeupSrc_TypeDef w
 	#define DBG_CHN7_HIGH
 	#define DBG_CHN7_TOGGLE
 #endif  //end of DEBUG_GPIO_ENABLE
-

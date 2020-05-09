@@ -249,44 +249,24 @@ void app_key_handler(void){
 	}
 }
 
-typedef struct{
-	addrExt_t extAddr;
-	u8 linkKey[CCM_KEY_SIZE];
-}app_uniqueKeyCfg_t;
-
-void zb_pre_install_code_load(bdb_linkKey_info_t *bdbLinkKey, app_linkkey_info_t *appLinkKey){
-	flash_read(CFG_PRE_INSTALL_CODE, sizeof(app_linkkey_info_t), (u8*)appLinkKey);
-	if(appLinkKey->tcLinkKey.keyType != 0xff){
-		bdbLinkKey->tcLinkKey.keyType = appLinkKey->tcLinkKey.keyType;
-		bdbLinkKey->tcLinkKey.key = appLinkKey->tcLinkKey.key;
-	}
-	if(appLinkKey->distributeLinkKey.keyType != 0xff){
-		bdbLinkKey->distributeLinkKey.keyType = appLinkKey->distributeLinkKey.keyType;
-		bdbLinkKey->distributeLinkKey.key = appLinkKey->distributeLinkKey.key;
-	}
-	if(appLinkKey->touchlinkKey.keyType != 0xff){
-		bdbLinkKey->touchLinkKey.keyType = appLinkKey->touchlinkKey.keyType;
-		bdbLinkKey->touchLinkKey.key = appLinkKey->touchlinkKey.key;
-	}
-}
-
-
-void zb_pre_install_code_store(addrExt_t ieeeAdrr, u8 *uniqueLinkKey, app_linkkey_info_t *appLinkKey){
-	/* if ieeeAdrr is 0xffffffffff, set global related link key or unique tc link key for ZED/ZR */
-	if(ZB_IS_64BIT_ADDR_INVAILD(ieeeAdrr) && appLinkKey){
-		flash_write(CFG_PRE_INSTALL_CODE, sizeof(app_linkkey_info_t), (u8*)appLinkKey);
+void zb_pre_install_code_store(addrExt_t ieeeAdrr, u8 *pInstallCode){
+	if(!pInstallCode ||
+		ZB_IS_64BIT_ADDR_INVAILD(ieeeAdrr) ||
+		ZB_IS_64BIT_ADDR_ZERO(ieeeAdrr)){
+		return;
 	}
 
-	if(uniqueLinkKey && !ZB_IS_64BIT_ADDR_INVAILD(ieeeAdrr)){
-		/* config unique link key for ZC */
-		ss_dev_pair_set_t keyPair;
-		memcpy(keyPair.device_address, ieeeAdrr, 8);
-		memcpy(keyPair.linkKey, uniqueLinkKey, CCM_KEY_SIZE);
-		keyPair.incomingFrmaeCounter = keyPair.outgoingFrameCounter = 0;
-		keyPair.apsLinkKeyType = SS_UNIQUE_LINK_KEY;
-		keyPair.keyAttr = SS_UNVERIFIED_KEY;
-		ss_devKeyPairSave(&keyPair);
-	}
+	u8 key[SEC_KEY_LEN];
+	tl_bdbUseInstallCode(pInstallCode, key);
+
+	/* config unique link key for ZC */
+	ss_dev_pair_set_t keyPair;
+	memcpy(keyPair.device_address, ieeeAdrr, 8);
+	memcpy(keyPair.linkKey, key, SEC_KEY_LEN);
+	keyPair.incomingFrmaeCounter = keyPair.outgoingFrameCounter = 0;
+	keyPair.apsLinkKeyType = SS_UNIQUE_LINK_KEY;
+	keyPair.keyAttr = SS_UNVERIFIED_KEY;
+	ss_devKeyPairSave(&keyPair);
 }
 
 #endif  /* __PROJECT_TL_GW__ */

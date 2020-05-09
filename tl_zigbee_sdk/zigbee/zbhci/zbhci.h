@@ -32,7 +32,7 @@
 /****************************************************************************/
 /***        Type Definitions                                              ***/
 /****************************************************************************/
-#if (ZBHCI_UART || ZBHCI_USB_CDC)
+#if (ZBHCI_UART || ZBHCI_USB_CDC || ZBHCI_USB_HID)
 #define ZBHCI_MSG_STATUS_ERROR_START_CHAR    0xe0
 #define ZBHCI_MSG_STATUS_MSG_OVERFLOW        0xe1
 #define ZBHCI_MSG_STATUS_ERROR_END_CHAR      0xe2
@@ -202,7 +202,8 @@ typedef enum{
 	ZBHCI_TX_SUCCESS,
 	ZBHCI_TX_BUFFERFULL,
 	ZBHCI_TX_BUSY,
-	ZBHCI_TX_FAILED
+	ZBHCI_TX_FAILED,
+	ZBHCI_TX_TOO_LONG,
 }zbhciTx_e;
 
 typedef enum{

@@ -64,8 +64,7 @@ void ll_dataSendCnfCb(u8 st, u8 handle){
 
 #ifdef ZB_SECURITY
 
-void ll_calculate_AES_input(u8 *AES_key, TOUCHLINK_KEY_TYPE algorithm,
-		u8 *transaction_id, u8 *response_id)
+void ll_calculate_AES_input(u8 *AES_key, TOUCHLINK_KEY_TYPE algorithm, u8 *transaction_id, u8 *response_id)
 {
 	u8 pos = 0;
 	u8 *byte_0_3;
@@ -87,8 +86,7 @@ void ll_calculate_AES_input(u8 *AES_key, TOUCHLINK_KEY_TYPE algorithm,
 	memcpy(AES_key + pos, response_id, 4);
 }
 
-void ll_decrypt_network_key(u8 key_index, u8 *encrypted_network_key,
-		u32 transactionID, u32 responseID)
+void ll_decrypt_network_key(u8 key_index, u8 *encrypted_network_key, u32 transactionID, u32 responseID)
 {
 	u8 transaction_ID[4];
 	u8 response_ID[4];
@@ -131,8 +129,7 @@ void ll_decrypt_network_key(u8 key_index, u8 *encrypted_network_key,
 	}
 }
 
-void ll_get_encrypted_network_key(u8 key_index, u32 transactionID,
-		u32 responseID, u8 *encrypted_network_key)
+void ll_get_encrypted_network_key(u8 key_index, u32 transactionID, u32 responseID, u8 *encrypted_network_key)
 {
 	u8 transaction_ID[4];
 	u8 response_ID[4];
@@ -154,9 +151,10 @@ void ll_get_encrypted_network_key(u8 key_index, u32 transactionID,
 
 #if 1
 	/* If factory-new, generate and store the network key */
-	if(g_zbNwkCtx.is_factory_new)	{
+	if(g_zbNwkCtx.is_factory_new){
 		ss_nwkKeyGenerate(network_key);
-	}else /* Not factory new. Use the persisted network key */
+	}
+	else /* Not factory new. Use the persisted network key */
 	{
 		memcpy(network_key, SS_IB().nwkSecurMaterialSet[0].key, CCM_KEY_SIZE);
 	}

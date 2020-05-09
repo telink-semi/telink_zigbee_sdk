@@ -555,6 +555,7 @@ u8 af_dataSend(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, u16 cmdPldLen, u8 
  */
 
 u8 zdo_af_get_link_retry_threshold(void);
+void zdo_af_set_link_retry_threshold(u8 threshold);
 
 /****************************************************************************************************
  * @brief	Interface to get the NWK indirect poll rate parameter, The value for this configuration attribute
@@ -576,7 +577,20 @@ void zdo_af_set_syn_rate(u32 newRate);
  * @return	rejoin interval
  */
 u16 zdo_af_get_rejoin_interval(void);
+void zdo_af_set_rejoin_interval(u16 interval);
+
 u16 zdo_af_get_max_rejoin_interval(void);
+void zdo_af_set_max_rejoin_interval(u16 interval);
+
+u8 zdo_af_get_rejoin_times(void);
+void zdo_af_set_rejoin_times(u8 times);
+
+u16 zdo_af_get_rejoin_backoff(void);
+void zdo_af_set_rejoin_backoff(u16 interval);
+
+u16 zdo_af_get_max_rejoin_backoff(void);
+void zdo_af_set_max_rejoin_backoff(u16 interval);
+
 
 /****************************************************************************************************
  * @brief	The :Config_NWK_Scan_Attempts is employed within ZDO to call the NLME-NETWORKDISCOVERY. request
@@ -588,7 +602,7 @@ u16 zdo_af_get_max_rejoin_interval(void);
  * @return	scan attempts
  */
 u8 zdo_af_get_scan_attempts(void);
-
+void zdo_af_set_scan_attempts(u8 attempts);
 
 /**********************************************************************************************************
  * @brief	Interface to get scan duration attribute

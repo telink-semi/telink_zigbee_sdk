@@ -1259,10 +1259,10 @@ enum{
 
 #define mdec_rst_addr                   0x16
 enum{
-//	FLD_SELE_PA0 = 				BIT(0),  //not support now
+	FLD_SELE_PA0 = 				BIT(0),  
 	FLD_SELE_PB7 = 				BIT(1),
 	FLD_SELE_PC4 = 			    BIT(2),
-//	FLD_SELE_PD0 = 				BIT(3),  //not support now
+	FLD_SELE_PD0 = 				BIT(3),  
 	FLD_RST_MDEC =              BIT(4),
 	FLD_CLS_MDEC = 				BIT_RNG(0,4),
 };

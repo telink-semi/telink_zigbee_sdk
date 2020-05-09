@@ -117,11 +117,6 @@ const zclAttrInfo_t basic_attrTbl[] =
 	{ ZCL_ATTRID_BASIC_SW_BUILD_ID,  ZCL_DATA_TYPE_CHAR_STR, ACCESS_CONTROL_READ,  (u8*)&zcl_attr_swBuildId},
 #endif
 	{ ZCL_ATTRID_GLOBAL_CLUSTER_REVISION, ZCL_DATA_TYPE_UINT16,  ACCESS_CONTROL_READ,  (u8*)&zcl_attr_global_clusterRevision},
-
-#if (__PROJECT_ONOFFSWITCH__)
-	{ZCLATTRID_RESERVED_XIAOMI,		ZCL_DATA_TYPE_STRUCT,	ACCESS_CONTROL_READ | ACCESS_CONTROL_REPORTABLE, (u8 *)&zcl_attr_reserved},
-#endif
-
 };
 
 const u8 zcl_basic_attrNum = ( sizeof(basic_attrTbl) / sizeof(zclAttrInfo_t) );

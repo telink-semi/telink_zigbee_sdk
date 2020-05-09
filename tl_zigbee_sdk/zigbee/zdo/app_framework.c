@@ -72,8 +72,11 @@ const zdo_attrCfg_t afAttrDefault = {
 		.config_nwk_scan_attempts 			= ZDO_NWK_SCAN_ATTEMPTS,
 		.config_nwk_time_btwn_scans			= ZDO_NWK_TIME_BTWN_SCANS,
 		.config_permit_join_duration 		= ZDO_PERMIT_JOIN_DURATION,
+		.config_rejoin_times				= ZDO_REJOIN_TIMES,
 		.config_rejoin_interval 			= ZDO_REJOIN_INTERVAL,
 		.config_max_rejoin_interval			= ZDO_MAX_REJOIN_INTERVAL,
+		.config_rejoin_backoff_time			= ZDO_REJOIN_BACKOFF_TIME,
+		.config_max_rejoin_backoff_time		= ZDO_MAX_REJOIN_BACKOFF_TIME,
 };
 
 zdo_attrCfg_t zdo_cfg_attributes;
@@ -137,7 +140,6 @@ void af_nodeDescStackRevisionSet(u8 revision){
 u8 af_nodeDescStackRevisionGet(void){
 	return ((u8)((ndt.server_mask & 0xfe00) >> 9));
 }
-
 
 u8 af_nodeMacCapabilityGet(void){
 	return ndt.mac_capability_flag;
@@ -548,7 +550,6 @@ _CODE_ZDO_ u8 zdo_af_get_link_retry_threshold(void){
 	return zdo_cfg_attributes.config_parent_link_retry_threshold;
 }
 
-
 /****************************************************************************************************
  * @brief	Interface to get the NWK indirect poll rate parameter, The value for this configuration attribute
  * 			is established by the application profile deployed on the device.
@@ -577,16 +578,40 @@ _CODE_ZDO_ inline void zdo_af_set_rejoin_interval(u16 interval){
 	zdo_cfg_attributes.config_rejoin_interval = interval;
 }
 
-_CODE_ZDO_ inline void zdo_af_set_max_rejoin_interval(u16 interval){
-	zdo_cfg_attributes.config_max_rejoin_interval = interval;
-}
-
 _CODE_ZDO_ inline u16 zdo_af_get_rejoin_interval(void){
 	return zdo_cfg_attributes.config_rejoin_interval;
 }
 
+_CODE_ZDO_ inline void zdo_af_set_max_rejoin_interval(u16 interval){
+	zdo_cfg_attributes.config_max_rejoin_interval = interval;
+}
+
 _CODE_ZDO_ inline u16 zdo_af_get_max_rejoin_interval(void){
 	return zdo_cfg_attributes.config_max_rejoin_interval;
+}
+
+_CODE_ZDO_ inline void zdo_af_set_rejoin_times(u8 times){
+	zdo_cfg_attributes.config_rejoin_times = times;
+}
+
+_CODE_ZDO_ inline u8 zdo_af_get_rejoin_times(void){
+	return zdo_cfg_attributes.config_rejoin_times;
+}
+
+_CODE_ZDO_ inline void zdo_af_set_rejoin_backoff(u16 interval){
+	zdo_cfg_attributes.config_rejoin_backoff_time = interval;
+}
+
+_CODE_ZDO_ inline u16 zdo_af_get_rejoin_backoff(void){
+	return zdo_cfg_attributes.config_rejoin_backoff_time;
+}
+
+_CODE_ZDO_ inline void zdo_af_set_max_rejoin_backoff(u16 interval){
+	zdo_cfg_attributes.config_max_rejoin_backoff_time = interval;
+}
+
+_CODE_ZDO_ inline u16 zdo_af_get_max_rejoin_backoff(void){
+	return zdo_cfg_attributes.config_max_rejoin_backoff_time;
 }
 
 /****************************************************************************************************
@@ -616,7 +641,6 @@ _CODE_ZDO_ inline void zdo_af_set_scan_attempts(u8 attempts){
 _CODE_ZDO_ inline u16 zdo_af_get_nwk_time_btwn_scans(void){
 	return zdo_cfg_attributes.config_nwk_time_btwn_scans;
 }
-
 
 /**********************************************************************************************************
  * @brief	The default value for :Config_Permit_Join_Duration is 0x00, however, this value can be  established
