@@ -23,7 +23,6 @@ build:
 clean_build:
   stage: clean_build
   tags:
-    - LINUX
     - TC32
   script:
     - ls -a
