@@ -619,14 +619,14 @@ u8 ota_imageDataProcess(u8 len, u8 *pData)
 		return ZCL_STA_INVALID_IMAGE;
 	}
 	if(!pOtaUpdateInfo){
-		return ZCL_STA_INSUFFICIENT_SPACE;
+		return ZCL_STA_INVALID_IMAGE;
 	}
 
 	for(u8 i = 0; i < len; i++){
 		switch(otaClientInfo.clientOtaFlg)
 		{
 			case OTA_FLAG_IMAGE_MAGIC_0:
-				if(pData[i] != otaHdrMagic[i]){
+				if(pData[i] != otaHdrMagic[i] || !pOtaUpdateInfo){
 					return ZCL_STA_INVALID_IMAGE;
 				}else{
 					pOtaUpdateInfo->hdrInfo.otaUpgradeFileID = pData[i];
@@ -634,7 +634,7 @@ u8 ota_imageDataProcess(u8 len, u8 *pData)
 				otaClientInfo.clientOtaFlg = OTA_FLAG_IMAGE_MAGIC_1;
 				break;
 			case OTA_FLAG_IMAGE_MAGIC_1:
-				if(pData[i] != otaHdrMagic[i]){
+				if(pData[i] != otaHdrMagic[i]|| !pOtaUpdateInfo){
 					return ZCL_STA_INVALID_IMAGE;
 				}else{
 					pOtaUpdateInfo->hdrInfo.otaUpgradeFileID |= ((u32)pData[i] << 8) & 0xff00;
@@ -642,7 +642,7 @@ u8 ota_imageDataProcess(u8 len, u8 *pData)
 				otaClientInfo.clientOtaFlg = OTA_FLAG_IMAGE_MAGIC_2;
 				break;
 			case OTA_FLAG_IMAGE_MAGIC_2:
-				if(pData[i] != otaHdrMagic[i]){
+				if(pData[i] != otaHdrMagic[i]|| !pOtaUpdateInfo){
 					return ZCL_STA_INVALID_IMAGE;
 				}else{
 					pOtaUpdateInfo->hdrInfo.otaUpgradeFileID |= ((u32)pData[i] << 16) & 0xff0000;
@@ -661,6 +661,9 @@ u8 ota_imageDataProcess(u8 len, u8 *pData)
 				otaClientInfo.clientOtaFlg = OTA_FLAG_IMAGE_HDR_VER1;
 				break;
 			case OTA_FLAG_IMAGE_HDR_VER1:
+				if(!pOtaUpdateInfo){
+					return ZCL_STA_INVALID_IMAGE;
+				}
 				pOtaUpdateInfo->hdrInfo.otaHdrVer = pData[i];
 				otaClientInfo.clientOtaFlg = OTA_FLAG_IMAGE_HDR_VER2;
 				break;
@@ -670,44 +673,74 @@ u8 ota_imageDataProcess(u8 len, u8 *pData)
 				break;
 			case OTA_FLAG_IMAGE_HDR_LEN1:
 				//get header length
+				if(!pOtaUpdateInfo){
+					return ZCL_STA_INVALID_IMAGE;
+				}
 				if(zcl_attr_fileOffset == OTA_HDR_LEN_OFFSET){
 					pOtaUpdateInfo->hdrInfo.otaHdrLen = pData[i];
 					otaClientInfo.clientOtaFlg = OTA_FLAG_IMAGE_HDR_LEN2;
 				}
 				break;
 			case OTA_FLAG_IMAGE_HDR_LEN2:
+				if(!pOtaUpdateInfo){
+					return ZCL_STA_INVALID_IMAGE;
+				}
 				pOtaUpdateInfo->hdrInfo.otaHdrLen |= ((u16)pData[i] << 8) & 0xff00;
 				otaClientInfo.clientOtaFlg = OTA_FLAG_IMAGE_HDR_FC1;
 				break;
 			case OTA_FLAG_IMAGE_HDR_FC1:
+				if(!pOtaUpdateInfo){
+					return ZCL_STA_INVALID_IMAGE;
+				}
 				pOtaUpdateInfo->hdrInfo.otaHdrFC = pData[i];
 				otaClientInfo.clientOtaFlg = OTA_FLAG_IMAGE_HDR_FC2;
 				break;
 			case OTA_FLAG_IMAGE_HDR_FC2:
+				if(!pOtaUpdateInfo){
+					return ZCL_STA_INVALID_IMAGE;
+				}
 				pOtaUpdateInfo->hdrInfo.otaHdrFC |= ((u16)pData[i] << 8) & 0xff00;
 				otaClientInfo.clientOtaFlg = OTA_FLAG_IMAGE_MANU_CODE1;
 				break;
 			case OTA_FLAG_IMAGE_MANU_CODE1:
+				if(!pOtaUpdateInfo){
+					return ZCL_STA_INVALID_IMAGE;
+				}
 				pOtaUpdateInfo->hdrInfo.manufacturerCode = pData[i];
 				otaClientInfo.clientOtaFlg = OTA_FLAG_IMAGE_MANU_CODE2;
 				break;
 			case OTA_FLAG_IMAGE_MANU_CODE2:
+				if(!pOtaUpdateInfo){
+					return ZCL_STA_INVALID_IMAGE;
+				}
 				pOtaUpdateInfo->hdrInfo.manufacturerCode |= ((u16)pData[i] << 8) & 0xff00;
 				otaClientInfo.clientOtaFlg = OTA_FLAG_IMAGE_TYPE1;
 				break;
 			case OTA_FLAG_IMAGE_TYPE1:
+				if(!pOtaUpdateInfo){
+					return ZCL_STA_INVALID_IMAGE;
+				}
 				pOtaUpdateInfo->hdrInfo.imageType = pData[i];
 				otaClientInfo.clientOtaFlg = OTA_FLAG_IMAGE_TYPE2;
 				break;
 			case OTA_FLAG_IMAGE_TYPE2:
+				if(!pOtaUpdateInfo){
+					return ZCL_STA_INVALID_IMAGE;
+				}
 				pOtaUpdateInfo->hdrInfo.imageType |= ((u16)pData[i] << 8) & 0xff00;
 				otaClientInfo.clientOtaFlg = OTA_FLAG_IMAGE_FILE_VER1;
 				break;
 			case OTA_FLAG_IMAGE_FILE_VER1:
+				if(!pOtaUpdateInfo){
+					return ZCL_STA_INVALID_IMAGE;
+				}
 				pOtaUpdateInfo->hdrInfo.fileVer = pData[i];
 				otaClientInfo.clientOtaFlg = OTA_FLAG_IMAGE_FILE_VER2;
 				break;
 			case OTA_FLAG_IMAGE_FILE_VER2:
+				if(!pOtaUpdateInfo){
+					return ZCL_STA_INVALID_IMAGE;
+				}
 				pOtaUpdateInfo->hdrInfo.fileVer |= ((u32)pData[i] << 8) & 0xff00;
 				otaClientInfo.clientOtaFlg = OTA_FLAG_IMAGE_FILE_VER3;
 				break;
@@ -737,10 +770,10 @@ u8 ota_imageDataProcess(u8 len, u8 *pData)
 				break;
 			case OTA_FLAG_IMAGE_CONT_HDR:
 				//complete header
-				if(zcl_attr_fileOffset >= sizeof(ota_hdrFields_t)){
+				if(zcl_attr_fileOffset >= sizeof(ota_hdrFields_t) || !pOtaUpdateInfo){
 					return ZCL_STA_INVALID_IMAGE;
 				}
-				memcpy((u8 *)(&(pOtaUpdateInfo->hdrInfo) + zcl_attr_fileOffset), &pData[i], 1);
+				memcpy((u8 *)&(pOtaUpdateInfo->hdrInfo) + zcl_attr_fileOffset, &pData[i], 1);
 				if(zcl_attr_fileOffset == pOtaUpdateInfo->hdrInfo.otaHdrLen - 1){
 					//TODO: save ota header to flash
 
