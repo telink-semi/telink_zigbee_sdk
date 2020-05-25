@@ -618,6 +618,9 @@ u8 ota_imageDataProcess(u8 len, u8 *pData)
 	if(!pData){
 		return ZCL_STA_INVALID_IMAGE;
 	}
+	if(!pOtaUpdateInfo){
+		return ZCL_STA_INSUFFICIENT_SPACE;
+	}
 
 	for(u8 i = 0; i < len; i++){
 		switch(otaClientInfo.clientOtaFlg)

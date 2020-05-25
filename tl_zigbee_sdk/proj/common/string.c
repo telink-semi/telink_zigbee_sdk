@@ -97,12 +97,15 @@ void bcopy(register char * src, register char * dest, int len) {
 void * memset(void * dest, int val, unsigned int len) {
 	if ( dest == NULL ) {
 		ZB_EXCEPTION_POST(SYS_EXCEPTTION_COMMON_MEM_ACCESS);
+		return NULL;
 	}
     if(is_ev_buf(dest) && (len > LARGE_BUFFER)){
     	ZB_EXCEPTION_POST(SYS_EXCEPTTION_COMMON_MEM_ACCESS);
+    	return NULL;
     }
     if(is_zb_buf(dest) && (len > ZB_BUF_SIZE)){
     	ZB_EXCEPTION_POST(SYS_EXCEPTTION_COMMON_MEM_ACCESS);
+    	return NULL;
     }
 
 	register unsigned char *ptr = (unsigned char*) dest;

@@ -487,7 +487,7 @@ _CODE_ZCL_ s32 reportAttrTimerCb(void *arg)
 					if(!pAttrEntry){
 						//should not happen.
 						ZB_EXCEPTION_POST(SYS_EXCEPTTION_ZB_ZCL_ENTRY);
-						return;
+						return -1;
 					}
 
 					u8 len = zcl_getAttrSize(pAttrEntry->type, pAttrEntry->data);
