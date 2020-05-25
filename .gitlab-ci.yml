@@ -5,6 +5,7 @@ stages:
 build:
   stage: build
   tags:
+    - LINUX
     - TC32
   before_script:
   script:
@@ -23,6 +24,7 @@ build:
 clean_build:
   stage: clean_build
   tags:
+    - LINUX
     - TC32
   script:
     - ls -a
