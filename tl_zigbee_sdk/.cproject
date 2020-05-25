@@ -44,6 +44,7 @@
 								</option>
 								<option id="com.telink.tc32eclipse.compiler.option.incpath.1845129407" name="Include Paths (-I)" superClass="com.telink.tc32eclipse.compiler.option.incpath" valueType="includePath">
 									<listOptionValue builtIn="false" value="../platform"/>
+									<listOptionValue builtIn="false" value="../apps/sampleGw"/>
 									<listOptionValue builtIn="false" value="../proj"/>
 									<listOptionValue builtIn="false" value="../proj/common"/>
 									<listOptionValue builtIn="false" value="../zigbee/common/includes"/>
@@ -881,6 +882,7 @@
 								</option>
 								<option id="com.telink.tc32eclipse.compiler.option.incpath.603004107" name="Include Paths (-I)" superClass="com.telink.tc32eclipse.compiler.option.incpath" valueType="includePath">
 									<listOptionValue builtIn="false" value="../proj/common"/>
+									<listOptionValue builtIn="false" value="../apps/sampleSwitch"/>
 									<listOptionValue builtIn="false" value="../platform"/>
 									<listOptionValue builtIn="false" value="../proj"/>
 									<listOptionValue builtIn="false" value="../zigbee/common/includes"/>
@@ -1716,6 +1718,7 @@
 								</option>
 								<option id="com.telink.tc32eclipse.compiler.option.incpath.516767434" name="Include Paths (-I)" superClass="com.telink.tc32eclipse.compiler.option.incpath" valueType="includePath">
 									<listOptionValue builtIn="false" value="../proj/common"/>
+									<listOptionValue builtIn="false" value="../apps/sampleLight"/>
 									<listOptionValue builtIn="false" value="../apps/common"/>
 									<listOptionValue builtIn="false" value="../platform"/>
 									<listOptionValue builtIn="false" value="../proj"/>
@@ -2553,6 +2556,7 @@
 								</option>
 								<option id="com.telink.tc32eclipse.compiler.option.incpath.1972666459" name="Include Paths (-I)" superClass="com.telink.tc32eclipse.compiler.option.incpath" valueType="includePath">
 									<listOptionValue builtIn="false" value="../proj/common"/>
+									<listOptionValue builtIn="false" value="../apps/sampleContactSensor"/>
 									<listOptionValue builtIn="false" value="../platform"/>
 									<listOptionValue builtIn="false" value="../proj"/>
 									<listOptionValue builtIn="false" value="../zigbee/common/includes"/>
@@ -3387,6 +3391,7 @@
 								</option>
 								<option id="com.telink.tc32eclipse.compiler.option.incpath.1199785021" name="Include Paths (-I)" superClass="com.telink.tc32eclipse.compiler.option.incpath" valueType="includePath">
 									<listOptionValue builtIn="false" value="../proj/common"/>
+									<listOptionValue builtIn="false" value="../apps/sampleLight"/>
 									<listOptionValue builtIn="false" value="../apps/common"/>
 									<listOptionValue builtIn="false" value="../platform"/>
 									<listOptionValue builtIn="false" value="../proj"/>
@@ -4226,6 +4231,7 @@
 								</option>
 								<option id="com.telink.tc32eclipse.compiler.option.incpath.283060312" name="Include Paths (-I)" superClass="com.telink.tc32eclipse.compiler.option.incpath" valueType="includePath">
 									<listOptionValue builtIn="false" value="../proj/common"/>
+									<listOptionValue builtIn="false" value="../apps/sampleSwitch_8258"/>
 									<listOptionValue builtIn="false" value="../platform"/>
 									<listOptionValue builtIn="false" value="../proj"/>
 									<listOptionValue builtIn="false" value="../zigbee/common/includes"/>
@@ -5063,6 +5069,7 @@
 								</option>
 								<option id="com.telink.tc32eclipse.compiler.option.incpath.1464224957" name="Include Paths (-I)" superClass="com.telink.tc32eclipse.compiler.option.incpath" valueType="includePath">
 									<listOptionValue builtIn="false" value="../platform"/>
+									<listOptionValue builtIn="false" value="../apps/sampleGw"/>
 									<listOptionValue builtIn="false" value="../proj"/>
 									<listOptionValue builtIn="false" value="../proj/common"/>
 									<listOptionValue builtIn="false" value="../zigbee/common/includes"/>
@@ -5904,6 +5911,7 @@
 								</option>
 								<option id="com.telink.tc32eclipse.compiler.option.incpath.1475383109" name="Include Paths (-I)" superClass="com.telink.tc32eclipse.compiler.option.incpath" valueType="includePath">
 									<listOptionValue builtIn="false" value="../proj/common"/>
+									<listOptionValue builtIn="false" value="../apps/dualModeLight"/>
 									<listOptionValue builtIn="false" value="../apps/common"/>
 									<listOptionValue builtIn="false" value="../platform"/>
 									<listOptionValue builtIn="false" value="../proj"/>
@@ -6741,6 +6749,7 @@
 								</option>
 								<option id="com.telink.tc32eclipse.compiler.option.incpath.85190244" name="Include Paths (-I)" superClass="com.telink.tc32eclipse.compiler.option.incpath" valueType="includePath">
 									<listOptionValue builtIn="false" value="../proj/common"/>
+									<listOptionValue builtIn="false" value="../apps/dualModeLight"/>
 									<listOptionValue builtIn="false" value="../apps/common"/>
 									<listOptionValue builtIn="false" value="../platform"/>
 									<listOptionValue builtIn="false" value="../proj"/>
@@ -7577,7 +7586,7 @@
 								</option>
 								<option id="com.telink.tc32eclipse.compiler.option.incpath.1804193503" name="Include Paths (-I)" superClass="com.telink.tc32eclipse.compiler.option.incpath" valueType="includePath">
 									<listOptionValue builtIn="false" value="../platform"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}}/apps/sampleGw&quot;"/>
+									<listOptionValue builtIn="false" value="../apps/sampleGw"/>
 									<listOptionValue builtIn="false" value="../proj"/>
 									<listOptionValue builtIn="false" value="../proj/common"/>
 									<listOptionValue builtIn="false" value="../zigbee/common/includes"/>
@@ -8414,6 +8423,7 @@
 								</option>
 								<option id="com.telink.tc32eclipse.compiler.option.incpath.1423442939" name="Include Paths (-I)" superClass="com.telink.tc32eclipse.compiler.option.incpath" valueType="includePath">
 									<listOptionValue builtIn="false" value="../proj/common"/>
+									<listOptionValue builtIn="false" value="../apps/sampleLight"/>
 									<listOptionValue builtIn="false" value="../apps/common"/>
 									<listOptionValue builtIn="false" value="../platform"/>
 									<listOptionValue builtIn="false" value="../proj"/>
@@ -9253,6 +9263,7 @@
 								</option>
 								<option id="com.telink.tc32eclipse.compiler.option.incpath.1584423606" name="Include Paths (-I)" superClass="com.telink.tc32eclipse.compiler.option.incpath" valueType="includePath">
 									<listOptionValue builtIn="false" value="../proj/common"/>
+									<listOptionValue builtIn="false" value="../apps/sampleSwitch_8278"/>
 									<listOptionValue builtIn="false" value="../platform"/>
 									<listOptionValue builtIn="false" value="../proj"/>
 									<listOptionValue builtIn="false" value="../zigbee/common/includes"/>

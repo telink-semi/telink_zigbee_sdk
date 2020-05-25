@@ -21,11 +21,11 @@
  *******************************************************************************************************/
 #pragma once
 
+#include "app_cfg.h"
 
-
+#if 0
 #if (__PROJECT_TL_GW__)
-	//#include "../sampleGW/app_cfg.h"
-	#include "app_cfg.h"
+	#include "../sampleGW/app_cfg.h"
 #elif (__PROJECT_TL_DIMMABLE_LIGHT__)
 	#include "../sampleLight/app_cfg.h"
 #elif (__PROJECT_TL_SWITCH__)
@@ -63,5 +63,5 @@
 #else
 
 #endif
-
+#endif
 
