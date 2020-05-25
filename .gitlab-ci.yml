@@ -17,9 +17,9 @@ build:
 
   artifacts:
     paths:
-    - "tl_zigbee_sdk/sampleGw_8258/*.bin"
-    - "tl_zigbee_sdk/sampleGw_8258/*.lst"
-    - "tl_zigbee_sdk/sampleGw_8258/*.elf"
+    - "tl_zigbee_sdk/sampleGw_8278/*.bin"
+    - "tl_zigbee_sdk/sampleGw_8278/*.lst"
+    - "tl_zigbee_sdk/sampleGw_8278/*.elf"
 
 clean_build:
   stage: clean_build
