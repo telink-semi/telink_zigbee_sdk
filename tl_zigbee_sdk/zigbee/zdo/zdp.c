@@ -120,7 +120,7 @@ _CODE_ZDO_ void zdp_rxDataIndication(void *ind){
 	aps_data_ind_t *p = ind;
 	bool need_free_buff = 0;
 
-	if(p->cluster_id >= NWK_ADDR_CLID && p->cluster_id <= MGMT_NWK_UPDATE_CLID){
+	if(p->cluster_id <= MGMT_NWK_UPDATE_CLID){
 		if(ZDO_NOT_SUPPORTED == zdp_clientCmdHandler(ind)){
 			need_free_buff = 1;
 		}

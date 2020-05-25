@@ -398,9 +398,12 @@ _CODE_ZCL_ void reportAttr(reportCfgInfo_t *pEntry)
 	if(!pAttrEntry){
 		//should not happen.
 		ZB_EXCEPTION_POST(SYS_EXCEPTTION_ZB_ZCL_ENTRY);
+		return;
 	}
 
 	u16 len = zcl_getAttrSize(pAttrEntry->type, pAttrEntry->data);
+
+	len = (len>8) ? (8):(len);
 
 	//store for next compare
 	memcpy(pEntry->prevData, pAttrEntry->data, len);
@@ -432,9 +435,11 @@ _CODE_ZCL_ void reportNoMinLimit(void)
 				if(!pAttrEntry){
 					//should not happen.
 					ZB_EXCEPTION_POST(SYS_EXCEPTTION_ZB_ZCL_ENTRY);
+					return;
 				}
 
 				len = zcl_getAttrSize(pAttrEntry->type, pAttrEntry->data);
+				len = (len>8) ? (8):(len);
 
 				if( (!zcl_analogDataType(pAttrEntry->type) && (memcmp(pEntry->prevData, pAttrEntry->data, len) != SUCCESS))
 					|| ((zcl_analogDataType(pAttrEntry->type)
@@ -482,9 +487,12 @@ _CODE_ZCL_ s32 reportAttrTimerCb(void *arg)
 					if(!pAttrEntry){
 						//should not happen.
 						ZB_EXCEPTION_POST(SYS_EXCEPTTION_ZB_ZCL_ENTRY);
+						return;
 					}
 
 					u8 len = zcl_getAttrSize(pAttrEntry->type, pAttrEntry->data);
+
+					len = (len>8) ? (8):(len);
 
 					if( (!zcl_analogDataType(pAttrEntry->type) && (memcmp(pEntry->prevData, pAttrEntry->data, len) != SUCCESS))
 						|| ((zcl_analogDataType(pAttrEntry->type)

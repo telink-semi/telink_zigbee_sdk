@@ -92,7 +92,7 @@ void ll_decrypt_network_key(u8 key_index, u8 *encrypted_network_key, u32 transac
 	u8 response_ID[4];
 	u8 AES_input[CCM_KEY_SIZE] _attribute_aligned_(4) ;
 	u8 transport_key[CCM_KEY_SIZE] _attribute_aligned_(4) ;
-	u8 network_key[CCM_KEY_SIZE] _attribute_aligned_(4) ;
+	u8 network_key[CCM_KEY_SIZE] _attribute_aligned_(4) = {0};
 
 	transaction_ID[0]	= U32_BYTE3(transactionID);
 	transaction_ID[1]	= U32_BYTE2(transactionID);

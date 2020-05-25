@@ -57,6 +57,7 @@ _CODE_ZCL_ status_t zcl_doorLock_register(u8 endpoint, u8 attrNum, const zclAttr
 
 _CODE_ZCL_ status_t zcl_doorLock_doorLockReq(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, u8 cmdId, u8 *pCode)
 {
+	status_t status = ZCL_STA_SUCCESS;
 	u8 len = pCode[0] + 1;
 
 	u8 *buf = (u8 *)ev_buf_allocate(len);
@@ -68,12 +69,13 @@ _CODE_ZCL_ status_t zcl_doorLock_doorLockReq(u8 srcEp, epInfo_t *pDstEpInfo, u8 
 		buf[i] = pCode[i];
 	}
 
-	return zcl_sendCmd(srcEp, pDstEpInfo, ZCL_CLUSTER_CLOSURES_DOOR_LOCK, cmdId, TRUE,
+	status = zcl_sendCmd(srcEp, pDstEpInfo, ZCL_CLUSTER_CLOSURES_DOOR_LOCK, cmdId, TRUE,
 		ZCL_FRAME_CLIENT_SERVER_DIR, disableDefaultRsp, 0, seqNo, len, buf);
 
 	if(buf){
 		ev_buf_free(buf);
 	}
+	return status;
 }
 
 _CODE_ZCL_ status_t zcl_doorLock_doorLockRsp(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, u8 cmdId, status_t rspStatus)

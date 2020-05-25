@@ -702,7 +702,7 @@ _CODE_ZCL_ static u8 zcl_zllCommissionServerCmdHandler(zclIncoming_t *pInMsg){
 		case ZCL_CMD_ZLL_COMMISSIONING_GET_ENDPOINT_LIST_RSP:
 		{
 			zcl_zllUtilityGetEpListResp_t epListResp;
-			memcpy((u8 *)&epListResp, pInMsg->pData, sizeof(zcl_zllUtilityEndpointInfo_t));
+			memcpy((u8 *)&epListResp, pInMsg->pData, sizeof(zcl_zllUtilityGetEpListResp_t));
 			epListResp.epInfoRecord = NULL;
 
 			u16 pldLen = epListResp.count * sizeof(zcl_zllEndpointInfo_t);

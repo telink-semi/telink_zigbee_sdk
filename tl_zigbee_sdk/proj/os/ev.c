@@ -169,6 +169,7 @@ static void ev_start_timer(ev_time_event_t *e){
 void ev_on_timer(ev_time_event_t *e, u32 t_us){
 	if(e == NULL){
 		ZB_EXCEPTION_POST(SYS_EXCEPTTION_COMMON_TIMER_EVEVT);
+		return;
 	}
     e->interval = t_us * CLOCK_SYS_CLOCK_1US;
     ev_start_timer(e);
@@ -177,6 +178,7 @@ void ev_on_timer(ev_time_event_t *e, u32 t_us){
 void ev_unon_timer(ev_time_event_t *e){
 	if(e == NULL) {
 		ZB_EXCEPTION_POST(SYS_EXCEPTTION_COMMON_TIMER_EVEVT);
+		return;
 	}
 	u8 r = irq_disable();
 

@@ -109,7 +109,7 @@
 
 
 static inline u8 ZB_RADIO_RSSI_TO_LQI(rf_rxGainMode_t mode, u8 inRssi){
-	 u8 lqi;
+	 u8 lqi = 0;
 	 s8 rssi = inRssi - 110;
 
 	 s16 minEd = -106;

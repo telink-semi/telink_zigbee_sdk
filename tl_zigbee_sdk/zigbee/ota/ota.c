@@ -615,6 +615,9 @@ u8 ota_imageDataProcess(u8 len, u8 *pData)
 	if(zcl_attr_imageUpgradeStatus != IMAGE_UPGRADE_STATUS_DOWNLOAD_IN_PROGRESS){
 		return ZCL_STA_ABORT;
 	}
+	if(!pData){
+		return ZCL_STA_INVALID_IMAGE;
+	}
 
 	for(u8 i = 0; i < len; i++){
 		switch(otaClientInfo.clientOtaFlg)

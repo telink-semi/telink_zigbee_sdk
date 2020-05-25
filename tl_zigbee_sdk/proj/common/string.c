@@ -116,15 +116,19 @@ void* memcpy(void * out, const void * in, unsigned int length) {
 	}
 	if(out == NULL){
 		ZB_EXCEPTION_POST(SYS_EXCEPTTION_COMMON_MEM_ACCESS);
+		return NULL;
 	}
 	if(in == NULL){
 		ZB_EXCEPTION_POST(SYS_EXCEPTTION_COMMON_MEM_ACCESS);
+		return NULL;
 	}
     if(is_ev_buf(out) && (length > LARGE_BUFFER)){
     	ZB_EXCEPTION_POST(SYS_EXCEPTTION_COMMON_MEM_ACCESS);
+    	return NULL;
     }
     if(is_zb_buf(out) && (length > ZB_BUF_SIZE) && (length != (ZB_BUF_SIZE + sizeof(zb_buf_hdr_t) - 1))){
     	ZB_EXCEPTION_POST(SYS_EXCEPTTION_COMMON_MEM_ACCESS);
+    	return NULL;
     }
 
 	bcopy((char *) in, (char *) out, (int) length);

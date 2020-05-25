@@ -383,7 +383,8 @@ void zclGpProxyTabAttrUpdate(void)
 		}
 
 		*pBuf++ = LO_UINT16(entryLen);
-		*pBuf++ = HI_UINT16(entryLen);
+//		*pBuf++ = HI_UINT16(entryLen);
+		*pBuf++ = 0; //HI_UINT16(entryLen) always is 0
 
 		for(u8 i = 0; i < entryCnt; i++){
 			if(g_gpProxyTab.gpProxyTab[i].used){

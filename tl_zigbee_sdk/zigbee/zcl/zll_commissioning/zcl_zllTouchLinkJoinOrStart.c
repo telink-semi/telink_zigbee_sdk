@@ -41,7 +41,7 @@ _CODE_ZCL_ static void zcl_zllTouchLinNetworkStartRespCmdSend(void *arg);
  */
 _CODE_ZCL_ void tl_zbNwkZllCommissionScanConfirm(void *arg){
 	u8 channel = 0xff;
-	u8 panNumOnChannel[16];
+	u8 panNumOnChannel[16] = {0};
 	u8 nodesOnChannel = 0xff;
 
 	u32 i = 0;
@@ -58,7 +58,7 @@ _CODE_ZCL_ void tl_zbNwkZllCommissionScanConfirm(void *arg){
 	/* select channel */
 	for(i = TL_ZB_MAC_CHANNEL_START ; i <= TL_ZB_MAC_CHANNEL_STOP ; i++){
 		if((g_zllTouchLink.scanChanMask & (i << i)) && panNumOnChannel[i-TL_ZB_MAC_CHANNEL_START] < nodesOnChannel){
-			nodesOnChannel = panNumOnChannel[i];
+			nodesOnChannel = panNumOnChannel[i-TL_ZB_MAC_CHANNEL_START];
 			channel = i;
 		}
 	}

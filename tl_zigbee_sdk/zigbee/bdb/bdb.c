@@ -596,7 +596,9 @@ _CODE_BDB_ static s32 bdb_findBindIdentifyTimeout(void *arg)
 	u16 identifyTime = 0;
 	u16 attrLen = 0;
 
-	zcl_getAttrVal(g_bdbCtx.simpleDesc->endpoint, ZCL_CLUSTER_GEN_IDENTIFY, ZCL_ATTRID_IDENTIFY_TIME, &attrLen, (u8 *)&identifyTime);
+	if(zcl_getAttrVal(g_bdbCtx.simpleDesc->endpoint, ZCL_CLUSTER_GEN_IDENTIFY, ZCL_ATTRID_IDENTIFY_TIME, &attrLen, (u8 *)&identifyTime) != ZCL_STA_SUCCESS){
+		return -1;
+	}
 
 	if(identifyTime == 0 || timerIdentifyCnt++ >= BDBC_MIN_COMMISSIONING_TIME / BDB_COMMISSION_TIME_INTV){
 		timerIdentifyCnt = 0;
