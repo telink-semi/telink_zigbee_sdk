@@ -653,6 +653,9 @@ u8 ota_imageDataProcess(u8 len, u8 *pData)
 				if(pData[i] != otaHdrMagic[i]){
 					return ZCL_STA_INVALID_IMAGE;
 				}else{
+					if(!pOtaUpdateInfo){
+						return ZCL_STA_INVALID_IMAGE;
+					}
 					pOtaUpdateInfo->hdrInfo.otaUpgradeFileID |= ((u32)pData[i] << 24) & 0xff000000;
 				}
 				otaClientInfo.clientOtaFlg = OTA_FLAG_IMAGE_HDR_VER1;
@@ -734,7 +737,10 @@ u8 ota_imageDataProcess(u8 len, u8 *pData)
 				break;
 			case OTA_FLAG_IMAGE_CONT_HDR:
 				//complete header
-				memcpy((u8 *)&(pOtaUpdateInfo->hdrInfo) + zcl_attr_fileOffset, &pData[i], 1);
+				if(zcl_attr_fileOffset >= sizeof(ota_hdrFields_t)){
+					return ZCL_STA_INVALID_IMAGE;
+				}
+				memcpy((u8 *)(&(pOtaUpdateInfo->hdrInfo) + zcl_attr_fileOffset), &pData[i], 1);
 				if(zcl_attr_fileOffset == pOtaUpdateInfo->hdrInfo.otaHdrLen - 1){
 					//TODO: save ota header to flash
 
