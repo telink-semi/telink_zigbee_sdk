@@ -5,7 +5,6 @@ stages:
 build:
   stage: build
   tags:
-    - LINUX
     - TC32
   before_script:
   script:
