@@ -19,9 +19,9 @@ build:
 
   artifacts:
     paths:
-    - "tl_zigbee_sdk/sampleSwitch_8258/*.bin"
-    - "tl_zigbee_sdk/sampleSwitch_8258/*.lst"
-    - "tl_zigbee_sdk/sampleSwitch_8258/*.elf"
+    - "tl_zigbee_sdk/sampleGw_8258/*.bin"
+    - "tl_zigbee_sdk/sampleGw_8258/*.lst"
+    - "tl_zigbee_sdk/sampleGw_8258/*.elf"
     
 # The cov job definition
 cov:
