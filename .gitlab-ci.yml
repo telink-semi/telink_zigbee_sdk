@@ -1,10 +1,13 @@
 stages:
   - build
+  - cov
   - clean_build
+  - clean_cov
 
 build:
   stage: build
   tags:
+    - LINUX
     - TC32
   before_script:
   script:
@@ -19,13 +22,43 @@ build:
     - "tl_zigbee_sdk/sampleGw_8278/*.bin"
     - "tl_zigbee_sdk/sampleGw_8278/*.lst"
     - "tl_zigbee_sdk/sampleGw_8278/*.elf"
-
+    
+# The cov job definition
+cov:
+  variables:    
+    CODE_COMPILE_ARCH: 'TC32'    
+    COV_PF_CATALOG: 'ZIGBEE'  
+  stage: cov  
+  tags:    
+    - COV    
+    - LINUX    
+    - TC32
+  before_script:  
+  script:    
+    - chmod +x tl_zigbee_sdk/*.sh    
+    - $COV_B COV_$CI_PROJECT_NAME $COV_B_TEMPLATE/$CODE_COMPILE_ARCH $TC32_ECLIPSE_BUILD  -data ${CI_PIPELINE_ID}_WS  -import ./tl_zigbee_sdk/  -cleanBuild $ECLIPSE_PROJECT/$ECLIPSE_BUILD_TARGET    
+    - $COV_A COV_$CI_PROJECT_NAME    
+    - cov_add_commit_steam_project_2_platform.sh
+        
 clean_build:
   stage: clean_build
   tags:
+    - LINUX
     - TC32
   script:
     - ls -a
     - rm -r * .git*
     - ls -a
+  when: always
+
+clean_cov:  
+  stage: clean_cov  
+  tags:    
+    - COV    
+    - LINUX    
+    - TC32    
+  script:    
+    - ls -a    
+    - rm -rf * .git*    
+    - ls -a  
   when: always
