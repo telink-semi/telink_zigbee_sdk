@@ -6,6 +6,7 @@ stages:
 
 build:
   stage: build
+  when: manual
   tags:
     - LINUX
     - TC32
@@ -28,7 +29,8 @@ cov:
   variables:    
     CODE_COMPILE_ARCH: 'TC32'    
     COV_PF_CATALOG: 'ZIGBEE'  
-  stage: cov  
+  stage: cov 
+  when: manual 
   tags:    
     - COV    
     - LINUX    
@@ -49,7 +51,7 @@ clean_build:
     - ls -a
     - rm -r * .git*
     - ls -a
-  when: always
+  when: manual
 
 clean_cov:  
   stage: clean_cov  
@@ -61,4 +63,4 @@ clean_cov:
     - ls -a    
     - rm -rf * .git*    
     - ls -a  
-  when: always
+  when: manual
