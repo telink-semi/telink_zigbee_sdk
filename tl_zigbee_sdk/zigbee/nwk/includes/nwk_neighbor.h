@@ -51,6 +51,8 @@
 
 extern u8 NWK_NEIGHBORTBL_ADD_LQITHRESHOLD;
 
+extern u32 NWK_UNAUTH_CHILD_TABLE_LIFE_TIME;
+
 /***************************************************************************
 * @brief	NWK static path cost
 */

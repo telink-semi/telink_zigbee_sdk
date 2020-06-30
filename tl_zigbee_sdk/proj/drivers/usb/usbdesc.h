@@ -43,6 +43,9 @@ extern "C" {
 #ifndef ID_VENDOR
 #define ID_VENDOR					0x248A
 #endif
+#ifndef ID_VERSION
+#define ID_VERSION					0x0100
+#endif
 #ifndef ID_PRODUCT_BASE
 #define ID_PRODUCT_BASE				0x8800
 #endif
@@ -94,16 +97,26 @@ typedef enum {
 	USB_INTF_HID_VENDOR,
 #endif /* USB_VENDOR_ENABLE */
 
+#if (__PROJECT_TL_SNIFFER__)
+	USB_INTF_SNIFFER,
+#endif
+
 	USB_INTF_MAX,
 } USB_INTF_ID_E;
 
 #if (USB_CDC_ENABLE)
 /** Endpoint number of the CDC device-to-host notification IN endpoint. */
+#ifndef CDC_NOTIFICATION_EPNUM
 #define CDC_NOTIFICATION_EPNUM         2
+#endif
 /** Endpoint number of the CDC device-to-host data IN endpoint. */
+#ifndef CDC_TX_EPNUM
 #define CDC_TX_EPNUM                   USB_EDP_CDC_IN//4
+#endif
 /** Endpoint number of the CDC host-to-device data OUT endpoint. */
+#ifndef CDC_RX_EPNUM
 #define CDC_RX_EPNUM                   USB_EDP_CDC_OUT//5
+#endif
 /** Size in bytes of the CDC device-to-host notification IN endpoint. */
 #define CDC_NOTIFICATION_EPSIZE        8
 /** Size in bytes of the CDC data IN and OUT endpoints. */
@@ -118,6 +131,11 @@ typedef enum {
 /** Size in bytes of the HID Vendor data IN and OUT endpoints. */
 #define HID_VENDOR_TXRX_EPSIZE         64
 #endif /* USB_VENDOR_ENABLE */
+
+#if (__PROJECT_TL_SNIFFER__)
+#define SNIFFER_TX_EPNUM               3
+#define SNIFFER_TX_EPSIZE         	   64
+#endif
 
 enum {
 	USB_AUDIO_FORMAT_UNKNOWN 				= 0,
@@ -283,32 +301,38 @@ typedef struct {
 
 
 typedef struct {
-	USB_Descriptor_Configuration_Header_t Config;
+	USB_Descriptor_Configuration_Header_t 	Config;
 
 #if (USB_CDC_ENABLE)
 	// IAD0
-	USB_Descriptor_Interface_Association_t cdc_iad;
+	USB_Descriptor_Interface_Association_t 	cdc_iad;
     // CDC Interface
-    USB_Descriptor_Interface_t  cdc_interface;
-    USB_CDC_Descriptor_t  cdc_descriptor;
+    USB_Descriptor_Interface_t 				cdc_interface;
+    USB_CDC_Descriptor_t 					cdc_descriptor;
 #endif /* USB_CDC_ENABLE */
 
 #if (USB_MOUSE_ENABLE)
 	// Mouse HID Interface
-	USB_Descriptor_Interface_t mouse_interface;
-	USB_HID_Descriptor_HID_Mouse_t mouse_descriptor;
+	USB_Descriptor_Interface_t 				mouse_interface;
+	USB_HID_Descriptor_HID_Mouse_t 			mouse_descriptor;
 #endif /* USB_MOUSE_ENABLE */
+
 #if (USB_KEYBOARD_ENABLE)
 	// Keyboard HID Interface
-	USB_Descriptor_Interface_t keyboard_interface;
-	USB_HID_Descriptor_HID_Keyboard_t keyboard_descriptor;
+	USB_Descriptor_Interface_t 				keyboard_interface;
+	USB_HID_Descriptor_HID_Keyboard_t 		keyboard_descriptor;
 #endif /* USB_KEYBOARD_ENABLE */
 
 #if (USB_VENDOR_ENABLE)
     //Vendor HID Interface
-    USB_Descriptor_Interface_t  vendor_interface;
-    USB_HID_Descriptor_HID_Vendor_t  vendor_descriptor;
+    USB_Descriptor_Interface_t 				vendor_interface;
+    USB_HID_Descriptor_HID_Vendor_t 		vendor_descriptor;
 #endif /* USB_VENDOR_ENABLE */
+
+#if (__PROJECT_TL_SNIFFER__)
+	USB_Descriptor_Interface_t 				sniffer_interface;
+	USB_Descriptor_Endpoint_t 				sniffer_endpoint;
+#endif
 } USB_Descriptor_Configuration_t;
 
 

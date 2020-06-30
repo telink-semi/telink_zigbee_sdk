@@ -158,11 +158,11 @@ u32 rf_pa_rxen_pin;
         rf_specificFuns.initFunc();
     }
 
-
     ZB_RADIO_TRX_CFG((RF_PKT_BUFF_LEN));
 
     ZB_RADIO_RX_ENABLE;
 	ZB_RADIO_TX_ENABLE;
+	ZB_TIMESTAMP_ENABLE;
 
     /* Register ED-Scan polling function, but disable it at begining. */
     ev_on_poll(EV_POLL_ED_DETECT, rf_edDetect);

@@ -33,7 +33,9 @@
 #if (USB_VENDOR_ENABLE)
 #include "app/usbvendor_i.h"
 #endif /* USB_VENDOR_ENABLE */
-
+#if (__PROJECT_TL_SNIFFER__)
+#include "app/usbsniffer_i.h"
+#endif
 
 
 // request parameters
@@ -74,6 +76,9 @@ const USB_Descriptor_String_t serial_desc = {
 
 /** Device descriptor.
  */
+#if (__PROJECT_TL_SNIFFER__)
+USB_Descriptor_Device_t device_desc = SNIFFER_DEVICE_DESC;
+#else
 const USB_Descriptor_Device_t device_desc = {
 	{sizeof(USB_Descriptor_Device_t), DTYPE_Device}, // Header
 
@@ -92,12 +97,13 @@ const USB_Descriptor_Device_t device_desc = {
 	8, 			// Endpoint0Size, Maximum Packet Size for Zero Endpoint. Valid Sizes are 8, 16, 32, 64
 	ID_VENDOR, 	// VendorID
     ID_PRODUCT, // ProductID
-	0x0100, 	// .ReleaseNumber
+    ID_VERSION, // ReleaseNumber
 	USB_STRING_VENDOR, 	// .ManufacturerStrIndex
 	USB_STRING_PRODUCT, // .ProductStrIndex
 	USB_STRING_SERIAL, 	// .SerialNumStrIndex
 	1					// .NumberOfConfigurations
 };
+#endif
 
 /** Configuration descriptor.
  */
@@ -108,7 +114,7 @@ const USB_Descriptor_Configuration_t configuration_desc = {
 		USB_INTF_MAX, // NumInterfaces
 		1, // Configuration index
 		NO_DESCRIPTOR, // Configuration String
-		USB_CONFIG_ATTR_RESERVED | USB_CONFIG_ATTR_REMOTEWAKEUP, // Attributes
+		USB_CONFIG_ATTR_RESERVED, // Attributes
 		USB_CONFIG_POWER_MA(50) // MaxPower = 100mA
 	},
 
@@ -321,6 +327,10 @@ const USB_Descriptor_Configuration_t configuration_desc = {
 	},
 #endif /* USB_VENDOR_ENABLE */
 
+#if (__PROJECT_TL_SNIFFER__)
+	SNIFFER_INTERFACE,
+	SNIFFER_ENDPOINT,
+#endif
 };
 
 u8 *usbdesc_get_language(void){

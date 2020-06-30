@@ -41,7 +41,9 @@
 #include "app/usbvendor.h"
 #include "app/usbvendor_i.h"
 #endif /* USB_VENDOR_ENABLE */
-
+#if (__PROJECT_TL_SNIFFER__)
+#include "app/usbsniffer.h"
+#endif
 
 
 static USB_Request_Header_t control_request;
@@ -51,6 +53,7 @@ static u8 g_stall = 0;
 u8 g_rate = 0; //default 0 for all report
 u8 usb_mouse_report_proto = 0; //default 1 for report proto
 u8 host_keyboard_status;
+
 
 static void usb_send_response(void){
 	u16 n;
@@ -276,6 +279,7 @@ static void usb_handle_request(u8 data_request){
 	u8 bRequest = control_request.bRequest;
 
 	usbhw_reset_ctrl_ep_ptr();
+
 	switch(bmRequestType){
 		case (REQDIR_DEVICETOHOST | REQTYPE_STANDARD | REQREC_DEVICE):
 			if(REQ_GetDescriptor == bRequest){
@@ -312,6 +316,14 @@ static void usb_handle_request(u8 data_request){
 			usb_handle_set_intf();
 		}
 		break;
+#if (__PROJECT_TL_SNIFFER__)
+	case (REQDIR_DEVICETOHOST | REQTYPE_VENDOR | REQREC_DEVICE):
+		usbSniffer_processControlRequest(bmRequestType, data_request, bRequest, 0);
+		break;
+	case (REQDIR_HOSTTODEVICE | REQTYPE_VENDOR | REQREC_DEVICE):
+		usbSniffer_processControlRequest(bmRequestType, data_request, bRequest, control_request.wIndex);
+		break;
+#endif
 	default:
 		g_stall = 1;
 		break;
@@ -377,6 +389,10 @@ void usb_handle_irq(void){
 		usb_mouse_report_proto = 1;
 		reg_irq_src3 = BIT(1);//Clear USB reset flag
 	}
+
+#if (__PROJECT_TL_SNIFFER__)
+	g_stall = 0;
+#endif
 
 #if (USB_CDC_ENABLE)
 	g_stall = 0;

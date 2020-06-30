@@ -234,7 +234,7 @@ enum AES_OPT {
 };
 
 extern ss_info_base_t ss_ib;
-#define SS_IB()							ss_ib
+#define SS_IB()	ss_ib
 
 // for CCM
 u8 aes_ccmAuthTran(u8 M, u8 *key, u8 *iv, u8 *mStr, u16 mStrLen, u8 *aStr, u8 aStrLen, u8 *result);

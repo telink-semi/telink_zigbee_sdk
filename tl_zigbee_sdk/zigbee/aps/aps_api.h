@@ -420,12 +420,12 @@ typedef struct{
 	u8		aps_fragment_payload_size;
 
 	u8		aps_use_insecure_join:1;//A flag controlling the use of insecure join at startup. Default TRUE
-	u8		aps_authenticated:1;//authenticted or not
-	u8		aps_reserved:6;
+	u8		aps_authenticated:1;//authenticated or not
+	u8		aps_updateDevice_holdApsSecurity:1;//if set, will not send update device with aps encryption
+	u8		aps_reserved:5;
 	u8		aps_flags;//Flag used in APS layers, see the enum of aps_flag_e
 }aps_pib_attributes_t;
 
-extern bool APS_SECUTIRY_ENABLE;
 extern u8 APS_INTERFRAME_DELAY;
 extern u8 APS_MAX_WINDOW_SIZE;
 extern u8 APS_FRAGMEMT_PAYLOAD_SIZE;
@@ -437,6 +437,8 @@ extern aps_group_tbl_ent_t aps_group_tbl[];
 extern aps_pib_attributes_t aps_ib;
 
 #define APS_IB() aps_ib
+
+#define ZB_SET_UPDATE_DEVICE_APS_SEC_HOLD(v)	(aps_ib.aps_updateDevice_holdApsSecurity = v)
 
 /******************************************************************************
                               Prototypes section

@@ -117,7 +117,7 @@ static inline u32 clock_get_tmr_status(int tmr){
 //  watchdog use timer 2
 static inline void wd_setintervalms(u32 interval_ms)
 {
-	reg_tmr_ctrl = MASK_VAL(FLD_TMR_WD_CAPT, (interval_ms * MASTER_CLK_FREQ * 1000 >> WATCHDOG_TIMEOUT_COEFF));
+	reg_tmr_ctrl |= MASK_VAL(FLD_TMR_WD_CAPT, (interval_ms * MASTER_CLK_FREQ * 1000 >> WATCHDOG_TIMEOUT_COEFF));
 }
 
 //  watchdog use timer 2

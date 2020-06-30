@@ -140,7 +140,7 @@ typedef enum{
 	EV_POLL_MAX,
 }ev_poll_e;
 
-    /* Disable C linkage for C++ Compilers: */
+/* Disable C linkage for C++ Compilers: */
 #if defined(__cplusplus)
 }
 #endif

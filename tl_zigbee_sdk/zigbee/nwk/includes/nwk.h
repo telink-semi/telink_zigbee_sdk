@@ -83,6 +83,18 @@
 #define NWK_BROADCAST_DELIVERY_TIME	 	5000//ms
 #endif
 
+/***************************************************************************
+* @brief	The number of times the first broadcast route request command
+*/
+#define NWK_INITIAL_RREQ_RETRIES 		3
+
+/***************************************************************************
+* @brief	The number of times the broadcast transmission of a route request
+* 			command frame is retries on relay by an intermediate ZigBee router
+* 			or ZigBee coordinator
+*/
+#define NWK_RREQ_RETRIES				2
+
 /****************************************************************************
 * @brief	Network layer debug flag
 */
@@ -907,17 +919,15 @@ typedef struct
 
 
 
-#define		NWK_FILL_LINKST_OPTIONS(dst,cnt,ff,lf)						\
-do{																	\
-	*dst = 0;														\
-	*dst = (cnt & 0x1f) + (ff<<5) + (lf<<6);						\
-}while(0)															\
+#define	NWK_FILL_LINKST_OPTIONS(dst,cnt,ff,lf)	do{	\
+													*dst = 0;									\
+													*dst = (cnt & 0x1f) + (ff<<5) + (lf<<6); 	\
+												}while(0)
 
-#define		NWK_FILL_LINKST(dst,oc,oi)									\
-do{															\
-	*dst = 0;												\
-	*dst = (oi&0x07) + ((oc & 0x07)<<4);					\
-}while(0)													\
+#define	NWK_FILL_LINKST(dst,oc,oi)				do{	\
+													*dst = 0;									\
+													*dst = (oi&0x07) + ((oc & 0x07)<<4);		\
+												}while(0)
 
 /****************************************************************************
 * @brief	Network report command payload
@@ -1245,6 +1255,9 @@ typedef struct
   	bool 		used;
 }nlmeLeaveReqInfo_ctx_t;
 
+extern u8 NWKC_TRANSFAILURE_CNT_THRESHOLD;
+extern u8 NWKC_INITIAL_RREQ_RETRIES;
+extern u8 NWKC_RREQ_RETRIES;
 extern u16 ROUTING_TABLE_SIZE;
 extern u8 NWK_BRC_TRANSTBL_SIZE;
 extern bool NWK_BRC_PASSIVE_ACK_ENABLE;
@@ -1263,8 +1276,8 @@ extern u16 TL_ZB_ASSOCJOIN_FILTER_PANID;
 #define	NWK_SET_LEAVEDEVICEADDR(p,addr)			(*((u16 *)(((u8 *)p)+NWK_LEAVEDEVICEADDRESS_LOCATION)) = addr)
 
 #define	NWK_REJOIN_SECURESTATUS_LOCATION		40
-#define	NWK_GET_REJOINSECURESTATUS(p)			(*((u8 *)(((u8 *)p)+NWK_LEAVEDEVICEADDRESS_LOCATION)))
-#define	NWK_SET_REJOINSECURESTATUS(p,v)			(*((u8 *)(((u8 *)p)+NWK_LEAVEDEVICEADDRESS_LOCATION)) = v)
+#define	NWK_GET_REJOINSECURESTATUS(p)			(*((u8 *)(((u8 *)p)+NWK_REJOIN_SECURESTATUS_LOCATION)))
+#define	NWK_SET_REJOINSECURESTATUS(p,v)			(*((u8 *)(((u8 *)p)+NWK_REJOIN_SECURESTATUS_LOCATION)) = v)
 
 #define LINK_STATUS_JITTER_MASK 			0x007F
 
@@ -1302,9 +1315,7 @@ u8 *nwkHdrBuilder(u8 *buf, nwk_hdr_t *pNwkHdr);
 
 void tl_zbNwkLinkStatusStart(void *arg);
 void tl_zbNwkLinkStatusStop(void);
-
-
-void tl_zbNwkRouteDiscStart(void *arg);
+void tl_zbNwkSendLinkStatus(void);
 
 void nwkEndDevTimeoutReqSend(reqTimeoutEnum_t reqTimeoutEnum, u8 endDevCfg);
 void keepaliveMsgSendStop(void);

@@ -43,7 +43,7 @@
 										gpio_set_output_en(GPIO_PC2, 0);		\
 										gpio_set_input_en(GPIO_PC3, 1);			\
 										UART_GPIO_CFG_PC2_PC3();				\
-									}while(0);
+									}while(0)
 #endif
 
 typedef struct{
@@ -300,24 +300,12 @@ void moduleTest_RF(){
     		ZB_RADIO_TRX_SWITCH(RF_MODE_TX, 50);
 			WaitUs(150);
 			//tx_packet[8]++;
-			ZB_RADIO_TX_START (tx_packet);
+			ZB_RADIO_TX_START(tx_packet);
 			WaitMs(50);
     	}
 	#else
-    	ZB_RADIO_TRX_SWITCH(RF_MODE_RX,50);
-    	while(0)
-    	{
-			if(RF_Is_RxFinish())
-			{
-				RF_ClearRxFlag();
-				
-				if((rx_packet[0] >= 15) && RF_ZIGBEE_PACKET_LENGTH_OK(rx_packet) && RF_ZIGBEE_PACKET_CRC_OK(rx_packet))
-				
-				{
-					rx_cnt++;
-				}
-			}
-    	}
+    	ZB_RADIO_TRX_SWITCH(RF_MODE_RX, 50);
+    	while(1);
 	#endif
 }
 #endif

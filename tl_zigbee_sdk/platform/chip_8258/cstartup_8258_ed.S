@@ -365,6 +365,20 @@ ZERO_CUSTOM_BEGIN:
 	tj		ZERO_CUSTOM_BEGIN				@jump to ZERO_BSS_BEGIN
 ZERO_CUSTOM_END:
 
+COPY_CUSTOM_DATA:
+	tloadr		r1, DATA_I+52				@ r1 = _dstored_
+	tloadr		r2, DATA_I+56				@ r2 = _start_data_
+	tloadr		r3, DATA_I+60				@ r3 = _end_data_
+COPY_DATA_CUSTOM_BEGIN:
+	tcmp		r2, r3						@
+	tjge		COPY_DATA_CUSTOM_END				@ r2>=r3 jump to COPY_DATA_END
+	tloadr		r0, [r1, #0]				@ r0 = *(unsigned int*)(_dstored_)
+	tstorer 	r0, [r2, #0]				@ *(unsigned int*)(_start_data_) = r0
+	tadd    	r1, #4						@ r1 = r1 + 4
+	tadd		r2, #4						@ r2 = r2 + 4
+	tj			COPY_DATA_CUSTOM_BEGIN				@ jump to COPY_DATA_BEGIN
+COPY_DATA_CUSTOM_END:
+
 ENTER_MAIN:
 	tjl	main
 END:	tj	END
@@ -384,8 +398,8 @@ DAT0:
 	.word	(0x00ff00)    				@36
 #endif
 	.word	_ramcode_size_align_256_    @36
-	.word	_start_custom_              @40
-	.word	_end_custom_	            @44
+	.word	_start_custom_bss_              @40
+	.word	_end_custom_bss_	            @44
 
 DATA_I:	
 	.word   (_rstored_)                 @0
@@ -401,6 +415,9 @@ DATA_I:
     .word	(0x00800000)                @40
 	.word	(0x0080000c)                @44
 	.word	(0x000000c4)                @48
+	.word	_custom_stored_				@52
+	.word	_start_custom_data_			@56
+	.word	_end_custom_data_			@60
 FLL_D:
 	.word	0xffffffff                	@0
 	.word	(_end_bss_)    				@4

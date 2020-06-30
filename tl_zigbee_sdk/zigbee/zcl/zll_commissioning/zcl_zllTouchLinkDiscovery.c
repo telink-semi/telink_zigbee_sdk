@@ -36,6 +36,8 @@
 _CODE_ZCL_  void zcl_zllTouchLinkDiscoveyStop(void);
 _CODE_ZCL_  void zcl_zllTouchLinkDiscoveyStart(void);
 extern zcl_zllCommission_t g_zllCommission;
+extern bool scanReqProfileInterop;
+u8 reset2FactoryFlag = 0;
 
 s32 zcl_touchLinkIdentifyRequestDone(void *arg){
 	u32 sta = (u32)arg;
@@ -144,60 +146,53 @@ _CODE_ZCL_ void zcl_zllTouchLinkDeviceInformationRequest(void *arg){
  *
  */
 
-u16 start_match_idx = 0;
-_CODE_ZCL_ void zcl_zllTouchLinkDeviceInformationRequestHandler(epInfo_t *dstEp,u8 start_idx){
+_CODE_ZCL_ void zcl_zllTouchLinkDeviceInformationRequestHandler(epInfo_t *dstEp,u8 startEpIdx){
 	/*
 	 * send Device Information Response here
 	 * */
 	af_endpoint_descriptor_t *aed = af_epDescriptorGet();
-	u8 epNum = 0;
-	u8 matched_cnt = 0;
-	u8 total_epnum = 0;
+	u8 MatchEpnumOnce = 0;
+	u8 totalMatchEpnum = 0;
+	u8 matchEpIdx[MAX_ACTIVE_EP_NUMBER] = {0};
 	for(u8 i = 0; i < af_availableEpNumGet(); i++){
 		if(af_clsuterIdMatched(ZCL_CLUSTER_TOUCHLINK_COMMISSIONING, aed[i].correspond_simple_desc)){
-			total_epnum++;
+			matchEpIdx[totalMatchEpnum++] = i;
 		}
 	}
 
-	if(start_idx <= total_epnum){
-		for(u8 i = start_match_idx; i < af_availableEpNumGet(); i++){
-			if(af_clsuterIdMatched(ZCL_CLUSTER_TOUCHLINK_COMMISSIONING, aed[i].correspond_simple_desc)){
-				epNum++;
-			}
-		}
-
-		if(epNum >= 5)			//limited by the spec or the allocate buffer
-			epNum = 5;
+	if(totalMatchEpnum > startEpIdx){
+		MatchEpnumOnce = totalMatchEpnum - startEpIdx;
+		MatchEpnumOnce = (MatchEpnumOnce >= 5) ? 5 : MatchEpnumOnce;
 	}
-	u8 len = epNum * sizeof(zcl_zllDeviceInfoRec_t) + sizeof(zcl_zllTouchLinkDeviceInfoResp_t);
+
+	u8 len = MatchEpnumOnce * sizeof(zcl_zllDeviceInfoRec_t) + sizeof(zcl_zllTouchLinkDeviceInfoResp_t);
 	zcl_zllTouchLinkDeviceInfoResp_t *resp = (zcl_zllTouchLinkDeviceInfoResp_t *)ev_buf_allocate(len);
 	if(resp){
 		memset(resp, 0, len);
-		resp->numOfSubdevices = total_epnum;
+		resp->numOfSubdevices = totalMatchEpnum;
 		resp->transId = g_zllTouchLink.transId;
-		resp->deviceInfoRecordCnt = epNum;
-		resp->startIdx = start_idx;
-		if(epNum > 0)
+		resp->deviceInfoRecordCnt = MatchEpnumOnce;
+		resp->startIdx = startEpIdx;
+		if(MatchEpnumOnce > 0)
 		{
 			zcl_zllDeviceInfoRec_t *rec = resp->rec;
-			u8 i = 0;
-			for(u8 i = 0; i < af_availableEpNumGet(); i++){
-				if(af_clsuterIdMatched(ZCL_CLUSTER_TOUCHLINK_COMMISSIONING, aed[i].correspond_simple_desc)){
-					rec->deviceId = aed[i].correspond_simple_desc->app_dev_id;
-					rec->epId = aed[i].ep;
-					rec->groupIdCnt = 0;
-					rec->profileId = aed[i].correspond_simple_desc->app_profile_id;
-					rec->sort = 0;
-					rec->version = aed[i].correspond_simple_desc->app_dev_ver;
-					memcpy(rec->ieeeAddr, MAC_IB().extAddress, 8);
-					rec++;
-					matched_cnt++;
-					if(matched_cnt >= epNum)
-						break;
+			for(u8 i = 0; i < MatchEpnumOnce; i++){
+				u8 epIdx = matchEpIdx[startEpIdx + i];
+				rec->deviceId = aed[epIdx].correspond_simple_desc->app_dev_id;
+				rec->epId = aed[epIdx].ep;
+				rec->groupIdCnt = 0;
+				if(scanReqProfileInterop){
+					rec->profileId = aed[epIdx].correspond_simple_desc->app_profile_id;
+				}else{
+					rec->profileId = LL_PROFILE_ID;
 				}
+				rec->sort = 0;
+				rec->version = aed[epIdx].correspond_simple_desc->app_dev_ver;
+				memcpy(rec->ieeeAddr, MAC_IB().extAddress, 8);
+				rec++;
 			}
-			start_match_idx = i + 1;
 		}
+
 		zcl_sendInterPANCmd(g_zllTouchLink.devInfo.epId, dstEp, ZCL_CLUSTER_TOUCHLINK_COMMISSIONING, ZCL_CMD_ZLL_COMMISSIONING_DEVICE_INFORMATION_RSP, TRUE,
 				ZCL_FRAME_SERVER_CLIENT_DIR, TRUE, 0, g_zllTouchLink.seqNo++, len, (u8 *)resp);
 		ev_buf_free((u8 *)resp);
@@ -213,17 +208,17 @@ _CODE_ZCL_ void zcl_zllTouchLinkDeviceInformationRequestHandler(epInfo_t *dstEp,
  * @param 	arg
  *
  */
-_CODE_ZCL_ void zcl_zllTouchLinkDeviceInformationResponseHandler(zcl_zllTouchLinkDeviceInfoResp_t *dev_info_resp){
+_CODE_ZCL_ void zcl_zllTouchLinkDeviceInformationResponseHandler(zcl_zllTouchLinkDeviceInfoResp_t *devInfoResp){
 
-	if(dev_info_resp->startIdx + dev_info_resp->deviceInfoRecordCnt >= dev_info_resp->numOfSubdevices)
+	if(devInfoResp->startIdx + devInfoResp->deviceInfoRecordCnt >= devInfoResp->numOfSubdevices)
 	{
 		/* send identify request */
 		TL_SCHEDULE_TASK(zcl_zllTouchLinkIdentifyRequest, NULL);
 	}
 	else
 	{
-		u32 next_index = dev_info_resp->startIdx + dev_info_resp->deviceInfoRecordCnt;
-		TL_SCHEDULE_TASK(zcl_zllTouchLinkDeviceInformationRequest, (void*)next_index);
+		u32 nextIndex = devInfoResp->startIdx + devInfoResp->deviceInfoRecordCnt;
+		TL_SCHEDULE_TASK(zcl_zllTouchLinkDeviceInformationRequest, (void*)nextIndex);
 	}
 	return;
 }
@@ -270,14 +265,15 @@ _CODE_ZCL_  void zcl_zllTouchLinkScanRequestHandler(epInfo_t *srcEp, u8 seqNo){
 	else{
 		g_zllTouchLink.zllInfo.bf.factoryNew = 0;
 	}
+	g_zllTouchLink.zllInfo.bf.profileInterop = 1;
 	memcpy(&resp.zllInfo, &g_zllTouchLink.zllInfo, 1);
 
-	if(!is_device_factory_new() && resp.zbInfo.bf.logicDevType == DEVICE_TYPE_ROUTER){
+	if(!is_device_factory_new()){
 		memcpy(resp.epanId, NWK_NIB().extPANId, sizeof(addrExt_t));// NIB/AIB
 		resp.nwkUpdateId = NWK_NIB().updateId;  //if factory new , it is 0x00,  else nwkUpdateId attribute of originator , only have my update_id, not originators ???
 		resp.panId = MAC_IB().panId;
 		resp.nwkAddr = NIB_NETWORK_ADDRESS();
-	}else{ //is_device_factory_new() || resp.zbInfo.bf.logicDevType != DEVICE_TYPE_ROUTER
+	}else{ //is_device_factory_new()
 		resp.nwkUpdateId = 0;
 		memset(resp.epanId, 0, 8);
 		if(MAC_IB().panId == MAC_INVALID_PANID){
@@ -310,7 +306,11 @@ _CODE_ZCL_  void zcl_zllTouchLinkScanRequestHandler(epInfo_t *srcEp, u8 seqNo){
 		for(u8 i = 0; i < af_availableEpNumGet(); i++){
 			if(af_clsuterIdMatched(ZCL_CLUSTER_TOUCHLINK_COMMISSIONING, aed[i].correspond_simple_desc)){
 				resp.subDevInfo.epId = aed[i].ep;
-				resp.subDevInfo.profileId = aed[i].correspond_simple_desc->app_profile_id;
+				if(scanReqProfileInterop){
+					resp.subDevInfo.profileId = aed[i].correspond_simple_desc->app_profile_id;
+				}else{
+					resp.subDevInfo.profileId = LL_PROFILE_ID;
+				}
 				resp.subDevInfo.deviceId = aed[i].correspond_simple_desc->app_dev_id;
 				resp.subDevInfo.version = aed[i].correspond_simple_desc->app_dev_ver;
 				resp.subDevInfo.groupIdCnt  = 0; //TODO - find group identifier count needed  for this end device.
@@ -360,8 +360,9 @@ _CODE_ZCL_ void zcl_zllTouchLinkScanResponseHandler(zcl_zllTouchLinkScanResp_t *
 
 #ifdef ZB_SECURITY
 	u16 matched_algorithms = 0;
-	if((matched_algorithms = p->keyBitmask & (1 << g_zllTouchLink.keyType)) == 0)
+	if((matched_algorithms = p->keyBitmask & (1 << g_zllTouchLink.keyType)) == 0){
 		return;// ZCL_STA_INVALID_VALUE;
+	}
 #endif
 
 	zll_touchLinkScanInfo *scanInfo =  &g_zllTouchLink.disc->scanList[idx];
@@ -442,7 +443,13 @@ _CODE_ZCL_ static void zcl_zllTouchLinkDiscoverydone(void *arg){
 		 *	so we don't need to send Device Info Request to target device.  :)
 		 *	Check the scan response and prioritize the device if asked for priority.
 		 */
-		g_zllTouchLink.respId = pScanInfo->respId;		
+		g_zllTouchLink.respId = pScanInfo->respId;
+
+		if(reset2FactoryFlag){
+			zcl_zllTouchLinkResetFactoryReq(NULL);
+			zcl_zllTouchLinkFinish(ZCL_ZLL_TOUCH_LINK_STA_SUCC);
+			return;
+		}
 
 		if(pScanInfo->numOfSubdevices > 1)
 		{
@@ -572,6 +579,7 @@ _CODE_ZCL_  void zcl_zllTouchLinkDiscoveyStop(void){
 
 	if(g_zllTouchLink.disc){
 		ev_buf_free((u8 *)g_zllTouchLink.disc);
+		g_zllTouchLink.disc = NULL;
 	}
 }
 

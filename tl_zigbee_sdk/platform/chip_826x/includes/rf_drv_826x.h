@@ -408,13 +408,14 @@ extern unsigned char RF_StopEd(void);
 
 extern void RF_reset(void);
 
-#define		RF_PACKET_LENGTH_OK(p)		((p[0] == p[12]+13)&&p[0]<=(ZB_PHY_MAX_PACKET_SIZE+13))
+#define		PHY_MAX_PACKET_SIZE			127
+#define		RF_PACKET_LENGTH_OK(p)		((p[0] == p[12]+13)&&p[0]<=(PHY_MAX_PACKET_SIZE+13))
 #define		RF_PACKET_CRC_OK(p)			((p[p[0]+3] & 0x51) == 0x10)
 
 /**
  *  @brief Timestamp is stored on the before of CRC value
  */
-#define RF_GET_TIMESTAMP(p)    			( p[p[0]] | (p[p[0]+1]<<8) | (p[p[0]+2]<<16) )
+#define RF_GET_TIMESTAMP(p)    			( p[8] | (p[9]<<8) | (p[10]<<16) | (p[11]<<24) )
 #define RF_GET_PKT_RSSI(p)    			(p[4])
 
 #define RF_TxFinishClearFlag()		 reg_rf_irq_status |= FLD_RF_IRQ_TX

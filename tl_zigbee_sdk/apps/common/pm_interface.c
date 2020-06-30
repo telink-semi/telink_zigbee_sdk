@@ -22,7 +22,7 @@
 #include "tl_common.h"
 #include "zb_task_queue.h"
 
-#if(PM_ENABLE)
+#if (PM_ENABLE)
 #include "pm_interface.h"
 
 void pm_wakeupPinConfig(pm_pinCfg_t *pmCfg, int pinNum){

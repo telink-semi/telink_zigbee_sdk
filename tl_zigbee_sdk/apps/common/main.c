@@ -115,8 +115,9 @@ static u8 platform_init(void){
 
 
 /*
+ * main:
  * */
-int main (void) {
+int main(void){
 	u8 isRetention = platform_init();
 
 	os_init(isRetention);

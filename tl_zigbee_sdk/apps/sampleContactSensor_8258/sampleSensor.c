@@ -1,10 +1,10 @@
 /********************************************************************************************************
- * @file     sampleLight.c
+ * @file     sampleSensor.c
  *
- * @brief    HA Router
+ * @brief    contact sensor
  *
  * @author
- * @date     Dec. 1, 2016
+ * @date     Jan. 4, 2018
  *
  * @par      Copyright (c) 2016, Telink Semiconductor (Shanghai) Co., Ltd.
  *           All rights reserved.
@@ -20,7 +20,7 @@
  *
  *******************************************************************************************************/
 
-#if (__PROJECT_TL_DIMMABLE_LIGHT__)
+#if (__PROJECT_TL_CONTACT_SENSOR_8258__)
 
 /**********************************************************************
  * INCLUDES
@@ -30,12 +30,10 @@
 #include "zcl_include.h"
 #include "bdb.h"
 #include "ota.h"
-#include "gp.h"
-#include "sampleLight.h"
-#include "sampleLightCtrl.h"
+#include "sampleSensor.h"
 #include "app_ui.h"
-#if ZBHCI_EN
-#include "zbhci.h"
+#if PM_ENABLE
+#include "pm_interface.h"
 #endif
 
 
@@ -52,30 +50,30 @@
 /**********************************************************************
  * GLOBAL VARIABLES
  */
-app_ctx_t gLightCtx;
+app_ctx_t g_sensorAppCtx;
 
 
 #ifdef ZCL_OTA
-extern ota_callBack_t sampleLight_otaCb;
+extern ota_callBack_t sampleSensor_otaCb;
 
 //running code firmware information
-ota_preamble_t sampleLight_otaInfo = {
+ota_preamble_t sampleSensor_otaInfo = {
 		.fileVer = CURRENT_FILE_VERSION,
 		.imageType = IMAGE_TYPE,
 		.manufacturerCode = TELINK_MANUFACTURER_CODE,
 };
 #endif
 
-extern void bdb_zdoStartDevCnf(void *arg);
+extern void bdb_zdoStartDevCnf(void* arg);
 
 //Must declare the application call back function which used by ZDO layer
 const zdo_appIndCb_t appCbLst = {
 		bdb_zdoStartDevCnf,//start device cnf cb
 		NULL,//reset cnf cb
 		NULL,//device announce indication cb
-		sampleLight_leaveIndHandler,//leave ind cb
-		sampleLight_leaveCnfHandler,//leave cnf cb
-		sampleLight_nwkUpdateIndicateHandler,//nwk update ind cb
+		sampleSensor_leaveIndHandler,//leave ind cb
+		sampleSensor_leaveCnfHandler,//leave cnf cb
+		NULL,//nwk update ind cb
 		NULL,//permit join ind cb
 		NULL,//nlme sync cnf cb
 };
@@ -100,13 +98,27 @@ bdb_commissionSetting_t g_bdbCommissionSetting = {
 	.touchlinkEnable = 0,												/* disable touch-link */
 #endif
 	.touchlinkChannel = DEFAULT_CHANNEL, 								/* touch-link default operation channel for target */
-	.touchlinkLqiThreshold = 0xe0,			   							/* threshold for touch-link scan req/resp command */
+	.touchlinkLqiThreshold = 0x3f,			   							/* threshold for touch-link scan req/resp command */
 };
 
+#if PM_ENABLE
+/**
+ *  @brief Definition for wakeup source and level for PM
+ */
+pm_pinCfg_t g_sensorPmCfg[] = {
+	{
+		BUTTON1,
+		PM_WAKEUP_LEVEL
+	},
+	{
+		BUTTON2,
+		PM_WAKEUP_LEVEL
+	}
+};
+#endif
 /**********************************************************************
  * LOCAL VARIABLES
  */
-ev_time_event_t *sampleLightAttrsStoreTimerEvt = NULL;
 
 
 /**********************************************************************
@@ -125,11 +137,8 @@ ev_time_event_t *sampleLightAttrsStoreTimerEvt = NULL;
  */
 void stack_init(void)
 {
-	/* Initialize ZB stack */
 	zb_init();
-
-	/* Register stack CB */
-    zb_zdoCbRegister((zdo_appIndCb_t *)&appCbLst);
+	zb_zdoCbRegister((zdo_appIndCb_t *)&appCbLst);
 }
 
 /*********************************************************************
@@ -143,66 +152,32 @@ void stack_init(void)
  */
 void user_app_init(void)
 {
-	af_nodeDescManuCodeUpdate(TELINK_MANUFACTURER_CODE);
+#ifdef ZCL_POLL_CTRL
+	af_powerDescPowerModeUpdate(POWER_MODE_RECEIVER_COMES_PERIODICALLY);
+#else
+	af_powerDescPowerModeUpdate(POWER_MODE_RECEIVER_COMES_WHEN_STIMULATED);
+#endif
 
     /* Initialize ZCL layer */
 	/* Register Incoming ZCL Foundation command/response messages */
-    zcl_init(sampleLight_zclProcessIncomingMsg);
+	zcl_init(sampleSensor_zclProcessIncomingMsg);
 
 	/* Register endPoint */
-	af_endpointRegister(SAMPLE_LIGHT_ENDPOINT, (af_simple_descriptor_t *)&sampleLight_simpleDesc, zcl_rx_handler, NULL);
-#if AF_TEST_ENABLE
-	/* A sample of AF data handler. */
-	af_endpointRegister(SAMPLE_TEST_ENDPOINT, (af_simple_descriptor_t *)&sampleTestDesc, afTest_rx_handler, afTest_dataSendConfirm);
-#endif
-
-	/* Initialize or restore attributes, this must before 'zcl_register()' */
-	zcl_sampleLightAttrsInit();
-	zcl_reportingTabInit();
+	af_endpointRegister(SAMPLE_SENSOR_ENDPOINT, (af_simple_descriptor_t *)&sampleSensor_simpleDesc, zcl_rx_handler, NULL);
 
 	/* Register ZCL specific cluster information */
-	zcl_register(SAMPLE_LIGHT_ENDPOINT, SAMPLELIGHT_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_sampleLightClusterList);
-
-#ifdef ZCL_GREEN_POWER
-	/* Initialize GP */
-	gp_init();
-#endif
+	zcl_register(SAMPLE_SENSOR_ENDPOINT, SAMPLE_SENSOR_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_sampleSensorClusterList);
 
 #ifdef ZCL_OTA
-	/* Initialize OTA */
-    ota_init(OTA_TYPE_CLIENT, (af_simple_descriptor_t *)&sampleLight_simpleDesc, &sampleLight_otaInfo, &sampleLight_otaCb);
+    ota_init(OTA_TYPE_CLIENT, (af_simple_descriptor_t *)&sampleSensor_simpleDesc, &sampleSensor_otaInfo, &sampleSensor_otaCb);
 #endif
 }
 
 
 
-s32 sampleLightAttrsStoreTimerCb(void *arg)
+void led_init(void)
 {
-	zcl_onOffAttr_save();
-	zcl_levelAttr_save();
-	zcl_colorCtrlAttr_save();
-
-	sampleLightAttrsStoreTimerEvt = NULL;
-	return -1;
-}
-
-void sampleLightAttrsStoreTimerStart(void)
-{
-	if(sampleLightAttrsStoreTimerEvt){
-		ev_on_timer(sampleLightAttrsStoreTimerEvt, 200 * 1000);
-	}else{
-		sampleLightAttrsStoreTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLightAttrsStoreTimerCb, NULL, 200 * 1000);
-	}
-}
-
-void sampleLightAttrsChk(void)
-{
-	if(gLightCtx.lightAttrsChanged){
-		gLightCtx.lightAttrsChanged = FALSE;
-		if(zb_isDeviceJoinedNwk()){
-			sampleLightAttrsStoreTimerStart();
-		}
-	}
+	light_init();
 }
 
 void report_handler(void)
@@ -225,25 +200,17 @@ void report_handler(void)
 void app_task(void)
 {
 	app_key_handler();
-	localPermitJoinState();
-	if(BDB_STATE_GET() == BDB_STATE_IDLE){
-		report_handler();
 
-#if 0/* NOTE: If set to '1', the latest status of lighting will be stored. */
-		sampleLightAttrsChk();
+	if(bdb_isIdle()){
+#if PM_ENABLE
+		/* if PAD wake up, wait until de-bounce finished*/
+		if(g_sensorAppCtx.restartLoopTimes++ >= KEY_PRESSED_CHECK_TIMES && !g_sensorAppCtx.keyPressed){
+			pm_deepSleepEnter(PLATFORM_WAKEUP_TIMER | PLATFORM_WAKEUP_PAD, zb_getPollRate());
+		}
 #endif
+
+		report_handler();
 	}
-}
-
-static void sampleLightSysException(void)
-{
-	zcl_onOffAttr_save();
-	zcl_levelAttr_save();
-	zcl_colorCtrlAttr_save();
-
-	SYSTEM_RESET();
-	//led_on(LED_POWER);
-	//while(1);
 }
 
 /*********************************************************************
@@ -257,46 +224,48 @@ static void sampleLightSysException(void)
  */
 void user_init(void)
 {
-#if (ZBHCI_USB_PRINT || ZBHCI_USB_CDC || ZBHCI_USB_HID)
-	/* Enable USB Port*/
-	gpio_set_func(GPIO_PA5, AS_USB);
-	gpio_set_func(GPIO_PA6, AS_USB);
-#endif
-
 	/* Initialize LEDs*/
 	led_init();
-	hwLight_init();
 
-	/* Initialize Stack */
-	stack_init();
+#if PA_ENABLE
+	rf_paInit(PA_TX, PA_RX);
+#endif
 
-	/* Initialize user application */
-	user_app_init();
-
-	/* Register except handler for test */
-	sys_exceptHandlerRegister(sampleLightSysException);
-
-	/* Adjust light state to default attributes*/
-	light_adjust();
-
-	/* User's Task */
 #if ZBHCI_EN
 	zbhciInit();
-	ev_on_poll(EV_POLL_HCI, zbhciTask);
 #endif
-	ev_on_poll(EV_POLL_IDLE, app_task);
 
-    /* Read the pre-insatll code from NV */
-    zb_pre_install_code_load(&gLightCtx.linkKey);
+#if PM_ENABLE
+	pm_wakeupPinConfig(g_sensorPmCfg, sizeof(g_sensorPmCfg)/sizeof(pm_pinCfg_t));
+#endif
 
-    /* Set default reporting configuration */
-    u8 reportableChange = 0x00;
-    bdb_defaultReportingCfg(SAMPLE_LIGHT_ENDPOINT, HA_PROFILE_ID, ZCL_CLUSTER_GEN_ON_OFF, ZCL_ATTRID_ONOFF,
-    						0x0000, 0x003c, (u8 *)&reportableChange);
+	if(pmParam.is_pad_wakeup){
+		g_sensorAppCtx.restartLoopTimes = 0;
+	}else{
+		g_sensorAppCtx.restartLoopTimes = KEY_PRESSED_CHECK_TIMES;
+	}
 
-    /* Initialize BDB */
-	bdb_init((af_simple_descriptor_t *)&sampleLight_simpleDesc, &g_bdbCommissionSetting, &g_zbDemoBdbCb, 1);
+	if(pmParam.back_mode == BACK_FROM_REPOWER || pmParam.back_mode == BACK_FROM_DEEP){
+		/* Initialize Stack */
+		stack_init();
+
+		/* Initialize user application */
+		user_app_init();
+
+		/* User's Task */
+#if ZBHCI_EN
+		ev_on_poll(EV_POLL_HCI, zbhciTask);
+#endif
+		ev_on_poll(EV_POLL_IDLE, app_task);
+
+		/* read the pre-insatll code in NV, */
+		zb_pre_install_code_load(&g_sensorAppCtx.linkKey);
+
+		bdb_init((af_simple_descriptor_t *)&sampleSensor_simpleDesc, &g_bdbCommissionSetting, &g_zbDemoBdbCb, 1);
+	}else{
+		mac_phyReconfig();
+	}
 }
 
-#endif  /* __PROJECT_TL_DIMMABLE_LIGHT__ */
+#endif  /* __PROJECT_TL_CONTACT_SENSOR_8258__ */
 

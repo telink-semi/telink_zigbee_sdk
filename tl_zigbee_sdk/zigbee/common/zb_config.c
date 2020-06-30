@@ -59,6 +59,9 @@ u8 ZB_MAC_EXT_EXPEIRY_CNT = ZB_MAC_INTERNAL_EXPIRY_CNT;
 /* the lqi threshold for neighbor */
 u8 NWK_NEIGHBORTBL_ADD_LQITHRESHOLD = 0x5F;
 
+/* the life time for unauthorized child table */
+u32 NWK_UNAUTH_CHILD_TABLE_LIFE_TIME = (5 * 1000 * 1000);
+
 /* the cost threshold for one hop */
 u8 NWK_COST_THRESHOLD_ONEHOP = 3;
 
@@ -73,6 +76,9 @@ tl_zb_neighbor_entry_t g_zb_neighborTbl;
 
 /* routing table */
 #if ZB_ROUTER_ROLE
+u8 NWKC_TRANSFAILURE_CNT_THRESHOLD = TRANSFAILURE_CNT_MAX;
+u8 NWKC_INITIAL_RREQ_RETRIES = NWK_INITIAL_RREQ_RETRIES;
+u8 NWKC_RREQ_RETRIES = NWK_RREQ_RETRIES;
 u16 ROUTING_TABLE_SIZE = ROUTING_TABLE_NUM;
 #if (!ROUTING_TABLE_NUM)
 nwk_routingTabEntry_t g_routingTab[1];
@@ -105,9 +111,6 @@ aps_binding_table_t aps_binding_tbl;
 /* group table */
 u8 APS_GROUP_TABLE_SIZE = APS_GROUP_TABLE_NUM;
 aps_group_tbl_ent_t aps_group_tbl[APS_GROUP_TABLE_NUM];
-
-/* APS layer security */
-bool APS_SECUTIRY_ENABLE = TRUE;
 
 /* the offset of the rx buffer to the zb-buffer*/
 u8 RX_ZBBUF_OFFSET = TL_RXPRIMITIVEHDR;

@@ -1,10 +1,10 @@
 /********************************************************************************************************
  * @file     zb_appCb.c
  *
- * @brief    call back function for zigbee
+ * @brief    Call back function for zigbee
  *
  * @author
- * @date     Dec. 1, 2016
+ * @date     Jan. 4, 2018
  *
  * @par      Copyright (c) 2016, Telink Semiconductor (Shanghai) Co., Ltd.
  *           All rights reserved.
@@ -20,7 +20,7 @@
  *
  *******************************************************************************************************/
 
-#if (__PROJECT_TL_SWITCH_8278__)
+#if (__PROJECT_TL_CONTACT_SENSOR_8258__)
 
 /**********************************************************************
  * INCLUDES
@@ -30,7 +30,7 @@
 #include "zcl_include.h"
 #include "bdb.h"
 #include "ota.h"
-#include "sampleSwitch.h"
+#include "sampleSensor.h"
 #include "app_ui.h"
 
 /**********************************************************************
@@ -49,46 +49,29 @@
 void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork);
 void zbdemo_bdbCommissioningCb(u8 status, void *arg);
 void zbdemo_bdbIdentifyCb(u8 endpoint, u16 srcAddr, u16 identifyTime);
-void zbdemo_bdbFindBindSuccessCb(findBindDst_t *pDstInfo);
 
 
 /**********************************************************************
  * LOCAL VARIABLES
  */
-bdb_appCb_t g_zbDemoBdbCb =
+bdb_appCb_t g_zbDemoBdbCb = 
 {
-	zbdemo_bdbInitCb,
-	zbdemo_bdbCommissioningCb,
-	zbdemo_bdbIdentifyCb,
-	zbdemo_bdbFindBindSuccessCb
+	zbdemo_bdbInitCb, 
+	zbdemo_bdbCommissioningCb, 
+	zbdemo_bdbIdentifyCb, 
+	NULL
 };
 
 #ifdef ZCL_OTA
-ota_callBack_t sampleSwitch_otaCb =
+ota_callBack_t sampleSensor_otaCb =
 {
-	sampleSwitch_otaProcessMsgHandler,
+	sampleSensor_otaProcessMsgHandler,
 };
 #endif
-
 
 /**********************************************************************
  * FUNCTIONS
  */
-s32 sampleSwitch_bdbNetworkSteerStart(void *arg){
-	bdb_networkSteerStart();
-
-	return -1;
-}
-
-#if FIND_AND_BIND_SUPPORT
-s32 sampleSwitch_bdbFindAndBindStart(void *arg){
-	BDB_ATTR_GROUP_ID_SET(0x1234);//only for initiator
-	bdb_findAndBindStart(BDB_COMMISSIONING_ROLE_INITIATOR);
-
-	g_switchAppCtx.bdbFBTimerEvt = NULL;
-	return -1;
-}
-#endif
 
 /*********************************************************************
  * @fn      zbdemo_bdbInitCb
@@ -112,19 +95,17 @@ void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
 		 *
 		 */
 		if(joinedNetwork){
-			zb_setPollRate(POLL_RATE * 3);
+			zb_setPollRate(POLL_RATE);
 
 #ifdef ZCL_OTA
 			ota_queryStart(30);
 #endif
 
 #ifdef ZCL_POLL_CTRL
-			sampleSwitch_zclCheckInStart();
+			sampleSensor_zclCheckInStart();
 #endif
 		}else{
-			u16 jitter = zb_random();
-			jitter &= 0xfff;
-			TL_ZB_TIMER_SCHEDULE(sampleSwitch_bdbNetworkSteerStart, NULL, jitter * 1000);
+			bdb_networkSteerStart();
 		}
 	}else{
 
@@ -142,13 +123,12 @@ void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
  *
  * @return  None
  */
-u8 sleepCnt = 0;
 void zbdemo_bdbCommissioningCb(u8 status, void *arg){
 	if(status == BDB_COMMISSION_STA_SUCCESS){
-		zb_setPollRate(POLL_RATE * 3);
+		zb_setPollRate(POLL_RATE);
 
 #ifdef ZCL_POLL_CTRL
-		sampleSwitch_zclCheckInStart();
+		sampleSensor_zclCheckInStart();
 #endif
 
 		light_blink_start(2, 200, 200);
@@ -156,27 +136,12 @@ void zbdemo_bdbCommissioningCb(u8 status, void *arg){
 #ifdef ZCL_OTA
         ota_queryStart(30);
 #endif
-
-#if FIND_AND_BIND_SUPPORT
-        //start Finding & Binding
-		if(!g_switchAppCtx.bdbFBTimerEvt){
-			g_switchAppCtx.bdbFBTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSwitch_bdbFindAndBindStart, NULL, 50 * 1000);
-		}
-#endif
 	}else if(status == BDB_COMMISSION_STA_IN_PROGRESS){
 
 	}else if(status == BDB_COMMISSION_STA_NOT_AA_CAPABLE){
 
 	}else if(status == BDB_COMMISSION_STA_NO_NETWORK){
-		/*if(sleepCnt++ >= 5){
-			sleepCnt = 0;
-			zb_setPollRate(0);
-		}else*/
-		{
-			u16 jitter = zb_random();
-			jitter &= 0xfff;
-			TL_ZB_TIMER_SCHEDULE(sampleSwitch_bdbNetworkSteerStart, NULL, jitter * 1000);
-		}
+
 	}else if(status == BDB_COMMISSION_STA_TARGET_FAILURE){
 
 	}else if(status == BDB_COMMISSION_STA_FORMATION_FAILURE){
@@ -200,42 +165,16 @@ void zbdemo_bdbCommissioningCb(u8 status, void *arg){
 }
 
 
-extern void sampleSwitch_zclIdentifyCmdHandler(u8 endpoint, u16 srcAddr, u16 identifyTime);
+extern void sampleSensor_zclIdentifyCmdHandler(u8 endpoint, u16 srcAddr, u16 identifyTime);
 void zbdemo_bdbIdentifyCb(u8 endpoint, u16 srcAddr, u16 identifyTime){
-#if FIND_AND_BIND_SUPPORT
-	sampleSwitch_zclIdentifyCmdHandler(endpoint, srcAddr, identifyTime);
-#endif
-}
-
-/*********************************************************************
- * @fn      zbdemo_bdbFindBindSuccessCb
- *
- * @brief   application callback for finding & binding
- *
- * @param   pDstInfo
- *
- * @return  None
- */
-void zbdemo_bdbFindBindSuccessCb(findBindDst_t *pDstInfo){
-#if FIND_AND_BIND_SUPPORT
-	epInfo_t dstEpInfo;
-	TL_SETSTRUCTCONTENT(dstEpInfo, 0);
-
-	dstEpInfo.dstAddrMode = APS_SHORT_DSTADDR_WITHEP;
-	dstEpInfo.dstAddr.shortAddr = pDstInfo->addr;
-	dstEpInfo.dstEp = pDstInfo->endpoint;
-	dstEpInfo.profileId = HA_PROFILE_ID;
-
-	zcl_identify_identifyCmd(SAMPLE_SWITCH_ENDPOINT, &dstEpInfo, FALSE, 0, 0);
-#endif
+	sampleSensor_zclIdentifyCmdHandler(endpoint, srcAddr, identifyTime);
 }
 
 
 
 #ifdef ZCL_OTA
-void sampleSwitch_otaProcessMsgHandler(u8 evt, u8 status)
+void sampleSensor_otaProcessMsgHandler(u8 evt, u8 status)
 {
-	//printf("sampleSwitch_otaProcessMsgHandler: status = %x\n", status);
 	if(evt == OTA_EVT_START){
 		if(status == ZCL_STA_SUCCESS){
 			zb_setPollRate(QUEUE_POLL_RATE);
@@ -243,7 +182,7 @@ void sampleSwitch_otaProcessMsgHandler(u8 evt, u8 status)
 
 		}
 	}else if(evt == OTA_EVT_COMPLETE){
-		zb_setPollRate(POLL_RATE * 3);
+		zb_setPollRate(POLL_RATE);
 
 		if(status == ZCL_STA_SUCCESS){
 			ota_mcuReboot();
@@ -255,7 +194,7 @@ void sampleSwitch_otaProcessMsgHandler(u8 evt, u8 status)
 #endif
 
 /*********************************************************************
- * @fn      sampleSwitch_leaveCnfHandler
+ * @fn      sampleSensor_leaveCnfHandler
  *
  * @brief   Handler for ZDO Leave Confirm message.
  *
@@ -263,17 +202,17 @@ void sampleSwitch_otaProcessMsgHandler(u8 evt, u8 status)
  *
  * @return  None
  */
-void sampleSwitch_leaveCnfHandler(void *p)
+void sampleSensor_leaveCnfHandler(void *p)
 {
 	nlmeLeaveConf_t *pCnf = (nlmeLeaveConf_t *)p;
-	//printf("sampleSwitch_leaveCnfHandler, status = %x\n", pCnf->status);
+	//printf("sampleSensor_leaveCnfHandler, status = %x\n", pCnf->status);
     if(pCnf->status == SUCCESS ){
     	//SYSTEM_RESET();
     }
 }
 
 /*********************************************************************
- * @fn      sampleSwitch_leaveIndHandler
+ * @fn      sampleSensor_leaveIndHandler
  *
  * @brief   Handler for ZDO leave indication message.
  *
@@ -281,12 +220,12 @@ void sampleSwitch_leaveCnfHandler(void *p)
  *
  * @return  None
  */
-void sampleSwitch_leaveIndHandler(void *p)
+void sampleSensor_leaveIndHandler(void *p)
 {
 	//nlmeLeaveInd_t *pInd = (nlmeLeaveInd_t *)p;
-    //printf("sampleSwitch_leaveIndHandler, rejoin = %d\n", pInd->rejoin);
+    //printf("sampleSensor_leaveIndHandler, rejoin = %d\n", pInd->rejoin);
     //printfArray(pInd->device_address, 8);
 }
 
 
-#endif  /* __PROJECT_TL_SWITCH_8278__ */
+#endif  /* __PROJECT_TL_CONTACT_SENSOR_8258__ */

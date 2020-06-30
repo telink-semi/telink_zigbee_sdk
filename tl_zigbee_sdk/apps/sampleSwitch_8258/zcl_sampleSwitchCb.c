@@ -654,7 +654,7 @@ void sampleSwitch_zclCheckInCmdSend(void)
 	dstEpInfo.dstEp = SAMPLE_SWITCH_ENDPOINT;
 	dstEpInfo.profileId = HA_PROFILE_ID;
 
-	zcl_pollCtrl_checkInCmdSend(SAMPLE_SWITCH_ENDPOINT, &dstEpInfo, TRUE);
+	zcl_pollCtrl_checkInCmd(SAMPLE_SWITCH_ENDPOINT, &dstEpInfo, TRUE);
 }
 
 s32 sampleSwitch_zclCheckInTimerCb(void *arg)

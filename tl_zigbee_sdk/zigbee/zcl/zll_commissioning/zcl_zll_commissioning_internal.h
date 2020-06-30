@@ -71,7 +71,9 @@ void zcl_zllTouchLinkScanResponseHandler(zcl_zllTouchLinkScanResp_t *resp, epInf
 
 void zcl_zllTouchLinkNetworkStartOrJoin(void *arg);
 
-void zcl_zllTouchLinkNetworkStartRequstHandler(void);
+void zcl_zllTouchLinkResetFactoryReq(void *arg);
+
+void zcl_zllTouchLinkNetworkStartRequstHandler(u8 logicChannel);
 
 s32 zcl_zllTouchLinkNetworkStartResponseHandler(void *arg);
 
@@ -87,9 +89,9 @@ void zcl_zllTouchLinkFinish(u8 status);
 
 bool zcl_zllTouchLinkLeaveCnfCb(void *arg);
 
-void zcl_zllTouchLinkDeviceInformationRequestHandler(epInfo_t *dstEp,u8 start_idx);
+void zcl_zllTouchLinkDeviceInformationRequestHandler(epInfo_t *dstEp,u8 startEpIdx);
 
-void zcl_zllTouchLinkDeviceInformationResponseHandler(zcl_zllTouchLinkDeviceInfoResp_t *dev_info_resp);
+void zcl_zllTouchLinkDeviceInformationResponseHandler(zcl_zllTouchLinkDeviceInfoResp_t *devInfoResp);
 
 s32 zcl_zllTouchLinkStartNetworkStartOrJoinTimerStop(void);
 

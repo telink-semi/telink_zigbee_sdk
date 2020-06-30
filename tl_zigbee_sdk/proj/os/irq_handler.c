@@ -21,22 +21,19 @@
  *******************************************************************************************************/
 #include "../tl_common.h"
 
-void gpio_user_irq_handler(void);
-void timer_irq1_handler(void);
-void usb_suspend_irq_handler(void);
-void eth_rx_irq_handler(void);
-void rf_rx_irq_handler(void);
-void rf_tx_irq_handler(void);
-void timer_irq2_handler(void);
-// called by irq in cstartup.s
-
-#if (MODULE_UART_ENABLE)
-#include "../drivers/drv_uart.h"
+#if (__PROJECT_TL_SNIFFER__)
+extern void irq_sniffer_handler(void);
 #endif
+extern void rf_rx_irq_handler(void);
+extern void rf_tx_irq_handler(void);
 
+
+//called by irq in cstartup.s
 _attribute_ram_code_ void irq_handler(void){
-
-	u16  src_rf = rf_irq_src_get();
+#if (__PROJECT_TL_SNIFFER__)
+	irq_sniffer_handler();
+#else
+	u16 src_rf = rf_irq_src_get();
 	if(src_rf & FLD_RF_IRQ_TX){
 		rf_tx_irq_handler();
 	}
@@ -47,10 +44,12 @@ _attribute_ram_code_ void irq_handler(void){
 
 	u32 src = irq_get_src();
 
-	if(IRQ_TIMER1_ENABLE && (src & FLD_IRQ_TMR1_EN)){
+#if (IRQ_TIMER1_ENABLE)
+	if((src & FLD_IRQ_TMR1_EN)){
 		reg_irq_src = FLD_IRQ_TMR1_EN;
 		timer_irq1_handler();	
 	}
+#endif
 
     if((src & FLD_IRQ_TMR2_EN)){
 		reg_irq_src = FLD_IRQ_TMR2_EN;
@@ -88,6 +87,6 @@ _attribute_ram_code_ void irq_handler(void){
 		dma_chn_irq_status_clr(~(FLD_DMA_CHN_UART_TX | FLD_DMA_CHN_UART_RX));
 	}
 #endif
-
+#endif
 }
 

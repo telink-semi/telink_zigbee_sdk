@@ -96,6 +96,10 @@
 /* packet length check */
 #define ZB_RADIO_PACKET_LENGTH_OK(p)	RF_PACKET_LENGTH_OK(p)
 
+/* enable timestamp */
+#define ZB_TIMESTAMP_ENABLE				do{\
+										}while(0)
+
 /* get time timestamp */
 #define ZB_RADIO_TIMESTAMP_GET(p)		RF_GET_TIMESTAMP(p)
 

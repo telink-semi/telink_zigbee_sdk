@@ -21,9 +21,8 @@
  *******************************************************************************************************/
 #pragma once
 
-#include "app_cfg.h"
 
-#if 0
+
 #if (__PROJECT_TL_GW__)
 	#include "../sampleGW/app_cfg.h"
 #elif (__PROJECT_TL_DIMMABLE_LIGHT__)
@@ -60,8 +59,10 @@
 	#include "../lighting_HT/app_cfg.h"
 #elif (__PROJECT_PERFORMANCE_TEST__)
 	#include "../appNetworkPerformanceTest/app_cfg.h"
+#elif (__PROJECT_TL_SNIFFER__)
+	#include "../zbSniffer/app_cfg.h"
 #else
 
 #endif
-#endif
+
 

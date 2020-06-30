@@ -40,11 +40,6 @@ hidvendor_ctrl_t *hidvendor_v = &hidvendor_vs;
 void hidvendor_init(void)
 {
     hidvendor_v->lastIndex = 0;
-
-    //usb_init(&usbhid_func);
-
-    //BM_CLR(reg_usb_mask, BIT(USB_EDP_HID_VENDOR_IN & 0x07) | BIT(USB_EDP_HID_VENDOR_OUT & 0x07));
-    //usbhw_data_ep_ack(USB_EDP_HID_VENDOR_OUT);
 }
 
 u8 hidvendor_isAvailable(void)

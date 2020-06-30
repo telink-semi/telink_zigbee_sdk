@@ -299,6 +299,7 @@ _CODE_BDB_ static void bdb_binding(zdo_bind_dstAddr_t *pDstAddr, u8 clusterNum, 
 {
 	zdo_bind_req_t req;
 	memset(&req, 0, sizeof(zdo_bind_req_t));
+	u8 bindStatus = ZDO_SUCCESS;
 
 	ZB_IEEE_ADDR_COPY(req.src_addr, NIB_IEEE_ADDRESS());
 	req.src_endpoint = g_bdbCtx.simpleDesc->endpoint;
@@ -314,15 +315,13 @@ _CODE_BDB_ static void bdb_binding(zdo_bind_dstAddr_t *pDstAddr, u8 clusterNum, 
 		req.cid16_l = clusterList[i];
 		req.cid16_h = clusterList[i]>>8;
 
-		if((aps_me_find_dst_ref((aps_me_bind_req_t *)&req) == TL_RETURN_INVALID) && (aps_me_free_src_table_find() == TL_RETURN_INVALID)){
-			//g_bdbAttrs.commissioningStatus = BDB_COMMISSION_STA_BINDING_TABLE_FULL;
+		u8 sn = 0;
+		bindStatus = zb_zdoBindUnbindReq(TRUE, &req, &sn, NULL);
+		if(bindStatus ==  ZDO_TABLE_FULL){
 			BDB_STATUS_SET(BDB_COMMISSION_STA_BINDING_TABLE_FULL);
 			u32 evt = BDB_EVT_COMMISSIONING_FINDORBIND_FINISH;
 			TL_SCHEDULE_TASK(bdb_task, (void *)evt);
 			break;
-		}else{
-			u8 sn = 0;
-			zb_zdoBindUnbindReq(TRUE, &req, &sn, NULL);
 		}
 	}
 
@@ -330,11 +329,13 @@ _CODE_BDB_ static void bdb_binding(zdo_bind_dstAddr_t *pDstAddr, u8 clusterNum, 
 	g_bdbCtx.matchClusterNum = 0;
 	g_bdbCtx.matchClusterList = NULL;
 
-	if(BDB_STATUS_GET() != BDB_COMMISSION_STA_BINDING_TABLE_FULL){
+	if(bindStatus ==  ZDO_SUCCESS){
 		if(g_bdbCtx.bdbAppCb && g_bdbCtx.bdbAppCb->bdbFindBindSuccessCb){
 			g_bdbCtx.bdbAppCb->bdbFindBindSuccessCb(&g_bdbCtx.bindDstInfo);
 		}
+	}
 
+	if(bindStatus !=  ZDO_TABLE_FULL){
 		TL_SCHEDULE_TASK(bdb_simpleDescReqSend, NULL);
 	}
 }
@@ -539,10 +540,11 @@ _CODE_BDB_ static void bdb_simpleDescReqSend(void *arg)
 		u32 evt = BDB_EVT_COMMISSIONING_FINDORBIND_SIMPLE_DESC_REQ;
 		TL_SCHEDULE_TASK(bdb_task, (void *)evt);
 
-#ifdef ZB_ED_ROLE
-		u32 simpleDescReqTimeout = zb_getPollRate() * 3;
-#else
 		u32 simpleDescReqTimeout = 5000;
+#ifdef ZB_ED_ROLE
+		if(zb_getPollRate()){
+			simpleDescReqTimeout = zb_getPollRate() * 3;
+		}
 #endif
 
 		g_bdbCtx.identifyTimer = TL_ZB_TIMER_SCHEDULE(bdb_simpleDescReqTimeoutCb, NULL, simpleDescReqTimeout * 1000);
@@ -652,10 +654,11 @@ _CODE_BDB_ static u8 bdb_commissioningFindBind(void)
 
 				zcl_identify_identifyQueryCmd(g_bdbCtx.simpleDesc->endpoint, &dstEpInfo, TRUE);
 
-#ifdef ZB_ED_ROLE
-				u32 identifyQueryRcvTimeout = zb_getPollRate() * 3;;
-#else
 				u32 identifyQueryRcvTimeout = 5000;
+#ifdef ZB_ED_ROLE
+				if(zb_getPollRate()){
+					identifyQueryRcvTimeout = zb_getPollRate() * 3;
+				}
 #endif
 
 				/* Start a timer to check if identify query response are received. */
@@ -785,7 +788,6 @@ _CODE_BDB_ void bdb_retrieveTcLinkKeyDone(u8 status)
 	bdb_retrieveTcLinkKeyTimerStop();
 	if(status == BDB_COMMISSION_STA_SUCCESS){
 		g_bdbAttrs.nodeIsOnANetwork = 1;
-		g_zbNwkCtx.joinAccept = 1;
 		evt = BDB_EVT_COMMISSIONING_NETWORK_STEER_PERMITJOIN;
 	}else{
 		g_bdbAttrs.nodeIsOnANetwork = 0;
@@ -1053,14 +1055,19 @@ static void bdb_task(void *arg)
 				 * if no scan response received, start network steer
 				 * */
 				g_bdbAttrs.commissioningMode.touchlink = 0;
-				BDB_STATE_SET(BDB_STATE_IDLE);
+				BDB_STATE_SET(BDB_STATE_IDLE); //ststus = BDB_COMMISSION_STA_NO_SCAN_RESPONSE
+				g_bdbAttrs.commissioningStatus = BDB_STATUS_GET();
+
 #if ZB_ED_ROLE
 				bdb_topLevelCommissioning(BDB_COMMISSIONING_ROLE_INITIATOR);
 #else
 				bdb_topLevelCommissioning(BDB_COMMISSIONING_ROLE_TARGET);
 #endif
 			}else if(evt == BDB_EVT_COMMISSIONING_TOUCHLINK_FINISH){
-				if(BDB_STATUS_GET() == BDB_COMMISSION_STA_SUCCESS){
+//				if(BDB_STATUS_GET() == BDB_COMMISSION_STA_SUCCESS){
+//					bdb_commissioningInfoSave(NULL);
+//				}
+				if(!zb_isDeviceFactoryNew()){
 					bdb_commissioningInfoSave(NULL);
 				}
 				/* confirm to application */
@@ -1073,10 +1080,20 @@ static void bdb_task(void *arg)
 			if(evt == BDB_EVT_COMMISSIONING_NETWORK_STEER_RETRIEVE_TCLINK_KEY){
 				TL_ZB_TIMER_SCHEDULE(bdb_retrieveTcLinkKeyStart, NULL, 1*1000*1000);
 			}else if(evt == BDB_EVT_COMMISSIONING_NETWORK_STEER_PERMITJOIN){
+#if ZB_ROUTER_ROLE
+				g_zbNwkCtx.joinAccept = 1;
+#endif
 				u8 sn = 0;
 				zb_mgmtPermitJoinReqTx(0xffff, BDBC_MIN_COMMISSIONING_TIME, 0x01, &sn, NULL);
 				TL_SCHEDULE_TASK(bdb_mgmtPermitJoiningConfirm,NULL);
 			}else if(evt == BDB_EVT_COMMISSIONING_NETWORK_STEER_FINISH){
+#if ZB_COORDINATOR_ROLE
+					ss_securityModeSet(SS_SEMODE_CENTRALIZED);
+#else
+					if((!g_bdbAttrs.nodeIsOnANetwork)||(ZB_IEEE_ADDR_IS_INVAILD(ss_ib.trust_center_address))){
+						ss_securityModeSet(SS_SEMODE_DISTRIBUTED);
+					}
+#endif
 				status = bdb_commissioningNetworkFormation();
 				if(status == BDB_STATE_IDLE){
 					/* confirm to application */
@@ -1151,6 +1168,10 @@ _CODE_BDB_ void bdb_zdoStartDevCnf(void *arg){
 			/* for rejoin indication by the stack */
 			if(startDevCnf->status == SUCCESS){
 				//g_bdbAttrs.commissioningStatus = BDB_COMMISSION_STA_SUCCESS;
+				g_bdbAttrs.nodeIsOnANetwork = 1;
+#if ZB_ROUTER_ROLE
+				g_zbNwkCtx.joinAccept = 1;
+#endif
 				BDB_STATUS_SET(BDB_COMMISSION_STA_SUCCESS);
 				if((zdo_ssInfoKeyGet() != ss_ib.activeSecureMaterialIndex) || g_zbNwkCtx.parentIsChanged){
 					g_zbNwkCtx.parentIsChanged = 0;
@@ -1180,13 +1201,18 @@ _CODE_BDB_ void bdb_zdoStartDevCnf(void *arg){
 		case BDB_STATE_COMMISSIONING_TOUCHLINK:
 			if(startDevCnf->status == SUCCESS){
 				g_bdbAttrs.nodeIsOnANetwork = 1;
+#if ZB_ROUTER_ROLE
 				g_zbNwkCtx.joinAccept = 1;
-				zcl_touchLinkDevStartIndicate();
+#endif
+				TL_ZB_TIMER_SCHEDULE(zcl_touchLinkDevStartIndicate, (void *)(startDevCnf->status), 400*1000);
 			}else{
 				//g_bdbAttrs.commissioningStatus = BDB_COMMISSION_STA_NO_NETWORK;
-				BDB_STATUS_SET(BDB_COMMISSION_STA_NO_NETWORK);
-				evt = BDB_EVT_COMMISSIONING_NETWORK_STEER_FINISH;
-				TL_SCHEDULE_TASK(bdb_task, (void *)evt);
+				if(startDevCnf->status != ZDO_NETWORK_LEFT){ //handle in zdoTouchLinkCb->zdpLeaveCnfCb
+//					BDB_STATUS_SET(BDB_COMMISSION_STA_NO_NETWORK);
+//					evt = BDB_EVT_COMMISSIONING_TOUCHLINK_FINISH;
+//					TL_SCHEDULE_TASK(bdb_task, (void *)evt);
+					zcl_touchLinkDevStartIndicate((void *)(startDevCnf->status));
+				}
 			}
 			break;
 
@@ -1390,7 +1416,9 @@ _CODE_BDB_ u8 bdb_networkFormationStart(void)
 #if ZB_COORDINATOR_ROLE
 	ss_securityModeSet(SS_SEMODE_CENTRALIZED);
 #else
-	ss_securityModeSet(SS_SEMODE_DISTRIBUTED);
+	if((!g_bdbAttrs.nodeIsOnANetwork)||(ZB_IEEE_ADDR_IS_INVAILD(ss_ib.trust_center_address))){
+		ss_securityModeSet(SS_SEMODE_DISTRIBUTED);
+	}
 #endif
 
 	return bdb_topLevelCommissioning(BDB_COMMISSIONING_ROLE_TARGET);
@@ -1503,7 +1531,7 @@ _CODE_BDB_ u8 bdb_init(af_simple_descriptor_t *simple_desc, bdb_commissionSettin
 
 	bdb_scanCfg(g_bdbAttrs.primaryChannelSet | g_bdbAttrs.secondaryChannelSet, g_bdbAttrs.scanDuration);
 
-	g_bdbAttrs.commissioningStatus = BDB_COMMISSION_STA_SUCCESS,
+	g_bdbAttrs.commissioningStatus = BDB_COMMISSION_STA_SUCCESS;
 	g_bdbAttrs.nodeIsOnANetwork = g_bdbCtx.factoryNew ? 0 : 1;
 	if(g_bdbAttrs.nodeIsOnANetwork){
 		/* update outgoing frame count */
