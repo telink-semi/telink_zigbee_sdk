@@ -259,7 +259,7 @@ _CODE_ZCL_ void	zcl_zllTouchLinkFinish(u8 status){
 	rf_setTxPower(g_zb_txPowerSet);
 #ifdef ZB_ED_ROLE
 //	if(status == ZCL_ZLL_TOUCH_LINK_STA_SUCC || status == ZCL_ZLL_TOUCH_LINK_STA_EXIST){
-		zb_setPollRate(POLL_RATE);
+		zb_setPollRate(RESPONSE_POLL_RATE);
 //	}
 #endif
 	g_zllTouchLink.transId = 0;
@@ -658,6 +658,13 @@ _CODE_ZCL_ static u8 zcl_zllCommissionServerCmdHandler(zclIncoming_t *pInMsg){
 				zcl_zllTouchLinkStartNetworkStartOrJoinTimerStop();
 				zcl_zllTouchLinkFinish(ZCL_ZLL_TOUCH_LINK_FAIL);
 			}
+
+#ifdef ZB_ED_ROLE
+			ZB_TRANSCEIVER_SET_CHANNEL(g_zllTouchLink.workingChannelBackUp);
+			MAC_IB().rxOnWhenIdle = g_zllTouchLink.zbInfo.bf.rxOnWihleIdle;  //must restore the rxOnWhenIdle for ED
+			rf_setTxPower(g_zb_txPowerSet);
+			zb_setPollRate(RESPONSE_POLL_RATE);
+#endif
 			break;
 		}
 

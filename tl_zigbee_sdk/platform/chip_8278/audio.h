@@ -200,5 +200,22 @@ void audio_set_i2s_output(AudioInput_Typedef InType,AudioRate_Typedef Audio_Rate
 
 void audio_set_codec(I2C_GPIO_SdaTypeDef sda_pin,I2C_GPIO_SclTypeDef scl_pin, CodecMode_Typedef CodecMode,unsigned sysclk);
 
+/**
+ * 	@brief     This function serves to set MUTE PGA.
+ * 	@param[in] ebable - enable or disable MUTE PGA
+ * 	@return    none.
+ */
+
+static inline void audio_set_mute_pga(unsigned char enable)
+{
+	if(!enable)
+	{
+		analog_write(codec_ana_cfg2,analog_read(codec_ana_cfg2) | BIT(5));
+	}
+	else
+	{
+		analog_write(codec_ana_cfg2,analog_read(codec_ana_cfg2) & ~BIT(5));//0a//2a
+	}
+}
 
 #endif

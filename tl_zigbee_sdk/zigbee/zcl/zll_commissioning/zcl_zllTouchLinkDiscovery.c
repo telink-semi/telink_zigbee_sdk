@@ -354,7 +354,7 @@ _CODE_ZCL_ void zcl_zllTouchLinkScanResponseHandler(zcl_zllTouchLinkScanResp_t *
 	zcl_zllTouchLinkScanResp_t *p = resp;
 
 	u8 idx = g_zllTouchLink.disc->targetNum;
-	if(idx >= g_zllTouchLink.scanListNum - 1){
+	if(idx >= g_zllTouchLink.scanListNum){
 		return;// ZCL_STA_INVALID_VALUE;
 	}
 

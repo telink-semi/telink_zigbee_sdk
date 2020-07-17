@@ -471,7 +471,7 @@ unsigned int adc_sample_and_get_result(void)
 
 //////////////// get adc sample data and sort these data ////////////////
 	for(i=0;i<ADC_SAMPLE_NUM;i++){
-		while((!adc_dat_buf[i])||(!clock_time_exceed(t0,16)));  //wait for new adc sample data,
+		while((!adc_dat_buf[i])&&(!clock_time_exceed(t0,16)));  //wait for new adc sample data,
 															   //When the data is not zero or more than 1.5 sampling times (when the data is zero),The default data is already ready.
 		t0 = clock_time();
 

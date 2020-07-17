@@ -792,7 +792,7 @@ enum{
 	FLD_IRQ_EP_DATA_EN =		BIT(12),  FLD_IRQ_IRQ4_EN = BIT(12),
 	FLD_IRQ_ZB_RT_EN =			BIT(13),
 	FLD_IRQ_SW_PWM_EN =			BIT(14),  //irq_software | irq_pwm
-    //	RSVD 		=			BIT(15),
+	FLD_IRQ_PKE_EN =			BIT(15),//	RSVD 		=			BIT(15),
 
 	FLD_IRQ_USB_250US_EN =		BIT(16),
 	FLD_IRQ_USB_RST_EN =		BIT(17),

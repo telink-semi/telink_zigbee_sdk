@@ -31,7 +31,7 @@
 #include "gpio_8278.h"
 #define RF_CHN_TABLE 		0x8000
 
-
+#define		ADJUST_RX_CALIBRATION			0
 
 /**
  *  @brief  Define RF mode
@@ -312,6 +312,8 @@ static inline void reset_baseband(void)
  * @param[in]  none
  * @return     none
  */
+#if ADJUST_RX_CALIBRATION
+
 static inline void rf_set_rxpara(void)
 {
 	unsigned char reg_calibration=0;
@@ -320,6 +322,7 @@ static inline void rf_set_rxpara(void)
 	write_reg8(0x12e5,(read_reg8(0x12e5)&0xc0)|reg_calibration);
 }
 
+#endif
 
 /**
 *	@brief     This function serves to initiate the mode of RF
@@ -628,7 +631,9 @@ static inline void rf_set_rxmode (void)
 	write_reg8 (0x800f02, RF_TRX_OFF);
     write_reg8 (0x800428, RF_TRX_MODE | BIT(0));	//rx enable
     write_reg8 (0x800f02, RF_TRX_OFF | BIT(5));	// RX enable
+#if ADJUST_RX_CALIBRATION
     rf_set_rxpara();
+#endif
 }
 
 

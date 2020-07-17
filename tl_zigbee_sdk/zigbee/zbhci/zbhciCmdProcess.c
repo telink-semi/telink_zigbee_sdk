@@ -408,8 +408,10 @@ static void zbhci_bdbCmdHandler(void *arg){
 	}else if(cmdID == ZBHCI_CMD_BDB_PRE_INSTALL_CODE){
 		ss_dev_pair_set_t keyPair;
 
+		u8 pInstallCode[SEC_KEY_LEN] = {0};
 		ZB_IEEE_ADDR_REVERT(keyPair.device_address, &p[0]);
-		ZB_LINK_KEY_REVERT(keyPair.linkKey, &p[8]);
+		memcpy(pInstallCode, &p[8], SEC_KEY_LEN);
+		tl_bdbUseInstallCode(pInstallCode, keyPair.linkKey);
 
 		keyPair.incomingFrmaeCounter = keyPair.outgoingFrameCounter = 0;
 		keyPair.apsLinkKeyType = SS_UNIQUE_LINK_KEY;

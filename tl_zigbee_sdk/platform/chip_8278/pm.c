@@ -53,6 +53,10 @@ cpu_pm_handler_t 		  	cpu_sleep_wakeup;  //no need retention,  cause it will be 
 pm_tim_recover_handler_t    pm_tim_recover;
 
 _attribute_data_retention_  unsigned char PA5_PA6_DEEPSLEEP_LOW_LEVEL_WAKEUP_EN = 1;
+_attribute_data_retention_  unsigned int RAM_CRC_EN_16KRAM_TIME = 2500*16*1000;
+_attribute_data_retention_  unsigned int RAM_CRC_EN_32KRAM_TIME = 6*16*1000*1000;
+unsigned char SOFT_START_DLY = 0x08;
+unsigned int EARLYWAKEUP_TIME_US_DEEP = PM_DCDC_DELAY_DURATION + 32 + (0x08*62);
 /* wakeup source :is_deepretn_back,is_pad_wakeup,wakeup_src*/
 _attribute_aligned_(4) pm_para_t pmParam;
 /* enable status :conn_mark,ext_cap_en,pad32k_en,pm_enter_en */
@@ -1330,16 +1334,15 @@ int pm_long_sleep_wakeup (SleepMode_TypeDef sleep_mode, SleepWakeupSrc_TypeDef w
 		}
 	}
 #if(RAM_CRC_EN)
-		if(wakeup_src == PM_WAKEUP_TIMER){
-			if(((sleep_mode == DEEPSLEEP_MODE_RET_SRAM_LOW16K)&&(span > 2500*16*1000)) \
-					|| ((sleep_mode == DEEPSLEEP_MODE_RET_SRAM_LOW32K)&&(span > 6*16*1000*1000))){
-				analog_write(0x00, ana_00 | BIT(7));  	//poweron_dft: 0x18,  <7> MSB of ret_ldo_trim,  0: 0.8-1.15V; 1: 0.6-0.95V
-				analog_write(0x02, 0xa0);  	//poweron_dft: 0xa4,  <2:0> ret_ldo_trim,  set 0x00: 0.6V in A1, 0.8V in A0
-				ram_crc_en = 1;
-			}
+	if(wakeup_src == PM_WAKEUP_TIMER){
+		if(((sleep_mode == DEEPSLEEP_MODE_RET_SRAM_LOW16K)&&(span > (RAM_CRC_EN_16KRAM_TIME/16))) \
+				|| ((sleep_mode == DEEPSLEEP_MODE_RET_SRAM_LOW32K)&&(span > (RAM_CRC_EN_32KRAM_TIME/16)))){
+			analog_write(0x00, ana_00 | BIT(7));  	//poweron_dft: 0x18,  <7> MSB of ret_ldo_trim,  0: 0.8-1.15V; 1: 0.6-0.95V
+			analog_write(0x02, 0xa0);  	//poweron_dft: 0xa4,  <2:0> ret_ldo_trim,  set 0x00: 0.6V
+			ram_crc_en = 1;
 		}
+	}
 #endif
-
 
 	////////// disable IRQ //////////////////////////////////////////
 	unsigned char r = irq_disable ();
@@ -1469,7 +1472,7 @@ int pm_long_sleep_wakeup (SleepMode_TypeDef sleep_mode, SleepWakeupSrc_TypeDef w
 
 	//set DCDC delay duration
 	if(sleep_mode == DEEPSLEEP_MODE){
-		analog_write (0x1f, 0xff - PM_DCDC_DELAY_CYCLE - SOFT_START_DELAY);//(0xff - n):  if timer wake up : ((n+1)*2) 32k cycle; else pad wake up: (((n+1)*2-1) ~ (n+1)*2 )32k cycle
+		analog_write (0x1f, 0xff - PM_DCDC_DELAY_CYCLE - SOFT_START_DLY);//(0xff - n):  if timer wake up : ((n+1)*2) 32k cycle; else pad wake up: (((n+1)*2-1) ~ (n+1)*2 )32k cycle
 	}else{
 		analog_write (0x1f, 0xff - PM_DCDC_DELAY_CYCLE);//(0xff - n): if timer wake up : ((n+1)*2) 32k cycle; else pad wake up: (((n+1)*2-1) ~ (n+1)*2 )32k cycle
 	}
@@ -1484,8 +1487,8 @@ int pm_long_sleep_wakeup (SleepMode_TypeDef sleep_mode, SleepWakeupSrc_TypeDef w
 		sleep_start();
 	}
 
-	/* long press pad to wake up from deep */
-	if(0xfe == read_reg8(0x7d)){
+	/* long press pad to wake up from deep */  //reboot can not use at A0
+	if(0xff != read_reg8(0x7d)){
 		if(sleep_mode == DEEPSLEEP_MODE){ //
 		   write_reg8 (0x6f, 0x20);  //reboot
 		}

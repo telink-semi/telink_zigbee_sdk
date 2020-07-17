@@ -374,7 +374,7 @@ void moduleTest_adc(u8 mode){
 	drv_adc_init();
 
 #if defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-	drv_adc_mode_pin_set(Drv_ADC_VBAT_MODE, GPIO_PC5);
+	drv_adc_mode_pin_set(Drv_ADC_BASE_MODE, GPIO_PB3);
 	drv_adc_enable(1);
 #elif MCU_CORE_826x
 	drv_ADC_ParamSetting(Drv_ADC_MISC_CHN,Drv_SINGLE_ENDED_MODE,B4,B4,S_3,RV_AVDD,RES14);
@@ -638,7 +638,7 @@ void moduleTest_spi(void)
 #define TEST_LED2		GPIO_PA3
 #define TEST_SW1		GPIO_PD6
 #define TEST_SW2		GPIO_PD5
-#define TEST_GPIO		TEST_SW1
+#define TEST_GPIO		GPIO_PB2
 #endif
 #endif
 
@@ -709,7 +709,7 @@ void moduleTest_gpioIrq(void)		//comment out user_init
 	gpio_set_func(TEST_GPIO ,AS_GPIO);
 	gpio_set_output_en(TEST_GPIO, 0); 			//enable output
 	gpio_set_input_en(TEST_GPIO ,1);				//disable input
-	if(gpio_read(TEST_GPIO)){
+	if(gpio_read(TEST_GPIO)){				//test edge trigger irq
 		gpio_setup_up_down_resistor(TEST_GPIO, PM_PIN_PULLUP_10K);
 		drv_gpio_irq_conf(GPIO_IRQ_MODE, TEST_GPIO, poll_falling, moduleTest_gpioIrqCb3);
 	}else{
