@@ -176,7 +176,6 @@ void brc_toggle(void)
 	}
 }
 
-volatile u8 T_appOnOffHandler = 0xff;
 void buttonShortPressed(u8 btNum){
 	if(btNum == VK_SW1){
 		if(zb_isDeviceJoinedNwk()){
@@ -252,7 +251,6 @@ void keyScan_keyReleasedCB(u8 keyCode){
 	g_switchAppCtx.state = APP_STATE_NORMAL;
 }
 
-volatile u8 T_keyPressedNum = 0;
 void app_key_handler(void){
 	static u8 valid_keyCode = 0xff;
 	if(g_switchAppCtx.state == APP_FACTORY_NEW_SET_CHECK){
@@ -261,7 +259,6 @@ void app_key_handler(void){
 		}
 	}
 	if(kb_scan_key(0 , 1)){
-		T_keyPressedNum++;
 		if(kb_event.cnt){
 			g_switchAppCtx.keyPressed = 1;
 			keyScan_keyPressedCB(&kb_event);

@@ -24,7 +24,7 @@
 #include "cfs-coffee-arch.h"
 #include "cfs-coffee.h"
 
-#ifdef MCU_CORE_826x
+#if 0
 #if DEBUG
 #define PRINTF(...) printf(__VA_ARGS__)
 #else

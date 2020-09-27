@@ -21,7 +21,7 @@
  *******************************************************************************************************/
 #pragma once
 
-#include "../common/types.h"
+
 
 
 /** @addtogroup  TELINK_COMMON_MODULE TELINK Common Module

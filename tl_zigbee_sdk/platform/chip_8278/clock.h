@@ -230,15 +230,39 @@ static inline unsigned int clock_get_tmr_status(int tmr){
 	}
 }
 
-#define TIMER_STATE_CLEAR(tmrIdx) 			reg_tmr_sta |= (1 << tmrIdx)
-#define TIMER_STOP(idx)					clock_enable_clock(idx, 0)
-#define TIMER_START(idx)				clock_enable_clock(idx, 1)
-#define TIMER_TICK_CLEAR(idx)   		reg_tmr_tick(tmrIdx) = 0
-#define TIMER_INTERVAL_SET(idx, cyc)	reg_tmr_capt(idx) = cyc
-#define TIMER_INIT(tmrIdx, mode)			do{ \
-										   clock_set_tmr_mode(tmrIdx, mode);\
-										   reg_tmr_sta |= 1 << tmrIdx;	\
-										   reg_irq_src |= 1 << tmrIdx;	\
-										   reg_irq_mask |= 1 << tmrIdx;	\
-									   }while(0)
 
+#define TIMER_INIT(idx, mode)			do{ \
+										   clock_set_tmr_mode(idx, mode);	\
+										   reg_tmr_sta = 1 << idx;			\
+										   reg_irq_src = 1 << idx;			\
+										   reg_irq_mask |= 1 << idx;		\
+									    }while(0)
+
+#define TIMER_START(idx)				clock_enable_clock(idx, 1)
+#define TIMER_STOP(idx)					clock_enable_clock(idx, 0)
+
+#define TIMER_TICK_CLEAR(idx)   		reg_tmr_tick(idx) = 0
+#define TIMER_INTERVAL_SET(idx, cyc)	reg_tmr_capt(idx) = cyc
+
+#define TIMER_STATE_CLEAR(idx) 			reg_tmr_sta = (1 << idx)
+
+
+#define SYS_TIMER_INIT()				do{	\
+											reg_irq_src = FLD_IRQ_SYSTEM_TIMER;				\
+											reg_system_irq_mask |= FLD_SYSTEM_TIMER_AUTO_EN;\
+											reg_irq_mask &= ~(u32)FLD_IRQ_SYSTEM_TIMER;		\
+										}while(0)
+
+#define SYS_TIMER_START()				do{	\
+											reg_irq_mask |= FLD_IRQ_SYSTEM_TIMER;			\
+										}while(0)
+
+#define SYS_TIMER_STOP()				do{	\
+											reg_irq_mask &= ~(u32)FLD_IRQ_SYSTEM_TIMER;		\
+										}while(0)
+
+#define SYS_TIMER_INTERVAL_SET(cyc)		do{	\
+											reg_system_tick_irq = cyc;	\
+										}while(0)
+
+#define SYS_TIMER_STATE_CLEAR()

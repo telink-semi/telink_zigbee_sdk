@@ -24,20 +24,20 @@
 
 #define LIST_ADD(head, ele)   \
 do {                          \
-  (ele)->next = head;        \
-  head = ele;               \
+  (ele)->next = head;         \
+  head = ele;                 \
 } while (0)
 
 
 #define LIST_DELETE(head, ele)   						\
 do {                                                    \
 	__typeof(head) lst;                                 \
-	if ((head) == (ele)) {                               \
-		(head) = (head)->next;                            \
+	if ((head) == (ele)) {                              \
+		(head) = (head)->next;                          \
 	} else {                                            \
 		lst = head;                                     \
-		while (lst->next && (lst->next != (ele))) {      \
-			lst = lst->next;                              \
+		while (lst->next && (lst->next != (ele))) {     \
+			lst = lst->next;                            \
 		}                                               \
 		if (lst->next) {                                \
 			lst->next = ((ele)->next);                  \
@@ -47,13 +47,13 @@ do {                                                    \
 
 
 
-#define LIST_EXIST(head, ele, result)        		\
-do {											\
-	for(result = head; result; result = (result)->next){	\
-		if (result == ele){						\
-			break;								\
-		}										\
-	} 			       						 	\
+#define LIST_EXIST(head, ele, result)        				\
+do {														\
+	for(result = head; result; result = (result)->next) {	\
+		if (result == ele) {								\
+			break;											\
+		}													\
+	} 			       						 				\
 } while(0) 
 
 #endif /* UTLIST_H */

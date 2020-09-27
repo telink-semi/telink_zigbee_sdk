@@ -23,6 +23,7 @@
 
 
 #include "register.h"
+#include "bit.h"
 
 /**
  * @brief     This function set the seconds period.It is likely with WD_SetInterval.

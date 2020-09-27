@@ -19,11 +19,8 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#ifndef ZB_NWK_NIB_H
-#define ZB_NWK_NIB_H 1
-
-#include "tl_common.h"
-#include "../../mac/includes/tl_zb_mac.h"
+#ifndef NWK_NIB_H
+#define NWK_NIB_H
 
 
 /**
@@ -31,32 +28,29 @@
  */
 #define NWK_MAX_DEPTH                          	15
 
-
 #define NWK_MAX_ROUTERS  						8
-
 
 /**
  *  @brief  Default value of nib.max_children
             max number of children which can join to this device
  */
 #define DEFAULT_MAX_CHILDREN                   	25
+
 /***************************************************************************
 * @brief	max number of routers per node
 */
 #if !defined ( NWK_MAX_ROUTERS )
-#define NWK_MAX_ROUTERS  8
+#define NWK_MAX_ROUTERS  						8
 #endif
-
 
 /***************************************************************************
 * @brief	max network depth
 */
 #if !defined ( NWK_MAX_DEPTH )
-#define NWK_MAX_DEPTH    5
+#define NWK_MAX_DEPTH    						5
 #endif
 
-
-#define ZB_NWK_LINK_STATUS_PEROID_DEFAULT              	15
+#define ZB_NWK_LINK_STATUS_PEROID_DEFAULT       15
 
 
 /***************************************************************************
@@ -124,11 +118,7 @@ typedef struct
 #define NIB_IEEE_ADDRESS()  			g_zbMacPib.extAddress
 #define NIB_PAN_ID()					g_zbNIB.panId//g_zbMacPib.panId
 
-
 #define NIB_GET_USE_MULTICAST()   		g_zbNIB.useMulticast
 #define NIB_SET_USE_MULTICAST(v) 		(g_zbNIB.useMulticast = (v))
 
-
-
-
-#endif /* ZB_NWK_MIB_H */
+#endif /* NWK_NIB_H */

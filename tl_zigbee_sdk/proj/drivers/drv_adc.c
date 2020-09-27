@@ -19,7 +19,8 @@
  *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#include "drv_adc.h"
+
+#include "../tl_common.h"
 
 
 
@@ -30,16 +31,16 @@
 * @return	  1: set success ;
 *             0: set error
 */
-unsigned char drv_adc_init(void)
+bool drv_adc_init(void)
 {
-#if	defined (MCU_CORE_826x)
+#if	defined(MCU_CORE_826x)
 	//set the ADC clock details (4MHz) and start the ADC clock.
 	return ADC_Init();
-#elif defined(MCU_CORE_HAWK)
-
-#else
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	adc_init();
-	return 1;
+	return TRUE;
+#elif defined(MCU_CORE_B91)
+	return TRUE;
 #endif
 }
 
@@ -48,48 +49,33 @@ unsigned char drv_adc_init(void)
 * param[in] null
 * @return,the result
 */
-unsigned short drv_get_adc_data(void)
+u16 drv_get_adc_data(void)
 {
-#if defined (MCU_CORE_826x) || defined (MCU_CORE_HAWK)
+#if defined(MCU_CORE_826x)
 	return ADC_SampleValueGet();
-#else	//8258/8278
-	return (unsigned short)adc_sample_and_get_result();
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+	return (u16)adc_sample_and_get_result();
+#elif defined(MCU_CORE_B91)
+	return 0;
 #endif
 }
 
-/****
-* brief: get the sample temperature data
-* param[in] null
-* @return,the result
-*/
-#if defined (MCU_CORE_8278)
-unsigned short drv_get_temp_result(void){
-	return adc_temp_result();
-}
-#endif
 
-
-#if defined (MCU_CORE_826x) || defined (MCU_CORE_HAWK)
+#if defined(MCU_CORE_826x)
 /****
 * brief: Set ADC channel,8269 only support the left and misc channel
 * param[in] ad_ch, enum the channel
 *
 * @return
 */
-void drv_adc_channel_set(Drv_ADC_ChTypeDef ad_ch)
+static void drv_adc_channel_set(Drv_ADC_ChTypeDef ad_ch)
 {
-	if(ad_ch == Drv_ADC_LEFT_CHN)
-	{
+	if(ad_ch == Drv_ADC_LEFT_CHN){
 		ADC2AUDIO();
-	}
-	else if(ad_ch == Drv_ADC_MISC_CHN)
-	{
+	}else if(ad_ch == Drv_ADC_MISC_CHN){
 		AUDIO2ADC();
-	}
-	else
-	{
+	}else{
 		//unsupported!
-		return;
 	}
 }
 
@@ -101,7 +87,7 @@ void drv_adc_channel_set(Drv_ADC_ChTypeDef ad_ch)
 * param[in] pcha_n,the negative input,if the single mode,it is GND
 * @return
 */
-void drv_set_mode_Pcha(Drv_ADC_ChTypeDef adc_chan, DRV_ADC_InputModeTypeDef mode, u8 pcha_p, u8 pcha_n)
+static void drv_set_mode_Pcha(Drv_ADC_ChTypeDef adc_chan, DRV_ADC_InputModeTypeDef mode, u8 pcha_p, u8 pcha_n)
 {
 	ADC_AnaModeSet(mode);
 	ADC_AnaChSet(pcha_p);
@@ -114,7 +100,7 @@ void drv_set_mode_Pcha(Drv_ADC_ChTypeDef adc_chan, DRV_ADC_InputModeTypeDef mode
 * param[in] sample_time,the sample time cycle,reference to the API.
 * @return
 */
-void drv_set_sample_time(Drv_ADC_ChTypeDef adc_chan,u8 sample_time)
+static void drv_set_sample_time(Drv_ADC_ChTypeDef adc_chan, u8 sample_time)
 {
 	ADC_SampleTimeSet(sample_time);
 }
@@ -126,7 +112,7 @@ void drv_set_sample_time(Drv_ADC_ChTypeDef adc_chan,u8 sample_time)
 * param[in] ref_vol,the reference voltage,should be the enum mode,reference to the API.
 * @return
 */
-void drv_set_ref_vol(Drv_ADC_ChTypeDef adc_chan,u8 ref_vol)
+static void drv_set_ref_vol(Drv_ADC_ChTypeDef adc_chan, u8 ref_vol)
 {
 	ADC_RefVoltageSet(ref_vol);
 }
@@ -137,7 +123,7 @@ void drv_set_ref_vol(Drv_ADC_ChTypeDef adc_chan,u8 ref_vol)
 * param[in] res,the reference voltage,should be the enum mode,reference to the API.
 * @return
 */
-void drv_set_resolution(Drv_ADC_ChTypeDef adc_chan,u8 res)
+static void drv_set_resolution(Drv_ADC_ChTypeDef adc_chan, u8 res)
 {
 	ADC_ResSet(res);
 }
@@ -153,7 +139,7 @@ void drv_set_resolution(Drv_ADC_ChTypeDef adc_chan,u8 res)
 * param[in] res,the reference voltage,should be the enum mode,reference to the API.
 * @return
 */
-void drv_ADC_ParamSetting(Drv_ADC_ChTypeDef ad_ch,DRV_ADC_InputModeTypeDef mode,u8 pcha_p, u8 pcha_n,u8 sample_time,u8 ref_vol,u8 res)
+void drv_ADC_ParamSetting(Drv_ADC_ChTypeDef ad_ch, DRV_ADC_InputModeTypeDef mode, u8 pcha_p, u8 pcha_n, u8 sample_time, u8 ref_vol, u8 res)
 {
 	drv_adc_channel_set(ad_ch);
 	drv_set_mode_Pcha(ad_ch, mode, pcha_p, pcha_n);
@@ -161,7 +147,7 @@ void drv_ADC_ParamSetting(Drv_ADC_ChTypeDef ad_ch,DRV_ADC_InputModeTypeDef mode,
 	drv_set_ref_vol(ad_ch, ref_vol);
 	drv_set_resolution(ad_ch, res);
 }
-#else	//8258/8278
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 /****
 * brief: Set ADC mode and pin
 * param[in] mode, base or vbat mode
@@ -175,7 +161,7 @@ void drv_adc_mode_pin_set(Drv_ADC_Mode mode, GPIO_PinTypeDef pin)
 	}else if(mode == Drv_ADC_VBAT_MODE){
 		adc_vbat_init(pin);
 	}
-#if defined (MCU_CORE_8278)
+#if defined(MCU_CORE_8278)
 	else if(mode == Drv_ADC_VBAT_CHANNEL_MODE){
 		adc_vbat_channel_init();
 	}else if(mode == Drv_ADC_TEMP_MODE){
@@ -183,7 +169,6 @@ void drv_adc_mode_pin_set(Drv_ADC_Mode mode, GPIO_PinTypeDef pin)
 	}
 #endif
 }
-
 
 /**
  * @brief      This function sets sar_adc power.
@@ -194,5 +179,16 @@ void drv_adc_enable(bool enable)
 {
 	adc_power_on_sar_adc((unsigned char)enable);
 }
+
+#if defined(MCU_CORE_8278)
+/****
+* brief: get the sample temperature data
+* param[in] null
+* @return,the result
+*/
+u16 drv_get_temp_result(void){
+	return adc_temp_result();
+}
+#endif
 
 #endif

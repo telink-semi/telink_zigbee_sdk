@@ -19,8 +19,8 @@
  *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#include "drv_flash.h"
-#include "platform_includes.h"
+
+#include "../tl_common.h"
 
 const drv_flash_t myFlashDrv = {
 	.write = flash_write_page,
@@ -29,6 +29,8 @@ const drv_flash_t myFlashDrv = {
 };
 
 void flash_op(u8 opmode, u32 addr, u32 len, u8 *buf){
+	addr -= FLASH_BASE_ADDR;
+
 	u32 re = addr%256;
 
 	u32 pageReLen = (re)?(256 -re):256;
@@ -66,20 +68,16 @@ void flash_read(u32 addr, u32 len, u8 *buf){
 	flash_op(0, addr, len, buf);
 }
 
-
 void flash_erase(u32 addr){
-#if(MODULE_WATCHDOG_ENABLE)
+#if (MODULE_WATCHDOG_ENABLE)
 	wd_clear();
 #endif
-	myFlashDrv.erase(addr);
-#if(MODULE_WATCHDOG_ENABLE)
-		wd_clear();
-#endif
+	myFlashDrv.erase(addr - FLASH_BASE_ADDR);
 }
 
 #ifdef CFS_ENABLE
 _attribute_ram_code_ void cfs_flash_write_page(u32 addr, u32 len, u8 *buf){
-	u8 r = irq_disable();
+	u32 r = disable_irq();
 	// important:  buf must not reside at flash, such as constant string.  If that case, pls copy to memory first before write
 	flash_send_cmd(FLASH_WRITE_ENABLE_CMD);
 	flash_send_cmd(FLASH_WRITE_CMD);
@@ -92,11 +90,11 @@ _attribute_ram_code_ void cfs_flash_write_page(u32 addr, u32 len, u8 *buf){
 	}
 	mspi_high();
 	flash_wait_done();
-	irq_restore(r);
+	restore_irq(r);
 }
 
 _attribute_ram_code_ void cfs_flash_read_page(u32 addr, u32 len, u8 *buf){
-	u8 r = irq_disable();
+	u32 r = disable_irq();
 	flash_send_cmd(FLASH_READ_CMD);
 	flash_send_addr(addr);
 
@@ -110,7 +108,7 @@ _attribute_ram_code_ void cfs_flash_read_page(u32 addr, u32 len, u8 *buf){
 		mspi_wait();
 	}
 	mspi_high();
-	irq_restore(r);
+	restore_irq(r);
 }
 
 void cfs_flash_op(u8 opmode, u32 addr, u32 len, u8 *buf){

@@ -19,11 +19,10 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#pragma once
+#ifndef ZCL_BASIC_H
+#define ZCL_BASIC_H
 
-#include "tl_common.h"
-#include "../../zdo/zb_af.h"
-#include "../zcl.h"
+
 
 /** @addtogroup  TELINK_ZIGBEE_STACK TELINK ZigBee Stack
  *  @{
@@ -174,3 +173,5 @@ status_t zcl_basic_reset(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u
 /** @} end of group ZCL_Module */
 
 /** @} end of group TELINK_ZIGBEE_STACK */
+
+#endif	/* ZCL_BASIC_H */

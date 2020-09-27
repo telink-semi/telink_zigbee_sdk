@@ -21,29 +21,17 @@
  *******************************************************************************************************/
 #pragma once
 
-#include "../common/types.h"
-#include "ev_poll.h"
-#include "ev_timer.h"
+#include "app_cfg.h"
 
-
-enum{EV_FIRED_EVENT_MAX_MASK = EV_FIRED_EVENT_MAX - 1};
-
-typedef void (*sys_exception_cb_t)(void);
-
-typedef struct ev_loop_ctrl_t{
-    ev_poll_t                poll[EV_POLL_MAX];
-	/*
-	Time events is sorted, use single linked list
-	*/
-    ev_time_event_t        	*timer_head;
-    ev_time_event_t     	*timer_nearest;        // find the nearest fired timer,
-} ev_loop_ctrl_t;
+enum {
+	EV_FIRED_EVENT_MAX_MASK = EV_FIRED_EVENT_MAX - 1
+};
 
 enum {
 	EV_TIMER_SAFE_MARGIN_US = 4000000	// in us,
 };
 
-enum{
+enum {
 	SYS_EXCEPTTION_COMMON_MEM_ACCESS = 0,
 	SYS_EXCEPTTION_COMMON_TIMER_EVEVT,
 	SYS_EXCEPTTION_COMMON_BUFFER_OVERFLOWN,
@@ -84,7 +72,10 @@ enum{
 	SYS_EXCEPTTION_EV_TASK_POST,
 };
 
+typedef void (*sys_exception_cb_t)(void);
+
 void sys_exceptHandlerRegister(sys_exception_cb_t cb);
+
 u8 sys_exceptionPost(u16 line, u8 evt);
 #define ZB_EXCEPTION_POST(evt)  sys_exceptionPost(__LINE__, evt)
 

@@ -19,21 +19,9 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#pragma once
+#ifndef APS_API_H
+#define APS_API_H
 
-#include "tl_common.h"
-#include "../zdo/zdo_api.h"
-
-/**************************************************************************//**
-  \brief Initialization internal state and main variables of APS-layer.
-     The function can be called only by ZDO.
-     It must be called before any operation with APS.
-  \return None.
- ******************************************************************************/
-//APS: MAX number of binding table size
-
-
-//APS: max number of endpoints per group table entry
 
 #define APS_EP_NUM_IN_GROUP_TBL			8
 #define APS_GROUP_NAME_LEN				16
@@ -46,14 +34,10 @@
 #define APS_GROUP_TABLE_NUM				4		//APS_GROUP_TABLE_NUM_DFT
 #endif
 
-#define APS_BINDIN_TABLE_NUM_MAX		8
-
-
 #define APS_PARENT_ANNOUNCE_BASE_TIMER	10//s
 #define APS_PARENT_ANNOUNCE_JITTER_MAX	10//s
 
-typedef enum
-{
+typedef enum{
 	APS_STATUS_SUCCESS               = 0x00,
 
 	APS_STATUS_ASDU_TOO_LONG		 = 0xa0,
@@ -80,29 +64,25 @@ typedef enum
 
 
 /*! The destination address for the binding entry.*/
-typedef union
-{
-	u16				dst_group_addr;
-	struct
-	{
+typedef union{
+	u16	dst_group_addr;
+	struct{
 		union{
-			addrExt_t		dst_ext_addr;
-			u16				dst_short_addr;
+			addrExt_t dst_ext_addr;
+			u16		  dst_short_addr;
 		};
 	    /*! This field shall be present only if the dstAddrMode field has a value of
 	    0x03 and, if present, shall be the destination endpoint for the binding entry.*/
-	    u8		dst_endpoint;
+	    u8 dst_endpoint;
 	};
 }aps_address_t;
-
 
 /*
    The transmission options for the ASDU to be
    transferred. These are a bitwise OR of one or
    more.
  */
-typedef enum
-{
+typedef enum{
 	APS_TX_OPT_SECURITY_ENABLED 	= BIT(0), //0x01 = Security enabled transmission
 	APS_TX_OPT_DISABLE_NWK_KEY 		= BIT(1), //0x02 = Disable NWK key
 	APS_TX_OPT_ACK_TX 				= BIT(2), //0x04 = Acknowledged transmission
@@ -124,9 +104,6 @@ typedef enum{
 	APS_LONG_SRCADDR_WITHEP,			/* for unicasting with ieee address, with Endpoint */
 	APS_LONG_SRCADDR_NOEP				/* for unicasting with ieee address, without Endpoint */
 }aps_src_addr_mode;
-
-/*! The destination address for the binding entry.*/
-
 
 typedef enum{
 	APS_CMD_HANDLE_TRANSPORT_KEY = 0x40,
@@ -153,8 +130,7 @@ typedef enum{
  * The structure definition follows APSDE-DATA request primitive described in
  * Zigbee Specification r18, 2.2.4.1.1 APSDE-DATA.request, page 23.
  */
-typedef struct
-{
+typedef struct{
 	/** The set of octets comprising the ASDU to be transferred. */
 	u8	*asdu;
 
@@ -200,17 +176,17 @@ typedef struct
 	bool				useAlias;
 	u16					aliasSrcAddr;
 	u8					aliasSeqNum;
-} aps_data_req_t;
 
+	u8					extFrameCtrl;
+	u8					blockNum;
+}aps_data_req_t;
 
 typedef enum{
 	SECURITY_IN_APSLAYER	=	BIT(0),
 	SECURITY_IN_NWKLAYER	=	BIT(1)
 }security_with_e;
 
-
-typedef struct
-{
+typedef struct{
 	/* The addressing mode used to identify the destination
 	* in the data frame that has been received.
 	* May take any non-reserved value from the following list:
@@ -275,9 +251,6 @@ typedef struct
 	u8	aps_counter;
 } aps_data_ind_t;
 
-
-
-
 //Structure for parameter of apsdeDataCnf callback function, for external useage
 typedef struct{
     union{
@@ -305,78 +278,69 @@ typedef struct{
 	u8	cid16_h;
 	u8	dst_addr_mode;//01 group; 03 ext
 	/*! The destination address for the binding entry.*/
-	union
-	{
-		struct
-		{
-			addrExt_t	dst_ext_addr;
+	union{
+		struct{
+			addrExt_t dst_ext_addr;
 			/*! This field shall be present only if the dstAddrMode field has a value of
 			0x03 and, if present, shall be the destination endpoint for the binding entry.*/
-			u8		dst_ep;
+			u8 dst_ep;
 		};
-		u16		dst_group_addr;
+		u16	dst_group_addr;
 	};
 }aps_me_bind_req_t;
 
-typedef		aps_me_bind_req_t	aps_me_unbind_req_t;
+typedef	aps_me_bind_req_t	aps_me_unbind_req_t;
 
 
 //APSME-ADD-GROUP.request Parameters
 typedef struct{
-	u16		group_addr;			//the 16 bit group address of the group being added
-	u8		ep;					//the ep to which the given group is beingg added
+	u16	group_addr;			//the 16 bit group address of the group being added
+	u8	ep;					//the ep to which the given group is beingg added
 }aps_add_group_req_t;
 
 typedef aps_add_group_req_t aps_delete_group_req_t;
+
 /**
   Group table entry
  */
-typedef struct
-{
-  u16    group_addr;
-  u8     endpoints[APS_EP_NUM_IN_GROUP_TBL];
-  u8	 n_endpoints;
-  u8     group_name[APS_GROUP_NAME_LEN];
-  u8	 rsv;
+typedef struct{
+  u16 group_addr;
+  u8  endpoints[APS_EP_NUM_IN_GROUP_TBL];
+  u8  n_endpoints;
+  u8  group_name[APS_GROUP_NAME_LEN];
+  u8  rsv;
 }aps_group_tbl_ent_t;
-
-extern u8	aps_group_entry_num;
 
 #define APS_BIND_DST_ADDR_GROUP 0
 #define APS_BIND_DST_ADDR_LONG  1
 
 //APS bind source table struct
-typedef struct
-{
-	u16 				profile_id; // profile id
-	u16 				device_id; // profile id
+typedef struct{
+	u16 profile_id; // profile id
+	u16 device_id; // profile id
 
-	u16           		cluster_id; //cluster id
-	u16					src_addr_ref;  //source address as ref from nwkAddressMap
+	u16 cluster_id; //cluster id
+	u16	src_addr_ref;  //source address as ref from nwkAddressMap
 
-	u8            		src_ep;   //source endpoint
-	u8					used;
-	u16					dst_tbl_idx;
+	u8  src_ep;   //source endpoint
+	u8	used;
+	u16	dst_tbl_idx;
 }aps_bind_src_tbl_t;
 
-typedef struct
-{
-	u16			 	dst_addr;        /*!< destination address as ref from nwkAddressMap */
-	u8            	dst_end;         /*!< destination endpoint */
-	u8				reserved;
+typedef struct{
+	u16	dst_addr;        /*!< destination address as ref from nwkAddressMap */
+	u8  dst_end;         /*!< destination endpoint */
+	u8	reserved;
 }aps_bind_long_dst_addr_t;
 
+typedef struct{
+	u8  dst_addr_mode;   //destination address mode flag, 0
+						 // - group address, otherwise long address plus dst ep
+	u8	used;
+	u16 src_table_index; //index from zb_asp_src_table_t
 
-typedef struct
-{
-	u8            dst_addr_mode;   //destination address mode flag, 0
-										  // - group address, otherwise long address plus dst ep
-	u8			  used;
-	u16           src_table_index; //index from zb_asp_src_table_t
-
-	union
-	{
-		u16 group_addr;                //group address
+	union{
+		u16 group_addr;  //group address
 		aps_bind_long_dst_addr_t long_addr; //zb_asp_long_dst_addr_t
 	};
 }aps_bind_dst_table_t;
@@ -387,45 +351,43 @@ typedef struct{
 }boundTblMapList_t;
 
 typedef struct{
-	aps_bind_src_tbl_t 		src_table;
-	aps_bind_dst_table_t 	dst_table;
+	aps_bind_src_tbl_t 	 src_table;
+	aps_bind_dst_table_t dst_table;
 }aps_bind_tbl_t ;
 
-typedef struct
-{
-	u8              			src_n_elements;	//number of elements in src tbl
-	u8              			dst_n_elements;
-	u8 							bound_cnt;
-	u8 							resv;
-	aps_bind_tbl_t				table[APS_BINDING_TABLE_NUM];
-	boundTblMapList_t			BoudList[APS_BINDING_TABLE_NUM * APS_BINDING_TABLE_NUM];
+typedef struct{
+	u8 src_n_elements;	//number of elements in src tbl
+	u8 dst_n_elements;
+	u8 bound_cnt;
+	u8 resv;
+	aps_bind_tbl_t	  table[APS_BINDING_TABLE_NUM];
+	boundTblMapList_t BoudList[APS_BINDING_TABLE_NUM * APS_BINDING_TABLE_NUM];
 }aps_binding_table_t _attribute_aligned_(4);
 
-
 typedef struct{
+	u32			aps_channel_mask; //The mask of allowable channels for this device to use for network operations.
+	addrExt_t	aps_use_ext_panid;//The 64-bit address of a network to form or to join.
 
-	u32						aps_channel_mask; //The mask of allowable channels for this device to use for network operations.
-
-	addrExt_t				aps_use_ext_panid;//The 64-bit address of a network to form or to join.
-
-	bool	aps_designated_coordinator;//TRUE if the device should become the ZigBee Coordinator on startup, FALSE if otherwise.
-
-	u8		aps_parent_announce_timer;
+	bool aps_designated_coordinator;//TRUE if the device should become the ZigBee Coordinator on startup, FALSE if otherwise.
+	u8	 aps_parent_announce_timer;
 
 	//default value 2
-	u8		aps_nonmember_radius;//The value to be used for the NonmemberRadius  parameter when using NWK layer multicast.
+	u8	aps_nonmember_radius;//The value to be used for the NonmemberRadius  parameter when using NWK layer multicast.
 
-	u8		aps_interframe_delay;
-	u8		aps_max_window_size;
-	u8		aps_fragment_payload_size;
+	u8	aps_interframe_delay;
+	u8	aps_max_window_size;
+	u8	aps_fragment_payload_size;
 
-	u8		aps_use_insecure_join:1;//A flag controlling the use of insecure join at startup. Default TRUE
-	u8		aps_authenticated:1;//authenticated or not
-	u8		aps_updateDevice_holdApsSecurity:1;//if set, will not send update device with aps encryption
-	u8		aps_reserved:5;
-	u8		aps_flags;//Flag used in APS layers, see the enum of aps_flag_e
+	u8	aps_use_insecure_join:1;//A flag controlling the use of insecure join at startup. Default TRUE
+	u8	aps_authenticated:1;//authenticated or not
+	u8	aps_updateDevice_holdApsSecurity:1;//if set, will not send update device with aps encryption
+	u8	aps_reserved:5;
+	u8	aps_flags;//Flag used in APS layers, see the enum of aps_flag_e
 }aps_pib_attributes_t;
 
+typedef void (*apsDataIndCb_t)(void *p);
+
+extern u16 GROUP_MESSAGE_SEND_ADDRESS;
 extern u8 APS_INTERFRAME_DELAY;
 extern u8 APS_MAX_WINDOW_SIZE;
 extern u8 APS_FRAGMEMT_PAYLOAD_SIZE;
@@ -433,7 +395,6 @@ extern u8 APS_BINDING_TABLE_SIZE;
 extern u8 APS_GROUP_TABLE_SIZE;
 extern aps_binding_table_t aps_binding_tbl;
 extern aps_group_tbl_ent_t aps_group_tbl[];
-
 extern aps_pib_attributes_t aps_ib;
 
 #define APS_IB() aps_ib
@@ -443,12 +404,15 @@ extern aps_pib_attributes_t aps_ib;
 /******************************************************************************
                               Prototypes section
  ******************************************************************************/
-/**************************************************************************//**
-  \brief Initialization internal state and main variables of APS-layer.
-     The function can be called only by ZDO.
-     It must be called before any operation with APS.
-  \return None.
- ******************************************************************************/
+void tl_apsDataIndRegister(apsDataIndCb_t cb);
+
+/************************************************************************//**
+ * @brief 	Initialization internal state and main variables of APS-layer.
+ *   	 	It must be called before any operation with APS.
+ *
+ * @return 	None.
+ *
+ **************************************************************************/
 void aps_init(void);
 
 /***********************************************************************//**
@@ -459,7 +423,7 @@ void aps_init(void);
  * @return	the sequence number
  *
  **************************************************************************/
-u8 aps_get_current_counter_value(void );
+u8 aps_get_current_counter_value(void);
 
 /***********************************************************************//**
  * @brief   get the sequence number for the new aps frame
@@ -471,10 +435,9 @@ u8 aps_get_current_counter_value(void );
  **************************************************************************/
 u8 aps_get_counter_value(void);
 
-zdo_status_t aps_me_bind_req(aps_me_bind_req_t *amr);
+aps_status_t aps_me_bind_req(aps_me_bind_req_t *amr);
 
-zdo_status_t aps_me_unbind_req(aps_me_unbind_req_t *amr);
-
+aps_status_t aps_me_unbind_req(aps_me_unbind_req_t *amr);
 
 /***********************************************************************//**
  * @brief   get binding table number
@@ -486,7 +449,6 @@ zdo_status_t aps_me_unbind_req(aps_me_unbind_req_t *amr);
  **************************************************************************/
 u8 aps_bindingTblNum(void);
 
-
 /***********************************************************************//**
  * @brief   send a group add request command
  *
@@ -496,7 +458,6 @@ u8 aps_bindingTblNum(void);
  *
  **************************************************************************/
 aps_status_t aps_me_group_add_req(aps_add_group_req_t *req);
-
 
 /***********************************************************************//**
  * @brief   search a group in group table
@@ -510,7 +471,6 @@ aps_status_t aps_me_group_add_req(aps_add_group_req_t *req);
  **************************************************************************/
 aps_group_tbl_ent_t *aps_group_search(u16 groupAddr, u8 endpoint);
 
-
 /***********************************************************************//**
  * @brief   get all of the group in the group table
  *
@@ -523,7 +483,6 @@ aps_group_tbl_ent_t *aps_group_search(u16 groupAddr, u8 endpoint);
  **************************************************************************/
 void aps_group_list_get(u8 *counter, u16 *group_list);
 
-
 /***********************************************************************//**
  * @brief   send a group delete request command
  *
@@ -533,7 +492,6 @@ void aps_group_list_get(u8 *counter, u16 *group_list);
  *
  **************************************************************************/
 aps_status_t aps_me_group_delete_req(aps_delete_group_req_t *req);
-
 
 /***********************************************************************//**
  * @brief   send a group delete all request command
@@ -545,7 +503,6 @@ aps_status_t aps_me_group_delete_req(aps_delete_group_req_t *req);
  **************************************************************************/
 aps_status_t aps_me_group_delete_all_req(u8 ep);
 
-
 /***********************************************************************//**
  * @brief   get valid group count in the group table
  *
@@ -556,7 +513,6 @@ aps_status_t aps_me_group_delete_all_req(u8 ep);
  **************************************************************************/
 u8 aps_group_entry_num_get(void);
 
-
 /***********************************************************************//**
  * @brief   get the group entry depend on the group_addr
  *
@@ -566,7 +522,6 @@ u8 aps_group_entry_num_get(void);
  *
  **************************************************************************/
 aps_group_tbl_ent_t *aps_group_search_by_addr(u16 group_addr);
-
 
 /***********************************************************************//**
  * @brief   get the entry of the group table
@@ -613,9 +568,17 @@ u8 aps_me_free_src_table_find(void);
  *
  **************************************************************************/
 u8 apsDataRequest(aps_data_req_t *dataReq, u8 *asdu, u8 length);
-
 u8 apsDataFragmentRequest(aps_data_req_t *dataReq, u8 *asdu, u16 length);
 
+/***********************************************************************//**
+ * @brief   Set channel mask of APSIB.
+ *
+ * @param	chnMask
+ *
+ * @return	aps_status_t
+ *
+ **************************************************************************/
+aps_status_t apsSetChnMsk(u32 chnMask);
 
-typedef void (*apsDataIndCb_t)(void *p);
-void tl_apsDataIndRegister(apsDataIndCb_t cb);
+
+#endif	/* APS_API_H */

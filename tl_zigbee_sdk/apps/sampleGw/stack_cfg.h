@@ -19,17 +19,7 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-
 #pragma once
-
-
-
-typedef enum{
-	TL_IMAGETYPE_LIGHT				= 0xd3a3,
-	TL_IMAGETYPE_RC					= 0xd3a2,
-	TL_IMAGETYPE_ONOFFSWITCH		= 0xd3a1,
-}tl_imageType_e;
-
 
 
 /**
@@ -38,21 +28,6 @@ typedef enum{
  */
 #define DEFAULT_CHANNEL                           15
 
-////
-//typedef struct{
-//	u8	stackBuildl;
-//	u8	stackRelease;
-//	u8	appBuild;
-//	u8	appRelease;
-//}tl_fileVersionDef_e;
-#define	CURRENT_FILE_VERSION					  0x01000200//
-
-/**
- *  @brief Telink Manufacturer Code
- */
-#define TELINK_MANUFACTURER_CODE                  0x1141		//used in OTA
-
-#define	IMAGE_TYPE								  TL_IMAGETYPE_LIGHT
 
 /**
  *  @brief  Security
@@ -73,7 +48,7 @@ typedef enum{
  *  @brief  ZCL: MAX number of cluster list, in cluster number add  + out cluster number
  *
  */
-#define	ZCL_CLUSTER_NUM_MAX					10
+#define	ZCL_CLUSTER_NUM_MAX						10
 
 /**
  *  @brief  ZCL: maximum number for zcl reporting table
@@ -97,15 +72,6 @@ typedef enum{
  *  @brief  APS: MAX number of binding table size
  */
 #define APS_BINDING_TABLE_NUM                 	8
-
-/**********************************************************************
- * Following parameters are for End Device only
- */
-
-/**
- *  @brief  ZDO Indirect poll timer in millsecond
- */
-#define ZB_ZDO_INDIRECT_POLL_TIMER              5000
 
 
 /**********************************************************************
@@ -132,7 +98,4 @@ typedef enum{
     #define ZB_SECURITY
 #endif
 
-#if (ZBHCI_USB_PRINT || ZBHCI_USB_CDC || ZBHCI_USB_HID || ZBHCI_UART)
-#define ZBHCI_EN								  1
-#endif
 

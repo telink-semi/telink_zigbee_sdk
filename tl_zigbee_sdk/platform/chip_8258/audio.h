@@ -120,19 +120,6 @@ enum{
 	AUD_ADC_DONE_FALLING = 2,
 };
 
-/************************************************************
-*	@param		m:		audio input mode, '1' diff; '0' single end
-*				b:		battery check mode bit[7], battery input channel bit[5:0]
-*
-*/
-#define AUDIOSE_SYSCLK48M_96KADC_16KSDM(m,b)			Audio_Init(m,b,AMIC,61,16,R6)
-
-#define AUDIOSE_SYSCLK32M_96KADC_16KSDM(m,b)			Audio_Init(m,b,AMIC,50,8,R6)
-
-#define AUDIOSE_SYSCLK24M_96KADC_16KSDM(m,b)			Audio_Init(m,b,AMIC,38,6,R6)
-
-#define AUDIOSE_SYSCLK16M_48KADC_16KSDM(m,b)			Audio_Init(m,b,AMIC,35,12,R3)
-
 
 #define DMIC_CFG_GPIO_PA0_PA1()    do{\
 								       *(volatile unsigned char  *)0x800586 &= 0xfc;\

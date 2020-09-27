@@ -19,12 +19,12 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#include "../include/zb_common.h"
+#include "../common/includes/zb_common.h"
 
 
 #ifdef ZB_SECURITY
 
-_CODE_SS_ void zdo_ssInfoSaveToFlash(){
+_CODE_SS_ void zdo_ssInfoSaveToFlash(void){
 #if NV_ENABLE
 	/*
 	 * user can process network key (Encrypt) here :

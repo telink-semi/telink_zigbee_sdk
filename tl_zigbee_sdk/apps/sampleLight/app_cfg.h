@@ -19,7 +19,6 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-
 #pragma once
 
 /* Enable C linkage for C++ Compilers: */
@@ -27,34 +26,43 @@
 extern "C" {
 #endif
 
-#define _USER_CONFIG_DEFINED_	1	// must define this macro to make others known
-#define	__LOG_RT_ENABLE__		0
+#define _USER_CONFIG_DEFINED_		1//must define this macro to make others known
 
-//////////// product  Information  //////////////////////////////
-#define TOUCHLINK_SUPPORT		1
-#define FIND_AND_BIND_SUPPORT	0
-
-#define COLOR_RGB_SUPPORT		0
-#define COLOR_CCT_SUPPORT		1
+/**********************************************************************
+ * Version configuration
+ */
+#include "version_cfg.h"
 
 
-/* debug mode config */
-#define	UART_PRINTF_MODE		0
-#define USB_PRINTF_MODE         0
+/**********************************************************************
+ * Product  Information
+ */
+/* Debug mode config */
+#define	UART_PRINTF_MODE			0
+#define USB_PRINTF_MODE         	0
 
-#define	ZBHCI_UART				0
+/* HCI interface */
+#define	ZBHCI_UART					0
 
+/* RGB or CCT */
+#define COLOR_RGB_SUPPORT			0
+#define COLOR_CCT_SUPPORT			1
 
-/* board ID */
-#define BOARD_826x_EVK			0
-#define BOARD_826x_DONGLE		1
-#define BOARD_8258_EVK			2
-#define BOARD_8258_DONGLE		3
-#define BOARD_8258_DONGLE_1M	4
-#define BOARD_8278_EVK			5
-#define BOARD_8278_DONGLE		6
+/* BDB */
+#define TOUCHLINK_SUPPORT			1
+#define FIND_AND_BIND_SUPPORT		0
 
-/* board define */
+/* Board ID */
+#define BOARD_826x_EVK				0
+#define BOARD_826x_DONGLE			1
+#define BOARD_8258_EVK				2
+#define BOARD_8258_DONGLE			3
+#define BOARD_8258_DONGLE_1M		4
+#define BOARD_8278_EVK				5
+#define BOARD_8278_DONGLE			6
+#define BOARD_9518_EVK				7
+
+/* Board define */
 #ifdef MCU_CORE_8258
 	#define BOARD					BOARD_8258_DONGLE//BOARD_8258_EVK
 	/* system clock config */
@@ -63,13 +71,19 @@ extern "C" {
 	#define BOARD					BOARD_8278_DONGLE//BOARD_8278_EVK
 	/* system clock config */
 	#define CLOCK_SYS_CLOCK_HZ  	48000000
-#else
+#elif defined(MCU_CORE_B91)
+	#define BOARD					BOARD_9518_EVK
+	/* system clock config */
+	#define CLOCK_SYS_CLOCK_HZ  	48000000
+#elif defined(MCU_CORE_826x)
 	#define BOARD					BOARD_826x_DONGLE
 	/* system clock config */
 	#define CLOCK_SYS_CLOCK_HZ  	32000000
+#else
+	#error "MCU is undefined!"
 #endif
 
-
+/* Board include */
 #if	(BOARD == BOARD_826x_DONGLE)
 	#include "board_826x_dongle.h"
 #elif((BOARD == BOARD_8258_DONGLE) || (BOARD == BOARD_8258_DONGLE_1M))
@@ -80,31 +94,26 @@ extern "C" {
 	#include "board_8278_evk.h"
 #elif(BOARD == BOARD_8278_DONGLE)
 	#include "board_8278_dongle.h"
-#else
-	#include "board_826x_evk.h"
+#elif (BOARD == BOARD_9518_EVK)
+	#include "board_9518_evk.h"
 #endif
 
 
-#define MODULE_BUFM_ENABLE        	1
-#define MODULE_PRIQ_ENABLE        	1
-#define EV_POST_TASK_ENABLE       	1
+/* Watch dog module */
+#define MODULE_WATCHDOG_ENABLE						0
 
-/* interrupt */
-#define IRQ_TIMER1_ENABLE         	1
-#define	IRQ_GPIO_ENABLE			  	0
-
-/* module selection */
-#define MODULE_WATCHDOG_ENABLE		0
+/* UART module */
 #if ZBHCI_UART
-#define	MODULE_UART_ENABLE			1
+#define	MODULE_UART_ENABLE							1
 #endif
 
-/* Rf mode: 250K */
-#define	RF_MODE_250K				1
+#if (ZBHCI_USB_PRINT || ZBHCI_USB_CDC || ZBHCI_USB_HID || ZBHCI_UART)
+	#define ZBHCI_EN								1
+#endif
 
 
-/**
- *  @brief ZCL cluster support setting
+/**********************************************************************
+ * ZCL cluster support setting
  */
 #define ZCL_ON_OFF_SUPPORT							1
 #define ZCL_LEVEL_CTRL_SUPPORT						1
@@ -118,20 +127,25 @@ extern "C" {
 #define ZCL_ZLL_COMMISSIONING_SUPPORT				1
 #endif
 
-#define AF_TEST_ENABLE								0
+#define AF_TEST_ENABLE								1
 
 
-///////////////////  Zigbee Profile Configuration /////////////////////////////////
+/**********************************************************************
+ * Stack configuration
+ */
 #include "stack_cfg.h"
 
+
+/**********************************************************************
+ * EV configuration
+ */
 typedef enum{
 	EV_EVENT_MAX = 1,
-} ev_event_e;
+}ev_event_e;
 
 enum{
 	EV_FIRED_EVENT_MAX = 1
 };
-
 
 typedef enum{
 	EV_POLL_ED_DETECT,

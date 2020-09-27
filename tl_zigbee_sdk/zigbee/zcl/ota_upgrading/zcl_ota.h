@@ -19,11 +19,10 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#pragma once
+#ifndef ZCL_OTA_H
+#define ZCL_OTA_H
 
-#include "tl_common.h"
-#include "../../zdo/zb_af.h"
-#include "../zcl.h"
+
 
 /**
  *  @brief	zcl_ota_cmdId OTA Command Ids
@@ -269,3 +268,6 @@ status_t zcl_ota_upgradeEndRspSend(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDef
 status_t zcl_ota_queryDevSpecFileReqSend(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, ota_querySpecFileReq_t *pReq);
 
 status_t zcl_ota_queryDevSpecFileRspSend(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, ota_querySpecFileRsp_t *pRsp);
+
+
+#endif	/* ZCL_OTA_H */

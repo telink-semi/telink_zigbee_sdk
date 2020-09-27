@@ -27,7 +27,7 @@
 #include "bsp.h"
 #include "analog.h"
 #include "register.h"
-#include "gpio_8278.h"
+#include "gpio.h"
 #include "clock.h"
 
 

@@ -24,7 +24,6 @@
 #if (MODULE_USB_ENABLE)
 #include "usbstd/usbstd.h"
 #include "usbdesc.h"
-#include "usbhw.h"
 #include "usb.h"
 #if (USB_CDC_ENABLE)
 #include "app/usbcdc.h"
@@ -385,9 +384,15 @@ void usb_handle_irq(void){
 		usbhw_clr_ctrl_ep_irq(FLD_CTRL_EP_IRQ_STA);
 		usb_handle_ctl_ep_status();
 	}
-	if(reg_irq_src & FLD_IRQ_USB_RST_EN){//USB reset
+	if(usb_is_irq_reset()){//USB reset
 		usb_mouse_report_proto = 1;
-		reg_irq_src3 = BIT(1);//Clear USB reset flag
+		usb_clear_irq_reset();//Clear USB reset flag
+		for(int i = 0; i < 8; i++){
+			reg_usb_ep_ctrl(i) = 0;
+		}
+#if (USB_CDC_ENABLE)
+		usbhw_data_ep_ack(CDC_RX_EPNUM);
+#endif
 	}
 
 #if (__PROJECT_TL_SNIFFER__)

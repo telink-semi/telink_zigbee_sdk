@@ -22,7 +22,6 @@
 #ifndef CGP_STUB_H
 #define CGP_STUB_H
 
-#include "tl_common.h"
 
 
 //for application id

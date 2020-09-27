@@ -24,7 +24,6 @@
 #if (USB_CDC_ENABLE)
 #include "../usbstd/usbstd.h"
 #include "../usbdesc.h"
-#include "../usbhw.h"
 #include "usbcdc.h"
 
 cdc_ctrl_t cdc_vs;

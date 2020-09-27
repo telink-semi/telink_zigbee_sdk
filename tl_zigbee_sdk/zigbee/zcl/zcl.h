@@ -19,12 +19,10 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#pragma once
+#ifndef ZCL_H
+#define ZCL_H
 
-#include "tl_common.h"
-#include "../zbapi/zb_api.h"
-#include "../zdo/zb_af.h"
-#include "zcl_config.h"
+
 
 
 /** @addtogroup  TELINK_ZIGBEE_STACK TELINK ZigBee Stack
@@ -833,3 +831,4 @@ status_t zcl_discAttrsExtendedRsp(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId,
 /** @} end of group TELINK_ZIGBEE_STACK */
 
 
+#endif	/* ZCL_H */

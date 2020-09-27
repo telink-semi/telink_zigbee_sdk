@@ -29,53 +29,19 @@ extern "C" {
 
 #define FLASH_SIZE_1M				  1
 
-#define PULL_WAKEUP_SRC_PA7           PM_PIN_PULLUP_1M  //SWS, should be pulled up, otherwise single wire would be triggered
-#define PULL_WAKEUP_SRC_PA5           PM_PIN_PULLUP_1M  //DM
-#define PULL_WAKEUP_SRC_PA6           PM_PIN_PULLUP_1M  //DP
-
-
-
-#define GPIO_RF_TX			  	GPIO_PB1
-#define GPIO_RF_RX            	GPIO_PB0
 
 // BUTTON
-#define BUTTON1               GPIO_PB2
-#define PB2_FUNC			  AS_GPIO
-#define PB2_OUTPUT_ENABLE	  0
-#define PB2_INPUT_ENABLE	  1
-#define	PULL_WAKEUP_SRC_PB2	  PM_PIN_PULLUP_10K
+#define BUTTON1               		GPIO_PB2
+#define PB2_FUNC			  		AS_GPIO
+#define PB2_OUTPUT_ENABLE	  		0
+#define PB2_INPUT_ENABLE	  		1
+#define	PULL_WAKEUP_SRC_PB2	  		PM_PIN_PULLUP_10K
 
-#define BUTTON2               GPIO_PB3
-#define PB3_FUNC			  AS_GPIO
-#define PB3_OUTPUT_ENABLE	  0
-#define PB3_INPUT_ENABLE	  1
-#define	PULL_WAKEUP_SRC_PB3	  PM_PIN_PULLUP_10K
-
-#if ZBHCI_UART
-#define UART_TX_PIN         		GPIO_PD0
-#define PD0_FUNC                	AS_UART
-#define PD0_INPUT_ENABLE        	0
-#define PD0_OUTPUT_ENABLE       	1
-#define PD0_DATA_STRENGTH       	0
-
-#define UART_RX_PIN         		GPIO_PD6
-#define PD6_FUNC                	AS_UART
-#define PD6_INPUT_ENABLE        	1
-#define PD6_OUTPUT_ENABLE       	0
-#define PD6_DATA_STRENGTH       	0
-#define PULL_WAKEUP_SRC_PD6     	PM_PIN_PULLUP_10K
-
-#define UART_PIN_CFG				uart_gpio_set(UART_TX_PD0, UART_RX_PD6);// uart tx/rx pin set
-#endif
-
-
-//DEBUG
-#if UART_PRINTF_MODE
-	#define	DEBUG_INFO_TX_PIN	    GPIO_PA2//print
-	#define PA2_OUTPUT_ENABLE		1
-	#define PA2_INPUT_ENABLE		0
-#endif
-
+#define BUTTON2               		GPIO_PB3
+#define PB3_FUNC			  		AS_GPIO
+#define PB3_OUTPUT_ENABLE	  		0
+#define PB3_INPUT_ENABLE	  		1
+#define	PULL_WAKEUP_SRC_PB3	  		PM_PIN_PULLUP_10K
 
 //LED
 //LED_R and LED_G as GPIO.
@@ -91,6 +57,49 @@ extern "C" {
 
 #define LED_POWER					LED_R
 #define LED_PERMIT					LED_G
+
+
+#if ZBHCI_UART
+#define UART_TX_PIN         		GPIO_PD0
+#define PD0_FUNC                	AS_UART
+#define PD0_INPUT_ENABLE        	0
+#define PD0_OUTPUT_ENABLE       	1
+#define PD0_DATA_STRENGTH       	0
+
+#define UART_RX_PIN         		GPIO_PD6
+#define PD6_FUNC                	AS_UART
+#define PD6_INPUT_ENABLE        	1
+#define PD6_OUTPUT_ENABLE       	0
+#define PD6_DATA_STRENGTH       	0
+#define PULL_WAKEUP_SRC_PD6     	PM_PIN_PULLUP_10K
+
+#define UART_PIN_CFG()				uart_gpio_set(UART_TX_PD0, UART_RX_PD6);// uart tx/rx pin set
+#endif
+
+
+//DEBUG
+#if UART_PRINTF_MODE
+	#define	DEBUG_INFO_TX_PIN	    GPIO_PA2//print
+
+	#define DEBUG_TX_PIN_INIT()		do{	\
+										gpio_set_func(DEBUG_INFO_TX_PIN, AS_GPIO);	\
+										gpio_set_output_en(DEBUG_INFO_TX_PIN, 1);	\
+										gpio_setup_up_down_resistor(DEBUG_INFO_TX_PIN, PM_PIN_PULLUP_1M); \
+									}while(0)
+#endif
+
+
+#define PULL_WAKEUP_SRC_PA7         PM_PIN_PULLUP_1M  //SWS, should be pulled up, otherwise single wire would be triggered
+#define PULL_WAKEUP_SRC_PA5         PM_PIN_PULLUP_1M  //DM
+#define PULL_WAKEUP_SRC_PA6         PM_PIN_PULLUP_1M  //DP
+
+#if ZBHCI_USB_PRINT || ZBHCI_USB_CDC || ZBHCI_USB_HID
+#define HW_USB_CFG()				do{ \
+										gpio_set_func(GPIO_PA5, AS_USB);	\
+										gpio_set_func(GPIO_PA6, AS_USB);	\
+										usb_dp_pullup_en(1);				\
+									}while(0)
+#endif
 
 
 enum{

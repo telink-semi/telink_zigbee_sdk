@@ -61,24 +61,23 @@ extern ota_callBack_t sampleSwitch_otaCb;
 
 //running code firmware information
 ota_preamble_t sampleSwitch_otaInfo = {
-		.fileVer = CURRENT_FILE_VERSION,
-		.imageType = IMAGE_TYPE,
-		.manufacturerCode = TELINK_MANUFACTURER_CODE,
+	.fileVer 			= FILE_VERSION,
+	.imageType 			= IMAGE_TYPE,
+	.manufacturerCode 	= MANUFACTURER_CODE,
 };
 #endif
 
-extern void bdb_zdoStartDevCnf(void* arg);
 
 //Must declare the application call back function which used by ZDO layer
 const zdo_appIndCb_t appCbLst = {
-		bdb_zdoStartDevCnf,//start device cnf cb
-		NULL,//reset cnf cb
-		NULL,//device announce indication cb
-		sampleSwitch_leaveIndHandler,//leave ind cb
-		sampleSwitch_leaveCnfHandler,//leave cnf cb
-		NULL,//nwk update ind cb
-		NULL,//permit join ind cb
-		NULL,//nlme sync cnf cb
+	bdb_zdoStartDevCnf,//start device cnf cb
+	NULL,//reset cnf cb
+	NULL,//device announce indication cb
+	sampleSwitch_leaveIndHandler,//leave ind cb
+	sampleSwitch_leaveCnfHandler,//leave cnf cb
+	NULL,//nwk update ind cb
+	NULL,//permit join ind cb
+	NULL,//nlme sync cnf cb
 };
 
 

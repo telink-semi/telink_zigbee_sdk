@@ -26,7 +26,7 @@
 #include "../os/ev.h"
 #include "zb_buffer.h"
 
-char* strcpy(char * dst0, const char * src0) {
+char * strcpy(char * dst0, const char * src0) {
 	char *s = dst0;
 	while ((*dst0++ = *src0++))
 		;
@@ -57,8 +57,7 @@ int memcmp(const void * m1, const void *m2, unsigned int n) {
 	return 0;
 }
 
-void *
-memchr(register const void * src_void, int c, unsigned int length) {
+void * memchr(register const void * src_void, int c, unsigned int length) {
 	const unsigned char *src = (const unsigned char *) src_void;
 
 	while (length-- > 0) {
@@ -73,21 +72,32 @@ void * memmove(void * dest, const void * src, unsigned int n) {
 	char * d = (char *)dest;
 	char * s = (char *)src;
 
-	while (n--)
-		*d++ = *s++;
+	if (d < s) {
+		while (n--)
+			*d++ = *s++;
+	} else {
+		d = d + (n - 1);
+		s = s + (n - 1);
+
+		while (n--)
+			*d-- = *s--;
+	}
 
 	return dest;
 }
 
 void bcopy(register char * src, register char * dest, int len) {
-	if (dest < src)
+	char * s = (char *)src;
+	char * d = (char *)dest;
+
+	if (d < s)
 		while (len--)
-			*dest++ = *src++;
+			*d++ = *s++;
 	else {
-		char *lasts = src + (len - 1);
-		char *lastd = dest + (len - 1);
+		s = s + (len - 1);
+		d = d + (len - 1);
 		while (len--)
-			*(char *) lastd-- = *(char *) lasts--;
+			*d-- = *s--;
 	}
 }
 
@@ -113,7 +123,8 @@ void * memset(void * dest, int val, unsigned int len) {
 		*ptr++ = (unsigned char)val;
 	return dest;
 }
-void* memcpy(void * out, const void * in, unsigned int length) {
+
+void * memcpy(void * out, const void * in, unsigned int length) {
 	if ( length == 0 ) {
 		return NULL;
 	}
@@ -285,7 +296,7 @@ void * memset4(void * dest, int val, unsigned int len) {
 	return dest;
 }
 
-void zeromem4(void *data, unsigned int len){
+void zeromem4(void *data, unsigned int len) {
 	memset4(data, 0, len);
 }
 

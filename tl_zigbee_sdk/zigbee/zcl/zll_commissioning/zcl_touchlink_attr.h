@@ -19,10 +19,9 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#pragma once
+#ifndef ZCL_TOUCHLINK_ATTR_H
+#define ZCL_TOUCHLINK_ATTR_H
 
-#include "tl_common.h"
-#include "../../ss/security_service.h"
 
 /*********************************************************************
  * CONSTANTS
@@ -111,3 +110,6 @@ void ll_get_encrypted_network_key(u8 key_index, u32 transaction_ID,
 		u32 response_ID, u8 *encrypted_network_key);
 void ll_decrypt_network_key(u8 key_index, u8 *encrypted_network_key,
 		u32 transaction_ID,	u32 response_ID);
+
+
+#endif	/* ZCL_TOUCHLINK_ATTR_H */

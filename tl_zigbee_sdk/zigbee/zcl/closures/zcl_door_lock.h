@@ -19,11 +19,10 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#pragma once
+#ifndef ZCL_DOOR_LOCK_H
+#define ZCL_DOOR_LOCK_H
 
-#include "tl_common.h"
-#include "../../zdo/zb_af.h"
-#include "../zcl.h"
+
 
 /*********************************************************************
  * CONSTANTS
@@ -128,3 +127,4 @@ status_t zcl_doorLock_doorLockRsp(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefa
 #define zcl_doorLock_unlockDoorRspCmdSend(a,b,c,d)		(zcl_doorLock_doorLockRsp((a), (b), (c), ZCL_SEQ_NUM, ZCL_CMD_UNLOCK_DOOR_RESPONSE, (d)))
 #define zcl_doorLock_toggleDoorRspCmdSend(a,b,c,d)		(zcl_doorLock_doorLockRsp((a), (b), (c), ZCL_SEQ_NUM, ZCL_CMD_DOOR_LOCK_TOGGLE_RESPONSE, (d)))
 
+#endif	/* ZCL_DOOR_LOCK_H */

@@ -21,41 +21,44 @@
  *******************************************************************************************************/
 #pragma once
 
+#if defined(MCU_CORE_B91)
+#include <stdio.h>
+#endif
 
+#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 int Tl_printf(const char *format, ...);
-
-
+#endif
 
 
 #if (UART_PRINTF_MODE || USB_PRINTF_MODE)
-	#define	arrayPrint(arrayAddr,len)					\
-	{													\
-		Tl_printf("\n*********************************\n");		\
-		unsigned char	i = 0;							\
-		do{												\
-			Tl_printf(" %x",((unsigned char *)arrayAddr)[i++]);						\
-		}while(i<len);										\
-		Tl_printf("\n*********************************\n");		\
-	}
-
-	#define	DEBUG(compileFlag,...)						\
-			do{											\
-				if(compileFlag) Tl_printf(__VA_ARGS__);					\
-			}while(0)
-
-	#define printf			Tl_printf
-	#define	printfArray		arrayPrint
-#else
-	#define printf
-	#define	printfArray
-	#define	DEBUG(compileFlag,...)
+#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+	#define printf										Tl_printf
 #endif
 
-#if (FLASH_PRINTF_MODE)
+	#define TRACE										printf
 
-#define quick_printf ftl_write
+	#define	DEBUG(compileFlag, ...)						do{	\
+															if(compileFlag) TRACE(__VA_ARGS__);		\
+														}while(0)
+
+	#define DEBUG_ARRAY(compileFlag, arrayAddr, len)	do{	\
+															if(compileFlag){											\
+																TRACE("*********************************\n");			\
+																unsigned char i = 0;									\
+																do{														\
+																	TRACE(" %x", ((unsigned char *)arrayAddr)[i++]);	\
+																}while(i < len);										\
+																TRACE("\n*********************************\n");			\
+															}															\
+														}while(0)
 #else
-#define quick_printf
+#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+	#define printf
+#endif
+
+	#define TRACE
+	#define	DEBUG(compileFlag, ...)
+	#define DEBUG_ARRAY(compileFlag, arrayAddr, len)
 #endif
 
 

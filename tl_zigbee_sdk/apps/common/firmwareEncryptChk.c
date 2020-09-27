@@ -20,7 +20,9 @@
  *
  *******************************************************************************************************/
 #include "tl_common.h"
+#if UID_ENABLE
 #include "firmware_encrypt.h"
+#endif
 #include "firmwareEncryptChk.h"
 
 
@@ -52,16 +54,15 @@ int flash_read_mid_uid_with_check( unsigned int *flash_mid ,unsigned char *flash
 }
 #endif
 
-
 /**
- *  @brief Only support for 8258, if you want to this function, please contact to us.
+ *  @brief Only support for 8258/8278/b91, if you want to this function, please contact to us.
  */
 u8 firmwareCheckWithUID(void)
 {
 #if UID_ENABLE
-	u8 flash_mid[16] = {0};
+	u32 flash_mid = 0;
 	u8 flash_uid[16] = {0};
-	int flag = flash_read_mid_uid_with_check(flash_mid, flash_uid);
+	int flag = flash_read_mid_uid_with_check(&flash_mid, flash_uid);
 	if(flag == 0){
 		return 1;
 	}

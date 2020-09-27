@@ -26,7 +26,7 @@
 
 #ifndef AES_H_
 #define AES_H_
-#include "compiler.h"
+
 /**
  * @brief       This function servers to perform aes_128 encryption for 16-Byte input data
  *              with specific 16-Byte key

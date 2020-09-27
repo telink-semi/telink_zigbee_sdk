@@ -19,10 +19,9 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#pragma once
+#ifndef ZCL_ZLL_COMMOSSIONING_H
+#define ZCL_ZLL_COMMOSSIONING_H
 
-#include "tl_common.h"
-#include "../../zdo/zb_af.h"
 
 //RF power configure for touch link
 #define RF_POWER_FOR_COMMISSION				RF_POWER_m0P6dBm//RF_POWER_7dBm//RF_POWER_m9P5dBm//
@@ -644,3 +643,4 @@ void zcl_touchLinkStart(void);
 
 /** @} end of group TELINK_ZIGBEE_STACK */
 
+#endif	/* ZCL_ZLL_COMMOSSIONING_H */

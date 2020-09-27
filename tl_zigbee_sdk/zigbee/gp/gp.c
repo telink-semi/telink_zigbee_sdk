@@ -23,6 +23,7 @@
 /**********************************************************************
  * INCLUDES
  */
+#include "../common/includes/zb_common.h"
 #include "../zcl/zcl_include.h"
 #include "gp.h"
 

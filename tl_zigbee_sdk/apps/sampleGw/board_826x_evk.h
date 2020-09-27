@@ -67,8 +67,12 @@ extern "C" {
 //DEBUG
 #if UART_PRINTF_MODE
 	#define	DEBUG_INFO_TX_PIN	    GPIO_PC5//print
-	#define PC5_OUTPUT_ENABLE		1
-	#define PC5_INPUT_ENABLE		0
+
+	#define DEBUG_TX_PIN_INIT()		do{	\
+										gpio_set_func(DEBUG_INFO_TX_PIN, AS_GPIO);	\
+										gpio_set_output_en(DEBUG_INFO_TX_PIN, 1);	\
+										gpio_setup_up_down_resistor(DEBUG_INFO_TX_PIN, PM_PIN_PULLUP_1M); \
+									}while(0)
 #endif
 
 #if	ZBHCI_UART
@@ -85,13 +89,21 @@ extern "C" {
 	#define PC3_DATA_STRENGTH       	0
 	#define PULL_WAKEUP_SRC_PC3     	GPIO_PULL_UP_10K
 
-	#define UART_PIN_CFG				UART_GPIO_CFG_PC2_PC3()
+	#define UART_PIN_CFG()				UART_GPIO_CFG_PC2_PC3()
 #endif
 
 
-#define PULL_WAKEUP_SRC_PB0           PM_PIN_PULLUP_1M  //SWS, should be pulled up, otherwise single wire would be triggered
-#define PULL_WAKEUP_SRC_PE2           PM_PIN_PULLUP_1M  //DM
-#define PULL_WAKEUP_SRC_PE3           PM_PIN_PULLUP_1M  //DP
+#define PULL_WAKEUP_SRC_PB0           	PM_PIN_PULLUP_1M  //SWS, should be pulled up, otherwise single wire would be triggered
+#define PULL_WAKEUP_SRC_PE2           	PM_PIN_PULLUP_1M  //DM
+#define PULL_WAKEUP_SRC_PE3           	PM_PIN_PULLUP_1M  //DP
+
+#if ZBHCI_USB_PRINT || ZBHCI_USB_CDC || ZBHCI_USB_HID
+#define HW_USB_CFG()					do{ \
+											gpio_set_func(GPIO_PE2, AS_USB);	\
+											gpio_set_func(GPIO_PE3, AS_USB);	\
+											usb_dp_pullup_en(1);				\
+										}while(0)
+#endif
 
 
 enum{

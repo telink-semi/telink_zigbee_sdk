@@ -19,11 +19,10 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#pragma once
+#ifndef ZCL_ON_OFF_H
+#define ZCL_ON_OFF_H
 
-#include "tl_common.h"
-#include "../../zdo/zb_af.h"
-#include "../zcl.h"
+
 
 /** @addtogroup  TELINK_ZIGBEE_STACK TELINK ZigBee Stack
  *  @{
@@ -301,3 +300,5 @@ status_t zcl_onOff_onWithTimedOff(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefa
 /** @} end of group ZCL_Module */
 
 /** @} end of group TELINK_ZIGBEE_STACK */
+
+#endif	/* ZCL_ON_OFF_H */

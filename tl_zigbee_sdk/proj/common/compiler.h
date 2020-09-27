@@ -21,17 +21,33 @@
  *******************************************************************************************************/
 #pragma once
 
+#if !defined (MCU_CORE_B91)
 
-#define _attribute_packed_		__attribute__((packed))
-#define _attribute_aligned_(s)	__attribute__((aligned(s)))
-#define _attribute_session_(s)	__attribute__((section(s)))
-#define _attribute_ram_code_  	_attribute_session_(".ram_code")
-#define _attribute_custom_data_  	_attribute_session_(".custom_data")
-#define _attribute_custom_bss_  	_attribute_session_(".custom_bss")
-#define _attribute_no_inline_   __attribute__((noinline)) 
-// #define _inline_ 				extern __attribute__ ((gnu_inline)) inline
-
+#define _attribute_packed_						__attribute__((packed))
+#define _attribute_aligned_(s)					__attribute__((aligned(s)))
+#define _attribute_session_(s)					__attribute__((section(s)))
+#define _attribute_ram_code_  					_attribute_session_(".ram_code")
+#define _attribute_custom_data_  				_attribute_session_(".custom_data")
+#define _attribute_custom_bss_  				_attribute_session_(".custom_bss")
+#define _attribute_no_inline_   				__attribute__((noinline))
 #define _attribute_data_retention_
+#define _inline_ 								inline	// C99 meaning
 
-#define _inline_ 				inline				//   C99 meaning
+#else
 
+#define _attribute_ram_code_sec_      			__attribute__((section(".ram_code")))
+#define _attribute_ram_code_sec_noinline_      	__attribute__((section(".ram_code"))) __attribute__((noinline))
+#define _attribute_text_sec_   					__attribute__((section(".text")))
+#define _attribute_aes_data_sec_      			__attribute__((section(".aes_data")))
+#define _attribute_data_retention_sec_
+
+#define _attribute_ram_code_					_attribute_ram_code_sec_
+
+
+#define _attribute_aligned_(s)					__attribute__((aligned(s)))
+
+// Pack a structure field
+#define __PACKED __attribute__ ((__packed__))
+
+
+#endif

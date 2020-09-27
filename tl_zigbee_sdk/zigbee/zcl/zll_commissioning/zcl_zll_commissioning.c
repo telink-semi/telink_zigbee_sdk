@@ -25,13 +25,12 @@
  * INCLUDES
  */
 #include "../zcl_include.h"
-#include "zcl_touchlink_attr.h"
 #include "zcl_zll_commissioning_internal.h"
 
 /**********************************************************************
  * LOCAL CONSTANTS
  */
-#define		DEBUG_TOUCHLINK_EN				0
+#define	DEBUG_TOUCHLINK_EN				0
 
 
 /**********************************************************************
@@ -750,6 +749,7 @@ _CODE_ZCL_ u8 zcl_touchLinkInit(void){
 	g_zllTouchLink.startNetworkAllowed = 1;
 	g_zllTouchLink.zllInfo.byte = 0;
 
+	//todo
 	g_zllTouchLink.scanListNum = (LARGE_BUFFER - OFFSETOF(zcl_zllTouckLinkDisc_t, scanList))/sizeof(zll_touchLinkScanInfo);
 
 	af_endpoint_descriptor_t *aed = af_epDescriptorGet();
@@ -779,7 +779,7 @@ _CODE_ZCL_ u8 zcl_touchLinkInit(void){
  */
 
 _CODE_ZCL_ void zcl_touchLinkStart(void){
-	DEBUG(DEBUG_TOUCHLINK_EN,"ZLL trigger touch link operation, current state %d\n",g_zllTouchLink.state);
+	DEBUG(DEBUG_TOUCHLINK_EN, "ZLL trigger touch link operation, current state %d\n", g_zllTouchLink.state);
 	if(g_zllTouchLink.state != ZCL_ZLL_COMMISSION_STATE_IDLE){
 		if(g_zllCommission.appCb->touchLinkCallback){
 			g_zllCommission.appCb->touchLinkCallback(ZCL_ZLL_TOUCH_LINK_BUSY, NULL);
@@ -807,7 +807,7 @@ _CODE_ZCL_ void zcl_touchLinkStart(void){
 		ev_buf_free((u8 *)g_zllTouchLink.disc);
 		g_zllTouchLink.disc = NULL;
 	}
-	g_zllTouchLink.disc = (zcl_zllTouckLinkDisc_t *)ev_buf_allocate(LARGE_BUFFER);
+	g_zllTouchLink.disc = (zcl_zllTouckLinkDisc_t *)ev_buf_allocate(LARGE_BUFFER);//todo
 	if(!g_zllTouchLink.disc){
 		ZB_EXCEPTION_POST(SYS_EXCEPTTION_ZB_BUFFER_OVERFLOWN);
 		return;
@@ -845,7 +845,6 @@ _CODE_ZCL_ void zcl_touchLinkStart(void){
 
 	rf_setTxPower(g_zllTouchLink.commissionTxPower);
 
-	//zdo_syn_parent_pause();
 	zb_setPollRate(0);
 
 	/* scan start */

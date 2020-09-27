@@ -19,14 +19,8 @@
  *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#include "ev_queue.h"
-#include "ev_buffer.h"
-#include "user_config.h"
-#include "platform_includes.h"
-#include "../common/string.h"
 
-
-#if (MODULE_PRIQ_ENABLE)
+#include "../tl_common.h"
 
 
 
@@ -45,13 +39,12 @@ ev_queue_sts_t ev_queue_rawPush( ev_queue_t* q, queue_item_t* newElement )
 {
     queue_item_t* previous;
     queue_item_t* current;
-    u8 r;
 
     if (NULL == q || NULL == newElement) {
         return QUEUE_INVALID_PARAMETER;
     }
 
-    r = irq_disable();
+    u32 r = disable_irq();
 
     /* if the Q was empty, then update the head */
     if (NULL==q->head) {
@@ -59,7 +52,7 @@ ev_queue_sts_t ev_queue_rawPush( ev_queue_t* q, queue_item_t* newElement )
         q->tail = newElement;
         newElement->next = NULL;
         q->curNum++;
-        irq_restore(r);
+        restore_irq(r);
         return (ev_queue_sts_t)SUCCESS;
     }
     /* find a place for insertion */
@@ -93,7 +86,7 @@ ev_queue_sts_t ev_queue_rawPush( ev_queue_t* q, queue_item_t* newElement )
     }
     q->curNum++;
 
-    irq_restore(r);
+    restore_irq(r);
     return (ev_queue_sts_t)SUCCESS;
 }
 
@@ -109,9 +102,8 @@ ev_queue_sts_t ev_queue_rawPush( ev_queue_t* q, queue_item_t* newElement )
 queue_item_t* ev_queue_rawPop(ev_queue_t* q)
 {
     queue_item_t* oldHead;
-    u8 r;
 
-    r = irq_disable();
+    u32 r = disable_irq();
 
     oldHead = q->head;
     if (NULL!=oldHead){
@@ -126,7 +118,7 @@ queue_item_t* ev_queue_rawPop(ev_queue_t* q)
 	if ( q->curNum == 0 ) {
 		q->head = q->tail = NULL;
 	}
-    irq_restore(r);
+	restore_irq(r);
     return oldHead;
 }
 
@@ -144,16 +136,15 @@ ev_queue_sts_t ev_queue_rawDelete(ev_queue_t* q, queue_item_t* delElement)
 {
     queue_item_t* previous;
     queue_item_t* current;
-    u8 r;
 
     if (NULL == q || NULL == delElement) {
         return QUEUE_INVALID_PARAMETER;
     }
 
-    r = irq_disable();
+    u32 r = disable_irq();
 
     if (NULL == q->head) { /* invalid q or newElement */
-        irq_restore(r);
+    	restore_irq(r);
         return QUEUE_EMPTY;
     }
 
@@ -163,7 +154,7 @@ ev_queue_sts_t ev_queue_rawDelete(ev_queue_t* q, queue_item_t* delElement)
             q->tail = NULL;
         }
         q->curNum--;
-        irq_restore(r);
+        restore_irq(r);
         return (ev_queue_sts_t)SUCCESS;
     }
 
@@ -186,12 +177,12 @@ ev_queue_sts_t ev_queue_rawDelete(ev_queue_t* q, queue_item_t* delElement)
     }
     else {
         /* element not in the Queue */
-        irq_restore(r);
+    	restore_irq(r);
         return QUEUE_NOT_FOUND;
 
     }
 
-    irq_restore(r);
+    restore_irq(r);
     return (ev_queue_sts_t)SUCCESS;
 }
 
@@ -296,14 +287,6 @@ ev_queue_sts_t ev_queue_freeQ( ev_queue_t *q )
     }
 
     return (ev_queue_sts_t)SUCCESS;
-
-    
 }
-
-#endif  /* MODULE_PRIQ_ENABLE */
-
-
-
-
 
 

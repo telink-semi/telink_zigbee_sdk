@@ -19,11 +19,10 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#pragma once
+#ifndef ZCL_SCENE_H
+#define ZCL_SCENE_H
 
-#include "tl_common.h"
-#include "../../zdo/zb_af.h"
-#include "../zcl.h"
+
 
 
 /** @addtogroup  TELINK_ZIGBEE_STACK TELINK ZigBee Stack
@@ -484,3 +483,5 @@ extern void zcl_scene_removeAllSceneEntry(u8 endpoint, u16 groupId, bool updateN
 /** @} end of group ZCL_Module */
 
 /** @} end of group TELINK_ZIGBEE_STACK */
+
+#endif	/* ZCL_SCENE_H */

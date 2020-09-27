@@ -120,13 +120,12 @@ status_t sampleGW_iasZoneCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cm
 status_t sampleGW_pollCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
 #endif
 
-void sampleGW_devAnnHandler(void *arg);
-void sampleGW_leaveCnfHandler(void *arg);
-void sampleGW_leaveIndHandler(void *arg);
+void sampleGW_devAnnHandler(zdo_device_annce_req_t *pDevAnnceReq);
+void sampleGW_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf);
+void sampleGW_leaveIndHandler(nlme_leave_ind_t *pLeaveInd);
+bool sampleGW_nwkUpdateIndicateHandler(nwkCmd_nwkUpdate_t *pNwkUpdateCmd);
 
 void sampleGW_dataSendConfirm(void *arg);
-
-u8 sampleGW_nwkUpdateIndicateHandler(void *arg);
 
 #if AF_TEST_ENABLE
 void afTest_rx_handler(void *arg);

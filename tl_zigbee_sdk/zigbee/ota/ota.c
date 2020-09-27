@@ -19,6 +19,7 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
+#include "../common/includes/zb_common.h"
 #include "../zcl/zcl_include.h"
 #include "ota.h"
 
@@ -116,7 +117,7 @@ void ota_upgradeComplete(u8 status);
 u8 mcuBootAddrGet(void)
 {
 	u8 flashInfo = 0;
-	flash_read(OTA_TLNK_KEYWORD_ADDROFFSET, 1, &flashInfo);
+	flash_read(0 + FLASH_TLNK_FLAG_OFFSET, 1, &flashInfo);
 	return ((flashInfo == 0x4b) ? 0 : 1);
 }
 
@@ -131,11 +132,11 @@ void ota_mcuReboot(void)
 		newAddr = 0;
 	}
 
-	flash_write((newAddr + 8),1,&flashInfo);//enable boot-up flag
+	flash_write((newAddr + FLASH_TLNK_FLAG_OFFSET),1,&flashInfo);//enable boot-up flag
 	flashInfo = 0;
-	flash_write((baseAddr + 8),1,&flashInfo);//disable boot-up flag
+	flash_write((baseAddr + FLASH_TLNK_FLAG_OFFSET),1,&flashInfo);//disable boot-up flag
 
-	mcu_reset();
+	SYSTEM_RESET();
 }
 
 /**********************************************************************
@@ -857,9 +858,9 @@ u8 ota_imageDataProcess(u8 len, u8 *pData)
 					otaClientInfo.crcValue = xcrc32(&pData[i], crcLen, otaClientInfo.crcValue);
 
 					//write image to flash
-					if((otaClientInfo.otaElementPos < OTA_TLNK_KEYWORD_ADDROFFSET + 1)
-						&& ((otaClientInfo.otaElementPos + dataSize) >= OTA_TLNK_KEYWORD_ADDROFFSET + 1)){
-						pData[i + (OTA_TLNK_KEYWORD_ADDROFFSET - otaClientInfo.otaElementPos)] = 0xff;
+					if((otaClientInfo.otaElementPos < FLASH_TLNK_FLAG_OFFSET + 1)
+						&& ((otaClientInfo.otaElementPos + dataSize) >= FLASH_TLNK_FLAG_OFFSET + 1)){
+						pData[i + (FLASH_TLNK_FLAG_OFFSET - otaClientInfo.otaElementPos)] = 0xff;
 					}
 					u32 baseAddr = (mcuBootAddr) ? 0 : FLASH_OTA_NEWIMAGE_ADDR;
 					flash_write(baseAddr + otaClientInfo.otaElementPos, copyLen, &pData[i]);

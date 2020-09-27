@@ -22,7 +22,6 @@
 #ifndef DGP_STUB_H
 #define DGP_STUB_H
 
-#include "tl_common.h"
 
 
 //A GP Basic Proxy device shall have a minimum length of 1 entry

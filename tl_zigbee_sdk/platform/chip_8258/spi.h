@@ -23,11 +23,10 @@
  * @version  A001
  *         
  *******************************************************************************************************/
-#pragma once
 #ifndef SPI_H
 #define SPI_H
 
-#include "bsp.h"
+#include "register.h"
 #include "gpio.h"
 
 /**

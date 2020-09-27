@@ -19,9 +19,9 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#pragma once
+#ifndef ZCL_NV_H
+#define ZCL_NV_H
 
-#include "tl_common.h"
 
 /***********************************************************************
  * @brief   Save reporting table information
@@ -133,3 +133,4 @@ nv_sts_t zcl_attr_colorCtrlParams_restore(void);
 
 
  
+#endif	/* ZCL_NV_H */

@@ -23,8 +23,9 @@
 /**********************************************************************
  * INCLUDES
  */
-#include "../include/zb_common.h"
+#include "includes/zb_common.h"
 
+sys_diagnostics_t g_sysDiags;
 
 /* PAN ID setting */
 /*
@@ -59,8 +60,11 @@ u8 ZB_MAC_EXT_EXPEIRY_CNT = ZB_MAC_INTERNAL_EXPIRY_CNT;
 /* the lqi threshold for neighbor */
 u8 NWK_NEIGHBORTBL_ADD_LQITHRESHOLD = 0x5F;
 
-/* the life time for unauthorized child table */
+/* the life time for unauthorized child table, 5 seconds */
 u32 NWK_UNAUTH_CHILD_TABLE_LIFE_TIME = (5 * 1000 * 1000);
+
+/* timeout waiting for transport nwk key during association join or security rejoin, 2 seconds */
+u32 TRANSPORT_NETWORK_KEY_WAIT_TIME = (2 * 1000 * 1000);
 
 /* the cost threshold for one hop */
 u8 NWK_COST_THRESHOLD_ONEHOP = 3;
@@ -111,6 +115,7 @@ aps_binding_table_t aps_binding_tbl;
 /* group table */
 u8 APS_GROUP_TABLE_SIZE = APS_GROUP_TABLE_NUM;
 aps_group_tbl_ent_t aps_group_tbl[APS_GROUP_TABLE_NUM];
+u16 GROUP_MESSAGE_SEND_ADDRESS = NWK_BROADCAST_RX_ON_WHEN_IDLE;
 
 /* the offset of the rx buffer to the zb-buffer*/
 u8 RX_ZBBUF_OFFSET = TL_RXPRIMITIVEHDR;
@@ -120,29 +125,29 @@ u8 MAC_TX_QUEUE_SIZE = TX_QUEUE_BN;
 
 //default network key
 /* If all zero, will generate 16-bytes network key randomly. */
-
+#if 1
 const u8 nwkKeyDefault[] = {0, 0, 0, 0, 0, 0, 0, 0,
-							  0, 0, 0, 0, 0, 0, 0, 0};
-
-/*const u8 nwkKeyDefault[] = { 0x12, 0x23, 0x34, 0x45, 0x56, 0x67, 0x78, 0x89,
-			  	  	  	0x9a, 0xab, 0xbc, 0xcd, 0xde, 0xef, 0xf0, 0x01};
-*/
+							0, 0, 0, 0, 0, 0, 0, 0};
+#else
+const u8 nwkKeyDefault[] = { 0x12, 0x23, 0x34, 0x45, 0x56, 0x67, 0x78, 0x89,
+			  	  	  	       0x9a, 0xab, 0xbc, 0xcd, 0xde, 0xef, 0xf0, 0x01};
+#endif
 
 
 //Global trust center link key which used in centralized security network
 const u8 tcLinkKeyCentralDefault[] = {0x5a, 0x69, 0x67, 0x42, 0x65, 0x65, 0x41, 0x6c,
-  	   	 	 	 	 	 	 	 	 	0x6c, 0x69, 0x61, 0x6e, 0x63, 0x65, 0x30, 0x39};
+  	   	 	 	 	 	 	 	 	  0x6c, 0x69, 0x61, 0x6e, 0x63, 0x65, 0x30, 0x39};
 
 
 //certification link key for distributed network
 const u8 linkKeyDistributedCertification[] = {0xd0, 0xd1, 0xd2, 0xd3, 0xd4, 0xd5, 0xd6, 0xd7,
-										0xd8, 0xd9, 0xda, 0xdb, 0xdc, 0xdd, 0xde, 0xdf};
+										      0xd8, 0xd9, 0xda, 0xdb, 0xdc, 0xdd, 0xde, 0xdf};
 
 /* touch-link link key */
 const u8 touchLinkKeyCertification[] = {0xc0, 0xc1, 0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7,
         								0xc8, 0xc9, 0xca, 0xcb, 0xcc, 0xcd, 0xce, 0xcf};
 
-/* default mac PIB setting */
+/* Default PIB settings for MAC layer. */
 const tl_zb_mac_pib_t macPibDefault = {
 	.ackWaitDuration = (ZB_MAC_UNIT_BACKOFF_PERIOD + ZB_PHY_TURNROUNDTIME + ZB_PHY_SHR_DURATION + (u16)(6 * ZB_PHY_SYMBOLS_PER_OCTET)),
 	.frameRetryNum = ZB_MAC_FRAME_RETRIES_MAX,
@@ -171,49 +176,61 @@ const tl_zb_mac_pib_t macPibDefault = {
 #endif
 };
 
-
-/* default NIB setting for netwrok layer */
-const nwk_nib_t nib_default = {
+/* Default NIB settings for NWK layer. */
+const nwk_nib_t nwkNibDefault = {
 #if defined ZB_NWK_DISTRIBUTED_ADDRESS_ASSIGN && defined ZB_ROUTER_ROLE
-		.maxRouters = NWK_MAX_ROUTERS,
-		.addrAlloc = NWK_ADDRESS_ALLOC_METHOD_DISTRIBUTED,
+	.maxRouters = NWK_MAX_ROUTERS,
+	.addrAlloc = NWK_ADDRESS_ALLOC_METHOD_DISTRIBUTED,
 #else
-		.addrAlloc = NWK_ADDRESS_ALLOC_METHOD_STOCHASTIC,
+	.addrAlloc = NWK_ADDRESS_ALLOC_METHOD_STOCHASTIC,
 #endif
-		.maxDepth = NWK_MAX_DEPTH,
-		.stackProfile = ZB_STACK_PROFILE,
-
+	.maxDepth = NWK_MAX_DEPTH,
+	.stackProfile = ZB_STACK_PROFILE,
 #ifdef ZB_ROUTER_ROLE
-		.maxChildren = DEFAULT_MAX_CHILDREN,
-		.maxBroadcastRetries = NWK_MAX_BROADCAST_RETRIES,
-		.passiveAckTimeout = NWK_PASSIVE_ACK_TIMEOUT,
-		.nwkBroadcastDeliveryTime = NWK_BROADCAST_DELIVERY_TIME,
- 		.linkStatusPeriod = ZB_NWK_LINK_STATUS_PEROID_DEFAULT,
-		.routerAgeLimit = 20,
-		.maxSourceRoute = NWK_MAX_SOURCE_ROUTE,
-		.concentratorRadius = 0,
-		.concentratorDiscoveryTime = 120,//120s
-		.symLink = 1,
-		.reportConstantCost = 0,
+	.maxChildren = DEFAULT_MAX_CHILDREN,
+	.maxBroadcastRetries = NWK_MAX_BROADCAST_RETRIES,
+	.passiveAckTimeout = NWK_PASSIVE_ACK_TIMEOUT,
+	.nwkBroadcastDeliveryTime = NWK_BROADCAST_DELIVERY_TIME,
+ 	.linkStatusPeriod = ZB_NWK_LINK_STATUS_PEROID_DEFAULT,//45
+	.routerAgeLimit = 20,//3
+	.maxSourceRoute = NWK_MAX_SOURCE_ROUTE,
+	.concentratorRadius = 0,
+	.concentratorDiscoveryTime = 120,//120s
+	.symLink = 1,
+	.reportConstantCost = 0,
 #ifdef ZB_COORDINATOR_ROLE
-		.depth = 0,
-		.isConcentrator = 1,
+	.depth = 0,
+	.isConcentrator = 1,
 #else
-		.depth = 1,
-		.isConcentrator = 0,
+	.depth = 1,
+	.isConcentrator = 0,
 #endif
 #endif
-		.managerAddr = 0x0000,
-        .leaveReqAllowed = 1,
-        .useMulticast = 0,
-        .panId = DEFAULT_PANID,
-        .nwkAddr = NWK_BROADCAST_RESERVED,
-        .uniqueAddr = 0,
-
-        .parentInfo = 0,
-        .endDevTimeoutDefault = NWK_ENDDEV_TIMEOUT_DEFAULT,
-        .leaveReqWithoutRejoinAllowed = 1,
+	.managerAddr = 0x0000,
+    .leaveReqAllowed = 1,
+    .useMulticast = 0,
+    .panId = DEFAULT_PANID,
+    .nwkAddr = NWK_BROADCAST_RESERVED,
+    .uniqueAddr = 0,
+    .parentInfo = 0,
+    .endDevTimeoutDefault = NWK_ENDDEV_TIMEOUT_DEFAULT,
+    .leaveReqWithoutRejoinAllowed = 1,
 };
+
+/* ZDO default configuration attributes. */
+const zdo_attrCfg_t zdoCfgAttrDefault = {
+	.config_nwk_indirectPollRate 		= 0,
+	.config_parent_link_retry_threshold = ZDO_MAX_PARENT_THRESHOLD_RETRY,
+	.config_nwk_scan_attempts 			= ZDO_NWK_SCAN_ATTEMPTS,
+	.config_nwk_time_btwn_scans			= ZDO_NWK_TIME_BTWN_SCANS,
+	.config_permit_join_duration 		= ZDO_PERMIT_JOIN_DURATION,
+	.config_rejoin_times				= ZDO_REJOIN_TIMES,
+	.config_rejoin_interval 			= ZDO_REJOIN_INTERVAL,
+	.config_max_rejoin_interval			= ZDO_MAX_REJOIN_INTERVAL,
+	.config_rejoin_backoff_time			= ZDO_REJOIN_BACKOFF_TIME,
+	.config_max_rejoin_backoff_time		= ZDO_MAX_REJOIN_BACKOFF_TIME,
+};
+
 
 #if ZB_ROUTER_ROLE
 /*

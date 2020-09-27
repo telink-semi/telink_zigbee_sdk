@@ -19,17 +19,7 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-
 #pragma once
-
-
-
-typedef enum{
-	TL_IMAGETYPE_LIGHT				= 0xd3a3,
-	TL_IMAGETYPE_RC					= 0xd3a2,
-	TL_IMAGETYPE_ONOFFSWITCH		= 0xd3a1,
-}tl_imageType_e;
-
 
 
 /**
@@ -38,21 +28,6 @@ typedef enum{
  */
 #define DEFAULT_CHANNEL                           11
 
-////
-//typedef struct{
-//	u8	stackBuildl;
-//	u8	stackRelease;
-//	u8	appBuild;
-//	u8	appRelease;
-//}tl_fileVersionDef_e;
-#define	CURRENT_FILE_VERSION					  0x01000200//
-
-/**
- *  @brief Telink Manufacturer Code
- */
-#define TELINK_MANUFACTURER_CODE                  0x1141		//used in OTA
-
-#define	IMAGE_TYPE								  TL_IMAGETYPE_ONOFFSWITCH
 
 /**
  *  @brief  Security
@@ -98,15 +73,6 @@ typedef enum{
  */
 #define APS_BINDING_TABLE_NUM                 	2
 
-/**********************************************************************
- * Following parameters are for End Device only
- */
-
-/**
- *  @brief  ZDO Indirect poll timer in millsecond
- */
-#define ZB_ZDO_INDIRECT_POLL_TIMER              5000
-
 
 /**********************************************************************
  * Following configuration will calculated automatically
@@ -133,11 +99,11 @@ typedef enum{
  */
 #if ZB_ED_ROLE
 	#if PM_ENABLE
-		#define ZB_MAC_RX_ON_WHEN_IDLE			  0
+		#define ZB_MAC_RX_ON_WHEN_IDLE			  0//must 0
 	#endif
 
 	#ifndef ZB_MAC_RX_ON_WHEN_IDLE
-		#define ZB_MAC_RX_ON_WHEN_IDLE			  0
+		#define ZB_MAC_RX_ON_WHEN_IDLE			  0//set 0 or 1
 	#endif
 #endif
 
@@ -145,7 +111,4 @@ typedef enum{
     #define ZB_SECURITY
 #endif
 
-#if (ZBHCI_USB_PRINT || ZBHCI_USB_CDC || ZBHCI_UART)
-#define ZBHCI_EN								  1
-#endif
 

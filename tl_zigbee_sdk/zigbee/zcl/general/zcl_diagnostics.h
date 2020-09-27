@@ -19,11 +19,9 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#pragma once
+#ifndef ZCL_DIAGNOSTICS_H
+#define ZCL_DIAGNOSTICS_H
 
-#include "tl_common.h"
-#include "../../zdo/zb_af.h"
-#include "../zcl.h"
 
 
 /**
@@ -77,3 +75,4 @@ extern const u8 zcl_diagnostics_attrNum;
 status_t zcl_diagnostics_register(u8 endpoint, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
 
 
+#endif	/* ZCL_DIAGNOSTICS_H */

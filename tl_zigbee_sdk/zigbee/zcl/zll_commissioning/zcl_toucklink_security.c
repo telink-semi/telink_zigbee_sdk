@@ -25,7 +25,7 @@
  * INCLUDES
  */
 #include "../zcl_include.h"
-#include "zcl_touchlink_attr.h"
+
 
 /**********************************************************************
  * LOCAL CONSTANTS

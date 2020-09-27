@@ -21,8 +21,7 @@
  *******************************************************************************************************/
 #pragma once
 
-#include "../common/types.h"
-#include "user_config.h"
+
 
 
 /** @addtogroup  TELINK_COMMON_MODULE TELINK Common Module

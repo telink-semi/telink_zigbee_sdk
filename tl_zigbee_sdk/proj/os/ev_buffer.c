@@ -19,14 +19,17 @@
  *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#include "ev_buffer.h"
-#include "ev.h"
-#include "platform_includes.h"
-#include "user_config.h"
+
+
+#include "../common/types.h"
+#include "../common/compiler.h"
 #include "../common/mempool.h"
 #include "../common/utility.h"
 #include "../common/string.h"
 #include "../common/assert.h"
+#include "../drivers/drv_hw.h"
+#include "ev.h"
+#include "ev_buffer.h"
 
 
 #ifdef WIN32
@@ -34,9 +37,7 @@
 #endif
 
 
-#if (MODULE_BUFM_ENABLE)
-
-#define DEFAULT_BUFFER_GROUP_NUM                 3
+#define DEFAULT_BUFFER_GROUP_NUM                 4
 
 
 /**************************** Private Variable Definitions *******************/
@@ -61,6 +62,7 @@ ev_buf_vars_t *ev_buf_v = &ev_buf_vs;
 MEMPOOL_DECLARE(size_0_pool, size_0_mem, BUFFER_GROUP_0, BUFFER_NUM_IN_GROUP0);
 MEMPOOL_DECLARE(size_1_pool, size_1_mem, BUFFER_GROUP_1, BUFFER_NUM_IN_GROUP1);
 MEMPOOL_DECLARE(size_2_pool, size_2_mem, BUFFER_GROUP_2, BUFFER_NUM_IN_GROUP2);
+MEMPOOL_DECLARE(size_3_pool, size_3_mem, BUFFER_GROUP_3, BUFFER_NUM_IN_GROUP3);
 
 /*********************************************************************
  * @fn      ev_buf_isExisted
@@ -104,10 +106,10 @@ u8 *ev_buf_retriveMempoolHeader(u8 *pd)
  */
 void ev_buf_reset(void)
 {
-    u16 size[DEFAULT_BUFFER_GROUP_NUM] = {BUFFER_GROUP_0, BUFFER_GROUP_1, BUFFER_GROUP_2};
-    mem_pool_t *memPool[DEFAULT_BUFFER_GROUP_NUM] = {&size_0_pool, &size_1_pool, &size_2_pool};
-    u8 *mem[DEFAULT_BUFFER_GROUP_NUM] = {size_0_mem, size_1_mem, size_2_mem};
-    u8 buffCnt[DEFAULT_BUFFER_GROUP_NUM] = {BUFFER_NUM_IN_GROUP0, BUFFER_NUM_IN_GROUP1, BUFFER_NUM_IN_GROUP2};
+    u16 size[DEFAULT_BUFFER_GROUP_NUM] = {BUFFER_GROUP_0, BUFFER_GROUP_1, BUFFER_GROUP_2, BUFFER_GROUP_3};
+    mem_pool_t *memPool[DEFAULT_BUFFER_GROUP_NUM] = {&size_0_pool, &size_1_pool, &size_2_pool, &size_3_pool};
+    u8 *mem[DEFAULT_BUFFER_GROUP_NUM] = {size_0_mem, size_1_mem, size_2_mem, size_3_mem};
+    u8 buffCnt[DEFAULT_BUFFER_GROUP_NUM] = {BUFFER_NUM_IN_GROUP0, BUFFER_NUM_IN_GROUP1, BUFFER_NUM_IN_GROUP2, BUFFER_NUM_IN_GROUP3};
 
     memset((u8 *)ev_buf_v, 0, sizeof(ev_buf_vars_t));
 
@@ -156,7 +158,7 @@ u8 *ev_buf_allocate(u16 size)
         /* the size parameter is wrong */
         return NULL;
     }
-    u8 r = irq_disable();
+    u32 r = disable_irq();
     u8 index = U8_MAX;
 
     /* find related the buffer blocks */
@@ -168,12 +170,12 @@ u8 *ev_buf_allocate(u16 size)
     }
     if((index == U8_MAX ) || (!ev_buf_v->bufGroups[index].availBufNum)){
         /* no available buffer */
-    	irq_restore(r);
+    	restore_irq(r);
         return NULL;
     }
     u8 *temp = (u8 *)mempool_alloc(ev_buf_v->bufGroups[index].qHead);
     if(!temp){
-    	irq_restore(r);
+    	restore_irq(r);
     	return NULL;
     }
     ev_buf_v->bufGroups[index].availBufNum--;
@@ -184,10 +186,13 @@ u8 *ev_buf_allocate(u16 size)
     pNewBuf->line = line;
     pNewBuf->flag = 0xfe;
 #endif
-    irq_restore(r);
+    restore_irq(r);
     return pNewBuf->data;
 }
 
+u8 *long_ev_buf_get(void){
+	return ev_buf_allocate(MAX_BUFFER_SIZE);
+}
 
 /*********************************************************************
  * @fn      ev_buf_free
@@ -206,7 +211,7 @@ buf_sts_t my_ev_buf_free(u8 *pBuf, u16 line)
 buf_sts_t ev_buf_free(u8 *pBuf)
 #endif
 {
-    u8 r = irq_disable();
+    u32 r = disable_irq();
 
     if(!is_ev_buf(pBuf)){
 #if EV_BUFFER_DEBUG
@@ -229,7 +234,7 @@ buf_sts_t ev_buf_free(u8 *pBuf)
 
     	ZB_EXCEPTION_POST(SYS_EXCEPTTION_EV_BUFFER_EXCEPTION_FREE_MULIT);
 
-        irq_restore(r);
+    	restore_irq(r);
         return BUFFER_DUPLICATE_FREE;
     }
 
@@ -241,11 +246,9 @@ buf_sts_t ev_buf_free(u8 *pBuf)
     pDelBuf->flag = 0xff;
 #endif
 
-    irq_restore(r);
+    restore_irq(r);
     return BUFFER_SUCC;
 }
-
-
 
 /*********************************************************************
  * @fn      ev_buf_getHead
@@ -281,11 +284,11 @@ u8 *ev_buf_getTail(u8 *pd, int offsetToTail)
 	return (u8*)(pd - 8 + size[index] - offsetToTail);
 }
 
-
 u8 is_ev_buf(void *arg){
 	 if( ((u32)arg >= (u32)(size_0_mem) && (u32)arg <= ((u32)(size_0_mem) + sizeof(size_0_mem))) ||
-		  ((u32)arg >= (u32)(size_1_mem) && (u32)arg <= ((u32)(size_1_mem) + sizeof(size_1_mem))) ||
-		  ((u32)arg >= (u32)(size_2_mem) && (u32)arg <= ((u32)(size_2_mem) + sizeof(size_2_mem))) ){
+		 ((u32)arg >= (u32)(size_1_mem) && (u32)arg <= ((u32)(size_1_mem) + sizeof(size_1_mem))) ||
+		 ((u32)arg >= (u32)(size_2_mem) && (u32)arg <= ((u32)(size_2_mem) + sizeof(size_2_mem))) ||
+		 ((u32)arg >= (u32)(size_3_mem) && (u32)arg <= ((u32)(size_3_mem) + sizeof(size_3_mem))) ){
 		 return 1;
 	 }
 	 return 0;
@@ -305,11 +308,5 @@ u16 ev_buf_getFreeMaxSize(void)
 
 	return size;
 }
-
-#endif  /* MODULE_BUFM_ENABLE */
-
-
-
-
 
 

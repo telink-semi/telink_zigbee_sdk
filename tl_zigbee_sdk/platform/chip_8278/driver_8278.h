@@ -24,9 +24,9 @@
 
 
 #include "bsp.h"
+#include "register.h"
 #include "aes.h"
 #include "analog.h"
-#include "register.h"
 #include "gpio.h"
 #include "pwm.h"
 #include "irq.h"
@@ -40,9 +40,8 @@
 #include "i2c.h"
 #include "spi.h"
 #include "uart.h"
-#include "register.h"
+#include "usbhw.h"
 #include "watchdog.h"
-#include "register.h"
 #include "dfifo.h"
 #include "dma.h"
 #include "emi.h"
@@ -54,6 +53,6 @@
 
 #include "mdec.h"
 
-
+#include "phy_radio.h"
 
 

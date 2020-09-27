@@ -19,14 +19,16 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#pragma once
+#ifndef ZCL_INCLUDE_H
+#define ZCL_INCLUDE_H
 
-#include "../include/zb_common.h"
+#include "../common/includes/zb_common.h"
 
-#include "zcl_const.h"
 #include "zcl_config.h"
-#include "zcl.h"
+#include "zcl_const.h"
 #include "zcl_nv.h"
+#include "zcl.h"
+
 /* General */
 #include "general/zcl_basic.h"
 #include "general/zcl_powerCfg.h"
@@ -78,3 +80,5 @@
 
 /* Work with all hub */
 #include "wwah/zcl_wwah.h"
+
+#endif

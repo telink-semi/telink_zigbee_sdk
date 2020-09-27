@@ -22,9 +22,7 @@
 #ifndef BDB_H
 #define BDB_H
 
-#include "tl_common.h"
-#include "../../zdo/zb_af.h"
-#include "../../zdo/zdo_api.h"
+
 
 
 /** @addtogroup  TELINK_ZIGBEE_STACK TELINK ZigBee Stack
@@ -438,7 +436,7 @@ extern bdb_ctx_t  g_bdbCtx;
 
 #define PRE_INSTALL_KEY_ENABLE(type)		do{ \
 												g_bdbAttrs.joinUsesInstallCodeKey = 1;  \
-												g_bdbAttrs.nodeJoinLinkKeyType = type; \
+												g_bdbAttrs.nodeJoinLinkKeyType = type;  \
 											}while(0)
 
 
@@ -546,7 +544,7 @@ status_t bdb_defaultReportingCfg(u8 endpoint, u16 profileID, u16 clusterID, u16 
  * @param 	startDevCnf
  *
  */
-void bdb_zdoStartDevCnf(void *arg);   //zdo_start_device_confirm_t* startDevCnf);
+void bdb_zdoStartDevCnf(zdo_start_device_confirm_t *startDevCnf);
 
 /**
  * @brief      bdb attribute initialization
@@ -619,4 +617,4 @@ void bdb_linkKeyCfg(bdb_commissionSetting_t *setting, u8 isFactoryNew);
 
 /** @} end of group TELINK_ZIGBEE_STACK */
 
-#endif
+#endif	/* BDB_H */

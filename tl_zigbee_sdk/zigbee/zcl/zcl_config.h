@@ -19,8 +19,11 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#ifndef _ZCL_CONFIG_H_
-#define _ZCL_CONFIG_H_
+#ifndef ZCL_CONFIG_H
+#define ZCL_CONFIG_H
+
+
+#include "app_cfg.h"
 
 
 #define ZCL_READ
@@ -206,4 +209,4 @@
 #endif
 
 
-#endif	/* _ZCL_CONFIG_H_ */
+#endif	/* ZCL_CONFIG_H */

@@ -29,7 +29,7 @@
 
 #include "bsp.h"
 #include "analog.h"
-#include "gpio_8278.h"
+#include "gpio.h"
 
 /**
  *  @brief  Define the mode for Low power comparator

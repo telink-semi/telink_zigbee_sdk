@@ -6,7 +6,16 @@
  ****************************************************************************
 PURPOSE: MAC layer main module
 */
-#include "../include/zb_common.h"
+#include "../common/includes/zb_common.h"
+
+
+/* PIB access and min/max table type */
+typedef struct{
+    u8 offset;
+    u8 len;
+    u8 min;
+    u8 max;
+}mac_pibTbl_t;
 
 //Telink ieee address range
 const u8 startIEEEAddr[] = {0x38, 0xc1, 0xa4};
@@ -121,7 +130,7 @@ _CODE_MAC_ void generateIEEEAddr(void){
 		unsigned int t0 = clock_time();
 		u32 jitter = 0;
 		do{
-			jitter = rand();
+			jitter = u32Rand();
 			jitter &= 0xfff;
 		}while(jitter == 0);
 		while(!clock_time_exceed(t0, jitter));

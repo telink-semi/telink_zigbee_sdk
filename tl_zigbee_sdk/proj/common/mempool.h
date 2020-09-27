@@ -23,14 +23,12 @@
 
 #include "types.h"
 
-typedef struct mem_block_t
-{
+typedef struct mem_block_t{
 	struct mem_block_t*	next_block;
     char        	data[4];		// must 4 or 8 aligned, padding
 }mem_block_t;
 
-typedef struct mem_pool_t
-{
+typedef struct mem_pool_t{
     mem_block_t* 	free_list;
 }mem_pool_t;
 

@@ -19,11 +19,10 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#pragma once
+#ifndef ZCL_THERMOSTAT_H
+#define ZCL_THERMOSTAT_H
 
-#include "tl_common.h"
-#include "../../zdo/zb_af.h"
-#include "../zcl.h"
+
 
 /**
  *  @brief	zcl_thermostat_attrId Attribute Ids
@@ -202,3 +201,4 @@ status_t zcl_thermostat_getWeeklyScheduleRspCmd(u8 srcEp, epInfo_t *pDstEpInfo, 
 status_t zcl_thermostat_getRelayStatusLogRspCmd(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, zcl_thermostat_getRelayStatusLogRspCmd_t *pCmd);
 #define zcl_thermostat_getRelayStatusLogRspCmdSend(a,b,c,d)	(zcl_thermostat_getRelayStatusLogRspCmd((a), (b), (c), ZCL_SEQ_NUM, (d)))
 
+#endif	/* ZCL_THERMOSTAT_H */

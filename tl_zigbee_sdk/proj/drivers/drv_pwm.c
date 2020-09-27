@@ -19,25 +19,26 @@
  *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#include "drv_pwm.h"
-#include "platform_includes.h"
+
+#include "../tl_common.h"
 
 void drv_pwm_init(void){
 #if defined(MCU_CORE_826x)
 	pwm_Init(0);
-#elif defined(MCU_CORE_HAWK)
-#else
-
+#elif defined(MCU_CORE_B91)
+	pwm_set_clk(0);
 #endif
 }
 
-void drv_pwm_cfg(u32 pwmId, unsigned short cmp_tick, unsigned short cycle_tick){
+void drv_pwm_cfg(u8 pwmId, u16 cmp_tick, u16 cycle_tick){
 #if defined(MCU_CORE_826x)
 	pwm_Open(pwmId, NORMAL, 0, cmp_tick, cycle_tick, 0x2fff);
-#elif defined(MCU_CORE_HAWK)
-#else
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	pwm_set_mode(pwmId, PWM_NORMAL_MODE);
 	pwm_set_phase(pwmId, 0);   //no phase at pwm beginning
 	pwm_set_cycle_and_duty(pwmId, cycle_tick, cmp_tick);
+#elif defined(MCU_CORE_B91)
+	pwm_set_tcmp(pwmId, cmp_tick);
+	pwm_set_tmax(pwmId, cycle_tick);
 #endif
 }

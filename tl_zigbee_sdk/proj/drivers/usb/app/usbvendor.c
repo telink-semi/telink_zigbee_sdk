@@ -24,7 +24,6 @@
 #if (USB_VENDOR_ENABLE)
 #include "../usbstd/usbstd.h"
 #include "../usbdesc.h"
-#include "../usbhw.h"
 #include "usbvendor.h"
 
 

@@ -43,79 +43,79 @@
 // bits range: BITS_RNG(4, 5)  0b000111110000,  start from 4, length = 5
 #define BIT_RNG(s, e)  					(BIT_MASK_LEN((e)-(s)+1) << (s))
 
-#define BM_MASK_V(x, mask)        ( (x) | (mask) )
-#define BM_CLR_MASK_V(x, mask)    ( (x) & ~(mask) )
+#define BM_MASK_V(x, mask)        		( (x) | (mask) )
+#define BM_CLR_MASK_V(x, mask)    		( (x) & ~(mask) )
 
-#define BM_SET(x, mask)         ( (x) |= (mask) )
-#define BM_CLR(x, mask)       	( (x) &= ~(mask) )
-#define BM_IS_SET(x, mask)   	( (x) & (mask) )
-#define BM_IS_CLR(x, mask)   	( (~x) & (mask) )
-#define BM_FLIP(x, mask)      	( (x) ^=  (mask) )
+#define BM_SET(x, mask)         		( (x) |= (mask) )
+#define BM_CLR(x, mask)       			( (x) &= ~(mask) )
+#define BM_IS_SET(x, mask)   			( (x) & (mask) )
+#define BM_IS_CLR(x, mask)   			( (~x) & (mask) )
+#define BM_FLIP(x, mask)      			( (x) ^=  (mask) )
 
 // !!!!   v is already a masked value,  no need to shift
-#define BM_MASK_VAL(x, mask, v)  	( ((x) & ~(mask)) | (v))
-#define BM_SET_MASK_VAL(x, mask, v)  ( (x) = BM_MASK_VAL(x, mask, v) )
+#define BM_MASK_VAL(x, mask, v)  		( ((x) & ~(mask)) | (v))
+#define BM_SET_MASK_VAL(x, mask, v)  	( (x) = BM_MASK_VAL(x, mask, v) )
 
 //-------------------SET_BIT---------------------
-#define SETB(v,n)				(*(volatile unsigned char  *)v |= n)
-#define CLRB(v,n)				(*(volatile unsigned char  *)v &= ~n)
-#define TEST(v,n)				(((*(volatile unsigned char  *)v) & n) ? 1:0)
-#define BIT_SET(x, n)         	((x) |=  BIT(n))
-#define BIT_CLR(x, n)       	((x) &= ~ BIT(n))
-#define BIT_IS_SET(x, n)   		((x) & BIT(n))
-#define BIT_FLIP(x, n)   		((x) ^= BIT(n))
-#define BIT_SET_HIGH(x) 		((x) |=  BIT((sizeof((x))*8-1)))				// set the highest bit
-#define BIT_CLR_HIGH(x) 		((x) &= ~ BIT((sizeof((x))*8-1)))				// clr the highest bit
-#define BIT_IS_SET_HIGH(x) 		((x) & BIT((sizeof((x))*8-1)))				// check the higest bit
+#define SETB(v,n)						(*(volatile unsigned char  *)v |= n)
+#define CLRB(v,n)						(*(volatile unsigned char  *)v &= ~n)
+#define TEST(v,n)						(((*(volatile unsigned char  *)v) & n) ? 1:0)
+#define BIT_SET(x, n)         			((x) |=  BIT(n))
+#define BIT_CLR(x, n)       			((x) &= ~ BIT(n))
+#define BIT_IS_SET(x, n)   				((x) & BIT(n))
+#define BIT_FLIP(x, n)   				((x) ^= BIT(n))
+#define BIT_SET_HIGH(x) 				((x) |=  BIT((sizeof((x))*8-1)))				// set the highest bit
+#define BIT_CLR_HIGH(x) 				((x) &= ~ BIT((sizeof((x))*8-1)))				// clr the highest bit
+#define BIT_IS_SET_HIGH(x) 				((x) & BIT((sizeof((x))*8-1)))					// check the higest bit
 
-#define BIT_MASK_LEN(len)       (BIT(len)-1)
-#define BIT_MASK(start, len)    (BIT_MASK_LEN(len) << (start) )
+#define BIT_MASK_LEN(len)       		(BIT(len)-1)
+#define BIT_MASK(start, len)    		(BIT_MASK_LEN(len) << (start) )
 
 //! Prepare a bitmask for insertion or combining.
-#define BIT_PREP(x, start, len) ((x) & BIT_MASK(start, len))
+#define BIT_PREP(x, start, len) 		((x) & BIT_MASK(start, len))
 
 //! Extract a bitfield of length \a len starting at bit \a start from \a y.
-#define BIT_GET(x, start, len)  (((x) >> (start)) & BIT_MASK_LEN(len))
-#define BIT_GET_LOW(x, len)   	((x) & BIT_MASK_LEN(len))
+#define BIT_GET(x, start, len)  		(((x) >> (start)) & BIT_MASK_LEN(len))
+#define BIT_GET_LOW(x, len)   			((x) & BIT_MASK_LEN(len))
 
 //! Insert a new bitfield value \a x into \a y.
 #define BIT_MERGE(y, x, start, len)    \
     ( y = ((y) &~ BIT_MASK(start, len)) | BIT_PREP(x, start, len) )
 
-#define BIT_IS_EVEN(x)     (((x)&1)==0)
-#define BIT_IS_ODD(x)      (!BIT_IS_EVEN((x)))
+#define BIT_IS_EVEN(x)     				(((x)&1)==0)
+#define BIT_IS_ODD(x)      				(!BIT_IS_EVEN((x)))
 
-#define BIT_IS_POW2(x)     (!((x) & ((x)-1)))
+#define BIT_IS_POW2(x)     				(!((x) & ((x)-1)))
 
 /* turn off right-most 1-bit in x */
-#define BIT_TURNOFF_1(x)   ((x) &= ((x)-1))
+#define BIT_TURNOFF_1(x)   				((x) &= ((x)-1))
 /* isolate right-most 1-bit in x */
-#define BIT_ISOLATE_1(x)   ((x) &= (-(x)))
+#define BIT_ISOLATE_1(x)   				((x) &= (-(x)))
 /* right-propagate right-most 1-bit in x */
-#define BIT_PROPAGATE_1(x) ((x) |= ((x)-1))
+#define BIT_PROPAGATE_1(x) 				((x) |= ((x)-1))
 /* isolate right-most 0-bit in x */
-#define BIT_ISOLATE_0(x)   ((x) = ~(x) & ((x)+1))
+#define BIT_ISOLATE_0(x)   				((x) = ~(x) & ((x)+1))
 /* turn on right-most 0-bit in x */
-#define BIT_TURNON_0(x)    ((x) |= ((x)+1))
+#define BIT_TURNON_0(x)    				((x) |= ((x)+1))
 
-#define CLAMP_TO_ONE(x) 		(!!(x))				// compiler defined, not stardard.    0 --> 0,   1 --> 0xffffffff
+#define CLAMP_TO_ONE(x) 				(!!(x))				// compiler defined, not stardard.    0 --> 0,   1 --> 0xffffffff
 
-#define ONES(x)				BIT_MASK_LEN(x)
-#define ONES_32				0xffffffff
-#define ALL_SET				0xffffffff
+#define ONES(x)							BIT_MASK_LEN(x)
+#define ONES_32							0xffffffff
+#define ALL_SET							0xffffffff
 
 #if 0
 //! Massage \a x for use in bitfield \a name.
-#define BFN_PREP(x, name)    ( ((x)<<name##_SHIFT) & name##_MASK )
+#define BFN_PREP(x, name)    			( ((x)<<name##_SHIFT) & name##_MASK )
 
 //! Get the value of bitfield \a name from \a y. Equivalent to (var=) y.name
-#define BFN_GET(y, name)     ( ((y) & name##_MASK)>>name##_SHIFT )
+#define BFN_GET(y, name)     			( ((y) & name##_MASK)>>name##_SHIFT )
 
 //! Set bitfield \a name from \a y to \a x: y.name= x.
-#define BFN_SET(y, x, name)  (y = ((y)&~name##_MASK) | BFN_PREP(x,name) )
+#define BFN_SET(y, x, name)  			(y = ((y)&~name##_MASK) | BFN_PREP(x,name) )
 
 // Usage: prio get/set like before:
-prio= BFN_GET(attr2, ATTR2_PRIO);
+prio = BFN_GET(attr2, ATTR2_PRIO);
 BFN_SET(attr2, x, ATTR2_PRIO);
 #endif
 

@@ -60,24 +60,23 @@ extern ota_callBack_t sampleLight_otaCb;
 
 //running code firmware information
 ota_preamble_t sampleLight_otaInfo = {
-		.fileVer = CURRENT_FILE_VERSION,
-		.imageType = IMAGE_TYPE,
-		.manufacturerCode = TELINK_MANUFACTURER_CODE,
+	.fileVer 			= FILE_VERSION,
+	.imageType 			= IMAGE_TYPE,
+	.manufacturerCode 	= MANUFACTURER_CODE,
 };
 #endif
 
-extern void bdb_zdoStartDevCnf(void *arg);
 
 //Must declare the application call back function which used by ZDO layer
 const zdo_appIndCb_t appCbLst = {
-		bdb_zdoStartDevCnf,//start device cnf cb
-		NULL,//reset cnf cb
-		NULL,//device announce indication cb
-		sampleLight_leaveIndHandler,//leave ind cb
-		sampleLight_leaveCnfHandler,//leave cnf cb
-		sampleLight_nwkUpdateIndicateHandler,//nwk update ind cb
-		NULL,//permit join ind cb
-		NULL,//nlme sync cnf cb
+	bdb_zdoStartDevCnf,//start device cnf cb
+	NULL,//reset cnf cb
+	NULL,//device announce indication cb
+	sampleLight_leaveIndHandler,//leave ind cb
+	sampleLight_leaveCnfHandler,//leave cnf cb
+	sampleLight_nwkUpdateIndicateHandler,//nwk update ind cb
+	NULL,//permit join ind cb
+	NULL,//nlme sync cnf cb
 };
 
 
@@ -143,7 +142,7 @@ void stack_init(void)
  */
 void user_app_init(void)
 {
-	af_nodeDescManuCodeUpdate(TELINK_MANUFACTURER_CODE);
+	af_nodeDescManuCodeUpdate(MANUFACTURER_CODE);
 
     /* Initialize ZCL layer */
 	/* Register Incoming ZCL Foundation command/response messages */
@@ -257,12 +256,6 @@ static void sampleLightSysException(void)
  */
 void user_init(void)
 {
-#if (ZBHCI_USB_PRINT || ZBHCI_USB_CDC || ZBHCI_USB_HID)
-	/* Enable USB Port*/
-	gpio_set_func(GPIO_PA5, AS_USB);
-	gpio_set_func(GPIO_PA6, AS_USB);
-#endif
-
 	/* Initialize LEDs*/
 	led_init();
 	hwLight_init();

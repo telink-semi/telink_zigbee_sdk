@@ -223,10 +223,10 @@ status_t sampleLight_onOffCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *c
 status_t sampleLight_levelCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
 status_t sampleLight_colorCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
 
-void sampleLight_leaveCnfHandler(void *p);
-void sampleLight_leaveIndHandler(void *p);
+void sampleLight_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf);
+void sampleLight_leaveIndHandler(nlme_leave_ind_t *pLeaveInd);
 void sampleLight_otaProcessMsgHandler(u8 evt, u8 status);
-u8 sampleLight_nwkUpdateIndicateHandler(void *arg);
+u8 sampleLight_nwkUpdateIndicateHandler(nwkCmd_nwkUpdate_t *pNwkUpdate);
 
 void sampleLight_onoff(u8 cmd);
 

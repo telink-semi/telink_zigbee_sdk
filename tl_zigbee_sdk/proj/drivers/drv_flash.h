@@ -21,8 +21,6 @@
  *******************************************************************************************************/
 #pragma once
 
-#include "../common/types.h"
-#include "../common/compiler.h"
 
 typedef void (*drv_flash_write)(unsigned long addr, unsigned long len, unsigned char *buf);
 typedef void (*drv_flash_read)(unsigned long addr, unsigned long len, unsigned char *buf);

@@ -19,9 +19,9 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#pragma once
+#ifndef MAC_TRX_API_H
+#define MAC_TRX_API_H
 
-#include "tl_common.h"
 
 /**        
  *  @brief The number of slots contained in any superframe
@@ -33,13 +33,11 @@
  */
 #define MAC_A_BASE_SLOT_DURATION        3
 
-
 #ifdef WIN32
 #define MAC_A_BASE_SUPERFRAME_DURATION  (MAC_A_BASE_SLOT_DURATION * MAC_A_NUM_SUPERFRAME_SLOTS)
 #else
 #define MAC_A_BASE_SUPERFRAME_DURATION  (MAC_A_BASE_SLOT_DURATION * MAC_A_NUM_SUPERFRAME_SLOTS)
 #endif
-
 
 #define MAC_MIN_HDR_LEN                 3
 #define MAC_MAX_HDR_LEN                 23
@@ -66,7 +64,6 @@
 #define MAC_SHORT_ADDR_FIELD_LEN        2       /* Short address */
 #define MAC_FCS_FIELD_LEN               2       /* FCS field */
 
-
 /**        
  *  @brief Frame type
  */
@@ -89,23 +86,25 @@
 #define MAC_FCF_SRC_ADDR_MODE_POS       14
 
 
-
 //BIT(1) 1- FFD, 0- RFD
-#define	MAC_CAP_GET_DEVICE_TYPE(c)			((c>>1)&1)
-#define	MAC_CAP_GET_RXON_WHEN_IDLE(c)		((c>>3)&1)
+#define	MAC_CAP_GET_DEVICE_TYPE(c)		((c >> 1) & 1)
+#define	MAC_CAP_GET_RXON_WHEN_IDLE(c)	((c >> 3) & 1)
 
+#define	MAX_RETRY_NUM					3
+
+#define	TX_QUEUE_BN						8
 
 
 typedef enum{
-	RX_BUSY = BIT(0),
-	TX_BUSY = BIT(1),
-	TX_ACKPACKET = BIT(2),
-	RX_WAITINGACK = BIT(3),
+	RX_BUSY 		= BIT(0),
+	TX_BUSY 		= BIT(1),
+	TX_ACKPACKET 	= BIT(2),
+	RX_WAITINGACK 	= BIT(3),
 	RX_DATAPENDING	= BIT(4),
-	TX_UNDERWAY = BIT(5)
+	TX_UNDERWAY 	= BIT(5)
 }rf_trxds_st_e;
 
-typedef enum {
+typedef enum{
     MAC_TX_IDLE,
     MAC_TX_CSMA,
     MAC_TX_UNDERWAY,
@@ -113,10 +112,9 @@ typedef enum {
     MAC_TX_RETRY,
     MAC_TX_TIME_OUT,
     MAC_TX_DONE,
-} mac_txState_t;
+}mac_txState_t;
 
-#define		MAX_RETRY_NUM				3
-typedef enum {
+typedef enum{
     MAC_TX_EV_NEW_DATA,
     MAC_TX_EV_CSMA_IDLE,
     MAC_TX_EV_CSMA_BUSY,
@@ -126,48 +124,48 @@ typedef enum {
     MAC_TX_EV_ACK_RETRY,
     MAC_TX_EV_NO_ACK,
     MAC_TX_EV_HAVE_PENDING_DATA,
-} mac_txEvt_t;
-
-
-typedef enum {
-    PHY_CCA_IDLE       = 0x04,
-    PHY_CCA_TRX_OFF    = 0x03,
-    PHY_CCA_BUSY       = 0x00,
-} phy_ccaSts_t;
+}mac_txEvt_t;
 
 /**
  *  @brief Definition of MAC generic frame type, used in both TX and RX
  */
-typedef struct {
-	u8		fAck; //--                /*!< Used in TX  */
-	u8		fFramePending;//--        /*!< Used in Poll  */
-	u8		psduLen;//--
-	u8		cnfStatus;//--
-    u8		*txData;//--
-} mac_genFrame_t;
+typedef struct{
+	u8 fAck;                /*!< Used in TX  */
+	u8 fFramePending;       /*!< Used in Poll  */
+	u8 psduLen;
+	u8 cnfStatus;
+    u8 *txData;
+}mac_genFrame_t;
 
-typedef	mac_genFrame_t	tx_data_queue;
+typedef	mac_genFrame_t tx_data_queue;
 
-#define	TX_QUEUE_BN		8
+
 
 tx_data_queue *tx_queue[TX_QUEUE_BN];
 
 extern u8 MAC_TX_QUEUE_SIZE;
 extern u8 rf_busyFlag;
 
-u8 mac_getTrxState(void);
 
+/***********************************************************************//**
+ * @brief 		initialize the rf transceiver and state
+ *
+ * @param
+ *
+ * @return
+ *
+ **************************************************************************/
+void mac_trxInit(void);
 
 /***********************************************************************//**
  * @brief       trigger tx
  *
  * @param[in]   arg        - pointer to the tx buffer
  *
- * @return      status
+ * @return
  *
  **************************************************************************/
 void mac_trigger_tx(void *arg);
-
 
 /***********************************************************************//**
  * @brief       mac packet filter
@@ -184,7 +182,6 @@ void mac_trigger_tx(void *arg);
  *
  **************************************************************************/
 u8 *zb_macDataFilter(u8 *macPld, u8 len, u8 *needDrop, u8 *ackPkt);
-
 
 /***********************************************************************//**
  * @brief       handle the received data
@@ -206,7 +203,6 @@ u8 *zb_macDataFilter(u8 *macPld, u8 len, u8 *needDrop, u8 *ackPkt);
  **************************************************************************/
 void zb_macDataRecvHander(u8 *rxBuf, u8 *data, u8 len, u8 ackPkt, u32 timestamp, s8 rssi);
 
-
 /***********************************************************************//**
  * @brief       tx done calllback
  *
@@ -216,3 +212,9 @@ void zb_macDataRecvHander(u8 *rxBuf, u8 *data, u8 len, u8 ackPkt, u32 timestamp,
  *
  **************************************************************************/
 void zb_macDataSendHander(void);
+
+u8 tl_zbMacHdrSize(u16 frameCtrl);
+bool tl_zbMacStateBusy(void);
+u8 mac_getTrxState(void);
+
+#endif	/* MAC_TRX_API_H */

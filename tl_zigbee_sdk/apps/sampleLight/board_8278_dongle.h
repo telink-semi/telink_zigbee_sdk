@@ -148,15 +148,19 @@ extern "C" {
 #define PA0_DATA_STRENGTH       	0
 #define PULL_WAKEUP_SRC_PA0     	PM_PIN_PULLUP_10K
 
-#define UART_PIN_CFG				uart_gpio_set(UART_TX_PD7, UART_RX_PA0);// uart tx/rx pin set
+#define UART_PIN_CFG()				uart_gpio_set(UART_TX_PD7, UART_RX_PA0);// uart tx/rx pin set
 #endif
 
 
 //DEBUG
 #if UART_PRINTF_MODE
 	#define	DEBUG_INFO_TX_PIN	    GPIO_PC6//print
-	#define PC6_OUTPUT_ENABLE		1
-	#define PC6_INPUT_ENABLE		0
+
+	#define DEBUG_TX_PIN_INIT()		do{	\
+										gpio_set_func(DEBUG_INFO_TX_PIN, AS_GPIO);	\
+										gpio_set_output_en(DEBUG_INFO_TX_PIN, 1);	\
+										gpio_setup_up_down_resistor(DEBUG_INFO_TX_PIN, PM_PIN_PULLUP_1M); \
+									}while(0)
 #endif
 
 

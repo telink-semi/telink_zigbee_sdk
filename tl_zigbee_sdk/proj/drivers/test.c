@@ -24,7 +24,6 @@
 #if DEBUG_MODE
 #include "../tl_common.h"
 
-
 #define PRINTF(...) Tl_printf(__VA_ARGS__)
 #else
 #define PRINTF(...)
@@ -40,8 +39,8 @@
 #define PRINTF_CFS(...)
 #endif
 
-#include "./cfs.h"
-#include "./cfs-coffee.h"
+#include "cfs.h"
+#include "cfs-coffee.h"
 
 #define FAIL(x) PRINTF("FAILED\n");error = (x); goto end;
 

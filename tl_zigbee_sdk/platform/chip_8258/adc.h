@@ -26,10 +26,10 @@
 
 #pragma once
 
-#include "bsp.h"
-#include "analog.h"
 #include "register.h"
-#include "gpio_8258.h"
+#include "analog.h"
+#include "bit.h"
+#include "gpio.h"
 
 
 extern volatile unsigned short adc_cal_value;

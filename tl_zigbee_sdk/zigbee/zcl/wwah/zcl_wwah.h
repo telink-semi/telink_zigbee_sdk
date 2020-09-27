@@ -19,11 +19,10 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#pragma once
+#ifndef ZCL_WWAH_H
+#define ZCL_WWAH_H
 
-#include "tl_common.h"
-#include "../../zdo/zb_af.h"
-#include "../zcl.h"
+
 
 /**
  *  @brief	attributes of WWAH cluster
@@ -379,3 +378,5 @@ status_t zcl_wwah_trustCenterForClusterServerQueryRspCmd(u8 srcEp, epInfo_t *pDs
 
 status_t zcl_wwah_surveyBeaconsRspCmd(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, zcl_wwah_surveyBeaconsRspCmd_t *pCmd);
 #define zcl_wwah_surveyBeaconsRspCmdSend(a,b,c,d)	(zcl_wwah_surveyBeaconsRspCmd((a), (b), (c), ZCL_SEQ_NUM, (d)))
+
+#endif	/* ZCL_WWAH_H */

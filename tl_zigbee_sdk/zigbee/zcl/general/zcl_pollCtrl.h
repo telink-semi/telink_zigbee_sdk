@@ -19,11 +19,10 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#pragma once
+#ifndef ZCL_POLL_CTRL_H
+#define ZCL_POLL_CTRL_H
 
-#include "tl_common.h"
-#include "../../zdo/zb_af.h"
-#include "../zcl.h"
+
 
 /**
  *  @brief	zcl_pollCtrl_cmdId POLL CONTROL Command Ids
@@ -140,3 +139,4 @@ status_t zcl_pollCtrl_setLongPollInterval(u8 srcEp, epInfo_t *pDstEpInfo, u8 dis
 status_t zcl_pollCtrl_setShortPollInterval(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, zcl_setShortPollInterval_t *pSetShortPollInterval);
 #define zcl_pollCtrl_setShortPollIntervalCmd(a,b,c,d)	(zcl_pollCtrl_setShortPollInterval((a), (b), (c), ZCL_SEQ_NUM, (d)))
 
+#endif	/* ZCL_POLL_CTRL_H */

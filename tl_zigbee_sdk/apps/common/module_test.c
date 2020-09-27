@@ -27,36 +27,49 @@
 
 #if MODULE_TEST_UART
 
-#if 0
-//8278
-//#define UART_PIN_CFG				uart_gpio_set(UART_TX_PD0, UART_RX_PD6);// uart tx/rx pin set
-//8258 48 pin dongle
-#define UART_TX_PIN         		GPIO_PD7
-#define UART_RX_PIN         		GPIO_PA0
-#define UART_PIN_CFG				uart_gpio_set(UART_TX_PD7, UART_RX_PA0);// uart tx/rx pin set
+#define TEST_826x		0
+#define TEST_8258		1
+#define TEST_8278		2
+#define TEST_9518		3
+
+#define TEST_MODULE		TEST_8258
+
+#if (TEST_MODULE == TEST_826x)
+	#define UART_TX_PIN		GPIO_PC2
+	#define UART_RX_PIN		GPIO_PC3
+#elif (TEST_MODULE == TEST_8258)
+	#define UART_TX_PIN		GPIO_PD7
+	#define UART_RX_PIN		GPIO_PA0
+#elif (TEST_MODULE == TEST_8278)
+	#define UART_TX_PIN		GPIO_PD0
+	#define UART_RX_PIN		GPIO_PD6
 #else
-#define UART_PIN_CFG				do{											\
-										gpio_set_func(GPIO_PC2, AS_UART);		\
-										gpio_set_func(GPIO_PC3, AS_UART);		\
-										gpio_set_output_en(GPIO_PC2, 1);		\
-										gpio_set_input_en(GPIO_PC2, 0);			\
-										gpio_set_output_en(GPIO_PC2, 0);		\
-										gpio_set_input_en(GPIO_PC3, 1);			\
-										UART_GPIO_CFG_PC2_PC3();				\
-									}while(0)
+	#error	"undefined TEST_MODULE"
 #endif
+
+#if (TEST_MODULE == TEST_826x)
+	#define UART_PIN_INIT()		do{	\
+									drv_uart_pin_set(UART_TX_PIN, UART_RX_PIN);	\
+									UART_GPIO_CFG_PC2_PC3();					\
+								}
+#else
+	#define UART_PIN_INIT()		do{	\
+									drv_uart_pin_set(UART_TX_PIN, UART_RX_PIN);	\
+								}
+#endif
+
 
 typedef struct{
 	u32 dataLen;
 	u8 dataPayload[1];
 }uart_rxData_t;
+
 __attribute__((aligned(4))) u8 moduleTest_uartTxBuf[4] = {0};
 __attribute__((aligned(4))) u8 moduleTest_uartRxBuf[32] = {0};
 volatile u8  T_uartPktSentSeqNo = 0;
 volatile u32 T_uartPktRecvSeqNo = 0;
 volatile u32 T_uartPktRecvLen = 0;
 volatile u32 T_uartPktSentExcept = 0;
-#include "../../proj/drivers/drv_uart.h"
 
 void module_test_uartRcvHandler(void){
 	/*
@@ -67,7 +80,7 @@ void module_test_uartRcvHandler(void){
 	T_uartPktRecvLen = rxData->dataLen;
 	T_uartPktRecvSeqNo = rxData->dataPayload[0];
 
-#if 0//only for 8258/8278
+#if (TEST_MODULE == TEST_8258) || (TEST_MODULE == TEST_8278)
 	if(T_uartPktRecvSeqNo == 0xBB){
 		drv_adc_enable(1);
 	}else{
@@ -78,21 +91,19 @@ void module_test_uartRcvHandler(void){
 
 
 void moduleTest_forUart(void){
-	UART_PIN_CFG;
+	UART_PIN_INIT();
 
 	drv_uart_init(115200, moduleTest_uartRxBuf, sizeof(moduleTest_uartRxBuf)/sizeof(u8), module_test_uartRcvHandler);
 
 	drv_adc_init();
-#if 0//only for 8258
+#if (TEST_MODULE == TEST_8258)
 	drv_adc_mode_pin_set(Drv_ADC_VBAT_MODE, GPIO_PC5);
-#endif
-
-#if 0//only for 8278
+#elif (TEST_MODULE == TEST_8278)
 	//drv_adc_mode_pin_set(Drv_ADC_BASE_MODE, GPIO_PB3);
 	drv_adc_mode_pin_set(Drv_ADC_VBAT_MODE, GPIO_PB3);
 #endif
 
-	irq_enable();
+	enable_irq();
 
 	for(int i = 0; i < sizeof(moduleTest_uartTxBuf)/sizeof(u8); i++){
 		moduleTest_uartTxBuf[i] = i;
@@ -141,14 +152,12 @@ void moduleTest_forUart(void){
 #define MODULE_TEST_NV		0
 
 #if MODULE_TEST_NV
-#include "../../zigbee/zbapi/zb_api.h"
 volatile u8 T_nwkFrmCntError = 0;
 volatile u8 T_nwkFrmCntReadErr = 0;
 volatile u32 T_frameCnt = 0;
 volatile u32 T_readFrm = 0;
 volatile u8 T_bufCheck[256] = {0};
 void moduleTest_NV(void){
-	extern zb_info_t g_zbInfo;
 	u8 *pData = (u8*)&g_zbInfo;
 
 	while(0){
@@ -199,22 +208,25 @@ void moduleTest_NV(void){
 #define TIMER_WAKUPUP_TEST		1
 #define DEEP_SLEEP_TEST			1
 
-#include "../../proj/drivers/drv_pm.h"
-#include "./pm_interface.h"
+#include "pm_interface.h"
 extern pm_pinCfg_t g_switchPmCfg[];
 extern void light_on(void);
 extern void light_off(void);
 
-unsigned char  txPktForPm[48] __attribute__ ((aligned (4))) = {0x09, 0x00, 0x00, 0x00, 0x0a, 0x03, 0x08, 0xd0,  0xff, 0xff, 0xff, 0xff, 0x07, 0x00};//{0x14,0x00,0x00,0x00,0x15, 0x00, 0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xaa,0xbb,0xcc,0xdd,0xee,0xff, 0xee, 0xdd, 0xcc, 0xbb};
+unsigned char  txPktForPm[48] __attribute__ ((aligned (4))) = {0x09, 0x00, 0x00, 0x00, 0x0a, 0x03, 0x08, 0xd0, 0xff, 0xff, 0xff, 0xff, 0x07};//{0x14,0x00,0x00,0x00,0x15, 0x00, 0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xaa,0xbb,0xcc,0xdd,0xee,0xff, 0xee, 0xdd, 0xcc, 0xbb};
 
 void moduleTest_PM(void){
 	platform_wakeup_e wakeupSrc = 0;
 	platform_mode_e mode = 0;
 
-	irq_disable();
+	ZB_RADIO_TX_POWER_SET(0);
+	ZB_RADIO_TRX_CFG(144);
 
-	ZB_RADIO_INIT();
 	ZB_RADIO_TRX_SWITCH(RF_MODE_TX, 50);
+
+	ZB_RADIO_DMA_HDR_BUILD(txPktForPm, 8);
+
+	enable_irq();
 
 #if PAD_WAKUPUP_TEST
 	s32 pinNum = 2;
@@ -248,6 +260,8 @@ void moduleTest_PM(void){
 
 	while(1){
 #if DEEP_SLEEP_TEST
+		ZB_RADIO_TX_START(txPktForPm);
+
 		for(u32 i = 0; i < 2; i++){
 			light_on();
 			WaitUs(100*1000);
@@ -258,7 +272,6 @@ void moduleTest_PM(void){
 		platform_lowpower_enter(mode, wakeupSrc, interval);
 		//tx_packet[8]++;
 
-		ZB_RADIO_TRX_SWITCH(RF_MODE_TX, 50);
 		ZB_RADIO_TX_START(txPktForPm);
 
 		for(u32 i = 0; i < 2; i++){
@@ -282,31 +295,33 @@ void moduleTest_PM(void){
 
 unsigned char  rx_packet[128]  __attribute__ ((aligned (4)));
 
-unsigned char  tx_packet[48] __attribute__ ((aligned (4))) = {0x09, 0x00, 0x00, 0x00, 0x0a, 0x03, 0x08, 0xd0,  0xff, 0xff, 0xff, 0xff, 0x07, 0x00};//{0x14,0x00,0x00,0x00,0x15, 0x00, 0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xaa,0xbb,0xcc,0xdd,0xee,0xff, 0xee, 0xdd, 0xcc, 0xbb};
+unsigned char  tx_packet[48] __attribute__ ((aligned (4))) = {0x09, 0x00, 0x00, 0x00, 0x0a, 0x03, 0x08, 0xd0, 0xff, 0xff, 0xff, 0xff, 0x07};//{0x14,0x00,0x00,0x00,0x15, 0x00, 0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xaa,0xbb,0xcc,0xdd,0xee,0xff, 0xee, 0xdd, 0xcc, 0xbb};
 
 unsigned int rx_cnt;
-void moduleTest_RF(){
-    
-	//RF_Init(RF_MODE_ZIGBEE_250K);///cystal is 12Mhz.
+void moduleTest_RF(void){
+	ZB_RADIO_TX_POWER_SET(0);
+	ZB_RADIO_TRX_CFG(144);
 
-	//RF_PowerLevelSet(RF_POWER_7P9dBm);
-	//RF_RxBufferSet(rx_packet,128,0);
+	ZB_RADIO_RX_BUF_SET((u32)rx_packet);
+	rf_set_rx_maxlen(144);
 
-	//rf_set_power_level_index(0) ;//RF_POWER_P10p46dBm, RF_POWER_P5p65dBm, RF_POWER_P3p01dBm);
+	enable_irq();
 
-    #if TX
-    	while(1)
-    	{
-    		ZB_RADIO_TRX_SWITCH(RF_MODE_TX, 50);
-			WaitUs(150);
-			//tx_packet[8]++;
-			ZB_RADIO_TX_START(tx_packet);
-			WaitMs(50);
-    	}
-	#else
-    	ZB_RADIO_TRX_SWITCH(RF_MODE_RX, 50);
-    	while(1);
-	#endif
+#if TX
+	ZB_RADIO_TRX_SWITCH(RF_MODE_TX, 50);
+
+	ZB_RADIO_DMA_HDR_BUILD(tx_packet, 8);
+
+	while(1)
+	{
+		WaitMs(100);
+		ZB_RADIO_TX_START(tx_packet);
+		while(1);
+	}
+#else
+	ZB_RADIO_TRX_SWITCH(RF_MODE_RX, 50);
+	while(1);
+#endif
 }
 #endif
 
@@ -314,9 +329,12 @@ void moduleTest_RF(){
 #if MODULE_TEST_MMOHASH
 u8 T_DBG_installCode[18] = {0x83,0xfe,0xd3,0x40,0x7a,0x93,0x97,0x23,0xa5,0xc6,0x39,0xb2,0x69,0x16,0xd5,0x05};
 u16 T_DBG_insCodeCRC;
+/*
+ * expected: "66B6900981E1EE3CA4206B6B861C02BB"
+ */
 u8 T_DBG_hashOut[16] = {0};
-void moudleTest_hash(void)
-{
+
+void moudleTest_hash(void){
 	T_DBG_insCodeCRC = tl_bdbInstallCodeCRC16(T_DBG_installCode, 16);
 	T_DBG_installCode[16] = (u8)(T_DBG_insCodeCRC & 0xff);
 	T_DBG_installCode[17] = (u8)(T_DBG_insCodeCRC >> 8);
@@ -406,32 +424,73 @@ void moduleTest_adc(u8 mode){
 
 #if MODULE_TEST_TIMER
 
-volatile u8 T_timerCnt = 0;
-volatile u8 T_timerDone = 0;
-s32 moduleTestTimerCb(void *arg){
-	T_timerCnt++;
-	T_timerDone = 1;
+#define TEST_826x		0
+#define TEST_8258		1
+#define TEST_8278		2
+#define TEST_9518		3
 
-	gpio_toggle(GPIO_PA3);
+#define TEST_MODULE		TEST_8258
+
+#if (TEST_MODULE == TEST_826x)
+	#define TEST_GPIO_0		GPIO_PB6
+	#define TEST_GPIO_1		GPIO_PB4
+#elif (TEST_MODULE == TEST_8258)
+	#define TEST_GPIO_0		GPIO_PA3
+	#define TEST_GPIO_1		GPIO_PA2
+#elif (TEST_MODULE == TEST_8278)
+	#define TEST_GPIO_0		GPIO_PA3
+	#define TEST_GPIO_1		GPIO_PA2
+#elif (TEST_MODULE == TEST_9518)
+	#define TEST_GPIO_0		GPIO_PB7
+	#define TEST_GPIO_1		GPIO_PB6
+#else
+	#error	"undefined TEST_MODULE"
+#endif
+
+volatile u8 moduleTestTimerFlg = 0;
+s32 moduleTestTimer0Cb(void *arg){
+	static u8 cnt = 0;
+
+	gpio_toggle(TEST_GPIO_0);
+
+	if(++cnt >= 10){
+		cnt = 0;
+		moduleTestTimerFlg = 1;
+
+		return -1;
+	}
+
+	return 0;
+}
+
+s32 moduleTestTimer1Cb(void *arg){
+	gpio_toggle(TEST_GPIO_1);
+
+	if(moduleTestTimerFlg){
+		return 500*1000;
+	}
 
 	return 0;
 }
 
 void moduleTest_timer(void){
-	gpio_init();
+	drv_gpio_func_set(TEST_GPIO_0);
+	drv_gpio_output_en(TEST_GPIO_0, 1); 		//enable output
+	drv_gpio_input_en(TEST_GPIO_0, 0);			//disable input
+	gpio_write(TEST_GPIO_0, 1);              	//LED On
 
-	WaitMs(2000);
+	drv_gpio_func_set(TEST_GPIO_1);
+	drv_gpio_output_en(TEST_GPIO_1, 1); 		//enable output
+	drv_gpio_input_en(TEST_GPIO_1, 0);			//disable input
+	gpio_write(TEST_GPIO_1, 1);              	//LED On
 
-	gpio_set_func(GPIO_PA3 ,AS_GPIO);
-	gpio_set_output_en(GPIO_PA3, 1); 		//enable output
-	gpio_set_input_en(GPIO_PA3 ,0);			//disable input
-	gpio_write(GPIO_PA3, 1);              	//LED On
+	drv_hwTmr_init(TIMER_IDX_0, TIMER_MODE_SCLK);
+	drv_hwTmr_set(TIMER_IDX_0, 500*1000, moduleTestTimer0Cb, NULL);
 
-	hwTmr_init(TIMER_IDX_1, TIMER_MODE_SCLK);
+	drv_hwTmr_init(TIMER_IDX_1, TIMER_MODE_SCLK);
+	drv_hwTmr_set(TIMER_IDX_1, 100*1000, moduleTestTimer1Cb, NULL);
 
-	hwTmr_set(TIMER_IDX_1, 500*1000, moduleTestTimerCb, NULL);
-
-	T_timerDone = 0;
+	enable_irq();
 
 	while(1){
 
@@ -444,7 +503,6 @@ void moduleTest_timer(void){
 #if MODULE_TEST_PWM
 
 #if __PROJECT_TL_DIMMABLE_LIGHT__
-#include "../../proj/drivers/drv_pwm.h"
 void moduleTest_pwm(void){
 	PWM_W_CHANNEL_SET();
 	drv_pwm_init();
@@ -475,7 +533,6 @@ void moduleTest_pwm(void){
 #define MODULE_TEST_SPI 0
 
 #if MODULE_TEST_SPI
-#include "../../proj/drivers/drv_spi.h"
 
 /**
  *  @brief  SPI interface
@@ -528,8 +585,7 @@ volatile unsigned char spi_master_rx_buff[DBG_DATA_LEN] = {0x00};
 unsigned char cmd_buf[CMD_BUF_LEN] = {0};
 
 
-void spi_master_test_init(void)
-{
+void spi_master_test_init(void){
 	//spi clock 500K, only master need set spi clock
 	//div_clock. spi_clk = sys_clk/((div_clk+1)*2),mode select
 	drv_spi_master_init((unsigned char)(CLOCK_SYS_CLOCK_HZ/(2*500000)-1), SPI_MODE_0);
@@ -544,8 +600,7 @@ void spi_master_test_init(void)
 	drv_spi_master_cspin_select(SPI_CS_PIN);
 }
 
-void spi_slave_test_init(void)
-{
+void spi_slave_test_init(void){
 	drv_spi_slave_init((unsigned char)(CLOCK_SYS_CLOCK_HZ/(2*500000)-1), SPI_MODE_0);//slave mode init
 
 #if	defined(MCU_CORE_8278)
@@ -555,8 +610,7 @@ void spi_slave_test_init(void)
 #endif
 }
 
-void spi_master_mainloop(void)
-{
+void spi_master_mainloop(void){
 	WaitMs(1000);   //1S
 
 	spi_master_tx_buff[0] += 1;
@@ -582,8 +636,7 @@ void spi_master_mainloop(void)
 	drv_spi_read((unsigned char*)cmd_buf, idx + 1, (unsigned char*)spi_master_rx_buff, DBG_DATA_LEN, SPI_CS_PIN);
 }
 
-void main_loop(void)
-{
+void main_loop(void){
 	WaitMs(1000);
 
 #if(SPI_MODE == SPI_MASTER_MODE)
@@ -593,8 +646,7 @@ void main_loop(void)
 #endif
 }
 
-void moduleTest_spi(void)
-{
+void moduleTest_spi(void){
 	WaitMs(2000);//leave enough time for SWS_reset when power on
 
 #if(SPI_MODE == SPI_MASTER_MODE)
@@ -602,8 +654,6 @@ void moduleTest_spi(void)
 #else
 	 spi_slave_test_init();
 #endif
-
-//	irq_enable();
 
 	while(1){
 #if(MODULE_WATCHDOG_ENABLE)
@@ -619,107 +669,120 @@ void moduleTest_spi(void)
 
 #if MODULE_TEST_GPIO_IRQ
 
-#if 1
-//8258
-#define TEST_LED1		GPIO_PA4
-#define TEST_LED2		GPIO_PB1
-#define TEST_SW1		GPIO_PD5
-#define TEST_SW2		GPIO_PD6
-#define TEST_GPIO		GPIO_PB2
-#else
-#if 0
-#define TEST_LED1		GPIO_PC2
-#define TEST_LED2		GPIO_PC3
-#define TEST_SW1		GPIO_PD2
-#define TEST_SW2		GPIO_PC5
+#define TEST_826x		0
+#define TEST_8258		1
+#define TEST_8278		2
+#define TEST_9518		3
 
-#else //8278 dongle
-#define TEST_LED1		GPIO_PA2
-#define TEST_LED2		GPIO_PA3
-#define TEST_SW1		GPIO_PD6
-#define TEST_SW2		GPIO_PD5
-#define TEST_GPIO		GPIO_PB2
+#define TEST_MODULE		TEST_9518
+
+#if (TEST_MODULE == TEST_826x)
+	#define TEST_LED1		GPIO_PC2
+	#define TEST_LED2		GPIO_PC3
+	#define TEST_SW1		GPIO_PD2
+	#define TEST_SW2		GPIO_PC5
+	#define TEST_GPIO		GPIO_PD3
+#elif (TEST_MODULE == TEST_8258)
+	#define TEST_LED1		GPIO_PA4
+	#define TEST_LED2		GPIO_PB1
+	#define TEST_SW1		GPIO_PD5
+	#define TEST_SW2		GPIO_PD6
+	#define TEST_GPIO		GPIO_PB2
+#elif (TEST_MODULE == TEST_8278)
+	#define TEST_LED1		GPIO_PA2
+	#define TEST_LED2		GPIO_PA3
+	#define TEST_SW1		GPIO_PD6
+	#define TEST_SW2		GPIO_PD5
+	#define TEST_GPIO		GPIO_PB2
+#elif (TEST_MODULE == TEST_9518)
+	#define TEST_LED1		GPIO_PB7
+	#define TEST_LED2		GPIO_PB6
+	#define TEST_SW1		GPIO_PC4
+	#define TEST_SW2		GPIO_PC5
+	#define TEST_GPIO		GPIO_PA0
+#else
+	#error	"undefined TEST_MODULE"
 #endif
-#endif
+
 
 volatile u8 T_DBG_gpioIrqCb1 = 0;
-void moduleTest_gpioIrqCb1(void)
-{
+void moduleTest_gpioIrqCb1(void){
 	T_DBG_gpioIrqCb1++;
 	gpio_toggle(TEST_LED1);
 }
 
 volatile u8 T_DBG_gpioIrqCb2 = 0;
-void moduleTest_gpioIrqCb2(void)
-{
+void moduleTest_gpioIrqCb2(void){
 	T_DBG_gpioIrqCb2++;
 	gpio_toggle(TEST_LED2);
 }
 
 volatile u8 T_DBG_gpioIrqCb3 = 0;
-void moduleTest_gpioIrqCb3(void)
-{
+void moduleTest_gpioIrqCb3(void){
 	T_DBG_gpioIrqCb3++;
 	gpio_toggle(TEST_LED1);
 
 	if(gpio_read(TEST_GPIO)){
-		gpio_setup_up_down_resistor(TEST_GPIO, PM_PIN_PULLUP_10K);
-		drv_gpio_irq_conf(GPIO_IRQ_MODE, TEST_GPIO, poll_falling, moduleTest_gpioIrqCb3);
+		drv_gpio_up_down_resistor(TEST_GPIO, PM_PIN_PULLUP_10K);
+		drv_gpio_irq_config(GPIO_IRQ_MODE, TEST_GPIO, poll_falling, moduleTest_gpioIrqCb3);
 	}else{
-		gpio_setup_up_down_resistor(TEST_GPIO, PM_PIN_PULLDOWN_100K);
-		drv_gpio_irq_conf(GPIO_IRQ_MODE, TEST_GPIO, poll_rising, moduleTest_gpioIrqCb3);
+		drv_gpio_up_down_resistor(TEST_GPIO, PM_PIN_PULLDOWN_100K);
+		drv_gpio_irq_config(GPIO_IRQ_MODE, TEST_GPIO, poll_rising, moduleTest_gpioIrqCb3);
 	}
 }
 
 volatile u8 T_DBG_mainCnt = 0;
 void moduleTest_gpioIrq(void)		//comment out user_init
 {
-	gpio_init();
-
-	WaitMs(2000);
 	//1.init the LED pin,for indication
-	gpio_set_func(TEST_LED1 ,AS_GPIO);
-	gpio_set_output_en(TEST_LED1, 1); 		//enable output
-	gpio_set_input_en(TEST_LED1 ,0);			//disable input
-	gpio_write(TEST_LED1, 1);              	//LED On
+	drv_gpio_func_set(TEST_LED1);
+	drv_gpio_output_en(TEST_LED1, 1); 		//enable output
+	drv_gpio_input_en(TEST_LED1, 0);		//disable input
+	//gpio_write(TEST_LED1, 1);              	//LED On
 
-	gpio_set_func(TEST_LED2 ,AS_GPIO);
-	gpio_set_output_en(TEST_LED2, 1); 		//enable output
-	gpio_set_input_en(TEST_LED2 ,0);			//disable input
+	drv_gpio_func_set(TEST_LED2);
+	drv_gpio_output_en(TEST_LED2, 1); 		//enable output
+	drv_gpio_input_en(TEST_LED2, 0);		//disable input
 	gpio_write(TEST_LED2, 1);              	//LED On
 
 #if 0
-	gpio_set_func(TEST_SW1 ,AS_GPIO);
-	gpio_set_output_en(TEST_SW1, 0); 			//enable output
-	gpio_set_input_en(TEST_SW1 ,1);				//disable input
-	gpio_setup_up_down_resistor(TEST_SW1, PM_PIN_PULLUP_10K);
-	drv_gpio_irq_conf(GPIO_IRQ_MODE, TEST_SW1, poll_falling, moduleTest_gpioIrqCb1);
+	drv_gpio_func_set(TEST_SW1);
+	drv_gpio_output_en(TEST_SW1, 0); 			//enable output
+	drv_gpio_input_en(TEST_SW1, 1);				//disable input
+	drv_gpio_up_down_resistor(TEST_SW1, PM_PIN_PULLUP_10K);
+	drv_gpio_irq_config(GPIO_IRQ_MODE, TEST_SW1, poll_falling, moduleTest_gpioIrqCb1);
 	drv_gpio_irq_en(TEST_SW1);
 #endif
 
 #if 0
-	gpio_set_func(TEST_SW2 ,AS_GPIO);
-	gpio_set_output_en(TEST_SW2, 0); 			//enable output
-	gpio_set_input_en(TEST_SW2 ,1);				//disable input
-	gpio_setup_up_down_resistor(TEST_SW2, PM_PIN_PULLUP_10K);
-	drv_gpio_irq_conf(GPIO_IRQ_RISC0_MODE, TEST_SW2, poll_falling, moduleTest_gpioIrqCb2);
+	drv_gpio_func_set(TEST_SW2);
+	drv_gpio_output_en(TEST_SW2, 0); 			//enable output
+	drv_gpio_input_en(TEST_SW2, 1);				//disable input
+	drv_gpio_up_down_resistor(TEST_SW2, PM_PIN_PULLUP_10K);
+	drv_gpio_irq_config(GPIO_IRQ_RISC0_MODE, TEST_SW2, poll_falling, moduleTest_gpioIrqCb2);
 	drv_gpio_irq_risc0_en(TEST_SW2);
 #endif
 
-	gpio_set_func(TEST_GPIO ,AS_GPIO);
-	gpio_set_output_en(TEST_GPIO, 0); 			//enable output
-	gpio_set_input_en(TEST_GPIO ,1);				//disable input
+	drv_gpio_func_set(TEST_GPIO);
+	drv_gpio_output_en(TEST_GPIO, 0); 			//enable output
+	drv_gpio_input_en(TEST_GPIO, 1);			//disable input
 	if(gpio_read(TEST_GPIO)){				//test edge trigger irq
-		gpio_setup_up_down_resistor(TEST_GPIO, PM_PIN_PULLUP_10K);
-		drv_gpio_irq_conf(GPIO_IRQ_MODE, TEST_GPIO, poll_falling, moduleTest_gpioIrqCb3);
+		drv_gpio_up_down_resistor(TEST_GPIO, PM_PIN_PULLUP_10K);
+		drv_gpio_irq_config(GPIO_IRQ_MODE, TEST_GPIO, poll_falling, moduleTest_gpioIrqCb3);
+		gpio_write(TEST_LED1, 1);
 	}else{
-		gpio_setup_up_down_resistor(TEST_GPIO, PM_PIN_PULLDOWN_100K);
-		drv_gpio_irq_conf(GPIO_IRQ_MODE, TEST_GPIO, poll_rising, moduleTest_gpioIrqCb3);
+		drv_gpio_up_down_resistor(TEST_GPIO, PM_PIN_PULLDOWN_100K);
+		drv_gpio_irq_config(GPIO_IRQ_MODE, TEST_GPIO, poll_rising, moduleTest_gpioIrqCb3);
+		gpio_write(TEST_LED1, 0);
 	}
 	drv_gpio_irq_en(TEST_GPIO);
 
+	enable_irq();
+
 	while(1){
 		T_DBG_mainCnt++;
+		gpio_toggle(TEST_LED2);
+		WaitMs(500);
 	};
 }
 #endif

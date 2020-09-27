@@ -19,11 +19,9 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#pragma once
+#ifndef ZCL_ZLL_COMMOSSIONING_INTERNAL_H
+#define ZCL_ZLL_COMMOSSIONING_INTERNAL_H
 
-#include "tl_common.h"
-#include "zcl_zll_commissioning.h"
-#include "../../zdo/zb_af.h"
 
 /*
  * information used during touch link
@@ -87,7 +85,7 @@ s32 zcl_zllTouchLinkTimeout(void *arg);
 
 void zcl_zllTouchLinkFinish(u8 status);
 
-bool zcl_zllTouchLinkLeaveCnfCb(void *arg);
+bool zcl_zllTouchLinkLeaveCnfCb(nlme_leave_cnf_t *pLeaveCnf);
 
 void zcl_zllTouchLinkDeviceInformationRequestHandler(epInfo_t *dstEp,u8 startEpIdx);
 
@@ -96,3 +94,5 @@ void zcl_zllTouchLinkDeviceInformationResponseHandler(zcl_zllTouchLinkDeviceInfo
 s32 zcl_zllTouchLinkStartNetworkStartOrJoinTimerStop(void);
 
 void ll_zllAttrClr(void);
+
+#endif	/* ZCL_ZLL_COMMOSSIONING_INTERNAL_H */

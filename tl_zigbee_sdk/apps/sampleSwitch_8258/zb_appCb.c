@@ -269,11 +269,9 @@ void sampleSwitch_otaProcessMsgHandler(u8 evt, u8 status)
  *
  * @return  None
  */
-void sampleSwitch_leaveCnfHandler(void *p)
+void sampleSwitch_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf)
 {
-	nlmeLeaveConf_t *pCnf = (nlmeLeaveConf_t *)p;
-	//printf("sampleSwitch_leaveCnfHandler, status = %x\n", pCnf->status);
-    if(pCnf->status == SUCCESS ){
+    if(pLeaveCnf->status == SUCCESS){
     	//SYSTEM_RESET();
     }
 }
@@ -287,11 +285,10 @@ void sampleSwitch_leaveCnfHandler(void *p)
  *
  * @return  None
  */
-void sampleSwitch_leaveIndHandler(void *p)
+void sampleSwitch_leaveIndHandler(nlme_leave_ind_t *pLeaveInd)
 {
-	//nlmeLeaveInd_t *pInd = (nlmeLeaveInd_t *)p;
-    //printf("sampleSwitch_leaveIndHandler, rejoin = %d\n", pInd->rejoin);
-    //printfArray(pInd->device_address, 8);
+    //printf("sampleSwitch_leaveIndHandler, rejoin = %d\n", pLeaveInd->rejoin);
+    //printfArray(pLeaveInd->device_address, 8);
 }
 
 

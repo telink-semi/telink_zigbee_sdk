@@ -24,10 +24,10 @@
  *
  *******************************************************************************************************/
 #pragma once
-#include "bsp.h"
+#include "bit.h"
 #include "analog.h"
 #include "register.h"
-#include "gpio_8278.h"
+#include "gpio.h"
 
 #define ADC_OLD_TEMP_TEST  0
 
@@ -48,7 +48,7 @@ typedef struct {
 extern adc_vref_ctr_t adc_vref_cfg;
 
 extern const GPIO_PinTypeDef ADC_GPIO_tab[10];
-extern unsigned char   adc_vbat_divider;
+
 /**
  *  ADC reference voltage
  */
@@ -62,7 +62,8 @@ typedef enum{
  */
 typedef enum{
 	ADC_VBAT_DIVIDER_OFF = 0,
-	ADC_VBAT_DIVIDER_1F3 = 2,
+	ADC_VBAT_DIVIDER_1F4,
+	ADC_VBAT_DIVIDER_1F3,
 	ADC_VBAT_DIVIDER_1F2
 }ADC_VbatDivTypeDef;
 
@@ -280,14 +281,6 @@ enum{
 static inline void adc_set_vref_vbat_divider(ADC_VbatDivTypeDef vbat_div)
 {
 	analog_write (areg_adc_vref_vbat_div, (analog_read(areg_adc_vref_vbat_div)&(~FLD_ADC_VREF_VBAT_DIV)) | (vbat_div<<2) );
-	if(vbat_div)
-	{
-		adc_vbat_divider=5-vbat_div	;
-	}
-	else
-	{
-		adc_vbat_divider=1;
-	}
 }
 
 
@@ -439,8 +432,8 @@ afe_0xF1
 		<5:4>   rsvd
 		<7:6>   r_max_mc[9:8]
 
-	r_max_mc[9:0]: serves to set length of capture state for Misc channel.
-	r_max_s:       serves to set length of set state for Misc channel.
+	r_max_mc[9:0]: serves to set length of ¡°capture¡± state for Misc channel.
+	r_max_s:       serves to set length of ¡°set¡± state for Misc channel.
 
 	Note: State length indicates number of 24M clock cycles occupied by the state.
  *************************************************************************************/
@@ -456,7 +449,7 @@ enum{
 };
 
 /**
- * @brief      This function sets length of each set state
+ * @brief      This function sets length of each ¡°set¡± state
  * @param[in]  r_max_s - variable of length of "set" state
  * @return     none
  */

@@ -19,11 +19,10 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#pragma once
+#ifndef ZCL_IAS_ACE_H
+#define ZCL_IAS_ACE_H
 
-#include "tl_common.h"
-#include "../../zdo/zb_af.h"
-#include "../zcl.h"
+
 
 /*********************************************************************
  * CONSTANTS
@@ -240,3 +239,5 @@ status_t zcl_iasAce_getBypassedZoneList(u8 srcEp, epInfo_t *pDstEpInfo, u8 disab
 
 status_t zcl_iasAce_getZoneStatus(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, getZoneStatus_t *pGetZoneStatus);
 #define zcl_iasAce_getZoneStatusCmd(a,b,c,d)	(zcl_iasAce_getZoneStatus((a), (b), (c), ZCL_SEQ_NUM, (d)))
+
+#endif	/* ZCL_IAS_ACE_H */

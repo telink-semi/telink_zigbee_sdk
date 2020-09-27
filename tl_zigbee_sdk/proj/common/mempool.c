@@ -39,7 +39,8 @@ mem_pool_t* mempool_init(mem_pool_t* pool, void* mem, int itemsize, int itemcoun
 	return pool;
 }
 
-mem_block_t* mempool_header(char* pd){
+mem_block_t* mempool_header(char* pd)
+{
 	return (mem_block_t*)(pd - OFFSETOF(mem_block_t, data));
 }
 

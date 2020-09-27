@@ -19,30 +19,18 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#ifndef EV_SCHEDULER_H
-#define EV_SCHEDULER_H 1
+#ifndef ZB_TASK_QUEUE_H
+#define ZB_TASK_QUEUE_H
 
-#include "tl_common.h"
 
+
+#define	TL_ZBTASKQ_USERUSE_SIZE				32
+#define	TL_ZBTASKQ_STACKUSE_SIZE			16
 
 enum{
 	ZB_RET_OK,			/*!< status: success */
 	ZB_RET_OVERFLOW,	/*!< status: array or buffer overflow */
 }zb_sta_e;
-
-/**
-   Callback function typedef.
-   Callback is function planned to execute by another function.
-   Note that callback must be declared as reentrant for dscc.
-
-   @param param - callback parameter - usually, but not always, ref to packet buf
-
-   @return none.
- */
-typedef void (* zb_callback_t)(u8 param) ;
-typedef void (* tl_zb_callback_t)(void *arg) ;
-
-typedef void (* zb_timer_callback_t)(void *arg) ;
 
 enum{
 	TL_Q_EV_TASK = 0,
@@ -53,14 +41,22 @@ enum{
 	TL_Q_TYPE_MAX
 };
 
+/**
+   Callback function typedef.
+   Callback is function planned to execute by another function.
+   Note that callback must be declared as reentrant for dscc.
+
+   @param param - callback parameter - usually, but not always, ref to packet buf
+
+   @return none.
+ */
+typedef void (*tl_zb_callback_t)(void *arg);
+
+
 typedef struct tl_zb_task_s{
 	 tl_zb_callback_t tlCb;
 	 void *data;
 }tl_zb_task_t;
-
-
-#define	TL_ZBTASKQ_USERUSE_SIZE				32
-#define	TL_ZBTASKQ_STACKUSE_SIZE			16
 
 typedef struct{
 	tl_zb_task_t evt[TL_ZBTASKQ_USERUSE_SIZE];
@@ -76,15 +72,15 @@ typedef struct{
 	u8 resv;
 }tl_zbtaskq_stack_t;
 
-#define		TL_QUEUE_HAS_SPACE(wptr,rptr,size)		((wptr - rptr) < (size))
+#define	TL_QUEUE_HAS_SPACE(wptr, rptr, size)		((wptr - rptr) < (size))
 
 /**
    Initialize scheduler subsystem.
  */
-extern void zb_sched_init() ;
+void zb_sched_init(void);
 
 
-void tl_zbTaskProcedure(void) ;
+void tl_zbTaskProcedure(void);
 
 /**
   * @brief       get the valid task from task quenue list
@@ -108,10 +104,6 @@ tl_zb_task_t *tl_zbTaskQPop(u8 idx, tl_zb_task_t *taskInfo);
 u8 tl_zbTaskQPush(u8 idx, tl_zb_task_t *task);
 
 
-#define		TL_SUPERFRAMETIME_TO_US(n)				(n*15360)
-#define		TL_TIMEUS_TO_SUPEFRAMETIME(t)			(t/15360)
-
-
 #if 0
 u8 my_tl_zbPrimitivePost(u8 layerQ, u8 primitive, void *arg, u32 line, char *file);
 #define tl_zbPrimitivePost(layerQ, primitive, arg) my_tl_zbPrimitivePost(layerQ, primitive, arg, __LINE__, __FILE__)
@@ -133,10 +125,8 @@ u8 tl_zbTaskPost(tl_zb_callback_t func, void *arg);
 
 
 u8 zb_isTaskDone(void);
-bool tl_stackBusy(void);
-
+u8 tl_zbUserTaskQNum(void);
 void secondClockStop(void);
 
-u8 tl_zbUserTaskQNum(void);
 
-#endif /* EV_SCHEDULER_H */
+#endif /* ZB_TASK_QUEUE_H */

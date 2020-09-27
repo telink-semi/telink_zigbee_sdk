@@ -23,7 +23,7 @@
 #ifndef DMA_H_
 #define DMA_H_
 
-
+#include "register.h"
 
 
 /**
@@ -37,12 +37,11 @@ static inline void dma_reset(void)
 	reg_rst1 &= (~FLD_RST1_DMA);
 }
 
-
-
 static inline void dma_irq_enable(unsigned int msk)
 {
 	reg_dma_chn_irq_msk |= msk;
 }
+
 static inline void dma_irq_disable(unsigned int msk)
 {
 	reg_dma_chn_irq_msk &= ~msk;
@@ -67,11 +66,11 @@ en = 1: enable
 en = 0: disable
  *****************************************************************/
 
-#define		RFDMA_RX_DISABLE		(reg_dma_chn_en &= (~FLD_DMA_CHN_RF_RX))
-#define		RFDMA_RX_ENABLE			(reg_dma_chn_en |= (FLD_DMA_CHN_RF_RX))
+#define	RFDMA_RX_DISABLE		(reg_dma_chn_en &= (~FLD_DMA_CHN_RF_RX))
+#define	RFDMA_RX_ENABLE			(reg_dma_chn_en |= (FLD_DMA_CHN_RF_RX))
 
-#define		RFDMA_TX_DISABLE		(reg_dma_chn_en &= (~FLD_DMA_CHN_RF_TX))
-#define		RFDMA_TX_ENABLE			(reg_dma_chn_en |= (FLD_DMA_CHN_RF_TX))
+#define	RFDMA_TX_DISABLE		(reg_dma_chn_en &= (~FLD_DMA_CHN_RF_TX))
+#define	RFDMA_TX_ENABLE			(reg_dma_chn_en |= (FLD_DMA_CHN_RF_TX))
 
 static inline void dma_chn_irq_enable(unsigned char chn, unsigned int en)
 {
@@ -86,9 +85,6 @@ static inline void dma_chn_irq_enable(unsigned char chn, unsigned int en)
 		reg_dma_chn_irq_msk &= ~chn;
 	}
 }
-
-
-
 
 /**
  * @brief      Clear IRQ status of uart.

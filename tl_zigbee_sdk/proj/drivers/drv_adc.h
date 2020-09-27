@@ -21,39 +21,9 @@
  *******************************************************************************************************/
 #pragma once
 
-#include "platform_includes.h"
-#include "../common/types.h"
-#include "../common/compiler.h"
 
 
-/****
-* brief: ADC initiate function, set the ADC clock details (4MHz) and start the ADC clock.
-* param[in] null
-*
-* @return	  1: set success ;
-*             0: set error
-*/
-unsigned char drv_adc_init(void);
-
-/****
-* brief: get the sample data
-* param[in] null
-* @return,the result
-*/
-unsigned short drv_get_adc_data(void);
-
-
-/****
-* brief: get the sample temperature data
-* param[in] null
-* @return,the result
-*/
-#if defined (MCU_CORE_8278)
-unsigned short drv_get_temp_result(void);
-#endif
-
-
-#if defined (MCU_CORE_826x) || defined (MCU_CORE_HAWK)
+#if defined(MCU_CORE_826x)
 typedef enum{
 	Drv_ADC_LEFT_CHN 	= BIT(0),
 	Drv_ADC_RIGHT_CHN	= BIT(1),
@@ -65,7 +35,40 @@ typedef enum{
 	Drv_SINGLE_ENDED_MODE = 0,  //single-ended mode
 	Drv_DIFFERENTIAL_MODE = 1,  //differential mode
 }DRV_ADC_InputModeTypeDef;
+#endif
 
+#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+typedef enum{
+	Drv_ADC_BASE_MODE,
+	Drv_ADC_VBAT_MODE,
+#if defined(MCU_CORE_8278)
+	Drv_ADC_VBAT_CHANNEL_MODE,
+	Drv_ADC_TEMP_MODE,
+#endif
+}Drv_ADC_Mode;
+#endif
+
+
+/****
+* brief: ADC initiate function, set the ADC clock details (4MHz) and start the ADC clock.
+* param[in] null
+*
+* @return	  1: set success ;
+*             0: set error
+*/
+bool drv_adc_init(void);
+
+/****
+* brief: get the sample data
+* param[in] null
+* @return,the result
+*/
+u16 drv_get_adc_data(void);
+
+
+
+
+#if defined (MCU_CORE_826x)
 /****
 * brief: set the ADC setting parameter
 * param[in] adc_chan, enum the channel
@@ -77,18 +80,9 @@ typedef enum{
 * param[in] res,the sample resolution,should be the enum mode,reference to the API.
 * @return
 */
-void drv_ADC_ParamSetting(Drv_ADC_ChTypeDef ad_ch,DRV_ADC_InputModeTypeDef mode,u8 pcha_p, u8 pcha_n,u8 sample_time,u8 ref_vol,u8 res);
+void drv_ADC_ParamSetting(Drv_ADC_ChTypeDef ad_ch, DRV_ADC_InputModeTypeDef mode, u8 pcha_p, u8 pcha_n, u8 sample_time, u8 ref_vol, u8 res);
 
-#else		//8258/8278
-typedef enum{
-	Drv_ADC_BASE_MODE,
-	Drv_ADC_VBAT_MODE,
-#if defined (MCU_CORE_8278)
-	Drv_ADC_VBAT_CHANNEL_MODE,
-	Drv_ADC_TEMP_MODE,
-#endif
-}Drv_ADC_Mode;
-
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 /****
 * brief: set ADC test mode and pin
 * param[in]
@@ -97,17 +91,19 @@ typedef enum{
 void drv_adc_mode_pin_set(Drv_ADC_Mode mode, GPIO_PinTypeDef pin);
 
 /****
-* brief: set ADC calibrated value
-* param[in]
-* @return
-*/
-void drv_adc_set_calValue(unsigned short value);
-
-/****
 * brief: start/stop ADC
 * param[in] TRUE/FALSE
 * @return
 */
 void drv_adc_enable(bool enable);
+
+#if defined(MCU_CORE_8278)
+/****
+* brief: get the sample temperature data
+* param[in] null
+* @return,the result
+*/
+u16 drv_get_temp_result(void);
+#endif
 
 #endif

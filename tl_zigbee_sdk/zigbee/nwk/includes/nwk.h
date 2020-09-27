@@ -19,51 +19,49 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#ifndef ZB_NWK_H
-#define ZB_NWK_H 1
+#ifndef NWK_H
+#define NWK_H
 
-#include "tl_common.h"
-#include "../../mac/includes/tl_zb_mac.h"
-#include "../../include/tl_config.h"
-#include "nwk_neighbor.h"
+
 
 /***************************************************************************
 * @brief	NWK Mesh route stuff: routing table size
 */
 #if ZB_COORDINATOR_ROLE
 #ifndef NWK_ROUTE_RECORD_TABLE_NUM
-	#define NWK_ROUTE_RECORD_TABLE_NUM 			128
+	#define NWK_ROUTE_RECORD_TABLE_NUM 		128
 #endif
 #endif
 
 #if ZB_ROUTER_ROLE
 #ifndef ROUTING_TABLE_NUM
-	#define ROUTING_TABLE_NUM                   48
+	#define ROUTING_TABLE_NUM               48
 #endif
 
 #ifndef NWK_BRC_TRANSTBL_NUM
-	#define NWK_BRC_TRANSTBL_NUM 				12//8
+	#define NWK_BRC_TRANSTBL_NUM 			12//8
 #endif
 #endif
+
+#define ZB_NWK_IS_ADDRESS_BROADCAST(addr) 	( ((addr) & 0xFFF8) == 0xFFF8 )
 
 /***************************************************************************
 * @brief	The maximum number of retries allowed after a broadcast transmission failure
 */
-#define NWK_MAX_BROADCAST_RETRIES 	3
+#define NWK_MAX_BROADCAST_RETRIES 			3
 
-
-#define NWK_ENDDEV_TIMEOUT_DEFAULT	8
+#define NWK_ENDDEV_TIMEOUT_DEFAULT			8
 
 /***************************************************************************
 * @brief	The maximum time duration in OctetDurations allowed for the parent and all
 * 			child devices to retransmit a broadcast message (passive ack timeout)
 */
-#define NWK_PASSIVE_ACK_TIMEOUT 	500000//us
+#define NWK_PASSIVE_ACK_TIMEOUT 			500000//us
 
 /***************************************************************************
 * @brief	The maximum broadcast jitter time measured in milliseconds
 */
-#define NWK_MAX_BROADCAST_JITTER 	0x40//ms
+#define NWK_MAX_BROADCAST_JITTER 			0x40//ms
 
 /***************************************************************************
 * @brief	The broadcast delivery time, ms*
@@ -77,37 +75,29 @@
 * 	nwkBroadcastDeliveryTime: 	ms
 */
 #if 0
-//#define NWK_BROADCAST_DELIVERY_TIME	  (2*NWK_NIB().maxDepth*(((50+(NWK_MAX_BROADCAST_JITTER*1000)/2)) + NWK_NIB().passiveAckTimeout*NWK_MAX_BROADCAST_RETRIES)/1000)
-#define NWK_BROADCAST_DELIVERY_TIME	  (2*NWK_MAX_DEPTH*(((50+(NWK_MAX_BROADCAST_JITTER*1000)/2)) + NWK_PASSIVE_ACK_TIMEOUT*NWK_MAX_BROADCAST_RETRIES)/1000)
+//#define NWK_BROADCAST_DELIVERY_TIME	  	(2*NWK_NIB().maxDepth*(((50+(NWK_MAX_BROADCAST_JITTER*1000)/2)) + NWK_NIB().passiveAckTimeout*NWK_MAX_BROADCAST_RETRIES)/1000)
+#define NWK_BROADCAST_DELIVERY_TIME	  		(2*NWK_MAX_DEPTH*(((50+(NWK_MAX_BROADCAST_JITTER*1000)/2)) + NWK_PASSIVE_ACK_TIMEOUT*NWK_MAX_BROADCAST_RETRIES)/1000)
 #else
-#define NWK_BROADCAST_DELIVERY_TIME	 	5000//ms
+#define NWK_BROADCAST_DELIVERY_TIME	 		5000//ms
 #endif
 
 /***************************************************************************
 * @brief	The number of times the first broadcast route request command
 */
-#define NWK_INITIAL_RREQ_RETRIES 		3
+#define NWK_INITIAL_RREQ_RETRIES 			3
 
 /***************************************************************************
 * @brief	The number of times the broadcast transmission of a route request
 * 			command frame is retries on relay by an intermediate ZigBee router
 * 			or ZigBee coordinator
 */
-#define NWK_RREQ_RETRIES				2
+#define NWK_RREQ_RETRIES					2
 
-/****************************************************************************
-* @brief	Network layer debug flag
-*/
-#define		DEBUG_DATA_THROUGH			0
-#define		DEBUG_NWK_CMD				0
-#define		DEBUG_BROADCAST				0
-#define		DEBUG_ROUTE_DISCOVERY		0
-#define 	DEBUG_NWK_DATA				0
-#define		DEBUG_NEIGHBOR_TBL			0
 /**
  *  @brief  NWK: size os the long-short panid translation table
  */
-#define PANID_TABLE_SIZE              8
+#define PANID_TABLE_SIZE              		8
+
 /****************************************************************************
 * @brief	Network layer primitive id
 */
@@ -149,8 +139,9 @@
 /****************************************************************************
 * @brief	Network layer command handle
 */
-typedef enum{
-	NWK_INTERNAL_NSDU_HANDLE = 0xC0,
+typedef enum
+{
+	NWK_INTERNAL_NSDU_HANDLE 			  = 0xC0,
 	NWK_INTERNAL_DATA_RECIVED_HANDLE,
 	NWK_INTERNAL_LINK_STATUS_CMD_HANDLE,
 	NWK_INTERNAL_REJOIN_REQ_CMD_HANDLE,
@@ -165,7 +156,6 @@ typedef enum{
 	NWK_INTERNAL_ROUTE_RECORD_CMD_HANDLE,
 	NWK_INTERNAL_ENDDEVTIMEOUT_REQ_CMD_HANDLE,
 	NWK_INTERNAL_ENDDEVTIMEOUT_RSP_CMD_HANDLE,
-
 	//MAC_HANDLE_MIN = 0xDF,
 }nwk_internal_handle_t;
 
@@ -917,18 +907,6 @@ typedef struct
 	}options;
 }nwkCmd_linkStatus_t;
 
-
-
-#define	NWK_FILL_LINKST_OPTIONS(dst,cnt,ff,lf)	do{	\
-													*dst = 0;									\
-													*dst = (cnt & 0x1f) + (ff<<5) + (lf<<6); 	\
-												}while(0)
-
-#define	NWK_FILL_LINKST(dst,oc,oi)				do{	\
-													*dst = 0;									\
-													*dst = (oi&0x07) + ((oc & 0x07)<<4);		\
-												}while(0)
-
 /****************************************************************************
 * @brief	Network report command payload
 */
@@ -1124,93 +1102,6 @@ typedef struct
 	u8	forgetCnt;
 }nwk_routingTabEntry_t;
 
-
-#define		NWK_PENDINGDATA_INTERNAL_CACHE(arg, nwkHdr, nsdu, nsduLen)			do{\
-			u8 *ptr = (u8 *)arg;													\
-			*ptr++ = nsduLen;														\
-			COPY_U32TOBUFFER(ptr,((u32 )nsdu));										\
-			ptr += 4;																\
-			memcpy(ptr,(u8 *)nwkHdr,sizeof(*nwkHdr));								\
-			}while(0)
-
-#define		NWK_PENDINGDATA_INTERNAL_RECOVER(arg, nwkHdr, nsdu, nsduLen)			do{\
-			u8 *ptr = (u8 *)arg;														\
-			nsduLen = *ptr;																\
-			memcpy((u8 *)&nsdu,(ptr+1),4);												\
-			memcpy((u8 *)&nwkHdr,(ptr+5),sizeof(nwkHdr));									\
-			}while(0)
-
-
-#define		NWK_PENDINGDATA_INTERNAL_RECOVER_NSDU(arg,nsdu)			do{\
-			u8 *ptr = (u8 *)arg;														\
-			memcpy((u8 *)&nsdu,(ptr+1),4);												\
-			}while(0)
-
-#define		NWK_PENDINGDATA_INTERNAL_CACHE_NSDU(arg,nsdu)			do{\
-			u8 *ptr = (u8 *)arg;													\
-			ptr++;														\
-			COPY_U32TOBUFFER(ptr,((u32 )nsdu));										\
-			}while(0)
-
-
-#define		NWK_PENDINGDATA_INTERNAL_RECOVER_HDR(arg,nwkHdr)			do{\
-			u8 *ptr = (u8 *)arg;														\
-			memcpy((u8 *)&nwkHdr,(ptr+5),sizeof(nwkHdr));												\
-			}while(0)
-
-#define		NWK_PENDINGDATA_INTERNAL_CACHE_HDR(arg,nwkHdr)			do{\
-			u8 *ptr = (u8 *)arg;													\
-			ptr += 5;														\
-			memcpy(ptr,(u8 *)nwkHdr,sizeof(*nwkHdr));										\
-			}while(0)
-
-
-#define		NWK_ROUTE_DISC_INTERNAL_CACHE(arg, nwkHdr, cmd)			do{\
-			u8 *ptr = (u8 *)arg;													\
-			memcpy(ptr, (u8 *)nwkHdr, sizeof(*nwkHdr));								\
-			ptr += sizeof(*nwkHdr);													\
-			memcpy(ptr, (u8 *)cmd, sizeof(*cmd));									\
-			}while(0)
-
-#define		NWK_ROUTE_FORWARD_LEAVE_INTERNAL_CACHE(a,b,c)	NWK_ROUTE_DISC_INTERNAL_CACHE(a,b,c)
-
-#define		NWK_ROUTE_DISC_INTERNAL_RECOVER(arg, nwkHdr, cmd)			do{\
-			u8 *ptr = (u8 *)arg;													\
-			memcpy((u8 *)&nwkHdr, ptr, sizeof(nwkHdr));								\
-			ptr += sizeof(nwkHdr);													\
-			memcpy((u8 *)&cmd, ptr, sizeof(cmd));									\
-			}while(0)
-
-#define 	NWK_ROUTE_FORWARD_LEAVE_INTERNAL_RECOVER(a,b,c)	 NWK_ROUTE_DISC_INTERNAL_RECOVER(a,b,c)
-
-
-#define		NWK_ROUTE_REPLY_INTERNAL_CACHE(arg, radius, routeReqId, originator, responder, senderAddr, cost)	do{\
-			u8 *ptr = (u8 *)arg;													\
-			*ptr++ = radius;														\
-			*ptr++ = routeReqId;													\
-			memcpy(ptr, (u8 *)&originator, 2);										\
-			ptr += 2;																\
-			memcpy(ptr, (u8 *)&responder, 2);										\
-			ptr += 2;																\
-			memcpy(ptr, (u8 *)&senderAddr, 2);										\
-			ptr += 2;																\
-			*ptr++ = cost;															\
-			}while(0)
-
-#define		NWK_ROUTE_REPLY_INTERNAL_RECOVER(arg, radius, routeReqId, originator, responder, senderAddr, cost)	do{\
-			u8 *ptr = (u8 *)arg;													\
-			radius = *ptr++;														\
-			routeReqId = *ptr++;													\
-			memcpy((u8 *)&originator, ptr, 2);										\
-			ptr += 2;																\
-			memcpy((u8 *)&responder, ptr, 2);										\
-			ptr += 2;																\
-			memcpy((u8 *)&senderAddr, ptr, 2);										\
-			ptr += 2;																\
-			cost = *ptr++;															\
-			}while(0)
-
-
 /***************************************************************************
 * @brief	Route discovery table entry. It is used to keep track of route
 * 			request information during a route discovery operation.
@@ -1271,20 +1162,6 @@ extern nwk_routeRecordTabEntry_t g_routeRecTab[];
 extern u8  NWK_COST_THRESHOLD_ONEHOP;
 extern u16 TL_ZB_ASSOCJOIN_FILTER_PANID;
 
-#define	NWK_LEAVEDEVICEADDRESS_LOCATION			40 //sizeof(zb_mscp_data_req_t)
-#define	NWK_GET_LEAVEDEVICEADDR(p)				(*((u16 *)(((u8 *)p)+NWK_LEAVEDEVICEADDRESS_LOCATION)))
-#define	NWK_SET_LEAVEDEVICEADDR(p,addr)			(*((u16 *)(((u8 *)p)+NWK_LEAVEDEVICEADDRESS_LOCATION)) = addr)
-
-#define	NWK_REJOIN_SECURESTATUS_LOCATION		40
-#define	NWK_GET_REJOINSECURESTATUS(p)			(*((u8 *)(((u8 *)p)+NWK_REJOIN_SECURESTATUS_LOCATION)))
-#define	NWK_SET_REJOINSECURESTATUS(p,v)			(*((u8 *)(((u8 *)p)+NWK_REJOIN_SECURESTATUS_LOCATION)) = v)
-
-#define LINK_STATUS_JITTER_MASK 			0x007F
-
-#define ZB_NWK_IS_ADDRESS_BROADCAST(addr) 	( ((addr) & 0xFFF8) == 0xFFF8 )
-
-#define ZB_NWK_COMMAND_STATUS_IS_SECURE(st) \
-  ((st) == ZB_NWK_COMMAND_STATUS_BAD_FRAME_COUNTER || (st) == ZB_NWK_COMMAND_STATUS_BAD_KEY_SEQUENCE_NUMBER)
 
 
 u16 tl_zbNwkStochasticAddrCal(void);
@@ -1307,13 +1184,12 @@ void tl_zbNwkNlmeNwkStatusInd(void *arg, u16 nwkAddr, nwk_statusCode_t status);
 
 void tl_zbNwkInit(u8 coldReset);
 void tl_zbNwkTaskProc(void);
-void tl_nibSave2Flash();
 
 u8 nwkHdrParse(nwk_hdr_t *pNwkHdr, u8 *msdu);
 u8 getNwkHdrSize(nwk_hdr_t *pNwkHdr);
 u8 *nwkHdrBuilder(u8 *buf, nwk_hdr_t *pNwkHdr);
 
-void tl_zbNwkLinkStatusStart(void *arg);
+void tl_zbNwkLinkStatusStart(void);
 void tl_zbNwkLinkStatusStop(void);
 void tl_zbNwkSendLinkStatus(void);
 
@@ -1395,4 +1271,4 @@ extern u8 nwkSecurityEn;
 #define zb_isUnderRejoinMode()		(g_zbNwkCtx.state == NLME_STATE_REJOIN)
 
 
-#endif /* ZB_NWK_H */
+#endif /* NWK_H */

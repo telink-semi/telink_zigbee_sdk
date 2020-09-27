@@ -67,7 +67,6 @@ void light_off(void)
 void light_init(void)
 {
 	led_on(LED_POWER);
-
 }
 
 s32 zclLightTimerCb(void *arg)
@@ -201,7 +200,7 @@ void buttonShortPressed(u8 btNum){
 		if(zb_isDeviceJoinedNwk()){
 			/* toggle local permit Joining */
 			static u8 duration = 0;
-			duration =  duration ? 0 : 0xff;
+			duration = duration ? 0 : 0xff;
 			zb_nlmePermitJoiningRequest(duration);
 		}
 	}

@@ -192,6 +192,12 @@ void zbdemo_bdbCommissioningCb(u8 status, void *arg){
 	}else if(status == BDB_COMMISSION_STA_TCLK_EX_FAILURE){
 
 	}else if(status == BDB_COMMISSION_STA_PARENT_LOST){
+		/*
+		 * Becoming an orphan node now.
+		 * Attempt to join network by invoking rejoin request,
+		 * internal will start an rejoin backoff timer
+		 * based on 'config_rejoin_backoff_time' once rejoin failed.
+		 */
 		//zb_rejoin_mode_set(REJOIN_INSECURITY);
 		zb_rejoinReq(NLME_REJOIN_METHOD_REJOIN, zb_apsChannelMaskGet());
 	}else if(status == BDB_COMMISSION_STA_REJOIN_FAILURE){
@@ -263,11 +269,9 @@ void sampleSwitch_otaProcessMsgHandler(u8 evt, u8 status)
  *
  * @return  None
  */
-void sampleSwitch_leaveCnfHandler(void *p)
+void sampleSwitch_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf)
 {
-	nlmeLeaveConf_t *pCnf = (nlmeLeaveConf_t *)p;
-	//printf("sampleSwitch_leaveCnfHandler, status = %x\n", pCnf->status);
-    if(pCnf->status == SUCCESS ){
+    if(pLeaveCnf->status == SUCCESS){
     	//SYSTEM_RESET();
     }
 }
@@ -281,11 +285,10 @@ void sampleSwitch_leaveCnfHandler(void *p)
  *
  * @return  None
  */
-void sampleSwitch_leaveIndHandler(void *p)
+void sampleSwitch_leaveIndHandler(nlme_leave_ind_t *pLeaveInd)
 {
-	//nlmeLeaveInd_t *pInd = (nlmeLeaveInd_t *)p;
-    //printf("sampleSwitch_leaveIndHandler, rejoin = %d\n", pInd->rejoin);
-    //printfArray(pInd->device_address, 8);
+    //printf("sampleSwitch_leaveIndHandler, rejoin = %d\n", pLeaveInd->rejoin);
+    //printfArray(pLeaveInd->device_address, 8);
 }
 
 

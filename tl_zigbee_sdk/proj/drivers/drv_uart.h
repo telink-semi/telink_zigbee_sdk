@@ -21,12 +21,17 @@
  *******************************************************************************************************/
 #pragma once
 
-#include "../common/types.h"
-#include "../common/compiler.h"
+
+
+enum{
+	UART_STA_IDLE,
+	UART_STA_TX_DOING,
+	UART_STA_TX_DONE,
+	UART_STA_RX_DONE,
+};
 
 typedef void (*uart_irq_callback)(void);
-
-typedef unsigned char (* uart_data_send)(unsigned char *data);
+typedef u8 (*uart_data_send)(u8 *data);
 
 typedef struct{
 	uart_irq_callback recvCb;
@@ -34,12 +39,8 @@ typedef struct{
 	volatile u8 status;
 }drv_uart_t;
 
-enum {
-	UART_STA_IDLE,
-	UART_STA_TX_DOING,
-	UART_STA_TX_DONE,
-	UART_STA_RX_DONE,
-};
+
+void drv_uart_pin_set(u32 txPin, u32 rxPin);
 
 /****************************************************************************************
 *
@@ -56,8 +57,7 @@ enum {
 *
 *	@return	none
 */
-void drv_uart_init(u32 baudRate, u8 *rxBuf, u16 rxBufLen, uart_irq_callback uart_recvCb);
-
+void drv_uart_init(u32 baudRate, u8 *rxBuf, u16 rxBufLen, uart_irq_callback uartRecvCb);
 
 /*
  * uart Rx ISR
@@ -81,7 +81,7 @@ void uart_tx_irq_handler(void);
 *
 *	@return	1: finished, 0: not finished
 */
-u8 uart_tx_done(void);
+bool uart_tx_done(void);
 
 
 u8 uart_tx_start(u8 *data, u32 len);
@@ -94,4 +94,4 @@ u8 uart_tx_start(u8 *data, u32 len);
 *	@param
 *
 */
-void uart_exceptionProcess(void );
+void uart_exceptionProcess(void);

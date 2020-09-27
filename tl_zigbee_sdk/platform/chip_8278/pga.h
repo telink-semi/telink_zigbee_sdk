@@ -27,7 +27,7 @@
 #define		pga_H
 
 #include "bsp.h"
-
+#include "analog.h"
 
 enum{
 	PGA_AIN_C0,

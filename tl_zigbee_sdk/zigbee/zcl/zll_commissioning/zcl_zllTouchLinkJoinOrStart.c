@@ -25,7 +25,6 @@
  * INCLUDES
  */
 #include "../zcl_include.h"
-#include "zcl_touchlink_attr.h"
 #include "zcl_zll_commissioning_internal.h"
 
 _CODE_ZCL_ static void zcl_zllTouchLinNetworkStartRespCmdSend(void *arg);
@@ -317,9 +316,7 @@ _CODE_ZCL_ static void zcl_zllTouchLinkNetworkJoinRealjoin(void){
 	}
 }
 
-_CODE_ZCL_ bool zcl_zllTouchLinkLeaveCnfCb(void *arg){
-	//nlme_leave_cnf_t *pCnf = (nlme_leave_cnf_t *)arg;
-
+_CODE_ZCL_ bool zcl_zllTouchLinkLeaveCnfCb(nlme_leave_cnf_t *pLeaveCnf){
 	if(!g_zllTouchLink.networkStartInfo){
 		return FALSE;
 	}

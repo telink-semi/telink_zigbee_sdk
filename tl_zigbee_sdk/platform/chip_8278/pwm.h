@@ -28,7 +28,7 @@
 
 #include "register.h"
 #include "clock.h"
-#include "clock.h"
+
 
 /**
  * @brief  enum variable, the number of PWM channels supported

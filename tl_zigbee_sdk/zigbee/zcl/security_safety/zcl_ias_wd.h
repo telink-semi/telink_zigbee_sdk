@@ -19,11 +19,10 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#pragma once
+#ifndef ZCL_IAS_WD_H
+#define ZCL_IAS_WD_H
 
-#include "tl_common.h"
-#include "../../zdo/zb_af.h"
-#include "../zcl.h"
+
 
 /*********************************************************************
  * CONSTANTS
@@ -107,3 +106,4 @@ status_t zcl_iasWd_startWarning(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaul
 status_t zcl_iasWd_squawk(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, squawk_t *pSquawk);
 #define zcl_iasWd_squawkCmd(a,b,c,d)	(zcl_iasWd_squawk((a), (b), (c), ZCL_SEQ_NUM, (d)))
 
+#endif	/* ZCL_IAS_WD_H */

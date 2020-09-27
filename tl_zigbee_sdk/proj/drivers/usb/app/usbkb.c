@@ -24,7 +24,6 @@
 #if (MODULE_KEYBOARD_ENABLE)
 #include "../usbstd/usbstd.h"
 #include "../usbdesc.h"
-#include "../usbhw.h"
 #include "usbkb.h"
 
 

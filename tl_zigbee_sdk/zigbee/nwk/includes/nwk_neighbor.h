@@ -19,10 +19,8 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#ifndef ZB_NWK_NEIGHBOR_H
-#define ZB_NWK_NEIGHBOR_H 1
-
-#include "tl_common.h"
+#ifndef NWK_NEIGHBOR_H
+#define NWK_NEIGHBOR_H
 
 
 /**
@@ -47,16 +45,12 @@
 
 #define TL_ZB_ADDITION_NEIGHBOR_TABLE_SIZE  6
 
-#define	TRANSFAILURE_CNT_MAX		3
-
-extern u8 NWK_NEIGHBORTBL_ADD_LQITHRESHOLD;
-
-extern u32 NWK_UNAUTH_CHILD_TABLE_LIFE_TIME;
+#define	TRANSFAILURE_CNT_MAX				3
 
 /***************************************************************************
 * @brief	NWK static path cost
 */
-#define NWK_STATIC_PATH_COST 7
+#define NWK_STATIC_PATH_COST 				7
 
 typedef struct nebTbl_t{
 	struct nebTbl_t *freeNext;
@@ -87,7 +81,7 @@ typedef struct nebTbl_t{
 	u8 transFailure;
 	u8 lqi;
 	u8 outgoingCost;
-}tl_zb_normal_neighbor_entry_t;//size 32 or 28
+}tl_zb_normal_neighbor_entry_t;
 
 typedef struct{
 	extPANId_t 		extPanId;
@@ -118,10 +112,12 @@ typedef struct{
 	u8 additionNeighborNum;
 	u8 normalNeighborNum;
 	u8 childrenNum;
-	bool endDevTimeoutExpiryRun;
+	bool endDevTimeoutExpiryRun;//12
 	tl_zb_normal_neighbor_entry_t  neighborTbl[TL_ZB_NEIGHBOR_TABLE_NUM]; //shall be allocated at the last field in the structure of the tl_zb_neighbor_entry_t
 }tl_zb_neighbor_entry_t _attribute_aligned_(4);
 
+extern u8 NWK_NEIGHBORTBL_ADD_LQITHRESHOLD;
+extern u32 NWK_UNAUTH_CHILD_TABLE_LIFE_TIME;
 
 extern u8 TL_ZB_NEIGHBOR_TABLE_SIZE;
 extern u8 TL_ZB_CHILD_TABLE_SIZE;
@@ -155,15 +151,13 @@ void tl_zbAdditionNeighborReset(void);
 
 u8 tl_zbAdditionNeighborTableUpdate(tl_zb_addition_neighbor_entry_t *entry);
 
-s32 tl_neighborTblSave2Flash(void *arg);
-
 u8 tl_zbNeighborTableNumGet(void);
 
 u8 tl_zbNeighborTableRouterValidNumGet(void);
 
 u8 tl_zbNeighborTableChildEDNumGet(void);
 
-bool tl_nwkChildrenExist(void );
+bool tl_nwkChildrenExist(void);
 u8 tl_zbNeighborTableChildrenNumGet(void);
 
 bool tl_zbNeighborTableAccessAllowed(void);
@@ -171,4 +165,4 @@ bool tl_zbNeighborTableAccessAllowed(void);
 tl_zb_normal_neighbor_entry_t *nwk_neTblGetByExtAddr(addrExt_t extAddr);
 
 
-#endif /* ZB_NWK_NEIGHBOR_H */
+#endif /* NWK_NEIGHBOR_H */

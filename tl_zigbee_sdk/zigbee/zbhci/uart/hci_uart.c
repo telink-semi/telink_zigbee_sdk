@@ -19,11 +19,11 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#include "../zbhci.h"
+#include "../../proj/tl_common.h"
 #include "../../common/includes/zb_task_queue.h"
 
 #if (ZBHCI_EN && ZBHCI_UART)
-
+#include "../zbhci.h"
 
 #define UART_TX_BUF_SIZE    64
 #define UART_RX_BUF_SIZE    64
@@ -132,7 +132,7 @@ void uart_txMsg(u16 u16Type, u16 u16Length, u8 *pu8Data)
 
 
 void hci_uart_init(void){
-	UART_PIN_CFG;
+	UART_PIN_CFG();
 	drv_uart_init(115200, uartRxBuf, UART_RX_BUF_SIZE, uartRcvHandler);
 }
 

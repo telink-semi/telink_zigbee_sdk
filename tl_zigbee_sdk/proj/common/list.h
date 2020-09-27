@@ -27,7 +27,7 @@
 
 #define LIST(name) 		\
 		static void *LIST_CONCAT(name, _list) = NULL; \
-		static list_t name = (list_t)&LIST_CONCAT(name, _list)
+		static list_t name = (list_t)&LIST_CONCAT(name, _list);
 
 
 typedef void ** list_t;

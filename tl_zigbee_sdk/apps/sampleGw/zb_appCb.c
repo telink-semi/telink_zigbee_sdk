@@ -65,10 +65,23 @@ mac_appIndCb_t macAppIndCbList = {NULL, NULL, sampleGw_macAssocReqIndHandler};
 /**********************************************************************
  * LOCAL VARIABLES
  */
+ev_time_event_t *heartTimerEvt = NULL;
+u32 heartInterval = 0;
 
 /**********************************************************************
  * FUNCTIONS
  */
+static s32 heartTimerCb(void *arg){
+	if(heartInterval == 0){
+		heartTimerEvt = NULL;
+		return -1;
+	}
+
+	gpio_toggle(LED_POWER);
+
+	return heartInterval * 1000;
+}
+
 
 /*********************************************************************
  * @fn      zbdemo_bdbInitCb
@@ -93,15 +106,21 @@ void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
 		 *
 		 */
 		if(joinedNetwork){
-
+			heartInterval = 1000;
 		}else{
 #if	(!ZBHCI_EN)
 			bdb_networkFormationStart();
 #endif
+			heartInterval = 500;
 		}
 	}else{
-
+		heartInterval = 200;
 	}
+
+	if(heartTimerEvt){
+		TL_ZB_TIMER_CANCEL(&heartTimerEvt);
+	}
+	heartTimerEvt = TL_ZB_TIMER_SCHEDULE(heartTimerCb, NULL, heartInterval * 1000);
 }
 
 /*********************************************************************
@@ -117,7 +136,7 @@ void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
  */
 void zbdemo_bdbCommissioningCb(u8 status, void *arg){
 	if(status == BDB_COMMISSION_STA_SUCCESS){
-
+		heartInterval = 1000;
 	}else if(status == BDB_COMMISSION_STA_IN_PROGRESS){
 
 	}else if(status == BDB_COMMISSION_STA_NOT_AA_CAPABLE){
@@ -148,6 +167,7 @@ void zbdemo_bdbCommissioningCb(u8 status, void *arg){
 		 */
 	    tl_zbMacChannelSet(DEFAULT_CHANNEL);  //set default channel
 #endif
+	    heartInterval = 1000;
 	}
 }
 
@@ -165,15 +185,13 @@ void zbdemo_bdbIdentifyCb(u8 endpoint, u16 srcAddr, u16 identifyTime){
  * @brief   Handler for ZDO Device Announce message. When this function be called means
  *          there is new node join PAN or a node rejoin the PAN.
  *
- * @param   pInd - parameter of device announce indication
+ * @param   pDevAnnceReq - parameter of device announce indication
  *
  * @return  None
  */
-void sampleGW_devAnnHandler(void *arg)
+void sampleGW_devAnnHandler(zdo_device_annce_req_t *pDevAnnceReq)
 {
 #if ZBHCI_EN
-	zdo_device_annce_req_t *pDevAnnceReq = (zdo_device_annce_req_t *)arg;
-
 	u8 array[64];
 	memset(array, 0, 64);
 
@@ -196,14 +214,13 @@ void sampleGW_devAnnHandler(void *arg)
  *
  * @brief   Handler for ZDO Leave Confirm message.
  *
- * @param   pRsp - parameter of leave confirm
+ * @param   pLeaveCnf - parameter of leave confirm
  *
  * @return  None
  */
-void sampleGW_leaveCnfHandler(void *arg)
+void sampleGW_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf)
 {
-//	nlmeLeaveConf_t *pCnf = (nlmeLeaveConf_t *)arg;
-//	printf("sampleGW_leaveCnfHandler, status = %x\n", pCnf->status);
+//	printf("sampleGW_leaveCnfHandler, status = %x\n", pLeaveCnf->status);
 }
 
 /*********************************************************************
@@ -211,20 +228,19 @@ void sampleGW_leaveCnfHandler(void *arg)
  *
  * @brief   Handler for ZDO leave indication message.
  *
- * @param   pInd - parameter of leave indication
+ * @param   pLeaveInd - parameter of leave indication
  *
  * @return  None
  */
-void sampleGW_leaveIndHandler(void* arg)
+void sampleGW_leaveIndHandler(nlme_leave_ind_t *pLeaveInd)
 {
 #if ZBHCI_EN
-//	nlmeLeaveInd_t *p = (nlmeLeaveInd_t*)arg;
-	//zbhciLeaveIndMsgPush(p);
+	//zbhciLeaveIndMsgPush(pLeaveInd);
 #if 0
 	static u16 leaveNodeCnt = 0;
 	zbhci_nodeLeaveInd_t ind;
 	ind.totalCnt = leaveNodeCnt++;
-	memcpy(ind.macAddr, arg, 8);
+	memcpy(ind.macAddr, pLeaveInd->device_address, 8);
 	zbhciAppNodeLeaveIndPush((void *)&ind);
 #endif
 #endif
@@ -247,7 +263,7 @@ bool sampleGw_macAssocReqIndHandler(void *arg){
 #endif
 
 
-u8 sampleGW_nwkUpdateIndicateHandler(void *arg){
+bool sampleGW_nwkUpdateIndicateHandler(nwkCmd_nwkUpdate_t *pNwkUpdateCmd){
 	return FAILURE;
 }
 

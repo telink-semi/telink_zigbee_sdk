@@ -24,7 +24,7 @@
 /**********************************************************************
  * INCLUDES
  */
-#include "../include/zb_common.h"
+#include "../common/includes/zb_common.h"
 
 #if ZBHCI_EN
 #include "zbhci.h"
@@ -104,9 +104,11 @@ zbhciTx_e zbhciTx(u16 u16Type, u16 u16Length, u8 *pu8Data){
 
 void zbhciInit(void){
 #if ZBHCI_USB_PRINT || ZBHCI_USB_CDC || ZBHCI_USB_HID
-	usb_dp_pullup_en(1);
+	//HW USB enable
+	HW_USB_CFG();
 #if ZBHCI_USB_PRINT
 	usb_print_init();
+	return;
 #elif ZBHCI_USB_CDC
 	usb_cdc_init();
 #elif ZBHCI_USB_HID

@@ -19,11 +19,10 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#pragma once
+#ifndef ZCL_WINDOW_COVERING_H
+#define ZCL_WINDOW_COVERING_H
 
-#include "tl_common.h"
-#include "../../zdo/zb_af.h"
-#include "../zcl.h"
+
 
 /*********************************************************************
  * CONSTANTS
@@ -139,3 +138,5 @@ status_t zcl_windowCovering_downClose(u8 srcEp, epInfo_t *pDstEpInfo, u8 disable
 
 status_t zcl_windowCovering_stop(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo);
 #define zcl_windowCovering_stopCmdSend(a,b,c)	(zcl_windowCovering_stop((a), (b), (c), ZCL_SEQ_NUM))
+
+#endif	/* ZCL_WINDOW_COVERING_H */

@@ -24,7 +24,8 @@
 #ifndef     uart_H
 #define     uart_H
 
-
+#include "bit.h"
+#include "register.h"
 
 
 #define  FLD_UART_BW_MUL1  0        // timeout is bit_width*1

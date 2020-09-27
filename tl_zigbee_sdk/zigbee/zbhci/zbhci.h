@@ -311,7 +311,7 @@ typedef struct{
 	u8	srcEp;
 	u8	dstEp;
 	u16 clusterId;
-	u8  dataLen;
+	u16 dataLen;
 	u8  payload[];
 }zbhci_afDataSend_req_t;
 
@@ -320,7 +320,7 @@ typedef struct{
 	u8	srcEp;
 	u8	dstEp;
 	u16 clusterId;
-	u8  dataLen;
+	u16 dataLen;
 	u8  payload[];
 }zbhci_afDataSend_rsp_t;
 

@@ -20,12 +20,7 @@
  *
  *******************************************************************************************************/
 #ifndef NWK_CTX_H
-#define NWK_CTX_H 1
-
-#include "tl_common.h"
-#include "nwk_neighbor.h"
-#include "nwk.h"
-
+#define NWK_CTX_H
 
 
 /**
@@ -38,7 +33,6 @@ typedef enum
     STARTUP_CONTROL_REJOIN_NETWORK,
     STARTUP_CONTROL_START_FROM_SCRATCH
 }StartupControl_attr_t;
-
 
 /**
    Network layer running state
@@ -67,20 +61,6 @@ typedef enum
 	NLME_SEND_DEV_ANN,
 	NLME_LEAVING,
 }user_state_t;
-
-typedef struct
-{
-	u8   used;
-	u8   buf_ref;
-	u8   tsn;
-	u16  src_addr;
-}leave_pendingList_t;
-
-typedef struct
-{
-	u8 	addr_ref;
-	u8 	rejoin;
-}leave_ind_prnt_t;
 
 typedef struct
 {
@@ -156,8 +136,7 @@ typedef struct
 	srcRoute_repair_t 	srcRouteRepair;
 }nwk_ctx_t;
 
-
-nwk_ctx_t g_zbNwkCtx;
+extern nwk_ctx_t g_zbNwkCtx;
 
 
 #define ZB_SET_DISCOVER_ROUTE(v)		(g_zbNwkCtx.discoverRoute = v)
@@ -166,4 +145,4 @@ nwk_ctx_t g_zbNwkCtx;
 #define ZB_SET_USER_STATE(v)			(g_zbNwkCtx.user_state = v)
 #define ZB_GET_USER_STATE				(g_zbNwkCtx.user_state)
 
-#endif /* ZB_NWK_GLOBALS_H */
+#endif /* NWK_CTX_H */

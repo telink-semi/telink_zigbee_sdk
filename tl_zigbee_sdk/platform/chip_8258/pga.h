@@ -22,7 +22,9 @@
 #ifndef		pga_H
 #define		pga_H
 
+#include "bit.h"
 #include "bsp.h"
+#include "analog.h"
 
 enum PREAMPValue{
 	DB26,
@@ -43,7 +45,7 @@ typedef enum{
 	PGA_RIGHT_CHN = BIT(7)
 }PGA_CHN_Typdef;
 
-#define		SET_PGA_CHN_ON(v)				do{\
+#define	SET_PGA_CHN_ON(v)					do{\
 												unsigned char val=ReadAnalogReg(0x80+124);\
 												val &= (~(v));\
 												WriteAnalogReg(0x80+124,val);\
@@ -55,35 +57,35 @@ enum{
 	PGA_AIN_C3,
 };
 
-#define		SET_PGA_LEFT_P_AIN(v)			do{\
+#define	SET_PGA_LEFT_P_AIN(v)				do{\
 												unsigned char val=ReadAnalogReg(0x80+125);\
 												val &= 0xfc;\
 												val |= (((unsigned char)(v))&0x03);\
 												WriteAnalogReg(0x80+125,val);\
 											}while(0)
 
-#define		SET_PGA_LEFT_N_AIN(v)			do{\
+#define	SET_PGA_LEFT_N_AIN(v)				do{\
 												unsigned char val=ReadAnalogReg(0x80+125);\
 												val &= 0xf3;\
 												val |= (((unsigned char)(v)<<2)&0x0c);\
 												WriteAnalogReg(0x80+125,val);\
 											}while(0)
 
-#define		SET_PGA_RIGHT_P_AIN(v)			do{\
+#define	SET_PGA_RIGHT_P_AIN(v)				do{\
 												unsigned char val=ReadAnalogReg(0x80+125);\
 												val &= 0xcf;\
 												val |= (((unsigned char)(v)<<4)&0x30);\
 												WriteAnalogReg(0x80+125,val);\
 											}while(0)
 
-#define		SET_PGA_RIGHT_N_AIN(v)			do{\
+#define	SET_PGA_RIGHT_N_AIN(v)				do{\
 												unsigned char val=ReadAnalogReg(0x80+125);\
 												val &= 0x3f;\
 												val |= (((unsigned char)(v)<<6)&0xc0);\
 												WriteAnalogReg(0x80+125,val);\
 											}while(0)
 
-#define		SET_PGA_GAIN_FIX_VALUE(v)		do{\
+#define	SET_PGA_GAIN_FIX_VALUE(v)			do{\
 												unsigned char val=0;\
 												val |= (((unsigned char)(v))&0x7f);\
 												write_reg8(0xb63,val|0x80);\
@@ -93,7 +95,7 @@ enum{
 	PGA_POST_GAIN		= BIT_RNG(0,5),
 	PGA_PRE_GAIN_26DB	= BIT(6)
 };
-#define		REG_PGA_GAIN				READ_REG8(0xb63)
+#define	REG_PGA_GAIN					READ_REG8(0xb63)
 
 
 /**************************************************************

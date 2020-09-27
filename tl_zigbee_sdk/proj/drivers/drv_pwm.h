@@ -21,22 +21,33 @@
  *******************************************************************************************************/
 #pragma once
 
-#include "../common/types.h"
-#include "../common/compiler.h"
+#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+	#define PWM_CLOCK						CLOCK_SYS_CLOCK_HZ
+#elif defined(MCU_CORE_B91)
+	#define PWM_CLOCK						(PCLK_FREQ * 1000 * 1000)
+#endif
+
+
+#if defined(MCU_CORE_826x)
+	#define drv_pwm_start(pwmId)		pwm_Start(pwmId)
+	#define drv_pwm_stop(pwmId)			pwm_Stop(pwmId)
+	#define drv_pwm_invert(pwmId)		pwm_Invert(pwmId)
+	#define drv_pwm_n_invert(pwmId)		pwm_INVInvert(pwmId)
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+	#define drv_pwm_start(pwmId)		pwm_start(pwmId)
+	#define drv_pwm_stop(pwmId)			pwm_stop(pwmId)
+	#define drv_pwm_invert(pwmId)		pwm_revert(pwmId)
+	#define drv_pwm_n_invert(pwmId)		pwm_n_revert(pwmId)
+#elif defined(MCU_CORE_B91)
+	#define drv_pwm_start(pwmId)		pwm_start(pwmId)
+	#define drv_pwm_stop(pwmId)			pwm_stop(pwmId)
+	#define drv_pwm_invert(pwmId)		pwm_invert_en(pwmId)
+	#define drv_pwm_n_invert(pwmId)		pwm_n_invert_en(pwmId)
+#endif
 
 void drv_pwm_init(void);
 
-void drv_pwm_cfg(u32 pwmId, unsigned short cmp_tick, unsigned short cycle_tick);
+void drv_pwm_cfg(u8 pwmId, u16 cmp_tick, u16 cycle_tick);
 
-#if defined (MCU_CORE_826x) || defined (MCU_CORE_HAWK)
-#define drv_pwm_start(pwmId)		pwm_Start(pwmId)
-#define drv_pwm_stop(pwmId)			pwm_Stop(pwmId)
-#define drv_pwm_invert(pwmId)		pwm_Invert(pwmId)
-#define drv_pwm_n_invert(pwmId)		pwm_INVInvert(pwmId)
-#else	//8258/8278
-#define drv_pwm_start(pwmId)		pwm_start(pwmId)
-#define drv_pwm_stop(pwmId)			pwm_stop(pwmId)
-#define drv_pwm_invert(pwmId)		pwm_revert(pwmId)
-#define drv_pwm_n_invert(pwmId)		pwm_n_revert(pwmId)
-#endif
+
 

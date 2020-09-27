@@ -19,11 +19,10 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#pragma once
+#ifndef ZCL_COMMISSIONING_H
+#define ZCL_COMMISSIONING_H
 
-#include "tl_common.h"
-#include "../../zdo/zb_af.h"
-#include "../zcl.h"
+
 
 /** @addtogroup  TELINK_ZIGBEE_STACK TELINK ZigBee Stack
  *  @{
@@ -209,3 +208,4 @@ status_t zcl_commissioning_register(u8 endpoint, u8 attrNum, const zclAttrInfo_t
 void zcl_initialize_startup_attributes();
 
 
+#endif	/* ZCL_COMMISSIONING_H */

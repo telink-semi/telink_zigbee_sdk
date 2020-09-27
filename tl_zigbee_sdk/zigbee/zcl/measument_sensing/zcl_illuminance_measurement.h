@@ -19,11 +19,10 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#pragma once
+#ifndef ZCL_ILLUMINANCE_MEASUREMENT_H
+#define ZCL_ILLUMINANCE_MEASUREMENT_H
 
-#include "tl_common.h"
-#include "../../zdo/zb_af.h"
-#include "../zcl.h"
+
 
 /*********************************************************************
  * CONSTANTS
@@ -41,3 +40,6 @@
 
 
 status_t zcl_illuminanceMeasure_register(u8 endpoint, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
+
+
+#endif	/* ZCL_ILLUMINANCE_MEASUREMENT_H */

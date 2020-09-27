@@ -19,11 +19,10 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#pragma once
+#ifndef ZCL_GREEN_POWER_H
+#define ZCL_GREEN_POWER_H
 
-#include "tl_common.h"
-#include "../../zdo/zb_af.h"
-#include "../zcl.h"
+
 
 
 #define DEFAULT_TC_LINK_KEY             { 0x5a, 0x69, 0x67, 0x42, 0x65, 0x65, 0x41, 0x6c,\
@@ -828,3 +827,5 @@ status_t zcl_gp_proxyTableReqCmd(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefau
 
 status_t zcl_gp_sinkCommissioningModeCmd(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, zcl_gp_sinkCommissioningModeCmd_t *pCmd);
 #define zcl_gp_sinkCommissioningModeCmdSend(a,b,c,d)	(zcl_gp_sinkCommissioningModeCmd((a), (b), (c), ZCL_SEQ_NUM, (d)))
+
+#endif	/* ZCL_GREEN_POWER_H */

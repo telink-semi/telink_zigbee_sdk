@@ -19,15 +19,12 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#ifndef ZB_NWK_ADDR_MAP_H
-#define ZB_NWK_ADDR_MAP_H 1
-
-#include "tl_common.h"
-#include "../../include/tl_config.h"
-#include "nwk.h"
+#ifndef NWK_ADDR_MAP_H
+#define NWK_ADDR_MAP_H
 
 
-#define ZB_UNKNOWN_SHORT_ADDR (u16)(-1)
+
+#define ZB_UNKNOWN_SHORT_ADDR 			(u16)(-1)
 
 #ifndef TL_ZB_NWK_ADDR_MAP_NUM
 #if (ZB_ROUTER_ROLE)
@@ -57,17 +54,15 @@ typedef struct{
 	tl_zb_addr_map_entry_t addrMap[TL_ZB_NWK_ADDR_MAP_NUM]; //shall be allocated at the last field in the structure of the tl_zb_addr_map_t
 }tl_zb_addr_map_t;
 
-
 typedef struct{
-	u16 		shortAddr;
+	u16 shortAddr;
 	addrExt_t 	extAddr;
-	u8			depth;
-	u8 			rxOnWhileIdle : 1;
-	u8 			deviceType : 3;
-	u8 			relationship : 3;
-	u8 			used : 1;
+	u8	depth;
+	u8 	rxOnWhileIdle:1;
+	u8 	deviceType:3;
+	u8 	relationship:3;
+	u8 	used:1;
 }zb_addrForNeighbor_t;
-
 
 typedef struct{
 	u16			mask_dstTable;
@@ -78,14 +73,14 @@ extern u16 TL_ZB_NWK_ADDR_MAP_SIZE;
 extern tl_zb_addr_map_t g_nwkAddrMap;
 
 
-#define zb_addressTableNumGet()		g_nwkAddrMap.validNum
+#define zb_addressTableNumGet()			(g_nwkAddrMap.validNum)
 
 
-zb_nwk_status_t tl_addrByShort(u16 shortAddr, bool create, bool lock, u16 *idx);
+
 
 
 u8 zb_address_ieee_by_short(u16 short_addr, addrExt_t ieee_address) ;
-s32 tl_addrMapSave2Flash(void *arg);
+
 void tl_addrMappingForBind(u8 bind, u16 idx);
 
 addrExt_t *tl_zbExtAddrPtrByShortAddr(u16 shortAddr);
@@ -107,4 +102,4 @@ s32 nwk_bindAddrInfoUpdate(zb_addrForBind_t *pAddrNv);
 s32 nwk_bindAddrInfoDelete(zb_addrForBind_t *pAddrNv);
 
 
-#endif /* ZB_NWK_NEIGHBOR_H */
+#endif /* NWK_ADDR_MAP_H */

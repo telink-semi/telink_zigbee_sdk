@@ -23,7 +23,7 @@
 #ifndef EMI_H_
 #define EMI_H_
 
-#include "driver_8258.h"
+#include "rf_drv.h"
 
 /**
  * @brief   This function serves to set singletone power and channel.

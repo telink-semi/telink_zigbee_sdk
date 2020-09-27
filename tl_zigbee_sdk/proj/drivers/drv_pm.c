@@ -19,25 +19,36 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#include "drv_pm.h"
-#include "platform_includes.h"
+
+#include "../tl_common.h"
+
 #include "zb_common.h"
 
 
-void platform_wakeup_init(void){
-	cpu_wakeup_init();
-}
 
-void platform_wakeup_pad_cfg(u32 pin, platform_wakeup_level_e pol, int en){
-#if defined (MCU_CORE_826x) || defined (MCU_CORE_HAWK)
-	PM_PadSet(pin, pol, en);
-#else
-	cpu_set_gpio_wakeup(pin, pol, en);
+void platform_wakeup_init(void)
+{
+#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+	cpu_wakeup_init();
+#elif defined(MCU_CORE_B91)
+	sys_init(LDO_1P4_LDO_1P8);
 #endif
 }
 
-void platform_lowpower_enter(platform_mode_e mode, platform_wakeup_e src, u32 cycle_ms){
-#if defined (MCU_CORE_826x) || defined (MCU_CORE_HAWK)
+void platform_wakeup_pad_cfg(u32 pin, platform_wakeup_level_e pol, int en)
+{
+#if defined(MCU_CORE_826x)
+	PM_PadSet(pin, pol, en);
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+	cpu_set_gpio_wakeup(pin, pol, en);
+#elif defined(MCU_CORE_B91)
+	pm_set_gpio_wakeup(pin, pol, en);
+#endif
+}
+
+void platform_lowpower_enter(platform_mode_e mode, platform_wakeup_e src, u32 cycle_ms)
+{
+#if defined(MCU_CORE_826x)
 	u8 sleep_mode = 0;
 	if(mode == PLATFORM_MODE_DEEPSLEEP){
 		sleep_mode = 1;
@@ -51,7 +62,7 @@ void platform_lowpower_enter(platform_mode_e mode, platform_wakeup_e src, u32 cy
 		srcType |= WAKEUP_SRC_TIMER;
 	}
 	PM_LowPwrEnter(sleep_mode, srcType, clock_time() + cycle_ms*1000*CLOCK_SYS_CLOCK_1US);
-#else		//8258/8278
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	SleepMode_TypeDef sleep_mode = SUSPEND_MODE;
 	if(mode == PLATFORM_MODE_SUSPEND){
 		sleep_mode = SUSPEND_MODE;
@@ -79,12 +90,29 @@ void platform_lowpower_enter(platform_mode_e mode, platform_wakeup_e src, u32 cy
 	u8 len;
 	tl_zbMacAttrGet(MAC_PHY_ATTR_CURRENT_CHANNEL, &value, &len);
 	ZB_TRANSCEIVER_SET_CHANNEL(value);
+#elif defined(MCU_CORE_B91)
+	pm_sleep_mode_e sleep_mode = SUSPEND_MODE;
+	if(mode == PLATFORM_MODE_SUSPEND){
+		sleep_mode = SUSPEND_MODE;
+	}else if(mode == PLATFORM_MODE_DEEP_WITH_RETENTION){
+		sleep_mode = DEEPSLEEP_MODE_RET_SRAM_LOW64K;
+	}
+
+	pm_sleep_wakeup_src_e srcType = 0;
+	if(src & PLATFORM_WAKEUP_PAD){
+		srcType |= PM_WAKEUP_PAD;
+	}
+	if(src & PLATFORM_WAKEUP_TIMER){
+		srcType |= PM_WAKEUP_TIMER;
+	}
+
+	pm_sleep_wakeup(sleep_mode, srcType, PM_TICK_STIMER_16M, clock_time() + cycle_ms*1000*CLOCK_SYS_CLOCK_1US);
 #endif
 }
 
 void platform_longLowpower_enter(platform_mode_e mode, platform_wakeup_e src, u32 durationMs)
 {
-#if defined (MCU_CORE_826x) || defined (MCU_CORE_HAWK)
+#if defined(MCU_CORE_826x)
 	u8 sleep_mode = 0;
 	if(mode == PLATFORM_MODE_DEEPSLEEP){
 		sleep_mode = 1;
@@ -98,7 +126,7 @@ void platform_longLowpower_enter(platform_mode_e mode, platform_wakeup_e src, u3
 		srcType |= WAKEUP_SRC_TIMER;
 	}
 	PM_LowPwrEnter2(sleep_mode, srcType, durationMs * 1000);
-#else
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	SleepMode_TypeDef sleep_mode = SUSPEND_MODE;
 	if(mode == PLATFORM_MODE_SUSPEND){
 		sleep_mode = SUSPEND_MODE;
@@ -123,24 +151,47 @@ void platform_longLowpower_enter(platform_mode_e mode, platform_wakeup_e src, u3
 	u8 len;
 	tl_zbMacAttrGet(MAC_PHY_ATTR_CURRENT_CHANNEL, &value, &len);
 	ZB_TRANSCEIVER_SET_CHANNEL(value);
+#elif defined(MCU_CORE_B91)
+	//not support currently
+	while(1);
 #endif
 }
 
 
-void deep_sleep_flag_set(unsigned int a){
+void deep_sleep_flag_set(u32 a)
+{
+#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	analog_write(REG_DEEP_FLAG, DATA_STORE_FLAG);
 
 	analog_write(REG_FRAMECOUNT,   (a));
 	analog_write(REG_FRAMECOUNT+1, (a)>>8);
 	analog_write(REG_FRAMECOUNT+2, (a)>>16);
 	analog_write(REG_FRAMECOUNT+3, (a)>>24);
+#elif defined(MCU_CORE_B91)
+	analog_write_reg8(REG_DEEP_FLAG, DATA_STORE_FLAG);
+
+	analog_write_reg8(REG_FRAMECOUNT,   (a));
+	analog_write_reg8(REG_FRAMECOUNT+1, (a)>>8);
+	analog_write_reg8(REG_FRAMECOUNT+2, (a)>>16);
+	analog_write_reg8(REG_FRAMECOUNT+3, (a)>>24);
+#endif
 }
 
-u8 deep_sleep_flag_get(void){
+u8 deep_sleep_flag_get(void)
+{
+#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	return ((analog_read(REG_DEEP_FLAG) == DATA_STORE_FLAG) && (analog_read(REG_DEEP_BACK_FLAG) == DATA_STORE_FLAG));
+#elif defined(MCU_CORE_B91)
+	return ((analog_read_reg8(REG_DEEP_FLAG) == DATA_STORE_FLAG) && (analog_read_reg8(REG_DEEP_BACK_FLAG) == DATA_STORE_FLAG));
+#endif
 }
 
-u32 deep_sleep_framecount_get(void){
+u32 deep_sleep_framecount_get(void)
+{
+#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	return ((analog_read(REG_FRAMECOUNT+3) << 24) | (analog_read(REG_FRAMECOUNT+2) << 16) | (analog_read(REG_FRAMECOUNT+1) << 8) | analog_read(REG_FRAMECOUNT) );
+#elif defined(MCU_CORE_B91)
+	return ((analog_read_reg8(REG_FRAMECOUNT+3) << 24) | (analog_read_reg8(REG_FRAMECOUNT+2) << 16) | (analog_read_reg8(REG_FRAMECOUNT+1) << 8) | analog_read_reg8(REG_FRAMECOUNT) );
+#endif
 }
 

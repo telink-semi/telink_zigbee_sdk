@@ -19,14 +19,22 @@
  *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#include "platform_includes.h"
-#include "../common/utlist.h"
-#include "ev.h"
-#include "zb_task_queue.h"
+
+#include "../tl_common.h"
+
 
 #define ZB_TIMER_EV_DBG_EN  		0
 
 #define EV_TIMER_SAFE_MARGIN(v)		(EV_TIMER_SAFE_MARGIN_US*v)
+
+typedef struct ev_loop_ctrl_t{
+    ev_poll_t       poll[EV_POLL_MAX];
+	/*
+	Time events is sorted, use single linked list
+	*/
+    ev_time_event_t	*timer_head;
+    ev_time_event_t *timer_nearest;        // find the nearest fired timer,
+}ev_loop_ctrl_t;
 
 static ev_loop_ctrl_t ev_loop, *loop = &ev_loop;
 sys_exception_cb_t g_sysExceptCallbak = NULL;
@@ -67,7 +75,6 @@ static void ev_poll(void){
         }
     }
 }
-
 
 static u32 inline ev_cal_timer_distant(u32 t, u32 now){
     if((u32)(now - t) < EV_TIMER_SAFE_MARGIN(CLOCK_SYS_CLOCK_1US)){
@@ -136,7 +143,7 @@ bool ev_timer_exist(const ev_time_event_t *e){
 }
 
 static void ev_start_timer(ev_time_event_t *e){
-    u8 r = irq_disable();
+    u32 r = disable_irq();
     
     u32 now = clock_time();
 
@@ -162,7 +169,7 @@ static void ev_start_timer(ev_time_event_t *e){
         loop->timer_nearest = e;
     }
 
-    irq_restore(r);
+    restore_irq(r);
 	loop->timer_nearest = ev_search_nearest_timer();//need to search nearest timer in case of timer event stuck
 }
 
@@ -180,14 +187,14 @@ void ev_unon_timer(ev_time_event_t *e){
 		ZB_EXCEPTION_POST(SYS_EXCEPTTION_COMMON_TIMER_EVEVT);
 		return;
 	}
-	u8 r = irq_disable();
+	u32 r = disable_irq();
 
 	ev_timerTaskQCheck(e);
 
     LIST_DELETE(loop->timer_head, e);
     loop->timer_nearest = ev_search_nearest_timer();
 
-	irq_restore(r);
+    restore_irq(r);
 }
 
 /* Process time events */
@@ -229,9 +236,6 @@ static void ev_process_timer(void){
     loop->timer_nearest = ev_search_nearest_timer();
 }
 
-
-
-
 volatile u32 T_DBG_zbTimerTaskPostCb = 0;
 volatile u32 T_DBG_zbTimerTaskPostArg = 0;
 ev_time_event_t *ev_timerTaskPost(ev_timer_callback_t func, void *arg, u32 t_us){
@@ -241,7 +245,7 @@ ev_time_event_t *ev_timerTaskPost(ev_timer_callback_t func, void *arg, u32 t_us)
 		return te;
 	}
 
-	u8 r = irq_disable();
+	u32 r = disable_irq();
 
 	if(g_timerEventPool.used_num < TIMER_EVENT_SIZE){
 		for(s32 i = 0; i < TIMER_EVENT_SIZE; i++){
@@ -260,7 +264,7 @@ ev_time_event_t *ev_timerTaskPost(ev_timer_callback_t func, void *arg, u32 t_us)
 		te->resv = 0x5a;
 		ev_on_timer(te, t_us);
 
-		irq_restore(r);
+		restore_irq(r);
 		return te;
 	}
 
@@ -268,7 +272,7 @@ ev_time_event_t *ev_timerTaskPost(ev_timer_callback_t func, void *arg, u32 t_us)
 	T_DBG_zbTimerTaskPostArg = (u32)arg;
 	ZB_EXCEPTION_POST(SYS_EXCEPTTION_ZB_TIMER_TASK);
 
-	irq_restore(r);
+	restore_irq(r);
 	return te;
 }
 
@@ -361,6 +365,7 @@ void ev_main(void){
 	//sys_stackStatusCheck();
 }
 
+#if 0
 volatile int T_timer_fix_cnt = 0;
 void ev_synchronous_timer(void){
 	u32 now = clock_time();
@@ -375,4 +380,4 @@ void ev_synchronous_timer(void){
 	}
 	reg_system_tick = 0;
 }
-
+#endif

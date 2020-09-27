@@ -19,11 +19,11 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#ifndef _FACTORY_RESET_H_
-#define _FACTORY_RESET_H_
+#ifndef FACTORY_RESET_H
+#define FACTORY_RESET_H
 
 u8 factory_reset_handle(void);
 u8 factory_reset_cnt_check(void);
 void factory_reset(void);
 
-#endif	/* _FACTORY_RESET_H_ */
+#endif	/* FACTORY_RESET_H */

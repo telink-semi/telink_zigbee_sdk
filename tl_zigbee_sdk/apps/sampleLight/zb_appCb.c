@@ -63,14 +63,26 @@ ota_callBack_t sampleLight_otaCb =
 };
 #endif
 
-
 /**********************************************************************
  * LOCAL VARIABLES
  */
+ev_time_event_t *heartTimerEvt = NULL;
+u32 heartInterval = 0;
 
 /**********************************************************************
  * FUNCTIONS
  */
+static s32 heartTimerCb(void *arg){
+	if(heartInterval == 0){
+		heartTimerEvt = NULL;
+		return -1;
+	}
+
+	gpio_toggle(LED_POWER);
+
+	return heartInterval * 1000;
+}
+
 s32 sampleLight_bdbNetworkSteerStart(void *arg){
 	bdb_networkSteerStart();
 
@@ -102,10 +114,14 @@ void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
 		 * start bdb commissioning
 		 * */
 		if(joinedNetwork){
+			heartInterval = 1000;
+
 #ifdef ZCL_OTA
 			ota_queryStart(30);
 #endif
 		}else{
+			heartInterval = 500;
+
 #if	(!ZBHCI_EN)
 			u16 jitter=0;
 			do{
@@ -116,8 +132,13 @@ void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
 #endif
 		}
 	}else{
-
+		heartInterval = 200;
 	}
+
+	if(heartTimerEvt){
+		TL_ZB_TIMER_CANCEL(&heartTimerEvt);
+	}
+	heartTimerEvt = TL_ZB_TIMER_SCHEDULE(heartTimerCb, NULL, heartInterval * 1000);
 }
 
 /*********************************************************************
@@ -133,6 +154,8 @@ void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
  */
 void zbdemo_bdbCommissioningCb(u8 status, void *arg){
 	if(status == BDB_COMMISSION_STA_SUCCESS){
+		heartInterval = 1000;
+
 #if FIND_AND_BIND_SUPPORT
 	    if(!gLightCtx.bdbFindBindFlg){
 	    	gLightCtx.bdbFindBindFlg = TRUE;
@@ -239,11 +262,9 @@ s32 sampleLight_softReset(void *arg){
  *
  * @return  None
  */
-void sampleLight_leaveCnfHandler(void *p)
+void sampleLight_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf)
 {
-	nlme_leave_cnf_t *pCnf = (nlme_leave_cnf_t *)p;
-
-    if(pCnf->status == SUCCESS){
+    if(pLeaveCnf->status == SUCCESS){
     	light_blink_start(3, 200, 200);
 
     	//waiting blink over
@@ -260,13 +281,12 @@ void sampleLight_leaveCnfHandler(void *p)
  *
  * @return  None
  */
-void sampleLight_leaveIndHandler(void *p)
+void sampleLight_leaveIndHandler(nlme_leave_ind_t *pLeaveInd)
 {
-//	nlmeLeaveInd_t *pInd = (nlmeLeaveInd_t *)p;
 
 }
 
-u8 sampleLight_nwkUpdateIndicateHandler(void *arg){
+u8 sampleLight_nwkUpdateIndicateHandler(nwkCmd_nwkUpdate_t *pNwkUpdate){
 	return FAILURE;
 }
 

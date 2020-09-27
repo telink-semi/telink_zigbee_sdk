@@ -20,10 +20,10 @@
  *
  *******************************************************************************************************/
 #include "tl_common.h"
-#include "zb_task_queue.h"
+#include "zb_common.h"
+#include "pm_interface.h"
 
 #if (PM_ENABLE)
-#include "pm_interface.h"
 
 void pm_wakeupPinConfig(pm_pinCfg_t *pmCfg, int pinNum){
 	pm_pinCfg_t *p = pmCfg;
@@ -48,36 +48,12 @@ u8 pm_wakeupValid(pm_pinCfg_t *pmCfg, int pinNum){
 	return 1;
 }
 
-#if 1
-extern u32 ss_outgoingFrameCntGet(void);
-//extern app_framework_conf_t zdo_conf_attributes;
-void sys_enterLowPower(u8 mode){
-	u32 interval = 0;
-	if(!tl_stackBusy() && zb_isTaskDone()
-        #ifdef MCU_CORE_HAWK
-        &&gpio_read(GPIOA_GP1)&&gpio_read(GPIOA_GP2)
-        #endif
-        ){
-		u8 r = irq_disable();
-		if(mode == PLATFORM_MODE_SUSPEND || !ev_timerTaskIdle()){
-			//10ms wakeup
-			interval = 50;  //unit: ms 50*CLOCK_SYS_CLOCK_1US*1000;
-			platform_lowpower_enter(PLATFORM_MODE_SUSPEND, PLATFORM_WAKEUP_TIMER, interval);
-		}else if(mode == PLATFORM_MODE_DEEPSLEEP){
-			deep_sleep_flag_set(ss_outgoingFrameCntGet());
-			platform_lowpower_enter(PLATFORM_MODE_DEEPSLEEP, PLATFORM_WAKEUP_PAD, 0);
-		}
-		irq_restore(r);
-	}
-}
-#endif
-
 void pm_lowPowerEnter(platform_mode_e mode, int wakeUpSrc, u32 ms){
 	/* If ms is 0, we use default value 120s for sleep mode. */
 	u32 interval = (ms == 0) ? (120 * 1000) : ms;
 
 	if(!tl_stackBusy() && zb_isTaskDone()){
-		u8 r = irq_disable();
+		u32 r = disable_irq();
 
 		interval = (ev_nearestInterval() <= (interval * CLOCK_SYS_CLOCK_1US * 1000)) ? ev_nearestInterval() / (CLOCK_SYS_CLOCK_1US * 1000)
 																					 : interval;
@@ -91,7 +67,7 @@ void pm_lowPowerEnter(platform_mode_e mode, int wakeUpSrc, u32 ms){
 			platform_lowpower_enter(mode, wakeUpSrc, interval);
 		}
 
-		irq_restore(r);
+		restore_irq(r);
 	}
 }
 
@@ -102,14 +78,14 @@ void pm_suspendEnter(int wakeUpSrc, u32 ms){
 void pm_deepSleepEnter(int wakeUpSrc, u32 ms){
 #if defined(MCU_CORE_826x)
 	pm_lowPowerEnter(PLATFORM_MODE_DEEPSLEEP, wakeUpSrc, ms);
-#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91)
 	pm_lowPowerEnter(PLATFORM_MODE_DEEP_WITH_RETENTION, wakeUpSrc, ms);
 #endif
 }
 
 u8 pm_interleaveSleepEnter(int wakeUpSrc, u32 ms){
 	if(!tl_stackBusy() && zb_isTaskDone()){
-		u8 r = irq_disable();
+		u32 r = disable_irq();
 
 		u32 interval = ev_nearestInterval();
 
@@ -126,7 +102,7 @@ u8 pm_interleaveSleepEnter(int wakeUpSrc, u32 ms){
 		}else{
 #if defined(MCU_CORE_826x)
 			platform_mode_e mode = PLATFORM_MODE_SUSPEND;
-#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91)
 			platform_mode_e mode = PLATFORM_MODE_DEEP_WITH_RETENTION;
 
 			/* Set sleep flag */
@@ -138,7 +114,7 @@ u8 pm_interleaveSleepEnter(int wakeUpSrc, u32 ms){
 			platform_lowpower_enter(mode, wakeUpSrc, interval);
 		}
 
-		irq_restore(r);
+		restore_irq(r);
 	}else{
 		return FAILURE;
 	}

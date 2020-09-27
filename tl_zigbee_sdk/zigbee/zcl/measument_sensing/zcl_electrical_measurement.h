@@ -19,11 +19,10 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#pragma once
+#ifndef ZCL_ELECTRICAL_MEASUREMENT_H
+#define ZCL_ELECTRICAL_MEASUREMENT_H
 
-#include "tl_common.h"
-#include "../../zdo/zb_af.h"
-#include "../zcl.h"
+
 
 /*********************************************************************
  * CONSTANTS
@@ -269,3 +268,4 @@ status_t zcl_electricalMeasure_getProfileInfoRsp(u8 srcEp, epInfo_t *pDstEpInfo,
 status_t zcl_electricalMeasure_getMeasurementProfileRsp(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, zcl_electricalMeasure_getMeasurementProfileRspCmd_t *pRsp);
 #define zcl_electricalMeasure_getMeasurementProfileRspCmd(a,b,c,d)	(zcl_electricalMeasure_getMeasurementProfileRsp((a), (b), (c), ZCL_SEQ_NUM, (d)))
 
+#endif	/* ZCL_ELECTRICAL_MEASUREMENT_H */

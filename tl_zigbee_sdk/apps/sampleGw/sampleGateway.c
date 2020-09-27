@@ -61,24 +61,23 @@ extern mac_appIndCb_t macAppIndCbList;
 #ifdef ZCL_OTA
 //running code firmware information
 ota_preamble_t sampleGW_otaInfo = {
-		.fileVer = CURRENT_FILE_VERSION,
-		.imageType = IMAGE_TYPE,
-		.manufacturerCode = TELINK_MANUFACTURER_CODE,
+	.fileVer 			= FILE_VERSION,
+	.imageType 			= IMAGE_TYPE,
+	.manufacturerCode 	= MANUFACTURER_CODE,
 };
 #endif
 
-extern void bdb_zdoStartDevCnf(void *arg);
 
 //Must declare the application call back function which used by ZDO layer
 const zdo_appIndCb_t appCbLst = {
-		bdb_zdoStartDevCnf,//start device cnf cb
-		NULL,//reset cnf cb
-		sampleGW_devAnnHandler,//device announce indication cb
-		sampleGW_leaveIndHandler,//leave ind cb
-		sampleGW_leaveCnfHandler,//leave cnf cb
-		sampleGW_nwkUpdateIndicateHandler,//nwk update ind cb
-		NULL,//permit join ind cb
-		NULL,//nlme sync cnf cb
+	bdb_zdoStartDevCnf,					//start device cnf cb
+	NULL,								//reset cnf cb
+	sampleGW_devAnnHandler,				//device announce indication cb
+	sampleGW_leaveIndHandler,			//leave ind cb
+	sampleGW_leaveCnfHandler,			//leave cnf cb
+	sampleGW_nwkUpdateIndicateHandler,	//nwk update ind cb
+	NULL,								//permit join ind cb
+	NULL,								//nlme sync cnf cb
 };
 
 
@@ -97,7 +96,7 @@ bdb_commissionSetting_t g_bdbCommissionSetting = {
 	.linkKey.touchLinkKey.keyType = MASTER_KEY,
 	.linkKey.touchLinkKey.key = (u8 *)touchLinkKeyMaster,   			//use touchLinkKeyCertification before testing
 
-	.touchlinkEnable = 0,			 									/* disable touch link for coordinator */
+	.touchlinkEnable = 0,			 									//disable touch link for coordinator
 };
 
 /**********************************************************************
@@ -140,7 +139,7 @@ void stack_init(void)
  */
 void user_app_init(void)
 {
-	af_nodeDescManuCodeUpdate(TELINK_MANUFACTURER_CODE);
+	af_nodeDescManuCodeUpdate(MANUFACTURER_CODE);
 
     /* Initialize ZCL layer */
 	/* Register Incoming ZCL Foundation command/response messages */
@@ -191,9 +190,13 @@ void app_task(void)
 
 static void sampleGwSysException(void)
 {
-	SYSTEM_RESET();
-	//light_off();
-	//while(1);
+	//SYSTEM_RESET();
+	light_off();
+
+	while(1){
+		gpio_toggle(LED_POWER);
+		WaitMs(100);
+	}
 }
 
 
@@ -209,16 +212,11 @@ static void sampleGwSysException(void)
  */
 void user_init(void)
 {
-#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91)
 	extern u8 firmwareCheckWithUID(void);
 	if(firmwareCheckWithUID()){
 		while(1);
 	}
-#if (ZBHCI_USB_PRINT || ZBHCI_USB_CDC || ZBHCI_USB_HID)
-	/* Enable USB Port*/
-	gpio_set_func(GPIO_PA5, AS_USB);
-	gpio_set_func(GPIO_PA6, AS_USB);
-#endif
 #endif
 
 	/* Initialize LEDs*/

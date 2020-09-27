@@ -19,15 +19,14 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#pragma once
+#ifndef ZCL_CONST_H
+#define ZCL_CONST_H
 
 
 /** @addtogroup  TELINK_ZIGBEE_STACK TELINK ZigBee Stack
  *  @{
  */
 
-//#define HA_PROFILE_ID                      				0x0104
-//#define LL_PROFILE_ID                      				0xC05E
 
 /** @addtogroup  ZCL_Module ZCL
  *  @{
@@ -294,3 +293,5 @@
 /** @} end of group ZCL_Module */
 
 /** @} end of group TELINK_ZIGBEE_STACK */
+
+#endif	/* ZCL_CONST_H */

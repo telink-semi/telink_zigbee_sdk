@@ -21,13 +21,10 @@
  *******************************************************************************************************/
 #pragma once
 
-#include "compiler.h"
 
-
-
-
-unsigned char 	analog_read(unsigned char addr);
+unsigned char analog_read(unsigned char addr);
 void analog_write(unsigned char addr, unsigned char v);
 
-#define WriteAnalogReg			analog_write
-#define ReadAnalogReg			analog_read
+#define ReadAnalogReg(addr)			analog_read(addr)
+#define WriteAnalogReg(addr, v)		analog_write(addr, v)
+

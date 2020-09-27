@@ -172,13 +172,13 @@ static void zbhciSimpleDescRspMsgPush(void* arg){
 static void zbhciBindRspPush(void* arg){
 	zdo_zdpDataInd_t *p = (zdo_zdpDataInd_t *)arg;
 	zdo_bind_resp_t *rsp = (zdo_bind_resp_t*)p->zpdu;
-	zbhciTx(ZBHCI_CMD_BINDING_RSP, ZDO_ZDP_RSP_FRAME_HEADERSIZE, (u8 *)rsp);
+	zbhciTx(ZBHCI_CMD_BINDING_RSP, sizeof(zdo_bind_resp_t), (u8 *)rsp);
 }
 
 static void zbhciUnbindRspPush(void* arg){
 	zdo_zdpDataInd_t *p = (zdo_zdpDataInd_t *)arg;
 	zdo_unbind_resp_t *rsp = (zdo_unbind_resp_t*)p->zpdu;
-	zbhciTx(ZBHCI_CMD_UNBINDING_RSP, ZDO_ZDP_RSP_FRAME_HEADERSIZE, (u8 *)rsp);
+	zbhciTx(ZBHCI_CMD_UNBINDING_RSP, sizeof(zdo_bind_resp_t), (u8 *)rsp);
 }
 
 static void zbhciMgmtLqiRspMsgPush(void* arg){
@@ -427,7 +427,7 @@ static void zbhci_bdbCmdHandler(void *arg){
 
 		zdo_nlmeForgetDev(delNodeAddr.macAddr, 0);
 	}else if(cmdID == ZBHCI_CMD_BDB_TX_POWER_SET){
-		/* Set TX power, value is RF_PowerTypeDef. */
+		/* Set TX power, value is index of the RF power. */
 		rf_setTxPower(p[0]);
 	}
 
@@ -549,7 +549,7 @@ static void zbhci_mgmtCmdHandler(void *arg){
 	}else if(cmdID == ZBHCI_CMD_MGMT_PERMIT_JOIN_REQ){
 		u8 sn = 0;
 		COPY_BUFFERTOU16_BE(targetAddr, p);
-		zb_mgmtPermitJoinReqTx(targetAddr,p[2],p[3],&sn,NULL);
+		zb_mgmtPermitJoinReq(targetAddr,p[2],p[3],&sn,NULL);
 	}else if(cmdID == ZBHCI_CMD_MGMT_NWK_UPDATE_REQ){
 		u8 sn = 0;
 		u16 dstAddr;

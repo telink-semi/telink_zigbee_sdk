@@ -19,10 +19,10 @@
  *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#pragma once
 #ifndef I2C_H
 #define I2C_H
-#include "gpio.h"
+
+#include "register.h"
 
 
 // SDA   SCL

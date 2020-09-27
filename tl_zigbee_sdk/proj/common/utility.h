@@ -21,34 +21,31 @@
  *******************************************************************************************************/
 #pragma once
 
-#include "types.h"
-#define abs(a)   (((a)>0)?((a)):(-(a)))
 
-#define absSub(a, b)  ((a)>(b) ? ((a)-(b)): ((b)-(a)))
-#define cat2(i,j)       i##j
-#define cat3(i,j,k)     i##j##k
+
+#define abs(a)   				(((a) > 0) ? ((a)) : (-(a)))
+#define absSub(a, b)  			((a) > (b) ? ((a)-(b)) : ((b)-(a)))
+
+#define cat2(i,j)       		i##j
+#define cat3(i,j,k)     		i##j##k
 
 #ifndef min
-#define min(a,b)	((a) < (b) ? (a) : (b))
+#define min(a,b)				((a) < (b) ? (a) : (b))
 #endif
-
 #ifndef min2
-#define min2(a,b)	((a) < (b) ? (a) : (b))
+#define min2(a,b)				((a) < (b) ? (a) : (b))
 #endif
-
 #ifndef min3
-#define min3(a,b,c)	min2(min2(a, b), c)
+#define min3(a,b,c)				min2(min2(a, b), c)
 #endif
-
 #ifndef max2
-#define max2(a,b)	((a) > (b) ? (a): (b))
+#define max2(a,b)				((a) > (b) ? (a): (b))
 #endif
-
 #ifndef max3
-#define max3(a,b,c)	max2(max2(a, b), c)
+#define max3(a,b,c)				max2(max2(a, b), c)
 #endif
 
-#define LENGTHOF(s, m)          ( sizeof(((s*)0)->m) )
+#define LENGTHOF(s, m)          (sizeof(((s*)0)->m))
 #define OFFSETOF(s, m)          ((unsigned int) &((s *)0)->m)
 #define ROUND_INT(x, r)         (((x) + (r) - 1) / (r) * (r))
 #define ROUND_TO_POW2(x, r)     (((x) + (r) - 1) & ~((r) - 1))
@@ -76,7 +73,7 @@
 
 #define BOUND(x, l, m)			((x) < (l) ? (l) : ((x) > (m) ? (m) : (x)))
 #define SET_BOUND(x, l, m)		((x) = BOUND(x, l, m))
-#define BOUND_INC(x, m)			do{++(x); (x) = (x) < (m) ? (x) :0;} while(0)
+#define BOUND_INC(x, m)			do{++(x); (x) = (x) < (m) ? (x) : 0;} while(0)
 #define BOUND_INC_POW2(x, m)	do{								\
 									STATIC_ASSERT_POW2(m);		\
 									(x) = ((x)+1) & (m-1);		\
@@ -106,17 +103,17 @@
 #define everyN(i, n) 			++(i); (i)=((i) < N ? (i) : 0); if(0 == (i))
 
 
-#define HI_UINT16(a) (((a) >> 8) & 0xFF)
-#define LO_UINT16(a) ((a) & 0xFF)
+#define HI_UINT16(a) 			(((a) >> 8) & 0xFF)
+#define LO_UINT16(a) 			((a) & 0xFF)
 
-#define U24_BYTE0(a) ((a) & 0xFF)
-#define U24_BYTE1(a) (((a) >> 8) & 0xFF)
-#define U24_BYTE2(a) (((a) >> 16) & 0xFF)
+#define U24_BYTE0(a) 			((a) & 0xFF)
+#define U24_BYTE1(a) 			(((a) >> 8) & 0xFF)
+#define U24_BYTE2(a) 			(((a) >> 16) & 0xFF)
 
-#define U32_BYTE0(a) ((a) & 0xFF)
-#define U32_BYTE1(a) (((a) >> 8) & 0xFF)
-#define U32_BYTE2(a) (((a) >> 16) & 0xFF)
-#define U32_BYTE3(a) (((a) >> 24) & 0xFF)
+#define U32_BYTE0(a) 			((a) & 0xFF)
+#define U32_BYTE1(a) 			(((a) >> 8) & 0xFF)
+#define U32_BYTE2(a) 			(((a) >> 16) & 0xFF)
+#define U32_BYTE3(a) 			(((a) >> 24) & 0xFF)
 
 #define BUILD_U16(lo, hi)			( (unsigned short)((((hi) & 0x00FF) << 8) + ((lo) & 0x00FF)) )
 #define BUILD_U24(b0, b1, b2)		( (unsigned int)((((b2) & 0x000000FF) << 16) + (((b1) & 0x000000FF) << 8) + ((b0) & 0x000000FF)) )
@@ -127,15 +124,11 @@
 #define BUILD_S32(b0, b1, b2, b3)	( (signed int)((((b3) & 0x000000FF) << 24) + (((b2) & 0x000000FF) << 16) + (((b1) & 0x000000FF) << 8) + ((b0) & 0x000000FF)) )
 
 
-#define HASH_MAGIC_VAL 5381u
-#define INT_MASK      0x7fffffff
+#define HASH_MAGIC_VAL 			5381u
+#define INT_MASK      			0x7fffffff
 
 /* TODO: check is this hash optimal for ints */
-#define HASH_FUNC_STEP(hash_var, v) ((((hash_var) << 5) + (hash_var)) + (v))
-#define FOUR_INT_HASH_FUNC(v1, v2, v3, v4) (HASH_FUNC_STEP(HASH_FUNC_STEP( HASH_FUNC_STEP( HASH_FUNC_STEP(HASH_MAGIC_VAL, (v1)), (v2)), (v3)), (v4)) & INT_MASK)
-#define TWO_INT_HASH_FUNC(v1, v2)      (HASH_FUNC_STEP(HASH_FUNC_STEP(HASH_MAGIC_VAL, (v1)), (v2)) & INT_MASK)
-
-
-void addrCpy(addr_t *pDstAddr, addr_t* pSrcAddr);
-void generateRandomData(unsigned char *pData, unsigned char len);
+#define HASH_FUNC_STEP(hash_var, v) 		((((hash_var) << 5) + (hash_var)) + (v))
+#define FOUR_INT_HASH_FUNC(v1, v2, v3, v4) 	(HASH_FUNC_STEP(HASH_FUNC_STEP( HASH_FUNC_STEP( HASH_FUNC_STEP(HASH_MAGIC_VAL, (v1)), (v2)), (v3)), (v4)) & INT_MASK)
+#define TWO_INT_HASH_FUNC(v1, v2)      		(HASH_FUNC_STEP(HASH_FUNC_STEP(HASH_MAGIC_VAL, (v1)), (v2)) & INT_MASK)
 

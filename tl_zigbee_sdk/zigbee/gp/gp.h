@@ -22,14 +22,10 @@
 #ifndef GP_H
 #define GP_H
 
-#include "dGP_stub.h"
-#include "../zdo/zb_af.h"
-#include "../zcl/zcl.h"
-#include "../zcl/general/zcl_greenPower.h"
+
 
 
 #define GREEN_POWER_ENDPOINT							0xF2//242
-#define GP_PROFILE_ID									0xA1E0
 
 //for Green Power device frame
 #define GP_ZB_PROTOCOL_VERSION							0x03

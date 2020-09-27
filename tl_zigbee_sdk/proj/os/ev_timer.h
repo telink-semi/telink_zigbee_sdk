@@ -40,7 +40,6 @@
  *  @brief Type definition for timer callback function
  */
 typedef int (*ev_timer_callback_t)(void *data);
-typedef void (*ev_zb_callback_t)(u8 param) ;
  
 /**
  *  @brief Definition for timer event

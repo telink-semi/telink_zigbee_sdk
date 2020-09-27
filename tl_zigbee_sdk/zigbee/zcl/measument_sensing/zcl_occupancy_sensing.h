@@ -19,11 +19,10 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#pragma once
+#ifndef ZCL_OCCUPANCY_SENSING_H
+#define ZCL_OCCUPANCY_SENSING_H
 
-#include "tl_common.h"
-#include "../../zdo/zb_af.h"
-#include "../zcl.h"
+
 
 /** @addtogroup  TELINK_ZIGBEE_STACK TELINK ZigBee Stack
  *  @{
@@ -81,3 +80,5 @@ status_t zcl_occupancySensing_register(u8 endpoint, u8 attrNum, const zclAttrInf
 /** @} end of group ZCL_Module */
 
 /** @} end of group TELINK_ZIGBEE_STACK */
+
+#endif	/* ZCL_OCCUPANCY_SENSING_H */

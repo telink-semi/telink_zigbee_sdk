@@ -27,7 +27,7 @@
 #ifndef DMA_H_
 #define DMA_H_
 
-#include "compiler.h"
+#include "register.h"
 
 
 #define DMA_RFRX_LEN_HW_INFO				0	// 826x: 8

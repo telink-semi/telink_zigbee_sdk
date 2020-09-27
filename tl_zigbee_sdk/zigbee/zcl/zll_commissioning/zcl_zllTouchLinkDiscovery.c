@@ -25,7 +25,6 @@
  * INCLUDES
  */
 #include "../zcl_include.h"
-#include "zcl_touchlink_attr.h"
 #include "zcl_zll_commissioning_internal.h"
 
 #define ZB_PRIMARY_CHANNEL_1	11

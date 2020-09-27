@@ -21,7 +21,7 @@
  *******************************************************************************************************/
 #pragma once
 
-#include "platform_includes.h"
+
 
 /**
  *  @brief  Define the mode for SPI interface
@@ -43,28 +43,29 @@ typedef enum {
 
 /**
  * @brief     This function configures the clock and working mode for SPI interface
- * @param[in] DivClock - the division factor for SPI module
+ * @param[in] divClock - the division factor for SPI module
  *            SPI clock = System clock / ((DivClock+1)*2)
- * @param[in] Mode - the selected working mode of SPI module,mode 0~mode 3
+ * @param[in] mode - the selected working mode of SPI module,mode 0~mode 3
  * @return    none
  */
-extern void drv_spi_master_init(unsigned char DivClock, drv_spi_mode_type_def Mode);
+void drv_spi_master_init(u8 divClock, drv_spi_mode_type_def mode);
 
-
-#if	defined (MCU_CORE_8278)
-/**
- * @brief     This function selects a pin port for the SPI interface
- * @param[in] PinGpio - the selected pin
- * @return    none
- */
-extern void drv_spi_master_pin_select(SPI_GPIO_SclkTypeDef sclk_pin,SPI_GPIO_CsTypeDef cs_pin,SPI_GPIO_SdoTypeDef sdo_pin, SPI_GPIO_SdiTypeDef sdi_pin);
-#else
+#if	defined(MCU_CORE_826x) || defined(MCU_CORE_8258)
 /**
  * @brief     This function selects a pin port for the SPI interface
  * @param[in] PinGrp - the selected pin group port
  * @return    none
  */
-extern void drv_spi_master_pin_select(drv_spi_pin_group PinGrp);
+void drv_spi_master_pin_select(drv_spi_pin_group pinGrp);
+#elif defined(MCU_CORE_8278)
+/**
+ * @brief     This function selects a pin port for the SPI interface
+ * @param[in]
+ * @return    none
+ */
+void drv_spi_master_pin_select(SPI_GPIO_SclkTypeDef sclk_pin,SPI_GPIO_CsTypeDef cs_pin,SPI_GPIO_SdoTypeDef sdo_pin, SPI_GPIO_SdiTypeDef sdi_pin);
+#elif defined(MCU_CORE_B91)
+
 #endif
 
 /**
@@ -72,56 +73,64 @@ extern void drv_spi_master_pin_select(drv_spi_pin_group PinGrp);
  * @param[in] CSPin - the selected CS pin
  * @return    none
  */
-extern void drv_spi_master_cspin_select(GPIO_PinTypeDef CSPin);
+#if	defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+void drv_spi_master_cspin_select(GPIO_PinTypeDef CSPin);
+#elif defined(MCU_CORE_B91)
 
-/**
- * @brief     This function configures the clock and working mode for SPI interface
- * @param[in] DivClock - the division factor for SPI module
- *            SPI clock = System clock / ((DivClock+1)*2)
- * @param[in] Mode - the selected working mode of SPI module,mode 0~mode 3
- * @return    none
- */
-extern void drv_spi_slave_init(unsigned char DivClock, drv_spi_mode_type_def Mode);
-
-#if	defined (MCU_CORE_8278)
-/**
- * @brief     This function selects a pin port for the SPI interface
- * @param[in] PinGpio - the selected pin
- * @return    none
- */
-extern void drv_spi_slave_pin_select(SPI_GPIO_SclkTypeDef sclk_pin,SPI_GPIO_CsTypeDef cs_pin,SPI_GPIO_SdoTypeDef sdo_pin, SPI_GPIO_SdiTypeDef sdi_pin);
-#else
-/**
- * @brief     This function selects a pin port for the SPI interface
- * @param[in] PinGrp - the selected pin port
- * @return    none
- */
-extern void drv_spi_slave_pin_select(drv_spi_pin_group PinGrp);
 #endif
 
 /**
+ * @brief     This function configures the clock and working mode for SPI interface
+ * @param[in] divClock - the division factor for SPI module
+ *            SPI clock = System clock / ((DivClock+1)*2)
+ * @param[in] mode - the selected working mode of SPI module,mode 0~mode 3
+ * @return    none
+ */
+void drv_spi_slave_init(u8 divClock, drv_spi_mode_type_def mode);
+
+#if	defined(MCU_CORE_826x) || defined(MCU_CORE_8258)
+/**
+ * @brief     This function selects a pin port for the SPI interface
+ * @param[in] pinGrp - the selected pin port
+ * @return    none
+ */
+void drv_spi_slave_pin_select(drv_spi_pin_group pinGrp);
+#elif defined(MCU_CORE_8278)
+void drv_spi_slave_pin_select(SPI_GPIO_SclkTypeDef sclk_pin, SPI_GPIO_CsTypeDef cs_pin, SPI_GPIO_SdoTypeDef sdo_pin, SPI_GPIO_SdiTypeDef sdi_pin);
+#elif defined(MCU_CORE_B91)
+
+#endif
+
+#if	defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+/**
  * @brief      This function serves to write a bulk of data to the SPI slave
  *             device specified by the CS pin
- * @param[in]  Cmd - pointer to the command bytes needed written into the
+ * @param[in]  cmd - pointer to the command bytes needed written into the
  *             slave device first before the writing operation of actual data
- * @param[in]  CmdLen - length in byte of the command bytes
- * @param[in]  Data - pointer to the data need to write
- * @param[in]  DataLen - length in byte of the data need to write
- * @param[in]  CSPin - the CS pin specifing the slave device
+ * @param[in]  cmdLen - length in byte of the command bytes
+ * @param[in]  data - pointer to the data need to write
+ * @param[in]  dataLen - length in byte of the data need to write
+ * @param[in]  csPin - the CS pin specific the slave device
  * @return     none
  */
-extern void drv_spi_write(unsigned char *Cmd, int CmdLen, unsigned char *Data, int DataLen, GPIO_PinTypeDef CSPin);
+void drv_spi_write(u8 *cmd, int cmdLen, u8 *data, int dataLen, GPIO_PinTypeDef csPin);
+#elif defined(MCU_CORE_B91)
 
+#endif
+
+#if	defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 /**
  * @brief      This function serves to read a bulk of data from the SPI slave
  *             device specified by the CS pin
- * @param[in]  Cmd - pointer to the command bytes needed written into the
+ * @param[in]  cmd - pointer to the command bytes needed written into the
  *             slave device first before the reading operation of actual data
- * @param[in]  CmdLen - length in byte of the command bytes
- * @param[out] Data - pointer to the buffer that will cache the reading out data
- * @param[in]  DataLen - length in byte of the data need to read
- * @param[in]  CSPin - the CS pin specifing the slave device
+ * @param[in]  cmdLen - length in byte of the command bytes
+ * @param[out] data - pointer to the buffer that will cache the reading out data
+ * @param[in]  dataLen - length in byte of the data need to read
+ * @param[in]  csPin - the CS pin specifing the slave device
  * @return     none
  */
-extern void drv_spi_read(unsigned char *Cmd, int CmdLen, unsigned char *Data, int DataLen, GPIO_PinTypeDef CSPin);
+void drv_spi_read(u8 *cmd, int cmdLen, u8 *data, int dataLen, GPIO_PinTypeDef csPin);
+#elif defined(MCU_CORE_B91)
 
+#endif

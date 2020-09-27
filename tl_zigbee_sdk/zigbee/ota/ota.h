@@ -22,14 +22,11 @@
 #ifndef OTA_H
 #define OTA_H
 
-#include "tl_common.h"
-#include "../zdo/zb_af.h"
-#include "../zcl/zcl.h"
 
 
-//OTA: define for 8267/8269
+
 #define	FLASH_OTA_NEWIMAGE_ADDR						0x40000//256K
-#define	OTA_TLNK_KEYWORD_ADDROFFSET					8
+
 #define	OTA_IMAGESECTORHDR_SIZE						6
 #define OTA_IMAGE_MAX_DATA_SIZE						48
 

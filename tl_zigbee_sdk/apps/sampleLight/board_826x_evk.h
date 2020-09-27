@@ -133,8 +133,12 @@ extern "C" {
 //DEBUG
 #if UART_PRINTF_MODE
 	#define	DEBUG_INFO_TX_PIN	    GPIO_PC5//print
-	#define PC5_OUTPUT_ENABLE		1
-	#define PC5_INPUT_ENABLE		0
+
+	#define DEBUG_TX_PIN_INIT()		do{	\
+										gpio_set_func(DEBUG_INFO_TX_PIN, AS_GPIO);	\
+										gpio_set_output_en(DEBUG_INFO_TX_PIN, 1);	\
+										gpio_setup_up_down_resistor(DEBUG_INFO_TX_PIN, PM_PIN_PULLUP_1M); \
+									}while(0)
 #endif
 
 

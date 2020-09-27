@@ -19,11 +19,9 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#pragma once
+#ifndef ZCL_IAS_ZONE_H
+#define ZCL_IAS_ZONE_H
 
-#include "tl_common.h"
-#include "../../zdo/zb_af.h"
-#include "../zcl.h"
 
 /*********************************************************************
  * CONSTANTS
@@ -224,3 +222,5 @@ status_t zcl_iasZone_statusChangeNotification(u8 srcEp, epInfo_t *pDstEpInfo, u8
 
 
 extern zcl_zoneTable_t *zcl_findZoneEntry(u8 endpoint, u8 zoneId);
+
+#endif	/* ZCL_IAS_ZONE_H */

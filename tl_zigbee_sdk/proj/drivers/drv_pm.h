@@ -22,14 +22,13 @@
 
 #pragma once
 
-#include "../common/types.h"
-#include "../common/compiler.h"
+
 
 typedef enum{
 	PLATFORM_MODE_SUSPEND,
 	PLATFORM_MODE_DEEPSLEEP,
-	PLATFORM_MODE_MCU_STALL,
-	PLATFORM_MODE_DEEP_WITH_RETENTION,//826x not support
+	PLATFORM_MODE_MCU_STALL,			//for 826x
+	PLATFORM_MODE_DEEP_WITH_RETENTION,	//826x not support
 }platform_mode_e;
 
 typedef enum{
@@ -50,6 +49,6 @@ void platform_lowpower_enter(platform_mode_e mode, platform_wakeup_e src, u32 cy
 
 void platform_longLowpower_enter(platform_mode_e mode, platform_wakeup_e src, u32 durationMs);
 
-void deep_sleep_flag_set(unsigned int a);
+void deep_sleep_flag_set(u32 a);
 u8 deep_sleep_flag_get(void);
 u32 deep_sleep_framecount_get(void);

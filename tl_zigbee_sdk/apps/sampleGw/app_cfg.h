@@ -19,7 +19,6 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-
 #pragma once
 
 /* Enable C linkage for C++ Compilers: */
@@ -27,21 +26,30 @@
 extern "C" {
 #endif
 
-#define _USER_CONFIG_DEFINED_		1	// must define this macro to make others known
-#define	__LOG_RT_ENABLE__			0
+#define _USER_CONFIG_DEFINED_		1//must define this macro to make others known
 
-//////////// product  Information  //////////////////////////////
-/* debug mode config */
+/**********************************************************************
+ * Version configuration
+ */
+#include "version_cfg.h"
+
+
+/**********************************************************************
+ * Product  Information
+ */
+/* PA */
+#define PA_ENABLE					0
+
+/* Debug mode */
 #define	UART_PRINTF_MODE			0
 #define USB_PRINTF_MODE         	0
+
+/* HCI interface */
 #define	ZBHCI_UART					0
 #define ZBHCI_USB_CDC				0
 #define ZBHCI_USB_HID				0
 
-#define PA_ENABLE					0
-
-
-/* board ID */
+/* Board ID */
 #define BOARD_826x_EVK				0
 #define BOARD_826x_DONGLE			1
 #define BOARD_826x_DONGLE_PA		2
@@ -51,77 +59,82 @@ extern "C" {
 #define BOARD_8258_DONGLE_1M		6
 #define BOARD_8278_EVK				7
 #define BOARD_8278_DONGLE			8
+#define BOARD_9518_EVK				9
 
+/* Board define */
 #ifdef MCU_CORE_8258
-	#define BOARD					BOARD_8258_DONGLE//BOARD_8258_EVK
+	#define BOARD					BOARD_8258_DONGLE
 	/* system clock config */
 	#define CLOCK_SYS_CLOCK_HZ  	48000000
 #elif defined(MCU_CORE_8278)
 	#define BOARD					BOARD_8278_DONGLE//BOARD_8278_EVK
 	/* system clock config */
 	#define CLOCK_SYS_CLOCK_HZ  	48000000
-#else
-	/* board define */
-	#if !PA_ENABLE
+#elif defined(MCU_CORE_B91)
+	#define BOARD					BOARD_9518_EVK
+	/* system clock config */
+	#define CLOCK_SYS_CLOCK_HZ  	48000000
+#elif defined(MCU_CORE_826x)
+#if !PA_ENABLE
 	#define BOARD					BOARD_826x_DONGLE
-	#else
+#else
 	#define BOARD					BOARD_826x_DONGLE_PA
-	#endif
+#endif
 	/* system clock config */
 	#define CLOCK_SYS_CLOCK_HZ  	32000000
-#endif
-
-#if	(BOARD == BOARD_826x_DONGLE)
-	#include "board_826x_dongle.h"
-#elif(BOARD == BOARD_826x_DONGLE_PA)
-	#include "board_826x_dongle_pa.h"
-#elif((BOARD == BOARD_8258_DONGLE) || (BOARD == BOARD_8258_DONGLE_1M))
-	#include "board_8258_dongle.h"
-#elif(BOARD	== BOARD_8258_EVK)
-	#include "board_8258_evk.h"
-#elif(BOARD	== BOARD_8258_EVK_V1P2)
-	#include "board_8258_evk_v1p2.h"
-#elif(BOARD == BOARD_8278_EVK)
-	#include "board_8278_evk.h"
-#elif(BOARD == BOARD_8278_DONGLE)
-	#include "board_8278_dongle.h"
 #else
+	#error "MCU is undefined!"
+#endif
+
+/* Board include */
+#if (BOARD == BOARD_826x_EVK)
 	#include "board_826x_evk.h"
+#elif (BOARD == BOARD_826x_DONGLE)
+	#include "board_826x_dongle.h"
+#elif (BOARD == BOARD_826x_DONGLE_PA)
+	#include "board_826x_dongle_pa.h"
+#elif ((BOARD == BOARD_8258_DONGLE) || (BOARD == BOARD_8258_DONGLE_1M))
+	#include "board_8258_dongle.h"
+#elif (BOARD == BOARD_8258_EVK)
+	#include "board_8258_evk.h"
+#elif (BOARD == BOARD_8258_EVK_V1P2)
+	#include "board_8258_evk_v1p2.h"
+#elif (BOARD == BOARD_8278_EVK)
+	#include "board_8278_evk.h"
+#elif (BOARD == BOARD_8278_DONGLE)
+	#include "board_8278_dongle.h"
+#elif (BOARD == BOARD_9518_EVK)
+	#include "board_9518_evk.h"
 #endif
 
 
-#define MODULE_BUFM_ENABLE        	1
-#define MODULE_PRIQ_ENABLE        	1
-#define EV_POST_TASK_ENABLE       	1
+/* Watch dog module */
+#define MODULE_WATCHDOG_ENABLE						0
 
-/* interrupt */
-#define IRQ_TIMER1_ENABLE         	1
-#define	IRQ_GPIO_ENABLE			  	0
-
-/* module selection */
-#define MODULE_WATCHDOG_ENABLE		0
+/* UART module */
 #if ZBHCI_UART
-#define	MODULE_UART_ENABLE			1
+#define	MODULE_UART_ENABLE							1
 #endif
 
-/* USB */
+/* USB module */
 #if (ZBHCI_USB_CDC || ZBHCI_USB_HID)
-#define MODULE_USB_ENABLE			1
+#define MODULE_USB_ENABLE							1
 #if ZBHCI_USB_CDC
-	#define USB_CDC_ENABLE			1
-	#define USB_VENDOR_ENABLE		0
+	#define USB_CDC_ENABLE							1
+	#define USB_VENDOR_ENABLE						0
 #elif ZBHCI_USB_HID
-	#define USB_CDC_ENABLE			0
-	#define USB_VENDOR_ENABLE		1
+	#define USB_CDC_ENABLE							0
+	#define USB_VENDOR_ENABLE						1
 #endif
 #endif
 
-/* Rf mode: 250K */
-#define	RF_MODE_250K				1
+#if (ZBHCI_USB_PRINT || ZBHCI_USB_CDC || ZBHCI_USB_HID || ZBHCI_UART)
+	#define ZBHCI_EN								1
+#endif
 
 
-/**
- *  @brief ZCL cluster support setting
+/**********************************************************************
+ * ZCL cluster support setting
  */
 #define ZCL_ON_OFF_SUPPORT							1
 #define ZCL_LEVEL_CTRL_SUPPORT						1
@@ -134,20 +147,25 @@ extern "C" {
 #define ZCL_SCENE_SUPPORT							1
 #define ZCL_OTA_SUPPORT								1
 
-#define AF_TEST_ENABLE								0
+#define AF_TEST_ENABLE								1
 
 
-    ///////////////////  Zigbee Profile Configuration /////////////////////////////////
+/**********************************************************************
+ * Stack configuration
+ */
 #include "stack_cfg.h"
 
+
+/**********************************************************************
+ * EV configuration
+ */
 typedef enum{
 	EV_EVENT_MAX = 1,
-} ev_event_e;
+}ev_event_e;
 
 enum{
 	EV_FIRED_EVENT_MAX = 1
 };
-
 
 typedef enum{
 	EV_POLL_ED_DETECT,
@@ -156,7 +174,7 @@ typedef enum{
 	EV_POLL_MAX,
 }ev_poll_e;
 
-    /* Disable C linkage for C++ Compilers: */
+/* Disable C linkage for C++ Compilers: */
 #if defined(__cplusplus)
 }
 #endif

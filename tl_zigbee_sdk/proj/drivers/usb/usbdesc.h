@@ -24,7 +24,6 @@
 /* Includes: */
 #include "tl_common.h"
 #include "usbstd/usbstd.h"
-#include "usbhw.h"
 
 /* Enable C linkage for C++ Compilers: */
 #if defined(__cplusplus)

@@ -38,7 +38,7 @@
 
 #define XTAL_READY_CHECK_TIMING_OPTIMIZE	1
 
-#define RAM_CRC_EN							1  	//if use RAM_CRC func, retention ldo will turn down to 0.6V in A1, A0 is 0.8V.
+#define RAM_CRC_EN							0
 
 //when timer wakeup,the DCDC delay time is accurate,but other wake-up sources wake up,
 //this time is ((PM_DCDC_DELAY_CYCLE+1)*2-1)*32us ~ (PM_DCDC_DELAY_CYCLE+1)*2*32us
@@ -57,14 +57,13 @@
 #define PM_DCDC_DELAY_CYCLE		3
 #endif
 
+#define SOFT_START_DELAY       	    		(0x08)
 #define EARLYWAKEUP_TIME_US_SUSPEND 		(PM_DCDC_DELAY_DURATION + PM_XTAL_MANUAL_MODE_DELAY + 200)  //100: code running time margin//154  //175
 #define EARLYWAKEUP_TIME_US_DEEP_RET    	(PM_DCDC_DELAY_DURATION + 64)//(PM_DCDC_DELAY_DURATION + 32)
-//#define EARLYWAKEUP_TIME_US_DEEP	    	(PM_DCDC_DELAY_DURATION + 32 + ((SOFT_START_DLY)*62))
+#define EARLYWAKEUP_TIME_US_DEEP	    	(PM_DCDC_DELAY_DURATION + 32 + ((SOFT_START_DELAY)*62))
 #define EMPTYRUN_TIME_US       	    		(EARLYWAKEUP_TIME_US_SUSPEND + 200)
 
-#define EARLYWAKEUP_TIME			19
-#define	tick_32k_tick_per_ms		32
-#define PM_EMPTYRUN_TIME_US			25
+
 
 
 
@@ -122,8 +121,7 @@ typedef enum {
 
 	DEEPSLEEP_MODE						= 0x30,		//when use deep mode pad wakeup(low or high level), if the high(low) level always in
 													//the pad, system will not enter sleep and go to below of pm API, will reboot by core_6f = 0x20
-													//deep retention also had this issue, but not to reboot.
-	DEEPSLEEP_MODE_RET_SRAM_LOW16K  	= 0x21,  //for boot from sram
+													//deep retention also had this issue, but not to reboot.	DEEPSLEEP_MODE_RET_SRAM_LOW16K  	= 0x21,  //for boot from sram
 	DEEPSLEEP_MODE_RET_SRAM_LOW32K  	= 0x03,  //for boot from sram
 
 	//not available mode
@@ -227,32 +225,6 @@ static inline void deepsleep_dp_dm_gpio_low_wake_enable(void)
 static inline void deepsleep_dp_dm_gpio_low_wake_disable(void)
 {
 	PA5_PA6_DEEPSLEEP_LOW_LEVEL_WAKEUP_EN = 1;
-}
-
-/**
- * @brief      This function serves to change the timing of enable ram crc.
- * @param[in]  none.
- * @return     none.
- */
-extern unsigned int RAM_CRC_EN_16KRAM_TIME;
-extern unsigned int RAM_CRC_EN_32KRAM_TIME;
-static inline void ram_crc_en_timing(unsigned int RAM_CRC_16K_Timing, unsigned int RAM_CRC_32K_Timing)
-{
-	RAM_CRC_EN_16KRAM_TIME = RAM_CRC_16K_Timing;
-	RAM_CRC_EN_32KRAM_TIME = RAM_CRC_32K_Timing;
-}
-
-/**
- * @brief      This function serves to change the timing of soft start delay.
- * @param[in]  none.
- * @return     none.
- */
-extern unsigned char SOFT_START_DLY;
-extern unsigned int EARLYWAKEUP_TIME_US_DEEP;
-static inline void soft_start_dly_time(unsigned char soft_start_time)
-{
-	SOFT_START_DLY = soft_start_time;
-	EARLYWAKEUP_TIME_US_DEEP = PM_DCDC_DELAY_DURATION + 32 + ((SOFT_START_DLY)*62);
 }
 
 /**

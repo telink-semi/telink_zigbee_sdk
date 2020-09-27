@@ -19,25 +19,27 @@
  *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#include "user_config.h"
-#include "../drivers/tl_putchar.h"
 
-typedef char *va_list;
+#include "../drivers/drv_putchar.h"
+#if defined(MCU_CORE_B91)
+	#include <stdarg.h>
+#else
+	typedef char *va_list;
 
-#define _INTSIZEOF(n)   	( (sizeof(n) + sizeof(int) - 1) & ~(sizeof(int) - 1) )
+	#define _INTSIZEOF(n)   	( (sizeof(n) + sizeof(int) - 1) & ~(sizeof(int) - 1) )
 
-#define va_start(ap,v)  	( ap = (va_list)&v + _INTSIZEOF(v) )
-#define va_arg(ap,t)    	( *(t *)((ap += _INTSIZEOF(t)) - _INTSIZEOF(t)) )
-#define va_end(ap)      	( ap = (va_list)0 )
+	#define va_start(ap,v)  	( ap = (va_list)&v + _INTSIZEOF(v) )
+	#define va_arg(ap,t)    	( *(t *)((ap += _INTSIZEOF(t)) - _INTSIZEOF(t)) )
+	#define va_end(ap)      	( ap = (va_list)0 )
 
-#define	DECIMAL_OUTPUT		10
-#define	OCTAL_OUTPUT		8
-#define	HEX_OUTPUT			16
-
+	#define	DECIMAL_OUTPUT		10
+	#define	OCTAL_OUTPUT		8
+	#define	HEX_OUTPUT			16
+#endif
 
 static void put_s(char *s){
 	while((*s != '\0')){
-		putchar(*s++);
+		drv_putchar(*s++);
 	}
 }
 
@@ -58,6 +60,15 @@ static void puti(unsigned int num, int base){
 	put_s(addr);
 }
 
+#if defined(MCU_CORE_B91)
+__attribute__((used)) int _write(int fd, const unsigned char *buf, int size){
+    int i;
+    for(i = 0; i < size; i++){
+    	drv_putchar(buf[i]);
+    }
+    return i;
+}
+#else
 int Tl_printf(const char *format, ...){
 	char span;
 	unsigned long j;
@@ -69,16 +80,16 @@ int Tl_printf(const char *format, ...){
 
 	while((span = *(format++))){
 		if(span != '%'){
-			putchar(span);
+			drv_putchar(span);
 		}else{
 			span = *(format++);
 			if(span == 'c'){
 				j = va_arg(arg_ptr,int);//get value of char
-				putchar(j);
+				drv_putchar(j);
 			}else if(span == 'd'){
 				m = va_arg(arg_ptr,int);//get value of char
 				if(m<0){
-					putchar('-');
+					drv_putchar('-');
 					m = -m;
 				}
 				puti(m,DECIMAL_OUTPUT);
@@ -94,7 +105,7 @@ int Tl_printf(const char *format, ...){
 			}else if(span == 0){
 				break;
 			}else{
-				putchar(span);
+				drv_putchar(span);
 			}
 		}
 
@@ -103,5 +114,5 @@ int Tl_printf(const char *format, ...){
 
 	return 0;
 }
-
+#endif
 

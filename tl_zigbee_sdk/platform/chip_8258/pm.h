@@ -21,24 +21,9 @@
  *******************************************************************************************************/
 #pragma once
 
-#include "bsp.h"
+#include "bit.h"
+#include "analog.h"
 #include "gpio.h"
-
-
-static inline void usb_dp_pullup_en (int en)
-{
-	unsigned char dat = ReadAnalogReg(0x0b);
-	if (en) {
-		dat = dat | BIT(7);
-	}
-	else
-	{
-		dat = dat & 0x7f ;
-	}
-
-	WriteAnalogReg (0x0b, dat);
-}
-
 
 
 
@@ -171,5 +156,5 @@ void shutdown_gpio(void);  //for debug
 
 unsigned int cpu_get_32k_tick_from_analog(void);
 
-#define PM_Get32kTick			 cpu_get_32k_tick
-#define pm_start				 sleep_start
+
+
