@@ -1,6 +1,7 @@
 stages:
   - build
   - cov
+  - fossid
 
 build:
   stage: build
@@ -11,7 +12,6 @@ build:
   script:
     - which tc32-elf-gcc
     - chmod +x tl_zigbee_sdk/tools/*.sh
-    #- cd tl_zigbee_sdk/build/tlsr_tc32
     - date
     - ls tl_zigbee_sdk/build/tlsr_tc32
     - $TC32_ECLIPSE_BUILD  -data ${CI_PIPELINE_ID}_WS1  -import tl_zigbee_sdk/build/tlsr_tc32 -cleanBuild tl_zigbee_sdk/sampleLight_8258
@@ -22,7 +22,6 @@ build:
     - "tl_zigbee_sdk/build/tlsr_tc32/sampleLight_8258/*.bin"
     - "tl_zigbee_sdk/build/tlsr_tc32/sampleLight_8258/*.lst"
     - "tl_zigbee_sdk/build/tlsr_tc32/sampleLight_8258/*.elf"
-    - "tl_zigbee_sdk/build/tlsr_tc32"
     
 # The cov job definition
 cov:
@@ -41,3 +40,14 @@ cov:
     - $COV_A COV_$CI_PROJECT_NAME    
     - cov_add_commit_steam_project_2_platform.sh
         
+fossid:
+  tags:
+    - FOSSID
+  stage: fossid
+  script:
+    - fossid_check.sh
+  artifacts:
+    paths:
+    - fossid*.txt
+  when: manual
+
