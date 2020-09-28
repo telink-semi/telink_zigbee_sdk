@@ -14,14 +14,14 @@ build:
     #- cd tl_zigbee_sdk/build/tlsr_tc32
     - date
     - ls tl_zigbee_sdk/build/tlsr_tc32
-    - $TC32_ECLIPSE_BUILD  -data ${CI_PIPELINE_ID}_WS1  -import  tl_zigbee_sdk/build/tlsr_tc32 -cleanBuild tl_zigbee_sdk/sampleGW_8258
+    - $TC32_ECLIPSE_BUILD  -data ${CI_PIPELINE_ID}_WS1  -import  tl_zigbee_sdk/build/tlsr_tc32 -cleanBuild tl_zigbee_sdk/sampleLight_8258
     - date
 
   artifacts:
     paths:
-    - "tl_zigbee_sdk/sampleGw_8258/*.bin"
-    - "tl_zigbee_sdk/sampleGw_8258/*.lst"
-    - "tl_zigbee_sdk/sampleGw_8258/*.elf"
+    - "tl_zigbee_sdk/build/tlsr_tc32/sampleLight_8258/*.bin"
+    - "tl_zigbee_sdk/build/tlsr_tc32/sampleLight_8258/*.lst"
+    - "tl_zigbee_sdk/build/tlsr_tc32/sampleLight_8258/*.elf"
     - "tl_zigbee_sdk/build/tlsr_tc32"
     
 # The cov job definition
