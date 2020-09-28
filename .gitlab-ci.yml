@@ -1,8 +1,6 @@
 stages:
   - build
   - cov
-  - clean_build
-  - clean_cov
 
 build:
   stage: build
@@ -42,25 +40,3 @@ cov:
     - $COV_A COV_$CI_PROJECT_NAME    
     - cov_add_commit_steam_project_2_platform.sh
         
-clean_build:
-  stage: clean_build
-  tags:
-    - LINUX
-    - TC32
-  script:
-    - ls -a
-    - rm -r * .git*
-    - ls -a
-  when: always
-
-clean_cov:  
-  stage: clean_cov  
-  tags:    
-    - COV    
-    - LINUX    
-    - TC32    
-  script:    
-    - ls -a    
-    - rm -rf * .git*    
-    - ls -a  
-  when: always
