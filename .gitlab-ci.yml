@@ -49,5 +49,5 @@ fossid:
   artifacts:
     paths:
     - fossid*.txt
-  when: manual
+  #when: manual
 
