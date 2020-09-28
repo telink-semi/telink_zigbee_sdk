@@ -6,7 +6,7 @@
  ****************************************************************************
 PURPOSE: MAC layer main module
 */
-#include "../common/includes/zb_common.h"
+#include "zb_common.h"
 
 
 /* PIB access and min/max table type */

@@ -24,7 +24,7 @@
 /**********************************************************************
  * INCLUDES
  */
-#include "../common/includes/zb_common.h"
+#include "zb_common.h"
 
 #if ZBHCI_EN
 #include "zbhci.h"

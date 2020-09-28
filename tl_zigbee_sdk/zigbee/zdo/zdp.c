@@ -1,4 +1,4 @@
-#include "../common/includes/zb_common.h"
+#include "zb_common.h"
 
 
 typedef void (*zdp_funcCb)(void *ind);

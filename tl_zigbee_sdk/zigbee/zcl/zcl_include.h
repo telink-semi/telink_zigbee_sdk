@@ -22,7 +22,7 @@
 #ifndef ZCL_INCLUDE_H
 #define ZCL_INCLUDE_H
 
-#include "../common/includes/zb_common.h"
+#include "zb_common.h"
 
 #include "zcl_config.h"
 #include "zcl_const.h"
