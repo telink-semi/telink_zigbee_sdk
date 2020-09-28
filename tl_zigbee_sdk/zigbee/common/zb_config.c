@@ -23,7 +23,7 @@
 /**********************************************************************
  * INCLUDES
  */
-#include "zb_common.h"
+#include "includes/zb_common.h"
 
 sys_diagnostics_t g_sysDiags;
 

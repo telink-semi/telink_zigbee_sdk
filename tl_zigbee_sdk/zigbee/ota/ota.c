@@ -19,7 +19,7 @@
  *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
  *
  *******************************************************************************************************/
-#include "zb_common.h"
+#include "../common/includes/zb_common.h"
 #include "../zcl/zcl_include.h"
 #include "ota.h"
 

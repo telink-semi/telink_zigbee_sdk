@@ -23,7 +23,7 @@
 /**********************************************************************
  * INCLUDES
  */
-#include "zb_common.h"
+#include "../common/includes/zb_common.h"
 #include "../zcl/zcl_include.h"
 #include "../zcl/zll_commissioning/zcl_zll_commissioning_internal.h"
 #include "includes/bdb.h"
