@@ -14,7 +14,7 @@ build:
     #- cd tl_zigbee_sdk/build/tlsr_tc32
     - date
     - ls tl_zigbee_sdk/build/tlsr_tc32
-    - $TC32_ECLIPSE_BUILD  -data ${CI_PIPELINE_ID}_WS1  -import  tl_zigbee_sdk/build/tlsr_tc32 -cleanBuild tl_zigbee_sdk/sampleLight_8258
+    - $TC32_ECLIPSE_BUILD  -data ${CI_PIPELINE_ID}_WS1  -import tl_zigbee_sdk/build/tlsr_tc32 -cleanBuild tl_zigbee_sdk/sampleLight_8258
     - date
 
   artifacts:
@@ -36,8 +36,8 @@ cov:
     - TC32
   before_script:  
   script:    
-    - chmod +x tl_zigbee_sdk/*.sh    
-    - $COV_B COV_$CI_PROJECT_NAME $COV_B_TEMPLATE/$CODE_COMPILE_ARCH $TC32_ECLIPSE_BUILD  -data ${CI_PIPELINE_ID}_WS  -import ./tl_zigbee_sdk/  -cleanBuild $ECLIPSE_PROJECT/$ECLIPSE_BUILD_TARGET    
+    - chmod +x tl_zigbee_sdk/tools/*.sh    
+    - $COV_B COV_$CI_PROJECT_NAME $COV_B_TEMPLATE/$CODE_COMPILE_ARCH $TC32_ECLIPSE_BUILD  -data ${CI_PIPELINE_ID}_WS  -import tl_zigbee_sdk/build/tlsr_tc32  -cleanBuild tl_zigbee_sdk/sampleLight_8258    
     - $COV_A COV_$CI_PROJECT_NAME    
     - cov_add_commit_steam_project_2_platform.sh
         
