@@ -13,9 +13,10 @@ build:
   script:
     - which tc32-elf-gcc
     - chmod +x tl_zigbee_sdk/tools/*.sh
-    - cd tl_zigbee_sdk/build/tlsr_tc32
+    #- cd tl_zigbee_sdk/build/tlsr_tc32
     - date
-    - $TC32_ECLIPSE_BUILD  -data ${CI_PIPELINE_ID}_WS1  -import .  -cleanBuild tl_zigbee_sdk/sampleGW_8258
+    - ls tl_zigbee_sdk/build/tlsr_tc32
+    - $TC32_ECLIPSE_BUILD  -data ${CI_PIPELINE_ID}_WS1  -import  tl_zigbee_sdk/build/tlsr_tc32 -cleanBuild tl_zigbee_sdk/sampleGW_8258
     - date
 
   artifacts:
