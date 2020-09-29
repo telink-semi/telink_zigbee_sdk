@@ -1,4 +1,4 @@
-##V3.6.0-Beta
+## V3.6.0-Beta
 
 ### Features
    * Support 9518(B91) A0 chip, it needs to install Telink RDS IDE to compile.
