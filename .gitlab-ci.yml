@@ -66,17 +66,17 @@ build_tc32:
   before_script:
   script:
     - which tc32-elf-gcc
-    - chmod +x zigbee_sdk/tools/*.sh
+    - chmod +x tl_zigbee_sdk/tools/*.sh
     - date
-    - ls zigbee_sdk/build/tlsr_tc32
-    - $TC32_ECLIPSE_BUILD  -data ${CI_PIPELINE_ID}_WS1  -import zigbee_sdk/build/tlsr_tc32 -cleanBuild tl_zigbee_pro/sampleLight_8258
+    - ls tl_zigbee_sdk/build/tlsr_tc32
+    - $TC32_ECLIPSE_BUILD  -data ${CI_PIPELINE_ID}_WS1  -import tl_zigbee_sdk/build/tlsr_tc32 -cleanBuild tl_zigbee_sdk/sampleLight_8258
     - date
 
   artifacts:
     paths:
-    - "zigbee_sdk/build/tlsr_tc32/sampleLight_8258/*.bin"
-    - "zigbee_sdk/build/tlsr_tc32/sampleLight_8258/*.lst"
-    - "zigbee_sdk/build/tlsr_tc32/sampleLight_8258/*.elf"
+    - "tl_zigbee_sdk/build/tlsr_tc32/sampleLight_8258/*.bin"
+    - "tl_zigbee_sdk/build/tlsr_tc32/sampleLight_8258/*.lst"
+    - "tl_zigbee_sdk/build/tlsr_tc32/sampleLight_8258/*.elf"
 
 build_riscv:
   variables:    
@@ -87,19 +87,19 @@ build_riscv:
   script:
     - ls
     - pwd
-    - chmod +x zigbee_sdk/tools/*.sh
+    - chmod +x tl_zigbee_sdk/tools/*.sh
     - date
     - echo "--------------- Will build Demo -----------------"
     - echo #$ECLIPSE_PROJECT/$ECLIPSE_BUILD_TARGET
-    - $ANDESRISCV_ECLIPSE_BUILD  -data ${CI_PIPELINE_ID}_WS  -import zigbee_sdk/build/tlsr_riscv -cleanBuild tl_zigbee_pro/sampleLight_9518
+    - $ANDESRISCV_ECLIPSE_BUILD  -data ${CI_PIPELINE_ID}_WS  -import tl_zigbee_sdk/build/tlsr_riscv -cleanBuild tl_zigbee_sdk/sampleLight_9518
     - date
     - simpleMemoryMap.sh riscv32-elf-readelf | tee mm.csv
     - MemoryMap_Pretty.py mm.csv | tee mm_pretty.csv
 
   artifacts:
     paths:
-    - "zigbee_sdk/build/tlsr_riscv/sampleLight_9518/output/*.bin"
-    - "zigbee_sdk/build/tlsr_riscv/sampleLight_9518/*.elf"
+    - "tl_zigbee_sdk/build/tlsr_riscv/sampleLight_9518/output/*.bin"
+    - "tl_zigbee_sdk/build/tlsr_riscv/sampleLight_9518/*.elf"
     - mm_pretty.csv
     
 # The cov job definition
