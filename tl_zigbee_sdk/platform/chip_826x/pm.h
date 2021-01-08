@@ -1,28 +1,73 @@
-#ifndef PM_826x_H
-#define PM_826x_H
 /********************************************************************************************************
- * @file     pm_826x.h
+ * @file	pm.h
  *
- * @brief    power management function API for tlsr826x
+ * @brief	This is the header file for B86
  *
- * @author
- * @date     Dec. 1, 2016
+ * @author	Driver & Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) 2016, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *			 The information contained herein is confidential and proprietary property of Telink
- * 		     Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *			 of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *			 Co., Ltd. and the licensee in separate contract or the terms described here-in.
- *           This heading MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- * 			 Licensees are granted free, non-transferable use of the information in this
- *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
+#pragma once
 
-#include "register_826x.h"
+#include "bit.h"
+#include "gpio.h"
+
+
+//power on reset
+#define DEEP_ANA_REG0				0x3A//initial value =0x00
+#define DEEP_ANA_REG1				0x3B//initial value =0x00
+
+//watch dog reset
+#define DEEP_ANA_REG4				0x34//initial value =0x00
+#define DEEP_ANA_REG5				0x35//initial value =0x00
+#define DEEP_ANA_REG6				0x36//initial value =0x00
+#define DEEP_ANA_REG7				0x37//initial value =0x00
+#define DEEP_ANA_REG8				0x38//initial value =0x00
+#define DEEP_ANA_REG9				0x39//initial value =0xff
+
+
+#define SYS_NEED_REINIT_EXT32K		BIT(0)
+#define SYS_DEEP_SLEEP_FLAG			BIT(1)
+
+//ana3b system used, user can not use
+#define SYS_DEEP_ANA_REG 			DEEP_ANA_REG1
+
 
 enum {
 	// WAKEUP_SRC_ANA 0 -- 2  not supported
@@ -74,85 +119,40 @@ enum{
 	WAKEUP_GRP3_NEG_EDG = BIT(3),
 	WAKEUP_GRP4_NEG_EDG = BIT(4),
 	WAKEUP_GRP5_NEG_EDG = BIT(5),
-
 };
 
 typedef enum {
 	 WAKEUP_SRC_PAD        = BIT(4),
-	 WAKEUP_SRC_DIG_GPIO   = BIT(5) | 0X0800,
-     WAKEUP_SRC_DIG_USB    = BIT(5) | 0X0400,
+	 WAKEUP_SRC_DIG_GPIO   = BIT(5) | 0x0800,
+     WAKEUP_SRC_DIG_USB    = BIT(5) | 0x0400,
 	 WAKEUP_SRC_TIMER      = BIT(6),
 	 WAKEUP_SRC_COMP       = BIT(7),
 }WakeupSrc_TypeDef;
 
 enum {
-	LOWPWR_SUSPEND	 = 0,
-	LOWPWR_DEEPSLEEP  =     1,
+	LOWPWR_SUSPEND		= 0,
+	LOWPWR_DEEPSLEEP  	= 1,
 };
 
 enum {
-	SUSPEND_MODE	 = 0,
-	DEEPSLEEP_MODE  =     1,
+	SUSPEND_MODE	 	= 0,
+	DEEPSLEEP_MODE  	= 1,
 };
 
-typedef enum{
-    GROUPA_PIN0  = 0X000 | BIT(0),
-    GROUPA_PIN1  = 0X000 | BIT(1),
-    GROUPA_PIN2  = 0X000 | BIT(2),
-    GROUPA_PIN3  = 0X000 | BIT(3),
-    GROUPA_PIN4  = 0X000 | BIT(4),
-    GROUPA_PIN5  = 0X000 | BIT(5),
-    GROUPA_PIN6  = 0X000 | BIT(6),
-    GROUPA_PIN7  = 0X000 | BIT(7),
-    GROUPA_ALL   = 0X000 | 0X00ff,
+enum {
+	MCU_STATUS_BOOT	 		= 0,
+	MCU_STATUS_DEEP_BACK  	= 1,
+};
 
-    GROUPB_PIN0  = 0X100 | BIT(0),
-    GROUPB_PIN1  = 0X100 | BIT(1),
-    GROUPB_PIN2  = 0X100 | BIT(2),
-    GROUPB_PIN3  = 0X100 | BIT(3),
-    GROUPB_PIN4  = 0X100 | BIT(4),
-    GROUPB_PIN5  = 0X100 | BIT(5),
-    GROUPB_PIN6  = 0X100 | BIT(6),
-    GROUPB_PIN7  = 0X100 | BIT(7),
-    GROUPB_ALL   = 0X100 | 0x00ff,
+extern unsigned char pm_mcu_status;
 
-    GROUPC_PIN0  = 0X200 | BIT(0),
-    GROUPC_PIN1  = 0X200 | BIT(1),
-    GROUPC_PIN2  = 0X200 | BIT(2),
-    GROUPC_PIN3  = 0X200 | BIT(3),
-    GROUPC_PIN4  = 0X200 | BIT(4),
-    GROUPC_PIN5  = 0X200 | BIT(5),
-    GROUPC_PIN6  = 0X200 | BIT(6),
-    GROUPC_PIN7  = 0X200 | BIT(7),
-    GROUPC_ALL   = 0X200 | 0x00ff,
+static inline unsigned char pm_get_mcu_status(void)
+{
+	return pm_mcu_status;
+}
 
-    GROUPD_PIN0  = 0X300 | BIT(0),
-    GROUPD_PIN1  = 0X300 | BIT(1),
-    GROUPD_PIN2  = 0X300 | BIT(2),
-    GROUPD_PIN3  = 0X300 | BIT(3),
-    GROUPD_PIN4  = 0X300 | BIT(4),
-    GROUPD_PIN5  = 0X300 | BIT(5),
-    GROUPD_PIN6  = 0X300 | BIT(6),
-    GROUPD_PIN7  = 0X300 | BIT(7),
-    GROUPD_ALL   = 0X300 | 0x00ff,
-
-    GROUPE_PIN0  = 0X400 | BIT(0),
-    GROUPE_PIN1  = 0X400 | BIT(1),
-    GROUPE_PIN2  = 0X400 | BIT(2),
-    GROUPE_PIN3  = 0X400 | BIT(3),
-    GROUPE_ALL   = 0X400 | 0x000f,
-}Pin_TypeDef;
-
-/* used to restore data during deep sleep mode or reset by software */
-#define DATA_STORE_FLAG				0x55
-
-#define	REG_DEEP_BACK_FLAG			0x3A//power on reset clean
-#define	REG_DEEP_FLAG				0x34//watch dog reset clean
-#define	REG_FRAMECOUNT				0x35//watch dog reset clean, 4Bytes from 0x35 to 0x38
-
-extern void PM_PadSet(Pin_TypeDef pin, int pol, int en);
-extern void PM_GPIOSet(Pin_TypeDef pin, int pol, int en);
-extern void PM_WakeupInit(void);
+extern void PM_PadSet(GPIO_PinTypeDef pin, int pol, int en);
+extern void PM_GPIOSet(GPIO_PinTypeDef pin, int pol, int en);
 extern int  PM_LowPwrEnter(int DeepSleep, int WakeupSrc, unsigned long WakeupTick);
 extern int  PM_LowPwrEnter2(int DeepSleep, int WakeupSrc, unsigned long SleepDurationUs);
 extern int  cpu_sleep_wakeup(int DeepSleep, int WakeupSrc, unsigned long WakeupTick);
@@ -161,14 +161,3 @@ extern void sleep_start(void);
 extern void suspend_start(void);
 
 
-
-static inline void config_timer_interrupt (u32 tick) {
-	reg_tmr1_tick = 0;
-	reg_tmr1_capt = tick;
-	reg_tmr_ctrl8 |= FLD_TMR1_EN;
-	reg_irq_mask |= FLD_IRQ_TMR1_EN;
-}
-
-
-
-#endif //PM_H

@@ -1,25 +1,48 @@
 /********************************************************************************************************
- * @file     board_8278_evk.h
+ * @file	board_8278_evk.h
  *
- * @brief    board configuration for 8278 evk
+ * @brief	This is the header file for board_8278_evk
  *
- * @author
- * @date     Dec. 1, 2016
+ * @author	Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) 2016, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *			 The information contained herein is confidential and proprietary property of Telink
- * 		     Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *			 of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *			 Co., Ltd. and the licensee in separate contract or the terms described here-in.
- *           This heading MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- * 			 Licensees are granted free, non-transferable use of the information in this
- *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
-
 #pragma once
 
 /* Enable C linkage for C++ Compilers: */
@@ -27,8 +50,7 @@
 extern "C" {
 #endif
 
-#define FLASH_SIZE_1M				  1
-
+#define FLASH_CAP_SIZE_1M		  	1
 
 // BUTTON
 #define BUTTON1               		GPIO_PB2
@@ -58,46 +80,23 @@ extern "C" {
 #define LED_POWER					LED_R
 #define LED_PERMIT					LED_G
 
-
+// UART
 #if ZBHCI_UART
-#define UART_TX_PIN         		GPIO_PD0
-#define PD0_FUNC                	AS_UART
-#define PD0_INPUT_ENABLE        	0
-#define PD0_OUTPUT_ENABLE       	1
-#define PD0_DATA_STRENGTH       	0
+	#define UART_TX_PIN         	UART_TX_PD0
+	#define UART_RX_PIN         	UART_RX_PD6
 
-#define UART_RX_PIN         		GPIO_PD6
-#define PD6_FUNC                	AS_UART
-#define PD6_INPUT_ENABLE        	1
-#define PD6_OUTPUT_ENABLE       	0
-#define PD6_DATA_STRENGTH       	0
-#define PULL_WAKEUP_SRC_PD6     	PM_PIN_PULLUP_10K
-
-#define UART_PIN_CFG()				uart_gpio_set(UART_TX_PD0, UART_RX_PD6);// uart tx/rx pin set
+	#define UART_PIN_CFG()			uart_gpio_set(UART_TX_PIN, UART_RX_PIN);// uart tx/rx pin set
 #endif
 
-
-//DEBUG
+// DEBUG
 #if UART_PRINTF_MODE
 	#define	DEBUG_INFO_TX_PIN	    GPIO_PA2//print
-
-	#define DEBUG_TX_PIN_INIT()		do{	\
-										gpio_set_func(DEBUG_INFO_TX_PIN, AS_GPIO);	\
-										gpio_set_output_en(DEBUG_INFO_TX_PIN, 1);	\
-										gpio_setup_up_down_resistor(DEBUG_INFO_TX_PIN, PM_PIN_PULLUP_1M); \
-									}while(0)
 #endif
 
-
-#define PULL_WAKEUP_SRC_PA7         PM_PIN_PULLUP_1M  //SWS, should be pulled up, otherwise single wire would be triggered
-#define PULL_WAKEUP_SRC_PA5         PM_PIN_PULLUP_1M  //DM
-#define PULL_WAKEUP_SRC_PA6         PM_PIN_PULLUP_1M  //DP
-
+// USB
 #if ZBHCI_USB_PRINT || ZBHCI_USB_CDC || ZBHCI_USB_HID
-#define HW_USB_CFG()				do{ \
-										gpio_set_func(GPIO_PA5, AS_USB);	\
-										gpio_set_func(GPIO_PA6, AS_USB);	\
-										usb_dp_pullup_en(1);				\
+	#define HW_USB_CFG()			do{ \
+										usb_set_pin_en();	\
 									}while(0)
 #endif
 

@@ -1,47 +1,55 @@
 /********************************************************************************************************
- * @file     ev_buffer.c
+ * @file	ev_buffer.c
  *
- * @brief    Implementation of Telink EV Buffer Module
+ * @brief	This is the source file for ev_buffer
  *
- * @author   jian.zhang@telink-semi.com
- * @date     Oct. 8, 2016
+ * @author	Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) 2016, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *           The information contained herein is confidential property of Telink
- *           Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *           of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *           Co., Ltd. and the licensee or the terms described here-in. This heading
- *           MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- *           Licensees are granted free, non-transferable use of the information in this
- *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
-
-
-#include "../common/types.h"
-#include "../common/compiler.h"
-#include "../common/mempool.h"
-#include "../common/utility.h"
-#include "../common/string.h"
-#include "../common/assert.h"
-#include "../drivers/drv_hw.h"
-#include "ev.h"
+#include "../tl_common.h"
 #include "ev_buffer.h"
-
-
-#ifdef WIN32
-#include <malloc.h>
-#endif
 
 
 #define DEFAULT_BUFFER_GROUP_NUM                 4
 
-
 /**************************** Private Variable Definitions *******************/
-
 typedef struct {
 	mem_pool_t *qHead;
 	u16 size;
@@ -158,7 +166,7 @@ u8 *ev_buf_allocate(u16 size)
         /* the size parameter is wrong */
         return NULL;
     }
-    u32 r = disable_irq();
+    u32 r = drv_disable_irq();
     u8 index = U8_MAX;
 
     /* find related the buffer blocks */
@@ -170,12 +178,12 @@ u8 *ev_buf_allocate(u16 size)
     }
     if((index == U8_MAX ) || (!ev_buf_v->bufGroups[index].availBufNum)){
         /* no available buffer */
-    	restore_irq(r);
+    	drv_restore_irq(r);
         return NULL;
     }
     u8 *temp = (u8 *)mempool_alloc(ev_buf_v->bufGroups[index].qHead);
     if(!temp){
-    	restore_irq(r);
+    	drv_restore_irq(r);
     	return NULL;
     }
     ev_buf_v->bufGroups[index].availBufNum--;
@@ -186,7 +194,7 @@ u8 *ev_buf_allocate(u16 size)
     pNewBuf->line = line;
     pNewBuf->flag = 0xfe;
 #endif
-    restore_irq(r);
+    drv_restore_irq(r);
     return pNewBuf->data;
 }
 
@@ -211,7 +219,7 @@ buf_sts_t my_ev_buf_free(u8 *pBuf, u16 line)
 buf_sts_t ev_buf_free(u8 *pBuf)
 #endif
 {
-    u32 r = disable_irq();
+    u32 r = drv_disable_irq();
 
     if(!is_ev_buf(pBuf)){
 #if EV_BUFFER_DEBUG
@@ -234,7 +242,7 @@ buf_sts_t ev_buf_free(u8 *pBuf)
 
     	ZB_EXCEPTION_POST(SYS_EXCEPTTION_EV_BUFFER_EXCEPTION_FREE_MULIT);
 
-    	restore_irq(r);
+    	drv_restore_irq(r);
         return BUFFER_DUPLICATE_FREE;
     }
 
@@ -246,7 +254,7 @@ buf_sts_t ev_buf_free(u8 *pBuf)
     pDelBuf->flag = 0xff;
 #endif
 
-    restore_irq(r);
+    drv_restore_irq(r);
     return BUFFER_SUCC;
 }
 

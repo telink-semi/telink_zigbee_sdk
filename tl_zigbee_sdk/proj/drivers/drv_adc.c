@@ -1,31 +1,94 @@
 /********************************************************************************************************
- * @file     drv_adc.c
+ * @file	drv_adc.c
  *
- * @brief	 adc driver interface file
+ * @brief	This is the source file for drv_adc
  *
- * @author
- * @date     Oct. 8, 2016
+ * @author	Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) 2016, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *           The information contained herein is confidential property of Telink
- *           Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *           of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *           Co., Ltd. and the licensee or the terms described here-in. This heading
- *           MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- *           Licensees are granted free, non-transferable use of the information in this
- *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
-
 #include "../tl_common.h"
 
+#if	defined(MCU_CORE_826x)
+	#define ADC_VALUE_GET_WITH_BASE_MODE(v)		(3300 * (v - 128)/(16384 - 256))//Vref(mV) * (v - 128)/(2^14 - 2^8)
+	#define ADC_VALUE_GET_WITH_VBAT_MODE(v)		(3*(1428*(v - 128)/(16384 - 256)))
+#elif defined(MCU_CORE_B91)
+	#define ADC_DMA_CHN							DMA7
+	#define ADC_SAMPLE_NUM						8
+#endif
 
+#if defined(MCU_CORE_B91)
+/**
+ * @brief This function serves to get adc sample code by dma and convert to voltage value.
+ * @return 		adc_vol_mv_average 	- the average value of adc voltage value.
+ */
+static u16 adc_get_voltage_dma(void)
+{
+	u16 adc_sample_buffer[ADC_SAMPLE_NUM] = {0};
+	u16 adc_code_average = 0;
+
+	adc_get_code_dma(adc_sample_buffer, ADC_SAMPLE_NUM);
+
+	/* insert sort and get average value */
+	u16 temp = 0;
+	s8 i, j;
+	for(i = 1; i < ADC_SAMPLE_NUM; i++){
+		if(adc_sample_buffer[i] < adc_sample_buffer[i - 1]){
+			temp = adc_sample_buffer[i];
+			adc_sample_buffer[i] = adc_sample_buffer[i - 1];
+			for(j = i - 1; j >= 0 && adc_sample_buffer[j] > temp; j--){
+				adc_sample_buffer[j + 1] = adc_sample_buffer[j];
+			}
+			adc_sample_buffer[j + 1] = temp;
+		}
+	}
+	/* get average value from raw data(abandon 1/4 small and 1/4 big data) */
+	for(i = ADC_SAMPLE_NUM >> 2; i < (ADC_SAMPLE_NUM - (ADC_SAMPLE_NUM >> 2)); i++){
+		adc_code_average += adc_sample_buffer[i] / (ADC_SAMPLE_NUM >> 1);
+	}
+
+	return adc_calculate_voltage(adc_code_average);
+}
+#endif
 
 /****
-* brief: ADC initiate function, set the ADC clock details (4MHz) and start the ADC clock.
+* brief: ADC initiate function
 * param[in] null
 *
 * @return	  1: set success ;
@@ -34,14 +97,14 @@
 bool drv_adc_init(void)
 {
 #if	defined(MCU_CORE_826x)
-	//set the ADC clock details (4MHz) and start the ADC clock.
-	return ADC_Init();
+	ADC_Init();
+	AUDIO2ADC();
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	adc_init();
-	return TRUE;
 #elif defined(MCU_CORE_B91)
-	return TRUE;
+	adc_set_dma_config(ADC_DMA_CHN);
 #endif
+	return TRUE;
 }
 
 /****
@@ -52,123 +115,61 @@ bool drv_adc_init(void)
 u16 drv_get_adc_data(void)
 {
 #if defined(MCU_CORE_826x)
-	return ADC_SampleValueGet();
+	u32 tmpSum = 0;
+	for(u8 i = 0; i < 8; i++){
+		tmpSum += ADC_SampleValueGet();
+	}
+	tmpSum /= 8;
+	if(tmpSum < 128){
+		tmpSum = 128;
+	}
+	return (u16)ADC_VALUE_GET_WITH_VBAT_MODE(tmpSum);
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	return (u16)adc_sample_and_get_result();
 #elif defined(MCU_CORE_B91)
-	return 0;
+	return adc_get_voltage_dma();
 #endif
 }
 
-
-#if defined(MCU_CORE_826x)
-/****
-* brief: Set ADC channel,8269 only support the left and misc channel
-* param[in] ad_ch, enum the channel
-*
-* @return
-*/
-static void drv_adc_channel_set(Drv_ADC_ChTypeDef ad_ch)
-{
-	if(ad_ch == Drv_ADC_LEFT_CHN){
-		ADC2AUDIO();
-	}else if(ad_ch == Drv_ADC_MISC_CHN){
-		AUDIO2ADC();
-	}else{
-		//unsupported!
-	}
-}
-
-/****
-* brief: set the hardware channel of analog input
-* param[in] adc_chan, enum the channel,the same as the drv_adc_channel_set
-* param[in] mode,single or differential mode
-* param[in] pcha_p,the positive input
-* param[in] pcha_n,the negative input,if the single mode,it is GND
-* @return
-*/
-static void drv_set_mode_Pcha(Drv_ADC_ChTypeDef adc_chan, DRV_ADC_InputModeTypeDef mode, u8 pcha_p, u8 pcha_n)
-{
-	ADC_AnaModeSet(mode);
-	ADC_AnaChSet(pcha_p);
-}
-
-
-/****
-* brief: set the sample time cycle
-* param[in] adc_chan, enum the channel,the same as the drv_adc_channel_set
-* param[in] sample_time,the sample time cycle,reference to the API.
-* @return
-*/
-static void drv_set_sample_time(Drv_ADC_ChTypeDef adc_chan, u8 sample_time)
-{
-	ADC_SampleTimeSet(sample_time);
-}
-
-
-/****
-* brief: set the sample reference voltage
-* param[in] adc_chan, enum the channel,the same as the drv_adc_channel_set
-* param[in] ref_vol,the reference voltage,should be the enum mode,reference to the API.
-* @return
-*/
-static void drv_set_ref_vol(Drv_ADC_ChTypeDef adc_chan, u8 ref_vol)
-{
-	ADC_RefVoltageSet(ref_vol);
-}
-
-/****
-* brief: set the sample resolution
-* param[in] adc_chan, enum the channel,the same as the drv_adc_channel_set
-* param[in] res,the reference voltage,should be the enum mode,reference to the API.
-* @return
-*/
-static void drv_set_resolution(Drv_ADC_ChTypeDef adc_chan, u8 res)
-{
-	ADC_ResSet(res);
-}
-
-/****
-* brief: set the ADC setting parameter
-* param[in] adc_chan, enum the channel
-* param[in] mode,single or differential mode
-* param[in] pcha_p,the positive input
-* param[in] pcha_n,the negative input,if the single mode,it is GND
-* param[in] sample_time,the sample time cycle,reference to the API.
-* param[in] ref_vol,the reference voltage,should be the enum mode,reference to the API.
-* param[in] res,the reference voltage,should be the enum mode,reference to the API.
-* @return
-*/
-void drv_ADC_ParamSetting(Drv_ADC_ChTypeDef ad_ch, DRV_ADC_InputModeTypeDef mode, u8 pcha_p, u8 pcha_n, u8 sample_time, u8 ref_vol, u8 res)
-{
-	drv_adc_channel_set(ad_ch);
-	drv_set_mode_Pcha(ad_ch, mode, pcha_p, pcha_n);
-	drv_set_sample_time(ad_ch, sample_time);
-	drv_set_ref_vol(ad_ch, ref_vol);
-	drv_set_resolution(ad_ch, res);
-}
-#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 /****
 * brief: Set ADC mode and pin
 * param[in] mode, base or vbat mode
-* param[in] pin, the output pin number
+* param[in] pin, the pin number
 * @return
 */
-void drv_adc_mode_pin_set(Drv_ADC_Mode mode, GPIO_PinTypeDef pin)
+#if defined(MCU_CORE_826x)
+void drv_adc_mode_pin_set(drv_adc_mode_t mode, ADC_InputPTypeDef pin)
 {
-	if(mode == Drv_ADC_BASE_MODE){
+	if(mode == DRV_ADC_BASE_MODE){
+		ADC_ParamSetting(pin, SINGLEEND, RV_AVDD, RES14, S_3);
+	}else if(mode == DRV_ADC_VBAT_MODE){
+		ADC_BatteryCheckInit(Battery_Chn_VCC);
+	}
+}
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+void drv_adc_mode_pin_set(drv_adc_mode_t mode, GPIO_PinTypeDef pin)
+{
+	if(mode == DRV_ADC_BASE_MODE){
 		adc_base_init(pin);
-	}else if(mode == Drv_ADC_VBAT_MODE){
+	}else if(mode == DRV_ADC_VBAT_MODE){
 		adc_vbat_init(pin);
 	}
-#if defined(MCU_CORE_8278)
-	else if(mode == Drv_ADC_VBAT_CHANNEL_MODE){
-		adc_vbat_channel_init();
-	}else if(mode == Drv_ADC_TEMP_MODE){
-		adc_temp_init();
-	}
-#endif
 }
+#elif defined(MCU_CORE_B91)
+void drv_adc_mode_pin_set(drv_adc_mode_t mode, adc_input_pin_def_e pin)
+{
+	if(mode == DRV_ADC_BASE_MODE){
+		adc_gpio_sample_init(pin, ADC_VREF_1P2V, ADC_PRESCALE_1F4, ADC_SAMPLE_FREQ_96K);
+	}else if(mode == DRV_ADC_VBAT_MODE){
+		/* The battery voltage sample range is 1.8~3.5V,
+		 * and must set sys_init() function with the mode for battery voltage less than 3.6V.
+		 * For battery voltage > 3.6V, should take some external voltage divider.
+		 */
+		(void)pin;
+		adc_battery_voltage_sample_init();
+	}
+}
+#endif
 
 /**
  * @brief      This function sets sar_adc power.
@@ -177,18 +178,21 @@ void drv_adc_mode_pin_set(Drv_ADC_Mode mode, GPIO_PinTypeDef pin)
  */
 void drv_adc_enable(bool enable)
 {
+#if defined(MCU_CORE_826x)
+	if(enable){
+		EN_ADCCLK;
+	}else{
+		DIS_ADCCLK;
+	}
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	adc_power_on_sar_adc((unsigned char)enable);
+#elif defined(MCU_CORE_B91)
+	if(enable){
+		adc_power_on();
+	}else{
+		adc_power_off();
+	}
+#endif
 }
 
-#if defined(MCU_CORE_8278)
-/****
-* brief: get the sample temperature data
-* param[in] null
-* @return,the result
-*/
-u16 drv_get_temp_result(void){
-	return adc_temp_result();
-}
-#endif
 
-#endif

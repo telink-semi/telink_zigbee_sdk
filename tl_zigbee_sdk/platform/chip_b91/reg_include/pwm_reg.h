@@ -1,33 +1,53 @@
 /********************************************************************************************************
- * @file     pwm_reg.h
+ * @file	pwm_reg.h
  *
- * @brief    This is the source file for TLSR9518
+ * @brief	This is the header file for B91
  *
- * @author	 Driver Group
- * @date     September 16, 2019
+ * @author	Driver Group
+ * @date	2019
  *
- * @par      Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *           The information contained herein is confidential property of Telink
- *           Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *           of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *           Co., Ltd. and the licensee or the terms described here-in. This heading
- *           MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- *           Licensees are granted free, non-transferable use of the information in this
- *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
- * @par      History:
- * 			 1.initial release(September 16, 2019)
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
  *
- * @version  A001
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
 #ifndef PWM_REG_H
 #define PWM_REG_H
 
 #include "../sys.h"
-#include "bit.h"
+
 
 
 /*******************************      pwm registers: 0x140400      ******************************/
@@ -153,18 +173,27 @@ enum{
  * The lower 16 bits indicate the length of the CMP segment. The higher 16 bits indicate the length of the MAX segment.
  */
 #define reg_pwm_cycle(i)		REG_ADDR32(REG_PWM_BASE+0x14 + (i << 2))
-enum{
-	FLD_PWM_CMP  = 				BIT_RNG(0,15),
-	FLD_PWM_MAX  = 				BIT_RNG(16,31),
-};
-
-
+//enum{
+//	FLD_PWM_CMP  = 				BIT_RNG(0,15),
+//	FLD_PWM_MAX  = 				BIT_RNG(16,31),
+//};
+// in C99 FLD_PWM_MAX  = BIT_RNG(16,31) is error
+#define	FLD_PWM_CMP  = 				BIT_RNG(0,15),
+#define	FLD_PWM_MAX  = 				BIT_RNG(16,31),
 /**
  * This register configures the length of the max segment of PWM5 ~ PWM0.
  * This value has a total of 16 bits, divided into lower 8 bits and higher 8 bits.
  */
 #define reg_pwm_max(i)			REG_ADDR16(REG_PWM_BASE+0x16 + (i << 2))
 
+/*
+ * when update the duty cycle in 32K, this register bit(0) set 1.
+ */
+#define reg_pwm_cnt5_l      REG_ADDR8(REG_PWM_BASE+0x3e)
+
+enum{
+	FLD_PWM_32K_DUTY_CYCLE_UPDATE   =   BIT(0),
+};
 
 /**
  * When PWM0 is in count mode or ir mode, the total number of pulse_number is set by the following two registers.

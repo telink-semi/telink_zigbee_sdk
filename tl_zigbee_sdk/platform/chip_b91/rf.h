@@ -3,26 +3,44 @@
  *
  * @brief	This is the header file for B91
  *
- * @author	W.Z.W
+ * @author	Driver Group
  * @date	2019
  *
- * @par		Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd.
- *			All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *			The information contained herein is confidential property of Telink
- *          Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *          of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *          Co., Ltd. and the licensee or the terms described here-in. This heading
- *          MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- *          Licensee shall not delete, modify or alter (or permit any third party to delete, modify, or  
- *          alter) any information contained herein in whole or in part except as expressly authorized  
- *          by Telink semiconductor (shanghai) Co., Ltd. Otherwise, licensee shall be solely responsible  
- *          for any claim to the extent arising out of or relating to such deletion(s), modification(s)  
- *          or alteration(s).
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
  *
- *          Licensees are granted free, non-transferable use of the information in this
- *          file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
 #ifndef     RF_H
@@ -55,27 +73,17 @@
 #define 	rf_ble_dma_rx_offset_time_stamp(p)			(p[RF_BLE_DMA_RFRX_OFFSET_RFLEN]+9)  //data len:4
 #define 	rf_ble_dma_rx_offset_freq_offset(p)			(p[RF_BLE_DMA_RFRX_OFFSET_RFLEN]+13) //data len:2
 #define 	rf_ble_dma_rx_offset_rssi(p)				(p[RF_BLE_DMA_RFRX_OFFSET_RFLEN]+15) //data len:1, signed
-#define		rf_ble_packet_length_ok(p)					( *((unsigned int*)p) == p[5]+13)    			//dma_len must 4 byte aligned
+#define		rf_ble_packet_length_ok(p)					(p[5] <= reg_rf_rxtmaxlen)    			//dma_len must 4 byte aligned
 #define		rf_ble_packet_crc_ok(p)						((p[(p[5]+5 + 11)] & 0x01) == 0x0)
 
-/***********************************************************FOR ZIGBEE******************************************************/
 /**
- *  @brief Those setting of offset according to ble packet format, so this setting for ble only.
+ * @brief		This define for ble debug the effect of rx_dly.
+ * 				when this function turn on the time of rx_dly will shorten 6.3us,
  */
-#define 	RF_ZIGBEE_DMA_RFRX_OFFSET_RFLEN				4
-
-/**
- *  @brief According to the packet format find the information of packet through offset.
- */
-#define 	rf_zigbee_dma_rx_offset_crc(p)				(p[RF_ZIGBEE_DMA_RFRX_OFFSET_RFLEN]+3)  //data len:2
-#define 	rf_zigbee_dma_rx_offset_time_stamp(p)		(p[RF_ZIGBEE_DMA_RFRX_OFFSET_RFLEN]+5)  //data len:4
-#define 	rf_zigbee_dma_rx_offset_freq_offset(p)		(p[RF_ZIGBEE_DMA_RFRX_OFFSET_RFLEN]+9)  //data len:2
-#define 	rf_zigbee_dma_rx_offset_rssi(p)				(p[RF_ZIGBEE_DMA_RFRX_OFFSET_RFLEN]+11) //data len:1, signed
-#define		rf_zigbee_packet_length_ok(p)				(1)
-#define     rf_zigbee_packet_crc_ok(p)       			((p[(p[4]+9+3)] & 0x51) == 0x0)
-#define 	rf_zigbee_packet_payload_length_get(p)  	(p[4])
+#define 	RF_RX_SHORT_MODE_EN			1//In order to debug whether the problem is caused by rx_dly.
 
 /******************************************************FOR ESB************************************************************/
+
 /**
  *  @brief Those setting of offset according to private esb packet format, so this setting for ble only.
  */
@@ -84,20 +92,41 @@
 /**
  *  @brief According to the packet format find the information of packet through offset.
  */
-#define 	rf_pri_esb_dma_rx_offset_crc(p)				(p[RF_PRI_ESB_DMA_RFRX_OFFSET_RFLEN]+5)  //data len:2
-#define 	rf_pri_esb_dma_rx_offset_time_stamp(p)		(p[RF_PRI_ESB_DMA_RFRX_OFFSET_RFLEN]+7)  //data len:4
-#define 	rf_pri_esb_dma_rx_offset_freq_offset(p)		(p[RF_PRI_ESB_DMA_RFRX_OFFSET_RFLEN]+11) //data len:2
-#define 	rf_pri_esb_dma_rx_offset_rssi(p)			(p[RF_PRI_ESB_DMA_RFRX_OFFSET_RFLEN]+13) //data len:1, signed
+
+#define 	rf_pri_esb_dma_rx_offset_crc(p)					(p[RF_PRI_ESB_DMA_RFRX_OFFSET_RFLEN]+5)  //data len:2
+#define 	rf_pri_esb_dma_rx_offset_time_stamp(p)			(p[RF_PRI_ESB_DMA_RFRX_OFFSET_RFLEN]+7)  //data len:4
+#define 	rf_pri_esb_dma_rx_offset_freq_offset(p)			(p[RF_PRI_ESB_DMA_RFRX_OFFSET_RFLEN]+11) //data len:2
+#define 	rf_pri_esb_dma_rx_offset_rssi(p)				(p[RF_PRI_ESB_DMA_RFRX_OFFSET_RFLEN]+13) //data len:1, signed
 #define     rf_pri_esb_packet_crc_ok(p)            		((p[((p[4] & 0x3f) + 11+3)] & 0x01) == 0x00)
 
 
-#define     rf_pri_sb_packet_crc_ok(p)              	((p[(reg_rf_sblen & 0x3f)+4+9] & 0x01) == 0x00)
+/******************************************************FOR ZIGBEE************************************************************/
+
+/**
+ *  @brief Those setting of offset according to zigbee packet format, so this setting for zigbee only.
+ */
+
+#define 	RF_ZIGBEE_DMA_RFRX_OFFSET_RFLEN				4
+
+/**
+ *  @brief According to the packet format find the information of packet through offset.
+ */
+
+
+#define 	rf_zigbee_dma_rx_offset_crc(p)					(p[RF_ZIGBEE_DMA_RFRX_OFFSET_RFLEN]+3)  //data len:2
+#define 	rf_zigbee_dma_rx_offset_time_stamp(p)			(p[RF_ZIGBEE_DMA_RFRX_OFFSET_RFLEN]+5)  //data len:4
+#define 	rf_zigbee_dma_rx_offset_freq_offset(p)			(p[RF_ZIGBEE_DMA_RFRX_OFFSET_RFLEN]+9) //data len:2
+#define 	rf_zigbee_dma_rx_offset_rssi(p)				(p[RF_ZIGBEE_DMA_RFRX_OFFSET_RFLEN]+11) //data len:1, signed
+#define     rf_zigbee_packet_crc_ok(p)       			((p[(p[4]+9+3)] & 0x51) == 0x0)
+#define		rf_zigbee_get_payload_len(p)				(p[4])
+#define		rf_zigbee_packet_length_ok(p)				(1)
 /**
  *  @brief According to different packet format find the crc check digit.
  */
+#define     rf_pri_sb_packet_crc_ok(p)              	((p[(reg_rf_sblen & 0x3f)+4+9] & 0x01) == 0x00)
 #define     rf_hybee_packet_crc_ok(p)       			((p[(p[4]+9+3)] & 0x51) == 0x0)
 
-
+#define     rf_ant_packet_crc_ok(p)              	((p[(reg_rf_sblen & 0x3f)+4+9] & 0x01) == 0x00)
 
 /**********************************************************************************************************************
  *                                       RF global data type                                                          *
@@ -109,7 +138,8 @@
 typedef enum {
     RF_MODE_TX = 0,		/**<  Tx mode */
     RF_MODE_RX = 1,		/**<  Rx mode */
-    RF_MODE_AUTO=2		/**<  Auto mode */
+    RF_MODE_AUTO=2,		/**<  Auto mode */
+	RF_MODE_OFF =3		/**<  TXRX OFF mode */
 } rf_status_e;
 
 /**
@@ -337,7 +367,6 @@ static inline void rf_access_code_comm (unsigned int acc)
 {
 	reg_rf_access_code = acc;
 	//The following two lines of code are for trigger access code in S2,S8 mode.It has no effect on other modes.
-	reg_rf_modem_mode_cfg_rx1_0 &= ~FLD_RF_LR_TRIG_MODE;
 	write_reg8(0x140c25,read_reg8(0x140c25)|0x01);
 }
 
@@ -429,6 +458,25 @@ static inline void rf_set_rx_maxlen(unsigned int byte_len)
 }
 
 
+/**
+ * @brief		This function serve to rx dma fifo size.
+ * @param[in]	fifo_byte_size - the size of each fifo.
+ * @return		none
+ */
+static inline void rf_set_rx_dma_fifo_size(unsigned short fifo_byte_size)
+{
+	reg_rf_bb_rx_size = fifo_byte_size>>4;
+}
+/**
+ * @brief		This function serve to set rx dma wptr.
+ * @param[in]	wptr	-rx_wptr_real=rx_wptr & mask:After receiving 4 packets,the address returns to original address.mask value must in (0x01,0x03,0x07,0x0f).
+ * @return 		none
+ */
+static inline void rf_set_rx_dma_fifo_num(unsigned char fifo_num)
+{
+	reg_rf_rx_wptr_mask = fifo_num; //rx_wptr_real=rx_wptr & mask:After receiving 4 packets,the address returns to original address.mask value must in (0x01,0x03,0x07,0x0f).
+}
+
 
 /**
  * @brief	  	This function serves to DMA rxFIFO address
@@ -438,9 +486,29 @@ static inline void rf_set_rx_maxlen(unsigned int byte_len)
  * @param[in]	rx_addr   - The address store receive packet.
  * @return	 	none
  */
-static inline void rf_set_rx_buffer(unsigned int rx_addr)
+static inline void rf_set_rx_buffer(unsigned char *rx_addr)
 {
-	dma_set_dst_address(DMA1,convert_ram_addr_cpu2bus(rx_addr + 4));
+	rx_addr += 4;
+	dma_set_dst_address(DMA1,convert_ram_addr_cpu2bus(rx_addr));
+}
+/**
+ * @brief		This function serve to set the number of tx dma fifo.
+ * @param[in]	fifo_dep - the number of dma fifo is 2 to the power of fifo_dep.
+ * @return		none
+ */
+static inline void rf_set_tx_dma_fifo_num(unsigned char fifo_num)
+{
+	reg_rf_bb_tx_chn_dep = fifo_num;//tx_chn_dep = 2^2 =4 (have 4 fifo)
+}
+
+/**
+ * @brief		This function serve to set the number of tx dma fifo.
+ * @param[in]	fifo_byte_size - the size of each dma fifo.
+ * @return		none
+ */
+static inline void rf_set_tx_dma_fifo_size(unsigned short fifo_byte_size)
+{
+	reg_rf_bb_tx_size	= fifo_byte_size>>4;//tx_idx_addr = {tx_chn_adr*bb_tx_size,4'b0}// in this setting the max data in one dma buffer is 0x20<<4.And the The product of fifo_dep and bytesize cannot exceed 0xfff.
 }
 /**
  * @brief   This function serves to set RF tx settle time.
@@ -671,6 +739,21 @@ void rf_set_hybee_2M_mode(void);
 void rf_set_hybee_1M_mode(void);
 
 
+
+
+
+/**
+ * @brief     This function serves to set ant  mode of RF.
+ * @return	   none.
+ */
+void rf_set_ant_mode(void);
+
+/**
+ * @brief     This function serves to set RF tx DMA setting.
+ * @param[in] none
+ * @return	  none.
+ */
+void rf_set_tx_dma_config(void);
 /**
  * @brief     This function serves to set RF tx DMA setting.
  * @param[in] fifo_depth  		- tx chn deep.
@@ -689,6 +772,12 @@ void rf_set_tx_dma(unsigned char fifo_depth,unsigned short fifo_byte_size);
  */
 void rf_set_rx_dma(unsigned char *buff,unsigned char wptr_mask,unsigned short fifo_byte_size);
 
+/**
+ * @brief		This function serve to rx dma config
+ * @param[in]	none
+ * @return		none
+ */
+void rf_set_rx_dma_config(void);
 
 /**
  * @brief     This function serves to trigger srx on.
@@ -727,7 +816,7 @@ void rf_set_txmode(void);
  * @param[in]	addr   - The packet address which to send.
  * @return	 	none.
  */
-void rf_tx_pkt(void* addr);
+_attribute_ram_code_sec_ void rf_tx_pkt(void* addr);
 
 
 /**
@@ -776,7 +865,7 @@ void rf_pn_disable(void);
  * @param[in]   addr       - address of rx packet.
  * @return  	the next rx_packet address.
  */
-u8* rf_get_rx_packet_addr(int fifo_num,int fifo_dep,void* addr);
+unsigned char* rf_get_rx_packet_addr(int fifo_num,int fifo_dep,void* addr);
 
 
 /**
@@ -846,7 +935,7 @@ void rf_set_access_code_len(unsigned char byte_len);
  * @param[in]	acc	-The value access code
  * @note		For compatibility with previous versions the access code should be bit transformed by bit_swap();
  */
-void rf_set_pipe_access_code (unsigned int pipe_id, unsigned int acc);
+void rf_set_pipe_access_code (unsigned int pipe_id, unsigned char *addr);
 
 /**
  * @brief   This function serves to set RF rx timeout.
@@ -961,11 +1050,5 @@ _attribute_ram_code_sec_noinline_ void rf_start_brx  (void* addr, unsigned int t
 _attribute_ram_code_sec_noinline_ void rf_start_btx (void* addr, unsigned int tick);
 
 
-void rf_tx_dma_cfg(unsigned char fifo_dep, unsigned short fifo_byte_size);
-void rf_rx_dma_cfg(unsigned char wptr_mask, unsigned short fifo_byte_size);
-
-#define rf_tx_finish()				(rf_get_irq_status(FLD_RF_IRQ_TX))
-#define rf_tx_finish_clear_flag()	(rf_clr_irq_status(FLD_RF_IRQ_TX))
-#define rf_rx_finish_clear_flag()	(rf_clr_irq_status(FLD_RF_IRQ_RX))
 
 #endif

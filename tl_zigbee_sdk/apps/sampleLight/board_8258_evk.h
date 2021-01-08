@@ -1,37 +1,54 @@
 /********************************************************************************************************
- * @file     board_8258_evk.h
+ * @file	board_8258_evk.h
  *
- * @brief    board configuration for 8258 evk
+ * @brief	This is the header file for board_8258_evk
  *
- * @author
- * @date     Dec. 1, 2016
+ * @author	Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) 2016, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *			 The information contained herein is confidential and proprietary property of Telink
- * 		     Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *			 of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *			 Co., Ltd. and the licensee in separate contract or the terms described here-in.
- *           This heading MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- * 			 Licensees are granted free, non-transferable use of the information in this
- *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
-
 #pragma once
 
 /* Enable C linkage for C++ Compilers: */
 #if defined(__cplusplus)
 extern "C" {
 #endif
-
-#define PULL_WAKEUP_SRC_PA7           PM_PIN_PULLUP_1M  //SWS, should be pulled up, otherwise single wire would be triggered
-#define PULL_WAKEUP_SRC_PA5           PM_PIN_PULLUP_1M  //DM
-#define PULL_WAKEUP_SRC_PA6           PM_PIN_PULLUP_1M  //DP
-
-
 
 
 // BUTTON
@@ -47,36 +64,30 @@ extern "C" {
 #define PD2_INPUT_ENABLE	  1
 #define	PULL_WAKEUP_SRC_PD2	  PM_PIN_PULLUP_10K
 
-#if ZBHCI_UART
-	#error please configurate uart PIN!!!!!!
-#endif
-
-//LED
+// LED
 /***************************************************************
-* PWM_R						GPIO_PD0	//D5 -- red
-* PWM_G						GPIO_PD4	//D3 -- green
-* PWM_B						GPIO_PD5	//D2 -- blue
-* PWM_W						GPIO_PD3	//D4 -- yellow
+* LED_R			GPIO_PD0	//D5 -- red
+* LED_G			GPIO_PD4	//D3 -- green
+* LED_B			GPIO_PD5	//D2 -- blue
+* LED_W			GPIO_PD3	//D4 -- yellow
 ****************************************************************/
 #if defined COLOR_RGB_SUPPORT && (COLOR_RGB_SUPPORT == 1)
-
-#error "GPIO_PD0 can't be configured as PWM!"
-
+	#error "GPIO_PD0 can't be configured as PWM!"
 #else
 
 //PWM configuration, LED_B as warm light, LED_W as cool light.
-#define PWM_B						GPIO_PD5	//D2 -- blue		PWM0
-#define PWM_W						GPIO_PD3	//D4 -- yellow		PWM1_N
+#define LED_B						GPIO_PD5	//D2 -- blue		PWM0
+#define LED_W						GPIO_PD3	//D4 -- yellow		PWM1_N
 
 #define PWM_W_CHANNEL				1	//PWM1_N
-#define PWM_W_CHANNEL_SET()			do{\
-										gpio_set_func(GPIO_PD3, AS_PWM1_N); \
+#define PWM_W_CHANNEL_SET()			do{ \
+										gpio_set_func(LED_W, AS_PWM1_N); \
 										drv_pwm_n_invert(PWM_W_CHANNEL); \
 									}while(0)
 
 #define PWM_B_CHANNEL				0	//PWM0
-#define PWM_B_CHANNEL_SET()			do{\
-										gpio_set_func(GPIO_PD5, AS_PWM0); \
+#define PWM_B_CHANNEL_SET()			do{ \
+										gpio_set_func(LED_B, AS_PWM0); \
 									}while(0)
 
 #define WARM_LIGHT_PWM_CHANNEL		PWM_B_CHANNEL
@@ -101,17 +112,16 @@ extern "C" {
 
 #endif
 
+// UART
+#if ZBHCI_UART
+	#error please configurate uart PIN!!!!!!
+#endif
 
-//DEBUG
+// DEBUG
 #if UART_PRINTF_MODE
 	#define	DEBUG_INFO_TX_PIN	    GPIO_PC7//print
-	
-	#define DEBUG_TX_PIN_INIT()		do{	\
-										gpio_set_func(DEBUG_INFO_TX_PIN, AS_GPIO);	\
-										gpio_set_output_en(DEBUG_INFO_TX_PIN, 1);	\
-										gpio_setup_up_down_resistor(DEBUG_INFO_TX_PIN, PM_PIN_PULLUP_1M); \
-									}while(0)
 #endif
+
 
 enum{
 	VK_SW1 = 0x01,

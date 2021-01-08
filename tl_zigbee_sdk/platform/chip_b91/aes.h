@@ -3,34 +3,34 @@
  *
  * @brief	This is the header file for B91
  *
- * @author	B.Y
+ * @author	Driver Group
  * @date	2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
- *          
+ *
  *          Redistribution and use in source and binary forms, with or without
  *          modification, are permitted provided that the following conditions are met:
- *          
+ *
  *              1. Redistributions of source code must retain the above copyright
  *              notice, this list of conditions and the following disclaimer.
- *          
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions 
- *              in binary form must reproduce the above copyright notice, this list of 
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
  *              conditions and the following disclaimer in the documentation and/or other
  *              materials provided with the distribution.
- *          
- *              3. Neither the name of TELINK, nor the names of its contributors may be 
- *              used to endorse or promote products derived from this software without 
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
  *              specific prior written permission.
- *          
+ *
  *              4. This software, with or without modification, must only be used with a
  *              TELINK integrated circuit. All other usages are subject to written permission
  *              from TELINK and different commercial license may apply.
  *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or 
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
  *              relating to such deletion(s), modification(s) or alteration(s).
- *         
+ *
  *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -41,13 +41,13 @@
  *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *         
+ *
  *******************************************************************************************************/
 /**	@page AES
  *
  *	Introduction
  *	===============
- *	TLSRB91 supports hardware AES function. 
+ *	TLSRB91 supports hardware AES function.
  *
  *	API Reference
  *	===============
@@ -56,8 +56,8 @@
 #ifndef _AES_H_
 #define _AES_H_
 
-
-#include "reg_include/aes_reg.h"
+#include "compiler.h"
+#include "./reg_include/aes_reg.h"
 
 /**********************************************************************************************************************
  *                                         global constants                                                           *
@@ -70,7 +70,13 @@
 /**********************************************************************************************************************
  *                                         global data type                                                           *
  *********************************************************************************************************************/
-
+/**
+ * @brief AES mode.
+ */
+typedef enum{
+	AES_ENCRYPT_MODE	=  0,
+	AES_DECRYPT_MODE	=  2,
+}aes_mode_e;
 /**********************************************************************************************************************
  *                                     global variable declaration                                                    *
  *********************************************************************************************************************/
@@ -78,7 +84,7 @@
 /**********************************************************************************************************************
  *                                      global function prototype                                                     *
  *********************************************************************************************************************/
- /* @brief     This function refer to encrypt. AES module register must be used by word.
+ /* @brief     This function refer to encrypt. AES module register must be used by word. , all data need big endian.
  * @param[in] key       - the key of encrypt.
  * @param[in] plaintext - the plaintext of encrypt.
  * @param[in] result    - the result of encrypt.
@@ -87,7 +93,7 @@
 int aes_encrypt(unsigned char *key, unsigned char* plaintext, unsigned char *result);
 
 /**
- * @brief     This function refer to decrypt. AES module register must be used by word.
+ * @brief     This function refer to decrypt. AES module register must be used by word., all data need big endian.
  * @param[in] key         - the key of decrypt.
  * @param[in] decrypttext - the decrypttext of decrypt.
  * @param[in] result      - the result of decrypt.
@@ -104,6 +110,7 @@ void aes_set_em_base_addr(unsigned int addr);
 
 /**
  * @brief     This function refer to encrypt/decrypt to set key and data. AES module register must be used by word.
+ * 				All data need Little endian.
  * @param[in] key  - the key of encrypt/decrypt.
  * @param[in] data - the data which to do encrypt/decrypt.
  * @return    none
@@ -112,7 +119,7 @@ void aes_set_key_data(unsigned char *key, unsigned char* data);
 
 /**
  * @brief     This function refer to encrypt/decrypt to get result. AES module register must be used by word.
- * @param[in] result - the result of encrypt/decrypt.
+ * @param[in] result - the result of encrypt/decrypt. Little endian
  * @return    none.
  */
 void aes_get_result(unsigned char *result);
@@ -124,7 +131,7 @@ void aes_get_result(unsigned char *result);
  */
 static inline void aes_set_mode(aes_mode_e mode)
 {
-	reg_aes_mode = (mode);
+	reg_aes_mode = (FLD_AES_START | mode);
 }
 
 /**

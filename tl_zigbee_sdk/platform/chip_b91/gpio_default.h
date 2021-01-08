@@ -1,38 +1,56 @@
 /********************************************************************************************************
- * @file     gpio_default.h
+ * @file	gpio_default.h
  *
- * @brief    This is the source file for TLSR8258
+ * @brief	This is the header file for B91
  *
- * @author
- * @date     June 16, 2020
+ * @author	Driver Group
+ * @date	2019
  *
- * @par      Copyright (c) 2018, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *           The information contained herein is confidential property of Telink
- *           Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *           of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *           Co., Ltd. and the licensee or the terms described here-in. This heading
- *           MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- *           Licensees are granted free, non-transferable use of the information in this
- *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
- * @par      History:
- * 			 1.initial release(DEC. 26 2018)
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
  *
- * @version  A001
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
-#pragma once
+#ifndef DRIVERS_GPIO_DEFAULT_H_
+#define DRIVERS_GPIO_DEFAULT_H_
 
-#include "app_cfg.h"
-
-
+#include "compiler.h"
+#include "gpio.h"
 /**********************************************************************************************************************
  *                                           GPIO   setting                                                            *
  *********************************************************************************************************************/
-
-/************************************************************PA*******************************************************/
 #ifndef PA0_INPUT_ENABLE
 #define PA0_INPUT_ENABLE	0
 #endif
@@ -52,7 +70,7 @@
 #define PA5_INPUT_ENABLE	0	//USB
 #endif
 #ifndef PA6_INPUT_ENABLE
-#define PA6_INPUT_ENABLE	0	//USB
+#define PA6_INPUT_ENABLE	0   //USB
 #endif
 #ifndef PA7_INPUT_ENABLE
 #define PA7_INPUT_ENABLE	1	//SWS
@@ -178,7 +196,7 @@
 #define PULL_WAKEUP_SRC_PA7		GPIO_PIN_PULLUP_1M	//sws pullup
 #endif
 
-/************************************************************PB*******************************************************/
+//////////////////////////////////////////////////
 #ifndef PB0_INPUT_ENABLE
 #define PB0_INPUT_ENABLE	0
 #endif
@@ -324,7 +342,7 @@
 #define PULL_WAKEUP_SRC_PB7	0
 #endif
 
-/************************************************************PC*******************************************************/
+//////////////////////////////////////////////////
 #ifndef PC0_INPUT_ENABLE
 #define PC0_INPUT_ENABLE	0
 #endif
@@ -470,7 +488,7 @@
 #define PULL_WAKEUP_SRC_PC7	0
 #endif
 
-/************************************************************PD*******************************************************/
+//////////////////////////////////////////////////
 #ifndef PD0_INPUT_ENABLE
 #define PD0_INPUT_ENABLE	0
 #endif
@@ -616,7 +634,7 @@
 #define PULL_WAKEUP_SRC_PD7	0
 #endif
 
-/************************************************************PE*******************************************************/
+//////////////////////////////////////////////////
 #ifndef PE0_INPUT_ENABLE
 #define PE0_INPUT_ENABLE	0
 #endif
@@ -630,17 +648,18 @@
 #define PE3_INPUT_ENABLE	0
 #endif
 #ifndef PE4_INPUT_ENABLE
-#define PE4_INPUT_ENABLE	1	//JTAG
+#define PE4_INPUT_ENABLE	0
 #endif
 #ifndef PE5_INPUT_ENABLE
-#define PE5_INPUT_ENABLE	1	//JTAG
+#define PE5_INPUT_ENABLE	0
 #endif
 #ifndef PE6_INPUT_ENABLE
-#define PE6_INPUT_ENABLE	1	//JTAG
+#define PE6_INPUT_ENABLE	1
 #endif
 #ifndef PE7_INPUT_ENABLE
-#define PE7_INPUT_ENABLE	1	//JTAG
+#define PE7_INPUT_ENABLE	1
 #endif
+
 #ifndef PE0_OUTPUT_ENABLE
 #define PE0_OUTPUT_ENABLE	0
 #endif
@@ -665,6 +684,7 @@
 #ifndef PE7_OUTPUT_ENABLE
 #define PE7_OUTPUT_ENABLE	0
 #endif
+
 #ifndef PE0_DATA_STRENGTH
 #define PE0_DATA_STRENGTH	1
 #endif
@@ -689,6 +709,7 @@
 #ifndef PE7_DATA_STRENGTH
 #define PE7_DATA_STRENGTH	1
 #endif
+
 #ifndef PE0_DATA_OUT
 #define PE0_DATA_OUT	0
 #endif
@@ -713,6 +734,7 @@
 #ifndef PE7_DATA_OUT
 #define PE7_DATA_OUT	0
 #endif
+
 #ifndef PE0_FUNC
 #define PE0_FUNC	AS_GPIO
 #endif
@@ -726,10 +748,10 @@
 #define PE3_FUNC	AS_GPIO
 #endif
 #ifndef PE4_FUNC
-#define PE4_FUNC	AS_TDI
+#define PE4_FUNC	AS_GPIO
 #endif
 #ifndef PE5_FUNC
-#define PE5_FUNC	AS_TDO
+#define PE5_FUNC	AS_GPIO
 #endif
 #ifndef PE6_FUNC
 #define PE6_FUNC	AS_TMS
@@ -761,21 +783,21 @@
 #ifndef PULL_WAKEUP_SRC_PE7
 #define PULL_WAKEUP_SRC_PE7	0
 #endif
-/************************************************************PF*******************************************************/
+//////////////////////////////////////////////////
 #ifndef PF0_INPUT_ENABLE
 #define PF0_INPUT_ENABLE	1   //MSPI
 #endif
 #ifndef PF1_INPUT_ENABLE
-#define PF1_INPUT_ENABLE	1   //MSPI
+#define PF1_INPUT_ENABLE	1	//MSPI
 #endif
 #ifndef PF2_INPUT_ENABLE
-#define PF2_INPUT_ENABLE	1   //MSPI
+#define PF2_INPUT_ENABLE	1	//MSPI
 #endif
 #ifndef PF3_INPUT_ENABLE
-#define PF3_INPUT_ENABLE	1   //MSPI
+#define PF3_INPUT_ENABLE	1	//MSPI
 #endif
 #ifndef PF4_INPUT_ENABLE
-#define PF4_INPUT_ENABLE	1   //MSPI
+#define PF4_INPUT_ENABLE	1  //MSPI
 #endif
 #ifndef PF5_INPUT_ENABLE
 #define PF5_INPUT_ENABLE	1   //MSPI
@@ -798,6 +820,7 @@
 #ifndef PF5_OUTPUT_ENABLE
 #define PF5_OUTPUT_ENABLE	0
 #endif
+
 #ifndef PF0_DATA_STRENGTH
 #define PF0_DATA_STRENGTH	1
 #endif
@@ -816,6 +839,7 @@
 #ifndef PF5_DATA_STRENGTH
 #define PF5_DATA_STRENGTH	1
 #endif
+
 #ifndef PF0_DATA_OUT
 #define PF0_DATA_OUT	0
 #endif
@@ -834,6 +858,7 @@
 #ifndef PF5_DATA_OUT
 #define PF5_DATA_OUT	0
 #endif
+
 #ifndef PF0_FUNC
 #define PF0_FUNC	AS_MSPI
 #endif
@@ -853,146 +878,167 @@
 #define PF5_FUNC	AS_MSPI
 #endif
 
-/**********************************************************************************************************************
- *                                    related  	macro   function                                                      *
- *********************************************************************************************************************/
 /**
- * @brief      This function servers to set the structure, which is used for gpio initialization setting, as the default value.
- * @param[in]  st  -  structure of gpio initialization settings
+ * @brief      This function servers to initiate pull up-down resistor of all gpio.
+ * @param[in]  none
+ * @return     none.
+ * @attention  Processing methods of unused GPIO
+ * 			   Set it to high resistance state and set it to open pull-up or pull-down resistance to
+ *             let it be in the determined state.When GPIO uses internal pull-up or pull-down resistance,
+ *             do not use pull-up or pull-down resistance on the board in the process of practical
+ *             application because it may have the risk of electric leakage .
  */
-#define set_gpio_struct_as_default(s)	\
-	do{\
-		s.PA.setting1 = 0x00ffff00;s.PA.setting2 = 0x00ff6100;s.PA.fs.port = 0x0000;s.PA.pull.port = 0x0000;\
-		s.PB.setting1 = 0x00ffff00;s.PB.setting2 = 0x00ffff00;s.PB.fs.port = 0x0000;s.PB.pull.port = 0x0000;\
-		s.PC.setting1 = 0x00ffff00;s.PC.setting2 = 0x00ffff00;s.PC.fs.port = 0x0000;s.PC.pull.port = 0x0000;\
-		s.PD.setting1 = 0x00ffff00;s.PD.setting2 = 0x00ffff00;s.PD.fs.port = 0xf000;s.PD.pull.port = 0x0000;\
-		s.PE.setting1 = 0x00ffff00;s.PE.setting2 = 0x00ff0f00;s.PE.fs.port = 0x0000;s.PE.pull.port = 0x0000;\
-		s.PF.setting1 = 0x00ffff00;s.PF.setting2 = 0x00ff0000;s.PF.fs.port = 0x0000;\
-	}while(0)
+static inline void gpio_analog_resistance_init(void)
+{
+	//A<3:0>
+	analog_write_reg8 (0x0e,  PULL_WAKEUP_SRC_PA0 |
+						(PULL_WAKEUP_SRC_PA1<<2) |
+						(PULL_WAKEUP_SRC_PA2<<4) |
+						(PULL_WAKEUP_SRC_PA3<<6));
+	//A<7:4>
+	analog_write_reg8 (0x0f,  PULL_WAKEUP_SRC_PA4 |
+						(PULL_WAKEUP_SRC_PA5<<2) |
+						(PULL_WAKEUP_SRC_PA6<<4) |
+						(PULL_WAKEUP_SRC_PA7<<6));
+	//B<3:0>
+	analog_write_reg8 (0x10,  PULL_WAKEUP_SRC_PB0 |
+						(PULL_WAKEUP_SRC_PB1<<2) |
+						(PULL_WAKEUP_SRC_PB2<<4) |
+						(PULL_WAKEUP_SRC_PB3<<6));
+	//B<7:4>
+	analog_write_reg8 (0x11,  PULL_WAKEUP_SRC_PB4 |
+						(PULL_WAKEUP_SRC_PB5<<2) |
+						(PULL_WAKEUP_SRC_PB6<<4) |
+						(PULL_WAKEUP_SRC_PB7<<6));
 
-/**
- * @brief      This function servers to set the structure, which is used for gpio initialization setting, as the value defined
- * 			   in this file.
- * @param[in]  st  -  structure of gpio initialization settings
- */
-#define set_gpio_struct_from_file(s)	\
-	do{\
-		/*******************PA********************/\
-		s.PA.setting1 = \
-		(PA0_INPUT_ENABLE<<8) 	| (PA1_INPUT_ENABLE<<9)	| (PA2_INPUT_ENABLE<<10)	| (PA3_INPUT_ENABLE<<11) |\
-		(PA4_INPUT_ENABLE<<12)	| (PA5_INPUT_ENABLE<<13)	| (PA6_INPUT_ENABLE<<14)	| (PA7_INPUT_ENABLE<<15) |\
-		((PA0_OUTPUT_ENABLE?0:1)<<16)	| ((PA1_OUTPUT_ENABLE?0:1)<<17) | ((PA2_OUTPUT_ENABLE?0:1)<<18)	| ((PA3_OUTPUT_ENABLE?0:1)<<19) |\
-		((PA4_OUTPUT_ENABLE?0:1)<<20)	| ((PA5_OUTPUT_ENABLE?0:1)<<21) | ((PA6_OUTPUT_ENABLE?0:1)<<22)	| ((PA7_OUTPUT_ENABLE?0:1)<<23) |\
-		(PA0_DATA_OUT<<24)	| (PA1_DATA_OUT<<25)	| (PA2_DATA_OUT<<26)	| (PA3_DATA_OUT<<27) |\
-		(PA4_DATA_OUT<<28)	| (PA5_DATA_OUT<<29)	| (PA6_DATA_OUT<<30)	| (PA7_DATA_OUT<<31) ;\
-		s.PA.setting2 = \
-		(PA0_DATA_STRENGTH<<8)		| (PA1_DATA_STRENGTH<<9)| (PA2_DATA_STRENGTH<<10)	| (PA3_DATA_STRENGTH<<11) |\
-		(PA4_DATA_STRENGTH<<12)	| (PA5_DATA_STRENGTH<<13)	| (PA6_DATA_STRENGTH<<14)	| (PA7_DATA_STRENGTH<<15) |\
-		(PA0_FUNC==AS_GPIO ? BIT(16):0)	| (PA1_FUNC==AS_GPIO ? BIT(17):0)| (PA2_FUNC==AS_GPIO ? BIT(18):0)| (PA3_FUNC==AS_GPIO ? BIT(19):0) |\
-		(PA4_FUNC==AS_GPIO ? BIT(20):0)	| (PA5_FUNC==AS_GPIO ? BIT(21):0)| (PA6_FUNC==AS_GPIO ? BIT(22):0)| (PA7_FUNC==AS_GPIO ? BIT(23):0);\
-		s.PA.pull.port = \
-		PULL_WAKEUP_SRC_PA0 | (PULL_WAKEUP_SRC_PA1<<2) | (PULL_WAKEUP_SRC_PA2<<4) | (PULL_WAKEUP_SRC_PA3<<6) |\
-		(PULL_WAKEUP_SRC_PA4<<8) | (PULL_WAKEUP_SRC_PA5<<10) | (PULL_WAKEUP_SRC_PA6<<12) | (PULL_WAKEUP_SRC_PA7<<14);\
-		/*******************PB********************/\
-		s.PB.setting1 = \
-		(PB0_INPUT_ENABLE<<8) 	| (PB1_INPUT_ENABLE<<9)	| (PB2_INPUT_ENABLE<<10)	| (PB3_INPUT_ENABLE<<11) |\
-		(PB4_INPUT_ENABLE<<12)	| (PB5_INPUT_ENABLE<<13)	| (PB6_INPUT_ENABLE<<14)	| (PB7_INPUT_ENABLE<<15) |\
-		((PB0_OUTPUT_ENABLE?0:1)<<16)	| ((PB1_OUTPUT_ENABLE?0:1)<<17) | ((PB2_OUTPUT_ENABLE?0:1)<<18)	| ((PB3_OUTPUT_ENABLE?0:1)<<19) |\
-		((PB4_OUTPUT_ENABLE?0:1)<<20)	| ((PB5_OUTPUT_ENABLE?0:1)<<21) | ((PB6_OUTPUT_ENABLE?0:1)<<22)	| ((PB7_OUTPUT_ENABLE?0:1)<<23) |\
-		(PB0_DATA_OUT<<24)	| (PB1_DATA_OUT<<25)	| (PB2_DATA_OUT<<26)	| (PB3_DATA_OUT<<27) |\
-		(PB4_DATA_OUT<<28)	| (PB5_DATA_OUT<<29)	| (PB6_DATA_OUT<<30)	| (PB7_DATA_OUT<<31) ;\
-		s.PB.setting2 = \
-		(PB0_DATA_STRENGTH<<8)		| (PB1_DATA_STRENGTH<<9)| (PB2_DATA_STRENGTH<<10)	| (PB3_DATA_STRENGTH<<11) |\
-		(PB4_DATA_STRENGTH<<12)	| (PB5_DATA_STRENGTH<<13)	| (PB6_DATA_STRENGTH<<14)	| (PB7_DATA_STRENGTH<<15) |\
-		(PB0_FUNC==AS_GPIO ? BIT(16):0)	| (PB1_FUNC==AS_GPIO ? BIT(17):0)| (PB2_FUNC==AS_GPIO ? BIT(18):0)| (PB3_FUNC==AS_GPIO ? BIT(19):0) |\
-		(PB4_FUNC==AS_GPIO ? BIT(20):0)	| (PB5_FUNC==AS_GPIO ? BIT(21):0)| (PB6_FUNC==AS_GPIO ? BIT(22):0)| (PB7_FUNC==AS_GPIO ? BIT(23):0);\
-		s.PB.pull.port = \
-		PULL_WAKEUP_SRC_PB0 | (PULL_WAKEUP_SRC_PB1<<2) | (PULL_WAKEUP_SRC_PB2<<4) | (PULL_WAKEUP_SRC_PB3<<6)  |\
-		(PULL_WAKEUP_SRC_PB4<<8) | (PULL_WAKEUP_SRC_PB5<<10) | (PULL_WAKEUP_SRC_PB6<<12) | (PULL_WAKEUP_SRC_PB7<<14);\
-		/*******************PC********************/\
-		s.PC.setting1 = reg_gpio_pc_setting1;\
-		s.PC.setting2 = reg_gpio_pc_setting2;\
-		s.PC.ie.port =\
-		(PC0_INPUT_ENABLE<<0) 	| (PC1_INPUT_ENABLE<<1)	| (PC2_INPUT_ENABLE<<2)	| (PC3_INPUT_ENABLE<<3) |\
-		(PC4_INPUT_ENABLE<<4)	| (PC5_INPUT_ENABLE<<5) | (PC6_INPUT_ENABLE<<6)	| (PC7_INPUT_ENABLE<<7);\
-		s.PC.oen.port =\
-		((PC0_OUTPUT_ENABLE?0:1)<<0)	| ((PC1_OUTPUT_ENABLE?0:1)<<1) | ((PC2_OUTPUT_ENABLE?0:1)<<2)	| ((PC3_OUTPUT_ENABLE?0:1)<<3) |\
-		((PC4_OUTPUT_ENABLE?0:1)<<4)	| ((PC5_OUTPUT_ENABLE?0:1)<<5) | ((PC6_OUTPUT_ENABLE?0:1)<<6)	| ((PC7_OUTPUT_ENABLE?0:1)<<7);\
-		s.PC.output.port =\
-		(PC0_DATA_OUT<<0)	| (PC1_DATA_OUT<<1)	| (PC2_DATA_OUT<<2)	| (PC3_DATA_OUT<<3) |\
-		(PC4_DATA_OUT<<4)	| (PC5_DATA_OUT<<5)	| (PC6_DATA_OUT<<6)	| (PC7_DATA_OUT<<7) ;\
-		s.PC.ds.port = \
-		(PC0_DATA_STRENGTH<<0) 	| (PC1_DATA_STRENGTH<<1)  | (PC2_DATA_STRENGTH<<2)	| (PC3_DATA_STRENGTH<<3) |\
-		(PC4_DATA_STRENGTH<<4)	| (PC5_DATA_STRENGTH<<5)  | (PC6_DATA_STRENGTH<<6)	| (PC7_DATA_STRENGTH<<7);\
-		s.PC.io.port = \
-		(PC0_FUNC==AS_GPIO ? BIT(0):0)	| (PC1_FUNC==AS_GPIO ? BIT(1):0)| (PC2_FUNC==AS_GPIO ? BIT(2):0)| (PC3_FUNC==AS_GPIO ? BIT(3):0) |\
-		(PC4_FUNC==AS_GPIO ? BIT(4):0)	| (PC5_FUNC==AS_GPIO ? BIT(5):0)| (PC6_FUNC==AS_GPIO ? BIT(6):0)| (PC7_FUNC==AS_GPIO ? BIT(7):0);\
-		s.PC.pull.port = \
-		PULL_WAKEUP_SRC_PC0 | (PULL_WAKEUP_SRC_PC1<<2) | (PULL_WAKEUP_SRC_PC2<<4) | (PULL_WAKEUP_SRC_PC3<<6) |\
-		(PULL_WAKEUP_SRC_PC4<<8) | (PULL_WAKEUP_SRC_PC5<<10) | (PULL_WAKEUP_SRC_PC6<<12) | (PULL_WAKEUP_SRC_PC7<<14);\
-		/*******************PD********************/\
-		s.PD.setting1 = reg_gpio_pd_setting1;\
-		s.PD.setting2 = reg_gpio_pd_setting2;\
-		s.PD.ie.port=\
-		(PD0_INPUT_ENABLE<<0) 	| (PD1_INPUT_ENABLE<<1)	| (PD2_INPUT_ENABLE<<2)	| (PD3_INPUT_ENABLE<<3) |\
-		(PD4_INPUT_ENABLE<<4)	| (PD5_INPUT_ENABLE<<5) | (PD6_INPUT_ENABLE<<6)	| (PD7_INPUT_ENABLE<<7);\
-		s.PD.oen.port = \
-		((PD0_OUTPUT_ENABLE?0:1)<<0)	| ((PD1_OUTPUT_ENABLE?0:1)<<1) | ((PD2_OUTPUT_ENABLE?0:1)<<2)	| ((PD3_OUTPUT_ENABLE?0:1)<<3) |\
-		((PD4_OUTPUT_ENABLE?0:1)<<4)	| ((PD5_OUTPUT_ENABLE?0:1)<<5) | ((PD6_OUTPUT_ENABLE?0:1)<<6)	| ((PD7_OUTPUT_ENABLE?0:1)<<7);\
-		s.PD.output.port = \
-		(PD0_DATA_OUT<<0)	| (PD1_DATA_OUT<<1)	| (PD2_DATA_OUT<<2)	| (PD3_DATA_OUT<<3) |\
-		(PD4_DATA_OUT<<4)	| (PD5_DATA_OUT<<5)	| (PD6_DATA_OUT<<6)	| (PD7_DATA_OUT<<7) ;\
-		s.PD.ds.port = \
-		(PD0_DATA_STRENGTH<<0) 	| (PD1_DATA_STRENGTH<<1)  | (PD2_DATA_STRENGTH<<2)	| (PD3_DATA_STRENGTH<<3) |\
-		(PD4_DATA_STRENGTH<<4)	| (PD5_DATA_STRENGTH<<5)  | (PD6_DATA_STRENGTH<<6)	| (PD7_DATA_STRENGTH<<7);\
-		s.PD.io.port = \
-		(PD0_FUNC==AS_GPIO ? BIT(0):0)	| (PD1_FUNC==AS_GPIO ? BIT(1):0)| (PD2_FUNC==AS_GPIO ? BIT(2):0)| (PD3_FUNC==AS_GPIO ? BIT(3):0) |\
-		(PD4_FUNC==AS_GPIO ? BIT(4):0)	| (PD5_FUNC==AS_GPIO ? BIT(5):0)| (PD6_FUNC==AS_GPIO ? BIT(6):0)| (PD7_FUNC==AS_GPIO ? BIT(7):0);\
-		s.PD.pull.port = \
-		PULL_WAKEUP_SRC_PD0 | (PULL_WAKEUP_SRC_PD1<<2) | (PULL_WAKEUP_SRC_PD2<<4) | (PULL_WAKEUP_SRC_PD3<<6) |\
-		(PULL_WAKEUP_SRC_PD4<<8) | (PULL_WAKEUP_SRC_PD5<<10) | (PULL_WAKEUP_SRC_PD6<<12) | (PULL_WAKEUP_SRC_PD7<<14);\
-		/*******************PE********************/\
-		s.PE.setting1 = \
-		(PE0_INPUT_ENABLE<<8) 	| (PE1_INPUT_ENABLE<<9)	| (PE2_INPUT_ENABLE<<10)	| (PE3_INPUT_ENABLE<<11) |\
-		(PE4_INPUT_ENABLE<<12)	| (PE5_INPUT_ENABLE<<13)	| (PE6_INPUT_ENABLE<<14)	| (PE7_INPUT_ENABLE<<15) |\
-		((PE0_OUTPUT_ENABLE?0:1)<<16)	| ((PE1_OUTPUT_ENABLE?0:1)<<17) | ((PE2_OUTPUT_ENABLE?0:1)<<18)	| ((PE3_OUTPUT_ENABLE?0:1)<<19) |\
-		((PE4_OUTPUT_ENABLE?0:1)<<20)	| ((PE5_OUTPUT_ENABLE?0:1)<<21) | ((PE6_OUTPUT_ENABLE?0:1)<<22)	| ((PE7_OUTPUT_ENABLE?0:1)<<23) |\
-		(PE0_DATA_OUT<<24)	| (PE1_DATA_OUT<<25)	| (PE2_DATA_OUT<<26)	| (PE3_DATA_OUT<<27) |\
-		(PE4_DATA_OUT<<28)	| (PE5_DATA_OUT<<29)	| (PE6_DATA_OUT<<30)	| (PE7_DATA_OUT<<31) ;\
-		s.PE.setting2 = \
-		(PE0_DATA_STRENGTH<<8)		| (PE1_DATA_STRENGTH<<9)| (PE2_DATA_STRENGTH<<10)	| (PE3_DATA_STRENGTH<<11) |\
-		(PE4_DATA_STRENGTH<<12)	| (PE5_DATA_STRENGTH<<13)	| (PE6_DATA_STRENGTH<<14)	| (PE7_DATA_STRENGTH<<15) |\
-		(PE0_FUNC==AS_GPIO ? BIT(16):0)	| (PE1_FUNC==AS_GPIO ? BIT(17):0)| (PE2_FUNC==AS_GPIO ? BIT(18):0)| (PE3_FUNC==AS_GPIO ? BIT(19):0) |\
-		(PE4_FUNC==AS_GPIO ? BIT(20):0)	| (PE5_FUNC==AS_GPIO ? BIT(21):0)| (PE6_FUNC==AS_GPIO ? BIT(22):0)| (PE7_FUNC==AS_GPIO ? BIT(23):0);\
-		s.PE.pull.port = \
-		PULL_WAKEUP_SRC_PE0 | (PULL_WAKEUP_SRC_PE1<<2) | (PULL_WAKEUP_SRC_PE2<<4) | (PULL_WAKEUP_SRC_PE3<<6) |\
-		(PULL_WAKEUP_SRC_PE4<<8) | (PULL_WAKEUP_SRC_PE5<<10) | (PULL_WAKEUP_SRC_PE6<<12) | (PULL_WAKEUP_SRC_PE7<<14);\
-		/*******************PF********************/\
-		s.PF.setting1 = \
-		(PF0_INPUT_ENABLE<<8) 	| (PF1_INPUT_ENABLE<<9)	| (PF2_INPUT_ENABLE<<10)	| (PF3_INPUT_ENABLE<<11) |\
-		(PF4_INPUT_ENABLE<<12)	| (PF5_INPUT_ENABLE<<13)	| \
-		((PF0_OUTPUT_ENABLE?0:1)<<16)	| ((PF1_OUTPUT_ENABLE?0:1)<<17) | ((PF2_OUTPUT_ENABLE?0:1)<<18)	| ((PF3_OUTPUT_ENABLE?0:1)<<19) |\
-		((PF4_OUTPUT_ENABLE?0:1)<<20)	| ((PF5_OUTPUT_ENABLE?0:1)<<21) | \
-		(PF0_DATA_OUT<<24)	| (PF1_DATA_OUT<<25)	| (PF2_DATA_OUT<<26)	| (PF3_DATA_OUT<<27) |\
-		(PF4_DATA_OUT<<28)	| (PF5_DATA_OUT<<29);\
-		s.PF.setting2 = reg_gpio_pf_setting2;\
-		s.PF.ds.port = \
-		(PF0_DATA_STRENGTH<<0) 	| (PF1_DATA_STRENGTH<<1)  | (PF2_DATA_STRENGTH<<2)	| (PF3_DATA_STRENGTH<<3) |\
-		(PF4_DATA_STRENGTH<<4)	| (PF5_DATA_STRENGTH<<5) ;\
-		s.PF.io.port = \
-		(PF0_FUNC==AS_GPIO ? BIT(0):0)	| (PF1_FUNC==AS_GPIO ? BIT(1):0)| (PF2_FUNC==AS_GPIO ? BIT(2):0)| (PF3_FUNC==AS_GPIO ? BIT(3):0) |\
-		(PF4_FUNC==AS_GPIO ? BIT(4):0)	| (PF5_FUNC==AS_GPIO ? BIT(5):0);\
-	}while(0)
+    //C<3:0>
+	analog_write_reg8 (0x12,  PULL_WAKEUP_SRC_PC0 |
+						(PULL_WAKEUP_SRC_PC1<<2) |
+						(PULL_WAKEUP_SRC_PC2<<4) |
+						(PULL_WAKEUP_SRC_PC3<<6));
+    //C<7:4>
+	analog_write_reg8 (0x13,  PULL_WAKEUP_SRC_PC4 |
+						(PULL_WAKEUP_SRC_PC5<<2) |
+						(PULL_WAKEUP_SRC_PC6<<4) |
+						(PULL_WAKEUP_SRC_PC7<<6));
 
-/**
- * @brief      This function servers to initialization all gpio.
- * @param[in]  anaRes_init_en  -  if mcu wake up from deep retention mode, determine whether it is NOT necessary to reset analog register
- *                    			  1: set analog register
- *                    			  0: not set analog register
- */
-#define gpio_init(anaRes_init_en)	\
-	do{\
-		gpio_init_t st;\
-		set_gpio_struct_from_file(st);\
-		gpio_usr_init(anaRes_init_en, &st);\
-	}while(0)
+    //D<3:0>
+	analog_write_reg8 (0x14,  PULL_WAKEUP_SRC_PD0 |
+						(PULL_WAKEUP_SRC_PD1<<2) |
+						(PULL_WAKEUP_SRC_PD2<<4) |
+						(PULL_WAKEUP_SRC_PD3<<6));
+	//D<7:4>
+	analog_write_reg8 (0x15,  PULL_WAKEUP_SRC_PD4 |
+						(PULL_WAKEUP_SRC_PD5<<2) |
+						(PULL_WAKEUP_SRC_PD6<<4) |
+						(PULL_WAKEUP_SRC_PD7<<6));
+	//E<3:0>
+	analog_write_reg8 (0x16,  PULL_WAKEUP_SRC_PE0 |
+						(PULL_WAKEUP_SRC_PE1<<2) |
+						(PULL_WAKEUP_SRC_PE2<<4) |
+						(PULL_WAKEUP_SRC_PE3<<6));
+	//E<7:4>
+	analog_write_reg8 (0x17,  PULL_WAKEUP_SRC_PE4 |
+						(PULL_WAKEUP_SRC_PE5<<2) |
+						(PULL_WAKEUP_SRC_PE6<<4) |
+						(PULL_WAKEUP_SRC_PE7<<6));
+}
+
+
+_attribute_ram_code_sec_
+static inline void gpio_init(int anaRes_init_en)
+{
+	//PA group
+	reg_gpio_pa_setting1 =
+		(PA0_INPUT_ENABLE<<8) 	| (PA1_INPUT_ENABLE<<9)	| (PA2_INPUT_ENABLE<<10)	| (PA3_INPUT_ENABLE<<11) |
+		(PA4_INPUT_ENABLE<<12)	| (PA5_INPUT_ENABLE<<13)	| (PA6_INPUT_ENABLE<<14)	| (PA7_INPUT_ENABLE<<15) |
+		((PA0_OUTPUT_ENABLE?0:1)<<16)	| ((PA1_OUTPUT_ENABLE?0:1)<<17) | ((PA2_OUTPUT_ENABLE?0:1)<<18)	| ((PA3_OUTPUT_ENABLE?0:1)<<19) |
+		((PA4_OUTPUT_ENABLE?0:1)<<20)	| ((PA5_OUTPUT_ENABLE?0:1)<<21) | ((PA6_OUTPUT_ENABLE?0:1)<<22)	| ((PA7_OUTPUT_ENABLE?0:1)<<23) |
+		(PA0_DATA_OUT<<24)	| (PA1_DATA_OUT<<25)	| (PA2_DATA_OUT<<26)	| (PA3_DATA_OUT<<27) |
+		(PA4_DATA_OUT<<28)	| (PA5_DATA_OUT<<29)	| (PA6_DATA_OUT<<30)	| (PA7_DATA_OUT<<31) ;
+	reg_gpio_pa_setting2 =
+		(PA0_DATA_STRENGTH<<8)		| (PA1_DATA_STRENGTH<<9)| (PA2_DATA_STRENGTH<<10)	| (PA3_DATA_STRENGTH<<11) |
+		(PA4_DATA_STRENGTH<<12)	| (PA5_DATA_STRENGTH<<13)	| (PA6_DATA_STRENGTH<<14)	| (PA7_DATA_STRENGTH<<15) |
+		(PA0_FUNC==AS_GPIO ? BIT(16):0)	| (PA1_FUNC==AS_GPIO ? BIT(17):0)| (PA2_FUNC==AS_GPIO ? BIT(18):0)| (PA3_FUNC==AS_GPIO ? BIT(19):0) |
+		(PA4_FUNC==AS_GPIO ? BIT(20):0)	| (PA5_FUNC==AS_GPIO ? BIT(21):0)| (PA6_FUNC==AS_GPIO ? BIT(22):0)| (PA7_FUNC==AS_GPIO ? BIT(23):0);
+
+	//PB group
+	reg_gpio_pb_setting1 =
+		(PB0_INPUT_ENABLE<<8) 	| (PB1_INPUT_ENABLE<<9)	| (PB2_INPUT_ENABLE<<10)	| (PB3_INPUT_ENABLE<<11) |
+		(PB4_INPUT_ENABLE<<12)	| (PB5_INPUT_ENABLE<<13)	| (PB6_INPUT_ENABLE<<14)	| (PB7_INPUT_ENABLE<<15) |
+		((PB0_OUTPUT_ENABLE?0:1)<<16)	| ((PB1_OUTPUT_ENABLE?0:1)<<17) | ((PB2_OUTPUT_ENABLE?0:1)<<18)	| ((PB3_OUTPUT_ENABLE?0:1)<<19) |
+		((PB4_OUTPUT_ENABLE?0:1)<<20)	| ((PB5_OUTPUT_ENABLE?0:1)<<21) | ((PB6_OUTPUT_ENABLE?0:1)<<22)	| ((PB7_OUTPUT_ENABLE?0:1)<<23) |
+		(PB0_DATA_OUT<<24)	| (PB1_DATA_OUT<<25)	| (PB2_DATA_OUT<<26)	| (PB3_DATA_OUT<<27) |
+		(PB4_DATA_OUT<<28)	| (PB5_DATA_OUT<<29)	| (PB6_DATA_OUT<<30)	| (PB7_DATA_OUT<<31) ;
+	reg_gpio_pb_setting2 =
+		(PB0_DATA_STRENGTH<<8)		| (PB1_DATA_STRENGTH<<9)| (PB2_DATA_STRENGTH<<10)	| (PB3_DATA_STRENGTH<<11) |
+		(PB4_DATA_STRENGTH<<12)	| (PB5_DATA_STRENGTH<<13)	| (PB6_DATA_STRENGTH<<14)	| (PB7_DATA_STRENGTH<<15) |
+		(PB0_FUNC==AS_GPIO ? BIT(16):0)	| (PB1_FUNC==AS_GPIO ? BIT(17):0)| (PB2_FUNC==AS_GPIO ? BIT(18):0)| (PB3_FUNC==AS_GPIO ? BIT(19):0) |
+		(PB4_FUNC==AS_GPIO ? BIT(20):0)	| (PB5_FUNC==AS_GPIO ? BIT(21):0)| (PB6_FUNC==AS_GPIO ? BIT(22):0)| (PB7_FUNC==AS_GPIO ? BIT(23):0);
+
+	//PC group
+	//ie
+	analog_write_reg8(areg_gpio_pc_ie, 	(PC0_INPUT_ENABLE<<0) 	| (PC1_INPUT_ENABLE<<1)	| (PC2_INPUT_ENABLE<<2)	| (PC3_INPUT_ENABLE<<3) |
+									(PC4_INPUT_ENABLE<<4)	| (PC5_INPUT_ENABLE<<5) | (PC6_INPUT_ENABLE<<6)	| (PC7_INPUT_ENABLE<<7) );
+
+	//oen
+	reg_gpio_pc_oen =
+		((PC0_OUTPUT_ENABLE?0:1)<<0)	| ((PC1_OUTPUT_ENABLE?0:1)<<1) | ((PC2_OUTPUT_ENABLE?0:1)<<2)	| ((PC3_OUTPUT_ENABLE?0:1)<<3) |
+		((PC4_OUTPUT_ENABLE?0:1)<<4)	| ((PC5_OUTPUT_ENABLE?0:1)<<5) | ((PC6_OUTPUT_ENABLE?0:1)<<6)	| ((PC7_OUTPUT_ENABLE?0:1)<<7);
+	//dataO
+	reg_gpio_pc_out =
+		(PC0_DATA_OUT<<0)	| (PC1_DATA_OUT<<1)	| (PC2_DATA_OUT<<2)	| (PC3_DATA_OUT<<3) |
+		(PC4_DATA_OUT<<4)	| (PC5_DATA_OUT<<5)	| (PC6_DATA_OUT<<6)	| (PC7_DATA_OUT<<7) ;
+
+	//ds
+	analog_write_reg8(areg_gpio_pc_ds, 	(PC0_DATA_STRENGTH<<0) 	| (PC1_DATA_STRENGTH<<1)  | (PC2_DATA_STRENGTH<<2)	| (PC3_DATA_STRENGTH<<3) |
+									(PC4_DATA_STRENGTH<<4)	| (PC5_DATA_STRENGTH<<5)  | (PC6_DATA_STRENGTH<<6)	| (PC7_DATA_STRENGTH<<7) );
+
+	reg_gpio_pc_gpio =
+		(PC0_FUNC==AS_GPIO ? BIT(0):0)	| (PC1_FUNC==AS_GPIO ? BIT(1):0)| (PC2_FUNC==AS_GPIO ? BIT(2):0)| (PC3_FUNC==AS_GPIO ? BIT(3):0) |
+		(PC4_FUNC==AS_GPIO ? BIT(4):0)	| (PC5_FUNC==AS_GPIO ? BIT(5):0)| (PC6_FUNC==AS_GPIO ? BIT(6):0)| (PC7_FUNC==AS_GPIO ? BIT(7):0);
+
+	//PD group
+	//ie
+	analog_write_reg8(areg_gpio_pd_ie, 	(PD0_INPUT_ENABLE<<0) 	| (PD1_INPUT_ENABLE<<1)	| (PD2_INPUT_ENABLE<<2)	| (PD3_INPUT_ENABLE<<3) |
+									(PD4_INPUT_ENABLE<<4)	| (PD5_INPUT_ENABLE<<5) | (PD6_INPUT_ENABLE<<6)	| (PD7_INPUT_ENABLE<<7) );
+
+	//oen
+	reg_gpio_pd_oen =
+		((PD0_OUTPUT_ENABLE?0:1)<<0)	| ((PD1_OUTPUT_ENABLE?0:1)<<1) | ((PD2_OUTPUT_ENABLE?0:1)<<2)	| ((PD3_OUTPUT_ENABLE?0:1)<<3) |
+		((PD4_OUTPUT_ENABLE?0:1)<<4)	| ((PD5_OUTPUT_ENABLE?0:1)<<5) | ((PD6_OUTPUT_ENABLE?0:1)<<6)	| ((PD7_OUTPUT_ENABLE?0:1)<<7);
+	//dataO
+	reg_gpio_pd_out =
+		(PD0_DATA_OUT<<0)	| (PD1_DATA_OUT<<1)	| (PD2_DATA_OUT<<2)	| (PD3_DATA_OUT<<3) |
+		(PD4_DATA_OUT<<4)	| (PD5_DATA_OUT<<5)	| (PD6_DATA_OUT<<6)	| (PD7_DATA_OUT<<7) ;
+
+	//ds
+	analog_write_reg8(areg_gpio_pd_ds, 	(PD0_DATA_STRENGTH<<0) 	| (PD1_DATA_STRENGTH<<1)  | (PD2_DATA_STRENGTH<<2)	| (PD3_DATA_STRENGTH<<3) |
+									(PD4_DATA_STRENGTH<<4)	| (PD5_DATA_STRENGTH<<5)  | (PD6_DATA_STRENGTH<<6)	| (PD7_DATA_STRENGTH<<7) );
+
+	reg_gpio_pd_gpio =
+		(PD0_FUNC==AS_GPIO ? BIT(0):0)	| (PD1_FUNC==AS_GPIO ? BIT(1):0)| (PD2_FUNC==AS_GPIO ? BIT(2):0)| (PD3_FUNC==AS_GPIO ? BIT(3):0) |
+		(PD4_FUNC==AS_GPIO ? BIT(4):0)	| (PD5_FUNC==AS_GPIO ? BIT(5):0)| (PD6_FUNC==AS_GPIO ? BIT(6):0)| (PD7_FUNC==AS_GPIO ? BIT(7):0);
+
+	//PE group
+	reg_gpio_pe_setting1 =
+		(PE0_INPUT_ENABLE<<8) 	| (PE1_INPUT_ENABLE<<9)	| (PE2_INPUT_ENABLE<<10)	| (PE3_INPUT_ENABLE<<11) |
+		(PE4_INPUT_ENABLE<<12)	| (PE5_INPUT_ENABLE<<13)| (PE6_INPUT_ENABLE<<14)	| (PE7_INPUT_ENABLE<<15) |
+		((PE0_OUTPUT_ENABLE?0:1)<<16)	| ((PE1_OUTPUT_ENABLE?0:1)<<17) | ((PE2_OUTPUT_ENABLE?0:1)<<18)	| ((PE3_OUTPUT_ENABLE?0:1)<<19) |
+		((PE4_OUTPUT_ENABLE?0:1)<<20)	| ((PE5_OUTPUT_ENABLE?0:1)<<21) | ((PE6_OUTPUT_ENABLE?0:1)<<22)	| ((PE7_OUTPUT_ENABLE?0:1)<<23) |
+		(PE0_DATA_OUT<<24)	| (PE1_DATA_OUT<<25)	| (PE2_DATA_OUT<<26)	| (PE3_DATA_OUT<<27) |
+		(PE4_DATA_OUT<<28)	| (PE5_DATA_OUT<<29)	| (PE6_DATA_OUT<<30)	| (PE7_DATA_OUT<<31) ;
+	reg_gpio_pe_setting2 =
+		(PE0_DATA_STRENGTH<<8)	| (PE1_DATA_STRENGTH<<9)	| (PE2_DATA_STRENGTH<<10)	| (PE3_DATA_STRENGTH<<11) |
+		(PE4_DATA_STRENGTH<<12)	| (PE5_DATA_STRENGTH<<13)	| (PE6_DATA_STRENGTH<<14)	| (PE7_DATA_STRENGTH<<15) |
+		(PE0_FUNC==AS_GPIO ? BIT(16):0)	| (PE1_FUNC==AS_GPIO ? BIT(17):0)| (PE2_FUNC==AS_GPIO ? BIT(18):0)| (PE3_FUNC==AS_GPIO ? BIT(19):0) |
+		(PE4_FUNC==AS_GPIO ? BIT(20):0)	| (PE5_FUNC==AS_GPIO ? BIT(21):0)| (PE6_FUNC==AS_GPIO ? BIT(22):0)| (PE7_FUNC==AS_GPIO ? BIT(23):0);
+
+	if(anaRes_init_en)
+	{
+		gpio_analog_resistance_init();
+	}
+}
+
+#endif /* DRIVERS_GPIO_SETTING_H_ */
+

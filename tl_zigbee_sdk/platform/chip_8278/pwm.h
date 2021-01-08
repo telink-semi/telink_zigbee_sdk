@@ -1,39 +1,59 @@
 /********************************************************************************************************
- * @file     pwm.h 
+ * @file	pwm.h
  *
- * @brief    This is the header file for TLSR8278
+ * @brief	This is the header file for B87
  *
- * @author	 Driver Group
- * @date     July 26, 2019
+ * @author	Driver & Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) 2018, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *           The information contained herein is confidential property of Telink
- *           Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *           of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *           Co., Ltd. and the licensee or the terms described here-in. This heading
- *           MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- *           Licensees are granted free, non-transferable use of the information in this
- *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
- * @par      History:
- * 			 1.initial release(DEC. 26 2018)
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
  *
- * @version  A001
- *         
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
  *******************************************************************************************************/
 #ifndef PWM_H_
 #define PWM_H_
 
 #include "register.h"
-#include "clock.h"
+#include "bit.h"
+#include "timer.h"
 
 
 /**
  * @brief  enum variable, the number of PWM channels supported
  */
-
 typedef enum {
 	PWM0_ID = 0,
 	PWM1_ID,
@@ -129,7 +149,6 @@ static inline void pwm_set_cycle_and_duty(pwm_id id, unsigned short cycle_tick, 
 	reg_pwm_cycle(id) = MASK_VAL(FLD_PWM_CMP, cmp_tick, FLD_PWM_MAX, cycle_tick);
 }
 
-
 /**
  * @brief     This fuction servers to set pwm cycle time & count status.
  * @param[in] cycle_tick - variable of the cycle time.
@@ -141,7 +160,6 @@ static inline void pwm_set_pwm0_shadow_cycle_and_duty(unsigned short cycle_tick,
 	reg_pwm_tcmp0_shadow = cmp_tick;
 	reg_pwm_tmax0_shadow = cycle_tick;
 }
-
 
 /**
  * @brief     This fuction servers to set the pwm phase.
@@ -163,7 +181,6 @@ static inline void pwm_set_pulse_num(pwm_id id, unsigned short pulse_num){
 	if(PWM0_ID == id){
 		reg_pwm0_pulse_num = pulse_num;
 	}
-
 }
 
 /**
@@ -173,7 +190,6 @@ static inline void pwm_set_pulse_num(pwm_id id, unsigned short pulse_num){
  */
 static inline void pwm_start(pwm_id id)
 {
-
 	if(PWM0_ID == id)
 	{
 		BM_SET(reg_pwm0_enable, BIT(0));
@@ -242,10 +258,10 @@ static inline void pwm_polo_enable(pwm_id id, int en)
 static inline void pwm_set_interrupt_enable(PWM_IRQ irq){
 	BM_SET(reg_pwm_irq_mask, irq);
 }
+
 static inline void pwm_set_interrupt_disable(PWM_IRQ irq){
 	BM_CLR(reg_pwm_irq_mask, irq);
 }
-
 
 /**
  * @brief     This fuction servers to clear the pwm interrupt.
@@ -262,11 +278,11 @@ static inline void pwm_clear_interrupt_status( PWM_IRQ irq)
  * @param[in] trig_level - FIFO  num int trigger level
  * @return	  none
  */
-
 static inline void pwm_ir_fifo_set_irq_trig_level(unsigned char trig_level)
 {
 	reg_pwm_ir_fifo_irq_trig_level = trig_level;
 }
+
 /**
  * @brief     This fuction serves to clear data in fifo. Only when pwm is in not active mode,
  * 			  it is possible to clear data in fifo.
@@ -277,6 +293,7 @@ static inline void pwm_ir_fifo_clr_data(void)
 {
 	reg_pwm_ir_clr_fifo_data |= FLD_PWM0_IR_FIFO_CLR_DATA;
 }
+
 /**
  * @brief     This fuction serves to get the number of data in fifo.
  * @param[in] none
@@ -286,6 +303,7 @@ static inline unsigned char pwm_ir_fifo_get_data_num(void)
 {
 	return (reg_pwm_ir_fifo_data_status&FLD_PWM0_IR_FIFO_DATA_NUM);
 }
+
 /**
  * @brief     This fuction serves to determine whether data in fifo is empty.
  * @param[in] none
@@ -301,7 +319,6 @@ static inline unsigned char pwm_ir_fifo_is_empty(void)
  * @param[in] none
  * @return	  yes: 1 ,no: 0;
  */
-
 static inline unsigned char pwm_ir_fifo_is_full(void)
 {
 	return (reg_pwm_ir_fifo_data_status&FLD_PWM0_IR_FIFO_FULL);
@@ -332,8 +349,7 @@ static inline void pwm_ir_fifo_set_data_entry(unsigned short pulse_num, unsigned
  * @param[in] pulse_num - the number of pulse.
  * @return	  none.
  */
-static inline unsigned short pwm_config_dma_fifo_waveform(int carrier_en, Pwm0Pulse_SelectDef pulse_type,  unsigned short pulse_num)
-
+static inline unsigned short pwm_config_dma_fifo_waveform(int carrier_en, Pwm0Pulse_SelectDef pulse_type, unsigned short pulse_num)
 {
 	return  ( carrier_en<<15 | pulse_type | (pulse_num & 0x3fff) );
 }
@@ -366,12 +382,11 @@ static inline void pwm_start_dma_ir_sending(void)
  * @param[in] none.
  * @return	  none.
  */
-
 static inline void pwm_stop_dma_ir_sending(void)
 {
 	reg_rst0 = FLD_RST0_PWM;
 	sleep_us(20);  //1us <-> 4 byte
 	reg_rst0 = 0;
 }
-#endif
- /* PWM_H_ */
+
+#endif /* PWM_H_ */

@@ -1,31 +1,58 @@
 /********************************************************************************************************
- * @file     gpio_8258.h
+ * @file	gpio.h
  *
- * @brief    GPIO configuration header for tlsr8258
+ * @brief	This is the header file for B85
  *
- * @author   jian.zhang@telink-semi.com
- * @date     Oct. 8, 2016
+ * @author	Driver & Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) 2016, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *           The information contained herein is confidential property of Telink
- *           Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *           of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *           Co., Ltd. and the licensee or the terms described here-in. This heading
- *           MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- *           Licensees are granted free, non-transferable use of the information in this
- *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
 #pragma once
 
+#include "register.h"
 #include "bit.h"
 #include "bsp.h"
-#include "register.h"
-#include "gpio_default.h"
-#include "analog.h"
+
+
+/**
+ *  @brief  Define GPIO types
+ */
 
 typedef enum{
 		GPIO_GROUPA    = 0x000,
@@ -34,55 +61,54 @@ typedef enum{
 		GPIO_GROUPD    = 0x300,
 		GPIO_GROUPE    = 0x400,
 
-	    GPIO_PA0 = 0x000 | BIT(0),
-		GPIO_PA1 = 0x000 | BIT(1),
-		GPIO_PA2 = 0x000 | BIT(2),
-		GPIO_PA3 = 0x000 | BIT(3),
-		GPIO_PA4 = 0x000 | BIT(4),
-		GPIO_PA5 = 0x000 | BIT(5), 	GPIO_DM=GPIO_PA5,
-		GPIO_PA6 = 0x000 | BIT(6),  GPIO_DP=GPIO_PA6,
-		GPIO_PA7 = 0x000 | BIT(7), 	GPIO_SWS=GPIO_PA7,
+	    GPIO_PA0 = GPIO_GROUPA | BIT(0),
+		GPIO_PA1 = GPIO_GROUPA | BIT(1),
+		GPIO_PA2 = GPIO_GROUPA | BIT(2),
+		GPIO_PA3 = GPIO_GROUPA | BIT(3),
+		GPIO_PA4 = GPIO_GROUPA | BIT(4),
+		GPIO_PA5 = GPIO_GROUPA | BIT(5), 	GPIO_DM=GPIO_PA5,
+		GPIO_PA6 = GPIO_GROUPA | BIT(6),  GPIO_DP=GPIO_PA6,
+		GPIO_PA7 = GPIO_GROUPA | BIT(7), 	GPIO_SWS=GPIO_PA7,
+		GPIOA_ALL = GPIO_GROUPA | 0x00ff,
 
-		GPIO_PB0 = 0x100 | BIT(0),
-		GPIO_PB1 = 0x100 | BIT(1),
-		GPIO_PB2 = 0x100 | BIT(2),
-		GPIO_PB3 = 0x100 | BIT(3),
-		GPIO_PB4 = 0x100 | BIT(4),
-		GPIO_PB5 = 0x100 | BIT(5),
-		GPIO_PB6 = 0x100 | BIT(6),
-		GPIO_PB7 = 0x100 | BIT(7),
+		GPIO_PB0 = GPIO_GROUPB | BIT(0),
+		GPIO_PB1 = GPIO_GROUPB | BIT(1),
+		GPIO_PB2 = GPIO_GROUPB | BIT(2),
+		GPIO_PB3 = GPIO_GROUPB | BIT(3),
+		GPIO_PB4 = GPIO_GROUPB | BIT(4),
+		GPIO_PB5 = GPIO_GROUPB | BIT(5),
+		GPIO_PB6 = GPIO_GROUPB | BIT(6),
+		GPIO_PB7 = GPIO_GROUPB | BIT(7),
 
-		GPIO_PC0 = 0x200 | BIT(0),
-		GPIO_PC1 = 0x200 | BIT(1),
-		GPIO_PC2 = 0x200 | BIT(2),
-		GPIO_PC3 = 0x200 | BIT(3),
-		GPIO_PC4 = 0x200 | BIT(4),
-		GPIO_PC5 = 0x200 | BIT(5),
-		GPIO_PC6 = 0x200 | BIT(6),
-		GPIO_PC7 = 0x200 | BIT(7),
+		GPIO_PC0 = GPIO_GROUPC | BIT(0),
+		GPIO_PC1 = GPIO_GROUPC | BIT(1),
+		GPIO_PC2 = GPIO_GROUPC | BIT(2),
+		GPIO_PC3 = GPIO_GROUPC | BIT(3),
+		GPIO_PC4 = GPIO_GROUPC | BIT(4),
+		GPIO_PC5 = GPIO_GROUPC | BIT(5),
+		GPIO_PC6 = GPIO_GROUPC | BIT(6),
+		GPIO_PC7 = GPIO_GROUPC | BIT(7),
 
-		GPIO_PD0 = 0x300 | BIT(0),
-		GPIO_PD1 = 0x300 | BIT(1),
-		GPIO_PD2 = 0x300 | BIT(2),
-		GPIO_PD3 = 0x300 | BIT(3),
-		GPIO_PD4 = 0x300 | BIT(4),
-		GPIO_PD5 = 0x300 | BIT(5),
-		GPIO_PD6 = 0x300 | BIT(6),
-		GPIO_PD7 = 0x300 | BIT(7),
+		GPIO_PD0 = GPIO_GROUPD | BIT(0),
+		GPIO_PD1 = GPIO_GROUPD | BIT(1),
+		GPIO_PD2 = GPIO_GROUPD | BIT(2),
+		GPIO_PD3 = GPIO_GROUPD | BIT(3),
+		GPIO_PD4 = GPIO_GROUPD | BIT(4),
+		GPIO_PD5 = GPIO_GROUPD | BIT(5),
+		GPIO_PD6 = GPIO_GROUPD | BIT(6),
+		GPIO_PD7 = GPIO_GROUPD | BIT(7),
 
-		GPIO_PE0 = 0x400 | BIT(0),  GPIO_MSDO=GPIO_PE0,
-		GPIO_PE1 = 0x400 | BIT(1),  GPIO_MCLK=GPIO_PE1,
-		GPIO_PE2 = 0x400 | BIT(2),  GPIO_MSCN=GPIO_PE2,
-		GPIO_PE3 = 0x400 | BIT(3),  GPIO_MSDI=GPIO_PE3,
+		GPIO_PE0 = GPIO_GROUPE | BIT(0),  GPIO_MSDO=GPIO_PE0,
+		GPIO_PE1 = GPIO_GROUPE | BIT(1),  GPIO_MCLK=GPIO_PE1,
+		GPIO_PE2 = GPIO_GROUPE | BIT(2),  GPIO_MSCN=GPIO_PE2,
+		GPIO_PE3 = GPIO_GROUPE | BIT(3),  GPIO_MSDI=GPIO_PE3,
 
+		GPIO_ALL = 0x500,
 }GPIO_PinTypeDef;
 
-typedef enum {
-	PM_PIN_UP_DOWN_FLOAT    = 0,
-	PM_PIN_PULLUP_1M     	= 1,
-	PM_PIN_PULLDOWN_100K  	= 2,
-	PM_PIN_PULLUP_10K 		= 3,
-}GPIO_PullTypeDef;
+/**
+ *  @brief  Define GPIO Function types
+ */
 
 typedef enum{
 	AS_GPIO 	=  0,
@@ -115,62 +141,46 @@ typedef enum{
 }GPIO_FuncTypeDef;
 
 
-
-
 typedef enum{
-	Level_Low = 0,
-	Level_High,
+	Level_Low=0,
+	Level_High =1,
 }GPIO_LevelTypeDef;
 
 
 
-
+/**
+ *  @brief  Define rising/falling types
+ */
 typedef enum{
-	pol_rising = 0,
-	pol_falling,
+	POL_RISING   = 0,  pol_rising = 0,
+	POL_FALLING  = 1,  pol_falling = 1,
 }GPIO_PolTypeDef;
 
+/**
+ *  @brief  Define pull up or down types
+ */
+typedef enum {
+	PM_PIN_UP_DOWN_FLOAT    = 0,
+	PM_PIN_PULLUP_1M     	= 1,
+	PM_PIN_PULLDOWN_100K  	= 2,
+	PM_PIN_PULLUP_10K 		= 3,
+}GPIO_PullTypeDef;
 
 
+/**
+ * @brief      This function servers to set the GPIO's function.
+ * @param[in]  pin - the special pin.
+ * @param[in]  func - the function of GPIO.
+ * @return     none.
+ */
+void gpio_set_func(GPIO_PinTypeDef pin, GPIO_FuncTypeDef func);
 
-#define reg_gpio_wakeup_irq  REG_ADDR8(0x5b5)
-enum{
-    FLD_GPIO_CORE_WAKEUP_EN  = BIT(2),
-    FLD_GPIO_CORE_INTERRUPT_EN = BIT(3),
-};
-
-static inline void gpio_core_wakeup_enable_all (int en)
-{
-    if (en) {
-        BM_SET(reg_gpio_wakeup_irq, FLD_GPIO_CORE_WAKEUP_EN);
-    }
-    else {
-        BM_CLR(reg_gpio_wakeup_irq, FLD_GPIO_CORE_WAKEUP_EN);
-    }
-}
-
-static inline void gpio_core_irq_enable_all (int en)
-{
-    if (en) {
-        BM_SET(reg_gpio_wakeup_irq, FLD_GPIO_CORE_INTERRUPT_EN);
-    }
-    else {
-        BM_CLR(reg_gpio_wakeup_irq, FLD_GPIO_CORE_INTERRUPT_EN);
-    }
-}
-
-
-
-static inline int gpio_is_output_en(GPIO_PinTypeDef pin)
-{
-	return !BM_IS_SET(reg_gpio_oen(pin), pin & 0xff);
-}
-
-static inline int gpio_is_input_en(GPIO_PinTypeDef pin)
-{
-	return BM_IS_SET(reg_gpio_ie(pin), pin & 0xff);
-}
-
+/**
+ * @brief      This function set the output function of a pin.
+ * @param[in]  pin - the pin needs to set the output function
+ * @param[in]  value - enable or disable the pin's output function(0: disable, 1: enable)
+ * @return     none
+ */
 static inline void gpio_set_output_en(GPIO_PinTypeDef pin, unsigned int value)
 {
 	unsigned char	bit = pin & 0xff;
@@ -181,11 +191,42 @@ static inline void gpio_set_output_en(GPIO_PinTypeDef pin, unsigned int value)
 	}
 }
 
+/**
+ * @brief      This function set the input function of a pin.
+ * @param[in]  pin - the pin needs to set the input function
+ * @param[in]  value - enable or disable the pin's input function(0: disable, 1: enable)
+ * @return     none
+ */
+void gpio_set_input_en(GPIO_PinTypeDef pin, unsigned int value);
 
+/**
+ * @brief      This function determines whether the output function of a pin is enabled.
+ * @param[in]  pin - the pin needs to determine whether its output function is enabled.
+ * @return     1: the pin's output function is enabled ;
+ *             0: the pin's output function is disabled
+ */
+static inline int gpio_is_output_en(GPIO_PinTypeDef pin)
+{
+	return !BM_IS_SET(reg_gpio_oen(pin), pin & 0xff);
+}
 
+/**
+ * @brief     This function determines whether the input function of a pin is enabled.
+ * @param[in] pin - the pin needs to determine whether its input function is enabled.
+ * @return    1: the pin's input function is enabled ;
+ *            0: the pin's input function is disabled
+ */
+static inline int gpio_is_input_en(GPIO_PinTypeDef pin)
+{
+	return BM_IS_SET(reg_gpio_ie(pin), pin & 0xff);
+}
 
-
-
+/**
+ * @brief     This function set the pin's output level.
+ * @param[in] pin - the pin needs to set its output level
+ * @param[in] value - value of the output level(1: high 0: low)
+ * @return    none
+ */
 static inline void gpio_write(GPIO_PinTypeDef pin, unsigned int value)
 {
 	unsigned char	bit = pin & 0xff;
@@ -196,22 +237,21 @@ static inline void gpio_write(GPIO_PinTypeDef pin, unsigned int value)
 	}
 }
 
-static inline void gpio_toggle(GPIO_PinTypeDef pin)
-{
-	reg_gpio_out(pin) ^= (pin & 0xFF);
-}
-
-
+/**
+ * @brief     This function read the pin's input/output level.
+ * @param[in] pin - the pin needs to read its level
+ * @return    the pin's level(1: high 0: low)
+ */
 static inline unsigned int gpio_read(GPIO_PinTypeDef pin)
 {
 	return BM_IS_SET(reg_gpio_in(pin), pin & 0xff);
 }
 
-static inline unsigned int gpio_read_cache(GPIO_PinTypeDef pin, unsigned char *p)
-{
-	return p[pin>>8] & (pin & 0xff);
-}
-
+/**
+ * @brief      This function read all the pins' input level.
+ * @param[out] p - the buffer used to store all the pins' input level
+ * @return     none
+ */
 static inline void gpio_read_all(unsigned char *p)
 {
 	p[0] = REG_ADDR8(0x580);
@@ -220,10 +260,45 @@ static inline void gpio_read_all(unsigned char *p)
 	p[3] = REG_ADDR8(0x598);
 }
 
+/**
+ * @brief     This function set the pin toggle.
+ * @param[in] pin - the pin needs to toggle
+ * @return    none
+ */
+static inline void gpio_toggle(GPIO_PinTypeDef pin)
+{
+	reg_gpio_out(pin) ^= (pin & 0xFF);
+}
 
+/**
+ * @brief      This function set the pin's driving strength.
+ * @param[in]  pin - the pin needs to set the driving strength
+ * @param[in]  value - the level of driving strength(1: strong 0: poor)
+ * @return     none
+ */
+void gpio_set_data_strength(GPIO_PinTypeDef pin, unsigned int value);
 
+/**
+ * @brief     This function set a pin's pull-up/down resistor.
+ * @param[in] gpio - the pin needs to set its pull-up/down resistor
+ * @param[in] up_down - the type of the pull-up/down resistor
+ * @return    none
+ */
+void gpio_setup_up_down_resistor(GPIO_PinTypeDef gpio, GPIO_PullTypeDef up_down);
 
+/**
+ * @brief      This function servers to set the specified GPIO as high resistor.
+ * @param[in]  pin  - select the specified GPIO
+ * @return     none.
+ */
+void gpio_shutdown(GPIO_PinTypeDef pin);
 
+/**
+ * @brief     This function set a pin's polarity that trig its IRQ.
+ * @param[in] pin - the pin needs to set its edge polarity that trig its IRQ
+ * @param[in] falling - value of the edge polarity(1: falling edge 0: rising edge)
+ * @return    none
+ */
 static inline void gpio_set_interrupt_pol(GPIO_PinTypeDef pin, GPIO_PolTypeDef falling)
 {
 	unsigned char	bit = pin & 0xff;
@@ -234,19 +309,12 @@ static inline void gpio_set_interrupt_pol(GPIO_PinTypeDef pin, GPIO_PolTypeDef f
 	}
 }
 
-
-
-static inline void gpio_en_interrupt(GPIO_PinTypeDef pin, int en)   // reg_irq_mask: FLD_IRQ_GPIO_EN
-{
-	unsigned char	bit = pin & 0xff;
-	if(en){
-		BM_SET(reg_gpio_irq_wakeup_en(pin), bit);
-	}
-	else{
-		BM_CLR(reg_gpio_irq_wakeup_en(pin), bit);
-	}
-}
-
+/**
+ * @brief     This function set a pin's IRQ.
+ * @param[in] pin - the pin needs to enable its IRQ
+ * @param[in] falling - value of the edge polarity(1: falling edge 0: rising edge)
+ * @return    none
+ */
 static inline void gpio_set_interrupt(GPIO_PinTypeDef pin, GPIO_PolTypeDef falling)
 {
 	unsigned char	bit = pin & 0xff;
@@ -263,18 +331,29 @@ static inline void gpio_set_interrupt(GPIO_PinTypeDef pin, GPIO_PolTypeDef falli
 	reg_irq_mask |= FLD_IRQ_GPIO_EN;
 }
 
-
-static inline void gpio_en_interrupt_risc0(GPIO_PinTypeDef pin, int en)  // reg_irq_mask: FLD_IRQ_GPIO_RISC0_EN
+/**
+ * @brief     This function enables a pin's IRQ function.
+ * @param[in] pin - the pin needs to enables its IRQ function.
+ * @param[in] en - 1:enable 0:disable.
+ * @return    none
+ */
+static inline void gpio_en_interrupt(GPIO_PinTypeDef pin, int en)   // reg_irq_mask: FLD_IRQ_GPIO_EN
 {
 	unsigned char	bit = pin & 0xff;
 	if(en){
-		BM_SET(reg_gpio_irq_risc0_en(pin), bit);
+		BM_SET(reg_gpio_irq_wakeup_en(pin), bit);
 	}
 	else{
-		BM_CLR(reg_gpio_irq_risc0_en(pin), bit);
+		BM_CLR(reg_gpio_irq_wakeup_en(pin), bit);
 	}
 }
 
+/**
+ * @brief     This function set a pin's IRQ.
+ * @param[in] pin - the pin needs to enable its IRQ
+ * @param[in] falling - value of the edge polarity(1: falling edge 0: rising edge)
+ * @return    none
+ */
 static inline void gpio_set_interrupt_risc0(GPIO_PinTypeDef pin, GPIO_PolTypeDef falling){
 	unsigned char	bit = pin & 0xff;
 	//BM_SET(reg_gpio_irq_risc0_en(pin), bit);
@@ -290,17 +369,30 @@ static inline void gpio_set_interrupt_risc0(GPIO_PinTypeDef pin, GPIO_PolTypeDef
 	reg_irq_mask |= FLD_IRQ_GPIO_RISC0_EN;
 }
 
-static inline void gpio_en_interrupt_risc1(GPIO_PinTypeDef pin, int en)  // reg_irq_mask: FLD_IRQ_GPIO_RISC1_EN
+/**
+ * @brief     This function enables a pin's IRQ function.
+ * @param[in] pin - the pin needs to enables its IRQ function.
+ * @param[in] en - 1 enable. 0 disable.
+ * @return    none
+ */
+static inline void gpio_en_interrupt_risc0(GPIO_PinTypeDef pin, int en)  // reg_irq_mask: FLD_IRQ_GPIO_RISC0_EN
 {
 	unsigned char	bit = pin & 0xff;
 	if(en){
-		BM_SET(reg_gpio_irq_risc1_en(pin), bit);
+		BM_SET(reg_gpio_irq_risc0_en(pin), bit);
 	}
 	else{
-		BM_CLR(reg_gpio_irq_risc1_en(pin), bit);
+		BM_CLR(reg_gpio_irq_risc0_en(pin), bit);
 	}
 }
 
+
+/**
+ * @brief     This function set a pin's IRQ.
+ * @param[in] pin - the pin needs to enable its IRQ
+ * @param[in] falling - value of the edge polarity(1: falling edge 0: rising edge)
+ * @return    none
+ */
 static inline void gpio_set_interrupt_risc1(GPIO_PinTypeDef pin, GPIO_PolTypeDef falling)
 {
 	unsigned char	bit = pin & 0xff;
@@ -316,148 +408,22 @@ static inline void gpio_set_interrupt_risc1(GPIO_PinTypeDef pin, GPIO_PolTypeDef
 	reg_irq_mask |= FLD_IRQ_GPIO_RISC1_EN;
 }
 
-
-static inline void gpio_init(int anaRes_init_en)
+/**
+ * @brief     This function enables a pin's IRQ function.
+ * @param[in] pin - the pin needs to enables its IRQ function.
+ * @param[in] en - 1 enable. 0 disable.
+ * @return    none
+ */
+static inline void gpio_en_interrupt_risc1(GPIO_PinTypeDef pin, int en)  // reg_irq_mask: FLD_IRQ_GPIO_RISC1_EN
 {
-
-	reg_gpio_pa_setting1 =
-		(PA0_INPUT_ENABLE<<8) 	| (PA1_INPUT_ENABLE<<9)	| (PA2_INPUT_ENABLE<<10)	| (PA3_INPUT_ENABLE<<11) |
-		(PA4_INPUT_ENABLE<<12)	| (PA5_INPUT_ENABLE<<13)	| (PA6_INPUT_ENABLE<<14)	| (PA7_INPUT_ENABLE<<15) |
-		((PA0_OUTPUT_ENABLE?0:1)<<16)	| ((PA1_OUTPUT_ENABLE?0:1)<<17) | ((PA2_OUTPUT_ENABLE?0:1)<<18)	| ((PA3_OUTPUT_ENABLE?0:1)<<19) |
-		((PA4_OUTPUT_ENABLE?0:1)<<20)	| ((PA5_OUTPUT_ENABLE?0:1)<<21) | ((PA6_OUTPUT_ENABLE?0:1)<<22)	| ((PA7_OUTPUT_ENABLE?0:1)<<23) |
-		(PA0_DATA_OUT<<24)	| (PA1_DATA_OUT<<25)	| (PA2_DATA_OUT<<26)	| (PA3_DATA_OUT<<27) |
-		(PA4_DATA_OUT<<28)	| (PA5_DATA_OUT<<29)	| (PA6_DATA_OUT<<30)	| (PA7_DATA_OUT<<31) ;
-	reg_gpio_pa_setting2 =
-		(PA0_DATA_STRENGTH<<8)		| (PA1_DATA_STRENGTH<<9)| (PA2_DATA_STRENGTH<<10)	| (PA3_DATA_STRENGTH<<11) |
-		(PA4_DATA_STRENGTH<<12)	| (PA5_DATA_STRENGTH<<13)	| (PA6_DATA_STRENGTH<<14)	| (PA7_DATA_STRENGTH<<15) |
-		(PA0_FUNC==AS_GPIO ? BIT(16):0)	| (PA1_FUNC==AS_GPIO ? BIT(17):0)| (PA2_FUNC==AS_GPIO ? BIT(18):0)| (PA3_FUNC==AS_GPIO ? BIT(19):0) |
-		(PA4_FUNC==AS_GPIO ? BIT(20):0)	| (PA5_FUNC==AS_GPIO ? BIT(21):0)| (PA6_FUNC==AS_GPIO ? BIT(22):0)| (PA7_FUNC==AS_GPIO ? BIT(23):0);
-
-
-
-
-	//PB group
-	//ie
-	analog_write(anaReg_gpioPB_ie, 	(PB0_INPUT_ENABLE<<0) 	| (PB1_INPUT_ENABLE<<1)	| (PB2_INPUT_ENABLE<<2)	| (PB3_INPUT_ENABLE<<3) |
-									(PB4_INPUT_ENABLE<<4)	| (PB5_INPUT_ENABLE<<5) | (PB6_INPUT_ENABLE<<6)	| (PB7_INPUT_ENABLE<<7) );
-	//oen
-	reg_gpio_pb_oen =
-		((PB0_OUTPUT_ENABLE?0:1)<<0)	| ((PB1_OUTPUT_ENABLE?0:1)<<1) | ((PB2_OUTPUT_ENABLE?0:1)<<2)	| ((PB3_OUTPUT_ENABLE?0:1)<<3) |
-		((PB4_OUTPUT_ENABLE?0:1)<<4)	| ((PB5_OUTPUT_ENABLE?0:1)<<5) | ((PB6_OUTPUT_ENABLE?0:1)<<6)	| ((PB7_OUTPUT_ENABLE?0:1)<<7);
-	//dataO
-	reg_gpio_pb_out =
-		(PB0_DATA_OUT<<0)	| (PB1_DATA_OUT<<1)	| (PB2_DATA_OUT<<2)	| (PB3_DATA_OUT<<3) |
-		(PB4_DATA_OUT<<4)	| (PB5_DATA_OUT<<5)	| (PB6_DATA_OUT<<6)	| (PB7_DATA_OUT<<7) ;
-
-	//ds
-	analog_write(anaReg_gpioPB_ds, 	(PB0_DATA_STRENGTH<<0) 	| (PB1_DATA_STRENGTH<<1)  | (PB2_DATA_STRENGTH<<2)	| (PB3_DATA_STRENGTH<<3) |
-									(PB4_DATA_STRENGTH<<4)	| (PB5_DATA_STRENGTH<<5)  | (PB6_DATA_STRENGTH<<6)	| (PB7_DATA_STRENGTH<<7) );
-	//func
-	reg_gpio_pb_gpio =
-		(PB0_FUNC==AS_GPIO ? BIT(0):0)	| (PB1_FUNC==AS_GPIO ? BIT(1):0)| (PB2_FUNC==AS_GPIO ? BIT(2):0)| (PB3_FUNC==AS_GPIO ? BIT(3):0) |
-		(PB4_FUNC==AS_GPIO ? BIT(4):0)	| (PB5_FUNC==AS_GPIO ? BIT(5):0)| (PB6_FUNC==AS_GPIO ? BIT(6):0)| (PB7_FUNC==AS_GPIO ? BIT(7):0);
-
-
-
-
-	//PC group
-	//ie
-	analog_write(anaReg_gpioPC_ie, 	(PC0_INPUT_ENABLE<<0) 	| (PC1_INPUT_ENABLE<<1)	| (PC2_INPUT_ENABLE<<2)	| (PC3_INPUT_ENABLE<<3) |
-									(PC4_INPUT_ENABLE<<4)	| (PC5_INPUT_ENABLE<<5) | (PC6_INPUT_ENABLE<<6)	| (PC7_INPUT_ENABLE<<7) );
-
-	//oen
-	reg_gpio_pc_oen =
-		((PC0_OUTPUT_ENABLE?0:1)<<0)	| ((PC1_OUTPUT_ENABLE?0:1)<<1) | ((PC2_OUTPUT_ENABLE?0:1)<<2)	| ((PC3_OUTPUT_ENABLE?0:1)<<3) |
-		((PC4_OUTPUT_ENABLE?0:1)<<4)	| ((PC5_OUTPUT_ENABLE?0:1)<<5) | ((PC6_OUTPUT_ENABLE?0:1)<<6)	| ((PC7_OUTPUT_ENABLE?0:1)<<7);
-	//dataO
-	reg_gpio_pc_out =
-		(PC0_DATA_OUT<<0)	| (PC1_DATA_OUT<<1)	| (PC2_DATA_OUT<<2)	| (PC3_DATA_OUT<<3) |
-		(PC4_DATA_OUT<<4)	| (PC5_DATA_OUT<<5)	| (PC6_DATA_OUT<<6)	| (PC7_DATA_OUT<<7) ;
-
-	//ds
-	analog_write(anaReg_gpioPC_ds, 	(PC0_DATA_STRENGTH<<0) 	| (PC1_DATA_STRENGTH<<1)  | (PC2_DATA_STRENGTH<<2)	| (PC3_DATA_STRENGTH<<3) |
-									(PC4_DATA_STRENGTH<<4)	| (PC5_DATA_STRENGTH<<5)  | (PC6_DATA_STRENGTH<<6)	| (PC7_DATA_STRENGTH<<7) );
-
-	reg_gpio_pc_gpio =
-		(PC0_FUNC==AS_GPIO ? BIT(0):0)	| (PC1_FUNC==AS_GPIO ? BIT(1):0)| (PC2_FUNC==AS_GPIO ? BIT(2):0)| (PC3_FUNC==AS_GPIO ? BIT(3):0) |
-		(PC4_FUNC==AS_GPIO ? BIT(4):0)	| (PC5_FUNC==AS_GPIO ? BIT(5):0)| (PC6_FUNC==AS_GPIO ? BIT(6):0)| (PC7_FUNC==AS_GPIO ? BIT(7):0);
-
-
-
-
-	//PD group
-	reg_gpio_pd_setting1 =
-		(PD0_INPUT_ENABLE<<8) 	| (PD1_INPUT_ENABLE<<9)	| (PD2_INPUT_ENABLE<<10)	| (PD3_INPUT_ENABLE<<11) |
-		(PD4_INPUT_ENABLE<<12)	| (PD5_INPUT_ENABLE<<13)| (PD6_INPUT_ENABLE<<14)	| (PD7_INPUT_ENABLE<<15) |
-		((PD0_OUTPUT_ENABLE?0:1)<<16)	| ((PD1_OUTPUT_ENABLE?0:1)<<17) | ((PD2_OUTPUT_ENABLE?0:1)<<18)	| ((PD3_OUTPUT_ENABLE?0:1)<<19) |
-		((PD4_OUTPUT_ENABLE?0:1)<<20)	| ((PD5_OUTPUT_ENABLE?0:1)<<21) | ((PD6_OUTPUT_ENABLE?0:1)<<22)	| ((PD7_OUTPUT_ENABLE?0:1)<<23) |
-		(PD0_DATA_OUT<<24)	| (PD1_DATA_OUT<<25)	| (PD2_DATA_OUT<<26)	| (PD3_DATA_OUT<<27) |
-		(PD4_DATA_OUT<<28)	| (PD5_DATA_OUT<<29)	| (PD6_DATA_OUT<<30)	| (PD7_DATA_OUT<<31) ;
-	reg_gpio_pd_setting2 =
-		(PD0_DATA_STRENGTH<<8)	| (PD1_DATA_STRENGTH<<9)	| (PD2_DATA_STRENGTH<<10)	| (PD3_DATA_STRENGTH<<11) |
-		(PD4_DATA_STRENGTH<<12)	| (PD5_DATA_STRENGTH<<13)	| (PD6_DATA_STRENGTH<<14)	| (PD7_DATA_STRENGTH<<15) |
-		(PD0_FUNC==AS_GPIO ? BIT(16):0)	| (PD1_FUNC==AS_GPIO ? BIT(17):0)| (PD2_FUNC==AS_GPIO ? BIT(18):0)| (PD3_FUNC==AS_GPIO ? BIT(19):0) |
-		(PD4_FUNC==AS_GPIO ? BIT(20):0)	| (PD5_FUNC==AS_GPIO ? BIT(21):0)| (PD6_FUNC==AS_GPIO ? BIT(22):0)| (PD7_FUNC==AS_GPIO ? BIT(23):0);
-
-
-	//PE group
-	reg_gpio_pe_ie = (PE0_INPUT_ENABLE<<0)	| (PE1_INPUT_ENABLE<<1)| (PE2_INPUT_ENABLE<<2)	| (PE3_INPUT_ENABLE<<3);
-	reg_gpio_pe_oen = ((PE0_OUTPUT_ENABLE?0:1)<<0)	| ((PE1_OUTPUT_ENABLE?0:1)<<1) | ((PE2_OUTPUT_ENABLE?0:1)<<2)	| ((PE3_OUTPUT_ENABLE?0:1)<<3);
-	reg_gpio_pe_out = (PE0_DATA_OUT<<0)	| (PE1_DATA_OUT<<1)	| (PE2_DATA_OUT<<2)	| (PE3_DATA_OUT<<3);
-	reg_gpio_pe_ds = (PE0_DATA_STRENGTH<<0)	| (PE1_DATA_STRENGTH<<1)	| (PE2_DATA_STRENGTH<<2)	| (PE3_DATA_STRENGTH<<3);
-	reg_gpio_pe_gpio = (PE0_FUNC==AS_GPIO ? BIT(0):0)	| (PE1_FUNC==AS_GPIO ? BIT(1):0)| (PE2_FUNC==AS_GPIO ? BIT(2):0)| (PE3_FUNC==AS_GPIO ? BIT(3):0);
-
-
-
-	if(anaRes_init_en){
-		analog_write (0x0e,  PULL_WAKEUP_SRC_PA0 |
-							(PULL_WAKEUP_SRC_PA1<<2) |
-							(PULL_WAKEUP_SRC_PA2<<4) |
-							(PULL_WAKEUP_SRC_PA3<<6));
-
-		analog_write (0x0f,  PULL_WAKEUP_SRC_PA4 |
-							(PULL_WAKEUP_SRC_PA5<<2) |
-							(PULL_WAKEUP_SRC_PA6<<4) |
-							(PULL_WAKEUP_SRC_PA7<<6));
-
-
-		analog_write (0x10,  PULL_WAKEUP_SRC_PB0 |
-							(PULL_WAKEUP_SRC_PB1<<2) |
-							(PULL_WAKEUP_SRC_PB2<<4) |
-							(PULL_WAKEUP_SRC_PB3<<6));
-
-		analog_write (0x11,  PULL_WAKEUP_SRC_PB4 |
-							(PULL_WAKEUP_SRC_PB5<<2) |
-							(PULL_WAKEUP_SRC_PB6<<4) |
-							(PULL_WAKEUP_SRC_PB7<<6));
-
-
-		analog_write (0x12,  PULL_WAKEUP_SRC_PC0 |
-							(PULL_WAKEUP_SRC_PC1<<2) |
-							(PULL_WAKEUP_SRC_PC2<<4) |
-							(PULL_WAKEUP_SRC_PC3<<6));
-
-		analog_write (0x13,  PULL_WAKEUP_SRC_PC4 |
-							(PULL_WAKEUP_SRC_PC5<<2) |
-							(PULL_WAKEUP_SRC_PC6<<4) |
-							(PULL_WAKEUP_SRC_PC7<<6));
-
-
-		analog_write (0x14,  PULL_WAKEUP_SRC_PD0 |
-							(PULL_WAKEUP_SRC_PD1<<2) |
-							(PULL_WAKEUP_SRC_PD2<<4) |
-							(PULL_WAKEUP_SRC_PD3<<6));
-
-		analog_write (0x15,  PULL_WAKEUP_SRC_PD4 |
-							(PULL_WAKEUP_SRC_PD5<<2) |
-							(PULL_WAKEUP_SRC_PD6<<4) |
-							(PULL_WAKEUP_SRC_PD7<<6));
+	unsigned char	bit = pin & 0xff;
+	if(en){
+		BM_SET(reg_gpio_irq_risc1_en(pin), bit);
+	}
+	else{
+		BM_CLR(reg_gpio_irq_risc1_en(pin), bit);
 	}
 }
 
 
 
-void gpio_set_wakeup(GPIO_PinTypeDef pin, GPIO_LevelTypeDef level, int en);
-void gpio_setup_up_down_resistor(GPIO_PinTypeDef gpio, GPIO_PullTypeDef up_down);
-void gpio_set_input_en(GPIO_PinTypeDef pin, unsigned int value);
-void gpio_set_func(GPIO_PinTypeDef pin, GPIO_FuncTypeDef func);

@@ -3,34 +3,34 @@
  *
  * @brief	This is the header file for B91
  *
- * @author	L.R 
+ * @author	Driver Group
  * @date	2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
- *          
+ *
  *          Redistribution and use in source and binary forms, with or without
  *          modification, are permitted provided that the following conditions are met:
- *          
+ *
  *              1. Redistributions of source code must retain the above copyright
  *              notice, this list of conditions and the following disclaimer.
- *          
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions 
- *              in binary form must reproduce the above copyright notice, this list of 
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
  *              conditions and the following disclaimer in the documentation and/or other
  *              materials provided with the distribution.
- *          
- *              3. Neither the name of TELINK, nor the names of its contributors may be 
- *              used to endorse or promote products derived from this software without 
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
  *              specific prior written permission.
- *          
+ *
  *              4. This software, with or without modification, must only be used with a
  *              TELINK integrated circuit. All other usages are subject to written permission
  *              from TELINK and different commercial license may apply.
  *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or 
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
  *              relating to such deletion(s), modification(s) or alteration(s).
- *         
+ *
  *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -41,7 +41,7 @@
  *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *         
+ *
  *******************************************************************************************************/
 /**	@page I2C
  *
@@ -56,11 +56,8 @@
 
 #ifndef I2C_H
 #define I2C_H
-
-
-
-#include "bit.h"
 #include "gpio.h"
+
 #include "analog.h"
 #include "reg_include/i2c_reg.h"
 #include "dma.h"
@@ -97,6 +94,7 @@ typedef enum{
 typedef enum{
 	I2C_RX_BUF_MASK         =  BIT(2),
 	I2C_TX_BUF_MASK         =  BIT(3),
+	I2C_TX_DONE_MASK		=  BIT(4),
 	I2C_RX_DONE_MASK        =  BIT(5),
 }i2c_irq_mask_e;
 
@@ -109,17 +107,23 @@ typedef enum{
 
 typedef enum{
 
+	I2C_TXDONE_STATUS          = BIT(0),
 	I2C_TX_BUF_STATUS          = BIT(1),
 	I2C_RXDONE_STATUS          = BIT(2),
 	I2C_RX_BUF_STATUS          = BIT(3),
+
 }i2c_irq_status_e;
 
+
+typedef enum{
+I2C_TX_DONE_CLR  		= BIT(4),
+}i2c_irq_clr_e;
 
 /**
  * @brief      The function of this API is to determine whether the bus is busy.
  * @return     1:Indicates that the bus is busy. 0:Indicates that the bus is free
  */
-static inline bool i2c_master_busy(void)
+static inline _Bool i2c_master_busy(void)
 {
     return reg_i2c_mst & FLD_I2C_MST_BUSY;
 }
@@ -222,6 +226,16 @@ static inline void i2c_clr_fifo(i2c_buff_clr_e clr)
 	 reg_i2c_status = clr;
 }
 
+/**
+ * @brief      This function serves to clear i2c irq status.
+ * @return     none
+ */
+static inline void  i2c_clr_irq_status(i2c_irq_clr_e status)
+{
+	    reg_i2c_irq_status=status;
+}
+
+
 
 /**
  * @brief      This function serves to enable slave mode.
@@ -237,9 +251,9 @@ void i2c_slave_init(unsigned char id);
  *  @param[in]  id - to set the slave ID.for kite slave ID=0x5c,for eagle slave ID=0x5a.
  *  @param[in]  data - The data to be sent, The first three bytes can be set as the RAM address of the slave.
  *  @param[in]  len - This length is the total length, including both the length of the slave RAM address and the length of the data to be sent.
- *  @return     none
+ *  @return     0 : the master receive NACK after sending out the id and then send stop.  1: the master sent the data successfully,(master does not detect NACK in data phase)
  */
-void i2c_master_write(unsigned char id, unsigned char *data, unsigned char len);
+unsigned char i2c_master_write(unsigned char id, unsigned char *data, unsigned char len);
 
 
 /**
@@ -247,11 +261,21 @@ void i2c_master_write(unsigned char id, unsigned char *data, unsigned char len);
  * @param[in]  id - to set the slave ID.for kite slave ID=0x5c,for eagle slave ID=0x5a.
  * @param[in]  data - Store the read data
  * @param[in]  len - The total length of the data read back.
- * @return     none.
+ * @return     0 : the master receive NACK after sending out the id and then send stop.  1: the master receive the data successfully.
  */
-void i2c_master_read(unsigned char id, unsigned char *data, unsigned char len);
+unsigned char i2c_master_read(unsigned char id, unsigned char *data, unsigned char len);
 
 
+/**
+ * @brief      This function serves to write data and restart read data.
+ * @param[in]  id - to set the slave ID.for kite slave ID=0x5c,for eagle slave ID=0x5a.
+ * @param[in]  wr_data - The data to be sent, The first three bytes can be set as the RAM address of the slave.
+ * @param[in]  wr_len -  This length is the total length, including both the length of the slave RAM address and the length of the data to be sent.
+ * @param[in]  rd_data - Store the read data
+ * @param[in]  rd_len -  The total length of the data read back.
+ * @return     0 : the master receive NACK after sending out the id and then send stop.  1: the master receive the data successfully.
+ */
+unsigned char i2c_master_write_read(unsigned char id, unsigned char *wr_data, unsigned char wr_len, unsigned char *rd_data, unsigned char rd_len);
 
 /**
  * @brief      The function of this API is just to write data to the i2c tx_fifo by DMA.
@@ -277,22 +301,22 @@ void i2c_master_read_dma(unsigned char id, unsigned char *data, unsigned char le
 
 
 /**
- * @brief      This function serves to write a packet of data to master device.
+ * @brief      This function serves to send a packet of data to master device.It will trigger after the master sends the read sequence.
  * @param[in]  data - the pointer of tx_buff.
  * @param[in]  len - The total length of the data .
  * @return     none.
  */
-void i2c_slave_write_dma( unsigned char *data, unsigned char len);
+void i2c_slave_set_tx_dma( unsigned char *data, unsigned char len);
 
 
 
 /**
- * @brief      This function serves to receive a packet of data from  master device.
+ * @brief      This function serves to receive a packet of data from master device,It will trigger after the master sends the write sequence.
  * @param[in]  data - the pointer of rx_buff.
- * @param[in]  len  - The total length of the data .
+ * @param[in]  len  - The total length of the data.
  * @return     none.
  */
-void i2c_slave_read_dma(unsigned char *data, unsigned char len);
+void i2c_slave_set_rx_dma(unsigned char *data, unsigned char len);
 
 
 /**

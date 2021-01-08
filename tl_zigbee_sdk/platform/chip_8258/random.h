@@ -1,114 +1,64 @@
 /********************************************************************************************************
- * @file     random.h 
+ * @file	random.h
  *
- * @brief    This is the header file for TLSR8258
+ * @brief	This is the header file for B85
  *
- * @author	 junyuan.zhang@telink-semi.com;
- * @date     May 8, 2018
+ * @author	Driver & Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) 2018, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *           The information contained herein is confidential property of Telink
- *           Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *           of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *           Co., Ltd. and the licensee or the terms described here-in. This heading
- *           MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- *           Licensees are granted free, non-transferable use of the information in this
- *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
- * @par      History:
- * 			 1.initial release(DEC. 26 2018)
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
  *
- * @version  A001
- *         
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
  *******************************************************************************************************/
-
 #pragma once
 
+
 /**
- * @brief     This function performs to preparatory initials random generator.
+ * @brief     This function performs to initials random generator post.
  * @param[in] none.
  * @return    none.
  */
-void rng_init(void);
+void random_generator_init(void);
 
 /**
- * @brief     This function performs to initialize the rand time in flash/sram.
- *            (example: system clock:16M, code in flash 23us, code in sram 4us)
+ * @brief     This function performs to get one random number
  * @param[in] none.
- * @return    the value of time.
+ * @return    the value of one random number.
  */
 unsigned int rand(void);
 
-/*********************************************************************
- * @fn          generateRandomNum
- *
- * @brief       generate random number
- *
- * @param       len - len
- *
- * @param       data -  buffer
- *
- * @return      None
- */
-void generateRandomNum(int len, unsigned char *data);
-
-/*********************************************************************
- * @fn          rng_get_result_buff
- *
- * @brief       generate random number
- *
- * @param       len - len
- *
- * @param       data -  buffer
- *
- * @return      None
- */
-void rng_get_result_buff(int len, unsigned char *data);
-
-/** \defgroup GP10  Random Usage
- * 	This DEMO uses the random number function of the ADC to generate pseudo-random numbers. \n
- * 	@{
- */
-
-//-----------------------------------------------------------1-10
-/*! \page random Random Usage
-Next, we will introduce how to use ADC RNG of API interface: \n
-__1.RNG__ \n
-
-This DEMO implements RNG generation by setting the operating mode of the ADC and related registers.\n
-
-API Interface Function : \n
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~{.c}
-  void random_generator_pre_init(void)
-  void random_generator_post_init(void)
-  _attribute_ram_code_ unsigned int rand(void)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-case 1:  This DEMO is mainly pre-initialization and initialization of ADC RNG, and then you can directly read pseudo-random numbers. \n
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~{.c}
-int main (void) {
-
-unsigned short random;
-
-	cpu_wakeup_init();
 
 
-	random_generator_pre_init();
-
-	random_generator_post_init();
-
-
-	while (1) {
-		random = rand();
-	}
-}
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-\n
-*/
- /** @}*/ //end of GP10

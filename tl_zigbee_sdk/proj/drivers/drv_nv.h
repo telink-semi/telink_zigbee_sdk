@@ -1,36 +1,58 @@
 /********************************************************************************************************
- * @file     nv.h
+ * @file	drv_nv.h
  *
- * @brief	 nv flash interface function header file.
- * 			 If undefined FLASH_SIZE_1M or defined FLASH_SIZE_1M ZERO, using 512k flash configuration.
+ * @brief	This is the header file for drv_nv
  *
- * @author
- * @date     Oct. 8, 2016
+ * @author	Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) 2016, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *           The information contained herein is confidential property of Telink
- *           Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *           of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *           Co., Ltd. and the licensee or the terms described here-in. This heading
- *           MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- *           Licensees are granted free, non-transferable use of the information in this
- *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
 #pragma once
 
 
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-	#define FLASH_BASE_ADDR				(0)
+	#define FLASH_BASE_ADDR				(0x0)
 	#define FLASH_TLNK_FLAG_OFFSET		8
 #elif defined(MCU_CORE_B91)
 	#define FLASH_BASE_ADDR				(0x20000000)
 	#define FLASH_TLNK_FLAG_OFFSET		32
 #endif
-
 
 #define FLASH_4K_PAGE_NUM				16
 
@@ -56,7 +78,7 @@ extern u32 g_u32CfgFlashAddr;
  * Following configuration could NOT be changed by customer.
  */
 /* NV modules start address */
-#if FLASH_SIZE_1M
+#if FLASH_CAP_SIZE_1M
 #define NV_BASE_ADDRESS					(FLASH_BASE_ADDR + 0x80000)
 #define MODULES_START_ADDR(id)			(NV_BASE_ADDRESS + FLASH_SECTOR_SIZE * (2 * id))
 #else
@@ -98,7 +120,7 @@ extern u32 g_u32CfgFlashAddr;
 /*******************************************************************************************************
  * Following configuration could be changed by customer.
  */
-#if FLASH_SIZE_1M
+#if FLASH_CAP_SIZE_1M
 /* pre-install key
 	0x77050:	preCnfLinkKey;	 		pre-configure link key for central network(global: ZC/ZR/ZED; unique: only for ZR/ZED)
 	0x77061:	distributeLinkKey;		distribute link key for distribute network
@@ -249,8 +271,7 @@ typedef enum {
 	NV_ITEM_ZCL_GP_SINK_TABLE,
 
 	NV_ITEM_APP_SIMPLE_DESC,
-
-	NV_ITEM_APP_TEST1,
+	NV_ITEM_APP_POWER_CNT,
 
 	NV_ITEM_ID_MAX					= 0xFF,/* Item id 0xFF should not be used. */
 }nv_item_t;
@@ -267,7 +288,7 @@ typedef enum nv_sts_e {
     NV_NO_MEDIA
 } nv_sts_t;
 
-#if FLASH_SIZE_1M
+#if FLASH_CAP_SIZE_1M
 #define NV_SECTOR_SIZE(id)						((id == NV_MODULE_KEYPAIR) ?  (4 * FLASH_SECTOR_SIZE) : FLASH_SECTOR_SIZE)
 #define MODULE_INFO_SIZE(id)					((id == NV_MODULE_OTA || id == NV_MODULE_KEYPAIR || id == NV_MODULE_ADDRESS_TABLE) ? ((id == NV_MODULE_KEYPAIR) ? (12*FLASH_PAGE_SIZE) : (4*FLASH_PAGE_SIZE)) : (2*FLASH_PAGE_SIZE))
 #else
@@ -297,18 +318,9 @@ nv_sts_t nv_flashReadNew(u8 single, u8 id, u8 itemId, u16 len, u8 *buf);
 nv_sts_t nv_itemDeleteByIndex(u8 id, u8 itemId, u8 opSect, u16 opIdx);
 nv_sts_t nv_flashReadByIndex(u8 id, u8 itemId, u8 opSect, u16 opIdx, u16 len, u8 *buf);
 nv_sts_t nv_resetToFactoryNew(void);
+bool nv_facrotyNewRstFlagCheck(void);
+void nv_facrotyNewRstFlagSet(void);
+void nv_facrotyNewRstFlagClear(void);
 nv_sts_t nv_nwkFrameCountSaveToFlash(u32 frameCount);
 nv_sts_t nv_nwkFrameCountFromFlash(u32 *frameCount);
 
-/*********************************************************************
- * @fn      internalFlashSizeCheck
- *
- * @brief   This function is provided to get and update to the correct flash address
- * 			where are stored the right MAC address and pre-configured parameters.
- * 			NOTE: It should be called before ZB_RADIO_INIT().
- *
- * @param   None
- *
- * @return  None
- */
-void internalFlashSizeCheck(void);

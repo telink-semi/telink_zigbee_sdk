@@ -1,26 +1,48 @@
 /********************************************************************************************************
- * @file     mac_phy.c
+ * @file	mac_phy.c
  *
- * @brief    mac phy APIs file
+ * @brief	This is the source file for mac_phy
  *
- * @author
- * @date     Oct. 11, 2016
+ * @author	Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) 2016, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *			 The information contained herein is confidential and proprietary property of Telink
- * 		     Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *			 of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *			 Co., Ltd. and the licensee in separate contract or the terms described here-in.
- *           This heading MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- * 			 Licensees are granted free, non-transferable use of the information in this
- *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
-
-
 /**********************************************************************
  * INCLUDES
  */
@@ -41,29 +63,28 @@
 #define RF_DROP_REASON_FILTER_LEN         			0x07
 #define RF_DROP_REASON_INVALIC_FRAME_TYPE         	0x08
 
+/**********************************************************************
+ * LOCAL TYPEDEFS
+ */
+typedef enum{
+	RF_GAIN_MODE_AUTO,
+	RF_GAIN_MODE_MANU_MAX,
+}rf_rxGainMode_t;
 
 /**********************************************************************
  * GLOBAL VARIABLES
  */
 u8 g_zb_txPowerSet = ZB_DEFAULT_TX_POWER_IDX;
 
-
 /**********************************************************************
  * LOCAL VARIABLES
  */
-const rf_specificFunc_t rf_802154_funcs = {
-	rf_802154_init,
-	rf_802154_reset,
-};
-
 _attribute_aligned_(4) u8 rf_tx_buf[ZB_RADIO_TX_HDR_LEN + 127];
 _attribute_aligned_(4) u8 rf_ack_buf[ZB_RADIO_TX_HDR_LEN + 7];
 
-rf_specificFunc_t rf_specificFuns;
-
 u8 *rf_rxBuf = NULL;
 u8 rfMode = RF_STATE_TX;
-u8 rf_busyFlag = 0;
+volatile u8 rf_busyFlag = 0;
 
 volatile s8 soft_rssi;
 volatile s32 sum_rssi, cnt_rssi = 1;
@@ -75,24 +96,22 @@ u32 rf_pa_rxen_pin;
 /**********************************************************************
  * LOCAL FUNCTIONS
  */
+#define ZB_SWTICH_TO_TXMODE()    do{ \
+									if(fPaEn) {	\
+										drv_gpio_write(rf_pa_txen_pin, 1); 		\
+										drv_gpio_write(rf_pa_rxen_pin, 0); 		\
+									}										\
+									ZB_RADIO_TRX_SWITCH(RF_MODE_TX, LOGICCHANNEL_TO_PHYSICAL(rf_getChannel()));	\
+								}while(0)
 
+#define ZB_SWTICH_TO_RXMODE()    do{ \
+									if(fPaEn) {	\
+										drv_gpio_write(rf_pa_txen_pin, 0); 		\
+										drv_gpio_write(rf_pa_rxen_pin, 1); 		\
+									}										\
+									ZB_RADIO_TRX_SWITCH(RF_MODE_RX, LOGICCHANNEL_TO_PHYSICAL(rf_getChannel()));	\
+								}while(0)
 
-/*********************************************************************
- * @fn      rf_regProtocolSpecific
- *
- * @brief   Register protocol specific RF functions.
- *            Note: This function must be called before rf_init() and rf_reset()
- *
- * @param   txCbFunc - tx done callback function
- * @param   rxCbFunc - rx done callback function
- *
- * @return  none
- */
-void rf_regProtocolSpecific(rf_specificFunc_t *funcs)
-{
-    rf_specificFuns.initFunc  = funcs->initFunc;
-    rf_specificFuns.resetFunc = funcs->resetFunc;
-}
 
 /*********************************************************************
  * @fn      rf_reset
@@ -105,16 +124,23 @@ void rf_regProtocolSpecific(rf_specificFunc_t *funcs)
  */
 void rf_reset(void)
 {
-    /* Add real RF HW initialize function */
+	rf_setTrxState(RF_STATE_TX);
+
     rf_setTxPower(g_zb_txPowerSet);
 
     rf_setChannel(g_zbMacPib.phyChannelCur);
 
-    rf_setTrxState(RF_STATE_TX);
+	if(rf_rxBuf){
+		rf_setRxBuf(rf_rxBuf);
+	}else{
+		rf_setRxBuf(tl_getRxBuf());
+	}
 
-    if(rf_specificFuns.resetFunc){
-        rf_specificFuns.resetFunc();
-    }
+    ZB_RADIO_TRX_CFG(RF_PKT_BUFF_LEN);
+
+    ZB_RADIO_RX_ENABLE;
+	ZB_RADIO_TX_ENABLE;
+	ZB_TIMESTAMP_ENABLE;
 }
 
 static void rf_edDetect(void)
@@ -130,6 +156,18 @@ static void rf_edDetect(void)
     }
 }
 
+static void rf_mac_ack_build(void)
+{
+    /* ack buf */
+    memset(rf_ack_buf, 0, 12);
+
+    ZB_RADIO_DMA_HDR_BUILD(rf_ack_buf, 3);
+
+    rf_ack_buf[4] = 5;
+    rf_ack_buf[5] = 0x02;
+    rf_ack_buf[6] = 0x00;
+}
+
 /*********************************************************************
  * @fn      rf_init
  *
@@ -143,22 +181,11 @@ void rf_init(void)
 {
     rf_reset();
 
-    /* Protocol specific initialization */
-    if(rf_specificFuns.initFunc){
-        rf_specificFuns.initFunc();
-    }
-
-    ZB_RADIO_TRX_CFG(RF_PKT_BUFF_LEN);
-
-    ZB_RADIO_RX_ENABLE;
-	ZB_RADIO_TX_ENABLE;
-	ZB_TIMESTAMP_ENABLE;
+    rf_mac_ack_build();
 
     /* Register ED-Scan polling function, but disable it at begining. */
     ev_on_poll(EV_POLL_ED_DETECT, rf_edDetect);
 	ev_disable_poll(EV_POLL_ED_DETECT);
-
-	rf_setTxPower(g_zb_txPowerSet);
 }
 
 /*********************************************************************
@@ -174,7 +201,7 @@ void rf_setRxBuf(u8 *pBuf)
 {
     rf_rxBuf = pBuf;
     ZB_RADIO_RX_BUF_CLEAR(rf_rxBuf);
-    ZB_RADIO_RX_BUF_SET((u32)(rf_rxBuf));
+    ZB_RADIO_RX_BUF_SET(rf_rxBuf);//todo: 826x/8258 need fix rf driver
 }
 
 /*********************************************************************
@@ -210,18 +237,17 @@ _attribute_ram_code_ void rf_setTrxState(u8 state)
     		ZB_RADIO_MODE_MAX_GAIN();
     	}
 
-    	rf_paRX();
-        ZB_RADIO_TRX_SWITCH(RF_MODE_RX, LOGICCHANNEL_TO_PHYSICAL(rf_getChannel()));
+    	ZB_SWTICH_TO_RXMODE();
         rfMode = RF_STATE_RX;
     }else if(RF_STATE_TX == state){
-    	rf_paTX();
-        ZB_RADIO_TRX_SWITCH(RF_MODE_TX, LOGICCHANNEL_TO_PHYSICAL(rf_getChannel()));
+    	ZB_SWTICH_TO_TXMODE();
+        WaitUs(ZB_TX_WAIT_US);
         rfMode = RF_STATE_TX;
     }else{
         /* Close RF */
     	rf_paShutDown();
-        ZB_RADIO_TRX_SWITCH(RF_MODE_TX, LOGICCHANNEL_TO_PHYSICAL(rf_getChannel()));
-        rfMode = RF_MODE_TX;
+    	ZB_RADIO_TRX_SWITCH(RF_MODE_OFF, LOGICCHANNEL_TO_PHYSICAL(rf_getChannel()));
+        rfMode = RF_MODE_OFF;
     }
 #endif  /* WIN32 */
 }
@@ -277,47 +303,15 @@ void rf_setTxPower(u8 power)
 }
 
 /*********************************************************************
- * @fn      rf_set
- *
- * @brief   Set rf parameter according to specified RF ID
- *
- * @param   id     - The specified RF ID
- *          pValue - The detailed rf parameter
- *          len    - The length will be set to
- *
- * @return  none
- */
-void rf_set(u8 id, u8 *pValue, u8 len)
-{
-    switch(id){
-		case RF_ID_CHANNEL:
-			rf_setChannel(*pValue);
-			break;
-		case RF_ID_TX_POWER:
-			rf_setTxPower(*pValue);
-			break;
-		case RF_ID_RX_ONOFF:
-			if(*pValue){
-				rf_setTrxState(RF_STATE_RX);
-			}else{
-				rf_setTrxState(RF_STATE_TX);
-			}
-			break;
-		default:
-			break;
-    }
-}
-
-/*********************************************************************
  * @fn      rf_getLqi
  *
  * @brief   Get calculated Link Quality value
  *
- * @param   none
+ * @param   rssi
  *
  * @return  lqi result
  */
-u8 rf_getLqi(u8 inRssi)
+u8 rf_getLqi(s8 rssi)
 {
 	rf_rxGainMode_t mode = RF_GAIN_MODE_MANU_MAX;
 	if(TL_ZB_MAC_STATUS_GET() == ZB_MAC_STATE_ACTIVE_SCAN){
@@ -325,7 +319,7 @@ u8 rf_getLqi(u8 inRssi)
     }
 
 	u8 lqi = 0;
-	ZB_RADIO_RSSI_TO_LQI(mode, inRssi, lqi);
+	ZB_RADIO_RSSI_TO_LQI(mode, rssi, lqi);
 	return lqi;
 }
 
@@ -411,22 +405,7 @@ _attribute_ram_code_ u8 rf_performCCA(void)
 }
 
 
-void rf_802154_reset(void)
-{
-    /* Reset ack buf */
-    memset(rf_ack_buf, 0, 12);
 
-    ZB_RADIO_DMA_HDR_BUILD(rf_ack_buf, 3);
-
-    rf_ack_buf[4] = 5;
-    rf_ack_buf[5] = 0x02;
-    rf_ack_buf[6] = 0x00;
-}
-
-void rf_802154_init(void)
-{
-    rf_802154_reset();
-}
 
 void rf802154_tx_ready(u8 *buf, u8 len)
 {
@@ -437,7 +416,7 @@ void rf802154_tx_ready(u8 *buf, u8 len)
   	memcpy(rf_tx_buf + 5, buf, len);
 }
 
-_attribute_ram_code_ void rf802154_tx(u8 *buf, u8 len)
+_attribute_ram_code_ void rf802154_tx(void)
 {
  	rf_setTrxState(RF_STATE_TX);
 
@@ -446,27 +425,7 @@ _attribute_ram_code_ void rf802154_tx(u8 *buf, u8 len)
  	ZB_RADIO_TX_START(rf_tx_buf);//Manual mode
 }
 
-/* reconfig PHY when system recovery from deep sleep */
-void mac_phyReconfig(void)
-{
-	rf_setTxPower(g_zb_txPowerSet);
-	rf_setChannel(g_zbMacPib.phyChannelCur);
-	rf_setTrxState(RF_STATE_TX);
 
-	if(rf_rxBuf){
-		rf_setRxBuf(rf_rxBuf);			//set the RX buffer
-	}else{
-		rf_setRxBuf(tl_getRxBuf());
-	}
-	ZB_RADIO_TRX_CFG(RF_PKT_BUFF_LEN);
-	ZB_RADIO_RX_ENABLE;
-	ZB_RADIO_TX_ENABLE;
-}
-
-void mac_resetPhy(void)
-{
-	 ZB_RADIO_RESET();
-}
 
 /*********************************************************************
  * @fn      rf_paInit
@@ -486,39 +445,22 @@ void rf_paInit(u32 TXEN_pin, u32 RXEN_pin)
 
     drv_gpio_func_set(rf_pa_txen_pin);
     drv_gpio_output_en(rf_pa_txen_pin, 1);
-    gpio_write(rf_pa_txen_pin, 0);
+    drv_gpio_write(rf_pa_txen_pin, 0);
 
     drv_gpio_func_set(rf_pa_rxen_pin);
     drv_gpio_output_en(rf_pa_rxen_pin, 1);
-    gpio_write(rf_pa_rxen_pin, 1);
+    drv_gpio_write(rf_pa_rxen_pin, 1);
 
     fPaEn = 1;
-}
-
-_attribute_ram_code_ void rf_paTX(void)
-{
-    if(fPaEn){
-        gpio_write(rf_pa_txen_pin, 1); // PA TX_EN
-        gpio_write(rf_pa_rxen_pin, 0); // PA RX_DIS
-    }
-}
-
-_attribute_ram_code_ void rf_paRX(void)
-{
-    if(fPaEn){
-        gpio_write(rf_pa_txen_pin, 0); // PA TX_DIS
-        gpio_write(rf_pa_rxen_pin, 1); // PA RX_EN
-    }
 }
 
 _attribute_ram_code_ void rf_paShutDown(void)
 {
     if(fPaEn){
-        gpio_write(rf_pa_txen_pin, 0); // PA TX_DIS
-        gpio_write(rf_pa_rxen_pin, 0); // PA RX_DIS
+    	drv_gpio_write(rf_pa_txen_pin, 0); // PA TX_DIS
+    	drv_gpio_write(rf_pa_rxen_pin, 0); // PA RX_DIS
     }
 }
-
 
 /*********************************************************************
  * @fn      rf_rx_irq_handler
@@ -534,10 +476,10 @@ _attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_rx_irq_handler(voi
     u8 *p = rf_rxBuf;
     u8 fAck = 0;
     u8 fDrop = 0;
+    s32 txTime = 0;
+    s32 txDelayUs = 0;
 
     ZB_RADIO_RX_DISABLE;
-	/* Set 1 to clear the interrupt flag */
-    ZB_RADIO_RX_DONE_CLR;
 
     g_sysDiags.macRxIrqCnt++;
 
@@ -584,9 +526,19 @@ _attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_rx_irq_handler(voi
 		return;
     }
 
+    /* switch to tx in advance to let the pll stable */
+ 	if(macPld[0] & MAC_FCF_ACK_REQ_BIT){
+ 		ZB_SWTICH_TO_TXMODE();
+ 		txTime = clock_time();
+ 	}
+
 	/* if don't have enough buffer, use current rxBuf, and drop it */
 	u8 *rxNextBuf = tl_getRxBuf();
 	if(!rxNextBuf){
+		if(macPld[0] & MAC_FCF_ACK_REQ_BIT){
+			ZB_SWTICH_TO_RXMODE();
+		}
+
     	/* diagnostics PHY to MAC queue limit */
     	g_sysDiags.phytoMACqueuelimitreached++;
 
@@ -595,18 +547,10 @@ _attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_rx_irq_handler(voi
 		return;
 	}
 
-	/* Use the backup buffer to receive next packet */
-	rf_rxBuf = rxNextBuf;
-	ZB_RADIO_RX_BUF_CLEAR(rf_rxBuf);
-	ZB_RADIO_RX_BUF_SET((u32)(rf_rxBuf));
-	ZB_RADIO_RX_ENABLE;
-
     /*----------------------------------------------------------
 	 *  Send ACK
 	 */
 	if(macPld[0] & MAC_FCF_ACK_REQ_BIT){
-		rf_setTrxState(RF_STATE_TX);
-
 		rf_ack_buf[ZB_RADIO_TX_HDR_LEN+2] = macPld[2];  //seqnno
 		rf_ack_buf[ZB_RADIO_TX_HDR_LEN] = 0x02;
 
@@ -634,13 +578,24 @@ _attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_rx_irq_handler(voi
 		(void)pSrcAddr;
 #endif
 
+		txDelayUs = (clock_time() - txTime) / CLOCK_SYS_CLOCK_1US;
+		if(txDelayUs < ZB_TX_WAIT_US){
+			WaitUs(ZB_TX_WAIT_US - txDelayUs);
+		}
+
 		ZB_RADIO_TX_START(rf_ack_buf);//Manual Mode
 		rf_busyFlag |= (TX_ACKPACKET|TX_BUSY);
 		while(!ZB_RADIO_TX_DONE);
 	}
 
+	/* Use the backup buffer to receive next packet */
+	rf_rxBuf = rxNextBuf;
+	ZB_RADIO_RX_BUF_CLEAR(rf_rxBuf);
+	ZB_RADIO_RX_BUF_SET(rf_rxBuf);
+	ZB_RADIO_RX_ENABLE;
+
 	/* zb_mac_receive_data handler */
-	zb_macDataRecvHander(p, macPld, len, fAck, ZB_RADIO_TIMESTAMP_GET(p), ZB_RADION_PKT_RSSI_GET(p));
+	zb_macDataRecvHander(p, macPld, len, fAck, ZB_RADIO_TIMESTAMP_GET(p), ZB_RADION_PKT_RSSI_GET(p) - 110);
 }
 
 
@@ -655,12 +610,10 @@ _attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_rx_irq_handler(voi
  */
 _attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_tx_irq_handler(void)
 {
-	ZB_RADIO_TX_DONE_CLR;
-
     g_sysDiags.macTxIrqCnt++;
 
-    rf_paRX();
-	ZB_RADIO_TRX_SWITCH(RF_MODE_RX, LOGICCHANNEL_TO_PHYSICAL(rf_getChannel()));
+    ZB_SWTICH_TO_RXMODE();
+
 	rfMode = RF_STATE_RX;
     rf_busyFlag &= ~TX_BUSY;//Clear TX busy flag after receive TX done signal
 

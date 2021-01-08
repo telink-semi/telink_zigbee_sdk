@@ -1,49 +1,53 @@
 /********************************************************************************************************
- * @file     usb.c
+ * @file	usb.c
  *
- * @brief    for TLSR chips
+ * @brief	This is the source file for usb
  *
- * @author	 public@telink-semi.com;
- * @date     Sep. 30, 2010
+ * @author	Driver & Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *			 The information contained herein is confidential and proprietary property of Telink
- * 		     Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *			 of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *			 Co., Ltd. and the licensee in separate contract or the terms described here-in.
- *           This heading MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- * 			 Licensees are granted free, non-transferable use of the information in this
- *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
-#include "tl_common.h"
-
-#if (MODULE_USB_ENABLE)
-#include "usbstd/usbstd.h"
 #include "usbdesc.h"
 #include "usb.h"
-#if (USB_CDC_ENABLE)
-#include "app/usbcdc.h"
-#endif /* USB_CDC_ENABLE */
-#if (USB_MOUSE_ENABLE)
-#include "app/usbmouse.h"
-#include "app/usbmouse_i.h"
-#endif /* USB_MOUSE_ENABLE */
-#if (USB_KEYBOARD_ENABLE)
-#include "app/usbkb.h"
-#include "app/usbkb_i.h"
-#endif /* USB_KEYBOARD_ENABLE */
-#if (USB_VENDOR_ENABLE)
-#include "app/usbvendor.h"
-#include "app/usbvendor_i.h"
-#endif /* USB_VENDOR_ENABLE */
-#if (__PROJECT_TL_SNIFFER__)
-#include "app/usbsniffer.h"
-#endif
+#include "usb_common.h"
 
+#if (MODULE_USB_ENABLE)
 
 static USB_Request_Header_t control_request;
 static u8 *g_response = 0;
@@ -118,7 +122,7 @@ static void usb_handle_std_intf_req(void){
 	g_response_len = 0;
 
 	u8 value_h = (control_request.wValue >> 8) & 0xff;
-#if (USB_MOUSE_ENABLE || USB_KEYBOARD_ENABLE || USB_SOMATIC_ENABLE)
+#if (USB_MOUSE_ENABLE || USB_KEYBOARD_ENABLE || USB_VENDOR_ENABLE || USB_SOMATIC_ENABLE)
 	u8 index_l = (control_request.wIndex) & 0xff;
 #endif
 
@@ -183,7 +187,7 @@ static void usb_handle_out_class_intf_req(u8 data_request){
 	u8 property = control_request.bRequest;
 	u8 value_l = (control_request.wValue) & 0xff;
 	u8 value_h = (control_request.wValue >> 8) & 0xff;
-	u8 Entity = (control_request.wIndex >> 8) & 0xff;
+//	u8 Entity = (control_request.wIndex >> 8) & 0xff;
 
 	switch(property){
 		case HID_REQ_SetReport:
@@ -230,8 +234,8 @@ static void usb_handle_out_class_intf_req(u8 data_request){
 
 static void usb_handle_in_class_intf_req(void){
 	u8 property = control_request.bRequest;
-	u8 value_h = (control_request.wValue >> 8);
-	u8 Entity = (control_request.wIndex >> 8);
+//	u8 value_h = (control_request.wValue >> 8);
+//	u8 Entity = (control_request.wIndex >> 8);
 
 	switch(property){
 		case CDC_REQ_SendEncapsulatedCommand:
@@ -413,12 +417,14 @@ static void usb_init_interrupt(void){
 	usbhw_enable_manual_interrupt(FLD_CTRL_EP_AUTO_STD | FLD_CTRL_EP_AUTO_DESC);
 
 #if (USB_CDC_ENABLE)
-    BM_CLR(reg_usb_mask, BIT(CDC_TX_EPNUM & 0x07) | BIT(CDC_RX_EPNUM & 0x07));
+    //BM_CLR(reg_usb_mask, BIT(CDC_TX_EPNUM & 0x07) | BIT(CDC_RX_EPNUM & 0x07));
+    usbhw_clr_eps_irq_mask(BIT(CDC_TX_EPNUM & 0x07) | BIT(CDC_RX_EPNUM & 0x07));
     usbhw_data_ep_ack(CDC_RX_EPNUM);
 #endif /* USB_CDC_ENABLE */
 
 #if (USB_VENDOR_ENABLE)
-    BM_CLR(reg_usb_mask, BIT(USB_EDP_HID_VENDOR_IN & 0x07) | BIT(USB_EDP_HID_VENDOR_OUT & 0x07));
+    //BM_CLR(reg_usb_mask, BIT(USB_EDP_HID_VENDOR_IN & 0x07) | BIT(USB_EDP_HID_VENDOR_OUT & 0x07));
+    usbhw_clr_eps_irq_mask(BIT(USB_EDP_HID_VENDOR_IN & 0x07) | BIT(USB_EDP_HID_VENDOR_OUT & 0x07));
     usbhw_data_ep_ack(USB_EDP_HID_VENDOR_OUT);
 #endif /* USB_VENDOR_ENABLE */
 }

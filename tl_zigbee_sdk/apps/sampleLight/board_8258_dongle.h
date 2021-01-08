@@ -1,25 +1,48 @@
 /********************************************************************************************************
- * @file     board_8258_dongle.h
+ * @file	board_8258_dongle.h
  *
- * @brief    board configuration for 8258 dongle
+ * @brief	This is the header file for board_8258_dongle
  *
- * @author
- * @date     Dec. 1, 2016
+ * @author	Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) 2016, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *			 The information contained herein is confidential and proprietary property of Telink
- * 		     Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *			 of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *			 Co., Ltd. and the licensee in separate contract or the terms described here-in.
- *           This heading MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- * 			 Licensees are granted free, non-transferable use of the information in this
- *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
-
 #pragma once
 
 /* Enable C linkage for C++ Compilers: */
@@ -29,7 +52,7 @@ extern "C" {
 
 #if (BOARD == BOARD_8258_DONGLE_1M)
 	/* Running chip flash size select. If '1' - 1M, otherwise (or undefined) - 512K. */
-	#define FLASH_SIZE_1M			1
+	#define FLASH_CAP_SIZE_1M		1
 #endif
 
 #define DONGLE_8258_32				0
@@ -54,32 +77,32 @@ extern "C" {
 
 //LED
 /***************************************************************
-* PWM_R						GPIO_PD4	//D1 -- red			PWM2_N
-* PWM_G						GPIO_PA0	//D2 -- green		PWM0_N
-* PWM_B						GPIO_PD3	//D3 -- blue		PWM1_N
-* PWM_W						GPIO_PD2	//D4 -- yellow		PWM3
+* LED_R			GPIO_PD4	//D1 -- red			PWM2_N
+* LED_G			GPIO_PA0	//D2 -- green		PWM0_N
+* LED_B			GPIO_PD3	//D3 -- blue		PWM1_N
+* LED_W			GPIO_PD2	//D4 -- yellow		PWM3
 ****************************************************************/
 #if defined COLOR_RGB_SUPPORT && (COLOR_RGB_SUPPORT == 1)
 
-#define PWM_R						GPIO_PD4	//D1 -- red			PWM2_N
-#define PWM_G						GPIO_PA0	//D2 -- green		PWM0_N
-#define PWM_B						GPIO_PD3	//D3 -- blue		PWM1_N
+#define LED_R						GPIO_PD4	//D1 -- red			PWM2_N
+#define LED_G						GPIO_PA0	//D2 -- green		PWM0_N
+#define LED_B						GPIO_PD3	//D3 -- blue		PWM1_N
 
 #define PWM_R_CHANNEL				2//PWM2_N
-#define PWM_R_CHANNEL_SET()			do{										\
-										gpio_set_func(PWM_R, AS_PWM2_N); 	\
+#define PWM_R_CHANNEL_SET()			do{	\
+										gpio_set_func(LED_R, AS_PWM2_N); 	\
 										drv_pwm_n_invert(PWM_R_CHANNEL); 	\
 									}while(0)
 
 #define PWM_G_CHANNEL				0//PWM0_N
-#define PWM_G_CHANNEL_SET()			do{										\
-										gpio_set_func(PWM_G, AS_PWM0_N); 	\
+#define PWM_G_CHANNEL_SET()			do{	\
+										gpio_set_func(LED_G, AS_PWM0_N); 	\
 										drv_pwm_n_invert(PWM_G_CHANNEL); 	\
 									}while(0)
 
 #define PWM_B_CHANNEL				1//PWM1_N
-#define PWM_B_CHANNEL_SET()			do{										\
-										gpio_set_func(PWM_B, AS_PWM1_N); 	\
+#define PWM_B_CHANNEL_SET()			do{	\
+										gpio_set_func(LED_B, AS_PWM1_N); 	\
 										drv_pwm_n_invert(PWM_B_CHANNEL); 	\
 									}while(0)
 
@@ -102,18 +125,18 @@ extern "C" {
 #else
 
 //PWM configuration, LED_B as warm light, LED_W as cool light.
-#define PWM_B						GPIO_PD3	//D3 -- blue		PWM1_N
-#define PWM_W						GPIO_PD2	//D4 -- yellow		PWM3
+#define LED_B						GPIO_PD3	//D3 -- blue		PWM1_N
+#define LED_W						GPIO_PD2	//D4 -- yellow		PWM3
 
 #define PWM_B_CHANNEL				1//PWM1_N
-#define PWM_B_CHANNEL_SET()			do{										\
-										gpio_set_func(PWM_B, AS_PWM1_N); 	\
+#define PWM_B_CHANNEL_SET()			do{	\
+										gpio_set_func(LED_B, AS_PWM1_N); 	\
 										drv_pwm_n_invert(PWM_B_CHANNEL); 	\
 									}while(0)
 
 #define PWM_W_CHANNEL				3//PWM3
-#define PWM_W_CHANNEL_SET()			do{										\
-										gpio_set_func(PWM_W, AS_PWM3); 		\
+#define PWM_W_CHANNEL_SET()			do{	\
+										gpio_set_func(LED_W, AS_PWM3); 		\
 									}while(0)
 
 #define WARM_LIGHT_PWM_CHANNEL		PWM_B_CHANNEL
@@ -138,20 +161,14 @@ extern "C" {
 
 #endif
 
+// UART
 #if ZBHCI_UART
 	#error please configurate uart PIN!!!!!!
 #endif
 
-
-//DEBUG
+// DEBUG
 #if UART_PRINTF_MODE
 	#define	DEBUG_INFO_TX_PIN	    GPIO_PC4//print
-
-	#define DEBUG_TX_PIN_INIT()		do{	\
-										gpio_set_func(DEBUG_INFO_TX_PIN, AS_GPIO);	\
-										gpio_set_output_en(DEBUG_INFO_TX_PIN, 1);	\
-										gpio_setup_up_down_resistor(DEBUG_INFO_TX_PIN, PM_PIN_PULLUP_1M); \
-									}while(0)
 #endif
 /*******************************************************************************************************
 *********************8258Dongle with 32 Pins: End*****************************************************
@@ -175,31 +192,31 @@ extern "C" {
 
 //LED
 /***************************************************************
-* PWM_R						GPIO_PA3	//D2 -- red			PWM1
-* PWM_G						GPIO_PA2	//D1 -- green		PWM0
-* PWM_B						GPIO_PB0	//D4 -- blue		PWM3
-* PWM_W						GPIO_PB1	//D5 -- white		PWM4
-* PWM_Y						GPIO_PA4	//D3 -- yellow		PWM2
+* LED_R			GPIO_PA3	//D2 -- red			PWM1
+* LED_G			GPIO_PA2	//D1 -- green		PWM0
+* LED_B			GPIO_PB0	//D4 -- blue		PWM3
+* LED_W			GPIO_PB1	//D5 -- white		PWM4
+* LED_Y			GPIO_PA4	//D3 -- yellow		PWM2
 ****************************************************************/
 #if defined COLOR_RGB_SUPPORT && (COLOR_RGB_SUPPORT == 1)
 
-#define PWM_R						GPIO_PA3	//D2 -- red			PWM1
-#define PWM_G						GPIO_PA2	//D1 -- green		PWM0
-#define PWM_B						GPIO_PB0	//D4 -- blue		PWM3
+#define LED_R						GPIO_PA3	//D2 -- red			PWM1
+#define LED_G						GPIO_PA2	//D1 -- green		PWM0
+#define LED_B						GPIO_PB0	//D4 -- blue		PWM3
 
 #define PWM_R_CHANNEL				1//PWM1
-#define PWM_R_CHANNEL_SET()			do{										\
-										gpio_set_func(PWM_R, AS_PWM1); 		\
+#define PWM_R_CHANNEL_SET()			do{	\
+										gpio_set_func(LED_R, AS_PWM1); 		\
 									}while(0)
 
 #define PWM_G_CHANNEL				0//PWM0
-#define PWM_G_CHANNEL_SET()			do{										\
-										gpio_set_func(PWM_G, AS_PWM0); 		\
+#define PWM_G_CHANNEL_SET()			do{	\
+										gpio_set_func(LED_G, AS_PWM0); 		\
 									}while(0)
 
 #define PWM_B_CHANNEL				3//PWM3
-#define PWM_B_CHANNEL_SET()			do{										\
-										gpio_set_func(PWM_B, AS_PWM3); 		\
+#define PWM_B_CHANNEL_SET()			do{	\
+										gpio_set_func(LED_B, AS_PWM3); 		\
 									}while(0)
 
 #define R_LIGHT_PWM_CHANNEL			PWM_R_CHANNEL
@@ -227,17 +244,17 @@ extern "C" {
 #else
 
 //PWM configuration, LED_Y as warm light, LED_W as cool light.
-#define PWM_Y						GPIO_PA4	//D3 -- yellow		PWM2
-#define PWM_W						GPIO_PB1	//D5 -- white		PWM4
+#define LED_Y						GPIO_PA4	//D3 -- yellow		PWM2
+#define LED_W						GPIO_PB1	//D5 -- white		PWM4
 
 #define PWM_Y_CHANNEL				2//PWM2
-#define PWM_Y_CHANNEL_SET()			do{										\
-										gpio_set_func(PWM_Y, AS_PWM2); 		\
+#define PWM_Y_CHANNEL_SET()			do{	\
+										gpio_set_func(LED_Y, AS_PWM2); 		\
 									}while(0)
 
 #define PWM_W_CHANNEL				4//PWM4
-#define PWM_W_CHANNEL_SET()			do{										\
-										gpio_set_func(PWM_W, AS_PWM4); 		\
+#define PWM_W_CHANNEL_SET()			do{	\
+										gpio_set_func(LED_W, AS_PWM4); 		\
 									}while(0)
 
 #define WARM_LIGHT_PWM_CHANNEL		PWM_Y_CHANNEL
@@ -262,33 +279,17 @@ extern "C" {
 
 #endif
 
-
+// UART
 #if ZBHCI_UART
-#define UART_TX_PIN         		GPIO_PD7
-#define PD7_FUNC                	AS_UART
-#define PD7_INPUT_ENABLE        	0
-#define PD7_OUTPUT_ENABLE       	1
-#define PD7_DATA_STRENGTH       	0
+	#define UART_TX_PIN         	UART_TX_PD7
+	#define UART_RX_PIN         	UART_RX_PA0
 
-#define UART_RX_PIN         		GPIO_PA0
-#define PA0_FUNC                	AS_UART
-#define PA0_INPUT_ENABLE        	1
-#define PA0_OUTPUT_ENABLE       	0
-#define PA0_DATA_STRENGTH       	0
-#define PULL_WAKEUP_SRC_PA0     	PM_PIN_PULLUP_10K
-
-#define UART_PIN_CFG()				uart_gpio_set(UART_TX_PD7, UART_RX_PA0);// uart tx/rx pin set
+	#define UART_PIN_CFG()			uart_gpio_set(UART_TX_PIN, UART_RX_PIN);// uart tx/rx pin set
 #endif
 
-//DEBUG
+// DEBUG
 #if UART_PRINTF_MODE
 	#define	DEBUG_INFO_TX_PIN	    GPIO_PC6//print
-
-	#define DEBUG_TX_PIN_INIT()		do{	\
-										gpio_set_func(DEBUG_INFO_TX_PIN, AS_GPIO);	\
-										gpio_set_output_en(DEBUG_INFO_TX_PIN, 1);	\
-										gpio_setup_up_down_resistor(DEBUG_INFO_TX_PIN, PM_PIN_PULLUP_1M); \
-									}while(0)
 #endif
 /*******************************************************************************************************
 *********************8258Dongle with 48 Pins: End*****************************************************
@@ -296,11 +297,6 @@ extern "C" {
 #else
 	#error "Board defined error!"
 #endif
-
-
-#define PULL_WAKEUP_SRC_PA7          PM_PIN_PULLUP_1M  //SWS, should be pulled up, otherwise single wire would be triggered
-#define PULL_WAKEUP_SRC_PA5          PM_PIN_PULLUP_1M  //DM
-#define PULL_WAKEUP_SRC_PA6          PM_PIN_PULLUP_1M  //DP
 
 
 enum{

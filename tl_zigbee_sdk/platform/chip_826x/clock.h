@@ -1,49 +1,70 @@
 /********************************************************************************************************
- * @file     clock_826x.h
+ * @file	clock.h
  *
- * @brief    system clock configuration for tlsr826x
+ * @brief	This is the header file for B86
  *
- * @author
- * @date     Dec. 1, 2016
+ * @author	Driver & Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) 2016, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *			 The information contained herein is confidential and proprietary property of Telink
- * 		     Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *			 of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *			 Co., Ltd. and the licensee in separate contract or the terms described here-in.
- *           This heading MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- * 			 Licensees are granted free, non-transferable use of the information in this
- *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
-
 #pragma once
 
-#ifdef WIN32
-#include <time.h>
+#include "register.h"
+
+
+#ifdef __GNUC__
+#define _ASM_NOP_				asm("tnop")
+#else
+#define _ASM_NOP_
 #endif
 
-#include "compiler.h"
-#include "bit.h"
-#include "types.h"
-#include "register_826x.h"
 
-
-#define WATCHDOG_INIT_TIMEOUT		600
 
 enum{
-	CLOCK_SEL_32M_RC = 	0,
-	CLOCK_SEL_HS_DIV = 	1,
-	CLOCK_SEL_16M_PAD =	2,
-	CLOCK_SEL_32M_PAD =	3,
-	CLOCK_SEL_SPI  	  = 4,
-	CLOCK_SEL_40M_INTERNAL = 5,
-	CLOCK_SEL_32K_RC  =	6,
+	CLOCK_SEL_32M_RC 		= 0,
+	CLOCK_SEL_HS_DIV 		= 1,
+	CLOCK_SEL_16M_PAD 		= 2,
+	CLOCK_SEL_32M_PAD 		= 3,
+	CLOCK_SEL_SPI  	  		= 4,
+	CLOCK_SEL_40M_INTERNAL 	= 5,
+	CLOCK_SEL_32K_RC  		= 6,
 };
-
 
 typedef enum{
 	SYS_CLK_16M_PLL,
@@ -57,117 +78,22 @@ typedef enum{
 extern unsigned long CLOCK_SYS_CLOCK_1US;
 extern unsigned long tickPerUs;
 
-#define MASTER_CLK_FREQ		tickPerUs
 
 
-// we use clock insteady of timer, to differentiate OS timers utility
-static inline void clock_enable_clock(int tmr, int en){
-	if(0 == tmr){
-		SET_FLD_V(reg_tmr_ctrl, FLD_TMR0_EN, en);
-	}else if(1 == tmr){
-		SET_FLD_V(reg_tmr_ctrl, FLD_TMR1_EN, en);
-	}else{
-		SET_FLD_V(reg_tmr_ctrl, FLD_TMR2_EN, en);
-	}
+static inline unsigned long clock_time(void){
+	return reg_system_tick;
+}
+
+// check if the current time is exceed span_us from ref time
+static inline unsigned int clock_time_exceed(unsigned int ref, unsigned int span_us){
+	return ((unsigned int)(clock_time() - ref) > span_us * CLOCK_SYS_CLOCK_1US);
 }
 
 
 void clock_init(SYS_CLK_TYPEDEF SYS_CLK);
 
-static inline u32 clock_time(){
-	return reg_system_tick;
-}
+void sleep_us(unsigned int us);
 
-static inline u32 clock_time2(int tmr){
-	return reg_tmr_tick(tmr);
-}
-
-// check if the current time is exceed span_us from ref time
-static inline u32 clock_time_exceed(u32 ref, u32 span_us){
-	return ((u32)(clock_time() - ref) > span_us * CLOCK_SYS_CLOCK_1US);
-}
-
-// more efficient than clock_set_interval
-static inline void clock_set_tmr_interval(int tmr, u32 intv){
-	reg_tmr_capt(tmr) = intv;
-}
-
-static inline void clock_set_tmr_mode(int tmr, u32 m){
-	if(0 == tmr){
-		SET_FLD_V(reg_tmr_ctrl16, FLD_TMR0_MODE, m);
-	}else if(1 == tmr){
-		SET_FLD_V(reg_tmr_ctrl16, FLD_TMR1_MODE, m);
-	}else{
-		SET_FLD_V(reg_tmr_ctrl16, FLD_TMR2_MODE, m);
-	}
-}
-
-static inline u32 clock_get_tmr_status(int tmr){
-	if(0 == tmr){
-		return reg_tmr_ctrl & FLD_TMR0_STA;
-	}else if(1 == tmr){
-		return reg_tmr_ctrl & FLD_TMR1_STA;
-	}else{
-		return reg_tmr_ctrl & FLD_TMR2_STA;
-	}
-}
-
-
-//  watchdog use timer 2
-static inline void wd_setintervalms(u32 interval_ms)
-{
-	reg_tmr_ctrl |= MASK_VAL(FLD_TMR_WD_CAPT, (interval_ms * MASTER_CLK_FREQ * 1000 >> WATCHDOG_TIMEOUT_COEFF));
-}
-
-//  watchdog use timer 2
-static inline void wd_start(void)
-{
-	SET_FLD(reg_tmr_ctrl, FLD_TMR_WD_EN);
-}
-
-static inline void wd_stop(void)
-{
-	CLR_FLD(reg_tmr_ctrl, FLD_TMR_WD_EN);
-}
-
-static inline void wd_clear(void)
-{
-	SET_FLD(reg_tmr_ctrl, FLD_CLR_WD);
-}
-
-
-#define TIMER_INIT(idx, mode)			do{ \
-										   clock_set_tmr_mode(idx, mode);	\
-										   reg_tmr_sta = 1 << idx;			\
-										   reg_irq_src = 1 << idx;			\
-										   reg_irq_mask |= 1 << idx;		\
-									    }while(0)
-
-#define TIMER_START(idx)				clock_enable_clock(idx, 1)
-#define TIMER_STOP(idx)					clock_enable_clock(idx, 0)
-
-#define TIMER_TICK_CLEAR(idx)   		reg_tmr_tick(idx) = 0
-#define TIMER_INTERVAL_SET(idx, cyc)	reg_tmr_capt(idx) = cyc
-
-#define TIMER_STATE_CLEAR(idx) 			reg_tmr_sta = (1 << idx)
-
-
-#define SYS_TIMER_INIT()				do{	\
-											reg_irq_src = FLD_IRQ_SYSTEM_TIMER;				\
-											reg_system_tick_mode |= FLD_SYSTEM_TICK_IRQ_EN;	\
-											reg_irq_mask &= ~(u32)FLD_IRQ_SYSTEM_TIMER;		\
-										}while(0)
-
-#define SYS_TIMER_START()				do{	\
-											reg_irq_mask |= FLD_IRQ_SYSTEM_TIMER;			\
-										}while(0)
-
-#define SYS_TIMER_STOP()				do{	\
-											reg_irq_mask &= ~(u32)FLD_IRQ_SYSTEM_TIMER;		\
-										}while(0)
-
-#define SYS_TIMER_INTERVAL_SET(cyc)		do{	\
-											reg_system_tick_irq = cyc;	\
-										}while(0)
-
-#define SYS_TIMER_STATE_CLEAR()
+#define WaitUs(t)			sleep_us(t)
+#define WaitMs(t)			sleep_us((t)*1000)
+#define sleep_ms(t)			sleep_us((t)*1000)

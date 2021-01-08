@@ -3,34 +3,34 @@
  *
  * @brief	This is the header file for B91
  *
- * @author	B.Y
+ * @author	Driver Group
  * @date	2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
- *          
+ *
  *          Redistribution and use in source and binary forms, with or without
  *          modification, are permitted provided that the following conditions are met:
- *          
+ *
  *              1. Redistributions of source code must retain the above copyright
  *              notice, this list of conditions and the following disclaimer.
- *          
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions 
- *              in binary form must reproduce the above copyright notice, this list of 
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
  *              conditions and the following disclaimer in the documentation and/or other
  *              materials provided with the distribution.
- *          
- *              3. Neither the name of TELINK, nor the names of its contributors may be 
- *              used to endorse or promote products derived from this software without 
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
  *              specific prior written permission.
- *          
+ *
  *              4. This software, with or without modification, must only be used with a
  *              TELINK integrated circuit. All other usages are subject to written permission
  *              from TELINK and different commercial license may apply.
  *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or 
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
  *              relating to such deletion(s), modification(s) or alteration(s).
- *         
+ *
  *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -41,7 +41,7 @@
  *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *         
+ *
  *******************************************************************************************************/
 /**	@page SYS
  *
@@ -56,9 +56,9 @@
 
 #ifndef SYS_H_
 #define SYS_H_
-#include "reg_include/soc.h"
+#include "bit.h"
 #include "reg_include/stimer_reg.h"
-#include "types.h"
+
 
 /**********************************************************************************************************************
  *                                         global constants                                                           *
@@ -71,7 +71,7 @@
  * brief instruction delay
  */
 
-#define	_ASM_NOP_					asm("nop")
+#define	_ASM_NOP_					__asm__("nop")
 
 #define	CLOCK_DLY_1_CYC				_ASM_NOP_
 #define	CLOCK_DLY_2_CYC				_ASM_NOP_;_ASM_NOP_
@@ -105,8 +105,6 @@
 #define read_sram8(addr)			(*(volatile unsigned char*)((addr)))
 #define read_sram16(addr)           (*(volatile unsigned short*)((addr)))
 #define read_sram32(addr)           (*(volatile unsigned long*)((addr)))
-
-
 #define TCMD_UNDER_BOTH				0xc0
 #define TCMD_UNDER_RD				0x80
 #define TCMD_UNDER_WR				0x40
@@ -116,10 +114,26 @@
 #define TCMD_WRITE					0x3
 #define TCMD_WAIT					0x7
 #define TCMD_WAREG					0x8
+//#if 1 //optimize
+/*
+ * IRAM area:0x00000~0x1FFFF BIT(19) is 0,BIT(16~0) 128K is address offset
+ * DRAM area:0x80000~0x9FFFF BIT(19) is 1,BIT(16~0) 128K is address offset
+ * ILM area:0xc0000000~0xc0020000 BIT(31~19) is 3,BIT(21) is 0, BIT(20~17) do not care  BIT(16~0) 128K is address offset 128K is address offset
+ * DLM area:0xc0200000~0xc0220000 BIT(31~19) is 3,BIT(21) is 1, BIT(20~17) do not care  BIT(16~0) 128K is address offset 128K is address offset
+ * BIT(19) is used to distinguish from IRAM to DRAM, BIT(21) is used to distinguish from ILM to DLM.
+ * so we can write it as follow
+ * #define  convert_ram_addr_cpu2bus  (((((addr))&0x80000)? ((addr)| 0xc0200000) : ((addr)|0xc0000000)))
+ * BIT(20~17) are invalid address line ,IRAM address is less than 0x80000, (address-0x80000)must borrow from BIT(21)
+ *   #define convert(addr) ((addr)-0x80000+0xc0200000)
+ *  to simplify
+ *  #define convert(addr) ((addr)+0xc0180000)
+ * */
+#define convert_ram_addr_cpu2bus(addr)  ((unsigned int)(addr)+0xc0180000)
+//#else  //no optimize
+//#define  convert_ram_addr_cpu2bus  (((((unsigned int)(addr)) >=0x80000)?(((unsigned int)(addr))-0x80000+0xc0200000) : (((unsigned int)(addr)) + 0xc0000000)))
+//#endif
 
-#define convert_ram_addr_cpu2bus(addr)  ((u32)((((u32)(addr)) >=0x80000)?(((u32)(addr))- 0x80000 + 0xc0200000) : (((u32)(addr)) + 0xc0000000)))
-#define convert_ram_addr_bus2cpu(addr)  ((u32)((((u32)(addr)) >=0xc0200000)?(((u32)(addr)) + 0x80000 - 0xc0200000) : (((u32)(addr)) - 0xc0000000)))
-
+#define convert_ram_addr_bus2cpu(addr)  (((((unsigned int)(addr)) >=0xc0200000)?(((unsigned int)(addr)) + 0x80000-0xc0200000) : (((unsigned int)(addr)) - 0xc0000000)))
 
 /**********************************************************************************************************************
  *                                         global data type                                                           *
@@ -135,6 +149,18 @@ typedef enum{
 }power_mode_e;
 
 /**
+ * @brief 	The maximum voltage that the chip can withstand is 3.6V.
+ * 			When the vbat power supply voltage is lower than 3.6V, it is configured as VBAT_MAX_VALUE_LESS_THAN_3V6 mode,
+ * 			bypass is turned on, and the vbat voltage directly supplies power to the chip.
+ * 			When the vbat power supply voltage may be higher than 3.6V, it is configured as VBAT_MAX_VALUE_GREATER_THAN_3V6 mode,
+ * 			the bypass is closed, and the vbat voltage passes through an LDO to supply power to the chip.
+ */
+typedef enum{
+	VBAT_MAX_VALUE_GREATER_THAN_3V6	= 0x00,	/*VBAT may be greater than 3.6V. */
+	VBAT_MAX_VALUE_LESS_THAN_3V6	= BIT(3),	/*VBAT must be below 3.6V. */
+}vbat_type_e;
+
+/**
  * @brief command table for special registers
  */
 typedef struct tbl_cmd_set_t {
@@ -143,72 +169,30 @@ typedef struct tbl_cmd_set_t {
 	unsigned char	cmd;
 } tbl_cmd_set_t;
 
-/**
- * @brief define system clock tick per us/ms/s.
- */
-enum{
-	CLOCK_16M_SYS_TIMER_CLK_1US = 16,
-	CLOCK_16M_SYS_TIMER_CLK_1MS = 16*1000,
-	CLOCK_16M_SYS_TIMER_CLK_1S =  16*1000*1000,
-};
-
 
 /**********************************************************************************************************************
  *                                     global variable declaration                                                    *
  *********************************************************************************************************************/
 
+extern unsigned int g_chip_version;
 
 /**********************************************************************************************************************
  *                                      global function prototype                                                     *
  *********************************************************************************************************************/
-
-/*
- * @brief     This function performs to enable system timer and 32K calibration.
- * @param[in] none.
- * @return    system timer tick value.
-**/
-static inline  void  sys_clock_time_en(void)
-{
-	reg_system_ctrl |= (FLD_SYSTEM_TIMER_EN | FLD_SYSTEM_32K_CAL_EN) ;
-}
-
-
-/*
- * @brief     This function performs to get system timer tick.
- * @return    system timer tick value.
-**/
-static inline u32 sys_get_stimer_tick(void)
-{
-
-	return reg_system_tick;
-}
-
-/*
- * @brief     This function performs to get system timer tick.
- * @return    system timer tick value.
-**/
-static inline u32 clock_time(void)
-{
-	return reg_system_tick;
-}
-
 /**
- * @brief     This function serves to set timeout by us.
- * @param[in] ref  - reference tick of system timer .
- * @param[in] us   - count by us.
- * @return    true - timeout, false - not timeout
+ * @brief      This function reboot mcu.
+ * @return     none
  */
-static inline _Bool clock_time_exceed(unsigned int ref, unsigned int us)
+static inline void sys_reboot(void)
 {
-	return ((unsigned int)(sys_get_stimer_tick() - ref) > us * CLOCK_16M_SYS_TIMER_CLK_1US);
+	write_reg8(0x1401ef, 0x20);
 }
-
 /**
  * @brief   	This function serves to initialize system.
  * @param[in]	power_mode - power mode(LDO/DCDC/LDO_DCDC)
  * @return  	none
  */
-void sys_init(power_mode_e power_mode);
+void sys_init(power_mode_e power_mode, vbat_type_e vbat_v);
 
 /**
  * @brief      This function performs a series of operations of writing digital or analog registers
@@ -219,30 +203,5 @@ void sys_init(power_mode_e power_mode);
  */
 
 int write_reg_table(const tbl_cmd_set_t * pt, int size);
-
-/**
- * @brief     This function performs to set delay time by us.
- * @param[in] microsec - need to delay.
- * @return    none
- */
-void delay_us(u32 microsec);
-
-/**
- * @brief     This function performs to set delay time by ms.
- * @param[in] millisec - ms need to delay.
- * @return    none
- */
-void delay_ms(u32 millisec);
-
-void mcu_reset(void);
-
-
-#define sleep_us(us)	delay_us(us)
-#define WaitUs(us)		delay_us(us)
-#define WaitMs(ms)		delay_ms(ms)
-
-#define SYSTEM_RESET()	mcu_reset()
-
-
 
 #endif

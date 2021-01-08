@@ -1,30 +1,51 @@
 /********************************************************************************************************
- * @file     usbcdc.c
+ * @file	usbcdc.c
  *
- * @brief    for TLSR chips
+ * @brief	This is the source file for usbcdc
  *
- * @author	 public@telink-semi.com;
- * @date     Sep. 30, 2010
+ * @author	Driver & Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *			 The information contained herein is confidential and proprietary property of Telink
- * 		     Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *			 of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *			 Co., Ltd. and the licensee in separate contract or the terms described here-in.
- *           This heading MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- * 			 Licensees are granted free, non-transferable use of the information in this
- *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
-#include "tl_common.h"
+#include "usbcdc.h"
 
 #if (USB_CDC_ENABLE)
-#include "../usbstd/usbstd.h"
-#include "../usbdesc.h"
-#include "usbcdc.h"
 
 cdc_ctrl_t cdc_vs;
 cdc_ctrl_t *cdc_v = &cdc_vs;
@@ -284,7 +305,7 @@ u8 usbcdc_sendBulkData(void)
 usbcdc_sts_t usbcdc_sendData(usbcdc_txBuf_t *txBuf)//u8 *buf, u8 len)
 {
 	if(cdc_v->txBuf){
-		return USB_BUSY;
+		return USB_CDC_BUSY;
 	}
 
 	/* Init the bulk transfer */
@@ -297,7 +318,7 @@ usbcdc_sts_t usbcdc_sendData(usbcdc_txBuf_t *txBuf)//u8 *buf, u8 len)
 
 	usbhw_data_ep_ack(CDC_RX_EPNUM);
 
-	return USB_SUCCESS;
+	return USB_CDC_SUCCESS;
 }
 
 u8 usbWriteByte(u8 byte){
@@ -309,7 +330,7 @@ u8 usbWriteByte(u8 byte){
 	reg_usb_ep_dat(CDC_TX_EPNUM) = byte;
 	/* Write ACK */
 	reg_usb_ep_ctrl(CDC_TX_EPNUM) = FLD_EP_DAT_ACK;        // ACK
-	unsigned short t = 0;
+	u16 t = 0;
 	while(usbhw_is_ep_busy(CDC_TX_EPNUM)){
 		if(t++ > 10000){
 			reg_usb_ep_ctrl(CDC_TX_EPNUM) &= 0xfe; // clear bit(0)
@@ -320,10 +341,10 @@ u8 usbWriteByte(u8 byte){
 
 void usbcdc_dataHandler(void)
 {
-	u32 irq = reg_usb_irq;// data irq
+	u32 irq = usbhw_get_eps_irq();
 
 	if(irq & BIT((CDC_RX_EPNUM & 0x07))){
-		reg_usb_irq = BIT((CDC_RX_EPNUM & 0x07)); // clear ime
+		usbhw_clr_eps_irq(BIT((CDC_RX_EPNUM & 0x07))); // clear ime
 
 		usbcdc_recvData();
 
@@ -331,7 +352,7 @@ void usbcdc_dataHandler(void)
 	}
 
 	if(irq & BIT((CDC_TX_EPNUM & 0x07))){
-		reg_usb_irq = BIT((CDC_TX_EPNUM & 0x07)); // clear ime
+		usbhw_clr_eps_irq(BIT((CDC_TX_EPNUM & 0x07))); // clear ime
 
 		if(usbcdc_sendBulkData()){
 			usbhw_data_ep_ack(CDC_RX_EPNUM);

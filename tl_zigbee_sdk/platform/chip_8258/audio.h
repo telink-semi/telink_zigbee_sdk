@@ -1,223 +1,258 @@
 /********************************************************************************************************
- * @file     audio.h
+ * @file	audio.h
  *
- * @brief    audoi interface header for  for tlsr8258
+ * @brief	This is the header file for B85
  *
- * @author   jian.zhang@telink-semi.com
- * @date     Oct. 8, 2016
+ * @author	Driver & Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) 2016, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *           The information contained herein is confidential property of Telink
- *           Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *           of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *           Co., Ltd. and the licensee or the terms described here-in. This heading
- *           MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- *           Licensees are granted free, non-transferable use of the information in this
- *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
-
-#ifndef audio_H
-#define audio_H
+#ifndef AUDIO_H
+#define AUDIO_H
 
 
 #include "register.h"
+#include "i2c.h"
 
-#ifndef AMIC_PIN_IN_PC2_PC3_ENABLE
-#define AMIC_PIN_IN_PC2_PC3_ENABLE	0
-#endif
+#define DMIC_INPUT_MODE_STEREO    	0
+#define AUDIO_DBL_BUF_ENABLE	   	0
+#define AUDIO_CODEC_TO_CODEC   		1
 
+/**
+ * define audio amic mode.
+ */
+typedef enum{
+	AUDIO_AMIC_MONO_MODE,
+	AUDIO_AMIC_STEREO_MODE,
+}Audio_Amic_mode;
 
+/**
+ * define audio sdm output mode.
+ */
+typedef enum{
+	AUDIO_SDM_SINGLE_OUTPUT,
+	AUDIO_SDM_DUAL_OUTPUT,
+}Audio_SDM_output_mode;
 
+/**
+ * define audio rate value.
+ */
 typedef enum{
 	AUDIO_8K,
 	AUDIO_16K,
-	AUDIO_22K,
 	AUDIO_32K,
-	AUDIO_44K,
 	AUDIO_48K,
-	AUDIO_96K,
 	RATE_SIZE
 }AudioRate_Typedef;
 
-
-
+/**
+ * define audio input type.
+ */
 typedef enum{
 	AMIC,
 	DMIC,
 	I2S_IN,
 	USB_IN,
+	BUF_IN,
 }AudioInput_Typedef;
 
-
-
-static inline void config_mic_buffer (unsigned int adr, int size) {
-	//core_b03 default value is 0x04, no need set
-	reg_dfifo0_addr = (unsigned short) adr;
-	reg_dfifo0_size = (size>>4)-1;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//down sample rate
-enum audio_deci_t{
-	R1,R2,R3,R4,R5,R6,
-	R7,R8,R16,R32,R64,R128,
-};
-
-enum audio_mode_t{
-	DIFF_MODE,
-	SINGLE_END,
-};
-enum audio_input_t{
-	PGA_CH = 0,
-	AUD_C0,
-	AUD_C1,
-	AUD_C6,
-	AUD_C7,
-	AUD_B0,
-	AUD_B1,
-	AUD_B2,
-	AUD_B3,
-	AUD_B4,
-	AUD_B5,
-	AUD_B6,
-	AUD_B7,
-	AUD_PGAVOM,
-	AUD_PGAVOP,
-};
-enum {
-	AUD_SINGLEEND,
-	AUD_INVERTB_1,
-	AUD_INVERTB_3,
-	AUD_PGAVOPM,
-};
-enum{
-	NO_AUDIO = 0,
-	MONO_AUDIO,
-	STEREO_AUDIO,
-};
-enum{
-	AUD_VOLUME_MANUAL,
-	AUD_VOLUME_AUTO,
-};
-enum{
-	AUD_ADC_DONE_RISING = 1,
-	AUD_ADC_DONE_FALLING = 2,
-};
-
-
-#define DMIC_CFG_GPIO_PA0_PA1()    do{\
-								       *(volatile unsigned char  *)0x800586 &= 0xfc;\
-									   *(volatile unsigned char  *)0x8005b0 |= 0x01;\
-								    }while(0)
-
+/**
+ * define codec mode.
+ */
+typedef enum{
+	CODEC_MODE_MICPHONE_TO_HEADPHONE_LINEOUT_I2S,
+	CODEC_MODE_LINE_TO_HEADPHONE_LINEOUT_I2S,
+	CODEC_MODE_I2S_TO_HEADPHONE_LINEOUT,
+	CODEC_MODE_LINE_IN_TO_LINEOUT_I2S
+}CodecMode_Typedef;
 
 /**
- * @brief     configure the SDM buffer's address and size
- * @param[in] pbuff - the first address of buffer SDM read data from.
- * @param[in] size_buff - the size of pbuff.
+ * @brief     shut down audio and ADC  Module
+ * @param[in] none.
  * @return    none
  */
-void audio_config_sdm_buf(signed short* pbuff, unsigned char size_buff);
-
-/****
-* brief: audio amic initial function. configure ADC corresponding parameters. set hpf,lpf and decimation ratio.
-* param[in] mode_flag -- '1' differ mode ; '0' signal end mode
-* param[in] misc_sys_tick -- system ticks of adc misc channel.
-* param[in] l_sys_tick -- system tick of adc left channel
-*/
-void audio_amic_init(AudioRate_Typedef Audio_Rate);
-
-/************************************************************************************
-*
-*	@brief	audio input set function, select analog audio input channel, start the filters
-*
-*	@param	adc_ch:	if audio input as signle end mode, should identify an analog audio signal input channel, enum variable of ADCINPUTCH
-*
-*	@return	none
-*/
-void audio_amic_input_set(enum audio_input_t adc_ch);
-
-void Audio_SetUSBOutput(AudioInput_Typedef Input_type,AudioRate_Typedef Audio_Rate,unsigned char* flag);
+void audio_stop(void);
 
 /**
- * @brief     audio DMIC init function, config the speed of DMIC and downsample audio data to required speed.
+ * @brief     This function serves to reset audio Module
+ * @param[in] none.
+ * @return    none
+ */
+static inline void audio_reset(void)
+{
+	reg_rst2 = FLD_RST2_AUD;
+	reg_rst2 = 0;
+}
+
+/**
+ * 	@brief      This function serves to set the clock of dmic
+ * 	@param[in]  step - the dividing factor of step.
+ * 	@param[in]  mod - the dividing factor of mod.
+ * 	@return     none
+ */
+static inline void audio_set_dmic_clk(unsigned char step,unsigned char mod)
+{
+	reg_dmic_step = step|FLD_DMIC_CLK_EN;
+	reg_dmic_mod = mod;
+}
+
+/**
+ * 	@brief      This function serves to set the clock of i2s
+ * 	@param[in]  step - the dividing factor of step.
+ * 	@param[in]  mod - the dividing factor of mod.
+ * 	@return     none
+ */
+static inline void audio_set_i2s_clk(unsigned char step,unsigned char mod)
+{
+	reg_i2s_step = step|FLD_I2S_CLK_EN;
+	reg_i2s_mod = mod;
+}
+/**
+ * @brief      This function performs to read pointer/write pointer location.
+ * @param[in]  none.
+ * @return     the address of read/write.
+ */
+static inline unsigned short get_mic_wr_ptr (void)
+{
+	return reg_audio_wptr >>1;
+}
+/**
+ * 	@brief     audio amic initial function. configure ADC corresponding parameters. set hpf,lpf and decimation ratio.
+ * 	@param[in] Audio_Rate - audio rate value
+ * 	@return    none
+ */
+void audio_amic_init(AudioRate_Typedef Audio_Rate);
+/**
+ * 	@brief     audio DMIC init function, config the speed of DMIC and downsample audio data to required speed.         actually audio data is dmic_speed/d_samp.
+ * 	@param[in] Audio_Rate - set the DMIC speed. such as 1 indicate 1M and 2 indicate 2M.
+ * 	@return    none.
+ */
+void audio_dmic_init(AudioRate_Typedef Audio_Rate);
+/**
+ * 	@brief     audio USB init function, config the speed of DMIC and downsample audio data to required speed.
  *            actually audio data is dmic_speed/d_samp.
- * @param[in] dmic_speed - set the DMIC speed. such as 1 indicate 1M and 2 indicate 2M.
- * @param[in] d_samp - set the decimation. ie div_speed.
- * @param[in]  fhs_source - the parameter is CLOCK_SYS_TYPE. avoid CLOCK_SYS_TYPE to be modified to other word.such as SYS_TYPE etc.
- *
+ * 	@param[in] Audio_Rate - set the DMIC speed. such as 1 indicate 1M and 2 indicate 2M.
+ * 	@return    none.
+ */
+void audio_usb_init(AudioRate_Typedef Audio_Rate);
+
+/**
+ * @brief     audio buff init function, config the speed of DMIC and downsample audio data to required speed.
+ *            actually audio data is dmic_speed/d_samp.
+ * @param[in] Audio_Rate  - audio rate.
  * @return    none.
  */
-void audio_dmic_init(unsigned char dmic_speed, enum audio_deci_t d_samp,unsigned char fhs_source);
+void audio_buff_init(AudioRate_Typedef Audio_Rate);
 
 /**
-*	@brief		reg0x30[1:0] 2 bits for fine tuning, divider for slow down sample rate
-*	@param[in]	fine_tune - unsigned char fine_tune,range from 0 to 3
-*	@return	    none
-*/
-void audio_finetune_sample_rate(unsigned char fine_tune);
-
-/**
- *  @brief      tune decimation shift .i.e register 0xb04 in datasheet.
- *  @param[in]  deci_shift - range from 0 to 5.
- *  @return     none
+ * 	@brief     audio I2S init in function, config the speed of i2s and MCLK to required speed.
+ * 	@param[in] none.
+ * 	@return    none.
  */
-unsigned char audio_tune_deci_shift(unsigned char deci_shift);
+void audio_i2s_init(void);
+
 
 /**
- *   @brief       tune the HPF shift .i.e register 0xb05 in datasheet.
- *   @param[in]   hpf_shift - range from 0 to 0x0f
- *   @return      none
- */
- unsigned char audio_tune_hpf_shift(unsigned char hpf_shift);
-
- /**
- *
- *	@brief	   sdm setting function, enable or disable the sdm output, configure SDM output paramaters
- *
- *	@param[in]	audio_out_en - audio output enable or disable set, '1' enable audio output; '0' disable output
- *	@param[in]	sample_rate - audio sampling rate, such as 16K,32k etc.
- *	@param[in]	sdm_clk -	  SDM clock, default to be 8Mhz
- *	@param[in]  fhs_source - the parameter is CLOCK_SYS_TYPE. avoid CLOCK_SYS_TYPE to be modified to other word.such as SYS_TYPE etc.
- *
- *	@return	none
- */
-void audio_sdm_output_set(unsigned char audio_out_en,int sample_rate,unsigned char sdm_clk,unsigned char fhs_source);
-
-/**
-*	@brief	    set audio volume level
-*	@param[in]	input_out_sel - select the tune channel, '1' tune ALC volume; '0' tune SDM output volume
-*	@param[in]	volume_level - volume level
-*	@return	    none
-*/
-void audio_volume_tune(unsigned char input_out_sel, unsigned char volume_level);
-
-/*************************************************************
-*
-*	@brief	automatically gradual change volume
-*
-*	@param[in]	vol_step - volume change step, the high part is decrease step while the low part is increase step
-*			    gradual_interval - volume increase interval
-*
+*	@brief	   sdm setting function, enable or disable the sdm output, configure SDM output paramaters.
+*	@param[in]	InType -	  SDM input type, such as AMIC,DMIC,I2S_IN,USB_IN.
+*	@param[in]	Audio_Rate - audio sampling rate, such as 16K,32k etc.
+*	@param[in]	audio_out_en - audio output enable or disable set, '1' enable audio output; '0' disable output.
 *	@return	none
 */
-void audio_volume_step_adjust(unsigned char vol_step,unsigned short gradual_interval);
+void audio_set_sdm_output(AudioInput_Typedef InType,AudioRate_Typedef Audio_Rate,unsigned char audio_out_en);
+
+/**
+ * @brief     This function servers to set USB input/output.
+ * @param[in] none.
+ * @return    none.
+ */
+void audio_set_usb_output(void);
+
+/**
+ * 	@brief	   	i2s setting function, enable or disable the i2s output, configure i2s output paramaters
+ * 	@param[in] 	InType		- select audio input type including amic ,dmic ,i2s and usb
+ * 	@param[in] 	Audio_Rate 	- select audio rate, which will decide on which adc sampling rate and relative decimation configuration will be chosen.
+ * 	@return	  	none
+ */
+void audio_set_i2s_output(AudioInput_Typedef InType,AudioRate_Typedef Audio_Rate);
+
+/**
+ * 	@brief     This function serves to set I2S input.
+ * 	@param[in] i2c_pin_group - select the pin for I2S.
+ * 	@param[in] CodecMode - select I2S mode.
+ * 	@param[in] sysclk - system clock.
+ * 	@return    none.
+ */
+void audio_set_codec(I2C_GPIO_GroupTypeDef i2c_pin_group, CodecMode_Typedef CodecMode, unsigned int sysclk);
+
+
+
+/**
+ * @brief     This function servers to receive data from buffer.
+ * @param[in] buf - the buffer in which the data need to write
+ * @param[in] len - the length of the buffer.
+ * @return    none.
+ */
+void audio_rx_data_from_buff(signed char* buf,unsigned int len);
+
+
+/**
+ * @brief     This function servers to receive data from sample buffer by 16 bits.
+ * @param[in] buf - the buffer in which the data need to write
+ * @param[in] len - the length of the buffer by short.
+ * @return    none.
+ */
+void audio_rx_data_from_sample_buff(const short *buf, unsigned int len);
+
+/**
+ * 	@brief      This function serves to set amic mode
+ * 	@param[in]  mode - the amic mode(mono mode or stereo mode)
+ * 	@return     none
+ */
+void audio_set_amic_mode(Audio_Amic_mode mode);
+
+/**
+ * 	@brief      This function serves to set sdm output mode
+ * 	@param[in]  mode - the amic mode(mono mode or stereo mode)
+ * 	@return     none
+ */
+void audio_set_sdm_output_mode(Audio_SDM_output_mode mode);
 
 
 #endif

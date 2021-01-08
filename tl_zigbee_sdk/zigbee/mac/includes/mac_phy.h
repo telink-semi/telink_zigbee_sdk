@@ -1,22 +1,46 @@
 /********************************************************************************************************
- * @file     mac_phy.h
+ * @file	mac_phy.h
  *
- * @brief    Zigbee API for phy layer
+ * @brief	This is the header file for mac_phy
  *
- * @author
- * @date     Dec. 1, 2016
+ * @author	Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) 2016, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *			 The information contained herein is confidential and proprietary property of Telink
- * 		     Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *			 of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *			 Co., Ltd. and the licensee in separate contract or the terms described here-in.
- *           This heading MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- * 			 Licensees are granted free, non-transferable use of the information in this
- *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
 #ifndef MAC_PHY_H
@@ -99,17 +123,6 @@ typedef enum{
     PHY_CCA_BUSY       = 0x00,
 }phy_ccaSts_t;
 
-/*
- * Definition for RF callback function type
- */
-typedef void (*rf_txCB_t)(void* arg);
-typedef void (*rf_rxCB_t)(void* arg);
-typedef void (*rf_ackCB_t)(int fPendingFrame, u8 seq);
-
-typedef void (*rf_protocolSpecificInit_t)(void);
-typedef void (*rf_protocolSpecificReset_t)(void);
-typedef void (*rf_protocolSpecificSet_t)(u8 id, u8 *pValue, u8 len);
-
 /**
  *  @brief  Definition for Telink RX packet format
  */
@@ -140,14 +153,6 @@ typedef struct{
     u8  psduLen;
 }rx_buf_t;
 
-/*
- * Definition for Protocol Specific RF functions
- */
-typedef struct{
-    rf_protocolSpecificInit_t initFunc;
-    rf_protocolSpecificReset_t resetFunc;
-}rf_specificFunc_t;
-
 
 extern u8 g_zb_txPowerSet;
 
@@ -168,6 +173,8 @@ extern u8 g_zb_txPowerSet;
  */
 void rf_reset(void);
 
+#define mac_phyReconfig()	rf_reset();
+
 /*********************************************************************
  * @fn      rf_init
  *
@@ -178,19 +185,6 @@ void rf_reset(void);
  * @return  none
  */
 void rf_init(void);
-
-/*********************************************************************
- * @fn      rf_regProtocolSpecific
- *
- * @brief   Register protocol specific RF functions.
- *            Note: This function must be called before rf_init() and rf_reset()
- *
- * @param   txCbFunc - tx done callback function
- * @param   rxCbFunc - rx done callback function
- *
- * @return  none
- */
-void rf_regProtocolSpecific(rf_specificFunc_t *funcs);
 
 /*********************************************************************
  * @fn      rf_setRxBuf
@@ -259,19 +253,6 @@ u8 rf_getChannel(void);
 void rf_setTxPower(u8 txPower);
 
 /*********************************************************************
- * @fn      rf_set
- *
- * @brief   Set rf parameter according to specified RF ID
- *
- * @param   id     - The specified RF ID
- *          pValue - The detailed rf parameter
- *          len    - The length will be set to
- *
- * @return  none
- */
-void rf_set(u8 id, u8 *pValue, u8 len);
-
-/*********************************************************************
  * @fn      rf_getLqi
  *
  * @brief   Get calculated Link Quality value from specified rssi
@@ -280,7 +261,7 @@ void rf_set(u8 id, u8 *pValue, u8 len);
  *
  * @return  lqi result
  */
-u8 rf_getLqi(u8 rssi);
+u8 rf_getLqi(s8 rssi);
 
 /*********************************************************************
  * @fn      rf_startED
@@ -315,13 +296,8 @@ u8 rf_stopED(void);
  */
 u8 rf_performCCA(void);
 
-void rf_802154_init(void);
-void rf_802154_reset(void);
 void rf802154_tx_ready(u8 *buf, u8 len);
-void rf802154_tx(u8* buf, u8 len);
-
-void mac_phyReconfig(void);
-void mac_resetPhy(void);
+void rf802154_tx(void);
 
 /*********************************************************************
  * @fn      rf_paInit
@@ -335,8 +311,6 @@ void mac_resetPhy(void);
  * @return  none
  */
 void rf_paInit(u32 TXEN_pin, u32 RXEN_pin);
-void rf_paTX(void);
-void rf_paRX(void);
 void rf_paShutDown(void);
 
 

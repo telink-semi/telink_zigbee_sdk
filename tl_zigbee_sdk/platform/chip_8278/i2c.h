@@ -1,37 +1,54 @@
 /********************************************************************************************************
- * @file     i2c.h 
+ * @file	i2c.h
  *
- * @brief    This is the header file for TLSR8278
+ * @brief	This is the header file for B87
  *
- * @author	 Driver Group
- * @date     May 8, 2018
+ * @author	Driver & Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *           The information contained herein is confidential property of Telink
- *           Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *           of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *           Co., Ltd. and the licensee or the terms described here-in. This heading
- *           MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- *           Licensees are granted free, non-transferable use of the information in this
- *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
- * @par      History:
- * 			 1.initial release(DEC. 26 2018)
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
  *
- * @version  A001
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
-
-#pragma once
-
 #ifndef I2C_H
 #define I2C_H
+
+#include "register.h"
 #include "gpio.h"
 
-
-#define I2C_SLAVE_DEVICE_NO_START_EN   						0
 
 /**
  *  @brief  select pin as SDA and SCL of i2c
@@ -98,7 +115,7 @@ static inline void reset_i2c_moudle(void)
  */
 static inline void i2c_set_id(unsigned char SlaveID)
 {
-    reg_i2c_id	  = SlaveID; //slave address
+    reg_i2c_id = SlaveID; //slave address
 }
 
 /**
@@ -112,6 +129,7 @@ static inline void i2c_slave_mapping_mode_data_buffer_config(unsigned char * pMa
 	 reg_i2c_slave_map_addrm = (unsigned char)(((unsigned int)pMapBuf>>8)&0xff);
 	 reg_i2c_slave_map_addrh = 0x04;
 }
+
 /**
  * @brief      This function serves to select a pin port for I2C interface.
  * @param[in]  i2c_pin_group - the pin port selected as I2C interface pin port.
@@ -121,16 +139,11 @@ void i2c_gpio_set(I2C_GPIO_SdaTypeDef sda_pin,I2C_GPIO_SclTypeDef scl_pin);
 
 /**
  * @brief      This function serves to set the id of slave device and the speed of I2C interface
- *             note: the param ID contain the bit of writting or reading.
- *             eg:the parameter 0x5C. the reading will be 0x5D and writting 0x5C.
- * @param[in]  SlaveID - the id of slave device.it contains write or read bit,the lsb is write or read bit.
- *                       ID|0x01 indicate read. ID&0xfe indicate write.
  * @param[in]  DivClock - the division factor of I2C clock,
  *             I2C clock = System clock / (4*DivClock);if the datasheet you look at is 2*,pls modify it.
  * @return     none
  */
-void i2c_master_init(unsigned char SlaveID, unsigned char DivClock);
-
+void i2c_master_init(unsigned char DivClock);
 
 /**
  *  @brief      This function serves to set the ID and mode of slave device.
@@ -171,6 +184,7 @@ unsigned char i2c_read_byte(unsigned int Addr, unsigned int AddrLen);
  *  @return     none
  */
 void i2c_write_series(unsigned int Addr, unsigned int AddrLen, unsigned char * dataBuf, int dataLen);
+
 /**
  * @brief      This function serves to read a packet of data from the specified address of slave device
  * @param[in]  Addr - the register master read data from slave in. support one byte and two bytes.

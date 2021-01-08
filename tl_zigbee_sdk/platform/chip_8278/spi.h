@@ -1,36 +1,54 @@
 /********************************************************************************************************
- * @file     spi.h 
+ * @file	spi.h
  *
- * @brief    This is the header file for TLSR8278
+ * @brief	This is the header file for B87
  *
- * @author	 Driver Group
- * @date     May 8, 2018
+ * @author	Driver & Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) 2018, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *           The information contained herein is confidential property of Telink
- *           Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *           of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *           Co., Ltd. and the licensee or the terms described here-in. This heading
- *           MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- *           Licensees are granted free, non-transferable use of the information in this
- *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
- * @par      History:
- * 			 1.initial release(DEC. 26 2018)
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
  *
- * @version  A001
- *         
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
  *******************************************************************************************************/
-
-#pragma once
 #ifndef SPI_H
 #define SPI_H
 
-#include "bsp.h"
+#include "register.h"
 #include "gpio.h"
-#include "compiler.h"
+
 /**
  *  @brief  Define pin for SPI interface
  *  		SDO  SDI  SCK  CN
@@ -87,13 +105,12 @@ typedef enum {
  * @param[in] none
  * @return none
  */
-
-
 static inline void reset_spi_moudle(void)
 {
 	reg_rst0 |= FLD_RST0_SPI;
 	reg_rst0 &= (~FLD_RST0_SPI);
 }
+
 /**
  * @brief     This function selects a pin port for the SPI interface (master mode)
  * @param[in] PinGrp - the selected pin port
@@ -110,9 +127,7 @@ static inline void reset_spi_moudle(void)
  *	step4:set 5b7[7:0] to sel spi or i2c input;
  *	step5 if use pd[6]as spi slave csn,need to open pd[2] gpio func,because pd[2]have high priority than pd[6]
  */
-
-
-extern void spi_master_gpio_set(SPI_GPIO_SclkTypeDef sclk_pin,SPI_GPIO_CsTypeDef cs_pin,SPI_GPIO_SdoTypeDef sdo_pin, SPI_GPIO_SdiTypeDef sdi_pin );
+extern void spi_master_gpio_set(SPI_GPIO_SclkTypeDef sclk_pin, SPI_GPIO_CsTypeDef cs_pin, SPI_GPIO_SdoTypeDef sdo_pin, SPI_GPIO_SdiTypeDef sdi_pin);
 
 /**
  * @brief     This function selects a pin port for the SPI interface (slave mode)
@@ -130,20 +145,13 @@ extern void spi_master_gpio_set(SPI_GPIO_SclkTypeDef sclk_pin,SPI_GPIO_CsTypeDef
  *	step4:set 5b7[7:0] to sel spi or i2c input;
  *	step5 if use pd[6]as spi slave csn,need to open pd[2] gpio func,because pd[2]have high priority than pd[6]
  */
-
-
-
-extern void spi_slave_gpio_set(SPI_GPIO_SclkTypeDef sclk_pin,SPI_GPIO_CsTypeDef cs_pin,SPI_GPIO_SdoTypeDef sdo_pin, SPI_GPIO_SdiTypeDef sdi_pin);
-
+extern void spi_slave_gpio_set(SPI_GPIO_SclkTypeDef sclk_pin, SPI_GPIO_CsTypeDef cs_pin, SPI_GPIO_SdoTypeDef sdo_pin, SPI_GPIO_SdiTypeDef sdi_pin);
 
 /**
  * @brief     This function selects a GPIO pin as CS of SPI function.
  * @param[in] CSPin - the selected CS pin
  * @return    none
  */
-
-
-
 extern void spi_masterCSpin_select(GPIO_PinTypeDef CSPin);
 
 /**
@@ -161,6 +169,7 @@ extern void spi_masterCSpin_select(GPIO_PinTypeDef CSPin);
  * @return    none
  */
 extern void spi_master_init(unsigned char DivClock, SPI_ModeTypeDef Mode);
+
 /**
  * @brief     This function configures the clock and working mode for SPI interface
  * @param[in] DivClock - the division factor for SPI module
@@ -169,6 +178,7 @@ extern void spi_master_init(unsigned char DivClock, SPI_ModeTypeDef Mode);
  * @return    none
  */
 extern void spi_slave_init(unsigned char DivClock, SPI_ModeTypeDef Mode);
+
 /**
  * @brief      This function serves to write a bulk of data to the SPI slave
  *             device specified by the CS pin
@@ -180,8 +190,6 @@ extern void spi_slave_init(unsigned char DivClock, SPI_ModeTypeDef Mode);
  * @param[in]  CSPin - the CS pin specifing the slave device
  * @return     none
  */
-
-
 extern void spi_write(unsigned char *Cmd, int CmdLen, unsigned char *Data, int DataLen, GPIO_PinTypeDef CSPin);
 
 /**
@@ -195,8 +203,6 @@ extern void spi_write(unsigned char *Cmd, int CmdLen, unsigned char *Data, int D
  * @param[in]  CSPin - the CS pin specifing the slave device
  * @return     none
  */
-
-
 extern void spi_read(unsigned char *Cmd, int CmdLen, unsigned char *Data, int DataLen, GPIO_PinTypeDef CSPin);
 
 /**

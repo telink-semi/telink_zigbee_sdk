@@ -1,22 +1,46 @@
 /********************************************************************************************************
- * @file     zdo_api.h
+ * @file	zdo_api.h
  *
- * @brief	 contains define, MACRO and interfaces used by ZDO up layers
+ * @brief	This is the header file for zdo_api
  *
- * @author
- * @date     June. 10, 2017
+ * @author	Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) 2016, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *			 The information contained herein is confidential and proprietary property of Telink
- * 		     Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *			 of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *			 Co., Ltd. and the licensee in separate contract or the terms described here-in.
- *           This heading MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- * 			 Licensees are granted free, non-transferable use of the information in this
- *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
 #ifndef ZDO_API_H
@@ -140,7 +164,11 @@ typedef struct{
     u16	short_addr;
 }zdo_start_device_confirm_t;
 
-
+typedef struct{
+	addrExt_t parentIeeeAddr;
+	addrExt_t devIeeeAddr;
+	u16 devShortAddr;
+}zdo_tc_join_ind_t;
 
 typedef void (*zdo_startDveCnfCb_t)(zdo_start_device_confirm_t *p);
 typedef void (*zdo_nlmeResetCnfCb_t)(nlme_reset_cnf_t *p);
@@ -150,6 +178,7 @@ typedef void (*zdo_leaveCnfCb_t)(nlme_leave_cnf_t *p);
 typedef bool (*zdo_nwkUpdateCb_t)(nwkCmd_nwkUpdate_t *p);
 typedef void (*zdo_permitJoinIndCb_t)(nlme_permitJoining_req_t *p);
 typedef void (*zdo_nlmeSyncCnfCb_t)(nlme_sync_cnf_t *p);
+typedef bool (*zdo_tcJoinIndCb_t)(zdo_tc_join_ind_t *p);
 
 typedef struct{
 	zdo_startDveCnfCb_t		zdpStartDevCnfCb;
@@ -160,6 +189,7 @@ typedef struct{
 	zdo_nwkUpdateCb_t		zdpNwkUpdateIndCb;
 	zdo_permitJoinIndCb_t	zdpPermitJoinIndCb;
 	zdo_nlmeSyncCnfCb_t		zdoNlmeSyncCnfCb;
+	zdo_tcJoinIndCb_t		zdoTcJoinIndCb;
 }zdo_appIndCb_t;
 
 

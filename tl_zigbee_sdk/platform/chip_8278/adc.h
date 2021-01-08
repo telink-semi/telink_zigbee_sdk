@@ -1,35 +1,55 @@
 /********************************************************************************************************
- * @file     adc.h
+ * @file	adc.h
  *
- * @brief    This is the ADC driver header file for TLSR8278
+ * @brief	This is the header file for B87
  *
- * @author	 Driver Group
- * @date     May 8, 2018
+ * @author	Driver & Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) 2018, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *           The information contained herein is confidential property of Telink
- *           Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *           of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *           Co., Ltd. and the licensee or the terms described here-in. This heading
- *           MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- *           Licensees are granted free, non-transferable use of the information in this
- *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
- * @par      History:
- * 			 1.initial release(DEC. 26 2018)
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
  *
- * @version  A001
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
 #pragma once
+
 #include "bit.h"
 #include "analog.h"
 #include "register.h"
 #include "gpio.h"
 
-#define ADC_OLD_TEMP_TEST  0
 
 /**
  *  Some notice for ADC
@@ -47,8 +67,6 @@ typedef struct {
 
 extern adc_vref_ctr_t adc_vref_cfg;
 
-extern const GPIO_PinTypeDef ADC_GPIO_tab[10];
-
 /**
  *  ADC reference voltage
  */
@@ -62,10 +80,14 @@ typedef enum{
  */
 typedef enum{
 	ADC_VBAT_DIVIDER_OFF = 0,
-	ADC_VBAT_DIVIDER_1F4,
-	ADC_VBAT_DIVIDER_1F3,
-	ADC_VBAT_DIVIDER_1F2
+	ADC_VBAT_DIVIDER_1F3=2,
+	/**
+	 * Delete the ADC_VBAT_DIVIDER_1F2 enum due to it can't make sense.
+	 * changed by chaofan. confirmed by lingyu.20201029.
+	 */
 }ADC_VbatDivTypeDef;
+
+extern unsigned char adc_vbat_divider;
 
 /**
  *	ADC analog input negative channel
@@ -180,18 +202,17 @@ typedef enum{
  * @param[in] en - 1 enable  0 disable
  * @return     none.
  */
-static inline void	adc_calib_vref_enable(unsigned char en)
+static inline void adc_calib_vref_enable(unsigned char en)
 {
 	adc_vref_cfg.adc_calib_en = en;
 }
-
 
 /**
  * @brief      This function reset adc module
  * @param[in]  none.
  * @return     none.
  */
-static inline void	adc_reset_adc_module (void)
+static inline void adc_reset_adc_module(void)
 {
 	reg_rst1 = FLD_RST1_ADC;
 	reg_rst1 = 0;
@@ -202,17 +223,18 @@ static inline void	adc_reset_adc_module (void)
  * @param[in]  en - variable of source clock state 1: enable;  0: disable.
  * @return     none.
  */
-static inline void adc_enable_clk_24m_to_sar_adc (unsigned int en)
+static inline void adc_enable_clk_24m_to_sar_adc(unsigned int en)
 {
 	if(en)
 	{
-		analog_write(areg_clk_setting	, analog_read(areg_clk_setting	) | FLD_CLK_24M_TO_SAR_EN);
+		analog_write(areg_clk_setting, analog_read(areg_clk_setting) | FLD_CLK_24M_TO_SAR_EN);
 	}
 	else
 	{
-		analog_write(areg_clk_setting	, analog_read(areg_clk_setting	) & ~FLD_CLK_24M_TO_SAR_EN);
+		analog_write(areg_clk_setting, analog_read(areg_clk_setting) & ~FLD_CLK_24M_TO_SAR_EN);
 	}
 }
+
 /**************************************************************************************
 afe_0xF4
     BIT<2:0>  adc_clk_div
@@ -233,7 +255,7 @@ enum{
 static inline void adc_set_sample_clk(unsigned char div)
 {
 	//afe_0xF4<7:3> is reserved, so no need to care its value
-	analog_write(areg_adc_sampling_clk_div,  div & 0x07 );
+	analog_write(areg_adc_sampling_clk_div, div & 0x07 );
 }
 
 /**************************************************************************************
@@ -280,7 +302,12 @@ enum{
  */
 static inline void adc_set_vref_vbat_divider(ADC_VbatDivTypeDef vbat_div)
 {
-	analog_write (areg_adc_vref_vbat_div, (analog_read(areg_adc_vref_vbat_div)&(~FLD_ADC_VREF_VBAT_DIV)) | (vbat_div<<2) );
+	analog_write(areg_adc_vref_vbat_div, (analog_read(areg_adc_vref_vbat_div) & (~FLD_ADC_VREF_VBAT_DIV)) | (vbat_div << 2));
+	if(vbat_div){
+		adc_vbat_divider = 5 - vbat_div;
+	}else{
+		adc_vbat_divider = 1;
+	}
 }
 
 
@@ -331,9 +358,8 @@ enum{
  * @return none
  */
 static inline void adc_set_ain_chn_misc(ADC_InputPchTypeDef p_ain, ADC_InputNchTypeDef n_ain)
-
 {
-	analog_write (areg_adc_ain_chn_misc	, n_ain | p_ain<<4 );
+	analog_write(areg_adc_ain_chn_misc, n_ain | p_ain << 4);
 }
 
 /**
@@ -343,7 +369,7 @@ static inline void adc_set_ain_chn_misc(ADC_InputPchTypeDef p_ain, ADC_InputNchT
  */
 static inline void adc_set_ain_negative_chn_misc(ADC_InputNchTypeDef v_ain)
 {
-	analog_write (areg_adc_ain_chn_misc	, (analog_read(areg_adc_ain_chn_misc	)&(~FLD_ADC_AIN_NEGATIVE)) | (v_ain) );
+	analog_write(areg_adc_ain_chn_misc, (analog_read(areg_adc_ain_chn_misc) & (~FLD_ADC_AIN_NEGATIVE)) | (v_ain));
 }
 /**
  * @brief      This function sets ADC analog positive input channel for the MISC channel
@@ -352,7 +378,7 @@ static inline void adc_set_ain_negative_chn_misc(ADC_InputNchTypeDef v_ain)
  */
 static inline void adc_set_ain_positive_chn_misc(ADC_InputPchTypeDef v_ain)
 {
-	analog_write (areg_adc_ain_chn_misc	, (analog_read(areg_adc_ain_chn_misc	)&(~FLD_ADC_AIN_POSITIVE)) | (v_ain<<4) );
+	analog_write(areg_adc_ain_chn_misc, (analog_read(areg_adc_ain_chn_misc) & (~FLD_ADC_AIN_POSITIVE)) | (v_ain << 4));
 }
 
 /**
@@ -377,7 +403,7 @@ enum{
  */
 static inline void adc_set_resolution_chn_misc(ADC_ResTypeDef v_res)
 {
-	analog_write(anareg_adc_res_m, (analog_read(anareg_adc_res_m)&(~FLD_ADC_RES_M)) | (v_res) );
+	analog_write(anareg_adc_res_m, (analog_read(anareg_adc_res_m) & (~FLD_ADC_RES_M)) | (v_res));
 }
 
 /**
@@ -388,7 +414,7 @@ static inline void adc_set_resolution_chn_misc(ADC_ResTypeDef v_res)
 static inline void adc_set_input_mode_chn_misc(ADC_InputModeTypeDef m_input)
 {
 	 //differential mode
-	analog_write(anareg_adc_res_m, analog_read(anareg_adc_res_m) | FLD_ADC_EN_DIFF_CHN_M );
+	analog_write(anareg_adc_res_m, analog_read(anareg_adc_res_m) | FLD_ADC_EN_DIFF_CHN_M);
 }
 
 /**
@@ -413,7 +439,7 @@ enum{
 static inline void adc_set_tsample_cycle_chn_misc(ADC_SampCycTypeDef adcST)
 {
 	//ana_ee<7:4> is reserved, so no need care its value
-	analog_write(areg_adc_tsmaple_m, adcST );  //optimize, <7:4> not cared
+	analog_write(areg_adc_tsmaple_m, adcST);  //optimize, <7:4> not cared
 }
 
 /**
@@ -432,8 +458,8 @@ afe_0xF1
 		<5:4>   rsvd
 		<7:6>   r_max_mc[9:8]
 
-	r_max_mc[9:0]: serves to set length of ¡°capture¡± state for Misc channel.
-	r_max_s:       serves to set length of ¡°set¡± state for Misc channel.
+	r_max_mc[9:0]: serves to set length of capture state for Misc channel.
+	r_max_s:       serves to set length of set state for Misc channel.
 
 	Note: State length indicates number of 24M clock cycles occupied by the state.
  *************************************************************************************/
@@ -449,13 +475,13 @@ enum{
 };
 
 /**
- * @brief      This function sets length of each ¡°set¡± state
+ * @brief      This function sets length of each set state
  * @param[in]  r_max_s - variable of length of "set" state
  * @return     none
  */
-static inline void adc_set_length_set_state (unsigned char r_max_s)
+static inline void adc_set_length_set_state(unsigned char r_max_s)
 {
-	analog_write(areg_r_max_s, (analog_read(areg_r_max_s)&(~FLD_R_MAX_S)) | (r_max_s) );
+	analog_write(areg_r_max_s, (analog_read(areg_r_max_s) & (~FLD_R_MAX_S)) | (r_max_s));
 }
 
 /**
@@ -467,8 +493,8 @@ static inline void adc_set_length_set_state (unsigned char r_max_s)
  */
 static inline void adc_set_length_capture_state_for_chn_misc_rns (unsigned short r_max_mc)
 {
-	analog_write(areg_r_max_mc,  (r_max_mc & 0x0ff));
-	analog_write(areg_r_max_s,  ((analog_read(areg_r_max_s)&(~FLD_R_MAX_MC1)) | ((r_max_mc&0x3ff)>>8)<<6 ));
+	analog_write(areg_r_max_mc, (r_max_mc & 0x0ff));
+	analog_write(areg_r_max_s, ((analog_read(areg_r_max_s) & (~FLD_R_MAX_MC1)) | ((r_max_mc & 0x3ff) >> 8) << 6));
 }
 
 /**
@@ -480,7 +506,7 @@ static inline void adc_set_length_capture_state_for_chn_misc_rns (unsigned short
 static inline void adc_set_state_length(unsigned short R_max_mc,unsigned char R_max_s)
 {
 	analog_write(areg_r_max_mc, R_max_mc);
-	analog_write(areg_r_max_s, ((R_max_mc>>8)<<6)| (R_max_s & FLD_R_MAX_S));
+	analog_write(areg_r_max_s, ((R_max_mc >> 8) << 6)| (R_max_s & FLD_R_MAX_S));
 }
 
 /***************************************************************************************
@@ -504,9 +530,9 @@ enum{
  * @param[in]  ad_ch - enum variable of ADC input channel.
  * @return     none
  */
-static inline void  adc_set_chn_enable(ADC_ChTypeDef ad_ch)
+static inline void adc_set_chn_enable(ADC_ChTypeDef ad_ch)
 {
-	analog_write(areg_adc_chn_en, (analog_read(areg_adc_chn_en)&0xf0) | ad_ch );
+	analog_write(areg_adc_chn_en, (analog_read(areg_adc_chn_en) & 0xf0) | ad_ch);
 }
 
 /**
@@ -517,7 +543,7 @@ static inline void  adc_set_chn_enable(ADC_ChTypeDef ad_ch)
  */
 static inline void adc_set_chn_enable_and_max_state_cnt(ADC_ChTypeDef ad_ch, unsigned char s_cnt)
 {
-	analog_write(areg_adc_chn_en, ad_ch | ((s_cnt&0x07)<<4) );
+	analog_write(areg_adc_chn_en, ad_ch | ((s_cnt & 0x07) << 4));
 }
 
 /**
@@ -527,7 +553,7 @@ static inline void adc_set_chn_enable_and_max_state_cnt(ADC_ChTypeDef ad_ch, uns
  */
 static inline void adc_set_max_state_cnt(unsigned char s_cnt)
 {
-	analog_write(areg_adc_chn_en, (analog_read(areg_adc_chn_en)&(~FLD_ADC_MAX_SCNT)) | ((s_cnt&0x07)<<4) );
+	analog_write(areg_adc_chn_en, (analog_read(areg_adc_chn_en) & (~FLD_ADC_MAX_SCNT)) | ((s_cnt & 0x07) << 4));
 }
 
 /**************************************************************************************
@@ -568,9 +594,9 @@ enum{
  * @return     none
  * caution power on cause  audio  creepage
  */
-static inline void adc_power_on_sar_adc (unsigned char on_off)
+static inline void adc_power_on_sar_adc(unsigned char on_off)
 {
-	analog_write (areg_adc_pga_ctrl, (analog_read(areg_adc_pga_ctrl)&(~FLD_SAR_ADC_POWER_DOWN)) | (!on_off)<<5  );
+	analog_write(areg_adc_pga_ctrl, (analog_read(areg_adc_pga_ctrl) & (~FLD_SAR_ADC_POWER_DOWN)) | (!on_off) << 5);
 }
 
 /*************************************************************************************
@@ -587,7 +613,7 @@ afe_0xF8<7:0>   adc_dat[15:8]  	Read only
  * @param[in]  InNCH - enum variable of ADC analog negative input channel.
  * @return none
  */
-void adc_set_ain_channel_differential_mode(ADC_InputPchTypeDef InPCH,ADC_InputNchTypeDef InNCH);
+void adc_set_ain_channel_differential_mode(ADC_InputPchTypeDef InPCH, ADC_InputNchTypeDef InNCH);
 
 /**
  * @brief This function serves to set pre_scaling.
@@ -602,7 +628,20 @@ void adc_set_ain_pre_scaler(ADC_PreScalingTypeDef v_scl);
  * @param[in]   none
  * @return none
  */
-void adc_init(void );
+void adc_init(void);
+
+/**
+ * @brief This function is used to calib ADC 1.2V vref.
+ * @param[in] none
+ * @return none
+ */
+/********************************************************************************************
+	There have two kind of calibration value of ADC 1.2V vref in flash,and one calibration value in Efuse.
+	The priority of calibration value is Flash > Efuse > Default(1175mV).
+	Two kind of ADC calibration value in flash are adc_gpio_calib_vref(used for internal voltage sample)
+	and adc_vbat_calib_vref(used for gpio voltage sample).
+********************************************************************************************/
+void adc_update_1p2_vref_calib_value(void);
 
 /**
  * @brief This function is used for IO port configuration of ADC IO port voltage sampling.
@@ -624,13 +663,6 @@ void adc_vbat_pin_init(GPIO_PinTypeDef pin);
  * @return none
  */
 void adc_base_init(GPIO_PinTypeDef pin);
-
-/**
- * @brief This function servers to test ADC temp.
- * @param[in]  none.
- * @return     none.
- */
-void adc_old_temp_init(void);
 
 /**
  * @brief This function servers to test ADC temp.
@@ -681,13 +713,4 @@ unsigned short adc_sample_and_get_result_manual_mode(void);
  * @return the result of temperature.
  */
 unsigned short adc_temp_result(void);
-
-
-
-
-
-
-
-
-
 

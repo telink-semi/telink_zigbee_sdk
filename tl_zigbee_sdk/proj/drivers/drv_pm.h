@@ -1,54 +1,110 @@
 /********************************************************************************************************
- * @file     drv_pm.h
+ * @file	drv_pm.h
  *
- * @brief    API for platform low power
+ * @brief	This is the header file for drv_pm
  *
- * @author
- * @date     June. 20, 2018
+ * @author	Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) 2018, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *			 The information contained herein is confidential and proprietary property of Telink
- * 		     Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *			 of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *			 Co., Ltd. and the licensee in separate contract or the terms described here-in.
- *           This heading MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- * 			 Licensees are granted free, non-transferable use of the information in this
- *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
-
 #pragma once
 
 
 
-typedef enum{
-	PLATFORM_MODE_SUSPEND,
-	PLATFORM_MODE_DEEPSLEEP,
-	PLATFORM_MODE_MCU_STALL,			//for 826x
-	PLATFORM_MODE_DEEP_WITH_RETENTION,	//826x not support
-}platform_mode_e;
 
 typedef enum{
-	PLATFORM_WAKEUP_PAD = (1 << 0),
-	PLATFORM_WAKEUP_TIMER = (1 << 1),
-}platform_wakeup_e;
+	PM_SLEEP_MODE_SUSPEND,
+	PM_SLEEP_MODE_DEEPSLEEP,
+	PM_SLEEP_MODE_DEEP_WITH_RETENTION,	//826x not support
+
+	PM_SLEEP_MODE_MCU_STALL,
+}drv_pm_sleep_mode_e;
 
 typedef enum{
-	PLATFORM_WAKEUP_LEVEL_LOW,
-	PLATFORM_WAKEUP_LEVEL_HIGH,
-}platform_wakeup_level_e;
+	PM_WAKEUP_SRC_PAD 	= BIT(0),
+	PM_WAKEUP_SRC_TIMER = BIT(1),
+}drv_pm_wakeup_src_e;
 
-void platform_wakeup_init(void);
+typedef enum{
+	PM_WAKEUP_LEVEL_LOW,
+	PM_WAKEUP_LEVEL_HIGH,
+}drv_pm_wakeup_level_e;
 
-void platform_wakeup_pad_cfg(u32 pin, platform_wakeup_level_e pol, int en);
+typedef struct{
+	u32 wakeupPin;
+	drv_pm_wakeup_level_e wakeupLevel;
+}drv_pm_pinCfg_t;
 
-void platform_lowpower_enter(platform_mode_e mode, platform_wakeup_e src, u32 cycle_ms);
+#if defined(MCU_CORE_826x)
+	#define PM_CLOCK_INIT()
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+	#define PM_CLOCK_INIT()					do{ \
+												/* Initialize 32K for timer wakeup. */	\
+												clock_32k_init(CLK_32K_RC);				\
+												rc_32k_cal();							\
+												pm_select_internal_32k_rc();			\
+											}while(0)
+#elif defined(MCU_CORE_B91)
+	/* 24M RC is inaccurate, and it is greatly affected by temperature, so real-time calibration is required
+	 * The 24M RC needs to be calibrated before the pm_sleep_wakeup function,
+	 * because this clock will be used to kick 24m xtal start after wake up.
+	 * The more accurate this time, the faster the crystal will start. Calibration cycle depends on usage
+	 */
+	#define PM_CLOCK_INIT()					do{ \
+												clock_cal_24m_rc();						\
+												/* Initialize 32K for timer wakeup. */	\
+												clock_32k_init(CLK_32K_RC);				\
+												clock_cal_32k_rc();/*6.68ms*/			\
+											}while(0)
+#endif
 
-void platform_longLowpower_enter(platform_mode_e mode, platform_wakeup_e src, u32 durationMs);
 
-void deep_sleep_flag_set(u32 a);
-u8 deep_sleep_flag_get(void);
-u32 deep_sleep_framecount_get(void);
+void drv_pm_deepSleep_frameCnt_set(u32 frameCounter);
+u32 drv_pm_deepSleep_frameCnt_get(void);
+bool drv_pm_deepSleep_flag_get(void);
+
+void drv_pm_wakeupPinConfig(drv_pm_pinCfg_t *pinCfg, u32 pinNum);
+u8 drv_pm_wakeupPinValid(drv_pm_pinCfg_t *pinCfg, u32 pinNum);
+
+void drv_pm_sleep(drv_pm_sleep_mode_e mode, drv_pm_wakeup_src_e src, u32 durationMs);
+void drv_pm_longSleep(drv_pm_sleep_mode_e mode, drv_pm_wakeup_src_e src, u32 durationMs);
+
+u8 drv_pm_suspendEnter(drv_pm_wakeup_src_e wakeUpSrc, u32 ms);
+u8 drv_pm_deepSleepEnter(drv_pm_wakeup_src_e wakeUpSrc, u32 ms);
+u8 drv_pm_interleaveSleepEnter(drv_pm_wakeup_src_e wakeUpSrc, u32 ms);

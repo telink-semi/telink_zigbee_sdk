@@ -101,6 +101,11 @@
 			<locationURI>PARENT-2-PROJECT_LOC/proj</locationURI>
 		</link>
 		<link>
+			<name>zbhci</name>
+			<type>2</type>
+			<locationURI>PARENT-2-PROJECT_LOC/zbhci</locationURI>
+		</link>
+		<link>
 			<name>zigbee</name>
 			<type>2</type>
 			<locationURI>PARENT-2-PROJECT_LOC/zigbee</locationURI>
@@ -109,6 +114,16 @@
 			<name>apps/common</name>
 			<type>2</type>
 			<locationURI>PARENT-2-PROJECT_LOC/apps/common</locationURI>
+		</link>
+		<link>
+			<name>apps/sampleContactSensor_8258</name>
+			<type>2</type>
+			<locationURI>PARENT-2-PROJECT_LOC/apps/sampleContactSensor_8258</locationURI>
+		</link>
+		<link>
+			<name>apps/sampleContactSensor_826x</name>
+			<type>2</type>
+			<locationURI>PARENT-2-PROJECT_LOC/apps/sampleContactSensor_826x</locationURI>
 		</link>
 		<link>
 			<name>apps/sampleGW</name>
@@ -208,7 +223,7 @@
 		<link>
 			<name>platform/services/irq_handler.c</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/platform/services/82xx/irq_handler.c</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/platform/services/b85m/irq_handler.c</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>

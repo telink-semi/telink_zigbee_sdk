@@ -1,60 +1,56 @@
 /********************************************************************************************************
- * @file     clock.h
+ * @file	clock.h
  *
- * @brief    system clock interface header for tlsr8258
+ * @brief	This is the header file for B85
  *
- * @author   jian.zhang@telink-semi.com
- * @date     Oct. 8, 2016
+ * @author	Driver & Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) 2016, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *           The information contained herein is confidential property of Telink
- *           Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *           of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *           Co., Ltd. and the licensee or the terms described here-in. This heading
- *           MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- *           Licensees are granted free, non-transferable use of the information in this
- *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
-#ifndef CLOCK_H
-#define CLOCK_H
-
-#include "register.h"
-
-// constants
-// system clock
+#pragma once
 
 
+#define 	_ASM_NOP_			asm("tnop")
 
-//system timer clock source is constant 16M, never change
-enum{
-	CLOCK_16M_SYS_TIMER_CLK_1S =  16000000,
-	CLOCK_16M_SYS_TIMER_CLK_1MS = 16000,
-	CLOCK_16M_SYS_TIMER_CLK_1US = 16,
-};
-
-#define 	sys_tick_per_us			16
-extern unsigned long CLOCK_SYS_CLOCK_1US;
-extern unsigned long tickPerUs;
-
-#define MASTER_CLK_FREQ				tickPerUs
-
-
-//#define SET_SYS_TICK_IRQ(tick)   	(reg_system_tick_irq = (tick) - pm_systick_offset)
-
-
-static inline unsigned long get_system_tick(void)
-{
-	return reg_system_tick;
-}
-
-
-#define _ASM_NOP_				asm("tnop")
-
-//  delay precisely
+/**
+ * @brief  instruction delay.
+ */
 #define		CLOCK_DLY_1_CYC    _ASM_NOP_
 #define		CLOCK_DLY_2_CYC    _ASM_NOP_;_ASM_NOP_
 #define		CLOCK_DLY_3_CYC    _ASM_NOP_;_ASM_NOP_;_ASM_NOP_
@@ -66,134 +62,105 @@ static inline unsigned long get_system_tick(void)
 #define		CLOCK_DLY_9_CYC    _ASM_NOP_;_ASM_NOP_;_ASM_NOP_;_ASM_NOP_;_ASM_NOP_;_ASM_NOP_;_ASM_NOP_;_ASM_NOP_;_ASM_NOP_
 #define		CLOCK_DLY_10_CYC   _ASM_NOP_;_ASM_NOP_;_ASM_NOP_;_ASM_NOP_;_ASM_NOP_;_ASM_NOP_;_ASM_NOP_;_ASM_NOP_;_ASM_NOP_;_ASM_NOP_
 
-#if (CLOCK_SYS_CLOCK_HZ == 30000000 || CLOCK_SYS_CLOCK_HZ == 32000000)
-	#define		CLOCK_DLY_100NS		CLOCK_DLY_3_CYC							// 100,  94
-	#define		CLOCK_DLY_200NS		CLOCK_DLY_6_CYC							// 200, 188
-	#define 	CLOCK_DLY_600NS 	CLOCK_DLY_10_CYC;CLOCK_DLY_10_CYC 		// 200, 188
-#elif (CLOCK_SYS_CLOCK_HZ == 24000000)
-	#define 	CLOCK_DLY_63NS 		CLOCK_DLY_3_CYC 		//  63 ns
-	#define		CLOCK_DLY_100NS		CLOCK_DLY_4_CYC			//  100 ns
-	#define		CLOCK_DLY_200NS		CLOCK_DLY_8_CYC			//  200 ns
-	#define 	CLOCK_DLY_600NS 	CLOCK_DLY_10_CYC 		//	600 ns
-#elif (CLOCK_SYS_CLOCK_HZ == 12000000 || CLOCK_SYS_CLOCK_HZ == 16000000)
-	#define 	CLOCK_DLY_63NS 		CLOCK_DLY_1_CYC 		//  63 ns
-	#define		CLOCK_DLY_100NS		CLOCK_DLY_2_CYC			//  128 ns
-	#define		CLOCK_DLY_200NS		CLOCK_DLY_4_CYC			//  253 ns
-	#define 	CLOCK_DLY_600NS 	CLOCK_DLY_10_CYC 		//	253 ns
-#elif (CLOCK_SYS_CLOCK_HZ == 48000000)
-	#define		CLOCK_DLY_100NS		CLOCK_DLY_5_CYC			// 104
-	#define		CLOCK_DLY_200NS		CLOCK_DLY_10_CYC		// 208
-	#define 	CLOCK_DLY_600NS 	CLOCK_DLY_10_CYC;CLOCK_DLY_10_CYC;CLOCK_DLY_10_CYC		//	600 ns
-#elif (CLOCK_SYS_CLOCK_HZ == 6000000 || CLOCK_SYS_CLOCK_HZ == 8000000)
-	#define		CLOCK_DLY_100NS		CLOCK_DLY_1_CYC			//  125 ns
-	#define		CLOCK_DLY_200NS		CLOCK_DLY_2_CYC			//  250
-	#define 	CLOCK_DLY_600NS 	CLOCK_DLY_5_CYC 		//  725
-#else
-#define		CLOCK_DLY_100NS		CLOCK_DLY_1_CYC			//  125 ns
-#define		CLOCK_DLY_200NS		CLOCK_DLY_2_CYC			//  250
-#define 	CLOCK_DLY_600NS 	CLOCK_DLY_5_CYC 		//  725
+/**
+ * @brief select RC as system clock
+ */
+#ifndef SYSCLK_RC_CLOCK_EN
+#define SYSCLK_RC_CLOCK_EN			0
 #endif
 
+extern unsigned char system_clk_type;
+extern unsigned char system_clk_mHz;
+
+/**
+ * @brief system clock type.
+ */
 typedef enum{
-	SYS_CLK_12M_Crystal,
-	SYS_CLK_16M_Crystal,
-	SYS_CLK_24M_Crystal,
-	SYS_CLK_32M_Crystal,
-	SYS_CLK_48M_Crystal,
-	SYS_CLK_24M_RC,
-	SYS_CLK_24M_Crystal_directly = 0x10,
-}SYS_CLK_TYPEDEF;
+	SYS_CLK_12M_Crystal = 0x44,
+	SYS_CLK_16M_Crystal = 0x43,
+	SYS_CLK_24M_Crystal = 0x42,
+	SYS_CLK_32M_Crystal = 0x60,
+	SYS_CLK_48M_Crystal = 0x20,
 
-void clock_init(SYS_CLK_TYPEDEF SYS_CLK);
+	SYS_CLK_RC_THRES = 0x10,
 
-void sleep_us(unsigned long microsec);		//  use register counter to delay
+	SYS_CLK_24M_RC 	 = 0x00,
+	SYS_CLK_32M_RC 	 = 0x01,
+	SYS_CLK_48M_RC 	 = 0x02,
+}SYS_CLK_TypeDef;
 
+/**
+ * @brief 32K clock type.
+ */
 
-#define WaitUs				sleep_us
-#define WaitMs(t)			sleep_us((t)*1000)
+typedef enum{
+	CLK_32K_RC   =0,
+	CLK_32K_XTAL =1,
+}CLK_32K_TypeDef;
 
+/**
+ * @brief       This function to select the system clock source.
+ * @param[in]   SYS_CLK - the clock source of the system clock.
+ * @return      none
+ */
+void clock_init(SYS_CLK_TypeDef SYS_CLK);
 
-static inline unsigned int clock_time(void)
+/**
+ * @brief       This function to get the system clock source.
+ * @param[in]   none
+ * @return      system clock source
+ */
+
+static inline int clock_get_system_clk(void)
 {
-	return reg_system_tick;
+	return system_clk_type;
 }
 
+/**
+ * @brief   This function serves to set 32k clock source.
+ * @param   variable of 32k type.
+ * @return  none.
+ */
+void clock_32k_init(CLK_32K_TypeDef src);
 
-#define ClockTime				 clock_time
+/**
+ * @brief     This function performs to select 24M as the system clock source.
+ * @param[in] none.
+ * @return    none.
+ */
+void rc_24m_cal(void);
 
+/**
+ * @brief     This function performs to select 48M RC as the system clock source.
+ * @param[in] none.
+ * @return    none.
+ */
+void rc_48m_cal(void);
 
-static inline unsigned int clock_time_exceed(unsigned int ref, unsigned int span_us){
-	return ((unsigned int)(clock_time() - ref) > span_us * 16);
-}
+/**
+ * @brief     This function performs to select 32K as the system clock source.
+ * @param[in] none.
+ * @return    none.
+ */
+void rc_32k_cal(void);
 
-// we use clock insteady of timer, to differentiate OS timers utility
-static inline void clock_enable_clock(int tmr, int en){
-	if(0 == tmr){
-		SET_FLD_V(reg_tmr_ctrl, FLD_TMR0_EN, en);
-	}else if(1 == tmr){
-		SET_FLD_V(reg_tmr_ctrl, FLD_TMR1_EN, en);
-	}else{
-		SET_FLD_V(reg_tmr_ctrl, FLD_TMR2_EN, en);
-	}
-}
+/**
+ * @brief     This function performs to calibration the source clock.
+ * @param[in] none.
+ * @return    none.
+ */
+void doubler_calibration(void);
 
-static inline void clock_set_tmr_mode(int tmr, unsigned int m){
-	if(0 == tmr){
-		SET_FLD_V(reg_tmr_ctrl16, FLD_TMR0_MODE, m);
-	}else if(1 == tmr){
-		SET_FLD_V(reg_tmr_ctrl16, FLD_TMR1_MODE, m);
-	}else{
-		SET_FLD_V(reg_tmr_ctrl16, FLD_TMR2_MODE, m);
-	}
-}
+/**
+ * @brief     This function performs to select 24M/2 RC as source of DMIC.
+ * @param[in] source clock to provide DMIC.
+ * @return    none.
+ */
+void dmic_prob_24M_rc(void);
 
-static inline unsigned int clock_get_tmr_status(int tmr){
-	if(0 == tmr){
-		return reg_tmr_ctrl & FLD_TMR0_STA;
-	}else if(1 == tmr){
-		return reg_tmr_ctrl & FLD_TMR1_STA;
-	}else{
-		return reg_tmr_ctrl & FLD_TMR2_STA;
-	}
-}
-
-
-
-#define TIMER_INIT(idx, mode)			do{ \
-											clock_set_tmr_mode(idx, mode);	\
-											reg_tmr_sta = 1 << idx;			\
-											reg_irq_src = 1 << idx;			\
-											reg_irq_mask |= 1 << idx;		\
-									    }while(0)
-
-#define TIMER_START(idx)				clock_enable_clock(idx, 1)
-#define TIMER_STOP(idx)					clock_enable_clock(idx, 0)
-
-#define TIMER_TICK_CLEAR(idx)   		reg_tmr_tick(idx) = 0
-#define TIMER_INTERVAL_SET(idx, cyc)	reg_tmr_capt(idx) = cyc
-
-#define TIMER_STATE_CLEAR(idx) 			reg_tmr_sta = (1 << idx)
-
-
-#define SYS_TIMER_INIT()				do{	\
-											reg_irq_src = FLD_IRQ_SYSTEM_TIMER;				\
-											reg_system_tick_mode |= FLD_SYSTEM_TICK_IRQ_EN;	\
-											reg_irq_mask &= ~(u32)FLD_IRQ_SYSTEM_TIMER;		\
-										}while(0)
-
-#define SYS_TIMER_START()				do{	\
-											reg_irq_mask |= FLD_IRQ_SYSTEM_TIMER;			\
-										}while(0)
-
-#define SYS_TIMER_STOP()				do{	\
-											reg_irq_mask &= ~(u32)FLD_IRQ_SYSTEM_TIMER;		\
-										}while(0)
-
-#define SYS_TIMER_INTERVAL_SET(cyc)		do{	\
-											reg_system_tick_irq = cyc;	\
-										}while(0)
-
-#define SYS_TIMER_STATE_CLEAR()
-
-
-#endif	/* CLOCK_H */
+/**
+ * @brief   	This function serves to kick external crystal.
+ * @param[in]   times - the frequency of being kicked by pwm.
+ * @return  	none.
+ */
+void pwm_kick_32k_pad_times(unsigned int times);

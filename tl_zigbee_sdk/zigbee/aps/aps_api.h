@@ -1,22 +1,46 @@
 /********************************************************************************************************
- * @file     aps_api.h
+ * @file	aps_api.h
  *
- * @brief    header file for APIs of the APS layer
+ * @brief	This is the header file for aps_api
  *
- * @author
- * @date     May. 27, 2017
+ * @author	Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) 2017, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *			 The information contained herein is confidential and proprietary property of Telink
- * 		     Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *			 of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *			 Co., Ltd. and the licensee in separate contract or the terms described here-in.
- *           This heading MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- * 			 Licensees are granted free, non-transferable use of the information in this
- *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
 #ifndef APS_API_H
@@ -314,6 +338,19 @@ typedef struct{
 #define APS_BIND_DST_ADDR_GROUP 0
 #define APS_BIND_DST_ADDR_LONG  1
 
+typedef struct{
+	aps_address_t 		aps_addr;
+	aps_dst_addr_mode	dst_addr_mode;
+}bind_dst_list;
+
+typedef struct{
+	u8 *txData;
+	u8 txCnt;
+	u8 totalCnt;
+	u8 resv[2];
+	bind_dst_list list[APS_BINDING_TABLE_NUM];
+}bind_dst_list_tbl;
+
 //APS bind source table struct
 typedef struct{
 	u16 profile_id; // profile id
@@ -393,6 +430,8 @@ extern u8 APS_MAX_WINDOW_SIZE;
 extern u8 APS_FRAGMEMT_PAYLOAD_SIZE;
 extern u8 APS_BINDING_TABLE_SIZE;
 extern u8 APS_GROUP_TABLE_SIZE;
+extern u8 APS_MAX_FRAME_RETRIES;
+extern u8 APS_ACK_EXPIRY;
 extern aps_binding_table_t aps_binding_tbl;
 extern aps_group_tbl_ent_t aps_group_tbl[];
 extern aps_pib_attributes_t aps_ib;
@@ -439,6 +478,8 @@ aps_status_t aps_me_bind_req(aps_me_bind_req_t *amr);
 
 aps_status_t aps_me_unbind_req(aps_me_unbind_req_t *amr);
 
+aps_status_t aps_search_dst_from_bind_tbl(aps_data_req_t *apsreq, bind_dst_list_tbl *bindList);
+
 /***********************************************************************//**
  * @brief   get binding table number
  *
@@ -448,6 +489,36 @@ aps_status_t aps_me_unbind_req(aps_me_unbind_req_t *amr);
  *
  **************************************************************************/
 u8 aps_bindingTblNum(void);
+
+/***********************************************************************//**
+ * @brief   delete bind information searched by destional address
+ *
+ * @param dst_addr_ref:idx in address map
+ *
+ * @return
+ *
+ **************************************************************************/
+void aps_delete_bind_by_dst(u16 dst_addr_ref);
+
+/***********************************************************************//**
+ * @brief   group table initialization(restore th table from NV)
+ *
+ * @param	none
+ *
+ * @return	none
+ *
+ **************************************************************************/
+u8 aps_groupTblNvInit(void);
+
+/***********************************************************************//**
+ * @brief   clear group table
+ *
+ * @param	none
+ *
+ * @return	none
+ *
+ **************************************************************************/
+void aps_groupTblReset(void);
 
 /***********************************************************************//**
  * @brief   send a group add request command
@@ -514,6 +585,16 @@ aps_status_t aps_me_group_delete_all_req(u8 ep);
 u8 aps_group_entry_num_get(void);
 
 /***********************************************************************//**
+ * @brief   set global group count according to the group table
+ *
+ * @param	None
+ *
+ * @return	none
+ *
+ **************************************************************************/
+void aps_init_group_num_set(void);
+
+/***********************************************************************//**
  * @brief   get the group entry depend on the group_addr
  *
  * @param	group_addr the group address
@@ -522,6 +603,18 @@ u8 aps_group_entry_num_get(void);
  *
  **************************************************************************/
 aps_group_tbl_ent_t *aps_group_search_by_addr(u16 group_addr);
+
+/***********************************************************************//**
+ * @brief   get the endpoint infomation according to the group address
+ *
+ * @param	group_addr the group address
+ *
+ * @epNum   endpoint number in this group address
+ *
+ * @return	the list to the endpoint information
+ *
+ **************************************************************************/
+u8 *aps_group_ep_info_get(u16 group_addr, u8 *epNum);
 
 /***********************************************************************//**
  * @brief   get the entry of the group table

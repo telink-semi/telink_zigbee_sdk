@@ -1,25 +1,48 @@
 /********************************************************************************************************
- * @file     sampleSwitch.c
+ * @file	sampleSwitch.c
  *
- * @brief    HA end device
+ * @brief	This is the source file for sampleSwitch
  *
- * @author
- * @date     Dec. 1, 2016
+ * @author	Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) 2016, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *			 The information contained herein is confidential and proprietary property of Telink
- * 		     Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *			 of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *			 Co., Ltd. and the licensee in separate contract or the terms described here-in.
- *           This heading MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- * 			 Licensees are granted free, non-transferable use of the information in this
- *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
-
 #if (__PROJECT_TL_SWITCH_8278__)
 
 /**********************************************************************
@@ -32,9 +55,6 @@
 #include "ota.h"
 #include "sampleSwitch.h"
 #include "app_ui.h"
-#if PM_ENABLE
-#include "pm_interface.h"
-#endif
 #if ZBHCI_EN
 #include "zbhci.h"
 #endif
@@ -78,6 +98,7 @@ const zdo_appIndCb_t appCbLst = {
 	NULL,//nwk update ind cb
 	NULL,//permit join ind cb
 	NULL,//nlme sync cnf cb
+	NULL,//tc join ind cb
 };
 
 
@@ -120,7 +141,7 @@ bdb_commissionSetting_t g_bdbCommissionSetting = {
 /**
  *  @brief Definition for wakeup source and level for PM
  */
-pm_pinCfg_t g_switchPmCfg[] = {
+drv_pm_pinCfg_t g_switchPmCfg[] = {
 	{
 		BUTTON1,
 		PM_WAKEUP_LEVEL
@@ -220,9 +241,9 @@ void app_task(void)
 		if(g_switchAppCtx.restartLoopTimes++ >= KEY_PRESSED_CHECK_TIMES && !g_switchAppCtx.keyPressed){
 #if INTERLEAVE_SLEEP_MODE
 			u32 sleepMs = 2 * 60 * 1000;
-			pm_interleaveSleepEnter(PLATFORM_WAKEUP_TIMER | PLATFORM_WAKEUP_PAD, sleepMs);
+			drv_pm_interleaveSleepEnter(PM_WAKEUP_SRC_TIMER | PM_WAKEUP_SRC_PAD, sleepMs);
 #else
-			pm_deepSleepEnter(PLATFORM_WAKEUP_TIMER | PLATFORM_WAKEUP_PAD, zb_getPollRate());
+			drv_pm_deepSleepEnter(PM_WAKEUP_SRC_TIMER | PM_WAKEUP_SRC_PAD, zb_getPollRate());
 #endif
 		}
 #endif
@@ -241,11 +262,11 @@ static void sampleSwitchSysException(void)
  *
  * @brief   User level initialization code.
  *
- * @param   None
+ * @param   isRetention - if it is waking up with ram retention.
  *
  * @return  None
  */
-void user_init(void)
+void user_init(bool isRetention)
 {
 	/* Initialize LEDs*/
 	led_init();
@@ -259,21 +280,28 @@ void user_init(void)
 #endif
 
 #if PM_ENABLE
-	pm_wakeupPinConfig(g_switchPmCfg, sizeof(g_switchPmCfg)/sizeof(pm_pinCfg_t));
+	drv_pm_wakeupPinConfig(g_switchPmCfg, sizeof(g_switchPmCfg)/sizeof(drv_pm_pinCfg_t));
 #endif
 
-	if(pmParam.is_pad_wakeup){
+	if(pm_is_padWakeup()){
 		g_switchAppCtx.restartLoopTimes = 0;
 	}else{
 		g_switchAppCtx.restartLoopTimes = KEY_PRESSED_CHECK_TIMES;
 	}
 
-	if(pmParam.back_mode == BACK_FROM_REPOWER || pmParam.back_mode == BACK_FROM_DEEP){
+	if(!isRetention){
+#if PM_ENABLE
+		PM_CLOCK_INIT();
+#endif
+
 		/* Initialize Stack */
 		stack_init();
 
 		/* Initialize user application */
 		user_app_init();
+
+		/* Register except handler for test */
+		sys_exceptHandlerRegister(sampleSwitchSysException);
 
 		/* User's Task */
 #if ZBHCI_EN
@@ -281,21 +309,18 @@ void user_init(void)
 #endif
 		ev_on_poll(EV_POLL_IDLE, app_task);
 
-		/* read the pre-insatll code in NV, */
+		/* Load the pre-install code from flash */
 		zb_pre_install_code_load(&g_switchAppCtx.linkKey);
 
 		bdb_findBindMatchClusterSet(FIND_AND_BIND_CLUSTER_NUM, bdb_findBindClusterList);
 
 		/* Initialize BDB */
-		u8 repower = deep_sleep_flag_get() ? 0 : 1;
-
+		u8 repower = drv_pm_deepSleep_flag_get() ? 0 : 1;
 		bdb_init((af_simple_descriptor_t *)&sampleSwitch_simpleDesc, &g_bdbCommissionSetting, &g_zbDemoBdbCb, repower);
 	}else{
+		/* Re-config phy when system recovery from deep sleep with retention */
 		mac_phyReconfig();
 	}
-
-	/* Register except handler for test */
-	sys_exceptHandlerRegister(sampleSwitchSysException);
 
 #if INTERLEAVE_SLEEP_MODE
 	if(!zb_getPollRate() && zb_isDeviceJoinedNwk()){

@@ -3,34 +3,34 @@
  *
  * @brief	This is the header file for B91
  *
- * @author	D.M.H
+ * @author	Driver Group
  * @date	2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
- *          
+ *
  *          Redistribution and use in source and binary forms, with or without
  *          modification, are permitted provided that the following conditions are met:
- *          
+ *
  *              1. Redistributions of source code must retain the above copyright
  *              notice, this list of conditions and the following disclaimer.
- *          
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions 
- *              in binary form must reproduce the above copyright notice, this list of 
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
  *              conditions and the following disclaimer in the documentation and/or other
  *              materials provided with the distribution.
- *          
- *              3. Neither the name of TELINK, nor the names of its contributors may be 
- *              used to endorse or promote products derived from this software without 
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
  *              specific prior written permission.
- *          
+ *
  *              4. This software, with or without modification, must only be used with a
  *              TELINK integrated circuit. All other usages are subject to written permission
  *              from TELINK and different commercial license may apply.
  *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or 
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
  *              relating to such deletion(s), modification(s) or alteration(s).
- *         
+ *
  *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -41,7 +41,7 @@
  *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *         
+ *
  *******************************************************************************************************/
 /**	@page PLIC
  *
@@ -57,8 +57,9 @@
 #ifndef  INTERRUPT_H
 #define  INTERRUPT_H
 #include "core.h"
-#include "bit.h"
+
 #include "reg_include/register_b91.h"
+#include "compiler.h"
 
 typedef struct
 {
@@ -136,7 +137,7 @@ typedef enum{
 } irq_source_e;
 
 typedef enum{
-	IRQ_PRI_LEV0,
+	IRQ_PRI_LEV0,//Never interrupt
 	IRQ_PRI_LEV1,
 	IRQ_PRI_LEV2,
 	IRQ_PRI_LEV3,
@@ -239,11 +240,10 @@ static inline void plic_interrupt_complete(irq_source_e  src)
 }
 
 /**
- * @brief    This function serves to claim  interrupt source.
- * @param[in]  src - interrupt source.
- * @return  none
+ * @brief    This function serves to claim  interrupt.
+ * @return   it return the source id which interrupted in irq_source_e enum .
  */
-static inline  unsigned int plic_interrupt_claim(irq_source_e  src)
+static inline  unsigned int plic_interrupt_claim(void)
 {
 	return reg_irq_done;
 }

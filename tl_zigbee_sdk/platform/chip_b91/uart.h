@@ -3,34 +3,34 @@
  *
  * @brief	This is the header file for B91
  *
- * @author	D.M.H / B.Y
+ * @author	Driver Group
  * @date	2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
- *          
+ *
  *          Redistribution and use in source and binary forms, with or without
  *          modification, are permitted provided that the following conditions are met:
- *          
+ *
  *              1. Redistributions of source code must retain the above copyright
  *              notice, this list of conditions and the following disclaimer.
- *          
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions 
- *              in binary form must reproduce the above copyright notice, this list of 
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
  *              conditions and the following disclaimer in the documentation and/or other
  *              materials provided with the distribution.
- *          
- *              3. Neither the name of TELINK, nor the names of its contributors may be 
- *              used to endorse or promote products derived from this software without 
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
  *              specific prior written permission.
- *          
+ *
  *              4. This software, with or without modification, must only be used with a
  *              TELINK integrated circuit. All other usages are subject to written permission
  *              from TELINK and different commercial license may apply.
  *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or 
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
  *              relating to such deletion(s), modification(s) or alteration(s).
- *         
+ *
  *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -41,7 +41,7 @@
  *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *         
+ *
  *******************************************************************************************************/
 /**	@page UART
  *
@@ -63,6 +63,8 @@
 
 extern unsigned char uart_rx_byte_index[2];
 extern unsigned char uart_tx_byte_index[2];
+
+#define uart_rtx_pin_tx_trig(uart_num)  uart_clr_tx_done(uart_num)
 
 
 /**********************************************************************************************************************
@@ -174,16 +176,18 @@ typedef enum{
 }uart_rx_pin_e;
 
 /**
- *  @brief  Define UART IRQ MASK
+ *  @brief  Define UART IRQ MASK.The enumeration variable is just a index, and actually needs to be operated registers behind.
  */
 typedef enum{
-	UART_RX_IRQ_MASK = BIT(6),
-	UART_TX_IRQ_MASK = BIT(7),
-
-	UART_RXDONE_MASK = BIT(2) | BIT(8),
-	UART_TXDONE_MASK = BIT(6) | BIT(8),
-	UART_ERR_IRQ_MASK = BIT(7) | BIT(8),
+	UART_RX_IRQ_MASK  = BIT(0),//reg_uart_ctrl0(uart_num)       BIT(6)
+	UART_TX_IRQ_MASK  = BIT(1),//reg_uart_ctrl0(uart_num)       BIT(7)
+	UART_RXDONE_MASK  = BIT(2),//reg_uart_rx_timeout1(uart_num) BIT(2)
+	UART_TXDONE_MASK  = BIT(3),//reg_uart_rx_timeout1(uart_num) BIT(6)
+	UART_ERR_IRQ_MASK = BIT(4),//reg_uart_rx_timeout1(uart_num) BIT(7)
 }uart_irq_mask_e;
+
+
+
 
 /**
  *  @brief  Define UART IRQ BIT STATUS FOR GET
@@ -308,12 +312,10 @@ void uart_set_dma_rx_timeout(uart_num_e uart_num,unsigned char bwpc, unsigned ch
 
 /**
  * @brief     This function serves to config the number level setting the irq bit of status register.
- *            If the cnt register value(0x14008c[0,3]) larger or equal than the value of 0x140089[0,3].
- *            it will set the irq bit of status register 0x14008d, ie 0x14008d[3].
  * @param[in] uart_num - UART0 or UART1.
  * @param[in] rx_level - receive level value. ie 0x140089[0,3].
  * @return    none
- */ 
+ */
 static inline void uart_rx_irq_trig_level(uart_num_e uart_num,unsigned char rx_level)
 {
 	reg_uart_ctrl3(uart_num) = (reg_uart_ctrl3(uart_num) & (~FLD_UART_RX_IRQ_TRIQ_LEV)) | (rx_level & 0x0f);
@@ -321,8 +323,6 @@ static inline void uart_rx_irq_trig_level(uart_num_e uart_num,unsigned char rx_l
 
 /**
  * @brief     This function serves to config the number level setting the irq bit of status register.
- *            If the cnt register value(0x14008c[4,7]) less or equal than the value of 0x140089[4,7].
- *            it will set the irq bit of status register 0x14008d, ie 0x14008d[3].
  * @param[in] uart_num - UART0 or UART1.
  * @param[in] tx_level - transmit level value.ie 0x140089[4,7].
  * @return    none
@@ -334,8 +334,6 @@ static inline void uart_tx_irq_trig_level(uart_num_e uart_num,unsigned char tx_l
 
 /**
  * @brief     This function serves to send data by byte with not DMA method.
- *            variable uart_TxIndex,it must cycle the four registers 0x14080 0x14081 0x14082 0x14083 for the design of SOC.
- *            so we need variable to remember the index.
  * @param[in] uart_num - UART0 or UART1.
  * @param[in] tx_data  - the data to be send.
  * @return    none
@@ -403,13 +401,22 @@ void uart_set_rts_pin(uart_rts_pin_e rts_pin);
 void uart_set_pin(uart_tx_pin_e tx_pin,uart_rx_pin_e rx_pin);
 
 /**
- * @brief     	This function serves to send data by DMA, this  function tell the DMA to get data from the RAM and start.
+* @brief      This function serves to select pin for UART module.
+* @param[in]  rx_pin  - the pin serves to send and receive data.
+* @return     none
+*/
+void uart_set_rtx_pin(uart_rx_pin_e rx_pin);
+
+
+/**
+ * @brief     	This function serves to send data by DMA, this function tell the DMA to get data from the RAM and start.
  * @param[in]  	uart_num - UART0 or UART1.
  * @param[in] 	addr     - pointer to the buffer containing data need to send.
- * @param[in] 	len      - DMA transmission length.
- * @return      1
- */ 
-volatile unsigned char uart_send_dma(uart_num_e uart_num, unsigned char * addr, unsigned char len );
+ * @param[in] 	len      - DMA transmission length.The maximum transmission length of DMA is 0xFFFFFC bytes, so dont'n over this length.
+ * @return      1  dma start send.
+ *              0  the length is error.
+ */
+unsigned char uart_send_dma(uart_num_e uart_num, unsigned char * addr, unsigned int len );
 
 /**
 * @brief     This function serves to send data with not DMA method.
@@ -418,20 +425,21 @@ volatile unsigned char uart_send_dma(uart_num_e uart_num, unsigned char * addr, 
 * @param[in] len      - NDMA transmission length.
 * @return    1
 */
-volatile unsigned char uart_send(uart_num_e uart_num, unsigned char * addr, unsigned char len );
+unsigned char uart_send(uart_num_e uart_num, unsigned char * addr, unsigned char len );
 
 /**
  * @brief     	This function serves to receive data function by DMA, this  function tell the DMA to get data from the uart data fifo.
  * @param[in]  	uart_num - UART0 or UART1.
  * @param[in] 	addr     - pointer to the buffer  receive data.
- * @param[in]   rev_size - the receive length of DMA
+ * @param[in]   rev_size - the receive length of DMA.The maximum transmission length of DMA is 0xFFFFFC bytes, so dont'n over this length.
  * @note        The DMA version of A0  has some limitians.
  *              1:The receive length should be greater or equal to the data you want to receive,then the data won't be lost.
  *              2:You have to estimate the data-length that you want to receive.If the data length you set isn't the multiple
  *              of 4(the DMA carry 4-byte one time),like 5,it will carry 8 byte,while the last 3-byte data is random.
+ *              The DMA version of A1 can receive any length of data,the rev_size is useless.
  * @return    	none
  */
-extern void uart_receive_dma(uart_num_e uart_num, unsigned char * addr,unsigned char rev_size);
+extern void uart_receive_dma(uart_num_e uart_num, unsigned char * addr,unsigned int rev_size);
 
 /**
   * @brief     This function serves to set uart tx_dam channel and config dma tx default.
@@ -457,13 +465,14 @@ extern void uart_set_rx_dma_config(uart_num_e uart_num, dma_chn_e chn);
  */
 static inline void uart_set_irq_mask(uart_num_e uart_num,uart_irq_mask_e mask)
 {
-	if((mask == UART_RX_IRQ_MASK) || (mask == UART_TX_IRQ_MASK))
+	if((mask & UART_RX_IRQ_MASK) || (mask & UART_TX_IRQ_MASK))
 	{
-		reg_uart_ctrl0(uart_num) |= (mask) ;
+		reg_uart_ctrl0(uart_num) |= (((mask & UART_RX_IRQ_MASK)? 1:0) << 6) | (((mask & UART_TX_IRQ_MASK)? 1:0 )<< 7);
 	}
-	else
+
+	if((mask & UART_RXDONE_MASK) || (mask & UART_TXDONE_MASK) || (mask & UART_ERR_IRQ_MASK))
 	{
-		reg_uart_rx_timeout1(uart_num) |= ((unsigned char)mask) ;
+		reg_uart_rx_timeout1(uart_num) |= (((mask & UART_RXDONE_MASK)? 1:0) << 2) | (((mask & UART_TXDONE_MASK) ? 1:0 )<< 6) | (((mask & UART_ERR_IRQ_MASK) ? 1:0 )<< 7);
 	}
 }
 
@@ -475,13 +484,12 @@ static inline void uart_set_irq_mask(uart_num_e uart_num,uart_irq_mask_e mask)
  */
 static inline void uart_clr_irq_mask(uart_num_e uart_num,uart_irq_mask_e mask)
 {
-	if((mask == UART_RX_IRQ_MASK) || (mask == UART_TX_IRQ_MASK))
+	if((mask & UART_RX_IRQ_MASK) || (mask & UART_TX_IRQ_MASK))
 	{
-		reg_uart_ctrl0(uart_num) &= ~(mask) ;
+		reg_uart_ctrl0(uart_num) &= ~((((mask & UART_RX_IRQ_MASK)? 1:0)<< 6) | (((mask & UART_TX_IRQ_MASK)? 1:0) << 7));
 	}
-	else
-	{
-		reg_uart_rx_timeout1(uart_num) &= ~((unsigned char)mask) ;
+	if((mask & UART_RXDONE_MASK) || (mask & UART_TXDONE_MASK) || (mask & UART_ERR_IRQ_MASK)){
+		reg_uart_rx_timeout1(uart_num) &= ~((((mask & UART_RXDONE_MASK)? 1:0) << 2) | (((mask & UART_TXDONE_MASK)? 1:0)<< 6) | (((mask & UART_ERR_IRQ_MASK)? 1:0) << 7));
 	}
 }
 
@@ -492,7 +500,7 @@ static inline void uart_clr_irq_mask(uart_num_e uart_num,uart_irq_mask_e mask)
  * @param[in] status   - uart irq mask.
  * @return    irq status
  */
-static inline u32  uart_get_irq_status(uart_num_e uart_num,uart_irq_status_get_e status)
+static inline unsigned int  uart_get_irq_status(uart_num_e uart_num,uart_irq_status_get_e status)
 {
 	if(status == UART_RX_ERR){
 		return (reg_uart_status1(uart_num) & (status));
@@ -562,7 +570,7 @@ static inline void uart_set_cts_dis(uart_num_e uart_num)
   * @param[in] cts_parity - when CTS's input equals to select, tx will be stopped.
   * @return    none
   */
-extern void uart_cts_config(uart_num_e uart_num,uart_cts_pin_e cts_pin,u8 cts_parity);
+extern void uart_cts_config(uart_num_e uart_num,uart_cts_pin_e cts_pin,unsigned char cts_parity);
 
 /**
  * @brief     This function serves to configure UART hardware flow. Configure RTS.
@@ -572,7 +580,7 @@ extern void uart_cts_config(uart_num_e uart_num,uart_cts_pin_e cts_pin,u8 cts_pa
  * @param[in] auto_mode_en - set the mode of RTS(auto or manual).
  * @return    none
  */
-extern void uart_rts_config(uart_num_e uart_num,uart_rts_pin_e rts_pin,u8 rts_parity,u8 auto_mode_en);
+extern void uart_rts_config(uart_num_e uart_num,uart_rts_pin_e rts_pin,unsigned char rts_parity,unsigned char auto_mode_en);
 
 /**
  * @brief     This function serves to set uart rts trig lexel in auto mode.
@@ -580,7 +588,7 @@ extern void uart_rts_config(uart_num_e uart_num,uart_rts_pin_e rts_pin,u8 rts_pa
  * @param[in] level    - threshold of trig RTS pin's level toggle(only for auto mode).
  * @return    none
  */
-static inline void uart_rts_trig_level_auto_mode(uart_num_e uart_num,u8 level)
+static inline void uart_rts_trig_level_auto_mode(uart_num_e uart_num,unsigned char level)
 {
     reg_uart_ctrl2(uart_num) &= (~FLD_UART_RTS_TRIQ_LEV);
     reg_uart_ctrl2(uart_num) |= (level & FLD_UART_RTS_TRIQ_LEV);
@@ -629,5 +637,24 @@ static inline void uart_clr_tx_index(uart_num_e uart_num)
 	uart_tx_byte_index[uart_num]=0;
 }
 
+/**
+ * @brief     This function is used to clr uart tx-done,which means set tx-done to 0
+ * @param[in] uart_num
+ * @return    none.
+ */
+static inline void uart_clr_tx_done(uart_num_e uart_num)
+{
+	reg_uart_state(uart_num) |=BIT(7);
+}
+
+/**
+ * @brief      	This function is used to enable the rtx function of .
+ * @param[in]  	chn - UART0 or UART1.
+ * @return     	none.
+ */
+static inline void uart_rtx_en(uart_num_e chn)
+{
+	reg_uart_rx_timeout1(chn)|=FLD_UART_P7816_EN;
+}
 
 #endif	/* UART_H_ */

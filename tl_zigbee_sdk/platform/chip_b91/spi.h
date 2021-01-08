@@ -3,34 +3,34 @@
  *
  * @brief	This is the header file for B91
  *
- * @author	D.M.H / J.C.F
+ * @author	Driver Group
  * @date	2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
- *          
+ *
  *          Redistribution and use in source and binary forms, with or without
  *          modification, are permitted provided that the following conditions are met:
- *          
+ *
  *              1. Redistributions of source code must retain the above copyright
  *              notice, this list of conditions and the following disclaimer.
- *          
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions 
- *              in binary form must reproduce the above copyright notice, this list of 
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
  *              conditions and the following disclaimer in the documentation and/or other
  *              materials provided with the distribution.
- *          
- *              3. Neither the name of TELINK, nor the names of its contributors may be 
- *              used to endorse or promote products derived from this software without 
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
  *              specific prior written permission.
- *          
+ *
  *              4. This software, with or without modification, must only be used with a
  *              TELINK integrated circuit. All other usages are subject to written permission
  *              from TELINK and different commercial license may apply.
  *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or 
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
  *              relating to such deletion(s), modification(s) or alteration(s).
- *         
+ *
  *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -41,7 +41,7 @@
  *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *         
+ *
  *******************************************************************************************************/
 #ifndef SPI_H
 #define SPI_H
@@ -53,7 +53,7 @@
  *
  *	Introduction
  *	===============
- *	B91 supports two spi 
+ *	B91 supports two spi
  *
  *	API Reference
  *	===============
@@ -110,13 +110,15 @@ typedef enum{
 
 typedef enum{
 	PSPI_SINGLE = 0,
-    PSPI_DUAL 	= 1 ,
+    PSPI_DUAL 	= 1,
+	PSPI_3LINE	= 3
 } pspi_single_dual_mode_e;
 
 typedef enum{
 	HSPI_SINGLE = 0,
-    HSPI_DUAL	= 1 ,
+    HSPI_DUAL	= 1,
     HSPI_QUAD 	= 2,
+	HSPI_3LINE	= 3
 } hspi_single_dual_quad_mode_e;
 
 
@@ -154,17 +156,17 @@ typedef enum{
 
 typedef struct{
 	hspi_single_dual_quad_mode_e  hspi_io_mode;//set spi interface mode
-	u8 hspi_dummy_cnt;//set dummy cnt if tans_mode have dummy .
-	u8 hspi_cmd_en;//enable cmd phase
-	u8 hspi_addr_en;//enable address phase
-	u8 hspi_addr_len;//enable address phase
-	u8 hspi_cmd_fmt_en;//if cmd_en enable cmd fmt will follow the interface (dual/quad)
-	u8 hspi_addr_fmt_en;//if addr_en enable addr fmt will follow the interface (dual/quad)
+	unsigned char hspi_dummy_cnt;//set dummy cnt if tans_mode have dummy .
+	unsigned char hspi_cmd_en;//enable cmd phase
+	unsigned char hspi_addr_en;//enable address phase
+	unsigned char hspi_addr_len;//enable address phase
+	unsigned char hspi_cmd_fmt_en;//if cmd_en enable cmd fmt will follow the interface (dual/quad)
+	unsigned char hspi_addr_fmt_en;//if addr_en enable addr fmt will follow the interface (dual/quad)
 }hspi_config_t;
 
 typedef struct{
 	pspi_single_dual_mode_e  pspi_io_mode;//set spi interface mode
-	u8 pspi_dummy_cnt;//set dummy cnt if tans_mode have dummy .
+	unsigned char pspi_dummy_cnt;//set dummy cnt if tans_mode have dummy .
     _Bool  pspi_cmd_en;//enable cmd phase
 }pspi_config_t;
 
@@ -393,7 +395,7 @@ static inline unsigned char spi_get_rxfifo_num(spi_sel_e spi_sel)
  * @param[in] 	cnt 		- rx amount of data.
  * @return 		none
  */
-static inline void spi_rx_cnt(spi_sel_e spi_sel, u32 cnt)
+static inline void spi_rx_cnt(spi_sel_e spi_sel, unsigned int cnt)
 {
 	reg_spi_rx_cnt2(spi_sel) = ((cnt - 1) >> 16) & 0xff;
 	reg_spi_rx_cnt1(spi_sel) = ((cnt - 1) >> 8) & 0xff;
@@ -407,7 +409,7 @@ static inline void spi_rx_cnt(spi_sel_e spi_sel, u32 cnt)
  * @param[in] 	cnt 		- tx amount of data.
  * @return 		none
  */
-static inline void spi_tx_cnt(spi_sel_e spi_sel, u32 cnt)
+static inline void spi_tx_cnt(spi_sel_e spi_sel, unsigned int cnt)
 {
 	reg_spi_tx_cnt2(spi_sel) = ((cnt - 1) >> 16) & 0xff;
 	reg_spi_tx_cnt1(spi_sel) = ((cnt - 1) >> 8) & 0xff;
@@ -441,7 +443,7 @@ static inline void spi_rx_fifo_clr(spi_sel_e spi_sel)
  * @param[in] 	cmd 		- command content.
  * @return 		none
  */
-static inline void spi_set_cmd(spi_sel_e spi_sel, u8 cmd)
+static inline void spi_set_cmd(spi_sel_e spi_sel, unsigned char cmd)
 {
 	reg_spi_trans1(spi_sel) = cmd;
 }
@@ -620,7 +622,7 @@ static inline void spi_rx_dma_dis(spi_sel_e spi_sel)
  * @param[in] 	wr_cmd 		- write command content.
  * @return 		none
  */
-static inline void hspi_xip_set_wr_cmd(u8 wr_cmd)
+static inline void hspi_xip_set_wr_cmd(unsigned char wr_cmd)
 {
 	reg_hspi_xip_wr_cmd	= wr_cmd;
 }
@@ -630,7 +632,7 @@ static inline void hspi_xip_set_wr_cmd(u8 wr_cmd)
  * @param[in] 	rd_cmd		- read command content.
  * @return 		none
  */
-static inline void hspi_xip_set_rd_cmd(u8 rd_cmd)
+static inline void hspi_xip_set_rd_cmd(unsigned char rd_cmd)
 {
 
 	reg_hspi_xip_rd_cmd	= rd_cmd;
@@ -641,7 +643,7 @@ static inline void hspi_xip_set_rd_cmd(u8 rd_cmd)
  * @param[in] 	addr_offset 	- the offset of data.
  * @return 		none
  */
-static inline void hspi_xip_addr_offset(u32 addr_offset)
+static inline void hspi_xip_addr_offset(unsigned int addr_offset)
 {
     reg_hspi_xip_addr_offset0 = addr_offset & 0xff;
 	reg_hspi_xip_addr_offset1 = (addr_offset >> 8) & 0xff;
@@ -654,7 +656,7 @@ static inline void hspi_xip_addr_offset(u32 addr_offset)
  * @param[in] 	rd_mode 	- read mode in enum hspi_tans_mode_e.
  * @return  	none
  */
-static inline void hspi_xip_read_transmode(u8 rd_mode)
+static inline void hspi_xip_read_transmode(unsigned char rd_mode)
 {
 	reg_hspi_xip_trans_mode	&= (~FLD_HSPI_XIP_RD_TRANS_MODE);
 	reg_hspi_xip_trans_mode |= (rd_mode & 0xf) << 4;
@@ -665,7 +667,7 @@ static inline void hspi_xip_read_transmode(u8 rd_mode)
  * @param[in] 	wr_mode 	- write mode in enum hspi_tans_mode_e.
  * @return  	none
  */
-static inline void hspi_xip_write_transmode(u8 wr_mode)
+static inline void hspi_xip_write_transmode(unsigned char wr_mode)
 {
 	reg_hspi_xip_trans_mode	&= (~FLD_HSPI_XIP_WR_TRANS_MODE);
 	reg_hspi_xip_trans_mode |= wr_mode & FLD_HSPI_XIP_WR_TRANS_MODE;
@@ -694,7 +696,7 @@ static inline void hspi_addr_dis(void)
  * @param[in] 	len 	- 2'b00:1bye  2'b01:2bytes  2'b10:3bytes  2'b11:4bytes
  * @return 		none
  */
-static inline void hspi_set_addr_len(u8 len)
+static inline void hspi_set_addr_len(unsigned char len)
 {
 	reg_hspi_xip_ctrl |= ((len - 1) & 0x3) << 2;
 }
@@ -767,7 +769,7 @@ static inline void hspi_xip_timeout_mode_dis(void)
  * @param[in] 	cnt 	- xip timeout cnt.
  * @return 		none
  */
-static inline void hspi_xip_timeout_cnt(u8 cnt)
+static inline void hspi_xip_timeout_cnt(unsigned char cnt)
 {
 	reg_hspi_xip_timeout_cnt = cnt & 0xff;
 }
@@ -777,7 +779,7 @@ static inline void hspi_xip_timeout_cnt(u8 cnt)
  * @param[in] 	page_size_i 	- page boundary 2^page_size_i bytes.
  * @return 		none
  */
-static inline void hspi_xip_page_size(u8 page_size_i)
+static inline void hspi_xip_page_size(unsigned char page_size_i)
 {
 	reg_hspi_page_size = page_size_i;
 }
@@ -807,7 +809,7 @@ static inline void spi_slave_ready_dis(spi_sel_e spi_sel)
  * @param[in] 	spi_sel 	- the spi module.
  * @return  	cmd transferd by master.
  */
-static inline u8 spi_slave_get_cmd(spi_sel_e spi_sel)
+static inline unsigned char spi_slave_get_cmd(spi_sel_e spi_sel)
 {
 	return reg_spi_trans1(spi_sel);
 }
@@ -819,7 +821,7 @@ static inline u8 spi_slave_get_cmd(spi_sel_e spi_sel)
  * @param[in]  	cnt 	- the interrupt trigger level.
  * @return   	none
  */
-static inline void spi_rx_tx_irq_trig_cnt(spi_sel_e spi_sel, u8 cnt)
+static inline void spi_rx_tx_irq_trig_cnt(spi_sel_e spi_sel, unsigned char cnt)
 {
 	BM_CLR(reg_spi_status(spi_sel), FLD_HSPI_FIFO_THRES);
 	reg_spi_status(spi_sel) |= ((cnt & 7) << 4);
@@ -831,7 +833,7 @@ static inline void spi_rx_tx_irq_trig_cnt(spi_sel_e spi_sel, u8 cnt)
  * @param[in] 	status 	- the irq status.
  * @return    - the value of status is be set.
  */
-static inline u8 spi_get_irq_status(spi_sel_e spi_sel, spi_irq_status_e status)
+static inline unsigned char spi_get_irq_status(spi_sel_e spi_sel,spi_irq_status_e status )
 {
 	return reg_spi_irq_state(spi_sel)&status;
 }
@@ -935,6 +937,46 @@ void hspi_set_pin(hspi_pin_config_t *config);
 void pspi_set_pin(pspi_pin_config_t *config);
 
 /**
+ * @brief     	This function enable hspi csn pin.
+ * @param[in] 	pin - the csn pin.
+ * @return 		none
+ */
+void hspi_cs_pin_en(hspi_csn_pin_def_e pin);
+
+/**
+ * @brief     	This function disable hspi csn pin.
+ * @param[in] 	pin - the csn pin.
+ * @return 		none
+ */
+void hspi_cs_pin_dis(hspi_csn_pin_def_e pin);
+
+/**
+ * @brief     	This function change hspi csn pin.
+ * @param[in] 	next_csn_pin - the next csn pin.
+ * @return 		next_csn_pin - the next csn pin.
+ */
+hspi_csn_pin_def_e hspi_change_csn_pin(hspi_csn_pin_def_e next_csn_pin);
+/**
+ * @brief     	This function enable pspi csn pin.
+ * @param[in] 	pin - the csn pin.
+ * @return 		none
+ */
+void pspi_cs_pin_en(pspi_csn_pin_def_e pin);
+
+/**
+ * @brief     	This function disable pspi csn pin.
+ * @param[in] 	pin - the csn pin.
+ * @return 		none
+ */
+void pspi_cs_pin_dis(pspi_csn_pin_def_e pin);
+
+/**
+ * @brief     	This function change pspi csn pin.
+ * @param[in] 	next_csn_pin - the next csn pin.
+ * @return 		next_csn_pin - the next csn pin.
+ */
+pspi_csn_pin_def_e pspi_change_csn_pin(pspi_csn_pin_def_e next_csn_pin);
+/**
  * @brief     	This function configures the clock and working mode for SPI interface.
  * @param[in] 	spi_sel 	- the spi module.
  * @param[in] 	div_clock 	- the division factor for SPI module.
@@ -947,7 +989,7 @@ void pspi_set_pin(pspi_pin_config_t *config);
  *           	MODE3:  CPHA = 1, CPOL = 1;
  * @return  	none
  */
-void spi_master_init(spi_sel_e spi_sel, u8 div_clock, spi_mode_type_e mode);
+void spi_master_init(spi_sel_e spi_sel, unsigned char div_clock, spi_mode_type_e mode);
 
 /**
  * @brief     	This function configures the clock and working mode for SPI interface.
@@ -969,14 +1011,14 @@ void spi_slave_init(spi_sel_e spi_sel, spi_mode_type_e mode);
  * @param[in] 	dummy_cnt 	- the cnt of dummy clock.
  * @return  	none
  */
-void spi_set_dummy_cnt(spi_sel_e spi_sel, u8 dummy_cnt);
+void spi_set_dummy_cnt(spi_sel_e spi_sel, unsigned char dummy_cnt);
 
 /**
  * @brief     	This function servers to set slave address hspi only.
  * @param[in] 	addr 	- address of slave.
  * @return  	none
  */
-void hspi_set_address(u32 addr);
+void hspi_set_address(unsigned int addr);
 
 /**
  * @brief     	This function servers to set spi transfer mode.
@@ -1051,7 +1093,7 @@ void pspi_master_config_plus(pspi_config_t *config);
  * @param[in] 	len 	- write length.
  * @return    	none
  */
-void spi_write(spi_sel_e spi_sel, u8 *data, u32 len);
+void spi_write(spi_sel_e spi_sel, unsigned char *data, unsigned int len);
 
 /**
  * @brief     	This function servers to read hspi fifo.
@@ -1060,7 +1102,7 @@ void spi_write(spi_sel_e spi_sel, u8 *data, u32 len);
  * @param[in] 	len 	- write length.
  * @return    	none
  */
-void spi_read(spi_sel_e spi_sel, u8 *data, u32 len);
+void spi_read(spi_sel_e spi_sel, unsigned char *data, unsigned int len);
 
 /**
  * @brief     	This function serves to normal write data in normal.
@@ -1069,7 +1111,7 @@ void spi_read(spi_sel_e spi_sel, u8 *data, u32 len);
  * @param[in] 	len 	- write length.
  * @return  	none
  */
-void spi_master_write(spi_sel_e spi_sel, u8 *data, u32 len);
+void spi_master_write(spi_sel_e spi_sel, unsigned char *data, unsigned int len);
 
 /**
  * @brief     	This function serves to normal write and read data.
@@ -1080,7 +1122,7 @@ void spi_master_write(spi_sel_e spi_sel, u8 *data, u32 len);
  * @param[in] 	rd_len 	- read length.
  * @return  	none
  */
-void spi_master_write_read(spi_sel_e spi_sel, u8 *wr_data, u32 wr_len, u8 *rd_data, u32 rd_len);
+void spi_master_write_read(spi_sel_e spi_sel, unsigned char *wr_data, unsigned int wr_len, unsigned char *rd_data, unsigned int rd_len);
 
 /**
  * @brief     	This function serves to single/dual/quad write to the SPI slave.
@@ -1092,7 +1134,7 @@ void spi_master_write_read(spi_sel_e spi_sel, u8 *wr_data, u32 wr_len, u8 *rd_da
  * @param[in] 	wr_mode 	- write mode.dummy or not dummy.
  * @return  	none
  */
-void spi_master_write_plus(spi_sel_e spi_sel, u8 cmd, u32 addr, u8 *data, u32 data_len, spi_wr_tans_mode_e wr_mode);
+void spi_master_write_plus(spi_sel_e spi_sel, unsigned char cmd, unsigned int addr, unsigned char *data, unsigned int data_len, spi_wr_tans_mode_e wr_mode);
 
 /**
  * @brief     	This function serves to single/dual/quad  read from the SPI slave.
@@ -1104,7 +1146,7 @@ void spi_master_write_plus(spi_sel_e spi_sel, u8 cmd, u32 addr, u8 *data, u32 da
  * @param[in]  	rd_mode 	- read mode.dummy or not dummy.
  * @return   	none
  */
-void spi_master_read_plus(spi_sel_e spi_sel, u8 cmd, u32 addr, u8 *data, u32 data_len, spi_rd_tans_mode_e rd_mode);
+void spi_master_read_plus(spi_sel_e spi_sel, unsigned char cmd, unsigned int addr, unsigned char *data, unsigned int data_len, spi_rd_tans_mode_e rd_mode);
 
 /**
  * @brief      	This function serves to write address, then read data from the SPI slave.
@@ -1117,7 +1159,7 @@ void spi_master_read_plus(spi_sel_e spi_sel, u8 cmd, u32 addr, u8 *data, u32 dat
  * @param[in] 	wr_mode 	- write mode.dummy or not dummy.
  * @return   	none
  */
-void spi_master_write_read_plus(spi_sel_e spi_sel, u8 cmd, u8 *addrs, u32 addr_len, u8 *data, u32 data_len, spi_rd_tans_mode_e wr_mode);
+void spi_master_write_read_plus(spi_sel_e spi_sel, unsigned char cmd, unsigned char *addrs, unsigned int addr_len, unsigned char *data, unsigned int data_len, spi_rd_tans_mode_e wr_mode);
 
 /**
  * @brief     	This function serves to set tx_dam channel and config dma tx default.
@@ -1154,7 +1196,7 @@ void pspi_set_rx_dma_config(dma_chn_e chn);
  * @param[in]  	dst_addr 	- the address of destination.
  * @param[in]  	len 		- the length of data.
  * */
-void spi_set_dma(dma_chn_e spi_dma_chn, u32 src_addr, u32 dst_addr, u32 len);
+void spi_set_dma(dma_chn_e spi_dma_chn, unsigned int src_addr, unsigned int dst_addr, unsigned int len);
 
 
 
@@ -1165,7 +1207,7 @@ void spi_set_dma(dma_chn_e spi_dma_chn, u32 src_addr, u32 dst_addr, u32 len);
  * @param[in]  	src_addr 	- the address of source.
  * @param[in]  	len 		- the length of data.
  * */
-void spi_set_tx_dma(spi_sel_e spi_sel, u8* src_addr,u32 len);
+_attribute_ram_code_sec_  void spi_set_tx_dma(spi_sel_e spi_sel, unsigned char* src_addr,unsigned int len);
 
 
 /**
@@ -1174,7 +1216,7 @@ void spi_set_tx_dma(spi_sel_e spi_sel, u8* src_addr,u32 len);
  * @param[in]  	dst_addr 	- the address of destination.
  * @param[in]  	len 		- the length of data.
  * */
-void spi_set_rx_dma(spi_sel_e spi_sel, u8* dst_addr,u32 len);
+_attribute_ram_code_sec_ void spi_set_rx_dma(spi_sel_e spi_sel, unsigned char* dst_addr,unsigned int len);
 /**
  * @brief     	This function serves to normal write data by dma.
  * @param[in] 	spi_sel 	- the spi module.
@@ -1182,7 +1224,7 @@ void spi_set_rx_dma(spi_sel_e spi_sel, u8* dst_addr,u32 len);
  * @param[in] 	len 		- write length.
  * @return  	none
  */
-void spi_master_write_dma(spi_sel_e spi_sel, u8 *src_addr, u32 len);
+void spi_master_write_dma(spi_sel_e spi_sel, unsigned char *src_addr, unsigned int len);
 
 /**
  * @brief     	This function serves to normal write cmd and address, then read data by dma.
@@ -1193,7 +1235,7 @@ void spi_master_write_dma(spi_sel_e spi_sel, u8 *src_addr, u32 len);
  * @param[in] 	data_len 	- read length.
  * @return  	none
  */
-void spi_master_write_read_dma(spi_sel_e spi_sel, u8 *addr, u32 addr_len, u8 *data, u32 data_len);
+void spi_master_write_read_dma(spi_sel_e spi_sel, unsigned char *addr, unsigned int addr_len, unsigned char *data, unsigned int data_len);
 
 /**
  * @brief      	This function serves to single/dual/quad  write to the SPI slave by dma.
@@ -1205,7 +1247,7 @@ void spi_master_write_read_dma(spi_sel_e spi_sel, u8 *addr, u32 addr_len, u8 *da
  * @param[in]  	wr_mode 	- write mode.dummy or not dummy.
  * @return   	none
  */
-void spi_master_write_dma_plus(spi_sel_e spi_sel, u8 cmd, u32 addr, u8 *data, u32 data_len, spi_wr_tans_mode_e wr_mode);
+void spi_master_write_dma_plus(spi_sel_e spi_sel, unsigned char cmd, unsigned int addr, unsigned char *data, unsigned int data_len, spi_wr_tans_mode_e wr_mode);
 
 /**
  * @brief      	This function serves to single/dual/quad  read from the SPI slave by dma.
@@ -1217,7 +1259,7 @@ void spi_master_write_dma_plus(spi_sel_e spi_sel, u8 cmd, u32 addr, u8 *data, u3
  * @param[in]  	rd_mode 	- read mode.dummy or not dummy.
  * @return   	none
  */
-void spi_master_read_dma_plus(spi_sel_e spi_sel, u8 cmd, u32 addr, u8 *dst_addr, u32 data_len, spi_rd_tans_mode_e rd_mode);
+void spi_master_read_dma_plus(spi_sel_e spi_sel, unsigned char cmd, unsigned int addr, unsigned char *dst_addr, unsigned int data_len, spi_rd_tans_mode_e rd_mode);
 
 /**
  * @brief      	This function serves to single/dual/quad write address and read from the SPI slave by dma.
@@ -1230,7 +1272,7 @@ void spi_master_read_dma_plus(spi_sel_e spi_sel, u8 cmd, u32 addr, u8 *dst_addr,
  * @param[in]  	rd_mode 	- read mode.dummy or not dummy.
  * @return   	none
  */
-void spi_master_write_read_dma_plus(spi_sel_e spi_sel, u8 cmd, u8 *addr, u32 addr_len, u8 *rd_data, u32 rd_len, spi_rd_tans_mode_e rd_mode);
+void spi_master_write_read_dma_plus(spi_sel_e spi_sel, unsigned char cmd, unsigned char *addr, unsigned int addr_len, unsigned char *rd_data, unsigned int rd_len, spi_rd_tans_mode_e rd_mode);
 
 /**
  * @brief      	This function serves to single/dual (quad) write to the SPI slave by xip.
@@ -1241,7 +1283,7 @@ void spi_master_write_read_dma_plus(spi_sel_e spi_sel, u8 cmd, u8 *addr, u32 add
  * @param[in]  	wr_mode 	- write mode  dummy or not dummy.
  * @return   	none
  */
-void hspi_master_write_xip(u8 cmd, u32 addr_offset, u8 *data, u32 data_len, spi_wr_tans_mode_e wr_mode);
+void hspi_master_write_xip(unsigned char cmd, unsigned int addr_offset, unsigned char *data, unsigned int data_len, spi_wr_tans_mode_e wr_mode);
 
 /**
  * @brief      	This function serves to single/dual (quad) read from the SPI slave by xip.
@@ -1252,7 +1294,7 @@ void hspi_master_write_xip(u8 cmd, u32 addr_offset, u8 *data, u32 data_len, spi_
  * @param[in]  	rd_mode 	- read mode.dummy or not dummy.
  * @return   	none
  */
-void hspi_master_read_xip(u8 cmd, u32 addr_offset, u8 *data, u32 data_len, spi_rd_tans_mode_e rd_mode);
+void hspi_master_read_xip(unsigned char cmd, unsigned int addr_offset, unsigned char *data, unsigned int data_len, spi_rd_tans_mode_e rd_mode);
 
 /**
  * @brief      	This function serves to a cmd and one data write to the SPI slave by xip.
@@ -1262,7 +1304,7 @@ void hspi_master_read_xip(u8 cmd, u32 addr_offset, u8 *data, u32 data_len, spi_r
  * @param[in]  	wr_mode 	- write mode  dummy or not dummy.
  * @return   	none
  */
-void hspi_master_write_xip_cmd_data(u8 cmd, u32 addr_offset, u8 data_in, spi_wr_tans_mode_e wr_mode);
+void hspi_master_write_xip_cmd_data(unsigned char cmd, unsigned int addr_offset, unsigned char data_in, spi_wr_tans_mode_e wr_mode);
 
 #endif
 

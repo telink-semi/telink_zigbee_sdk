@@ -1,25 +1,48 @@
 /********************************************************************************************************
- * @file     zb_config.c
+ * @file	zb_config.c
  *
- * @brief	 table/buffer size configuration for zigbee stack
+ * @brief	This is the source file for zb_config
  *
- * @author
- * @date     Match. 1, 2018
+ * @author	Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) 2018, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *			 The information contained herein is confidential and proprietary property of Telink
- * 		     Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *			 of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *			 Co., Ltd. and the licensee in separate contract or the terms described here-in.
- *           This heading MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- * 			 Licensees are granted free, non-transferable use of the information in this
- *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
-
 /**********************************************************************
  * INCLUDES
  */
@@ -34,6 +57,8 @@ sys_diagnostics_t g_sysDiags;
  * Routers and end devices to join PAN with this ID
  */
 #define DEFAULT_PANID		MAC_INVALID_PANID
+u16 TL_ZB_ASSOCJOIN_PERMIT_PANID = DEFAULT_PANID;
+
 /*
  * Setting this to a value other than MAC_INVALID_PANID (0xFFFF) causes
  * Routers and end devices to filter the PAN ID when associate join a network
@@ -45,6 +70,10 @@ u16 TL_ZB_ASSOCJOIN_FILTER_PANID = FILTER_PANID;
 u8 APS_INTERFRAME_DELAY = 100;
 u8 APS_MAX_WINDOW_SIZE = 1;
 u8 APS_FRAGMEMT_PAYLOAD_SIZE = 64;
+
+//The maximum number of retries allowed after a transmission failure.
+u8 APS_MAX_FRAME_RETRIES = 3;
+u8 APS_ACK_EXPIRY = 2;//seconds
 
 /* queue size of the software timer event */
 u8 TIMER_EVENT_SIZE = TIMER_EVENT_NUM;
@@ -68,6 +97,9 @@ u32 TRANSPORT_NETWORK_KEY_WAIT_TIME = (2 * 1000 * 1000);
 
 /* the cost threshold for one hop */
 u8 NWK_COST_THRESHOLD_ONEHOP = 3;
+
+/* the cost threshold to choose next hop from neighbor table */
+u8 NWK_NEIGHBOR_SEND_OUTGOING_THRESHOLD = 4;
 
 /* address mapping table */
 u16 TL_ZB_NWK_ADDR_MAP_SIZE = TL_ZB_NWK_ADDR_MAP_NUM;
@@ -163,7 +195,6 @@ const tl_zb_mac_pib_t macPibDefault = {
 	.minBe = 5,
 #endif
 	.maxBe = 8,
-	.frameRetryNum = 3,
 	.beaconOrder = 15,
 	.superframeOrder = 0,
 	.maxCsmaBackoffs = 4,
@@ -235,21 +266,14 @@ const zdo_attrCfg_t zdoCfgAttrDefault = {
 #if ZB_ROUTER_ROLE
 /*
  * @brief:		get record entry for broadcasting record table
- *
- * @idx:		the index of the broadcasting record table
- *
- * */
+ */
 nwk_brcTransRecordEntry_t *brcTransRecordEntryGet(u8 idx){
 	return &g_brcTransTab[idx];
 }
 
-
 /*
  * @brief:		get the size of the broadcasting record table
- *
- * @idx:
- *
- * */
+ */
 u32 brcTransRecordTblSizeGet(void){
 	return (sizeof(g_brcTransTab));
 }
@@ -257,32 +281,35 @@ u32 brcTransRecordTblSizeGet(void){
 
 /*
  * @brief:		get the entry of the mapping table of the binding list
- *
- * @idx:
- *
- * */
+ */
 boundTblMapList_t *bindTblMapListGet(void){
 	return &aps_binding_tbl.BoudList[0];
 }
 
+/*
+ * @brief:		get the size of zigbee buffer
+ */
+u32 zbBufferSizeGet(void){
+	return (sizeof(g_mPool));
+}
+
+/*
+ * @brief:		get the size of the binding table
+ */
+u32 bindTblSizeGet(void){
+	return (sizeof(aps_binding_table_t));
+}
 
 /*
  * @brief:		get the size of the neighbor table
- *
- * @idx:
- *
- * */
+ */
 u32 neighborTblSizeGet(void){
 	return (sizeof(tl_zb_neighbor_entry_t));
 }
 
-
 /*
  * @brief:		get the size of the address mapping table
- *
- * @idx:
- *
- * */
+ */
 u32 addrMapTblSizeGet(void){
 	return (sizeof(tl_zb_addr_map_t));
 }

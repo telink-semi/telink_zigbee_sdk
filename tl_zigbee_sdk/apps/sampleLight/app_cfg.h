@@ -1,22 +1,46 @@
 /********************************************************************************************************
- * @file     app_config.h
+ * @file	app_cfg.h
  *
- * @brief    application configuration
+ * @brief	This is the header file for app_cfg
  *
- * @author
- * @date     Dec. 1, 2016
+ * @author	Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) 2016, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *			 The information contained herein is confidential and proprietary property of Telink
- * 		     Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *			 of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *			 Co., Ltd. and the licensee in separate contract or the terms described here-in.
- *           This heading MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- * 			 Licensees are granted free, non-transferable use of the information in this
- *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
 #pragma once
@@ -26,16 +50,9 @@
 extern "C" {
 #endif
 
-#define _USER_CONFIG_DEFINED_		1//must define this macro to make others known
 
 /**********************************************************************
- * Version configuration
- */
-#include "version_cfg.h"
-
-
-/**********************************************************************
- * Product  Information
+ * Product Information
  */
 /* Debug mode config */
 #define	UART_PRINTF_MODE			0
@@ -61,9 +78,14 @@ extern "C" {
 #define BOARD_8278_EVK				5
 #define BOARD_8278_DONGLE			6
 #define BOARD_9518_EVK				7
+#define BOARD_9518_DONGLE			8
 
 /* Board define */
-#ifdef MCU_CORE_8258
+#if defined(MCU_CORE_826x)
+	#define BOARD					BOARD_826x_DONGLE
+	/* system clock config */
+	#define CLOCK_SYS_CLOCK_HZ  	32000000
+#elif defined(MCU_CORE_8258)
 	#define BOARD					BOARD_8258_DONGLE//BOARD_8258_EVK
 	/* system clock config */
 	#define CLOCK_SYS_CLOCK_HZ  	48000000
@@ -75,10 +97,6 @@ extern "C" {
 	#define BOARD					BOARD_9518_EVK
 	/* system clock config */
 	#define CLOCK_SYS_CLOCK_HZ  	48000000
-#elif defined(MCU_CORE_826x)
-	#define BOARD					BOARD_826x_DONGLE
-	/* system clock config */
-	#define CLOCK_SYS_CLOCK_HZ  	32000000
 #else
 	#error "MCU is undefined!"
 #endif
@@ -96,6 +114,8 @@ extern "C" {
 	#include "board_8278_dongle.h"
 #elif (BOARD == BOARD_9518_EVK)
 	#include "board_9518_evk.h"
+#elif (BOARD == BOARD_9518_DONGLE)
+	#include "board_9518_dongle.h"
 #endif
 
 
@@ -129,6 +149,10 @@ extern "C" {
 
 #define AF_TEST_ENABLE								1
 
+/**********************************************************************
+ * Version configuration
+ */
+#include "version_cfg.h"
 
 /**********************************************************************
  * Stack configuration

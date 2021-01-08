@@ -1,32 +1,53 @@
 /********************************************************************************************************
- * @file     dfifo.h 
+ * @file	dfifo.h
  *
- * @brief    This is the source file for TLSR8258
+ * @brief	This is the header file for B85
  *
- * @author	 public@telink-semi.com;
- * @date     May 8, 2018
+ * @author	Driver & Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) 2018, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *           The information contained herein is confidential property of Telink
- *           Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *           of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *           Co., Ltd. and the licensee or the terms described here-in. This heading
- *           MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- *           Licensees are granted free, non-transferable use of the information in this
- *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
- * @par      History:
- * 			 1.initial release(DEC. 26 2018)
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
  *
- * @version  A001
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
 #ifndef 	DFIFO_H
 #define 	DFIFO_H
 
 #include "register.h"
+
 
 /**
  * @brief      This function performs to enable audio input of DFIFO2.
@@ -54,7 +75,7 @@ static inline void dfifo_disable_dfifo2(void)
  * @param[in]  size_buff - depth of DFIFO0.
  * @return     none.
  */
-static inline void dfifo_config_dfifo0(unsigned short* pbuff,unsigned int size_buff)
+static inline void dfifo_set_dfifo0(unsigned short* pbuff,unsigned int size_buff)
 {
 	reg_dfifo0_addr = (unsigned short)((unsigned int)pbuff);
 	reg_dfifo0_size = (size_buff>>4)-1;
@@ -66,7 +87,7 @@ static inline void dfifo_config_dfifo0(unsigned short* pbuff,unsigned int size_b
  * @param[in]  size_buff - depth of DFIFO1.
  * @return     none.
  */
-static inline void dfifo_config_dfifo1(unsigned short* pbuff,unsigned int size_buff)
+static inline void dfifo_set_dfifo1(unsigned short* pbuff,unsigned int size_buff)
 {
 	reg_dfifo1_addr = (unsigned short)((unsigned int)pbuff);
 	reg_dfifo1_size = (size_buff>>4)-1;
@@ -78,7 +99,7 @@ static inline void dfifo_config_dfifo1(unsigned short* pbuff,unsigned int size_b
  * @param[in]  size_buff - depth of DFIFO2.
  * @return     none.
  */
-static inline void dfifo_config_dfifo2(unsigned short* pbuff,unsigned int size_buff)
+static inline void dfifo_set_dfifo2(unsigned short* pbuff,unsigned int size_buff)
 {
 	reg_dfifo2_addr = (unsigned short)((unsigned int)pbuff);
 	reg_dfifo2_size = (size_buff>>4)-1;

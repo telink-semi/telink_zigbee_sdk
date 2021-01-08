@@ -1,35 +1,55 @@
 /********************************************************************************************************
- * @file     uart.h 
+ * @file	uart.h
  *
- * @brief    This is the header file for TLSR8278
+ * @brief	This is the header file for B87
  *
- * @author	 Driver Group
- * @date     May 8, 2018
+ * @author	Driver & Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) 2018, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *           The information contained herein is confidential property of Telink
- *           Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *           of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *           Co., Ltd. and the licensee or the terms described here-in. This heading
- *           MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- *           Licensees are granted free, non-transferable use of the information in this
- *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
- * @par      History:
- * 			 1.initial release(DEC. 26 2018)
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
  *
- * @version  A001
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
+#ifndef UART_H
+#define UART_H
 
 #include "register.h"
+#include "bit.h"
 #include "gpio.h"
-#include "compiler.h"
 
-#ifndef     uart_H
-#define     uart_H
 
 
 /**
@@ -71,7 +91,6 @@ typedef enum {
 /**
  *  @brief  Define UART TX pin:A2 B1 D0 D3 D7
  */
-
 typedef enum{
 	UART_TX_PA2 = GPIO_PA2,
 	UART_TX_PB1 = GPIO_PB1,
@@ -84,7 +103,6 @@ typedef enum{
 /**
  *  @brief  Define UART RX pin: A0 B0 B7 C3 C5 D6
  */
-
 typedef enum{
 	UART_RX_PA0 = GPIO_PA0,
 	UART_RX_PB0 = GPIO_PB0,
@@ -97,7 +115,6 @@ typedef enum{
 /**
  *  @brief  Define UART CTS pin : A3 B2 C4 D1
  */
-
 typedef enum{
 	UART_CTS_PA3 = GPIO_PA3,
 	UART_CTS_PB2 = GPIO_PB2,
@@ -108,7 +125,6 @@ typedef enum{
 /**
  *  @brief  Define UART RTS pin : A4  B3 B6 C0
  */
-
 typedef enum{
 	UART_RTS_PA4 = GPIO_PA4,
 	UART_RTS_PB3 = GPIO_PB3,
@@ -127,7 +143,6 @@ static inline unsigned char uart_tx_is_busy(void)
 {
     return ( (reg_uart_status1 & FLD_UART_TX_DONE) ? 0 : 1) ;
 }
-
 
 /**
  * @brief     This function resets the UART module.
@@ -169,6 +184,7 @@ static inline void uart_reset(void)
  * @return     none
  */
 extern void uart_init(unsigned short g_uart_div, unsigned char g_bwpc, UART_ParityTypeDef Parity, UART_StopBitTypeDef StopBit);
+
 /**
  * @brief      This function initializes the UART module.
  * @param[in]  Baudrate  	- uart baud rate
@@ -177,7 +193,7 @@ extern void uart_init(unsigned short g_uart_div, unsigned char g_bwpc, UART_Pari
  * @param[in]  StopBit     	- selected length of stop bit for UART interface
  * @return     none
  */
-extern void uart_init_baudrate(unsigned int Baudrate,unsigned int System_clock , UART_ParityTypeDef Parity, UART_StopBitTypeDef StopBit);
+extern void uart_init_baudrate(unsigned int Baudrate, unsigned int System_clock , UART_ParityTypeDef Parity, UART_StopBitTypeDef StopBit);
 
 /**
  * @brief     enable uart DMA mode
@@ -193,11 +209,11 @@ extern void uart_dma_enable(unsigned char rx_dma_en, unsigned char tx_dma_en);
  * @param[in] tx_irq_en - 1:enable tx irq. 0:disable tx irq
  * @return    none
  */
-
-
 extern void uart_irq_enable(unsigned char rx_irq_en, unsigned char tx_irq_en);
+
 //use this index to cycle the four register of uart. this index should be reset to 0,when send data after system wakeup.
 extern unsigned char uart_TxIndex;
+
 /**
  * @brief     uart send data function with not DMA method.
  *            variable uart_TxIndex,it must cycle the four registers 0x90 0x91 0x92 0x93 for the design of SOC.
@@ -207,6 +223,7 @@ extern unsigned char uart_TxIndex;
  * @return    none
  */
 extern void uart_ndma_send_byte(unsigned char uartData);
+
 /**
  * @brief     This function is used to set the 'uart_TxIndex' to 0.
  *			  After wakeup from power-saving mode, you must call this function before sending the data.
@@ -217,6 +234,7 @@ static inline void uart_ndma_clear_tx_index(void)
 {
     uart_TxIndex=0;
 }
+
 /**
  * @brief     config the number level setting the irq bit of status register 0x9d
  *            ie 0x9d[3].
@@ -254,7 +272,8 @@ extern unsigned char uart_dma_send(unsigned char* Addr);
  * @return    1: send success ;
  *            0: DMA busy
  */
-extern volatile unsigned char uart_send_byte(unsigned char byte);
+extern unsigned char uart_send_byte(unsigned char byte);
+
 /**
  * @brief     data receive buffer initiate function. DMA would move received uart data to the address space,
  *            uart packet length needs to be no larger than (recBuffLen - 4).
@@ -262,10 +281,7 @@ extern volatile unsigned char uart_send_byte(unsigned char byte);
  * @param[in] RecvBufLen - length in byte of the receiving buffer
  * @return    none
  */
-
-extern void uart_recbuff_init(unsigned short *RecvAddr, unsigned short RecvBufLen);
-
-
+extern void uart_recbuff_init(unsigned char *RecvAddr, unsigned short RecvBufLen);
 
 /**
  * @brief     This function determines whether parity error occurs once a packet arrives.
@@ -287,7 +303,7 @@ extern unsigned char uart_is_parity_error(void);
  * When parity error occurs, clear parity error flag after UART receives the data.
  * Cycle the four registers (0x90 0x91 0x92 0x93) from register "0x90" to get data when UART receives the data next time.
  */
-extern void  uart_clear_parity_error(void);
+extern void uart_clear_parity_error(void);
 
 /**
  * @brief     UART hardware flow control configuration. Configure RTS pin.
@@ -299,16 +315,13 @@ extern void  uart_clear_parity_error(void);
  * @param[in] pin   - RTS pin select,it can be GPIO_PA4/GPIO_PB3/GPIO_PB6/GPIO_PC0.
  * @return    none
  */
-
-extern void uart_set_rts(unsigned char Enable, UART_RTSModeTypeDef Mode, unsigned char Thresh, unsigned char Invert,  UART_RtsPinDef pin);
+extern void uart_set_rts(unsigned char Enable, UART_RTSModeTypeDef Mode, unsigned char Thresh, unsigned char Invert, UART_RtsPinDef pin);
 
 /**
  * @brief     This function sets the RTS pin's level manually
  * @param[in] Polarity - set the output of RTS pin(only for manual mode)
  * @return    none
  */
-
-
 extern void uart_set_rts_level(unsigned char Polarity);
 
 /**
@@ -318,7 +331,7 @@ extern void uart_set_rts_level(unsigned char Polarity);
  * @param[in]  pin   - CTS pin select,it can be GPIO_PA3/GPIO_PB2/GPIO_PC4/GPIO_PD1.
  * @return     none
  */
-extern void uart_set_cts(unsigned char Enable, unsigned char Select,UART_CtsPinDef pin);
+extern void uart_set_cts(unsigned char Enable, unsigned char Select, UART_CtsPinDef pin);
 
 /**
 * @brief      This function serves to select pin for UART module.
@@ -326,7 +339,7 @@ extern void uart_set_cts(unsigned char Enable, unsigned char Select,UART_CtsPinD
 * @param[in]  rx_pin   - the pin to receive data.
 * @return     none
 */
-extern void uart_gpio_set(UART_TxPinDef tx_pin,UART_RxPinDef rx_pin);
+extern void uart_gpio_set(UART_TxPinDef tx_pin, UART_RxPinDef rx_pin);
 
 /**
  * @brief   This function enables the irq when UART module receives error data.

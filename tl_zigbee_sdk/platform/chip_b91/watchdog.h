@@ -1,35 +1,55 @@
 /********************************************************************************************************
- * @file     watchdog.h
+ * @file	watchdog.h
  *
- * @brief    This is the header file for TLSR8258
+ * @brief	This is the header file for B91
  *
- * @author	 Driver Group
- * @date     May 8, 2018
+ * @author	Driver Group
+ * @date	2019
  *
- * @par      Copyright (c) 2018, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *           The information contained herein is confidential property of Telink
- *           Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *           of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *           Co., Ltd. and the licensee or the terms described here-in. This heading
- *           MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- *           Licensees are granted free, non-transferable use of the information in this
- *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
  *
- * @version  A001
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
-
 #ifndef WATCHDOG_H_
 #define WATCHDOG_H_
 #include "analog.h"
 #include "gpio.h"
 
 /**
- * @brief     start watchdog. ie enable watchdog
- * @param[in] none
+ * @brief     start watchdog.
  * @return    none
  */
 static inline void wd_start(void){
@@ -39,8 +59,7 @@ static inline void wd_start(void){
 
 
 /**
- * @brief     stop watchdog. ie disable watchdog
- * @param[in] none
+ * @brief     stop watchdog.
  * @return    none
  */
 static inline void wd_stop(void){
@@ -50,7 +69,6 @@ static inline void wd_stop(void){
 
 /**
  * @brief     clear watchdog.
- * @param[in] none
  * @return    none
  */
 static inline void wd_clear(void)
@@ -61,7 +79,6 @@ static inline void wd_clear(void)
 
 /**
  * @brief     clear watchdog timer tick cnt.
- * @param[in] none
  * @return    none
  */
 static inline void wd_clear_cnt(void)
@@ -71,16 +88,18 @@ static inline void wd_clear_cnt(void)
 }
 
 /**
- * @brief     This function set the millisecond period.It is likely with WD_SetInterval.
- *            Just this function calculate the value to set the register automatically .
- * @param[in] period_ms - The  millisecond to set. unit is  millisecond
+ * @brief     This function set the watchdog trigger time.
+ * 			  Because the lower 8bit of the wd timer register will always be 0, there will be an error ,
+			  The time error = (0x00~0xff)/(APB clock frequency)
+ * @param[in] period_ms - The watchdog trigger time. Unit is  millisecond
  * @return    none
- * notice: cause 0x14014c constant equals 0x00, period eror=(0x00~0xff)/(APB clock),unit is s.
+ * @attention  The clock source of watchdog comes from pclk, when pclk changes it needs to be reconfigured.
  */
-static inline void wd_set_interval_ms(unsigned int period_ms,unsigned long int tick_per_ms)
+static inline void wd_set_interval_ms(unsigned int period_ms)
 {
 	static unsigned int tmp_period_ms = 0;
-	tmp_period_ms=period_ms*tick_per_ms;
+	tmp_period_ms=period_ms*sys_clk.pclk*1000;
 	reg_wt_target=tmp_period_ms;
 }
+
 #endif

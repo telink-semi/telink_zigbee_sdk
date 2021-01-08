@@ -1,29 +1,48 @@
 /********************************************************************************************************
- * @file     flash.h 
+ * @file	flash.h
  *
- * @brief    This is the header file for TLSR8278
+ * @brief	This is the header file for B87
  *
- * @author	 Driver Group
- * @date     May 8, 2018
+ * @author	Driver & Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) 2018, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *           The information contained herein is confidential property of Telink
- *           Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *           of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *           Co., Ltd. and the licensee or the terms described here-in. This heading
- *           MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- *           Licensees are granted free, non-transferable use of the information in this
- *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
- * @par      History:
- * 			 1.initial release(DEC. 26 2018)
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
  *
- * @version  A001
- *         
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
  *******************************************************************************************************/
-
 #pragma once
 
 #include "compiler.h"
@@ -70,14 +89,14 @@ typedef enum{
  * The value of temp_buf[2] reflects flash capacity.
  */
 typedef enum {
-    FLASH_CAP_SIZE_64K     = 0x10,
-    FLASH_CAP_SIZE_128K    = 0x11,
-    FLASH_CAP_SIZE_256K    = 0x12,
-    FLASH_CAP_SIZE_512K    = 0x13,
-    FLASH_CAP_SIZE_1M      = 0x14,
-    FLASH_CAP_SIZE_2M      = 0x15,
-    FLASH_CAP_SIZE_4M      = 0x16,
-    FLASH_CAP_SIZE_8M      = 0x17,
+    FLASH_SIZE_64K     = 0x10,
+    FLASH_SIZE_128K    = 0x11,
+    FLASH_SIZE_256K    = 0x12,
+    FLASH_SIZE_512K    = 0x13,
+    FLASH_SIZE_1M      = 0x14,
+    FLASH_SIZE_2M      = 0x15,
+    FLASH_SIZE_4M      = 0x16,
+    FLASH_SIZE_8M      = 0x17,
 } Flash_CapacityDef;
 
 /**
@@ -105,76 +124,6 @@ _attribute_ram_code_ void flash_write_page(unsigned long addr, unsigned long len
  */
 _attribute_ram_code_ void flash_read_page(unsigned long addr, unsigned long len, unsigned char *buf);
 
-#if 0
-/**
- * @brief This function write the status of flash.
- * @param[in]  the value of status
- * @return status
- */
-_attribute_ram_code_ unsigned char flash_write_status(unsigned char data);
-
-/**
- * @brief     This function serves to erase a page(256 bytes).
- * @param[in] addr - the start address of the page needs to erase.
- * @return    none
- * @note      only 8359 support
- */
-_attribute_ram_code_ void flash_erase_page(unsigned int addr);
-
-/**
- * @brief This function serves to erase a block(32k).
- * @param[in]   addr the start address of the block needs to erase.
- * @return none
- */
-_attribute_ram_code_ void flash_erase_32kblock(unsigned int addr);
-
-/**
- * @brief This function serves to erase a block(64k).
- * @param[in]   addr the start address of the block needs to erase.
- * @return none
- */
-_attribute_ram_code_ void flash_erase_64kblock(unsigned int addr);
-
-/**
- * @brief     This function serves to erase a page(256 bytes).
- * @param[in] addr - the start address of the page needs to erase.
- * @return    none
- */
-_attribute_ram_code_ void flash_erase_chip(void);
-
-
-
-/**
- * @brief This function reads the status of flash.
- * @param[in]  none
- * @return none
- */
-_attribute_ram_code_ unsigned char flash_read_status(void);
-
-/**
- * @brief  	Deep Power Down mode to put the device in the lowest consumption mode
- * 			it can be used as an extra software protection mechanism,while the device
- * 			is not in active use,since in the mode,  all write,Program and Erase commands
- * 			are ignored,except the Release from Deep Power-Down and Read Device ID(RDI)
- * 			command.This release the device from this mode
- * @param[in] none
- * @return none.
- */
-_attribute_ram_code_ void flash_deep_powerdown(void);
-
-/**
- * @brief		The Release from Power-Down or High Performance Mode/Device ID command is a
- * 				Multi-purpose command.it can be used to release the device from the power-Down
- * 				State or High Performance Mode or obtain the devices electronic identification
- * 				(ID)number.Release from Power-Down will take the time duration of tRES1 before
- * 				the device will resume normal operation and other command are accepted.The CS#
- * 				pin must remain high during the tRES1(8us) time duration.
- * @param[in]   none
- * @return      none.
- */
-_attribute_ram_code_ void flash_release_deep_powerdown(void);
-#endif
-
 /***********************************
  * @brief	  This function serves to read MID of flash
  * @param[in] buf - store MID of flash
@@ -199,19 +148,3 @@ _attribute_ram_code_ void flash_read_uid(unsigned char idcmd,unsigned char *buf)
  */
 _attribute_ram_code_ int flash_read_mid_uid_with_check( unsigned int *flash_mid ,unsigned char *flash_uid);
 
-#if 0
-/**
- * @brief This function serves to protect data for flash.
- * @param[in]   type - flash type include GD,Puya and XTX
- * @param[in]   data - refer to Driver API Doc.
- * @return none
- */
-_attribute_ram_code_ void flash_lock(Flash_TypeDef type , unsigned short data);
-
-/**
- * @brief This function serves to protect data for flash.
- * @param[in]   type - flash type include GD,Puya and XTX
- * @return none
- */
-_attribute_ram_code_ void flash_unlock(Flash_TypeDef type);
-#endif

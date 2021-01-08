@@ -1,23 +1,47 @@
 /********************************************************************************************************
- * @file     cstartup_8258.S
+ * @file	cstartup_8258.S
  *
- * @brief    This is the boot file for TLSR8258
+ * @brief	This is the boot file for B85
  *
- * @author   jian.zhang@telink-semi.com;junwei.lu@telink-semi.com
- * @date     May 8, 2018
+ * @author	Driver & Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) 2018, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
- *           
- *           The information contained herein is confidential property of Telink 
- *           Semiconductor (Shanghai) Co., Ltd. and is available under the terms 
- *           of Commercial License Agreement between Telink Semiconductor (Shanghai) 
- *           Co., Ltd. and the licensee or the terms described here-in. This heading 
- *           MUST NOT be removed from this file.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *           Licensees are granted free, non-transferable use of the information in this 
- *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided. 
- *           
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
+ *
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
  *******************************************************************************************************/
 #ifdef MCU_STARTUP_8258
 
@@ -38,6 +62,7 @@
 	#define  IC_TAG_CACHE_ADDR_EQU_EN    	1
 	#define  FLASH_WAKEUP_EN                1
 	#define  COPY_DATA_EN					0
+	#define  MULTI_ADDRESS_START			1
 	#define  MOVE_BIN_CODE_EN				1
 #else
 
@@ -126,43 +151,92 @@ __start:					@ MUST,  referenced by boot.link
 
 	.org 0x20
 
-	.align 4
-	.global start_suspend
+	.global	start_suspend
 	.thumb_func
-	.type start_suspend, %function
+	.type	start_suspend, %function
 
 start_suspend:						@ instruction cache address + 0x58: 0x3c16 * 4 = 0xf058
 	tpush   {r2-r3}
-	tmovs 	r2, #129    			@ 0x81
-	tloadr 	r3, __suspend_data      @ 0x80006f
-	tstorerb 	r2, [r3, #0]  		@ *(volatile unsigned char *)0x80006f = 0x81
 
-	tmov 	r8, r8
-	tmov 	r8, r8
-	tmov 	r8, r8
-	tmov 	r8, r8
-	tmov 	r8, r8
-	tmov 	r8, r8
-	tmov 	r8, r8
-	tmov 	r8, r8
-	tmov 	r8, r8
-	tmov 	r8, r8
-	tmov 	r8, r8
-	tmov 	r8, r8
-	tmov 	r8, r8
-	tmov 	r8, r8
-	tmov 	r8, r8
-	tmov 	r8, r8
+    tmovs	r2, #129				@0x81
+    tloadr	r3, __suspend_data      @0x80006f
+    tstorerb	r2, [r3, #0]		@*(volatile unsigned char *)0x80006f = 0x81
 
-	tpop 	{r2-r3}
-	tjex 	lr
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+    tmov	r8, r8
+
+    tpop	{r2-r3}
+    tjex	lr
+	.align 4
 __suspend_data:
- 	.word   (0x80006f)
-
+	.word   (0x80006f)
 
 __reset:
+
 @********************************************************************************************************
-@                              		 FILL .DATA AND .BSS WITH 0xFF
+@                              		 FILL .STK WITH 0xFF
 @********************************************************************************************************
 #if FLL_STK_EN
 	tloadr	r0, FLL_D						@r0 = 0xffffffff
@@ -382,7 +456,7 @@ DAT0:
 	.word	_ictag_start_               @28		IC tag start
 	.word	_ictag_end_	            	@32		IC tag end
 #if IC_TAG_CACHE_ADDR_EQU_EN
-	.word	(0x00ff00)    				@36
+	.word	(0x00f000)    				@36
 #endif
 	.word	_ramcode_size_align_256_    @36
 	.word	_start_custom_bss_          @40

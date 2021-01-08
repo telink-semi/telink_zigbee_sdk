@@ -3,34 +3,34 @@
  *
  * @brief	This is the header file for B91
  *
- * @author	D.M.H
+ * @author	Driver Group
  * @date	2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
- *          
+ *
  *          Redistribution and use in source and binary forms, with or without
  *          modification, are permitted provided that the following conditions are met:
- *          
+ *
  *              1. Redistributions of source code must retain the above copyright
  *              notice, this list of conditions and the following disclaimer.
- *          
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions 
- *              in binary form must reproduce the above copyright notice, this list of 
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
  *              conditions and the following disclaimer in the documentation and/or other
  *              materials provided with the distribution.
- *          
- *              3. Neither the name of TELINK, nor the names of its contributors may be 
- *              used to endorse or promote products derived from this software without 
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
  *              specific prior written permission.
- *          
+ *
  *              4. This software, with or without modification, must only be used with a
  *              TELINK integrated circuit. All other usages are subject to written permission
  *              from TELINK and different commercial license may apply.
  *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or 
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
  *              relating to such deletion(s), modification(s) or alteration(s).
- *         
+ *
  *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -41,13 +41,13 @@
  *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *         
+ *
  *******************************************************************************************************/
 /**	@page DMA
  *
  *	Introduction
  *	===============
- *	
+ *
  *
  *	API Reference
  *	===============
@@ -56,8 +56,7 @@
 #ifndef DMA_H_
 #define DMA_H_
 #include "reg_include/register_b91.h"
-
-typedef enum{
+ typedef enum{
 	DMA0=0,
 	DMA1,
 	DMA2,
@@ -173,7 +172,7 @@ typedef struct {
 static inline void dma_config(dma_chn_e chn ,dma_config_t *config)
 {
 	BM_CLR(reg_dma_ctrl(chn),BIT_RNG(4,31));
-	reg_dma_ctrl(chn) |= (*(u32*)config)<<4;
+	reg_dma_ctrl(chn) |= (*(unsigned int*)config)<<4;
 }
 
 
@@ -185,7 +184,7 @@ static inline void dma_config(dma_chn_e chn ,dma_config_t *config)
 static inline void dma_chn_en(dma_chn_e chn)
 {
 	BM_SET(reg_dma_ctr0(chn),BIT(0));
-};
+}
 
 /**
  * @brief      This function servers to disable dma that selected channel.
@@ -195,7 +194,7 @@ static inline void dma_chn_en(dma_chn_e chn)
 static inline void dma_chn_dis(dma_chn_e chn)
 {
 	BM_CLR(reg_dma_ctr0(chn),BIT(0));
-};
+}
 
 /**
  * @brief      This function servers to set dma irq mask.
@@ -285,13 +284,13 @@ static inline void dma_clr_abt_irq_status(dma_irq_chn_e abt_chn)
 /**
  * @brief   this  function set  the DMA to tx/rx size byte.
  * @param[in] chn - DMA channel
- * @param[in] size_byte  - the address of dma   tx/rx size
+ * @param[in] size_byte  - the address of dma tx/rx size .The maximum transmission length of DMA is 0xFFFFFC bytes  and cannot exceed this length.
  * @param[in] byte_width -  dma   tx/rx  width
- * @return    none
+ * @return    none 
  */
-static inline void dma_set_size(dma_chn_e chn,u32 size_byte,dma_transfer_width_e byte_width)
+static inline void dma_set_size(dma_chn_e chn,unsigned int size_byte,dma_transfer_width_e byte_width)
 {
-	 reg_dma_size(chn) =((size_byte+byte_width-1)/byte_width)|( (size_byte % byte_width)<<22);
+	reg_dma_size(chn) =((size_byte+byte_width-1)/byte_width)|( (size_byte % byte_width)<<22);
 }
 
 
@@ -301,7 +300,7 @@ static inline void dma_set_size(dma_chn_e chn,u32 size_byte,dma_transfer_width_e
  * @param[in] byte_width -  dma   tx/rx  width
  * @return    none
  */
-static inline u32 dma_cal_size(u32 size_byte,dma_transfer_width_e byte_width)
+static inline unsigned int dma_cal_size(unsigned int size_byte,dma_transfer_width_e byte_width)
 {
 	 return (((size_byte+byte_width-1)/byte_width)|( (size_byte % byte_width)<<22));
 }
@@ -317,7 +316,7 @@ static inline u32 dma_cal_size(u32 size_byte,dma_transfer_width_e byte_width)
  * @param[in]  dst_addr - the address of destination.
  * @return    none
  */
-static inline void dma_set_address(dma_chn_e chn,u32 src_addr,u32 dst_addr)
+static inline void dma_set_address(dma_chn_e chn,unsigned int src_addr,unsigned int dst_addr)
 {
 	reg_dma_src_addr(chn)=src_addr;
 	reg_dma_dst_addr(chn)=dst_addr;
@@ -329,7 +328,7 @@ static inline void dma_set_address(dma_chn_e chn,u32 src_addr,u32 dst_addr)
  * @param[in]  chn - DMA channel
  * @param[in]  src_addr - the address of source.
  *  */
-static inline void dma_set_src_address(dma_chn_e chn,u32 src_addr)
+static inline void dma_set_src_address(dma_chn_e chn,unsigned int src_addr)
 {
 	reg_dma_src_addr(chn)=src_addr;
 }
@@ -339,10 +338,11 @@ static inline void dma_set_src_address(dma_chn_e chn,u32 src_addr)
  * @param[in]  chn - DMA channel
  * @param[in]  dst_addr - the address of destination.
  *  */
-static inline void dma_set_dst_address(dma_chn_e chn,u32 dst_addr)
+static inline void dma_set_dst_address(dma_chn_e chn,unsigned int dst_addr)
 {
 	reg_dma_dst_addr(chn)=dst_addr;
 }
+
 
 /**
  * @brief   this function set reset  DMA,
@@ -354,10 +354,5 @@ static inline void dma_reset(void)
 	reg_rst1 |= FLD_RST1_DMA;
 }
 
-#define	RFDMA_RX_DISABLE		(dma_chn_dis(DMA1))
-#define	RFDMA_RX_ENABLE			(dma_chn_en(DMA1))
-
-#define	RFDMA_TX_DISABLE		(dma_chn_dis(DMA0))
-#define	RFDMA_TX_ENABLE			(dma_chn_en(DMA0))
 
 #endif

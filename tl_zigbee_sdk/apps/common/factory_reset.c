@@ -1,320 +1,107 @@
 /********************************************************************************************************
- * @file     factory_reset.c
+ * @file	factory_reset.c
  *
- * @brief    Factory reset
+ * @brief	This is the source file for factory_reset
  *
- * @author
- * @date     Dec. 1, 2017
+ * @author	Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) 2016, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *			 The information contained herein is confidential and proprietary property of Telink
- * 		     Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *			 of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *			 Co., Ltd. and the licensee in separate contract or the terms described here-in.
- *           This heading MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- * 			 Licensees are granted free, non-transferable use of the information in this
- *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
 #include "tl_common.h"
 #include "factory_reset.h"
 #include "zb_api.h"
 
-u32 flash_adr_reset_cnt = CFG_FACTORY_RST_CNT;
-static int adr_reset_cnt_idx = 0;
+#define FACTORY_RESET_POWER_CNT_THRESHOLD		10	//times
+#define FACTORY_RESET_TIMEOUT					2	//second
 
+ev_time_event_t *factoryRst_timerEvt = NULL;
+u8 factoryRst_powerCnt = 0;
+bool factoryRst_exist = FALSE;
 
-
-
-#if 1	//org mode
-
-#define RESET_CNT_RECOUNT_FLAG          0
-#define RESET_FLAG                      0x80
-
-#define SERIALS_CNT                     (5)   // must less than 7
-
-u8 factory_reset_serials[SERIALS_CNT * 2]   = { 0, 3,    // [0]:must 0
-                                                0, 3,    // [2]:must 0
-                                                0, 3,    // [4]:must 0
-                                                3, 30,
-                                                3, 30};
-
-static int reset_cnt = 0;
-
-
-
-void reset_cnt_clean(void)
-{
-	if(adr_reset_cnt_idx < 3840){
-		return;
-	}
-
-	flash_erase(flash_adr_reset_cnt);
-	adr_reset_cnt_idx = 0;
-}
-
-void write_reset_cnt(u8 cnt)
-{
-	flash_write(flash_adr_reset_cnt + adr_reset_cnt_idx, 1, (u8 *)(&cnt));
-}
-
-void clear_reset_cnt(void)
-{
-    write_reset_cnt(RESET_CNT_RECOUNT_FLAG);
-}
-
-void reset_cnt_get_idx(void)		//return 0 if unconfigured
-{
-	u8 *pf = (u8 *)flash_adr_reset_cnt;
-	for(adr_reset_cnt_idx = 0; adr_reset_cnt_idx < 4096; adr_reset_cnt_idx++){
-	    u8 restcnt_bit = pf[adr_reset_cnt_idx];
-		if(restcnt_bit != RESET_CNT_RECOUNT_FLAG){ //end
-        	if(((u8)(~(BIT(0)|BIT(1)|BIT(2)|BIT(3))) == restcnt_bit)  // the fourth not valid
-        	 ||((u8)(~(BIT(0)|BIT(1)|BIT(2)|BIT(3)|BIT(4)|BIT(5))) == restcnt_bit)){  // the fifth not valid
-                clear_reset_cnt();
-            }else{
-			    break;
-			}
-		}
-	}
-
-    reset_cnt_clean();
-}
-
-u8 get_reset_cnt_bit(void)
-{
-	if(adr_reset_cnt_idx < 0){
-	    reset_cnt_clean();
-		return 0;
-	}
-
-	u8 reset_cnt;
-	flash_read(flash_adr_reset_cnt + adr_reset_cnt_idx, 1, &reset_cnt);
-	return reset_cnt;
-}
-
-void increase_reset_cnt(void)
-{
-	u8 restcnt_bit = get_reset_cnt_bit();
-
-	foreach(i, 8){
-        if(restcnt_bit & BIT(i)){
-            if(i < 3){
-                reset_cnt = i;
-            }else if(i < 5){
-                reset_cnt = 3;
-            }else if(i < 7){
-                reset_cnt = 4;
-            }
-
-            restcnt_bit &= ~(BIT(i));
-            write_reset_cnt(restcnt_bit);
-            break;
-        }
-	}
-}
-
-ev_time_event_t factoryRstTimer;
-
-s32 zb_factoryResetCb(void *arg)
-{
-	zb_factoryReset();
-
-	return -1;
-}
-
-void factory_reset(void)
-{
-    clear_reset_cnt();
-
-    factoryRstTimer.cb = zb_factoryResetCb;
-    factoryRstTimer.data = NULL;
-	ev_on_timer(&factoryRstTimer, 2 * 1000 * 1000);
-}
-
-u8 factory_reset_handle(void)
-{
-    reset_cnt_get_idx();
-
-    u8 restcnt_bit = get_reset_cnt_bit();
-
-	if(restcnt_bit == RESET_FLAG){
-		return 1;
-	}else{
-        increase_reset_cnt();
-	}
-
-	return 0;
-}
-
-u8 factory_reset_cnt_check(void)
-{
-    static u8 clear_st = 3;
-    static u32 reset_check_time;
-
-	if(0 == clear_st) return 0;
-
-	if(3 == clear_st){
-        clear_st--;
-        reset_check_time = factory_reset_serials[reset_cnt*2];
-    }
-
-	if((2 == clear_st) && clock_time_exceed(0, reset_check_time*1000*1000)){
-	    clear_st--;
-	    reset_check_time = factory_reset_serials[reset_cnt*2 + 1];
-	    if(3 == reset_cnt || 4 == reset_cnt){
-            increase_reset_cnt();
-        }
-	}
-
-	if((1 == clear_st) && clock_time_exceed(0, reset_check_time*1000*1000)){
-	    clear_st = 0;
-        clear_reset_cnt();
-	}
-
-	return 0;
-}
-
+nv_sts_t factoryRst_powerCntSave(void){
+	nv_sts_t st = NV_SUCC;
+#if NV_ENABLE
+	st = nv_flashWriteNew(1, NV_MODULE_APP, NV_ITEM_APP_POWER_CNT, 1, &factoryRst_powerCnt);
 #else
-/****************************************
-new factory reset:
-user can change any one of factory_reset_serials, and also can change SERIALS_CNT
-*****************************************/
-#define SERIALS_CNT                     (10*2)   // should less than 100
+	st = NV_ENABLE_PROTECT_ERROR;
+#endif
+	return st;
+}
 
-u8 factory_reset_serials[SERIALS_CNT]   =     { 0, 3,
-                                                0, 3,
-                                                0, 3,
-                                                0, 3,
-                                                0, 3,
-                                                0, 3,
-                                                0, 3,
-                                                0, 3,
-                                                0, 3,
-                                                0, 3,};
+nv_sts_t factoryRst_powerCntRestore(void){
+	nv_sts_t st = NV_SUCC;
+#if NV_ENABLE
+	st = nv_flashReadNew(1, NV_MODULE_APP, NV_ITEM_APP_POWER_CNT, 1, &factoryRst_powerCnt);
+#else
+	st = NV_ENABLE_PROTECT_ERROR;
+#endif
+	return st;
+}
 
-#define RESET_CNT_INVALID               0
-#define RESET_TRIGGER_VAL               SERIALS_CNT
-
-void reset_cnt_clean(void)
-{
-	if(adr_reset_cnt_idx < 3840){
-		return;
+static s32 factoryRst_timerCb(void *arg){
+	if(factoryRst_powerCnt >= FACTORY_RESET_POWER_CNT_THRESHOLD){
+		/* here is just a mark, wait for device announce and then perform factory reset. */
+		factoryRst_exist = TRUE;
 	}
 
-	flash_erase(flash_adr_reset_cnt);
-	adr_reset_cnt_idx = 0;
-}
+	factoryRst_powerCnt = 0;
+	factoryRst_powerCntSave();
 
-void write_reset_cnt(u8 cnt)// reset cnt value from 1 to 254, 0 is invalid cnt
-{
-	reset_cnt_clean();
-	flash_write(flash_adr_reset_cnt + adr_reset_cnt_idx, 1, (u8 *)(&cnt));
-}
-
-void clear_reset_cnt(void)
-{
-    write_reset_cnt(RESET_CNT_INVALID);
-}
-
-void reset_cnt_get_idx(void)		//return 0 if unconfigured
-{
-	u8 *pf = (u8 *)flash_adr_reset_cnt;
-	for(adr_reset_cnt_idx = 0; adr_reset_cnt_idx < 4096; adr_reset_cnt_idx++){
-	    u8 restcnt_bit = pf[adr_reset_cnt_idx];
-		if(restcnt_bit != RESET_CNT_INVALID){ //end
-			if(0xFF == restcnt_bit){
-				//do nothing
-			}else if((restcnt_bit > RESET_TRIGGER_VAL) || (restcnt_bit & BIT(0))){// invalid state
-				clear_reset_cnt();
-			}
-			break;
-		}
-	}
-}
-
-u8 get_reset_cnt_bit(void)// reset cnt value from 1 to 254, 0 is invalid cnt
-{
-	u8 reset_cnt;
-	flash_read(flash_adr_reset_cnt + adr_reset_cnt_idx, 1, &reset_cnt);
-	return reset_cnt;
-}
-
-void increase_reset_cnt(void)
-{
-	u8 restcnt_bit = get_reset_cnt_bit();
-
-	if(0xFF == restcnt_bit){
-		restcnt_bit = 0;
-	}else if(restcnt_bit){
-		clear_reset_cnt();// clear current BYTE and then use next BYTE
-		adr_reset_cnt_idx++;
-	}
-
-	restcnt_bit++;
-	write_reset_cnt(restcnt_bit);
-}
-
-ev_time_event_t factoryRstTimer;
-
-s32 zb_factoryResetCb(void *arg)
-{
-	zb_factoryReset();
-
+	factoryRst_timerEvt = NULL;
 	return -1;
 }
 
-void factory_reset(void)
-{
-    clear_reset_cnt();
-
-    factoryRstTimer.cb = zb_factoryResetCb;
-    factoryRstTimer.data = NULL;
-	ev_on_timer(&factoryRstTimer, 2 * 1000 * 1000);
+void factroyRst_handler(void){
+	if(factoryRst_exist){
+		factoryRst_exist = FALSE;
+		zb_factoryReset();
+	}
 }
 
-u8 factory_reset_handle(void)
-{
-    reset_cnt_get_idx();
+void factroyRst_init(void){
+	factoryRst_powerCntRestore();
+	factoryRst_powerCnt++;
+	factoryRst_powerCntSave();
 
-    u8 restcnt_bit = get_reset_cnt_bit();
-
-	if(restcnt_bit == RESET_TRIGGER_VAL){
-		return 1;
-	}else{
-        increase_reset_cnt();
+	if(factoryRst_timerEvt){
+		TL_ZB_TIMER_CANCEL(&factoryRst_timerEvt);
 	}
-
-	return 0;
+	factoryRst_timerEvt = TL_ZB_TIMER_SCHEDULE(factoryRst_timerCb, NULL, FACTORY_RESET_TIMEOUT * 1000 * 1000);
 }
 
-u8 factory_reset_cnt_check(void)
-{
-    static u8 clear_st = 3;
-    static u32 reset_check_time;
-
-	if(0 == clear_st) return 0;
-
-	if(3 == clear_st){
-        clear_st--;
-        reset_check_time = factory_reset_serials[get_reset_cnt_bit() - 1];
-    }
-
-	if((2 == clear_st) && clock_time_exceed(0, reset_check_time*1000*1000)){
-	    clear_st--;
-	    increase_reset_cnt();
-	    reset_check_time = factory_reset_serials[get_reset_cnt_bit() - 1];
-	}
-
-	if((1 == clear_st) && clock_time_exceed(0, reset_check_time*1000*1000)){
-	    clear_st = 0;
-        clear_reset_cnt();
-	}
-
-	return 0;
-}
-
-#endif

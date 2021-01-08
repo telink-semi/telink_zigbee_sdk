@@ -48,7 +48,7 @@
 									<listOptionValue builtIn="false" value="../../../zigbee/gp"/>
 									<listOptionValue builtIn="false" value="../../../zigbee/zcl"/>
 									<listOptionValue builtIn="false" value="../../../zigbee/ota"/>
-									<listOptionValue builtIn="false" value="../../../zigbee/zbhci"/>
+									<listOptionValue builtIn="false" value="../../../zbhci"/>
 								</option>
 								<option id="nds32le-elf-mculib-v5f.c.compiler.exe.debug.option.optimization.level.2067599733" name="Optimization Level" superClass="nds32le-elf-mculib-v5f.c.compiler.exe.debug.option.optimization.level" value="nds.c.optimization.level.more" valueType="enumerated"/>
 								<option id="nds32le-elf-mculib-v5f.c.compiler.exe.debug.option.cmodel.1453714703" name="Code Model" superClass="nds32le-elf-mculib-v5f.c.compiler.exe.debug.option.cmodel" value="nds.c.compiler.option.cmodel.small" valueType="enumerated"/>
@@ -104,7 +104,9 @@
 						</toolChain>
 					</folderInfo>
 					<fileInfo id="config.nds32le-elf-mculib-v5f.exe.debug.540229038.578877656.76743870" name="cstartup_b91.S" rcbsApplicability="disable" resourcePath="platform/boot/cstartup_b91.S" toolsToInvoke="tool.nds32le-elf-mculib-v5f.c.compiler.exe.debug.633437445.330098195">
-						<tool id="tool.nds32le-elf-mculib-v5f.c.compiler.exe.debug.633437445.330098195" name="Andes C Compiler" superClass="tool.nds32le-elf-mculib-v5f.c.compiler.exe.debug.633437445"/>
+						<tool id="tool.nds32le-elf-mculib-v5f.c.compiler.exe.debug.633437445.330098195" name="Andes C Compiler" superClass="tool.nds32le-elf-mculib-v5f.c.compiler.exe.debug.633437445">
+							<inputType id="tool.nds.c.compiler.input.1239494718" superClass="tool.nds.c.compiler.input"/>
+						</tool>
 						<tool customBuildStep="true" id="org.eclipse.cdt.managedbuilder.ui.rcbs.1536806271" name="Resource Custom Build Step">
 							<inputType id="org.eclipse.cdt.managedbuilder.ui.rcbs.inputtype.1451038267" name="Resource Custom Build Step Input Type">
 								<additionalInput kind="additionalinputdependency" paths=""/>
@@ -113,7 +115,7 @@
 						</tool>
 					</fileInfo>
 					<sourceEntries>
-						<entry excluding="apps/sampleLight|apps/sampleSwitch_9518" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="apps/sampleSwitch_B91|apps/sampleContactSensor_B91|apps/sampleContactSensor_9518|apps/sampleLight|apps/sampleSwitch_9518" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -165,7 +167,7 @@
 									<listOptionValue builtIn="false" value="../../../zigbee/gp"/>
 									<listOptionValue builtIn="false" value="../../../zigbee/zcl"/>
 									<listOptionValue builtIn="false" value="../../../zigbee/ota"/>
-									<listOptionValue builtIn="false" value="../../../zigbee/zbhci"/>
+									<listOptionValue builtIn="false" value="../../../zbhci"/>
 								</option>
 								<option id="nds32le-elf-mculib-v5f.c.compiler.exe.debug.option.optimization.level.56788722" name="Optimization Level" superClass="nds32le-elf-mculib-v5f.c.compiler.exe.debug.option.optimization.level" value="nds.c.optimization.level.more" valueType="enumerated"/>
 								<option id="nds32le-elf-mculib-v5f.c.compiler.exe.debug.option.cmodel.1101992061" name="Code Model" superClass="nds32le-elf-mculib-v5f.c.compiler.exe.debug.option.cmodel" value="nds.c.compiler.option.cmodel.small" valueType="enumerated"/>
@@ -219,7 +221,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="apps/sampleGW|apps/sampleSwitch_9518" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="apps/sampleSwitch_B91|apps/sampleContactSensor_B91|apps/sampleContactSensor_9518|apps/sampleGW|apps/sampleSwitch_9518" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -257,11 +259,11 @@
 								<option id="nds.c.compiler.option.preprocessor.def.symbols.1294361554" name="Defined symbols (-D)" superClass="nds.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="MCU_CORE_B91=1"/>
 									<listOptionValue builtIn="false" value="END_DEVICE=1"/>
-									<listOptionValue builtIn="false" value="__PROJECT_TL_SWITCH_9518__=1"/>
+									<listOptionValue builtIn="false" value="__PROJECT_TL_SWITCH_B91__=1"/>
 								</option>
 								<option id="nds.c.compiler.option.include.paths.1722023727" name="Include paths (-I)" superClass="nds.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="../../../apps/common"/>
-									<listOptionValue builtIn="false" value="../../../apps/sampleSwitch_9518"/>
+									<listOptionValue builtIn="false" value="../../../apps/sampleSwitch_B91"/>
 									<listOptionValue builtIn="false" value="../../../platform"/>
 									<listOptionValue builtIn="false" value="../../../proj/common"/>
 									<listOptionValue builtIn="false" value="../../../proj"/>
@@ -271,7 +273,7 @@
 									<listOptionValue builtIn="false" value="../../../zigbee/gp"/>
 									<listOptionValue builtIn="false" value="../../../zigbee/zcl"/>
 									<listOptionValue builtIn="false" value="../../../zigbee/ota"/>
-									<listOptionValue builtIn="false" value="../../../zigbee/zbhci"/>
+									<listOptionValue builtIn="false" value="../../../zbhci"/>
 								</option>
 								<option id="nds32le-elf-mculib-v5f.c.compiler.exe.debug.option.optimization.level.1112538373" name="Optimization Level" superClass="nds32le-elf-mculib-v5f.c.compiler.exe.debug.option.optimization.level" value="nds.c.optimization.level.more" valueType="enumerated"/>
 								<option id="nds32le-elf-mculib-v5f.c.compiler.exe.debug.option.cmodel.1742649364" name="Code Model" superClass="nds32le-elf-mculib-v5f.c.compiler.exe.debug.option.cmodel" value="nds.c.compiler.option.cmodel.small" valueType="enumerated"/>
@@ -325,7 +327,113 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="apps/sampleGW|apps/sampleLight" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="apps/sampleContactSensor_B91|apps/sampleContactSensor_9518|apps/sampleGW|apps/sampleLight" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+		<cconfiguration id="config.nds32le-elf-mculib-v5f.exe.debug.540229038.578877656.401603901.2146331978.562516558">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="config.nds32le-elf-mculib-v5f.exe.debug.540229038.578877656.401603901.2146331978.562516558" moduleId="org.eclipse.cdt.core.settings" name="sampleContactSensor_9518">
+				<externalSettings/>
+				<extensions>
+					<extension id="com.andestech.ide.cdt.managedbuilder.core.CROSS_GNU_ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactExtension="elf" artifactName="${ConfigName}" buildArtefactType="nds.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=nds.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" description="EndDevice-9518" id="config.nds32le-elf-mculib-v5f.exe.debug.540229038.578877656.401603901.2146331978.562516558" name="sampleContactSensor_9518" parent="config.nds32le-elf-mculib-v5f.exe.debug" postbuildStep="&quot;../../../tools/tl_check_fw.sh&quot; ${ConfigName} riscv" prebuildStep="&quot;../../../tools/tl_link_load.sh&quot; &quot;../../../platform/boot/b91/boot_b91.link&quot; &quot;${workspace_loc:/${ProjName}}/boot.link&quot;">
+					<folderInfo id="config.nds32le-elf-mculib-v5f.exe.debug.540229038.578877656.401603901.2146331978.562516558." name="/" resourcePath="">
+						<toolChain id="nds.nds32le-elf-mculib-v5f.exe.debug.277959316" name="nds32le-elf-mculib-v5f" superClass="nds.nds32le-elf-mculib-v5f.exe.debug">
+							<option id="nds32le-elf-mculib-v5f.managedbuild.option.toolchain.RSE_CONNECT.1513755499" name="RSE_CONNECT" superClass="nds32le-elf-mculib-v5f.managedbuild.option.toolchain.RSE_CONNECT" value="ICE" valueType="string"/>
+							<targetPlatform id="target.nds32le-elf-mculib-v5f.platform.exe.debug.41842286" name="Debug Platform" superClass="target.nds32le-elf-mculib-v5f.platform.exe.debug"/>
+							<builder arguments="-j4" buildPath="${workspace_loc:/tl_zigbee_sdk}/Debug" command="make" id="target.nds32le-elf-mculib-v5f.builder.exe.debug.1981942419" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Andes Make Builder" superClass="target.nds32le-elf-mculib-v5f.builder.exe.debug"/>
+							<tool id="tool.nds32le-elf-mculib-v5f.archiver.base.1920559929" name="Andes Archiver" superClass="tool.nds32le-elf-mculib-v5f.archiver.base"/>
+							<tool id="tool.nds32le-elf-mculib-v5f.cpp.compiler.exe.debug.194708865" name="Andes C++ Compiler" superClass="tool.nds32le-elf-mculib-v5f.cpp.compiler.exe.debug">
+								<option id="nds32le-elf-mculib-v5f.cpp.compiler.exe.debug.option.debugging.level.345539696" name="Debug Level" superClass="nds32le-elf-mculib-v5f.cpp.compiler.exe.debug.option.debugging.level" value="nds.cpp.compiler.debugging.level.max" valueType="enumerated"/>
+							</tool>
+							<tool id="tool.nds32le-elf-mculib-v5f.cpp.linker.exe.debug.1797037046" name="Andes C++ Linker" superClass="tool.nds32le-elf-mculib-v5f.cpp.linker.exe.debug">
+								<option defaultValue="-O0" id="nds.cpp.link.option.optimization.level.989575790" name="Optimization Level" superClass="nds.cpp.link.option.optimization.level" valueType="string"/>
+								<option defaultValue="true" id="nds32le-elf-mculib-v5f.cpp.link.option.noshared.base.335125107" name="No shared libraries (-static)" superClass="nds32le-elf-mculib-v5f.cpp.link.option.noshared.base" valueType="boolean"/>
+							</tool>
+							<tool id="tool.nds32le-elf-mculib-v5f.c.compiler.exe.debug.187462140" name="Andes C Compiler" superClass="tool.nds32le-elf-mculib-v5f.c.compiler.exe.debug">
+								<option id="nds32le-elf-mculib-v5f.c.compiler.exe.debug.option.debugging.level.1572760519" name="Debug Level" superClass="nds32le-elf-mculib-v5f.c.compiler.exe.debug.option.debugging.level" value="nds.c.debugging.level.none" valueType="enumerated"/>
+								<option id="nds.c.compiler.option.preprocessor.def.symbols.949034737" name="Defined symbols (-D)" superClass="nds.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="MCU_CORE_B91=1"/>
+									<listOptionValue builtIn="false" value="END_DEVICE=1"/>
+									<listOptionValue builtIn="false" value="__PROJECT_TL_CONTACT_SENSOR_B91__=1"/>
+								</option>
+								<option id="nds.c.compiler.option.include.paths.114245977" name="Include paths (-I)" superClass="nds.c.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="../../../apps/common"/>
+									<listOptionValue builtIn="false" value="../../../apps/sampleContactSensor_B91"/>
+									<listOptionValue builtIn="false" value="../../../platform"/>
+									<listOptionValue builtIn="false" value="../../../proj/common"/>
+									<listOptionValue builtIn="false" value="../../../proj"/>
+									<listOptionValue builtIn="false" value="../../../zigbee/common/includes"/>
+									<listOptionValue builtIn="false" value="../../../zigbee/zbapi"/>
+									<listOptionValue builtIn="false" value="../../../zigbee/bdb/includes"/>
+									<listOptionValue builtIn="false" value="../../../zigbee/gp"/>
+									<listOptionValue builtIn="false" value="../../../zigbee/zcl"/>
+									<listOptionValue builtIn="false" value="../../../zigbee/ota"/>
+									<listOptionValue builtIn="false" value="../../../zbhci"/>
+								</option>
+								<option id="nds32le-elf-mculib-v5f.c.compiler.exe.debug.option.optimization.level.946733912" name="Optimization Level" superClass="nds32le-elf-mculib-v5f.c.compiler.exe.debug.option.optimization.level" value="nds.c.optimization.level.more" valueType="enumerated"/>
+								<option id="nds32le-elf-mculib-v5f.c.compiler.exe.debug.option.cmodel.1880751559" name="Code Model" superClass="nds32le-elf-mculib-v5f.c.compiler.exe.debug.option.cmodel" value="nds.c.compiler.option.cmodel.small" valueType="enumerated"/>
+								<option id="nds.c.compiler.option.optimization.flags.385524357" name="Other optimization flags" superClass="nds.c.compiler.option.optimization.flags" value="-fpack-struct -fshort-enums" valueType="string"/>
+								<option id="nds.c.compiler.option.optimization.lto.86468386" name="Link Time Optimization (-flto)" superClass="nds.c.compiler.option.optimization.lto" value="true" valueType="boolean"/>
+								<option id="nds.c.compiler.option.optimization.removesections.function.245241229" name="Remove unused function sections (-ffunction-sections)" superClass="nds.c.compiler.option.optimization.removesections.function" value="true" valueType="boolean"/>
+								<option id="nds.c.compiler.option.optimization.removesections.data.1621672676" name="Remove unused data sections (-fdata-sections)" superClass="nds.c.compiler.option.optimization.removesections.data" value="true" valueType="boolean"/>
+								<option id="nds.c.compiler.option.misc.other.256247542" name="Other flags" superClass="nds.c.compiler.option.misc.other" value="-mext-dsp -mabi=ilp32f  -c -fmessage-length=0  -fomit-frame-pointer -fno-strict-aliasing -fshort-wchar -fuse-ld=bfd -Wno-nonnull-compare" valueType="string"/>
+								<inputType id="tool.nds.c.compiler.input.2084123555" superClass="tool.nds.c.compiler.input"/>
+							</tool>
+							<tool id="tool.nds32le-elf-mculib-v5f.c.linker.exe.debug.246380972" name="Andes C Linker" superClass="tool.nds32le-elf-mculib-v5f.c.linker.exe.debug">
+								<option defaultValue="-O0" id="nds.c.link.option.optimization.level.953075250" name="Optimization Level" superClass="nds.c.link.option.optimization.level" value="-O2" valueType="string"/>
+								<option defaultValue="true" id="nds32le-elf-mculib-v5f.c.link.option.noshared.base.28969939" name="No shared libraries (-static)" superClass="nds32le-elf-mculib-v5f.c.link.option.noshared.base" valueType="boolean"/>
+								<option id="nds.c.link.option.LTO.143684559" name="Link Time Optimization (-flto)" superClass="nds.c.link.option.LTO" value="true" valueType="boolean"/>
+								<option id="nds.c.link.option.other.duplacitecompiler.1613924391" name="DuplaciteComplierOption" superClass="nds.c.link.option.other.duplacitecompiler" value="-mcmodel=small -fpack-struct -fshort-enums -mcpu=d25f -ffunction-sections -fdata-sections -mext-dsp -mabi=ilp32f -fmessage-length=0 -fomit-frame-pointer -fno-strict-aliasing -fshort-wchar -fuse-ld=bfd " valueType="string"/>
+								<option id="nds.c.link.option.removesections.1570889217" name="Remove unused sections (-ffunction-sections or -fdata-sections)" superClass="nds.c.link.option.removesections" value="true" valueType="boolean"/>
+								<option id="nds.c.link.option.nostart.532354741" name="Do not use standard start files (-nostartfiles)" superClass="nds.c.link.option.nostart" value="true" valueType="boolean"/>
+								<option id="nds.c.link.option.virtualhosting.545397449" name="Virtual Hosting (-mvh)" superClass="nds.c.link.option.virtualhosting" value="false" valueType="boolean"/>
+								<option id="nds32le-elf-mculib-v5f.c.link.exe.debug.option.ldscript.1576912440" name="Linker Script (-T)" superClass="nds32le-elf-mculib-v5f.c.link.exe.debug.option.ldscript" value="../boot.link" valueType="string"/>
+								<option id="nds.c.link.option.libs.179298640" name="Libraries (-l)" superClass="nds.c.link.option.libs" valueType="libs">
+									<listOptionValue builtIn="false" value="zb_ed"/>
+									<listOptionValue builtIn="false" value="drivers_b91"/>
+								</option>
+								<option id="nds.c.link.option.paths.446384427" name="Library search path (-L)" superClass="nds.c.link.option.paths" valueType="libPaths">
+									<listOptionValue builtIn="false" value="../../../zigbee/lib/riscv"/>
+									<listOptionValue builtIn="false" value="../../../platform/lib"/>
+								</option>
+								<inputType id="tool.nds.c.linker.input.254701244" superClass="tool.nds.c.linker.input">
+									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
+									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
+								</inputType>
+							</tool>
+							<tool id="tool.nds32le-elf-mculib-v5f.assembler.exe.debug.851964816" name="Andes Assembler" superClass="tool.nds32le-elf-mculib-v5f.assembler.exe.debug">
+								<option defaultValue="-g" id="nds.both.asm.option.flags.932500099" name="Assembler flags" superClass="nds.both.asm.option.flags" valueType="string"/>
+								<inputType id="tool.nds.assembler.input.1142579094" superClass="tool.nds.assembler.input"/>
+							</tool>
+							<tool id="tool.nds32le-elf-mculib-v5f.nm.exe.debug.375706757" name="NM (symbol listing)" superClass="tool.nds32le-elf-mculib-v5f.nm.exe.debug"/>
+							<tool id="tool.nds32le-elf-mculib-v5f.readelf.exe.debug.1856014591" name="Readelf (ELF info listing)" superClass="tool.nds32le-elf-mculib-v5f.readelf.exe.debug"/>
+							<tool id="tool.nds32le-elf-mculib-v5f.objdump.exe.debug.1790928737" name="Objdump (disassembly)" superClass="tool.nds32le-elf-mculib-v5f.objdump.exe.debug">
+								<option id="nds.objdump.option.disable.2103243477" name="Disable. (Do not auto-generate output file.)" superClass="nds.objdump.option.disable" value="false" valueType="boolean"/>
+							</tool>
+							<tool id="tool.nds32le-elf-mculib-v5f.objcopy.exe.debug.1629941181" name="Objcopy (object content copy)" superClass="tool.nds32le-elf-mculib-v5f.objcopy.exe.debug">
+								<option id="nds.objcopy.option.disable.1162815219" name="Disable. (Do not auto-generate output file.)" superClass="nds.objcopy.option.disable" value="true" valueType="boolean"/>
+							</tool>
+							<tool id="tool.nds32le-elf-mculib-v5f.size.exe.debug.1975904990" name="Size (section size listing)" superClass="tool.nds32le-elf-mculib-v5f.size.exe.debug"/>
+							<tool command="$(ANDESIGHT_ROOT)/utils/nds_ldsag --version=v5" id="tool.nds32le-elf-mculib-v5f.ldsag.exe.debug.326908404" name="LdSaG Tool" superClass="tool.nds32le-elf-mculib-v5f.ldsag.exe.debug">
+								<option id="nds.ldsag.option.enablement.1115384532" name="Generate linker script" superClass="nds.ldsag.option.enablement" value="false" valueType="boolean"/>
+								<option defaultValue="$(ANDESIGHT_ROOT)/utils/nds32_template_v5.txt" id="nds.ldsag.option.sagtemplate.1054766573" name="Linker script template" superClass="nds.ldsag.option.sagtemplate" value="../boot.link" valueType="string"/>
+								<option id="nds.ldsag.option.sagscript.50740870" name="SaG file" superClass="nds.ldsag.option.sagscript" value="../ae350-xip.sag" valueType="string"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry excluding="apps/sampleSwitch_B91|apps/sampleSwitch_9518|apps/sampleGW|apps/sampleLight" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -337,6 +445,10 @@
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="sampleGW_9518"/>
+		<configuration configurationName="sampleLight_9518"/>
+		<configuration configurationName="sampleContactSensor_9518"/>
+		<configuration configurationName="sampleSwitch_9518"/>
 		<configuration configurationName="Debug">
 			<resource resourceType="PROJECT" workspacePath="/tl_zigbee_sdk"/>
 		</configuration>
@@ -344,6 +456,7 @@
 			<resource resourceType="PROJECT" workspacePath="/tl_zigbee_sdk"/>
 		</configuration>
 	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5f.exe.debug.540229038;config.nds32le-elf-mculib-v5f.exe.debug.540229038.;tool.nds32le-elf-mculib-v5f.c.compiler.exe.debug.1698376078;tool.nds.c.compiler.input.778743349">
@@ -352,9 +465,11 @@
 		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5f.exe.debug.540229038.578877656;config.nds32le-elf-mculib-v5f.exe.debug.540229038.578877656.;tool.nds32le-elf-mculib-v5f.c.compiler.exe.debug.633437445;tool.nds.c.compiler.input.1079736600">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5f.exe.debug.540229038.578877656.401603901.2146331978;config.nds32le-elf-mculib-v5f.exe.debug.540229038.578877656.401603901.2146331978.;tool.nds32le-elf-mculib-v5f.c.compiler.exe.debug.1901389369;tool.nds.c.compiler.input.494877746">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5f.exe.release.861117968;config.nds32le-elf-mculib-v5f.exe.release.861117968.;tool.nds32le-elf-mculib-v5f.c.compiler.exe.release.739228463;tool.nds.c.compiler.input.365910674">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
 	</storageModule>
-	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cproject>

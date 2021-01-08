@@ -3,34 +3,34 @@
  *
  * @brief	This is the header file for B91
  *
- * @author	B.Y
+ * @author	Driver Group
  * @date	2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
- *          
+ *
  *          Redistribution and use in source and binary forms, with or without
  *          modification, are permitted provided that the following conditions are met:
- *          
+ *
  *              1. Redistributions of source code must retain the above copyright
  *              notice, this list of conditions and the following disclaimer.
- *          
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions 
- *              in binary form must reproduce the above copyright notice, this list of 
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
  *              conditions and the following disclaimer in the documentation and/or other
  *              materials provided with the distribution.
- *          
- *              3. Neither the name of TELINK, nor the names of its contributors may be 
- *              used to endorse or promote products derived from this software without 
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
  *              specific prior written permission.
- *          
+ *
  *              4. This software, with or without modification, must only be used with a
  *              TELINK integrated circuit. All other usages are subject to written permission
  *              from TELINK and different commercial license may apply.
  *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or 
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
  *              relating to such deletion(s), modification(s) or alteration(s).
- *         
+ *
  *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -41,13 +41,13 @@
  *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *         
+ *
  *******************************************************************************************************/
 /**	@page CLOCK
  *
  *	Introduction
  *	===============
- *	TLSRB91 clock setting. 
+ *	TLSRB91 clock setting.
  *
  *	API Reference
  *	===============
@@ -201,10 +201,7 @@ typedef enum {
  *********************************************************************************************************************/
 extern sys_clk_t sys_clk;
 extern clk_32k_type_e g_clk_32k_src;
-extern unsigned long CLOCK_SYS_CLOCK_1US;
 
-#define MASTER_CLK_FREQ		(sys_clk.cclk)
-#define PCLK_FREQ			(sys_clk.pclk)
 /**********************************************************************************************************************
  *                                      global function prototype                                                     *
  *********************************************************************************************************************/
@@ -244,7 +241,7 @@ unsigned char clock_kick_32k_xtal(unsigned char xtal_times);
  * @brief     	This function performs to select 24M as the system clock source.
  * @return		none.
  */
-_attribute_ram_code_sec_ void clock_cal_24m_rc (void);
+_attribute_ram_code_sec_noinline_ void clock_cal_24m_rc (void);
 
 /**
  * @brief     This function performs to select 32K as the system clock source.
@@ -256,13 +253,13 @@ void clock_cal_32k_rc (void);
  * @brief  This function serves to get the 32k tick.
  * @return none.
  */
-_attribute_ram_code_sec_  unsigned int clock_get_32k_tick (void);
+_attribute_ram_code_sec_noinline_  unsigned int clock_get_32k_tick (void);
 
 /**
  * @brief  This function serves to set the 32k tick.
  * @param  tick - the value of to be set to 32k.
  * @return none.
  */
-_attribute_ram_code_sec_ void clock_set_32k_tick(unsigned int tick);
+_attribute_ram_code_sec_noinline_ void clock_set_32k_tick(unsigned int tick);
 #endif
 

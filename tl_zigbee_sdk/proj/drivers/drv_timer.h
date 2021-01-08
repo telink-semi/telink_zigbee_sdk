@@ -1,108 +1,117 @@
 /********************************************************************************************************
- * @file     timer.h
+ * @file	drv_timer.h
  *
- * @brief    Interface of hardware timer header file
+ * @brief	This is the header file for drv_timer
  *
- * @author
- * @date     Oct. 8, 2016
+ * @author	Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) 2016, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *           The information contained herein is confidential property of Telink
- *           Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *           of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *           Co., Ltd. and the licensee or the terms described here-in. This heading
- *           MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- *           Licensees are granted free, non-transferable use of the information in this
- *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
 #pragma once
 
 
+#if defined(MCU_CORE_826x)
+	#define S_TIMER_CLOCK_1US				tickPerUs
+	#define H_TIMER_CLOCK_1US				(CLOCK_SYS_CLOCK_HZ / 1000000)
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+	#define S_TIMER_CLOCK_1US				sys_tick_per_us
+	#define H_TIMER_CLOCK_1US				(CLOCK_SYS_CLOCK_HZ / 1000000)
+#elif defined(MCU_CORE_B91)
+	#define S_TIMER_CLOCK_1US				SYSTEM_TIMER_TICK_1US
+	#define H_TIMER_CLOCK_1US				(sys_clk.pclk)
 
-/** @addtogroup  TELINK_COMMON_MODULE TELINK Common Module
- *  @{
- */
+	#define clock_time()					stimer_get_tick()
+	#define WaitUs(us)						delay_us(us)
+	#define WaitMs(ms)						delay_ms(ms)
+#endif
 
-/** @addtogroup  HARDWARETIMER Hardware Timer (GPT)
- *  @{
- */
+#define CLOCK_SYS_CLOCK_1US					(S_TIMER_CLOCK_1US)
+
+#define TIMER_TICK_1US_GET(idx)				((idx < TIMER_IDX_3) ? H_TIMER_CLOCK_1US : S_TIMER_CLOCK_1US)
  
-/** @defgroup HARDWARETIMER_TYPE Hardware Timer Constants
- *  @{
+/**
+ * hardware_timer_index Hardware Timer Index
  */
- 
-/** @addtogroup hardware_timer_index Hardware Timer Index
- * @{
+#define TIMER_IDX_0             			0 //!< Timer0
+#define TIMER_IDX_1             			1 //!< Timer1
+#define TIMER_IDX_2             			2 //!< Timer2, for Watch dog.
+#define TIMER_IDX_3							3 //!< SYS Timer, for MAC-CSMA.
+#define TIMER_NUM               			4 //!< Total number of timer
+
+
+/**
+ * hardware_timer_mode Hardware Timer Mode
  */
-#define TIMER_IDX_0             0                   //!< Timer0
-#define TIMER_IDX_1             1                   //!< Timer1
-#define TIMER_IDX_2             2                   //!< Timer2, for Watch dog.
-#define TIMER_IDX_3				3					//!< SYS Timer, for MAC-CSMA.
-#define TIMER_NUM               4                   //!< Total number of timer
-/** @} end of group hardware_timer_index */
+#define TIMER_MODE_SCLK         			0 //!< Timer running in the system clock mode, it will free run from 0 to 0xffffffff
+#define TIMER_MODE_GPIO         			1
+#define TIMER_MODE_WIDTH_GPIO   			2
+#define TIMER_MODE_TICK_MODE    			3
 
-/** @addtogroup hardware_timer_mode Hardware Timer Mode
- * @{
+/**
+ * hardware_timer_state Hardware Timer State
  */
-#define TIMER_MODE_SCLK         0                   //!< Timer running in the system clock mode, it will free run from 0 to 0xffffffff
-#define TIMER_MODE_GPIO         1
-#define TIMER_MODE_WIDTH_GPIO   2
-#define TIMER_MODE_TICK_MODE    3
-/** @} end of group hardware_timer_mode */
+#define TIMER_IDLE              			0 //!< Indicating the timer is not running
+#define TIMER_WOF               			1 //!< Waiting for overflow
+#define TIMER_WTO               			2 //!< Waiting for time out
 
-
-/** @addtogroup hardware_timer_state Hardware Timer State
- * @{
- */
-#define TIMER_IDLE              0                   //!< Indicating the timer is not runing
-#define TIMER_WOF               1                   //!< Waiting for overflow
-#define TIMER_WTO               2                   //!< Waitting for time out
-/** @} end of group hardware_timer_state */
-
- 
- 
-/** @} end of group HARDWARETIMER_CONSTANTS */
-
-
-/** @defgroup HARDWARETIMER_CONSTANTS Hardware Timer Types
- *  @{
- */
 
 /**
  *  @brief  Definition for 64 bit timer unit
  */
-typedef struct {
+typedef struct{
     u32 low;
     u32 high;
-} ext_clk_t;
+}ext_clk_t;
+
+/**
+ *  @brief  Status of Hardware Timer
+ */
+typedef enum hw_timer_sts_e{
+	HW_TIMER_SUCC 		= 0,
+    HW_TIMER_IS_RUNNING = 1,
+	HW_TIMER_INVALID,
+}hw_timer_sts_t;
 
 /**
  *  @brief  Definition for Timer callback function type
  */
 typedef int (*timerCb_t)(void *p);
-
-
-typedef enum hw_timer_sts_e {
-	HW_TIMER_SUCC = 0,
-    HW_TIMER_IS_RUNNING = 1,
-} hw_timer_sts_t;
-
-/** @} end of group HARDWARETIMER_TYPE */
-
-
-
-
-
-
-
-/** @defgroup HARDWARETIMER_Functions Hardware Timer API
- *  @{
- */
-
 
 
  /**
@@ -147,10 +156,5 @@ void drv_timer_irq0_handler(void);
 void drv_timer_irq1_handler(void);
 void drv_timer_irq3_handler(void);
 
-/**  @} end of group HARDWARETIMER_Functions */
-
-/**  @} end of group HARDWARETIMER */
-
-/**  @} end of group TELINK_COMMON_MODULE */
 
 

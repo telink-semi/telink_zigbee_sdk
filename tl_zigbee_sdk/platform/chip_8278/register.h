@@ -1,26 +1,46 @@
 /********************************************************************************************************
- * @file     register_8278.h 
+ * @file	register.h
  *
- * @brief    This is the header file for TLSR8278
+ * @brief	This is the header file for B87
  *
- * @author	 Driver Group
- * @date     May 8, 2018
+ * @author	Driver & Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) 2018, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *           The information contained herein is confidential property of Telink
- *           Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *           of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *           Co., Ltd. and the licensee or the terms described here-in. This heading
- *           MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- *           Licensees are granted free, non-transferable use of the information in this
- *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
- * @par      History:
- * 			 1.initial release(DEC. 26 2018)
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
  *
- * @version  A001
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
 #pragma once
@@ -627,7 +647,6 @@ enum{
 };
 
 /*******************************      gpio registers: 0x580      ******************************/
-#define REG_GPIO_OUT_BASE_ADDR	(0x583)
 
 #define reg_gpio_pa_in			REG_ADDR8(0x580)
 #define reg_gpio_pa_ie			REG_ADDR8(0x581)
@@ -793,7 +812,7 @@ enum{
 	FLD_IRQ_EP_DATA_EN =		BIT(12),  FLD_IRQ_IRQ4_EN = BIT(12),
 	FLD_IRQ_ZB_RT_EN =			BIT(13),
 	FLD_IRQ_SW_PWM_EN =			BIT(14),  //irq_software | irq_pwm
-    //	RSVD 		=			BIT(15),
+	FLD_IRQ_PKE_EN =			BIT(15),//	RSVD 		=			BIT(15),
 
 	FLD_IRQ_USB_250US_EN =		BIT(16),
 	FLD_IRQ_USB_RST_EN =		BIT(17),
@@ -815,7 +834,7 @@ enum{
 /*******************************      system timer registers: 0x740      ******************************/
 
 #define reg_system_tick				REG_ADDR32(0x740)
-#define reg_system_tick_irq			REG_ADDR32(0x744)
+#define reg_system_tick_irq_level	REG_ADDR32(0x744)
 #define reg_system_irq_mask			REG_ADDR8(0x748)
 #define reg_system_cal_irq			REG_ADDR8(0x749)
 #define reg_system_ctrl				REG_ADDR8(0x74a)
@@ -1232,6 +1251,42 @@ enum{
 	FLD_RF_IRQ_ALL =            0X1FFF,
 };
 
+/*******************************      pke registers: 0x2000      ******************************/
+#define reg_pke_ctrl             REG_ADDR32(0x2000)
+enum{
+	FLD_PKE_CTRL_START = 		 BIT(0),
+	FLD_PKE_CTRL_STOP = 		 BIT(16),
+};
+
+#define reg_pke_conf             REG_ADDR32(0x2004)
+enum{
+	FLD_PKE_CONF_IRQ_EN = 		 BIT(8),
+	FLD_PKE_CONF_PARTIAL_RADIX = BIT_RNG(16,23),
+	FLD_PKE_CONF_BASE_RADIX	=    BIT_RNG(24,26),
+};
+
+#define reg_pke_mc_ptr           REG_ADDR32(0x2010)
+
+#define reg_pke_stat             REG_ADDR32(0x2020)
+enum{
+	FLD_PKE_STAT_DONE = 		 BIT(0),
+};
+
+#define reg_pke_rt_code          REG_ADDR32(0x2024)
+enum{
+	FLD_PKE_RT_CODE_STOP_LOG =	 BIT_RNG(0,3),
+};
+
+#define reg_pke_exe_conf         REG_ADDR32(0x2050)
+enum{
+	FLD_PKE_EXE_CONF_IAFF_R0 = 	 BIT(0),
+	FLD_PKE_EXE_CONF_IMON_R0 = 	 BIT(1),
+	FLD_PKE_EXE_CONF_IAFF_R1 = 	 BIT(2),
+	FLD_PKE_EXE_CONF_IMON_R1 = 	 BIT(3),
+	FLD_PKE_EXE_CONF_OAFF = 	 BIT(4),
+	FLD_PKE_EXE_CONF_OMON = 	 BIT(5),
+	FLD_PKE_EXE_CONF_ME_SCA_EN = BIT_RNG(8,9),
+};
 
 /********************************************************************************************
  *****|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|*****
@@ -1260,10 +1315,10 @@ enum{
 
 #define mdec_rst_addr                   0x16
 enum{
-	FLD_SELE_PA0 = 				BIT(0),  
+	FLD_SELE_PA0 = 				BIT(0),
 	FLD_SELE_PB7 = 				BIT(1),
 	FLD_SELE_PC4 = 			    BIT(2),
-	FLD_SELE_PD0 = 				BIT(3),  
+	FLD_SELE_PD0 = 				BIT(3),
 	FLD_RST_MDEC =              BIT(4),
 	FLD_CLS_MDEC = 				BIT_RNG(0,4),
 };

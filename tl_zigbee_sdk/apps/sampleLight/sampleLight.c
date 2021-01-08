@@ -1,25 +1,48 @@
 /********************************************************************************************************
- * @file     sampleLight.c
+ * @file	sampleLight.c
  *
- * @brief    HA Router
+ * @brief	This is the source file for sampleLight
  *
- * @author
- * @date     Dec. 1, 2016
+ * @author	Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) 2016, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *			 The information contained herein is confidential and proprietary property of Telink
- * 		     Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *			 of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *			 Co., Ltd. and the licensee in separate contract or the terms described here-in.
- *           This heading MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- * 			 Licensees are granted free, non-transferable use of the information in this
- *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
-
 #if (__PROJECT_TL_DIMMABLE_LIGHT__)
 
 /**********************************************************************
@@ -34,6 +57,7 @@
 #include "sampleLight.h"
 #include "sampleLightCtrl.h"
 #include "app_ui.h"
+#include "factory_reset.h"
 #if ZBHCI_EN
 #include "zbhci.h"
 #endif
@@ -77,6 +101,7 @@ const zdo_appIndCb_t appCbLst = {
 	sampleLight_nwkUpdateIndicateHandler,//nwk update ind cb
 	NULL,//permit join ind cb
 	NULL,//nlme sync cnf cb
+	NULL,//tc join ind cb
 };
 
 
@@ -99,7 +124,7 @@ bdb_commissionSetting_t g_bdbCommissionSetting = {
 	.touchlinkEnable = 0,												/* disable touch-link */
 #endif
 	.touchlinkChannel = DEFAULT_CHANNEL, 								/* touch-link default operation channel for target */
-	.touchlinkLqiThreshold = 0xe0,			   							/* threshold for touch-link scan req/resp command */
+	.touchlinkLqiThreshold = 0xA0,			   							/* threshold for touch-link scan req/resp command */
 };
 
 /**********************************************************************
@@ -226,6 +251,8 @@ void app_task(void)
 	app_key_handler();
 	localPermitJoinState();
 	if(BDB_STATE_GET() == BDB_STATE_IDLE){
+		//factroyRst_handler();
+
 		report_handler();
 
 #if 0/* NOTE: If set to '1', the latest status of lighting will be stored. */
@@ -250,15 +277,19 @@ static void sampleLightSysException(void)
  *
  * @brief   User level initialization code.
  *
- * @param   None
+ * @param   isRetention - if it is waking up with ram retention.
  *
  * @return  None
  */
-void user_init(void)
+void user_init(bool isRetention)
 {
+	(void)isRetention;
+
 	/* Initialize LEDs*/
 	led_init();
 	hwLight_init();
+
+	//factroyRst_init();
 
 	/* Initialize Stack */
 	stack_init();

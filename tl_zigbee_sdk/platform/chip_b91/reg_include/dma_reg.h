@@ -3,34 +3,34 @@
  *
  * @brief	This is the header file for B91
  *
- * @author	D.M.H
+ * @author	Driver Group
  * @date	2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
- *          
+ *
  *          Redistribution and use in source and binary forms, with or without
  *          modification, are permitted provided that the following conditions are met:
- *          
+ *
  *              1. Redistributions of source code must retain the above copyright
  *              notice, this list of conditions and the following disclaimer.
- *          
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions 
- *              in binary form must reproduce the above copyright notice, this list of 
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
  *              conditions and the following disclaimer in the documentation and/or other
  *              materials provided with the distribution.
- *          
- *              3. Neither the name of TELINK, nor the names of its contributors may be 
- *              used to endorse or promote products derived from this software without 
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
  *              specific prior written permission.
- *          
+ *
  *              4. This software, with or without modification, must only be used with a
  *              TELINK integrated circuit. All other usages are subject to written permission
  *              from TELINK and different commercial license may apply.
  *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or 
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
  *              relating to such deletion(s), modification(s) or alteration(s).
- *         
+ *
  *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -41,22 +41,28 @@
  *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *         
+ *
  *******************************************************************************************************/
 #ifndef DMA_REG_H
 #define DMA_REG_H
 #include "../sys.h"
-#include "bit.h"
 /*******************************    dma registers:  0x100400     ******************************/
 #define reg_dma_id					REG_ADDR32(0x100400)
 #define reg_dma_cfg					REG_ADDR32(0x100410)
-enum{
-	FLD_DMA_CHANNEL_NUM		= BIT_RNG(0,3),
-	FLD_DMA_FIFO_DEPTH		= BIT_RNG(4,9),
-	FLD_DMA_REQ_NUM			= BIT_RNG(10,14),
-	FLD_DMA_REQ_SYNC		= BIT(30),
-	FLD_DMA_CHANINXFR		= BIT(31),
-};
+//enum{
+//	FLD_DMA_CHANNEL_NUM		= BIT_RNG(0,3),
+//	FLD_DMA_FIFO_DEPTH		= BIT_RNG(4,9),
+//	FLD_DMA_REQ_NUM			= BIT_RNG(10,14),
+//	FLD_DMA_REQ_SYNC		= BIT(30),
+//	FLD_DMA_CHANINXFR		= BIT(31),
+//};
+//in C99, FLD_DMA_CHANINXFR = BIT(31) is error
+#define	FLD_DMA_CHANNEL_NUM		= BIT_RNG(0,3),
+#define	FLD_DMA_FIFO_DEPTH		= BIT_RNG(4,9),
+#define	FLD_DMA_REQ_NUM			= BIT_RNG(10,14),
+#define	FLD_DMA_REQ_SYNC		= BIT(30),
+#define	FLD_DMA_CHANINXFR		= BIT(31),
+
 #define reg_dma_ctrl(i)				REG_ADDR32(( 0x00100444 +(i)*0x14))
 
 enum{
@@ -129,5 +135,21 @@ enum{
 #define reg_dma_llp(i)			    REG_ADDR32 (( 0x00100454 +(i)*0x14))
 
 
+#define reg_dma_rx_wptr			REG_ADDR8(0x801004f4)
+#define reg_dma_tx_wptr			REG_ADDR8(0x80100500)
+
+enum{
+	FLD_DMA_WPTR_MASK =			BIT_RNG(0,4),
+};
+
+
+#define reg_dma_rx_rptr			REG_ADDR8(0x801004f5)
+#define reg_dma_tx_rptr			REG_ADDR8(0x80100501)
+enum{
+	FLD_DMA_RPTR_MASK =			BIT_RNG(0,4),
+	FLD_DMA_RPTR_SET =			BIT(5),
+	FLD_DMA_RPTR_NEXT =			BIT(6),
+	FLD_DMA_RPTR_CLR =			BIT(7),
+};
 
 #endif

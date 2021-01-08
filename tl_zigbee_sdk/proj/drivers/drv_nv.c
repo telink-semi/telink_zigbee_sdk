@@ -1,32 +1,54 @@
 /********************************************************************************************************
- * @file     nv.c
+ * @file	drv_nv.c
  *
- * @brief	 nv flash interface function file
+ * @brief	This is the source file for drv_nv
  *
- * @author
- * @date     Oct. 8, 2016
+ * @author	Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) 2016, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *           The information contained herein is confidential property of Telink
- *           Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *           of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *           Co., Ltd. and the licensee or the terms described here-in. This heading
- *           MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- *           Licensees are granted free, non-transferable use of the information in this
- *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
-
 #include "../tl_common.h"
 
+#define FLASH_ADDR_512					0x80000
+#define FLASH_ADDR_1K					0x100000
 
-#define FLASH_ADDR_512		0x80000
-#define FLASH_ADDR_1K		0x100000
-
-#if FLASH_SIZE_1M
+#if FLASH_CAP_SIZE_1M
 #define IS_ADDR_IN_FLASH_AREA(addr)		((addr >= FLASH_BASE_ADDR) && (addr < (FLASH_BASE_ADDR + FLASH_ADDR_1K)))
 #else
 #define IS_ADDR_IN_FLASH_AREA(addr)		((addr >= FLASH_BASE_ADDR) && (addr < (FLASH_BASE_ADDR + FLASH_ADDR_512)))
@@ -37,7 +59,7 @@
 const u8 protect_flash_cmd = FLASH_PROTECT_CMD;
 #endif
 
-#if FLASH_SIZE_1M
+#if FLASH_CAP_SIZE_1M
 u32 g_u32MacFlashAddr = MAC_ADDR_1M_FLASH;
 u32 g_u32CfgFlashAddr = CFG_ADDR_1M_FLASH;
 #else
@@ -45,34 +67,7 @@ u32 g_u32MacFlashAddr = MAC_ADDR_512K_FLASH;
 u32 g_u32CfgFlashAddr = CFG_ADDR_512K_FLASH;
 #endif
 
-/*********************************************************************
- * @fn      internalFlashSizeCheck
- *
- * @brief   This function is provided to get and update to the correct flash address
- * 			where are stored the right MAC address and pre-configured parameters.
- * 			NOTE: It should be called before ZB_RADIO_INIT().
- *
- * @param   None
- *
- * @return  None
- */
-void internalFlashSizeCheck(void){
-#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-	u8 mid[4] = {0};
-	flash_read_mid(mid);
 
-	if( ((mid[2] != FLASH_CAP_SIZE_512K) && (mid[2] != FLASH_CAP_SIZE_1M)) ||
-		((g_u32MacFlashAddr == MAC_ADDR_1M_FLASH) && (mid[2] != FLASH_CAP_SIZE_1M)) ){
-		/* Flash space not matched. */
-		while(1);
-	}
-
-	if( (g_u32MacFlashAddr == MAC_ADDR_512K_FLASH) && (mid[2] == FLASH_CAP_SIZE_1M) ){
-		g_u32MacFlashAddr = MAC_ADDR_1M_FLASH;
-		g_u32CfgFlashAddr = CFG_ADDR_1M_FLASH;
-	}
-#endif
-}
 
 nv_sts_t nv_index_update(u16 id, u8 opSect, u16 opItemIdx, nv_info_idx_t *idx){
 	u32 idxStartAddr = MODULE_IDX_START(id, opSect);
@@ -587,22 +582,43 @@ nv_sts_t nv_resetAll(void){
 	return SUCCESS;
 }
 
-
-nv_sts_t nv_resetToFactoryNew(void){
-#if NV_ENABLE
-	foreach(i, NV_MAX_MODULS){
-		if(i != NV_MODULE_NWK_FRAME_COUNT){
-			nv_resetModule(i);
-		}
-	}
-#endif
-	return SUCCESS;
-}
-
 nv_sts_t nv_init(u8 rst){
 	if(rst){
 		/* if reset is true, erase all flash for NV */
 		nv_resetAll();
 	}
 	return NV_SUCC;
+}
+
+nv_sts_t nv_resetToFactoryNew(void){
+#if NV_ENABLE
+	if(!nv_facrotyNewRstFlagCheck()){
+		nv_facrotyNewRstFlagSet();
+	}
+
+	foreach(i, NV_MAX_MODULS){
+		if(i != NV_MODULE_NWK_FRAME_COUNT){
+			nv_resetModule(i);
+		}
+	}
+
+	nv_facrotyNewRstFlagClear();
+#endif
+	return SUCCESS;
+}
+
+bool nv_facrotyNewRstFlagCheck(void){
+	u8 flag = ITEM_FIELD_IDLE;
+	flash_read(CFG_FACTORY_RST_CNT, 1, &flag);
+
+	return ((flag == 0xff) ? FALSE : TRUE);
+}
+
+void nv_facrotyNewRstFlagSet(void){
+	u8 flag = ITEM_FIELD_VALID;
+	flash_write(CFG_FACTORY_RST_CNT, 1, &flag);
+}
+
+void nv_facrotyNewRstFlagClear(void){
+	flash_erase(CFG_FACTORY_RST_CNT);
 }

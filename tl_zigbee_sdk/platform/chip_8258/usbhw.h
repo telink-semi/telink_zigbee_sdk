@@ -1,31 +1,54 @@
 /********************************************************************************************************
- * @file     usbhw.h
+ * @file	usbhw.h
  *
- * @brief    for TLSR chips
+ * @brief	This is the header file for B85
  *
- * @author	 public@telink-semi.com;
- * @date     Sep. 30, 2010
+ * @author	Driver & Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *			 The information contained herein is confidential and proprietary property of Telink
- * 		     Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *			 of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *			 Co., Ltd. and the licensee in separate contract or the terms described here-in.
- *           This heading MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- * 			 Licensees are granted free, non-transferable use of the information in this
- *			 file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
-#ifndef USBHW_H
-#define USBHW_H
+#pragma once
 
 #include "bit.h"
 #include "analog.h"
 #include "usbhw_i.h"
-
+#include "gpio.h"
 
 enum {
 	USB_EDP_PRINTER_IN 		= 8, 	// endpoint 8 is alias of enpoint 0,  becareful.  // default hw buf len = 64
@@ -83,12 +106,30 @@ static inline void usb_dp_pullup_en(int en)
  * @param[in]  En - 1: power on 0: power down
  * @return     none
  */
-static inline void usb_power_on(unsigned char en){
+static inline void usb_power_on(unsigned char en)
+{
 	if(en){
-		analog_write(0x34, analog_read(0x34) | 0x02);
-	}else{
 		analog_write(0x34, analog_read(0x34) & 0xfd);
+	}else{
+		analog_write(0x34, analog_read(0x34) | 0x02);
 	}
+}
+
+/**
+ * @brief      This function serves to set GPIO MUX function as DP and DM pin of USB
+ * @param[in]  none.
+ * @return     none.
+ */
+static inline void usb_set_pin_en(void)
+{
+	//clear DP first
+	gpio_set_func(GPIO_PA6, AS_GPIO);
+	gpio_set_output_en(GPIO_PA6, 1);
+	gpio_write(GPIO_PA6, 0);
+
+	gpio_set_func(GPIO_PA5, AS_USB);
+	gpio_set_func(GPIO_PA6, AS_USB);
+	usb_dp_pullup_en(1);
 }
 
 /**
@@ -113,7 +154,7 @@ void usbhw_enable_manual_interrupt(int m);
  * @param[in]  len - length in byte of the data need to send
  * @return     none
  */
-void usbhw_write_ep(unsigned int ep, unsigned char* data, int len);
+void usbhw_write_ep(unsigned int ep, unsigned char * data, int len);
 
 /**
  * @brief      This function sends two bytes data to host via the control endpoint
@@ -130,4 +171,3 @@ void usbhw_write_ctrl_ep_u16(unsigned short v);
  */
 unsigned short usbhw_read_ctrl_ep_u16(void);
 
-#endif	/* USBHW_H */

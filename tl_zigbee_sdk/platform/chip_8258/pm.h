@@ -1,160 +1,344 @@
 /********************************************************************************************************
- * @file     pm.h
+ * @file	pm.h
  *
- * @brief    power management configuration interface for tlsr8258
+ * @brief	This is the header file for B85
  *
- * @author   jian.zhang@telink-semi.com
- * @date     Oct. 8, 2016
+ * @author	Driver & Zigbee Group
+ * @date	2019
  *
- * @par      Copyright (c) 2016, Telink Semiconductor (Shanghai) Co., Ltd.
- *           All rights reserved.
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
- *           The information contained herein is confidential property of Telink
- *           Semiconductor (Shanghai) Co., Ltd. and is available under the terms
- *           of Commercial License Agreement between Telink Semiconductor (Shanghai)
- *           Co., Ltd. and the licensee or the terms described here-in. This heading
- *           MUST NOT be removed from this file.
+ *          Redistribution and use in source and binary forms, with or without
+ *          modification, are permitted provided that the following conditions are met:
  *
- *           Licensees are granted free, non-transferable use of the information in this
- *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ *              1. Redistributions of source code must retain the above copyright
+ *              notice, this list of conditions and the following disclaimer.
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
+ *              conditions and the following disclaimer in the documentation and/or other
+ *              materials provided with the distribution.
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
+ *              specific prior written permission.
+ *
+ *              4. This software, with or without modification, must only be used with a
+ *              TELINK integrated circuit. All other usages are subject to written permission
+ *              from TELINK and different commercial license may apply.
+ *
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
+ *              relating to such deletion(s), modification(s) or alteration(s).
+ *
+ *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
+ *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
 #pragma once
 
 #include "bit.h"
-#include "analog.h"
 #include "gpio.h"
 
 
 
+#define PM_XTAL_DELAY_DURATION      		500
+#define EARLYWAKEUP_TIME_US_DEEP    		1100
+#define EARLYWAKEUP_TIME_US_SUSPEND 		1250
+#define EMPTYRUN_TIME_US       	    		1500
 
-//analog register below can store information when MCU in deepsleep mode
-//store your information in these ana_regs before deepsleep by calling analog_write function
-//when MCU wakeup from deepsleep, read the information by by calling analog_read function
+#define PM_DCDC_DELAY_DURATION      		1000
 
-//these five below are stable
-/* buffer clean at power on */
-#define DEEP_ANA_REG0    0x3a//initial value =0x00
-#define DEEP_ANA_REG1    0x3b//initial value =0x00
-#define DEEP_ANA_REG2    0x3c//initial value =0x00
-
-
-
-//these analog register below may have some problem when user enter deepsleep but ERR wakeup
-//for example, when set a GPIO PAD high wakeup deepsleep, but this gpio is high before
-//you call func cpu_sleep_wakeup, then deepsleep will be ERR wakeup, these analog register
-//information loss.
-/* buffer clean at watch dog */
-#define DEEP_ANA_REG6    0x35//initial value =0x20
-#define DEEP_ANA_REG7    0x36//initial value =0x00
-#define DEEP_ANA_REG8    0x37//initial value =0x00
-#define DEEP_ANA_REG9    0x38//initial value =0x00
-#define DEEP_ANA_REG10   0x39//initial value =0xff
+#define EARLYWAKEUP_TIME_MS_DEEP	2
+#define	tick_32k_tick_per_ms		32
+#define PM_EMPTYRUN_TIME_US			2
 
 
-#define ADV_DEEP_FLG	 0x01
-#define CONN_DEEP_FLG	 0x02
-/* sram retention LDO List :ana_0x02<2:0>
-0x00->0.6v
-0x01->0.7v
-0x02->0.8v
-0x03->0.9v
-0x04->1.0v
-0x05->1.1v
-0x06->1.2v
-0x07->1.3v
-*/
-#define SRAM_RET_LDO     0x05     //set ret ldo = 1.1v to avoid sram data missing during low temperature
 
+/**
+ * @brief analog register below can store infomation when MCU in deepsleep mode
+ * 	      store your information in these ana_regs before deepsleep by calling analog_write function
+ * 	      when MCU wakeup from deepsleep, read the information by by calling analog_read function
+ * 	      Reset these analog registers only by power cycle
+ */
+#define DEEP_ANA_REG0                       0x3a //initial value =0x00
+#define DEEP_ANA_REG1                       0x3b //initial value =0x00
+#define DEEP_ANA_REG2                       0x3c //initial value =0x00
+
+/**
+ * @brief these analog register can store data in deepsleep mode or deepsleep with SRAM retention mode.
+ * 	      Reset these analog registers by watchdog, chip reset, RESET Pin, power cycle
+ */
+#define DEEP_ANA_REG6                       0x35 //initial value =0x20
+#define DEEP_ANA_REG7                       0x36 //initial value =0x00
+#define DEEP_ANA_REG8                       0x37 //initial value =0x00
+#define DEEP_ANA_REG9                       0x38 //initial value =0x00
+#define DEEP_ANA_REG10                      0x39 //initial value =0xff
+
+
+#define SYS_NEED_REINIT_EXT32K			    BIT(0)
+#define SYS_DEEP_SLEEP_FLAG					BIT(1)
+
+
+//ana3c system used, user can not use
+#define SYS_DEEP_ANA_REG 					DEEP_ANA_REG2
+
+#define WAKEUP_STATUS_TIMER_CORE     	    (WAKEUP_STATUS_TIMER | WAKEUP_STATUS_CORE)
+#define WAKEUP_STATUS_TIMER_PAD		        (WAKEUP_STATUS_TIMER | WAKEUP_STATUS_PAD)
+
+/**
+ * @brief sleep mode.
+ */
 typedef enum {
+	//available mode for customer
 	SUSPEND_MODE						= 0,
-	DEEPSLEEP_MODE						= 0x80,
-	DEEPSLEEP_MODE_RET_SRAM_LOW8K		= 0x61,
-	DEEPSLEEP_MODE_RET_SRAM_HIGH8K 		= 0x52,
-	DEEPSLEEP_MODE_RET_SRAM_LOW16K  	= 0x43,
-	DEEPSLEEP_MODE_RET_SRAM_HIGH16K  	= 0x34,
-	DEEPSLEEP_MODE_RET_SRAM_LOW32K  	= 0x07,
 
+	DEEPSLEEP_MODE						= 0x80,
+	DEEPSLEEP_MODE_RET_SRAM_LOW8K		= 0x61,  //for boot from sram
+	DEEPSLEEP_MODE_RET_SRAM_LOW16K  	= 0x43,  //for boot from sram
+	DEEPSLEEP_MODE_RET_SRAM_LOW32K  	= 0x07,  //for boot from sram
+
+	SHUTDOWN_MODE						= 0xFF,
+
+	//not available mode
 	DEEPSLEEP_RETENTION_FLAG			= 0x7F,
 }SleepMode_TypeDef;
 
 
-
-//set wakeup source
+/**
+ * @brief   wakeup source
+ */
 typedef enum {
-	 PM_WAKEUP_PAD   = BIT(4),    		SUSPENDWAKEUP_SRC_PAD = BIT(4),    DEEPWAKEUP_SRC_PAD   = BIT(4),
-	 PM_WAKEUP_CORE  = BIT(5),
-	 PM_WAKEUP_TIMER = BIT(6),	  		SUSPENDWAKEUP_SRC_TIMER = BIT(6),  DEEPWAKEUP_SRC_TIMER = BIT(6),
-	 PM_WAKEUP_COMP  = BIT(7),	  		SUSPENDWAKEUP_SRC_COMP  = BIT(7),  DEEPWAKEUP_SRC_COMP  = BIT(7),
-
-
-	 PM_WAKEUP_CORE_GPIO   = BIT(5) | 0X0800,      SUSPENDWAKEUP_SRC_DIG_GPIO   = BIT(5) | 0X0800,
-	 PM_WAKEUP_CORE_USB    = BIT(5) | 0X0400,      SUSPENDWAKEUP_SRC_DIG_USB    = BIT(5) | 0X0400,
-	 PM_WAKEUP_CORE_QDEC   = BIT(5) | 0X1000,      SUSPENDWAKEUP_SRC_DIG_QDEC   = BIT(5) | 0X1000,
+	 //available wake-up source for customer
+	 PM_WAKEUP_PAD   		= BIT(4),
+	 PM_WAKEUP_CORE  		= BIT(5),
+	 PM_WAKEUP_TIMER 		= BIT(6),
+	 PM_WAKEUP_COMPARATOR 	= BIT(7),
 }SleepWakeupSrc_TypeDef;
 
-
-
-
-//wakeup status from return value of "cpu_sleep_wakeup"
+/**
+ * @brief   wakeup status
+ */
 enum {
-	 WAKEUP_STATUS_COMP   = BIT(0),  //wakeup by comparator
-	 WAKEUP_STATUS_TIMER  = BIT(1),
-	 WAKEUP_STATUS_CORE   = BIT(2),
-	 WAKEUP_STATUS_PAD    = BIT(3),
+	 WAKEUP_STATUS_COMPARATOR  		= BIT(0),
+	 WAKEUP_STATUS_TIMER  			= BIT(1),
+	 WAKEUP_STATUS_CORE 			= BIT(2),
+	 WAKEUP_STATUS_PAD    			= BIT(3),
 
-	 STATUS_GPIO_ERR_NO_ENTER_PM  = BIT(7),
+	 WAKEUP_STATUS_WD    			= BIT(6),
+	 STATUS_GPIO_ERR_NO_ENTER_PM  	= BIT(7),
+
+	 STATUS_ENTER_SUSPEND  			= BIT(30),
 };
 
-#define 	WAKEUP_STATUS_TIMER_CORE	( WAKEUP_STATUS_TIMER | WAKEUP_STATUS_CORE)
-#define 	WAKEUP_STATUS_TIMER_PAD		( WAKEUP_STATUS_TIMER | WAKEUP_STATUS_PAD)
+/**
+ * @brief   mcu status
+ */
+typedef enum{
+	MCU_STATUS_BOOT,
+	MCU_STATUS_DEEPRET_BACK,
+	MCU_STATUS_DEEP_BACK,
+}pm_mcu_status;
 
-/* used to restore data during deep sleep mode or reset by software */
-#define DATA_STORE_FLAG				0x55
-
-#define	REG_DEEP_BACK_FLAG			DEEP_ANA_REG0//0x3A, power on reset clean
-#define	REG_DEEP_FLAG				DEEP_ANA_REG6//0x35, watch dog reset clean
-#define	REG_FRAMECOUNT				DEEP_ANA_REG7//0x36, watch dog reset clean, 4Bytes from 0x36 to 0x39
-
-enum{
-	BACK_FROM_REPOWER,
-	BACK_FROM_DEEP,
-	BACK_FROM_DEEP_RETENTION,
-};
-
+/**
+ * @brief   deepsleep wakeup status
+ */
 typedef struct{
-	unsigned char back_mode;
 	unsigned char is_pad_wakeup;
 	unsigned char wakeup_src;
+	unsigned char mcu_status;
 }pm_para_t;
 
-extern pm_para_t	pmParam;
-
-
-
-void cpu_stall_wakeup_by_timer0(unsigned int tick_stall);
-void cpu_stall_wakeup_by_timer1(unsigned int tick_stall);
-void cpu_stall_wakeup_by_timer2(unsigned int tick_stall);
 
 typedef int (*suspend_handler_t)(void);
-void bls_pm_registerFuncBeforeSuspend(suspend_handler_t func );
+typedef unsigned int (*pm_tim_recover_handler_t)(unsigned int);
+typedef int (*cpu_pm_handler_t)(SleepMode_TypeDef sleep_mode, SleepWakeupSrc_TypeDef wakeup_src, unsigned int wakeup_tick);
+
+extern suspend_handler_t func_before_suspend;
+extern pm_tim_recover_handler_t pm_tim_recover;
+extern cpu_pm_handler_t cpu_sleep_wakeup;
+extern pm_para_t pmParam;
+
+
+void bls_pm_registerFuncBeforeSuspend(suspend_handler_t func);
 
 
 
 
+
+/**
+ * @brief      This function serves to get mcu status.
+ * @param[in]  none.
+ * @return     pm_mcu_status
+ */
+static inline unsigned char pm_get_mcu_status(void)
+{
+	return pmParam.mcu_status;
+}
+
+/**
+ * @brief      This function serves to determine whether mcu is waked up by pad.
+ * @param[in]  none.
+ * @return     1- yes , 0- no.
+ */
+static inline unsigned char pm_is_padWakeup(void)
+{
+	return pmParam.is_pad_wakeup;
+}
+
+/**
+ * @brief      This function serves to get the source of wake-up.
+ * @param[in]  none.
+ * @return     wakeup source.
+ */
+static inline unsigned char pm_get_wakeup_src(void)
+{
+	return pmParam.wakeup_src;
+}
+
+/**
+ * @brief   This function serves to wake up cpu from stall mode by timer0.
+ * @param   tick - capture value of timer0.
+ * @return  none.
+ */
+void cpu_stall_wakeup_by_timer0(unsigned int tick);
+
+/**
+ * @brief   This function serves to wake up cpu from stall mode by timer1.
+ * @param   tick - capture value of timer1.
+ * @return  none.
+ */
+void cpu_stall_wakeup_by_timer1(unsigned int tick);
+
+/**
+ * @brief   This function serves to wake up cpu from stall mode by timer2.
+ * @param   tick - capture value of timer2.
+ * @return  none.
+ */
+void cpu_stall_wakeup_by_timer2(unsigned int tick);
+
+/**
+ * @brief   This function serves to wake up cpu from stall mode by timer1 or RF TX done irq.
+ * @param   WakeupSrc  - timer1.
+ * @param   IntervalUs - capture value of timer1.
+ * @param   sysclktick - tick value of per us based on system clock.
+ * @return  none.
+ */
+unsigned int cpu_stall(int WakeupSrc, unsigned int IntervalUs,unsigned int sysclktick);
+
+/**
+ * @brief      This function configures a GPIO pin as the wakeup pin.
+ * @param[in]  pin - the pin needs to be configured as wakeup pin
+ * @param[in]  pol - the wakeup polarity of the pad pin(0: low-level wakeup, 1: high-level wakeup)
+ * @param[in]  en  - enable or disable the wakeup function for the pan pin(1: Enable, 0: Disable)
+ * @return     none
+ */
+void cpu_set_gpio_wakeup(GPIO_PinTypeDef pin, GPIO_LevelTypeDef pol, int en);
+
+
+/**
+ * @brief   This function serves to get the 32k tick.
+ * @param   none
+ * @return  tick of 32k .
+ */
+extern unsigned int pm_get_32k_tick(void);
+
+/**
+ * @brief   This function serves to initialize MCU
+ * @param   none
+ * @return  none
+ */
 void cpu_wakeup_init(void);
-void cpu_set_gpio_wakeup (GPIO_PinTypeDef pin, GPIO_LevelTypeDef pol, int en);
 
-int cpu_sleep_wakeup (SleepMode_TypeDef sleep_mode, SleepWakeupSrc_TypeDef wakeup_src, unsigned int wakeup_tick);
+/**
+ * @brief   This function serves to recover system timer from tick of internal 32k RC.
+ * @param   none.
+ * @return  none.
+ */
+unsigned int pm_tim_recover_32k_rc(unsigned int now_tick_32k);
 
-int pm_long_sleep_wakeup (SleepMode_TypeDef sleep_mode, SleepWakeupSrc_TypeDef wakeup_src, unsigned int SleepDurationUs);
+/**
+ * @brief   This function serves to recover system timer from tick of external 32k crystal.
+ * @param   none.
+ * @return  none.
+ */
+unsigned int pm_tim_recover_32k_xtal(unsigned int now_tick_32k);
 
+/**
+ * @brief      This function serves to set the working mode of MCU based on 32k crystal,e.g. suspend mode, deepsleep mode, deepsleep with SRAM retention mode and shutdown mode.
+ * @param[in]  sleep_mode - sleep mode type select.
+ * @param[in]  wakeup_src - wake up source select.
+ * @param[in]  wakeup_tick - the time of short sleep, which means MCU can sleep for less than 5 minutes.
+ * @return     indicate whether the cpu is wake up successful.
+ */
+int cpu_sleep_wakeup_32k_rc(SleepMode_TypeDef sleep_mode, SleepWakeupSrc_TypeDef wakeup_src, unsigned int wakeup_tick);
 
+/**
+ * @brief      This function serves to set the working mode of MCU based on 32k crystal,e.g. suspend mode, deepsleep mode, deepsleep with SRAM retention mode and shutdown mode.
+ * @param[in]  sleep_mode - sleep mode type select.
+ * @param[in]  wakeup_src - wake up source select.
+ * @param[in]  wakeup_tick - the time of short sleep, which means MCU can sleep for less than 5 minutes.
+ * @return     indicate whether the cpu is wake up successful.
+ */
+int cpu_sleep_wakeup_32k_xtal(SleepMode_TypeDef sleep_mode, SleepWakeupSrc_TypeDef wakeup_src, unsigned int wakeup_tick);
 
-//only for debug below, will remove them later
-void shutdown_gpio(void);  //for debug
+/**
+ * @brief      This function servers to wake up the cpu from sleep mode.
+ * @param[in]  sleep_mode - sleep mode type select.
+ * @param[in]  wakeup_src - wake up source select.
+ * @param[in]  wakeup_tick - the time of sleep.
+ * @return     indicate whether the cpu is wake up successful.
+ */
+int pm_long_sleep_wakeup(SleepMode_TypeDef sleep_mode, SleepWakeupSrc_TypeDef wakeup_src, unsigned int wakeup_tick);
 
-unsigned int cpu_get_32k_tick_from_analog(void);
+/**
+ * @brief      This function serves to determine whether wake up source is internal 32k RC.
+ * @param[in]  none.
+ * @return     none.
+ */
+static inline void pm_select_internal_32k_rc(void)
+{
+	cpu_sleep_wakeup 	 	= cpu_sleep_wakeup_32k_rc;
+	pm_tim_recover  	 	= pm_tim_recover_32k_rc;
+}
+
+/**
+ * @brief      This function serves to determine whether wake up source is external 32k RC.
+ * @param[in]  none.
+ * @return     none.
+ */
+static inline void pm_select_external_32k_crystal(void)
+{
+	cpu_sleep_wakeup 	 	= cpu_sleep_wakeup_32k_xtal;
+	pm_tim_recover		 	= pm_tim_recover_32k_xtal;
+}
+
+/**********************************  Internal APIs (not for user)***************************************************/
+extern  unsigned char 		    tl_multi_addr;
+extern  unsigned char 		    tl_24mrc_cal;
+extern 	unsigned short 			tick_32k_calib;
+extern  unsigned int 			tick_cur;
+extern  unsigned int 			tick_32k_cur;
+extern  unsigned char       	pm_long_suspend;
+
+void sleep_start(void);
+
+unsigned int  pm_get_info0(void);
+
+unsigned int  pm_get_info1(void);
+
+unsigned int cpu_get_32k_tick(void);
+
+void soft_reboot_dly13ms_use24mRC(void);
+
 
 
 

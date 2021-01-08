@@ -3,34 +3,34 @@
  *
  * @brief	This is the header file for B91
  *
- * @author	B.Y
+ * @author	Driver Group
  * @date	2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
- *          
+ *
  *          Redistribution and use in source and binary forms, with or without
  *          modification, are permitted provided that the following conditions are met:
- *          
+ *
  *              1. Redistributions of source code must retain the above copyright
  *              notice, this list of conditions and the following disclaimer.
- *          
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions 
- *              in binary form must reproduce the above copyright notice, this list of 
+ *
+ *              2. Unless for usage inside a TELINK integrated circuit, redistributions
+ *              in binary form must reproduce the above copyright notice, this list of
  *              conditions and the following disclaimer in the documentation and/or other
  *              materials provided with the distribution.
- *          
- *              3. Neither the name of TELINK, nor the names of its contributors may be 
- *              used to endorse or promote products derived from this software without 
+ *
+ *              3. Neither the name of TELINK, nor the names of its contributors may be
+ *              used to endorse or promote products derived from this software without
  *              specific prior written permission.
- *          
+ *
  *              4. This software, with or without modification, must only be used with a
  *              TELINK integrated circuit. All other usages are subject to written permission
  *              from TELINK and different commercial license may apply.
  *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or 
+ *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
  *              relating to such deletion(s), modification(s) or alteration(s).
- *         
+ *
  *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -41,13 +41,13 @@
  *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *         
+ *
  *******************************************************************************************************/
 /**	@page STIMER
  *
  *	Introduction
  *	===============
- *	TLSRB91 stimer use 16M clock count, have stimer irq. 
+ *	TLSRB91 stimer use 16M clock count, have stimer irq.
  *
  *	API Reference
  *	===============
@@ -55,7 +55,7 @@
  */
 #ifndef STIMER_H_
 #define STIMER_H_
-
+#include "compiler.h"
 #include "reg_include/stimer_reg.h"
 
 /**********************************************************************************************************************
@@ -76,6 +76,19 @@
 /**********************************************************************************************************************
  *                                      global function prototype                                                     *
  *********************************************************************************************************************/
+/**
+ * @brief define system clock tick per us/ms/s.
+ */
+enum{
+	SYSTEM_TIMER_TICK_1US 		= 16,
+	SYSTEM_TIMER_TICK_1MS 		= 16000,
+	SYSTEM_TIMER_TICK_1S 		= 16000000,
+
+	SYSTEM_TIMER_TICK_625US  	= 10000,  //625*16
+	SYSTEM_TIMER_TICK_1250US 	= 20000,  //1250*16
+};
+
+
 /**
  * @brief This function servers to set stimer irq mask.
  * @param[in]	mask - the irq mask.
@@ -145,6 +158,7 @@ static inline void stimer_enable(void)
 	reg_system_ctrl |= FLD_SYSTEM_TIMER_EN;
 }
 
+
 /**
  * @brief This function servers to disable stimer.
  * @return  none.
@@ -154,26 +168,40 @@ static inline void stimer_disable(void)
 	reg_system_ctrl &= ~(FLD_SYSTEM_TIMER_EN);
 }
 
+/*
+ * @brief     This function performs to get system timer tick.
+ * @return    system timer tick value.
+**/
+static inline unsigned int stimer_get_tick(void)
+{
+
+	return reg_system_tick;
+}
+
+/**
+ * @brief     This function serves to set timeout by us.
+ * @param[in] ref  - reference tick of system timer .
+ * @param[in] us   - count by us.
+ * @return    true - timeout, false - not timeout
+ */
+static inline _Bool clock_time_exceed(unsigned int ref, unsigned int us)
+{
+	return ((unsigned int)(stimer_get_tick() - ref) > us * SYSTEM_TIMER_TICK_1US);
+}
+/**
+ * @brief     This function performs to set delay time by us.
+ * @param[in] microsec - need to delay.
+ * @return    none
+ */
+_attribute_ram_code_sec_noinline_   void delay_us(unsigned int microsec);
 
 
-#define SYS_TIMER_INIT()				do{	\
-											plic_interrupt_enable(IRQ1_SYSTIMER);	\
-										}while(0)
+/**
+ * @brief     This function performs to set delay time by ms.
+ * @param[in] millisec - need to delay.
+ * @return    none
+ */
+_attribute_ram_code_sec_noinline_  void  delay_ms(unsigned int millisec);
 
-#define SYS_TIMER_START()				do{ \
-											stimer_set_irq_mask(FLD_SYSTEM_IRQ);	\
-										}while(0)
-
-#define SYS_TIMER_STOP()				do{ \
-											stimer_clr_irq_mask(FLD_SYSTEM_IRQ);	\
-										}while(0)
-
-#define SYS_TIMER_INTERVAL_SET(cyc)		do{	\
-											stimer_set_irq_capture(cyc);			\
-										}while(0)
-
-#define SYS_TIMER_STATE_CLEAR()			do{	\
-											stimer_clr_irq_status(FLD_SYSTEM_IRQ);	\
-										}while(0)
 
 #endif /* STIMER_H_ */
