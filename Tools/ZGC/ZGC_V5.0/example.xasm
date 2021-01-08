@@ -1,0 +1,73 @@
+SetStackSize 512
+SetPriority Low
+
+Func DoStuff
+{
+	Push "The following string sequence was printed by the host app:"
+	CallHost PrintString
+	
+	Push 4
+	Push " - Host app string"
+	CallHost PrintString
+	
+	Push 1
+	Push "These, on the other hand,were printed individually by the script:"
+	CallHost PrintString
+	
+	Var Counter
+	Mov Counter , 8
+	LoopStart:
+		Push 1
+		Push " - Script string"
+		CallHost PrintString
+		Pause 200
+		Dec Counter
+	JGE Counter , 0 , LoopStart
+	
+	Push 1
+	Push "Returning Pi to the host..."
+	CallHost PrintString
+	
+	Mov _RetVal , 3.14159
+}
+
+Func InvokeLoop
+{
+	LoopStart:
+		Push 1
+		Push "Looping..."
+		CallHost PrintString
+		Pause 200
+	Jmp LoopStart
+}
+
+Func _Main
+{
+	var a
+	var b
+	var c
+	var d
+
+	;print the string
+	Push "hello world"
+	CallHost PrintString
+	Pause 200
+	
+	;add
+	mov a ,1 
+	mov b ,2
+	add a,b
+	push a
+	CallHost PrintString
+	pause 200
+
+	;sub
+	sub a,b
+	push a
+	CallHost PrintString
+
+	;set channel
+	mov c,11
+	push c
+	CallHost SetChannel
+}
