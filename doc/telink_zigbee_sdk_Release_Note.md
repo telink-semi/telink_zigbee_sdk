@@ -1,3 +1,45 @@
+## V3.6.1-Beta
+
+### Dependency Updates
+* telink_b91_driver_sdk V1.3.1-Beta
+### Features
+* Support 9518(B91) A2 chip.
+* Improve MAC layer ack response speed.
+* Open the source code related to APS layer group table.
+* Add callback function for Trust Center(Coordinator) to notify the application layer when new devices join the network.
+* Add ZGC tool, which can be used with HCI command.
+### Bug Fixes
+* Fix the poll rate setting issue related to poll control cluster in demo.
+* Fix scene stored issue.
+* Fix the loss interruption issue in 8269 uart driver.
+* Fix the suspend issue in 8258 pm driver.
+* Fix the issue of inaccurate conversion from rssi to lqi.
+### Code Refactoring
+* Refactor the abstract layer driver code.
+* Refactor the relevant code that triggers "Reset To Factory New" through the power-on count.
+### BREAKING CHANGES
+* Move "zbhci" folder from the "zigbee" folder to "tl_zigbee_sdk/".
+
+### Dependency Updates
+* telink_b91_driver_sdk V1.3.1-Beta
+### Features
+* 支持9518（B91）A2芯片。
+* 提高MAC ack的应答速度。
+* 开源APS层group table相关的操作接口。
+* 信任中心（协调器）添加回调函数接口，当有新设备加入网络时可以通知到应用层。
+* 添加ZGC工具，可以配合HCI命令使用。
+### Bug Fixes
+* 修复Demo中与poll control cluster相关的poll速率设置问题。
+* 修复场景保存问题。
+* 修复8269串口驱动丢失中断问题。
+* 修复8258 pm驱动suspend休眠问题。
+* 修复rssi转换成lqi不准确的问题。
+### Code Refactoring
+* 重构抽象层驱动代码。
+* 重构通过上电计数触发“恢复出厂”的相关代码。
+### BREAKING CHANGES
+* 将“zbhci”文件夹从“zigbee”文件夹挪到“tl_zigbee_sdk/”下。
+
 ## V3.6.0-Beta
 
 ### Features
