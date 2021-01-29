@@ -124,7 +124,7 @@ __start:					@ MUST,  referenced by boot.link
 	.extern  tl_multi_addr
 
 	.extern FILE_VERSION
-	.extern MANUFACTURER_CODE
+	.extern MANUFACTURER_CODE_TELINK
 	.extern IMAGE_TYPE
 
 	.org 0x0
@@ -142,7 +142,7 @@ __start:					@ MUST,  referenced by boot.link
 	tj		__irq
 
 	.org 0x12
-	.short  (MANUFACTURER_CODE)
+	.short  (MANUFACTURER_CODE_TELINK)
 	.short  (IMAGE_TYPE)
 
 	.org 0x18

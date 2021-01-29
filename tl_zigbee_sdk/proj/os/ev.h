@@ -45,15 +45,6 @@
  *******************************************************************************************************/
 #pragma once
 
-#include "../tl_common.h"
-
-enum {
-	EV_FIRED_EVENT_MAX_MASK = EV_FIRED_EVENT_MAX - 1
-};
-
-enum {
-	EV_TIMER_SAFE_MARGIN_US = 4000000	// in us,
-};
 
 enum {
 	SYS_EXCEPTTION_COMMON_MEM_ACCESS = 0,

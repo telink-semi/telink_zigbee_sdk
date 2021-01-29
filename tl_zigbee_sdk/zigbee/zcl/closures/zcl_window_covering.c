@@ -71,9 +71,9 @@
 static status_t zcl_windowCovering_cmdHandler(zclIncoming_t *pInMsg);
 
 
-_CODE_ZCL_ status_t zcl_windowCovering_register(u8 endpoint, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb)
+_CODE_ZCL_ status_t zcl_windowCovering_register(u8 endpoint, u16 manuCode, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb)
 {
-	return zcl_registerCluster(endpoint, ZCL_CLUSTER_CLOSURES_WINDOW_COVERING, attrNum, attrTbl, zcl_windowCovering_cmdHandler, cb);
+	return zcl_registerCluster(endpoint, ZCL_CLUSTER_CLOSURES_WINDOW_COVERING, manuCode, attrNum, attrTbl, zcl_windowCovering_cmdHandler, cb);
 }
 
 

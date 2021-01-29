@@ -70,9 +70,9 @@
  */
 static status_t zcl_ota_cmdHandler(zclIncoming_t *pInMsg);
 
-_CODE_ZCL_ status_t zcl_ota_register(u8 endpoint, u8 arrtNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb)
+_CODE_ZCL_ status_t zcl_ota_register(u8 endpoint, u16 manuCode, u8 arrtNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb)
 {
-	return zcl_registerCluster(endpoint, ZCL_CLUSTER_OTA, arrtNum, attrTbl, zcl_ota_cmdHandler, cb);
+	return zcl_registerCluster(endpoint, ZCL_CLUSTER_OTA, manuCode, arrtNum, attrTbl, zcl_ota_cmdHandler, cb);
 }
 
 _CODE_ZCL_ status_t zcl_ota_imageNotifySend(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, ota_imageNotify_t *pReq)
@@ -563,6 +563,7 @@ _CODE_ZCL_ static status_t zcl_ota_imageNotifyPrc(zclIncoming_t *pInMsg)
 
 	if(pInMsg->clusterAppCb){
 		zclIncomingAddrInfo_t addrInfo;
+		addrInfo.apsSec = pInMsg->msg->indInfo.security_status & SECURITY_IN_APSLAYER ? TRUE : FALSE;
 		addrInfo.dirCluster = pInMsg->hdr.frmCtrl.bf.dir;
 		addrInfo.profileId = pApsdeInd->indInfo.profile_id;
 		addrInfo.srcAddr = pApsdeInd->indInfo.src_short_addr;

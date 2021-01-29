@@ -67,16 +67,13 @@ u16 TL_ZB_ASSOCJOIN_PERMIT_PANID = DEFAULT_PANID;
 u16 TL_ZB_ASSOCJOIN_FILTER_PANID = FILTER_PANID;
 
 /* APS data fragmentation setting */
-u8 APS_INTERFRAME_DELAY = 100;
+u8 APS_INTERFRAME_DELAY = 100;//ms
 u8 APS_MAX_WINDOW_SIZE = 1;
 u8 APS_FRAGMEMT_PAYLOAD_SIZE = 64;
 
 //The maximum number of retries allowed after a transmission failure.
 u8 APS_MAX_FRAME_RETRIES = 3;
 u8 APS_ACK_EXPIRY = 2;//seconds
-
-/* queue size of the software timer event */
-u8 TIMER_EVENT_SIZE = TIMER_EVENT_NUM;
 
 /* buffer pool size for zigbee pro */
 u8 ZB_BUF_POOL_SIZE = ZB_BUF_POOL_NUM;
@@ -90,10 +87,10 @@ u8 ZB_MAC_EXT_EXPEIRY_CNT = ZB_MAC_INTERNAL_EXPIRY_CNT;
 u8 NWK_NEIGHBORTBL_ADD_LQITHRESHOLD = 0x5F;
 
 /* the life time for unauthorized child table, 5 seconds */
-u32 NWK_UNAUTH_CHILD_TABLE_LIFE_TIME = (5 * 1000 * 1000);
+u32 NWK_UNAUTH_CHILD_TABLE_LIFE_TIME = (5 * 1000);
 
 /* timeout waiting for transport nwk key during association join or security rejoin, 2 seconds */
-u32 TRANSPORT_NETWORK_KEY_WAIT_TIME = (2 * 1000 * 1000);
+u32 TRANSPORT_NETWORK_KEY_WAIT_TIME = (2 * 1000);
 
 /* the cost threshold for one hop */
 u8 NWK_COST_THRESHOLD_ONEHOP = 3;
@@ -256,10 +253,10 @@ const zdo_attrCfg_t zdoCfgAttrDefault = {
 	.config_nwk_time_btwn_scans			= ZDO_NWK_TIME_BTWN_SCANS,
 	.config_permit_join_duration 		= ZDO_PERMIT_JOIN_DURATION,
 	.config_rejoin_times				= ZDO_REJOIN_TIMES,
-	.config_rejoin_interval 			= ZDO_REJOIN_INTERVAL,
-	.config_max_rejoin_interval			= ZDO_MAX_REJOIN_INTERVAL,
+	.config_rejoin_duration 			= ZDO_REJOIN_DURATION,
 	.config_rejoin_backoff_time			= ZDO_REJOIN_BACKOFF_TIME,
 	.config_max_rejoin_backoff_time		= ZDO_MAX_REJOIN_BACKOFF_TIME,
+	.config_rejoin_backoff_iteration	= ZDO_REJOIN_BACKOFF_ITERATION,
 };
 
 

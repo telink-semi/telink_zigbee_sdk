@@ -55,9 +55,9 @@
 			<locationURI>PARENT-2-PROJECT_LOC/apps/common</locationURI>
 		</link>
 		<link>
-			<name>apps/sampleContactSensor_B91</name>
+			<name>apps/sampleContactSensor</name>
 			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/apps/sampleContactSensor_B91</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/apps/sampleContactSensor</locationURI>
 		</link>
 		<link>
 			<name>apps/sampleGW</name>
@@ -70,9 +70,9 @@
 			<locationURI>PARENT-2-PROJECT_LOC/apps/sampleLight</locationURI>
 		</link>
 		<link>
-			<name>apps/sampleSwitch_B91</name>
+			<name>apps/sampleSwitch</name>
 			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/apps/sampleSwitch_B91</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/apps/sampleSwitch</locationURI>
 		</link>
 		<link>
 			<name>platform/boot</name>

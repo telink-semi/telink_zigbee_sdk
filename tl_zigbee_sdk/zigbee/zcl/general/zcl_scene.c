@@ -75,7 +75,7 @@ void zcl_scene_updateSceneCntAttr(u8 endpoint);
 static status_t zcl_scene_cmdHandler(zclIncoming_t *pInMsg);
 
 
-_CODE_ZCL_ status_t zcl_scene_register(u8 endpoint, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb)
+_CODE_ZCL_ status_t zcl_scene_register(u8 endpoint, u16 manuCode, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb)
 {
 	u8 status = ZCL_STA_SUCCESS;
 
@@ -83,7 +83,7 @@ _CODE_ZCL_ status_t zcl_scene_register(u8 endpoint, u8 attrNum, const zclAttrInf
     	zcl_scene_sceneTabClear();
     }
 
-    status = zcl_registerCluster(endpoint, ZCL_CLUSTER_GEN_SCENES, attrNum, attrTbl, zcl_scene_cmdHandler, cb);
+    status = zcl_registerCluster(endpoint, ZCL_CLUSTER_GEN_SCENES, manuCode, attrNum, attrTbl, zcl_scene_cmdHandler, cb);
 
     if(status == ZCL_STA_SUCCESS){
     	zcl_scene_updateSceneCntAttr(endpoint);

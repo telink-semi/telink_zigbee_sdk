@@ -425,10 +425,10 @@ typedef struct{
  */
 typedef struct{
 	af_simple_descriptor_t *simpleDesc;
-	bdb_commissionSetting_t *commisionSettings;
+	bdb_commissionSetting_t *commissionSettings;
 	union{
-		ev_time_event_t *identifyTimer;
-		ev_time_event_t *retrieveTcLkKeyTimer;
+		ev_timer_event_t *identifyTimer;
+		ev_timer_event_t *retrieveTcLkKeyTimer;
 	};
 	bdb_appCb_t *bdbAppCb;
 	findBindQ_t	*pFindBindQ;

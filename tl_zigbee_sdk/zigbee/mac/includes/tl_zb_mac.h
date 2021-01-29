@@ -861,7 +861,7 @@ typedef struct{
 	u8 beaconTriesNum;
 
 	struct{
-		ev_time_event_t *timer; 	/* for original */;
+		ev_timer_event_t *timer; 	/* for original */;
 	}indirectData;
 
 	u8 *txRawDataBuf;

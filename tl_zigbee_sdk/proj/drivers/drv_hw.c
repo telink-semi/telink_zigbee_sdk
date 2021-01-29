@@ -154,12 +154,23 @@ startup_state_e drv_platform_init(void)
 	CLOCK_INIT;
 #endif
 
+	gpio_init(TRUE);
+
 	if(state == SYSTEM_RETENTION_NONE){
 		randInit();
 		internalFlashSizeCheck();
+#if PM_ENABLE
+		PM_CLOCK_INIT();
+#endif
+	}else{
+#if PM_ENABLE
+		drv_pm_wakeupTimeUpdate();
+#endif
 	}
 
-	gpio_init(TRUE);
+#if UART_PRINTF_MODE
+	DEBUG_TX_PIN_INIT();
+#endif
 
 	ZB_RADIO_INIT();
 

@@ -189,7 +189,7 @@ extern const u8 zcl_group_attrNum;
  *
  * @return      Status
  */
-status_t zcl_group_register(u8 endpoint, u8 arrtNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
+status_t zcl_group_register(u8 endpoint, u16 manuCode, u8 arrtNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
 
 /**
  * @brief       API to send Add command in Group cluster

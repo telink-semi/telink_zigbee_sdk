@@ -57,7 +57,7 @@
     .org 0x0
 
 	.extern FILE_VERSION
-	.extern MANUFACTURER_CODE
+	.extern MANUFACTURER_CODE_TELINK
 	.extern IMAGE_TYPE
 
     .global _RESET_ENTRY
@@ -72,7 +72,7 @@ _RESET_ENTRY:
 	//free the 6th ~ 7th byte to store the crc type of the bin file
 
 	.org 0x12
-	.short (MANUFACTURER_CODE)
+	.short (MANUFACTURER_CODE_TELINK)
 	.short (IMAGE_TYPE)
 
     .org 0x18

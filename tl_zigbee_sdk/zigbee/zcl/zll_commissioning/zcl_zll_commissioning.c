@@ -519,7 +519,7 @@ _CODE_ZCL_ static u8 zcl_touchLinkClientCmdHandler(zclIncoming_t *pInMsg){
 
 				if(req.identifyDuration == 0){
 					identifyTime = 0;
-				}else if (req.identifyDuration >= 0x0001 && req.identifyDuration <= 0xfffe){
+				}else if (req.identifyDuration >= 0x0001 && req.identifyDuration <= NWK_BROADCAST_RESERVED){
 					identifyTime = req.identifyDuration;
 				}else if(req.identifyDuration == 0xffff ){
 					identifyTime = DEFAULT_IDENTIFY_DURATION;
@@ -650,7 +650,7 @@ _CODE_ZCL_ static u8 zcl_zllCommissionServerCmdHandler(zclIncoming_t *pInMsg){
 					g_zllTouchLink.workingChannelBackUp = nscr->logicalChannel;
 				}
 				zcl_zllTouchLinkStartNetworkStartOrJoinTimerStop();
-				TL_ZB_TIMER_SCHEDULE(zcl_zllTouchLinkNetworkStartResponseHandler, nscr, ZB_MIN_STARTUP_DELAY_TIME + 1000 * 1000);
+				TL_ZB_TIMER_SCHEDULE(zcl_zllTouchLinkNetworkStartResponseHandler, nscr, ZB_MIN_STARTUP_DELAY_TIME + 1000);
 			}else{
 				ev_buf_free((u8 *)nscr);
 			}
@@ -913,7 +913,7 @@ _CODE_ZCL_ u8 zcl_touchLinkCmdHandler(zclIncoming_t *pInMsg){
 _CODE_ZCL_ status_t zcl_touchlink_register(u8 endpoint, const zcl_touchlinkAppCallbacks_t *cb){
 	g_zllCommission.appCb = cb;
 	zcl_touchLinkInit();
-	return zcl_registerCluster(endpoint, ZCL_CLUSTER_TOUCHLINK_COMMISSIONING, 0, NULL, zcl_touchLinkCmdHandler, NULL);
+	return zcl_registerCluster(endpoint, ZCL_CLUSTER_TOUCHLINK_COMMISSIONING, 0, 0, NULL, zcl_touchLinkCmdHandler, NULL);
 }
 
 

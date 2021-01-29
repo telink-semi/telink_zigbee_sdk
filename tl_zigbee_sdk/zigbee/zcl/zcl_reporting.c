@@ -56,7 +56,7 @@ zcl_reportingTab_t reportingTab;
 /**********************************************************************
  * LOCAL VARIABLES
  */
-ev_time_event_t *reportAttrTimerEvt = NULL;
+ev_timer_event_t *reportAttrTimerEvt = NULL;
 
 /**********************************************************************
  * FUNCTIONS
@@ -550,7 +550,7 @@ _CODE_ZCL_ void reportAttrTimerStart(u16 seconds)
 			reportCfgInfo_t *pEntry = &reportingTab.reportCfgInfo[i];
 			if(pEntry->used && (pEntry->minInterval || (pEntry->maxInterval && (pEntry->maxInterval != 0xFFFF)))){
 				if(zb_bindingTblSearched(pEntry->clusterID, pEntry->endPoint)){
-					reportAttrTimerEvt = TL_ZB_TIMER_SCHEDULE(reportAttrTimerCb, NULL, seconds * 1000 * 1000);
+					reportAttrTimerEvt = TL_ZB_TIMER_SCHEDULE(reportAttrTimerCb, NULL, seconds * 1000);
 					break;
 				}
 			}

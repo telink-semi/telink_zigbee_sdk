@@ -128,19 +128,7 @@ typedef struct{
 	 * It is employed within ZDO to provide a time duration between the NLME-NETWORKDISCOVERY.request attempts.
 	 */
 	u32	config_nwk_indirectPollRate;//In ms
-
 	u16	config_nwk_time_btwn_scans;//In ms, default value, 100ms on 2.4GHz
-
-	u16	config_rejoin_interval;//The units of this attribute are seconds and the default value is ZDO_REJOIN_INTERVAL.
-	u16	config_max_rejoin_interval;/* The units of this attribute are seconds and the default value is ZDO_MAX_REJOIN_INTERVAL. */
-
-	/* Addition rejoin backoff for devices.
-	 * Either config_rejoin_backoff_time, config_max_rejoin_backoff_time or config_rejoin_times is ZERO,
-	 * it will not start a rejoin backoff timer.
-	 */
-	u16	config_rejoin_backoff_time;
-	u16	config_max_rejoin_backoff_time;
-	u8	config_rejoin_times;//Rejoin config_rejoin_times times every config_rejoin_interval seconds.
 
 	/* The :Config_NWK_Scan_Attempts is employed within ZDO to call the NLME-NETWORKDISCOVERY.
 	 * request primitive the indicated number of times (for routers and end devices).Integer value
@@ -149,7 +137,21 @@ typedef struct{
 	 */
 	u8	config_nwk_scan_attempts;//This attribute has default value of 5 and valid values between 1 and 255.
 	u8	config_permit_join_duration;//Permit join duration, 0x00 - disable join, 0xff - join is allowed forever
-	u8	config_parent_link_retry_threshold;//Number of retry parent syns before judged as connection lost and the default value is ZDO_MAX_PARENT_THRESHOLD_RETRY
+	u8	config_parent_link_retry_threshold;//Number of retry parent sync before judged as connection lost and the default value is ZDO_MAX_PARENT_THRESHOLD_RETRY
+
+	/* Addition rejoin backoff for devices.
+	 * If the config_rejoin_times is ZERO, it will not start Fast Rejoin and Rejoin Backoff behavior.
+	 */
+	u8	config_rejoin_times;//The number of rejoin attempts during the fast rejoin.
+							//If 0 means disable Fast Rejoin and Rejoin Backoff;
+							//if 1, the config_rejoin_duration setting is not useful.
+	u16	config_rejoin_duration;//The amount of time between each rejoin attempt while the device is in Fast Rejoin mode, in seconds.
+							   //If 0, config_rejoin_times will be ignored and only one Fast Rejoin will be performed.
+	u16	config_rejoin_backoff_time;//The amount of time to sleep after the Fast Rejoin attempts before performing the next attempt, in seconds.
+								   //If 0 means no Rejoin backoff/retry.
+	u16	config_max_rejoin_backoff_time;//Upper limit of the config_rejoin_backoff_time.
+	u16 config_rejoin_backoff_iteration;//The number of iterations of the Fast Rejoin backoff, in seconds.
+										//If 0 means do not reset the backoff duration.
 }zdo_attrCfg_t;
 
 
@@ -241,20 +243,20 @@ void zdo_af_set_syn_rate(u32 newRate);
  *
  * @return	rejoin interval
  */
-u16 zdo_af_get_rejoin_interval(void);
-void zdo_af_set_rejoin_interval(u16 interval);
-
-u16 zdo_af_get_max_rejoin_interval(void);
-void zdo_af_set_max_rejoin_interval(u16 interval);
-
 u8 zdo_af_get_rejoin_times(void);
 void zdo_af_set_rejoin_times(u8 times);
 
-u16 zdo_af_get_rejoin_backoff(void);
-void zdo_af_set_rejoin_backoff(u16 interval);
+u16 zdo_af_get_rejoin_duration(void);
+void zdo_af_set_rejoin_duration(u16 duration);
 
-u16 zdo_af_get_max_rejoin_backoff(void);
-void zdo_af_set_max_rejoin_backoff(u16 interval);
+u16 zdo_af_get_rejoin_backoff_time(void);
+void zdo_af_set_rejoin_backoff_time(u16 interval);
+
+u16 zdo_af_get_max_rejoin_backoff_time(void);
+void zdo_af_set_max_rejoin_backoff_time(u16 interval);
+
+u16 zdo_af_get_rejoin_backoff_iteration(void);
+void zdo_af_set_rejoin_backoff_iteration(u16 iteration);
 
 /****************************************************************************************************
  * @brief	The :Config_NWK_Scan_Attempts is employed within ZDO to call the NLME-NETWORKDISCOVERY. request

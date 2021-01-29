@@ -86,7 +86,7 @@ extern ota_callBack_t sampleLight_otaCb;
 ota_preamble_t sampleLight_otaInfo = {
 	.fileVer 			= FILE_VERSION,
 	.imageType 			= IMAGE_TYPE,
-	.manufacturerCode 	= MANUFACTURER_CODE,
+	.manufacturerCode 	= MANUFACTURER_CODE_TELINK,
 };
 #endif
 
@@ -130,7 +130,7 @@ bdb_commissionSetting_t g_bdbCommissionSetting = {
 /**********************************************************************
  * LOCAL VARIABLES
  */
-ev_time_event_t *sampleLightAttrsStoreTimerEvt = NULL;
+ev_timer_event_t *sampleLightAttrsStoreTimerEvt = NULL;
 
 
 /**********************************************************************
@@ -167,7 +167,7 @@ void stack_init(void)
  */
 void user_app_init(void)
 {
-	af_nodeDescManuCodeUpdate(MANUFACTURER_CODE);
+	af_nodeDescManuCodeUpdate(MANUFACTURER_CODE_TELINK);
 
     /* Initialize ZCL layer */
 	/* Register Incoming ZCL Foundation command/response messages */
@@ -213,10 +213,9 @@ s32 sampleLightAttrsStoreTimerCb(void *arg)
 void sampleLightAttrsStoreTimerStart(void)
 {
 	if(sampleLightAttrsStoreTimerEvt){
-		ev_on_timer(sampleLightAttrsStoreTimerEvt, 200 * 1000);
-	}else{
-		sampleLightAttrsStoreTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLightAttrsStoreTimerCb, NULL, 200 * 1000);
+		TL_ZB_TIMER_CANCEL(&sampleLightAttrsStoreTimerEvt);
 	}
+	sampleLightAttrsStoreTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLightAttrsStoreTimerCb, NULL, 200);
 }
 
 void sampleLightAttrsChk(void)

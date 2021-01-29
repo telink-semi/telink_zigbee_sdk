@@ -73,6 +73,8 @@ typedef struct{
 
 #if defined(MCU_CORE_826x)
 	#define PM_CLOCK_INIT()
+
+	#define PM_NORMAL_SLEEP_MAX				(100 * 1000)//100s, (0xC0000000 / 32)
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	#define PM_CLOCK_INIT()					do{ \
 												/* Initialize 32K for timer wakeup. */	\
@@ -80,6 +82,8 @@ typedef struct{
 												rc_32k_cal();							\
 												pm_select_internal_32k_rc();			\
 											}while(0)
+
+	#define PM_NORMAL_SLEEP_MAX				(230 * 1000)//230s, (0xE0000000 / 16)
 #elif defined(MCU_CORE_B91)
 	/* 24M RC is inaccurate, and it is greatly affected by temperature, so real-time calibration is required
 	 * The 24M RC needs to be calibrated before the pm_sleep_wakeup function,
@@ -92,6 +96,8 @@ typedef struct{
 												clock_32k_init(CLK_32K_RC);				\
 												clock_cal_32k_rc();/*6.68ms*/			\
 											}while(0)
+
+	#define PM_NORMAL_SLEEP_MAX				(230 * 1000)//230s, (0xE0000000 / 16)
 #endif
 
 
@@ -105,6 +111,7 @@ u8 drv_pm_wakeupPinValid(drv_pm_pinCfg_t *pinCfg, u32 pinNum);
 void drv_pm_sleep(drv_pm_sleep_mode_e mode, drv_pm_wakeup_src_e src, u32 durationMs);
 void drv_pm_longSleep(drv_pm_sleep_mode_e mode, drv_pm_wakeup_src_e src, u32 durationMs);
 
-u8 drv_pm_suspendEnter(drv_pm_wakeup_src_e wakeUpSrc, u32 ms);
-u8 drv_pm_deepSleepEnter(drv_pm_wakeup_src_e wakeUpSrc, u32 ms);
-u8 drv_pm_interleaveSleepEnter(drv_pm_wakeup_src_e wakeUpSrc, u32 ms);
+void drv_pm_lowPowerEnter(void);
+void drv_pm_wakeupTimeUpdate(void);
+
+

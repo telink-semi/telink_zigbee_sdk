@@ -264,7 +264,7 @@ extern const zclAttrInfo_t ota_attrTbl[];
 extern const u8 zcl_ota_attrNum;
 #endif
 
-status_t zcl_ota_register(u8 endpoint, u8 arrtNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
+status_t zcl_ota_register(u8 endpoint, u16 manuCode, u8 arrtNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
 
 status_t zcl_ota_imageNotifySend(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, ota_imageNotify_t *pReq);
 #define zcl_ota_imageNotifyCmdSend(a,b,c,d)	(zcl_ota_imageNotifySend((a), (b), (c), ZCL_SEQ_NUM, (d)))

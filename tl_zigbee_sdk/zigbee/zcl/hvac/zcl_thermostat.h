@@ -202,7 +202,7 @@ typedef struct
 }zcl_thermostat_getRelayStatusLogRspCmd_t;
 
 
-status_t zcl_thermostat_register(u8 endpoint, u8 arrtNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
+status_t zcl_thermostat_register(u8 endpoint, u16 manuCode, u8 arrtNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
 
 status_t zcl_thermostat_setpointRaiseLowerCmd(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, zcl_thermostat_setpointRaiseLowerCmd_t *pCmd);
 #define zcl_thermostat_setpointRaiseLowerCmdSend(a,b,c,d)	(zcl_thermostat_setpointRaiseLowerCmd((a), (b), (c), ZCL_SEQ_NUM, (d)))

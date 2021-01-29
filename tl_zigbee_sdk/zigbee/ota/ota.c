@@ -120,7 +120,7 @@ ota_preamble_t otaServerBinInfo;
  * LOCAL VARIABLES
  */
 
-ev_time_event_t otaTimer;
+ev_timer_event_t otaTimer;
 
 /**********************************************************************
  * FUNCTIONS
@@ -410,7 +410,7 @@ void ota_queryStart(u8 period)
 		if(!ev_timer_exist(&otaTimer)){
 			otaTimer.cb = ota_periodicQueryServerCb;
 			otaTimer.data = (void *)((u32)period);
-			ev_on_timer(&otaTimer, OTA_PERIODIC_QUERY_SERVER_INTERVAL_S * 1000 * 1000);
+			ev_on_timer(&otaTimer, OTA_PERIODIC_QUERY_SERVER_INTERVAL_S * 1000);
 		}
 	}
 }
@@ -499,7 +499,7 @@ void sendImageBlockReq(void *arg)
 	//start a timer to wait image block rsp
 	otaTimer.cb = ota_imageBlockRspWait;
 	otaTimer.data = NULL;
-	ev_on_timer(&otaTimer, OTA_MAX_IMAGE_BLOCK_RSP_WAIT_TIME * 1000 * 1000);
+	ev_on_timer(&otaTimer, OTA_MAX_IMAGE_BLOCK_RSP_WAIT_TIME * 1000);
 }
 
 s32 ota_sendImageBlockReqDelay(void *arg)
@@ -516,7 +516,7 @@ void ota_sendImageBlockReq(void *arg)
 	if(zcl_attr_minBlockPeriod){
 		otaTimer.cb = ota_sendImageBlockReqDelay;
 		otaTimer.data = NULL;
-		ev_on_timer(&otaTimer, zcl_attr_minBlockPeriod * 1000);
+		ev_on_timer(&otaTimer, zcl_attr_minBlockPeriod);
 	}else{
 		sendImageBlockReq(NULL);
 	}
@@ -544,7 +544,7 @@ void ota_imageBlockWait(u32 seconds)
 	if(seconds){
 		otaTimer.cb = ota_imageBlockWaitCb;
 		otaTimer.data = (void *)seconds;
-		ev_on_timer(&otaTimer, 1 * 1000 * 1000);
+		ev_on_timer(&otaTimer, 1000);
 	}else{
 		ota_sendImageBlockReq(NULL);
 	}
@@ -605,7 +605,7 @@ void ota_upgradeWait(u32 seconds)
 	if(seconds){
 		otaTimer.cb = ota_upgradeWaitCb;
 		otaTimer.data = (void *)seconds;
-		ev_on_timer(&otaTimer, 1 * 1000 * 1000);
+		ev_on_timer(&otaTimer, 1000);
 	}else{
 		ota_upgrade();
 	}

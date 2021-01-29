@@ -582,7 +582,7 @@ _CODE_BDB_ static void bdb_simpleDescReqSend(void *arg)
 		}
 #endif
 
-		g_bdbCtx.identifyTimer = TL_ZB_TIMER_SCHEDULE(bdb_simpleDescReqTimeoutCb, NULL, simpleDescReqTimeout * 1000);
+		g_bdbCtx.identifyTimer = TL_ZB_TIMER_SCHEDULE(bdb_simpleDescReqTimeoutCb, NULL, simpleDescReqTimeout);
 	}else{
 		//g_bdbAttrs.commissioningStatus = BDB_COMMISSION_STA_SUCCESS;
 		BDB_STATUS_SET(BDB_COMMISSION_STA_SUCCESS);
@@ -672,7 +672,7 @@ _CODE_BDB_ static u8 bdb_commissioningFindBind(void)
 				 * */
 				/* Handle identify query requests from the initiator until Identify timer expired*/
 				if(!g_bdbCtx.identifyTimer){
-					g_bdbCtx.identifyTimer = TL_ZB_TIMER_SCHEDULE(bdb_findBindIdentifyTimeout, NULL, BDB_COMMISSION_TIME_INTV * 1000 * 1000);
+					g_bdbCtx.identifyTimer = TL_ZB_TIMER_SCHEDULE(bdb_findBindIdentifyTimeout, NULL, BDB_COMMISSION_TIME_INTV * 1000);
 				}
 
 				if(g_bdbCtx.bdbAppCb->bdbIdentifyCb){
@@ -698,7 +698,7 @@ _CODE_BDB_ static u8 bdb_commissioningFindBind(void)
 
 				/* Start a timer to check if identify query response are received. */
 				if(!g_bdbCtx.identifyTimer){
-					g_bdbCtx.identifyTimer = TL_ZB_TIMER_SCHEDULE(bdb_findBindIdentifyQueryTimeout, NULL, identifyQueryRcvTimeout * 1000);
+					g_bdbCtx.identifyTimer = TL_ZB_TIMER_SCHEDULE(bdb_findBindIdentifyQueryTimeout, NULL, identifyQueryRcvTimeout);
 				}
 			}
 			return BDB_STATE_COMMISSIONING_FINDORBIND;
@@ -900,7 +900,7 @@ _CODE_BDB_ static s32 bdb_retrieveTcLinkKeyTimeout(void *arg)
 				g_bdbCtx.leaveDoing = 1;
 			}
 		}
-		return 3*1000 * 1000;
+		return 3 * 1000;
 	}
 }
 
@@ -927,7 +927,7 @@ _CODE_BDB_ static s32 bdb_retrieveTcLinkKeyStart(void *arg)
 		g_bdbAttrs.tcLinkKeyExchangeAttempts = 0;
 		g_bdbAttrs.tcLinkKeyExchangeAttemptsMax = 3;
 		if(!g_bdbCtx.retrieveTcLkKeyTimer){
-			g_bdbCtx.retrieveTcLkKeyTimer = TL_ZB_TIMER_SCHEDULE(bdb_retrieveTcLinkKeyTimeout, NULL, BDBC_TC_LINK_KEY_EXCHANGE_TIMEOUT * 1000 * 1000);
+			g_bdbCtx.retrieveTcLkKeyTimer = TL_ZB_TIMER_SCHEDULE(bdb_retrieveTcLinkKeyTimeout, NULL, BDBC_TC_LINK_KEY_EXCHANGE_TIMEOUT * 1000);
 		}
 	}else{
 		bdb_retrieveTcLinkKeyDone(BDB_COMMISSION_STA_SUCCESS);
@@ -1129,7 +1129,7 @@ static void bdb_task(void *arg)
 
 		case BDB_STATE_COMMISSIONING_NETWORK_STEER:
 			if(evt == BDB_EVT_COMMISSIONING_NETWORK_STEER_RETRIEVE_TCLINK_KEY){
-				TL_ZB_TIMER_SCHEDULE(bdb_retrieveTcLinkKeyStart, NULL, 1*1000*1000);
+				TL_ZB_TIMER_SCHEDULE(bdb_retrieveTcLinkKeyStart, NULL, 1000);
 			}else if(evt == BDB_EVT_COMMISSIONING_NETWORK_STEER_PERMITJOIN){
 #if ZB_ROUTER_ROLE
 				g_zbNwkCtx.joinAccept = 1;
@@ -1252,7 +1252,7 @@ _CODE_BDB_ void bdb_zdoStartDevCnf(zdo_start_device_confirm_t *startDevCnf){
 #if ZB_ROUTER_ROLE
 				g_zbNwkCtx.joinAccept = 1;
 #endif
-				TL_ZB_TIMER_SCHEDULE(zcl_touchLinkDevStartIndicate, (void *)(startDevCnf->status), 400*1000);
+				TL_ZB_TIMER_SCHEDULE(zcl_touchLinkDevStartIndicate, (void *)(startDevCnf->status), 400);
 			}else{
 				//g_bdbAttrs.commissioningStatus = BDB_COMMISSION_STA_NO_NETWORK;
 				if(startDevCnf->status != ZDO_NETWORK_LEFT){
@@ -1274,7 +1274,7 @@ _CODE_BDB_ void bdb_zdoStartDevCnf(zdo_start_device_confirm_t *startDevCnf){
 				}else{
 					evt = BDB_EVT_COMMISSIONING_NETWORK_STEER_PERMITJOIN;
 				}
-				TL_ZB_TIMER_SCHEDULE(bdb_task_delay, (void *)evt, 200 * 1000);
+				TL_ZB_TIMER_SCHEDULE(bdb_task_delay, (void *)evt, 200);
 			}else{
 				//g_bdbAttrs.commissioningStatus = BDB_COMMISSION_STA_NO_NETWORK;
 				BDB_STATUS_SET(BDB_COMMISSION_STA_NO_NETWORK);
@@ -1561,7 +1561,7 @@ _CODE_BDB_ u8 bdb_init(af_simple_descriptor_t *simple_desc, bdb_commissionSettin
 	g_bdbCtx.inited = 1;
 	g_bdbCtx.bdbAppCb = cb;
 	g_bdbCtx.simpleDesc = simple_desc;
-	g_bdbCtx.commisionSettings = setting;
+	g_bdbCtx.commissionSettings = setting;
 	BDB_STATE_SET(BDB_STATE_INIT);
 
 	/* check if it's a factory-new device */
@@ -1743,10 +1743,10 @@ _CODE_BDB_ void tl_bdbReset(void)
 {
 	af_simple_descriptor_t *sd = g_bdbCtx.simpleDesc;
 	bdb_appCb_t *bcb = g_bdbCtx.bdbAppCb;
-	bdb_commissionSetting_t *commisionSet = g_bdbCtx.commisionSettings;
+	bdb_commissionSetting_t *commissionSet = g_bdbCtx.commissionSettings;
 	g_bdbAttrs.nodeIsOnANetwork = 0;
 	memset((u8 *)&g_bdbCtx,0,sizeof(g_bdbCtx));
-	bdb_init(sd, commisionSet, bcb, 1);
+	bdb_init(sd, commissionSet, bcb, 1);
 }
 
 /*********************************************************************

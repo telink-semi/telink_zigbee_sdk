@@ -98,18 +98,18 @@
  */
 #define ZCL_ATTRID_LEVEL_CURRENT_LEVEL                    0x0000
 #define ZCL_ATTRID_LEVEL_REMAINING_TIME                   0x0001
-#define ZCL_ATTRID_LEVLE_MIN_LEVEL						  0x0002
-#define ZCL_ATTRID_LEVLE_MAX_LEVEL						  0x0003
-#define ZCL_ATTRID_LEVLE_CURRENT_FREQUENCY				  0x0004
-#define ZCL_ATTRID_LEVLE_MIN_FREQUENCY				  	  0x0005
-#define ZCL_ATTRID_LEVLE_MAX_FREQUENCY				  	  0x0006
+#define ZCL_ATTRID_LEVEL_MIN_LEVEL						  0x0002
+#define ZCL_ATTRID_LEVEL_MAX_LEVEL						  0x0003
+#define ZCL_ATTRID_LEVEL_CURRENT_FREQUENCY				  0x0004
+#define ZCL_ATTRID_LEVEL_MIN_FREQUENCY				  	  0x0005
+#define ZCL_ATTRID_LEVEL_MAX_FREQUENCY				  	  0x0006
 #define ZCL_ATTRID_LEVEL_ON_OFF_TRANSITION_TIME           0x0010
 #define ZCL_ATTRID_LEVEL_ON_LEVEL                         0x0011
 #define ZCL_ATTRID_LEVEL_ON_TRANSITION_TIME               0x0012
 #define ZCL_ATTRID_LEVEL_OFF_TRANSITION_TIME              0x0013
 #define ZCL_ATTRID_LEVEL_DEFAULT_MOVE_RATE                0x0014
-#define ZCL_ATTRID_LEVLE_OPTIONS				  	  	  0x000F
-#define ZCL_ATTRID_LEVLE_START_UP_CURRENT_LEVEL		  	  0x4000
+#define ZCL_ATTRID_LEVEL_OPTIONS				  	  	  0x000F
+#define ZCL_ATTRID_LEVEL_START_UP_CURRENT_LEVEL		  	  0x4000
 /** @} end of group zcl_level_attrId */
 
 
@@ -272,7 +272,7 @@ extern const u8 zcl_level_attrNum;
  *
  * @return      Status
  */
-status_t zcl_level_register(u8 endpoint, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
+status_t zcl_level_register(u8 endpoint, u16 manuCode, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
 
 
 /**

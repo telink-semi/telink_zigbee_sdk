@@ -362,7 +362,7 @@ typedef struct{
 }zbhci_app_data_confirm_t;
 
 typedef struct{
-	ev_time_event_t	*performaceTestTmrEvt;
+	ev_timer_event_t *performaceTestTmrEvt;
 	u16 sendTotalCnt;
 	u16 sendSuccessCnt;
 	u16 rcvTotalCnt;

@@ -229,7 +229,7 @@ extern const u8 zcl_iasZone_attrNum;
 #endif
 
 
-status_t zcl_iasZone_register(u8 endpoint, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
+status_t zcl_iasZone_register(u8 endpoint, u16 manuCode, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
 
 
 status_t zcl_iasZone_enrollReq(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, zoneEnrollReq_t *pEnrollReq);

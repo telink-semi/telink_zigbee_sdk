@@ -50,7 +50,7 @@
 #define FACTORY_RESET_POWER_CNT_THRESHOLD		10	//times
 #define FACTORY_RESET_TIMEOUT					2	//second
 
-ev_time_event_t *factoryRst_timerEvt = NULL;
+ev_timer_event_t *factoryRst_timerEvt = NULL;
 u8 factoryRst_powerCnt = 0;
 bool factoryRst_exist = FALSE;
 
@@ -102,6 +102,6 @@ void factroyRst_init(void){
 	if(factoryRst_timerEvt){
 		TL_ZB_TIMER_CANCEL(&factoryRst_timerEvt);
 	}
-	factoryRst_timerEvt = TL_ZB_TIMER_SCHEDULE(factoryRst_timerCb, NULL, FACTORY_RESET_TIMEOUT * 1000 * 1000);
+	factoryRst_timerEvt = TL_ZB_TIMER_SCHEDULE(factoryRst_timerCb, NULL, FACTORY_RESET_TIMEOUT * 1000);
 }
 

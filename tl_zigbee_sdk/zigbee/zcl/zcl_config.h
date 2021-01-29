@@ -123,11 +123,30 @@
 #define ZCL_POLL_CTRL
 #endif
 
-/********************* Green Power Configuration **********************/
+/********************* Green Power Configuration ***********************/
 #if GP_SUPPORT_ENABLE
 #define ZCL_GREEN_POWER
 #endif
 
+/********************* Binary Input Configuration **********************/
+#if ZCL_BINARY_INPUT_SUPPORT
+#define ZCL_BINARY_INPUT
+#endif
+
+/********************* Binary Output Configuration *********************/
+#if ZCL_BINARY_OUTPUT_SUPPORT
+#define ZCL_BINARY_OUTPUT
+#endif
+
+/******************** Multistate Input Configuration *******************/
+#if ZCL_MULITSTATE_INPUT_SUPPORT
+#define ZCL_MULITSTATE_INPUT
+#endif
+
+/******************** Multistate Output Configuration ******************/
+#if ZCL_MULITSTATE_OUTPUT_SUPPORT
+#define ZCL_MULITSTATE_OUTPUT
+#endif
 
 /********************************************* Measurement and Sensing ********************************************/
 /********************* Illuminance Measurement ************************/

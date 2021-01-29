@@ -377,7 +377,7 @@ extern zcl_sceneTable_t g_zcl_sceneTab[];
  *
  * @return      Status
  */
-status_t zcl_scene_register(u8 endpoint, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
+status_t zcl_scene_register(u8 endpoint, u16 manuCode, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
 
 
 /**

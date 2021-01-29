@@ -159,5 +159,4 @@ extern int  cpu_sleep_wakeup(int DeepSleep, int WakeupSrc, unsigned long WakeupT
 extern void cpu_wakeup_init(void);
 extern void sleep_start(void);
 extern void suspend_start(void);
-
-
+extern unsigned int pm_get_32k_tick(void);

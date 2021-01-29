@@ -69,9 +69,9 @@
  * LOCAL FUNCTIONS
  */
 
-_CODE_ZCL_ status_t zcl_temperature_measurement_register(u8 endpoint, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb)
+_CODE_ZCL_ status_t zcl_temperature_measurement_register(u8 endpoint, u16 manuCode, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb)
 {
-	return zcl_registerCluster(endpoint, ZCL_CLUSTER_MS_TEMPERATURE_MEASUREMENT, attrNum, attrTbl, NULL, cb);
+	return zcl_registerCluster(endpoint, ZCL_CLUSTER_MS_TEMPERATURE_MEASUREMENT, manuCode, attrNum, attrTbl, NULL, cb);
 }
 
 #endif	/* ZCL_TEMPERATURE_MEASUREMENT */

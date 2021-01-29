@@ -183,7 +183,7 @@ void rf_init(void)
 
     rf_mac_ack_build();
 
-    /* Register ED-Scan polling function, but disable it at begining. */
+    /* Register ED-Scan polling function, but disable it at beginning. */
     ev_on_poll(EV_POLL_ED_DETECT, rf_edDetect);
 	ev_disable_poll(EV_POLL_ED_DETECT);
 }
@@ -578,7 +578,7 @@ _attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_rx_irq_handler(voi
 		(void)pSrcAddr;
 #endif
 
-		txDelayUs = (clock_time() - txTime) / CLOCK_SYS_CLOCK_1US;
+		txDelayUs = (clock_time() - txTime) / S_TIMER_CLOCK_1US;
 		if(txDelayUs < ZB_TX_WAIT_US){
 			WaitUs(ZB_TX_WAIT_US - txDelayUs);
 		}

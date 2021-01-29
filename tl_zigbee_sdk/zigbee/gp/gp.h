@@ -185,9 +185,9 @@ typedef struct
 */
 typedef struct
 {
-	ev_time_event_t *transmitChannelTimeoutEvt;
-	ev_time_event_t *aliasConflictTimeoutEvt;
-	ev_time_event_t *commissioningWindowTimeoutEvt;
+	ev_timer_event_t *transmitChannelTimeoutEvt;
+	ev_timer_event_t *aliasConflictTimeoutEvt;
+	ev_timer_event_t *commissioningWindowTimeoutEvt;
 	u16 gpAliasConflictAddr;
 	u16 gpCommissionerAddr; //addr to which send the notifications during commissioning mode
 	u16 gpCommissioningWindow;//default value 180 seconds

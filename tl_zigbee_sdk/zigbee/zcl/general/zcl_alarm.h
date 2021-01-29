@@ -205,7 +205,7 @@ extern const u8 zcl_alarm_attrNum;
  *
  * @return      Status
  */
-status_t zcl_alarm_register(u8 endpoint, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
+status_t zcl_alarm_register(u8 endpoint, u16 manuCode, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
 
 
 /**

@@ -72,11 +72,11 @@ static void zcl_level_startUpCurrentLevel(u8 endpoint);
 static status_t zcl_level_cmdHandler(zclIncoming_t *pInMsg);
 
 
-_CODE_ZCL_ status_t zcl_level_register(u8 endpoint, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb)
+_CODE_ZCL_ status_t zcl_level_register(u8 endpoint, u16 manuCode, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb)
 {
 	u8 status = ZCL_STA_SUCCESS;
 
-    status = zcl_registerCluster(endpoint, ZCL_CLUSTER_GEN_LEVEL_CONTROL, attrNum, attrTbl, zcl_level_cmdHandler, cb);
+    status = zcl_registerCluster(endpoint, ZCL_CLUSTER_GEN_LEVEL_CONTROL, manuCode, attrNum, attrTbl, zcl_level_cmdHandler, cb);
 
     if(status == ZCL_STA_SUCCESS){
     	zcl_level_startUpCurrentLevel(endpoint);
@@ -91,7 +91,7 @@ _CODE_ZCL_ static void zcl_level_startUpCurrentLevel(u8 endpoint)
 	u8 preLevel = 0;
 	u16 attrLen = 0;
 
-	if( (zcl_getAttrVal(endpoint, ZCL_CLUSTER_GEN_LEVEL_CONTROL, ZCL_ATTRID_LEVLE_START_UP_CURRENT_LEVEL, &attrLen, (u8 *)&startUpCurrentLevel) == ZCL_STA_SUCCESS) &&
+	if( (zcl_getAttrVal(endpoint, ZCL_CLUSTER_GEN_LEVEL_CONTROL, ZCL_ATTRID_LEVEL_START_UP_CURRENT_LEVEL, &attrLen, (u8 *)&startUpCurrentLevel) == ZCL_STA_SUCCESS) &&
 		(zcl_getAttrVal(endpoint, ZCL_CLUSTER_GEN_LEVEL_CONTROL, ZCL_ATTRID_LEVEL_CURRENT_LEVEL, &attrLen, (u8 *)&preLevel) == ZCL_STA_SUCCESS) ){
 			u8 dstLevel = 0;
 

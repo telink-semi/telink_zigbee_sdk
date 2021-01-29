@@ -71,9 +71,9 @@
 static status_t zcl_identify_cmdHandler(zclIncoming_t *pInMsg);
 
 
-_CODE_ZCL_ status_t zcl_identify_register(u8 endpoint, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb)
+_CODE_ZCL_ status_t zcl_identify_register(u8 endpoint, u16 manuCode, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb)
 {
-    return zcl_registerCluster(endpoint, ZCL_CLUSTER_GEN_IDENTIFY, attrNum, attrTbl, zcl_identify_cmdHandler, cb);
+    return zcl_registerCluster(endpoint, ZCL_CLUSTER_GEN_IDENTIFY, manuCode, attrNum, attrTbl, zcl_identify_cmdHandler, cb);
 }
 
 
@@ -145,6 +145,10 @@ _CODE_ZCL_ static status_t zcl_identifyQueryPrc(zclIncoming_t *pInMsg)
 		    dstEp.dstAddr.shortAddr = pApsdeInd->indInfo.src_short_addr;
 		    dstEp.dstEp = pApsdeInd->indInfo.src_ep;
 		    dstEp.profileId = pApsdeInd->indInfo.profile_id;
+			dstEp.txOptions |= APS_TX_OPT_ACK_TX;
+			if(pInMsg->msg->indInfo.security_status & SECURITY_IN_APSLAYER){
+				dstEp.txOptions |= APS_TX_OPT_SECURITY_ENABLED;
+			}
 
 		    zcl_identify_identifyQueryRsp(endpoint, &dstEp, TRUE, pInMsg->hdr.seqNum, identifyTime);
 

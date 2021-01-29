@@ -111,7 +111,7 @@ _CODE_ZCL_ static void zcl_zllTouchLinkIdentifyRequest(void *arg){
 				zdo_nlmeChannelShift(peerInfo->logicalChannel);
 			}
 			/* channel restore */
-			TL_ZB_TIMER_SCHEDULE(zcl_touchLinkIdentifyRequestDone, (void *)ZCL_ZLL_TOUCH_LINK_STA_EXIST, 5000);
+			TL_ZB_TIMER_SCHEDULE(zcl_touchLinkIdentifyRequestDone, (void *)ZCL_ZLL_TOUCH_LINK_STA_EXIST, 5);
 			return;
 		}
 
@@ -571,7 +571,7 @@ _CODE_ZCL_ void zcl_zllTouchLinkDiscoveyStart(void){
 	if(g_zllTouchLink.runTimer){
 		TL_ZB_TIMER_CANCEL(&g_zllTouchLink.runTimer);
 	}
-	g_zllTouchLink.runTimer = TL_ZB_TIMER_SCHEDULE(zcl_touchLinkScanStart, NULL, 5000);
+	g_zllTouchLink.runTimer = TL_ZB_TIMER_SCHEDULE(zcl_touchLinkScanStart, NULL, 5);
 
 	/* start a timer which is used during the whole touch link */
 	if(g_zllTouchLink.transIdLifeTimer){

@@ -514,7 +514,7 @@ s32 light_blink_TimerEvtCb(void *arg)
 		interval = gLightCtx.ledOffTime;
 	}
 
-	return interval * 1000;
+	return interval;
 }
 
 /*********************************************************************
@@ -549,7 +549,7 @@ void light_blink_start(u8 times, u16 ledOnTime, u16 ledOffTime)
 		gLightCtx.ledOnTime = ledOnTime;
 		gLightCtx.ledOffTime = ledOffTime;
 
-		gLightCtx.timerLedEvt = TL_ZB_TIMER_SCHEDULE(light_blink_TimerEvtCb, NULL, interval * 1000);
+		gLightCtx.timerLedEvt = TL_ZB_TIMER_SCHEDULE(light_blink_TimerEvtCb, NULL, interval);
 	}
 }
 

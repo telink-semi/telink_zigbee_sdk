@@ -435,7 +435,7 @@ _CODE_ZCL_ static void zcl_zllTouchLinNetworkStartRespCmdSend(void *arg){
 	 * */
 
 	if(status == SUCCESS){
-		TL_ZB_TIMER_SCHEDULE(zcl_zllTouchLinkNetworkStartOrJoinNwkLeave, NULL, 100 * 1000);
+		TL_ZB_TIMER_SCHEDULE(zcl_zllTouchLinkNetworkStartOrJoinNwkLeave, NULL, 100);
 	}else{
 		zcl_zllTouchLinkFinish(ZCL_ZLL_TOUCH_LINK_FAIL);
 	}
@@ -558,7 +558,7 @@ _CODE_ZCL_ void zcl_zllTouchLinkNetworkJoinRequestHandler(u8 cmd){
 		/*
 		 * leave network if it's a non-factory new device
 		 */
-		TL_ZB_TIMER_SCHEDULE(zcl_zllTouchLinkNetworkStartOrJoinNwkLeave, NULL, 100*1000);
+		TL_ZB_TIMER_SCHEDULE(zcl_zllTouchLinkNetworkStartOrJoinNwkLeave, NULL, 100);
 	}
 	return;
 }

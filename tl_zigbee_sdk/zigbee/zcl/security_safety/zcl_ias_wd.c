@@ -70,10 +70,10 @@
  */
 static status_t zcl_iasWd_cmdHandler(zclIncoming_t *pInMsg);
 
-_CODE_ZCL_ status_t zcl_iasWd_register(u8 endpoint, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb)
+_CODE_ZCL_ status_t zcl_iasWd_register(u8 endpoint, u16 manuCode, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb)
 {
 
-	return zcl_registerCluster(endpoint, ZCL_CLUSTER_SS_IAS_WD, attrNum, attrTbl, zcl_iasWD_cmdHandler, cb);
+	return zcl_registerCluster(endpoint, ZCL_CLUSTER_SS_IAS_WD, manuCode, attrNum, attrTbl, zcl_iasWD_cmdHandler, cb);
 }
 
 _CODE_ZCL_ status_t zcl_iasWd_startWarning(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, startWarning_t *pStartWarning)

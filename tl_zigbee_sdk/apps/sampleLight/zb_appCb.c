@@ -92,7 +92,7 @@ ota_callBack_t sampleLight_otaCb =
 u32 heartInterval = 0;
 
 #if DEBUG_HEART
-ev_time_event_t *heartTimerEvt = NULL;
+ev_timer_event_t *heartTimerEvt = NULL;
 #endif
 
 /**********************************************************************
@@ -107,7 +107,7 @@ static s32 heartTimerCb(void *arg){
 
 	gpio_toggle(LED_POWER);
 
-	return heartInterval * 1000;
+	return heartInterval;
 }
 #endif
 
@@ -151,12 +151,12 @@ void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
 			heartInterval = 500;
 
 #if	(!ZBHCI_EN)
-			u16 jitter=0;
+			u16 jitter = 0;
 			do{
 				jitter = zb_random();
 				jitter &= 0xfff;
-			}while(jitter==0);
-			TL_ZB_TIMER_SCHEDULE(sampleLight_bdbNetworkSteerStart, NULL, jitter * 1000);
+			}while(jitter == 0);
+			TL_ZB_TIMER_SCHEDULE(sampleLight_bdbNetworkSteerStart, NULL, jitter);
 #endif
 		}
 	}else{
@@ -167,7 +167,7 @@ void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
 	if(heartTimerEvt){
 		TL_ZB_TIMER_CANCEL(&heartTimerEvt);
 	}
-	heartTimerEvt = TL_ZB_TIMER_SCHEDULE(heartTimerCb, NULL, heartInterval * 1000);
+	heartTimerEvt = TL_ZB_TIMER_SCHEDULE(heartTimerCb, NULL, heartInterval);
 #endif
 }
 
@@ -199,7 +199,7 @@ void zbdemo_bdbCommissioningCb(u8 status, void *arg){
 
 #if FIND_AND_BIND_SUPPORT
 	    	//start Finding & Binding
-        	TL_ZB_TIMER_SCHEDULE(sampleLight_bdbFindAndBindStart, NULL, 1 * 1000 * 1000);
+        	TL_ZB_TIMER_SCHEDULE(sampleLight_bdbFindAndBindStart, NULL, 1000);
         }
 #endif
 	}else if(status == BDB_COMMISSION_STA_IN_PROGRESS){
@@ -225,8 +225,8 @@ void zbdemo_bdbCommissioningCb(u8 status, void *arg){
 		do{
 			jitter = zb_random();
 			jitter &= 0xfff;
-		}while(jitter==0);
-		TL_ZB_TIMER_SCHEDULE(sampleLight_bdbNetworkSteerStart, NULL, jitter * 1000);
+		}while(jitter == 0);
+		TL_ZB_TIMER_SCHEDULE(sampleLight_bdbNetworkSteerStart, NULL, jitter);
 	}else if(status == BDB_COMMISSION_STA_TARGET_FAILURE){
 
 	}else if(status == BDB_COMMISSION_STA_FORMATION_FAILURE){
@@ -298,7 +298,7 @@ void sampleLight_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf)
     	light_blink_start(3, 200, 200);
 
     	//waiting blink over
-    	TL_ZB_TIMER_SCHEDULE(sampleLight_softReset, NULL, 2 * 1000 * 1000);
+    	TL_ZB_TIMER_SCHEDULE(sampleLight_softReset, NULL, 2 * 1000);
     }
 }
 

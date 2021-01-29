@@ -65,7 +65,7 @@ typedef struct {
     hidvendor_txBuf_t *txBuf;
 
 	/* Following variables are used in the RX more than CDC_TXRX_EPSIZE */
-	ev_time_event_t *timer;
+    ev_timer_event_t *timer;
 
 	hidvendor_handlerFn_t rxCb;
 	hidvendor_handlerFn_t txCb;

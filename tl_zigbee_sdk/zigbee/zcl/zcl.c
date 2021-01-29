@@ -163,7 +163,7 @@ _CODE_ZCL_ void zcl_register(u8 endpoint, u8 clusterNum, zcl_specClusterInfo_t *
 	zcl_specClusterInfo_t *p = info;
 	for(u32 i = 0; i < clusterNum; i++){
 		if(p->clusterRegisterFunc){
-			if(p->clusterRegisterFunc(endpoint, p->attrNum, p->attrTbl, p->clusterAppCb) == ZCL_STA_INSUFFICIENT_SPACE){
+			if(p->clusterRegisterFunc(endpoint, p->manuCode, p->attrNum, p->attrTbl, p->clusterAppCb) == ZCL_STA_INSUFFICIENT_SPACE){
 				return;
 			}
 		}
@@ -198,12 +198,13 @@ _CODE_ZCL_ clusterInfo_t *zcl_findCluster(u8 endpoint, u16 clusterId)
  *
  * @param   endpoint  Specified endpoint
  * @param   clusterId Specified cluster ID
+ * @param   manuCode - manufacturer code for proprietary extensions to a profile
  * @param   attrNum   Specified attribute number in the cluster
  * @param   pAttrTbl  Specified attributes
  *
  * @return  ZCL Status @ref zcl_error_codes
  */
-_CODE_ZCL_ status_t zcl_registerCluster(u8 endpoint, u16 clusterId, u8 attrNum, const zclAttrInfo_t *pAttrTbl, cluster_cmdHdlr_t cmdHdlrFn, cluster_forAppCb_t cb)
+_CODE_ZCL_ status_t zcl_registerCluster(u8 endpoint, u16 clusterId, u16 manuCode, u8 attrNum, const zclAttrInfo_t *pAttrTbl, cluster_cmdHdlr_t cmdHdlrFn, cluster_forAppCb_t cb)
 {
 	if(zcl_vars.clusterNum >= ZCL_CLUSTER_NUM_MAX){
 		return ZCL_STA_INSUFFICIENT_SPACE;
@@ -215,6 +216,7 @@ _CODE_ZCL_ status_t zcl_registerCluster(u8 endpoint, u16 clusterId, u8 attrNum, 
 
 	zcl_vars.clusterList[zcl_vars.clusterNum].endpoint = endpoint;
 	zcl_vars.clusterList[zcl_vars.clusterNum].clusterID = clusterId;
+	zcl_vars.clusterList[zcl_vars.clusterNum].manuCode = manuCode;
 	zcl_vars.clusterList[zcl_vars.clusterNum].attrNum = attrNum;
 	zcl_vars.clusterList[zcl_vars.clusterNum].cmdHandlerFunc = cmdHdlrFn;
 	zcl_vars.clusterList[zcl_vars.clusterNum].clusterAppCb = cb;
@@ -602,22 +604,20 @@ _CODE_ZCL_ status_t zcl_attrWrite(u8 endpoint, u16 clusterId, zclWriteRec_t *pWr
  *
  * @return header length
  */
-_CODE_ZCL_ u8 zcl_buildHdr(u8 *buf, u8 clusterSpec, u8 dir, u8 disDefRsp, u32 manufCode, u8 seqNum, u8 cmd)
+_CODE_ZCL_ static u8 zcl_buildHdr(u8 *buf, u8 clusterSpec, u8 dir, u8 disDefRsp, u16 manufCode, u8 seqNum, u8 cmd)
 {
 	u8 *pBuf = buf;
-	u16 mfgCode = 0xFFFF;
 
 	((zclFrmCtrl_t *)pBuf)->bf.type = (clusterSpec) ? ZCL_FRAME_TYPE_SPECIFIC_CMD : ZCL_FRAME_TYPE_PROFILE_CMD;
-	((zclFrmCtrl_t *)pBuf)->bf.manufSpec = (manufCode & 0x80000000) ? 1 : 0;
+	((zclFrmCtrl_t *)pBuf)->bf.manufSpec = manufCode ? 1 : 0;
 	((zclFrmCtrl_t *)pBuf)->bf.dir = dir;
 	((zclFrmCtrl_t *)pBuf)->bf.disDefResp = disDefRsp;
 	((zclFrmCtrl_t *)pBuf)->bf.reserved = 0;
-    ((zclHdr_t*)pBuf)->cmd = 1;
+
     pBuf++;
-	if(manufCode & 0x80000000){
-		mfgCode = (u16)(manufCode & 0x0000FFFF);
-		memcpy(pBuf, &mfgCode, sizeof(mfgCode));
-		pBuf += sizeof(mfgCode);
+	if(manufCode){
+		*pBuf++ = LO_UINT16(manufCode);
+		*pBuf++ = HI_UINT16(manufCode);
 	}
 	*pBuf++ = seqNum;
 	*pBuf++ = cmd;
@@ -634,7 +634,7 @@ _CODE_ZCL_ u8 zcl_buildHdr(u8 *buf, u8 clusterSpec, u8 dir, u8 disDefRsp, u32 ma
  *                the Sequence Number.
  *
  * @param   srcEp - source endpoint
- * @param   pDstEpInfo - destination endpoint infomation
+ * @param   pDstEpInfo - destination endpoint information
  * @param   clusterID - cluster ID
  * @param   cmd - command ID
  * @param   specific - whether the command is Cluster Specific
@@ -648,7 +648,7 @@ _CODE_ZCL_ u8 zcl_buildHdr(u8 *buf, u8 clusterSpec, u8 dir, u8 disDefRsp, u32 ma
  * @return  status_t
  */
 _CODE_ZCL_ status_t zcl_sendCmd(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, u8 cmd, u8 specific,
-				  	  	  	  	u8 direction, u8 disableDefaultRsp, u32 manuCode, u8 seqNo, u16 cmdPldLen, u8 *cmdPld)
+				  	  	  	  	u8 direction, u8 disableDefaultRsp, u16 manuCode, u8 seqNo, u16 cmdPldLen, u8 *cmdPld)
 {
 	u8 *asdu = (u8 *)ev_buf_allocate(sizeof(zclHdr_t) + cmdPldLen);
 	if(!asdu){
@@ -673,7 +673,7 @@ _CODE_ZCL_ status_t zcl_sendCmd(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, u
 }
 
 _CODE_ZCL_ status_t zcl_sendInterPANCmd(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, u8 cmd, u8 specific,
-										u8 direction, u8 disableDefaultRsp,	u32 manuCode, u8 seqNo, u16 cmdPldLen, u8 *cmdPld)
+										u8 direction, u8 disableDefaultRsp,	u16 manuCode, u8 seqNo, u16 cmdPldLen, u8 *cmdPld)
 {
 	u8 *asdu = (u8 *)ev_buf_allocate(8 + cmdPldLen);
 	if(!asdu){
@@ -838,15 +838,14 @@ _CODE_ZCL_ void zcl_cmdHandler(u8 *pCmd)
 	u16 devEnableAttrLen = 0;
 	bool devEnable = TRUE;
 
+	clusterInfo_t *pCluster = zcl_findCluster(pApsdeInd->indInfo.dst_ep, pApsdeInd->indInfo.cluster_id);
+
 	/* Command dispatch */
 	if(inMsg.hdr.frmCtrl.bf.type == ZCL_FRAME_TYPE_PROFILE_CMD){
-		/* Foundation type message */
-		if(inMsg.hdr.frmCtrl.bf.manufSpec){
-			// We don't support any manufacturer specific command
-			status = ZCL_STA_UNSUP_MANU_GENERAL_COMMAND;
-		}else if(inMsg.hdr.cmd > ZCL_CMD_MAX){
+		if(!pCluster || (inMsg.hdr.cmd > ZCL_CMD_MAX) ||
+			(pCluster && inMsg.hdr.manufCode && (inMsg.hdr.manufCode != pCluster->manuCode))){
 			// Unsupported message
-			status = ZCL_STA_UNSUP_GENERAL_COMMAND;
+			status = (inMsg.hdr.manufCode == MANUFACTURER_CODE_NONE) ? ZCL_STA_UNSUP_GENERAL_COMMAND : ZCL_STA_UNSUP_MANU_GENERAL_COMMAND;
 		}else{
 			status = zcl_foundationCmdHandler(&inMsg);
 			if((status != ZCL_STA_SUCCESS) && (status != ZCL_STA_CMD_HAS_RESP)){
@@ -854,25 +853,18 @@ _CODE_ZCL_ void zcl_cmdHandler(u8 *pCmd)
 			}
 			toAppFlg = 1;
 		}
-	}else{
-		/* Cluster specific command */
-		if(inMsg.hdr.frmCtrl.bf.manufSpec){
-			// We don't support any manufacturer specific command
-			status = ZCL_STA_UNSUP_MANU_CLUSTER_COMMAND;
+	}else{/* Cluster command */
+		if(!pCluster || (pCluster && (pCluster->manuCode != inMsg.hdr.manufCode))){
+			status = (inMsg.hdr.manufCode == MANUFACTURER_CODE_NONE) ? ZCL_STA_UNSUP_CLUSTER_COMMAND : ZCL_STA_UNSUP_MANU_CLUSTER_COMMAND;
 		}else{
-			clusterInfo_t *pCluster = zcl_findCluster(pApsdeInd->indInfo.dst_ep, pApsdeInd->indInfo.cluster_id);
-			if(!pCluster){
-				status = ZCL_STA_UNSUP_CLUSTER_COMMAND;
-			}else{
-				/* Check if basic device enable support */
-				zcl_getAttrVal(pApsdeInd->indInfo.dst_ep, ZCL_CLUSTER_GEN_BASIC, ZCL_ATTRID_BASIC_DEV_ENABLED, &devEnableAttrLen, &devEnable);
+			/* Check if basic device enable support */
+			zcl_getAttrVal(pApsdeInd->indInfo.dst_ep, ZCL_CLUSTER_GEN_BASIC, ZCL_ATTRID_BASIC_DEV_ENABLED, &devEnableAttrLen, &devEnable);
 
-				if(devEnable || (pCluster->clusterID == ZCL_CLUSTER_GEN_IDENTIFY)){
-					inMsg.clusterAppCb = pCluster->clusterAppCb;
-					status = pCluster->cmdHandlerFunc(&inMsg);
+			if(devEnable || (pCluster->clusterID == ZCL_CLUSTER_GEN_IDENTIFY)){
+				inMsg.clusterAppCb = pCluster->clusterAppCb;
+				status = pCluster->cmdHandlerFunc(&inMsg);
 
-					devEnable = TRUE;
-				}
+				devEnable = TRUE;
 			}
 		}
 	}
@@ -943,40 +935,14 @@ _CODE_ZCL_ void zcl_rx_handler(void *pData)
  * @param   srcEP - Application's endpoint
  * @param   pDstEpInfo - destination address
  * @param   clusterID - cluster ID
+ * @param   manuCode - manufacturer code for proprietary extensions to a profile
  * @param   readCmd - read command to be sent
  * @param   direction - direction of the command
  * @param   seqNum - transaction sequence number
  *
  * @return  status_t
  */
-_CODE_ZCL_ status_t zcl_read(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, u8 disableDefaultRsp, u8 direction, u8 seqNo, zclReadCmd_t *readCmd)
-{
-    u16 len = readCmd->numAttr * 2; // Attribute ID
-
-    if(len == 0){
-    	return ZCL_STA_INVALID_FIELD;
-    }
-
-    u8 *buf = (u8 *)ev_buf_allocate(len);
-    if(!buf){
-    	return ZCL_STA_INSUFFICIENT_SPACE;
-    }
-
-	u8 *pBuf = buf;
-
-	for(u8 i = 0; i < readCmd->numAttr; i++){
-		*pBuf++ = LO_UINT16(readCmd->attrID[i]);
-		*pBuf++ = HI_UINT16(readCmd->attrID[i]);
-	}
-
-    u8 status = zcl_sendCmd(srcEp, pDstEpInfo, clusterId, ZCL_CMD_READ, FALSE, direction, disableDefaultRsp, 0, seqNo, len, buf);
-
-	ev_buf_free(buf);
-
-	return status;
-}
-
-_CODE_ZCL_ status_t zcl_readWithMfgCode(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, u32 manuCode, u8 disableDefaultRsp, u8 direction, u8 seqNo, zclReadCmd_t *readCmd)
+_CODE_ZCL_ status_t zcl_read(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, u16 manuCode, u8 disableDefaultRsp, u8 direction, u8 seqNo, zclReadCmd_t *readCmd)
 {
     u16 len = readCmd->numAttr * 2; // Attribute ID
 
@@ -1003,7 +969,7 @@ _CODE_ZCL_ status_t zcl_readWithMfgCode(u8 srcEp, epInfo_t *pDstEpInfo, u16 clus
 	return status;
 }
 
-_CODE_ZCL_ status_t zcl_readRsp(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, u8 disableDefaultRsp, u8 direction, u8 seqNo, zclReadRspCmd_t *readRspCmd)
+_CODE_ZCL_ status_t zcl_readRsp(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, u16 manuCode, u8 disableDefaultRsp, u8 direction, u8 seqNo, zclReadRspCmd_t *readRspCmd)
 {
 	u16 len = 0;
 	zclReadRspStatus_t *pReadRspStatus = NULL;
@@ -1049,7 +1015,7 @@ _CODE_ZCL_ status_t zcl_readRsp(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, u
 		}
 	}
 
-	u8 status = zcl_sendCmd(srcEp, pDstEpInfo, clusterId, ZCL_CMD_READ_RSP, FALSE, direction, disableDefaultRsp, 0, seqNo, len, buf);
+	u8 status = zcl_sendCmd(srcEp, pDstEpInfo, clusterId, ZCL_CMD_READ_RSP, FALSE, direction, disableDefaultRsp, manuCode, seqNo, len, buf);
 
 	ev_buf_free(buf);
 
@@ -1192,8 +1158,12 @@ _CODE_ZCL_ status_t zcl_readHandler(zclIncoming_t *pCmd)
 	dstEp.profileId = pCmd->msg->indInfo.profile_id;
 	dstEp.dstAddrMode = APS_SHORT_DSTADDR_WITHEP;
 	dstEp.dstAddr.shortAddr = pCmd->msg->indInfo.src_short_addr;
+	dstEp.txOptions |= APS_TX_OPT_ACK_TX;
+	if(pCmd->msg->indInfo.security_status & SECURITY_IN_APSLAYER){
+		dstEp.txOptions |= APS_TX_OPT_SECURITY_ENABLED;
+	}
 
-	status = zcl_readRsp(endpoint, &dstEp, clusterId, TRUE, !pCmd->hdr.frmCtrl.bf.dir, pCmd->hdr.seqNum, pReadRspCmd);
+	status = zcl_readRsp(endpoint, &dstEp, clusterId, pCmd->hdr.manufCode, TRUE, !pCmd->hdr.frmCtrl.bf.dir, pCmd->hdr.seqNum, pReadRspCmd);
 
 	ev_buf_free((void *)pReadRspCmd);
 
@@ -1217,6 +1187,7 @@ _CODE_ZCL_ status_t zcl_readHandler(zclIncoming_t *pCmd)
  * @param   srcEP - Application's endpoint
  * @param   pDstEpInfo - destination address
  * @param   clusterID - cluster ID
+ * @param   manuCode - manufacturer code for proprietary extensions to a profile
  * @param   cmd - command ID
  * @param   readCmd - read command to be sent
  * @param   direction - direction of the command
@@ -1224,7 +1195,7 @@ _CODE_ZCL_ status_t zcl_readHandler(zclIncoming_t *pCmd)
  *
  * @return  None
  */
-_CODE_ZCL_ status_t zcl_writeReq(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, u8 cmd, u8 disableDefaultRsp, u8 direction, u8 seqNo, zclWriteCmd_t *writeCmd)
+_CODE_ZCL_ status_t zcl_writeReq(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, u16 manuCode, u8 cmd, u8 disableDefaultRsp, u8 direction, u8 seqNo, zclWriteCmd_t *writeCmd)
 {
 	u16 len = 0;
 	zclWriteRec_t *pWriteRec = NULL;
@@ -1255,53 +1226,14 @@ _CODE_ZCL_ status_t zcl_writeReq(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, 
 		pBuf += dataLen;
 	}
 
-
-	u8 status = zcl_sendCmd(srcEp, pDstEpInfo, clusterId, cmd, FALSE, direction, disableDefaultRsp, 0, seqNo, len, buf);
-
-	ev_buf_free(buf);
-
-	return status;
-}
-
-_CODE_ZCL_ status_t zcl_writeWithMfgCode( u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, u32 manuCode, u8 disableDefaultRsp, u8 direction, u8 seqNo, zclWriteCmd_t *writeCmd)
-{
-	u16 len = 0;
-	zclWriteRec_t *pWriteRec = NULL;
-
-	for(u8 i = 0; i < writeCmd->numAttr; i++){
-		pWriteRec = &(writeCmd->attrList[i]);
-		len += 2 + 1;	//attrID + dataType
-		len += zcl_getAttrSize(pWriteRec->dataType, pWriteRec->attrData);	//attribute data length
-	}
-
-	u8 *buf = (u8 *)ev_buf_allocate(len);
-	if(!buf){
-		return ZCL_STA_INSUFFICIENT_SPACE;
-	}
-
-	u8 *pBuf = buf;
-
-	for(u8 i = 0; i < writeCmd->numAttr; i++){
-		pWriteRec = &(writeCmd->attrList[i]);
-		/* Fill attribute ID */
-		*pBuf++ = LO_UINT16(pWriteRec->attrID);
-		*pBuf++ = HI_UINT16(pWriteRec->attrID);
-		/* Fill data type */
-		*pBuf++ = pWriteRec->dataType;
-		/* Fill attribute value */
-		u16 dataLen = zcl_getAttrSize(pWriteRec->dataType, pWriteRec->attrData);
-		memcpy(pBuf, pWriteRec->attrData, dataLen);
-		pBuf += dataLen;
-	}
-
-	u8 status = zcl_sendCmd(srcEp, pDstEpInfo, clusterId, ZCL_CMD_WRITE, FALSE, direction, disableDefaultRsp, manuCode, seqNo, len, buf);
+	u8 status = zcl_sendCmd(srcEp, pDstEpInfo, clusterId, cmd, FALSE, direction, disableDefaultRsp, manuCode, seqNo, len, buf);
 
 	ev_buf_free(buf);
 
 	return status;
 }
 
-_CODE_ZCL_ status_t zcl_writeRsp(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, u8 disableDefaultRsp, u8 direction, u8 seqNo, zclWriteRspCmd_t *writeRspCmd)
+_CODE_ZCL_ status_t zcl_writeRsp(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, u16 manuCode, u8 disableDefaultRsp, u8 direction, u8 seqNo, zclWriteRspCmd_t *writeRspCmd)
 {
 	u16 len = writeRspCmd->numAttr * (1 + 2);	//status + attrID
 
@@ -1322,7 +1254,7 @@ _CODE_ZCL_ status_t zcl_writeRsp(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, 
 		len = 1;
 	}
 
-	u8 status = zcl_sendCmd(srcEp, pDstEpInfo, clusterId, ZCL_CMD_WRITE_RSP, FALSE, direction, disableDefaultRsp, 0, seqNo, len, buf);
+	u8 status = zcl_sendCmd(srcEp, pDstEpInfo, clusterId, ZCL_CMD_WRITE_RSP, FALSE, direction, disableDefaultRsp, manuCode, seqNo, len, buf);
 
 	ev_buf_free(buf);
 
@@ -1422,6 +1354,7 @@ _CODE_ZCL_ status_t zcl_writeHandler(zclIncoming_t *pCmd)
 	u8 endpoint = pCmd->msg->indInfo.dst_ep;
 	zclWriteRspCmd_t *pWriteRspCmd = NULL;
 	u8 succWriteAttrCnt = 0;
+	u8 failWriteAttrCnt = 0;
 	bool rspSend = FALSE;
 
 	/* Parse In Write Command */
@@ -1449,20 +1382,23 @@ _CODE_ZCL_ status_t zcl_writeHandler(zclIncoming_t *pCmd)
 		status = zcl_attrWrite(endpoint, clusterId, pWriteRec, TRUE);
 
 		if(rspSend){
-			pWriteRspCmd->attrList[i].status = status;
-			pWriteRspCmd->attrList[i].attrID = pWriteRec->attrID;
-
 			if(status == ZCL_STA_SUCCESS){
 				succWriteAttrCnt++;
+			}else{
+				failWriteAttrCnt++;
+
+				pWriteRspCmd->attrList[i].status = status;
+				pWriteRspCmd->attrList[i].attrID = pWriteRec->attrID;
 			}
 		}
 	}
 	
 	if(rspSend){
-		pWriteRspCmd->numAttr = pWriteCmd->numAttr;
 		if(pWriteCmd->numAttr == succWriteAttrCnt){
 			pWriteRspCmd->numAttr = 1;
 			pWriteRspCmd->attrList[0].status = ZCL_STA_SUCCESS;
+		}else{
+			pWriteRspCmd->numAttr = failWriteAttrCnt;
 		}
 
 		epInfo_t dstEp;
@@ -1472,8 +1408,12 @@ _CODE_ZCL_ status_t zcl_writeHandler(zclIncoming_t *pCmd)
 		dstEp.profileId = pCmd->msg->indInfo.profile_id;
 		dstEp.dstAddrMode = APS_SHORT_DSTADDR_WITHEP;
 		dstEp.dstAddr.shortAddr = pCmd->msg->indInfo.src_short_addr;
+		dstEp.txOptions |= APS_TX_OPT_ACK_TX;
+		if(pCmd->msg->indInfo.security_status & SECURITY_IN_APSLAYER){
+			dstEp.txOptions |= APS_TX_OPT_SECURITY_ENABLED;
+		}
 
-		status = zcl_writeRsp(endpoint, &dstEp, clusterId, TRUE, !pCmd->hdr.frmCtrl.bf.dir, pCmd->hdr.seqNum, pWriteRspCmd);
+		status = zcl_writeRsp(endpoint, &dstEp, clusterId, pCmd->hdr.manufCode, TRUE, !pCmd->hdr.frmCtrl.bf.dir, pCmd->hdr.seqNum, pWriteRspCmd);
 
 		if(status == ZCL_STA_SUCCESS)
 			status = ZCL_STA_CMD_HAS_RESP;
@@ -1539,8 +1479,11 @@ _CODE_ZCL_ status_t zcl_writeUndividedHandler(zclIncoming_t *pCmd)
 	dstEp.profileId = pCmd->msg->indInfo.profile_id;
 	dstEp.dstAddrMode = APS_SHORT_DSTADDR_WITHEP;
 	dstEp.dstAddr.shortAddr = pCmd->msg->indInfo.src_short_addr;
+	if(pCmd->msg->indInfo.security_status & SECURITY_IN_APSLAYER){
+		dstEp.txOptions |= APS_TX_OPT_SECURITY_ENABLED;
+	}
 	
-	status = zcl_writeRsp(endpoint, &dstEp, clusterId, TRUE, !pCmd->hdr.frmCtrl.bf.dir, pCmd->hdr.seqNum, pWriteRspCmd);
+	status = zcl_writeRsp(endpoint, &dstEp, clusterId, pCmd->hdr.manufCode, TRUE, !pCmd->hdr.frmCtrl.bf.dir, pCmd->hdr.seqNum, pWriteRspCmd);
 
 	if(status == ZCL_STA_SUCCESS)
 		status = ZCL_STA_CMD_HAS_RESP;
@@ -1555,7 +1498,7 @@ _CODE_ZCL_ status_t zcl_writeUndividedHandler(zclIncoming_t *pCmd)
  **************************** Report ***************************************
  ***************************************************************************/
 #ifdef ZCL_REPORT
-_CODE_ZCL_ status_t zcl_configReport(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, u8 disableDefaultRsp, u8 direction, u8 seqNo, zclCfgReportCmd_t *cfgReportCmd)
+_CODE_ZCL_ status_t zcl_configReport(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, u16 manuCode, u8 disableDefaultRsp, u8 direction, u8 seqNo, zclCfgReportCmd_t *cfgReportCmd)
 {
 	u16 len = 0;
 	zclCfgReportRec_t *pReportRec = NULL;
@@ -1608,14 +1551,14 @@ _CODE_ZCL_ status_t zcl_configReport(u8 srcEp, epInfo_t *pDstEpInfo, u16 cluster
 		}
 	}
 
-	u8 status = zcl_sendCmd(srcEp, pDstEpInfo, clusterId, ZCL_CMD_CONFIG_REPORT, FALSE, direction, disableDefaultRsp, 0, seqNo, len, buf);
+	u8 status = zcl_sendCmd(srcEp, pDstEpInfo, clusterId, ZCL_CMD_CONFIG_REPORT, FALSE, direction, disableDefaultRsp, manuCode, seqNo, len, buf);
 
 	ev_buf_free(buf);
 
 	return status;
 }
 
-_CODE_ZCL_ status_t zcl_configReportRsp(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, u8 disableDefaultRsp, u8 direction, u8 seqNo, zclCfgReportRspCmd_t *cfgReportRspCmd)
+_CODE_ZCL_ status_t zcl_configReportRsp(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, u16 manuCode, u8 disableDefaultRsp, u8 direction, u8 seqNo, zclCfgReportRspCmd_t *cfgReportRspCmd)
 {
 	u16 len = cfgReportRspCmd->numAttr * (1 + 1 + 2);	//status + direction + attrID
 
@@ -1633,14 +1576,14 @@ _CODE_ZCL_ status_t zcl_configReportRsp(u8 srcEp, epInfo_t *pDstEpInfo, u16 clus
 		*pBuf++ = HI_UINT16(cfgReportRspCmd->attrList[i].attrID);
 	}
 
-	u8 status = zcl_sendCmd(srcEp, pDstEpInfo, clusterId, ZCL_CMD_CONFIG_REPORT_RSP, FALSE, direction, disableDefaultRsp, 0, seqNo, len, buf);
+	u8 status = zcl_sendCmd(srcEp, pDstEpInfo, clusterId, ZCL_CMD_CONFIG_REPORT_RSP, FALSE, direction, disableDefaultRsp, manuCode, seqNo, len, buf);
 
 	ev_buf_free(buf);
 
 	return status;
 }
 
-_CODE_ZCL_ status_t zcl_readReportConfig(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, u8 disableDefaultRsp, u8 direction, u8 seqNo, zclReadReportCfgCmd_t *readReportCfgCmd)
+_CODE_ZCL_ status_t zcl_readReportConfig(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, u16 manuCode, u8 disableDefaultRsp, u8 direction, u8 seqNo, zclReadReportCfgCmd_t *readReportCfgCmd)
 {
 	u16 len = readReportCfgCmd->numAttr * (1 + 2);	//direction + attrID
 
@@ -1657,14 +1600,14 @@ _CODE_ZCL_ status_t zcl_readReportConfig(u8 srcEp, epInfo_t *pDstEpInfo, u16 clu
 		*pBuf++ = HI_UINT16(readReportCfgCmd->attrList[i].attrID);
 	}
 
-	u8 status = zcl_sendCmd(srcEp, pDstEpInfo, clusterId, ZCL_CMD_READ_REPORT_CFG, FALSE, direction, disableDefaultRsp, 0, seqNo, len, buf);
+	u8 status = zcl_sendCmd(srcEp, pDstEpInfo, clusterId, ZCL_CMD_READ_REPORT_CFG, FALSE, direction, disableDefaultRsp, manuCode, seqNo, len, buf);
 
 	ev_buf_free(buf);
 
 	return status;
 }
 
-_CODE_ZCL_ status_t zcl_readReportConfigRsp( u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, u8 disableDefaultRsp, u8 direction, u8 seqNo, zclReadReportCfgRspCmd_t *readReportCfgRspCmd)
+_CODE_ZCL_ status_t zcl_readReportConfigRsp( u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, u16 manuCode, u8 disableDefaultRsp, u8 direction, u8 seqNo, zclReadReportCfgRspCmd_t *readReportCfgRspCmd)
 {
 	u16 len = 0;
 	zclReportCfgRspRec_t *pRec = NULL;
@@ -1721,14 +1664,14 @@ _CODE_ZCL_ status_t zcl_readReportConfigRsp( u8 srcEp, epInfo_t *pDstEpInfo, u16
 		}
 	}
 
-	u8 status = zcl_sendCmd(srcEp, pDstEpInfo, clusterId, ZCL_CMD_READ_REPORT_CFG_RSP, FALSE, direction, disableDefaultRsp, 0, seqNo, len, buf);
+	u8 status = zcl_sendCmd(srcEp, pDstEpInfo, clusterId, ZCL_CMD_READ_REPORT_CFG_RSP, FALSE, direction, disableDefaultRsp, manuCode, seqNo, len, buf);
 
 	ev_buf_free(buf);
 
 	return status;
 }
 
-_CODE_ZCL_ status_t zcl_report(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 direction, u8 seqNo, u16 clusterId, u16 attrID, u8 dataType, u8 *pData)
+_CODE_ZCL_ status_t zcl_report(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 direction, u8 seqNo, u16 manuCode, u16 clusterId, u16 attrID, u8 dataType, u8 *pData)
 {
     u16 len = 0;
     u8 attrSize = zcl_getAttrSize(dataType, pData);
@@ -1748,7 +1691,7 @@ _CODE_ZCL_ status_t zcl_report(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefault
 	*pBuf++ = dataType;
 	memcpy(pBuf, pData, attrSize);
 
-	u8 status = zcl_sendCmd(srcEp, pDstEpInfo, clusterId, ZCL_CMD_REPORT, FALSE, direction, disableDefaultRsp, 0, seqNo, len, buf);
+	u8 status = zcl_sendCmd(srcEp, pDstEpInfo, clusterId, ZCL_CMD_REPORT, FALSE, direction, disableDefaultRsp, manuCode, seqNo, len, buf);
 
 	ev_buf_free(buf);
 
@@ -1934,8 +1877,11 @@ _CODE_ZCL_ status_t zcl_configReportHandler(zclIncoming_t *pCmd)
 	dstEp.profileId = pCmd->msg->indInfo.profile_id;
 	dstEp.dstAddrMode = APS_SHORT_DSTADDR_WITHEP;
 	dstEp.dstAddr.shortAddr = pCmd->msg->indInfo.src_short_addr;
+	if(pCmd->msg->indInfo.security_status & SECURITY_IN_APSLAYER){
+		dstEp.txOptions |= APS_TX_OPT_SECURITY_ENABLED;
+	}
 
-	status = zcl_configReportRsp(endpoint, &dstEp, clusterId, TRUE, !pCmd->hdr.frmCtrl.bf.dir, pCmd->hdr.seqNum, pCfgReportRspCmd);
+	status = zcl_configReportRsp(endpoint, &dstEp, clusterId, pCmd->hdr.manufCode, TRUE, !pCmd->hdr.frmCtrl.bf.dir, pCmd->hdr.seqNum, pCfgReportRspCmd);
 
 	if(status == ZCL_STA_SUCCESS)
 		status = ZCL_STA_CMD_HAS_RESP;
@@ -2060,8 +2006,11 @@ _CODE_ZCL_ status_t zcl_readReportCfgHandler(zclIncoming_t *pCmd)
 	dstEp.profileId = pCmd->msg->indInfo.profile_id;
 	dstEp.dstAddrMode = APS_SHORT_DSTADDR_WITHEP;
 	dstEp.dstAddr.shortAddr = pCmd->msg->indInfo.src_short_addr;
+	if(pCmd->msg->indInfo.security_status & SECURITY_IN_APSLAYER){
+		dstEp.txOptions |= APS_TX_OPT_SECURITY_ENABLED;
+	}
 
-	status = zcl_readReportConfigRsp(endpoint, &dstEp, clusterId, TRUE, !pCmd->hdr.frmCtrl.bf.dir, pCmd->hdr.seqNum, pReadReportCfgRspCmd);
+	status = zcl_readReportConfigRsp(endpoint, &dstEp, clusterId, pCmd->hdr.manufCode, TRUE, !pCmd->hdr.frmCtrl.bf.dir, pCmd->hdr.seqNum, pReadReportCfgRspCmd);
 
 	if(status == ZCL_STA_SUCCESS)
 		status = ZCL_STA_CMD_HAS_RESP;
@@ -2246,13 +2195,15 @@ _CODE_ZCL_ status_t zcl_sendDfltRsp(zclIncoming_t *inMsg, u8 cmdId, u8 status)
 	dstEp.dstAddr.shortAddr = pApsdeInd->indInfo.src_short_addr;
 	dstEp.dstEp = pApsdeInd->indInfo.src_ep;
 	dstEp.profileId = pApsdeInd->indInfo.profile_id;
-	dstEp.radius = 0;
-	dstEp.txOptions = 0;
+	dstEp.txOptions |= APS_TX_OPT_ACK_TX;
+	if(inMsg->msg->indInfo.security_status & SECURITY_IN_APSLAYER){
+		dstEp.txOptions |= APS_TX_OPT_SECURITY_ENABLED;
+	}
 
 	buf[0] = cmdId;
 	buf[1] = status;
 
-	return zcl_sendCmd(srcEp, &dstEp, pApsdeInd->indInfo.cluster_id, ZCL_CMD_DEFAULT_RSP, FALSE, dir, TRUE, 0, inMsg->hdr.seqNum, 2, buf);
+	return zcl_sendCmd(srcEp, &dstEp, pApsdeInd->indInfo.cluster_id, ZCL_CMD_DEFAULT_RSP, FALSE, dir, TRUE, inMsg->hdr.manufCode, inMsg->hdr.seqNum, 2, buf);
 }
 
 _CODE_ZCL_ zclDefaultRspCmd_t *zcl_parseInDftRspCmd(zclIncoming_t *pCmd)
@@ -2292,7 +2243,7 @@ _CODE_ZCL_ status_t zcl_dfltRspHandler(zclIncoming_t *pCmd)
  ***************************************************************************/
 #ifdef ZCL_DISCOVER
 
-_CODE_ZCL_ status_t zcl_discAttrs(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, u8 disableDefaultRsp, u8 direction, u8 seqNo, zclDiscoverAttrCmd_t *discAttrCmd)
+_CODE_ZCL_ status_t zcl_discAttrs(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, u16 manuCode, u8 disableDefaultRsp, u8 direction, u8 seqNo, zclDiscoverAttrCmd_t *discAttrCmd)
 {
 	u8 buf[3];
 
@@ -2300,10 +2251,10 @@ _CODE_ZCL_ status_t zcl_discAttrs(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId,
 	buf[1] = HI_UINT16(discAttrCmd->startAttr);
 	buf[2] = discAttrCmd->maxAttrIDs;
 
-	return zcl_sendCmd(srcEp, pDstEpInfo, clusterId, ZCL_CMD_DISCOVER_ATTR, FALSE, direction, disableDefaultRsp, 0, seqNo, 3, buf);
+	return zcl_sendCmd(srcEp, pDstEpInfo, clusterId, ZCL_CMD_DISCOVER_ATTR, FALSE, direction, disableDefaultRsp, manuCode, seqNo, 3, buf);
 }
 
-_CODE_ZCL_ status_t zcl_discAttrsRsp(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, u8 disableDefaultRsp, u8 direction, u8 seqNo, zclDiscoverAttrRspCmd_t *discAttrRspCmd)
+_CODE_ZCL_ status_t zcl_discAttrsRsp(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, u16 manuCode, u8 disableDefaultRsp, u8 direction, u8 seqNo, zclDiscoverAttrRspCmd_t *discAttrRspCmd)
 {
 	u16 len = 1;	//complete
 
@@ -2323,14 +2274,14 @@ _CODE_ZCL_ status_t zcl_discAttrsRsp(u8 srcEp, epInfo_t *pDstEpInfo, u16 cluster
 		*pBuf++ = discAttrRspCmd->attrList[i].dataType;
 	}
 
-	u8 status = zcl_sendCmd(srcEp, pDstEpInfo, clusterId, ZCL_CMD_DISCOVER_ATTR_RSP, FALSE, direction, disableDefaultRsp, 0, seqNo, len, buf);
+	u8 status = zcl_sendCmd(srcEp, pDstEpInfo, clusterId, ZCL_CMD_DISCOVER_ATTR_RSP, FALSE, direction, disableDefaultRsp, manuCode, seqNo, len, buf);
 
 	ev_buf_free(buf);
 
 	return status;
 }
 
-_CODE_ZCL_ status_t zcl_discAttrsExtended(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, u8 disableDefaultRsp, u8 direction, u8 seqNo, zclDiscoverAttrCmd_t *discAttrCmd)
+_CODE_ZCL_ status_t zcl_discAttrsExtended(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, u16 manuCode, u8 disableDefaultRsp, u8 direction, u8 seqNo, zclDiscoverAttrCmd_t *discAttrCmd)
 {
 	u8 buf[3];
 
@@ -2338,10 +2289,10 @@ _CODE_ZCL_ status_t zcl_discAttrsExtended(u8 srcEp, epInfo_t *pDstEpInfo, u16 cl
 	buf[1] = HI_UINT16(discAttrCmd->startAttr);
 	buf[2] = discAttrCmd->maxAttrIDs;
 
-	return zcl_sendCmd(srcEp, pDstEpInfo, clusterId, ZCL_CMD_DISCOVER_ATTR_EXTD, FALSE, direction, disableDefaultRsp, 0, seqNo, 3, buf);
+	return zcl_sendCmd(srcEp, pDstEpInfo, clusterId, ZCL_CMD_DISCOVER_ATTR_EXTD, FALSE, direction, disableDefaultRsp, manuCode, seqNo, 3, buf);
 }
 
-_CODE_ZCL_ status_t zcl_discAttrsExtendedRsp(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, u8 disableDefaultRsp, u8 direction, u8 seqNo, zclDiscoverAttrExtRspCmd_t *discAttrExtRspCmd)
+_CODE_ZCL_ status_t zcl_discAttrsExtendedRsp(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, u16 manuCode, u8 disableDefaultRsp, u8 direction, u8 seqNo, zclDiscoverAttrExtRspCmd_t *discAttrExtRspCmd)
 {
 	u16 len = 1;	//complete
 
@@ -2362,7 +2313,7 @@ _CODE_ZCL_ status_t zcl_discAttrsExtendedRsp(u8 srcEp, epInfo_t *pDstEpInfo, u16
 		*pBuf++ = discAttrExtRspCmd->extAttrInfo[i].accessControl;
 	}
 
-	u8 status = zcl_sendCmd(srcEp, pDstEpInfo, clusterId, ZCL_CMD_DISCOVER_ATTR_EXTD_RSP, FALSE, direction, disableDefaultRsp, 0, seqNo, len, buf);
+	u8 status = zcl_sendCmd(srcEp, pDstEpInfo, clusterId, ZCL_CMD_DISCOVER_ATTR_EXTD_RSP, FALSE, direction, disableDefaultRsp, manuCode, seqNo, len, buf);
 
 	ev_buf_free(buf);
 
@@ -2452,8 +2403,11 @@ _CODE_ZCL_ status_t zcl_discAttrsHandler(zclIncoming_t *pCmd)
 	dstEp.profileId = pCmd->msg->indInfo.profile_id;
 	dstEp.dstAddrMode = APS_SHORT_DSTADDR_WITHEP;
 	dstEp.dstAddr.shortAddr = pCmd->msg->indInfo.src_short_addr;
+	if(pCmd->msg->indInfo.security_status & SECURITY_IN_APSLAYER){
+		dstEp.txOptions |= APS_TX_OPT_SECURITY_ENABLED;
+	}
 
-	status = zcl_discAttrsRsp(endpoint, &dstEp, clusterId, TRUE, !pCmd->hdr.frmCtrl.bf.dir, pCmd->hdr.seqNum, pDiscAttrRspCmd);
+	status = zcl_discAttrsRsp(endpoint, &dstEp, clusterId, pCmd->hdr.manufCode, TRUE, !pCmd->hdr.frmCtrl.bf.dir, pCmd->hdr.seqNum, pDiscAttrRspCmd);
 
 	if(status == ZCL_STA_SUCCESS)
 		status = ZCL_STA_CMD_HAS_RESP;
@@ -2533,8 +2487,11 @@ _CODE_ZCL_ status_t zcl_discAttrsExtendedHandler(zclIncoming_t *pCmd)
 	dstEp.profileId = pCmd->msg->indInfo.profile_id;
 	dstEp.dstAddrMode = APS_SHORT_DSTADDR_WITHEP;
 	dstEp.dstAddr.shortAddr = pCmd->msg->indInfo.src_short_addr;
+	if(pCmd->msg->indInfo.security_status & SECURITY_IN_APSLAYER){
+		dstEp.txOptions |= APS_TX_OPT_SECURITY_ENABLED;
+	}
 
-	status = zcl_discAttrsExtendedRsp(endpoint, &dstEp, clusterId, TRUE, !pCmd->hdr.frmCtrl.bf.dir, pCmd->hdr.seqNum, pDiscAttrExtRspCmd);
+	status = zcl_discAttrsExtendedRsp(endpoint, &dstEp, clusterId, pCmd->hdr.manufCode, TRUE, !pCmd->hdr.frmCtrl.bf.dir, pCmd->hdr.seqNum, pDiscAttrExtRspCmd);
 
 	if(status == ZCL_STA_SUCCESS)
 		status = ZCL_STA_CMD_HAS_RESP;

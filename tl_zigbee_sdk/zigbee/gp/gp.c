@@ -471,7 +471,7 @@ static void gpProxyCommissioningModeCmdProcess(u16 srcAddr, zcl_gp_proxyCommissi
 		//start the commissioning window timeout
 		if(!g_gpCtx.commissioningWindowTimeoutEvt){
 			gpComWindowCnt = 0;
-			g_gpCtx.commissioningWindowTimeoutEvt = TL_ZB_TIMER_SCHEDULE(gpCommissioningWindowTimeoutCb, (void *)((u32)g_gpCtx.gpCommissioningWindow), 1 * 1000 * 1000);
+			g_gpCtx.commissioningWindowTimeoutEvt = TL_ZB_TIMER_SCHEDULE(gpCommissioningWindowTimeoutCb, (void *)((u32)g_gpCtx.gpCommissioningWindow), 1000);
 		}else{
 			gpComWindowCnt = 0;
 		}

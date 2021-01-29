@@ -237,7 +237,7 @@ static void usbcdc_recvData(void)
 			cdc_v->rxCb(p);
 		}
 	}else{
-		cdc_v->timer = TL_ZB_TIMER_SCHEDULE(usbcdc_recvTimeoutCb, NULL, 500);
+		cdc_v->timer = TL_ZB_TIMER_SCHEDULE(usbcdc_recvTimeoutCb, NULL, 20);
 	}
 }
 

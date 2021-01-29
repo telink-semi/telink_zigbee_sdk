@@ -322,7 +322,7 @@ const zclAttrInfo_t level_attrTbl[] =
 {
 	{ ZCL_ATTRID_LEVEL_CURRENT_LEVEL,  			ZCL_DATA_TYPE_UINT8,   ACCESS_CONTROL_READ | ACCESS_CONTROL_REPORTABLE, (u8*)&g_zcl_levelAttrs.curLevel },
 	{ ZCL_ATTRID_LEVEL_REMAINING_TIME, 			ZCL_DATA_TYPE_UINT16,  ACCESS_CONTROL_READ,  							(u8*)&g_zcl_levelAttrs.remainingTime },
-	{ ZCL_ATTRID_LEVLE_START_UP_CURRENT_LEVEL,  ZCL_DATA_TYPE_UINT8,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE,  	(u8*)&g_zcl_levelAttrs.startUpCurrentLevel },
+	{ ZCL_ATTRID_LEVEL_START_UP_CURRENT_LEVEL,  ZCL_DATA_TYPE_UINT8,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE,  	(u8*)&g_zcl_levelAttrs.startUpCurrentLevel },
 
 	{ ZCL_ATTRID_GLOBAL_CLUSTER_REVISION, 		ZCL_DATA_TYPE_UINT16,  ACCESS_CONTROL_READ,  							(u8*)&zcl_attr_global_clusterRevision},
 };
@@ -389,22 +389,22 @@ const zclAttrInfo_t lightColorCtrl_attrTbl[] =
  */
 const zcl_specClusterInfo_t g_sampleLightClusterList[] =
 {
-	{ZCL_CLUSTER_GEN_BASIC,				 ZCL_BASIC_ATTR_NUM, 	basic_attrTbl,  		zcl_basic_register,			 sampleLight_basicCb},
-	{ZCL_CLUSTER_GEN_IDENTIFY,			 ZCL_IDENTIFY_ATTR_NUM,	identify_attrTbl,		zcl_identify_register,		 sampleLight_identifyCb},
+	{ZCL_CLUSTER_GEN_BASIC,				 MANUFACTURER_CODE_NONE, ZCL_BASIC_ATTR_NUM, 	basic_attrTbl,  		zcl_basic_register,			 sampleLight_basicCb},
+	{ZCL_CLUSTER_GEN_IDENTIFY,			 MANUFACTURER_CODE_NONE, ZCL_IDENTIFY_ATTR_NUM,	identify_attrTbl,		zcl_identify_register,		 sampleLight_identifyCb},
 #ifdef ZCL_GROUP
-	{ZCL_CLUSTER_GEN_GROUPS,			 ZCL_GROUP_ATTR_NUM, 	group_attrTbl,  		zcl_group_register,			 NULL},
+	{ZCL_CLUSTER_GEN_GROUPS,			 MANUFACTURER_CODE_NONE, ZCL_GROUP_ATTR_NUM, 	group_attrTbl,  		zcl_group_register,			 NULL},
 #endif
 #ifdef ZCL_SCENE
-	{ZCL_CLUSTER_GEN_SCENES,			 ZCL_SCENE_ATTR_NUM,	scene_attrTbl,			zcl_scene_register,			 sampleLight_sceneCb},
+	{ZCL_CLUSTER_GEN_SCENES,			 MANUFACTURER_CODE_NONE, ZCL_SCENE_ATTR_NUM,	scene_attrTbl,			zcl_scene_register,			 sampleLight_sceneCb},
 #endif
 #ifdef ZCL_ON_OFF
-	{ZCL_CLUSTER_GEN_ON_OFF,			 ZCL_ONOFF_ATTR_NUM,	onOff_attrTbl,			zcl_onOff_register,			 sampleLight_onOffCb},
+	{ZCL_CLUSTER_GEN_ON_OFF,			 MANUFACTURER_CODE_NONE, ZCL_ONOFF_ATTR_NUM,	onOff_attrTbl,			zcl_onOff_register,			 sampleLight_onOffCb},
 #endif
 #ifdef ZCL_LEVEL_CTRL
-	{ZCL_CLUSTER_GEN_LEVEL_CONTROL,		 ZCL_LEVEL_ATTR_NUM,	level_attrTbl,			zcl_level_register,			 sampleLight_levelCb},
+	{ZCL_CLUSTER_GEN_LEVEL_CONTROL,		 MANUFACTURER_CODE_NONE, ZCL_LEVEL_ATTR_NUM,	level_attrTbl,			zcl_level_register,			 sampleLight_levelCb},
 #endif
 #ifdef ZCL_LIGHT_COLOR_CONTROL
-	{ZCL_CLUSTER_LIGHTING_COLOR_CONTROL, ZCL_COLOR_ATTR_NUM,	lightColorCtrl_attrTbl,	zcl_lightColorCtrl_register, sampleLight_colorCtrlCb},
+	{ZCL_CLUSTER_LIGHTING_COLOR_CONTROL, MANUFACTURER_CODE_NONE, ZCL_COLOR_ATTR_NUM,	lightColorCtrl_attrTbl,	zcl_lightColorCtrl_register, sampleLight_colorCtrlCb},
 #endif
 };
 

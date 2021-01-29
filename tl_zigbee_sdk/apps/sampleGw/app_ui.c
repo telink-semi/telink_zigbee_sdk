@@ -114,7 +114,7 @@ s32 zclLightTimerCb(void *arg)
 		interval = g_appGwCtx.ledOffTime;
 	}
 
-	return interval * 1000;
+	return interval;
 }
 
 void light_blink_start(u8 times, u16 ledOnTime, u16 ledOffTime)
@@ -135,7 +135,7 @@ void light_blink_start(u8 times, u16 ledOnTime, u16 ledOffTime)
 		g_appGwCtx.ledOnTime = ledOnTime;
 		g_appGwCtx.ledOffTime = ledOffTime;
 
-		g_appGwCtx.timerLedEvt = TL_ZB_TIMER_SCHEDULE(zclLightTimerCb, NULL, interval * 1000);
+		g_appGwCtx.timerLedEvt = TL_ZB_TIMER_SCHEDULE(zclLightTimerCb, NULL, interval);
 	}
 }
 
@@ -162,7 +162,7 @@ void buttonKeepPressed(u8 btNum){
 	}
 }
 
-ev_time_event_t *brc_toggleEvt = NULL;
+ev_timer_event_t *brc_toggleEvt = NULL;
 s32 brc_toggleCb(void *arg)
 {
 	static bool toggle = 0;
@@ -191,7 +191,7 @@ s32 brc_toggleCb(void *arg)
 void brc_toggle()
 {
 	if(!brc_toggleEvt){
-		brc_toggleEvt = TL_ZB_TIMER_SCHEDULE(brc_toggleCb, NULL, 1 * 1000 * 1000);
+		brc_toggleEvt = TL_ZB_TIMER_SCHEDULE(brc_toggleCb, NULL, 1000);
 	}else{
 		TL_ZB_TIMER_CANCEL(&brc_toggleEvt);
 	}

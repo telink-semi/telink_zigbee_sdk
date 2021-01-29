@@ -610,7 +610,7 @@ extern const u8 zcl_lightColorCtrl_attrNum;
 
 #endif
 
-status_t zcl_lightColorCtrl_register(u8 endpoint, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
+status_t zcl_lightColorCtrl_register(u8 endpoint, u16 manuCode, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
 
 status_t zcl_lightColorCtrl_move2hue(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, zcl_colorCtrlMoveToHueCmd_t *pMove2Hue);
 #define zcl_lightColorCtrl_move2hueCmd(a,b,c,d)		(zcl_lightColorCtrl_move2hue((a), (b), (c), ZCL_SEQ_NUM, (d)))

@@ -146,7 +146,6 @@ typedef enum{
  */
 typedef enum {
 
-	PWM_CLOCK_32K_CHN_NONE = 0x00,
 	PWM_CLOCK_32K_CHN_PWM0 = 0x01,
 	PWM_CLOCK_32K_CHN_PWM1 = 0x02,
 	PWM_CLOCK_32K_CHN_PWM2 = 0x04,
@@ -562,6 +561,19 @@ void pwm_set_dma_chain_llp(dma_chn_e chn,unsigned short * src_addr, unsigned int
  */
 void pwm_set_tx_dma_add_list_element(dma_chn_e chn,dma_chain_config_t *config_addr,dma_chain_config_t *llponit ,unsigned short * src_addr,unsigned int data_len);
 
+
+/**
+ * @brief     This function servers to disable pwm clock source 32K.
+ *    	      If you use 32K as the PWM clock source, you can work in suspend mode.
+ *    	      but the 32K clock source cannot be divided and can only work in continuous mode and counting mode
+ * @param[in] pwm_32K_en_chn - This variable is used to select the specific PWM channel.
+ * @return	  none.
+ */
+
+static inline void pwm_32k_chn_dis(pwm_clk_32k_en_chn_e pwm_32K_en_chn)
+{
+    BM_CLR(reg_pwm_mode32k, pwm_32K_en_chn);
+}
 
 
 #endif

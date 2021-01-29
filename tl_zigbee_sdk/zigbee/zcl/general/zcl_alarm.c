@@ -72,9 +72,9 @@ zcl_alarmTable_t g_zcl_alarmTab[ZCL_ALARM_TABLE_NUM];
 static status_t zcl_alarm_cmdHandler(zclIncoming_t *pInMsg);
 
 
-_CODE_ZCL_ status_t zcl_alarm_register(u8 endpoint, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb)
+_CODE_ZCL_ status_t zcl_alarm_register(u8 endpoint, u16 manuCode, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb)
 {
-    return zcl_registerCluster(endpoint, ZCL_CLUSTER_GEN_ALARMS, attrNum, attrTbl, zcl_alarm_cmdHandler, cb);
+    return zcl_registerCluster(endpoint, ZCL_CLUSTER_GEN_ALARMS, manuCode, attrNum, attrTbl, zcl_alarm_cmdHandler, cb);
 }
 
 

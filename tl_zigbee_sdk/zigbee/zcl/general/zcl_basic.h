@@ -103,7 +103,7 @@
 /**
  *  @brief Max length of char string
  */
-#define ZCL_BASIC_MAX_LENGTH 24
+#define ZCL_BASIC_MAX_LENGTH 								24
 
 /** @} end of group ZCL_BASIC_Constant */
 
@@ -173,7 +173,7 @@ extern const u8 zcl_basic_attrNum;
  *
  * @return      Status
  */
-status_t zcl_basic_register(u8 endpoint, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
+status_t zcl_basic_register(u8 endpoint, u16 manuCode, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
 
 
 

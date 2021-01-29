@@ -94,7 +94,7 @@
  *
  * @return      Status
  */
-status_t zcl_occupancySensing_register(u8 endpoint, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
+status_t zcl_occupancySensing_register(u8 endpoint, u16 manuCode, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
 
 
 /** @} end of group ZCL_OCCUPANCY_Fountions */

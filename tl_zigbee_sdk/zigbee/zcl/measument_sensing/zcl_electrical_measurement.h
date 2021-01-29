@@ -54,7 +54,7 @@
 /**
  *  @brief	Attribute Sets
  */
-#define BASIC_INFOMATION											0x00
+#define BASIC_INFORMATION											0x00
 #define DC_MEASUREMENT												0x01
 #define DC_FORMATTING												0x02
 #define AC_NON_PHASE_SPEC_MEASUREMENTS								0x03
@@ -278,7 +278,7 @@ extern const u8 zcl_electricalMeasure_attrNum;
 #endif
 
 
-status_t zcl_electricalMeasure_register(u8 endpoint, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
+status_t zcl_electricalMeasure_register(u8 endpoint, u16 manuCode, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
 
 status_t zcl_electricalMeasure_getProfileInfo(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo);
 #define zcl_electricalMeasure_getProfileInfoCmd(a,b,c)	(zcl_electricalMeasure_getProfileInfo((a), (b), (c), ZCL_SEQ_NUM))

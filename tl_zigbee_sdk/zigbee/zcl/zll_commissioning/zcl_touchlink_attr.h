@@ -51,12 +51,12 @@
  * CONSTANTS
  */
 
-#define ZB_INTER_PAN_TRANS_ID_LIFETIME 		(8 * 1000 * 1000)
-#define ZB_MAX_PERMIT_JOIN_DURATION			(60* 1000 * 1000)
-#define ZB_MAX_LOST_PARENT_RETRY_ATTEMPTS	10
-#define ZB_MIN_STARTUP_DELAY_TIME 			(2 * 1000 * 1000)  //2s
-#define ZB_RX_WINDOW_DURATION				(5 * 1000 * 1000)  //5s
-#define ZB_SCAN_TIME_BASE_DURATION 			(250 * 1000)     //250ms
+#define ZB_INTER_PAN_TRANS_ID_LIFETIME 		(8 * 1000)
+#define ZB_MAX_PERMIT_JOIN_DURATION			(60* 1000)
+#define ZB_MAX_LOST_PARENT_RETRY_ATTEMPTS	(10)
+#define ZB_MIN_STARTUP_DELAY_TIME 			(2 * 1000)  //2s
+#define ZB_RX_WINDOW_DURATION				(5 * 1000)  //5s
+#define ZB_SCAN_TIME_BASE_DURATION 			(250)     	//250ms
 
 /*********************************************************************
  * ENUMS

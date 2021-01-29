@@ -166,7 +166,7 @@
 typedef enum
 {
 	NWK_INTERNAL_NSDU_HANDLE 			  = 0xC0,
-	NWK_INTERNAL_DATA_RECIVED_HANDLE,
+	NWK_INTERNAL_DATA_RECEIVED_HANDLE,
 	NWK_INTERNAL_LINK_STATUS_CMD_HANDLE,
 	NWK_INTERNAL_REJOIN_REQ_CMD_HANDLE,
 	NWK_INTERNAL_REJOIN_RESP_CMD_HANDLE,
@@ -1066,7 +1066,7 @@ typedef struct
 typedef struct
 {
 	nwk_txDataPendEntry_t *entry;
-	ev_time_event_t *retryTimer;
+	ev_timer_event_t *retryTimer;
 	u16	*passiveAckAddr;	/* keep track of which of its neighboring devices have successfully relayed.
 							 * it will malloc an ev_buffer to trace, be care of ev_buffer's setting, in ev_buffer.h.
 							 * u16 *passiveAckAddr = (u16 *)ev_buf_allocate(TL_ZB_NEIGHBOR_TABLE_SIZE)
@@ -1133,7 +1133,7 @@ typedef struct
 typedef struct
 {
 	void *buf;
-	ev_time_event_t *retryTimer;
+	ev_timer_event_t *retryTimer;
 	u16	srcAddr;
 	u16	senderAddr;
 	u16 dstAddr;

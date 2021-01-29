@@ -55,8 +55,8 @@
 typedef struct{
 	zcl_zllTouckLinkDisc_t 				*disc;
 	zcl_zllTouckLinkNetworkStartParams	*networkStartInfo;
-	ev_time_event_t 					*transIdLifeTimer;
-	ev_time_event_t 					*runTimer;
+	ev_timer_event_t 					*transIdLifeTimer;
+	ev_timer_event_t 					*runTimer;
 	u32 				transId;
 	u32 				respId;
 	u32					scanChanMask;

@@ -115,7 +115,7 @@
 						</tool>
 					</fileInfo>
 					<sourceEntries>
-						<entry excluding="apps/sampleSwitch_B91|apps/sampleContactSensor_B91|apps/sampleContactSensor_9518|apps/sampleLight|apps/sampleSwitch_9518" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="apps/sampleSwitch|apps/sampleContactSensor|apps/sampleLight" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -221,7 +221,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="apps/sampleSwitch_B91|apps/sampleContactSensor_B91|apps/sampleContactSensor_9518|apps/sampleGW|apps/sampleSwitch_9518" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="apps/sampleSwitch|apps/sampleContactSensor|apps/sampleGW" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -259,11 +259,11 @@
 								<option id="nds.c.compiler.option.preprocessor.def.symbols.1294361554" name="Defined symbols (-D)" superClass="nds.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="MCU_CORE_B91=1"/>
 									<listOptionValue builtIn="false" value="END_DEVICE=1"/>
-									<listOptionValue builtIn="false" value="__PROJECT_TL_SWITCH_B91__=1"/>
+									<listOptionValue builtIn="false" value="__PROJECT_TL_SWITCH__=1"/>
 								</option>
 								<option id="nds.c.compiler.option.include.paths.1722023727" name="Include paths (-I)" superClass="nds.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="../../../apps/common"/>
-									<listOptionValue builtIn="false" value="../../../apps/sampleSwitch_B91"/>
+									<listOptionValue builtIn="false" value="../../../apps/sampleSwitch"/>
 									<listOptionValue builtIn="false" value="../../../platform"/>
 									<listOptionValue builtIn="false" value="../../../proj/common"/>
 									<listOptionValue builtIn="false" value="../../../proj"/>
@@ -327,7 +327,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="apps/sampleContactSensor_B91|apps/sampleContactSensor_9518|apps/sampleGW|apps/sampleLight" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="apps/sampleContactSensor|apps/sampleGW|apps/sampleLight" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -360,16 +360,16 @@
 								<option defaultValue="-O0" id="nds.cpp.link.option.optimization.level.989575790" name="Optimization Level" superClass="nds.cpp.link.option.optimization.level" valueType="string"/>
 								<option defaultValue="true" id="nds32le-elf-mculib-v5f.cpp.link.option.noshared.base.335125107" name="No shared libraries (-static)" superClass="nds32le-elf-mculib-v5f.cpp.link.option.noshared.base" valueType="boolean"/>
 							</tool>
-							<tool id="tool.nds32le-elf-mculib-v5f.c.compiler.exe.debug.187462140" name="Andes C Compiler" superClass="tool.nds32le-elf-mculib-v5f.c.compiler.exe.debug">
+							<tool command="$(CROSS_COMPILE)gcc" id="tool.nds32le-elf-mculib-v5f.c.compiler.exe.debug.187462140" name="Andes C Compiler" superClass="tool.nds32le-elf-mculib-v5f.c.compiler.exe.debug">
 								<option id="nds32le-elf-mculib-v5f.c.compiler.exe.debug.option.debugging.level.1572760519" name="Debug Level" superClass="nds32le-elf-mculib-v5f.c.compiler.exe.debug.option.debugging.level" value="nds.c.debugging.level.none" valueType="enumerated"/>
 								<option id="nds.c.compiler.option.preprocessor.def.symbols.949034737" name="Defined symbols (-D)" superClass="nds.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="MCU_CORE_B91=1"/>
 									<listOptionValue builtIn="false" value="END_DEVICE=1"/>
-									<listOptionValue builtIn="false" value="__PROJECT_TL_CONTACT_SENSOR_B91__=1"/>
+									<listOptionValue builtIn="false" value="__PROJECT_TL_CONTACT_SENSOR__=1"/>
 								</option>
 								<option id="nds.c.compiler.option.include.paths.114245977" name="Include paths (-I)" superClass="nds.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="../../../apps/common"/>
-									<listOptionValue builtIn="false" value="../../../apps/sampleContactSensor_B91"/>
+									<listOptionValue builtIn="false" value="../../../apps/sampleContactSensor"/>
 									<listOptionValue builtIn="false" value="../../../platform"/>
 									<listOptionValue builtIn="false" value="../../../proj/common"/>
 									<listOptionValue builtIn="false" value="../../../proj"/>
@@ -388,9 +388,10 @@
 								<option id="nds.c.compiler.option.optimization.removesections.function.245241229" name="Remove unused function sections (-ffunction-sections)" superClass="nds.c.compiler.option.optimization.removesections.function" value="true" valueType="boolean"/>
 								<option id="nds.c.compiler.option.optimization.removesections.data.1621672676" name="Remove unused data sections (-fdata-sections)" superClass="nds.c.compiler.option.optimization.removesections.data" value="true" valueType="boolean"/>
 								<option id="nds.c.compiler.option.misc.other.256247542" name="Other flags" superClass="nds.c.compiler.option.misc.other" value="-mext-dsp -mabi=ilp32f  -c -fmessage-length=0  -fomit-frame-pointer -fno-strict-aliasing -fshort-wchar -fuse-ld=bfd -Wno-nonnull-compare" valueType="string"/>
+								<option id="nds.c.compiler.option.misc.use-cc.toolchain.1744027913" name="Compiler to use" superClass="nds.c.compiler.option.misc.use-cc.toolchain" value="nds.c.compiler.option.misc.use-cc.gcc" valueType="enumerated"/>
 								<inputType id="tool.nds.c.compiler.input.2084123555" superClass="tool.nds.c.compiler.input"/>
 							</tool>
-							<tool id="tool.nds32le-elf-mculib-v5f.c.linker.exe.debug.246380972" name="Andes C Linker" superClass="tool.nds32le-elf-mculib-v5f.c.linker.exe.debug">
+							<tool command="$(CROSS_COMPILE)gcc" id="tool.nds32le-elf-mculib-v5f.c.linker.exe.debug.246380972" name="Andes C Linker" superClass="tool.nds32le-elf-mculib-v5f.c.linker.exe.debug">
 								<option defaultValue="-O0" id="nds.c.link.option.optimization.level.953075250" name="Optimization Level" superClass="nds.c.link.option.optimization.level" value="-O2" valueType="string"/>
 								<option defaultValue="true" id="nds32le-elf-mculib-v5f.c.link.option.noshared.base.28969939" name="No shared libraries (-static)" superClass="nds32le-elf-mculib-v5f.c.link.option.noshared.base" valueType="boolean"/>
 								<option id="nds.c.link.option.LTO.143684559" name="Link Time Optimization (-flto)" superClass="nds.c.link.option.LTO" value="true" valueType="boolean"/>
@@ -433,7 +434,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="apps/sampleSwitch_B91|apps/sampleSwitch_9518|apps/sampleGW|apps/sampleLight" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="apps/sampleSwitch|apps/sampleGW|apps/sampleLight" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

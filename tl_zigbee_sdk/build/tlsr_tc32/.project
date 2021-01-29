@@ -116,14 +116,9 @@
 			<locationURI>PARENT-2-PROJECT_LOC/apps/common</locationURI>
 		</link>
 		<link>
-			<name>apps/sampleContactSensor_8258</name>
+			<name>apps/sampleContactSensor</name>
 			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/apps/sampleContactSensor_8258</locationURI>
-		</link>
-		<link>
-			<name>apps/sampleContactSensor_826x</name>
-			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/apps/sampleContactSensor_826x</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/apps/sampleContactSensor</locationURI>
 		</link>
 		<link>
 			<name>apps/sampleGW</name>
@@ -136,19 +131,9 @@
 			<locationURI>PARENT-2-PROJECT_LOC/apps/sampleLight</locationURI>
 		</link>
 		<link>
-			<name>apps/sampleSwitch_8258</name>
+			<name>apps/sampleSwitch</name>
 			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/apps/sampleSwitch_8258</locationURI>
-		</link>
-		<link>
-			<name>apps/sampleSwitch_826x</name>
-			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/apps/sampleSwitch_826x</locationURI>
-		</link>
-		<link>
-			<name>apps/sampleSwitch_8278</name>
-			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/apps/sampleSwitch_8278</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/apps/sampleSwitch</locationURI>
 		</link>
 		<link>
 			<name>platform/boot</name>

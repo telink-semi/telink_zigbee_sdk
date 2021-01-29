@@ -146,7 +146,7 @@ extern const u8 zcl_pollCtrl_attrNum;
 #endif
 
 
-status_t zcl_pollCtrl_register(u8 endpoint, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
+status_t zcl_pollCtrl_register(u8 endpoint, u16 manuCode, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
 
 status_t zcl_pollCtrl_chkIn(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo);
 #define zcl_pollCtrl_checkInCmd(a,b,c)	(zcl_pollCtrl_chkIn((a), (b), (c), ZCL_SEQ_NUM))

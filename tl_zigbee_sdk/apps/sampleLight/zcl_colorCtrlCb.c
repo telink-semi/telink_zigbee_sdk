@@ -106,9 +106,9 @@ static zcl_colorInfo_t colorInfo = {
 #endif
 };
 
-static ev_time_event_t *colorTimerEvt = NULL;
+static ev_timer_event_t *colorTimerEvt = NULL;
 #if COLOR_RGB_SUPPORT
-static ev_time_event_t *colorLoopTimerEvt = NULL;
+static ev_timer_event_t *colorLoopTimerEvt = NULL;
 #endif
 
 
@@ -372,7 +372,7 @@ static void sampleLight_moveToHueProcess(zcl_colorCtrlMoveToHueCmd_t *cmd)
 
 	if(colorInfo.hueRemainingTime){
 		sampleLight_colorTimerStop();
-		colorTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_colorTimerEvtCb, NULL, ZCL_COLOR_CHANGE_INTERVAL * 1000);
+		colorTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_colorTimerEvtCb, NULL, ZCL_COLOR_CHANGE_INTERVAL);
 	}else{
 		sampleLight_colorTimerStop();
 	}
@@ -420,7 +420,7 @@ static void sampleLight_moveHueProcess(zcl_colorCtrlMoveHueCmd_t *cmd)
 
 	if(colorInfo.hueRemainingTime){
 		sampleLight_colorTimerStop();
-		colorTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_colorTimerEvtCb, NULL, ZCL_COLOR_CHANGE_INTERVAL * 1000);
+		colorTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_colorTimerEvtCb, NULL, ZCL_COLOR_CHANGE_INTERVAL);
 	}else{
 		sampleLight_colorTimerStop();
 	}
@@ -465,7 +465,7 @@ static void sampleLight_stepHueProcess(zcl_colorCtrlStepHueCmd_t *cmd)
 
 	if(colorInfo.hueRemainingTime){
 		sampleLight_colorTimerStop();
-		colorTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_colorTimerEvtCb, NULL, ZCL_COLOR_CHANGE_INTERVAL * 1000);
+		colorTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_colorTimerEvtCb, NULL, ZCL_COLOR_CHANGE_INTERVAL);
 	}else{
 		sampleLight_colorTimerStop();
 	}
@@ -501,7 +501,7 @@ static void sampleLight_moveToSaturationProcess(zcl_colorCtrlMoveToSaturationCmd
 
 	if(colorInfo.saturationRemainingTime){
 		sampleLight_colorTimerStop();
-		colorTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_colorTimerEvtCb, NULL, ZCL_COLOR_CHANGE_INTERVAL * 1000);
+		colorTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_colorTimerEvtCb, NULL, ZCL_COLOR_CHANGE_INTERVAL);
 	}else{
 		sampleLight_colorTimerStop();
 	}
@@ -549,7 +549,7 @@ static void sampleLight_moveSaturationProcess(zcl_colorCtrlMoveSaturationCmd_t *
 
 	if(colorInfo.saturationRemainingTime){
 		sampleLight_colorTimerStop();
-		colorTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_colorTimerEvtCb, NULL, ZCL_COLOR_CHANGE_INTERVAL * 1000);
+		colorTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_colorTimerEvtCb, NULL, ZCL_COLOR_CHANGE_INTERVAL);
 	}else{
 		sampleLight_colorTimerStop();
 	}
@@ -594,7 +594,7 @@ static void sampleLight_stepSaturationProcess(zcl_colorCtrlStepSaturationCmd_t *
 
 	if(colorInfo.saturationRemainingTime){
 		sampleLight_colorTimerStop();
-		colorTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_colorTimerEvtCb, NULL, ZCL_COLOR_CHANGE_INTERVAL * 1000);
+		colorTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_colorTimerEvtCb, NULL, ZCL_COLOR_CHANGE_INTERVAL);
 	}else{
 		sampleLight_colorTimerStop();
 	}
@@ -883,7 +883,7 @@ static void sampleLight_moveToColorTemperatureProcess(zcl_colorCtrlMoveToColorTe
 
 	if(colorInfo.colorTempRemainingTime){
 		sampleLight_colorTimerStop();
-		colorTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_colorTimerEvtCb, NULL, ZCL_COLOR_CHANGE_INTERVAL * 1000);
+		colorTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_colorTimerEvtCb, NULL, ZCL_COLOR_CHANGE_INTERVAL);
 	}else{
 		sampleLight_colorTimerStop();
 	}
@@ -945,7 +945,7 @@ static void sampleLight_moveColorTemperatureProcess(zcl_colorCtrlMoveColorTemper
 
 	if(colorInfo.colorTempRemainingTime){
 		sampleLight_colorTimerStop();
-		colorTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_colorTimerEvtCb, NULL, ZCL_COLOR_CHANGE_INTERVAL * 1000);
+		colorTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_colorTimerEvtCb, NULL, ZCL_COLOR_CHANGE_INTERVAL);
 	}else{
 		sampleLight_colorTimerStop();
 	}
@@ -1004,7 +1004,7 @@ static void sampleLight_stepColorTemperatureProcess(zcl_colorCtrlStepColorTemper
 
 	if(colorInfo.colorTempRemainingTime){
 		sampleLight_colorTimerStop();
-		colorTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_colorTimerEvtCb, NULL, ZCL_COLOR_CHANGE_INTERVAL * 1000);
+		colorTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_colorTimerEvtCb, NULL, ZCL_COLOR_CHANGE_INTERVAL);
 	}else{
 		sampleLight_colorTimerStop();
 	}

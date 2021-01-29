@@ -70,7 +70,7 @@ typedef struct{
 }app_linkkey_info_t;
 
 typedef struct{
-	ev_time_event_t *timerLedEvt;
+	ev_timer_event_t *timerLedEvt;
 	u32 keyPressedTime;
 
 	u16 ledOnTime;

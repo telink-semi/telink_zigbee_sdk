@@ -79,8 +79,8 @@ static node_descriptor_t ndt = {
 	.max_buff_size = 				AF_NSDU_MAX_LEN,
 	.max_in_tr_size = 				AF_NSDU_MAX_LEN,
 	.max_out_tr_size = 				AF_NSDU_MAX_LEN,
-	.mcL8 =   						(MANUFACTURER_CODE & 0xff),
-	.mcH8 =   						((MANUFACTURER_CODE >> 8) & 0xff),
+	.mcL8 =   						(MANUFACTURER_CODE_TELINK & 0xff),
+	.mcH8 =   						((MANUFACTURER_CODE_TELINK >> 8) & 0xff),
 };
 
 //power descriptor strut

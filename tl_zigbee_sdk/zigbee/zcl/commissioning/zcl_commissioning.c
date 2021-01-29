@@ -132,7 +132,7 @@ _CODE_ZCL_ u8 zcl_commissioning_clientCmdHandler(zclIncoming_t *pInMsg)
 					u16 jitter_in_milliseconds = restartDevice->jitter ?
 							ZB_RANDOM_X(restartDevice->jitter * 80) : 0;
 					u32 max_delay = (restartDevice->delay +
-							(jitter_in_milliseconds / 1000)) * 1000000;/* in microseconds */
+							(jitter_in_milliseconds / 1000)) * 1000;/* in microseconds */
 
 					immediate = true;
 					TL_ZB_TIMER_SCHEDULE(zb_restart_device_func,(void *)TRUE,max_delay);
@@ -145,7 +145,7 @@ _CODE_ZCL_ u8 zcl_commissioning_clientCmdHandler(zclIncoming_t *pInMsg)
 						ZB_RANDOM_X(restartDevice->jitter * 80) : 0;
 				u32 max_delay = 0;
 				max_delay = (restartDevice->delay +
-						(jitter_in_milliseconds / 1000)) * 1000000;/* in microseconds */
+						(jitter_in_milliseconds / 1000)) * 1000;/* in microseconds */
 
 				immediate = false;
 				if(max_delay)

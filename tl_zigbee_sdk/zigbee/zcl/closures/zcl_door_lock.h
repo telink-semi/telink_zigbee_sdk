@@ -138,7 +138,7 @@ extern zcl_attr_doorLock_t g_zclDoorLockAttr;
 #define zcl_doorLockAttrGet()	&g_zclDoorLockAttr
 #endif
 
-status_t zcl_doorLock_register(u8 endpoint, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
+status_t zcl_doorLock_register(u8 endpoint, u16 manuCode, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
 
 status_t zcl_doorLock_doorLockReq(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, u8 cmdId, u8 *pCode);
 #define zcl_doorLock_lockDoorCmdSend(a,b,c,d)		(zcl_doorLock_doorLockReq((a), (b), (c), ZCL_SEQ_NUM, ZCL_CMD_LOCK_DOOR, (d)))

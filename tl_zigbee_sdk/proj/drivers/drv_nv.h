@@ -170,7 +170,7 @@ typedef enum{
 
 #define FLASH_PROTECT_CMD       		FLASH_PROTECT_CMD_ADESTO
 
-#define PAGE_AVALIABLE_SIZE(offset)     (FLASH_PAGE_SIZE - offset)
+#define PAGE_AVAILABLE_SIZE(offset)     (FLASH_PAGE_SIZE - offset)
 
 #define NV_HEADER_TABLE_SIZE           	10
 #define NV_ALIGN_LENTH(len)             ((((len) % 4) == 0) ? len : (((len)/4 + 1) * 4))

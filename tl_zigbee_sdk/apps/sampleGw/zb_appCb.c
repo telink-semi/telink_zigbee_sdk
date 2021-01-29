@@ -91,7 +91,7 @@ mac_appIndCb_t macAppIndCbList = {NULL, NULL, sampleGw_macAssocReqIndHandler};
 u32 heartInterval = 0;
 
 #if DEBUG_HEART
-ev_time_event_t *heartTimerEvt = NULL;
+ev_timer_event_t *heartTimerEvt = NULL;
 #endif
 
 /**********************************************************************
@@ -106,7 +106,7 @@ static s32 heartTimerCb(void *arg){
 
 	gpio_toggle(LED_POWER);
 
-	return heartInterval * 1000;
+	return heartInterval;
 }
 #endif
 
@@ -148,7 +148,7 @@ void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
 	if(heartTimerEvt){
 		TL_ZB_TIMER_CANCEL(&heartTimerEvt);
 	}
-	heartTimerEvt = TL_ZB_TIMER_SCHEDULE(heartTimerCb, NULL, heartInterval * 1000);
+	heartTimerEvt = TL_ZB_TIMER_SCHEDULE(heartTimerCb, NULL, heartInterval);
 #endif
 }
 

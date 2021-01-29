@@ -73,11 +73,11 @@ void zcl_zoneTabClear(void);
 static status_t zcl_iasZone_cmdHandler(zclIncoming_t *pInMsg);
 
 
-_CODE_ZCL_ status_t zcl_iasZone_register(u8 endpoint, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb)
+_CODE_ZCL_ status_t zcl_iasZone_register(u8 endpoint, u16 manuCode, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb)
 {
 	zcl_zoneTabClear();
 
-	return zcl_registerCluster(endpoint, ZCL_CLUSTER_SS_IAS_ZONE, attrNum, attrTbl, zcl_iasZone_cmdHandler, cb);
+	return zcl_registerCluster(endpoint, ZCL_CLUSTER_SS_IAS_ZONE, manuCode, attrNum, attrTbl, zcl_iasZone_cmdHandler, cb);
 }
 
 

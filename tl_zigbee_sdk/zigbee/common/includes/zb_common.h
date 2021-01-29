@@ -146,7 +146,7 @@ enum zb_ret_e{
 	RET_COULD_NOT_READ_FILE                 ,
 	RET_FILE_NOT_FOUND                      ,
 	RET_DIRECTORY_NOT_FOUND                 ,
-	RET_CONVERTION_ERROR                    ,
+	RET_CONVERSION_ERROR                    ,
 	RET_INCOMPATIBLE_TYPES                  ,
 	RET_INCOMPATIBLE_TYPES_IN_COMPARE       ,
 	RET_INCOMPATIBLE_TYPES_IN_ASSIGNMENT    ,

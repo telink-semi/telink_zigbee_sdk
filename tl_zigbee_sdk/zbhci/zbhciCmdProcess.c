@@ -72,7 +72,7 @@ zb_hciCmdInfo_t  g_hciCmd;
 zbhci_afTestReq_t g_afTestReq;
 
 #if ZB_COORDINATOR_ROLE
-ev_time_event_t  *g_nodeTestTimer = NULL;
+ev_timer_event_t  *g_nodeTestTimer = NULL;
 #endif
 
 /**********************************************************************
@@ -280,7 +280,7 @@ void zbhciAfDataPerformanceResultPush(void){
 	if(g_afTestReq.performaceTestTmrEvt){
 		TL_ZB_TIMER_CANCEL(&g_afTestReq.performaceTestTmrEvt);
 	}
-	g_afTestReq.performaceTestTmrEvt = TL_ZB_TIMER_SCHEDULE(rxtx_performance_result_start, NULL, 1 * 1000 * 1000);
+	g_afTestReq.performaceTestTmrEvt = TL_ZB_TIMER_SCHEDULE(rxtx_performance_result_start, NULL, 1000);
 #endif
 }
 
@@ -736,7 +736,7 @@ s32 rxtx_performance_test(void *arg){
 		ev_buf_free(pBuf);
 	}
 
-	return (txrxTest->interval * 10 * 1000);
+	return (txrxTest->interval * 10);
 }
 
 s32 zbhci_nodeManageCmdHandler(void *arg){
@@ -792,9 +792,9 @@ s32 zbhci_nodeManageCmdHandler(void *arg){
 		}
 		if(interval != 0){
 			if(mode){
-				g_nodeTestTimer = TL_ZB_TIMER_SCHEDULE(node_toggle_unicast_test, NULL, interval * 10 * 1000);
+				g_nodeTestTimer = TL_ZB_TIMER_SCHEDULE(node_toggle_unicast_test, NULL, interval * 10);
 			}else{
-				g_nodeTestTimer = TL_ZB_TIMER_SCHEDULE(node_toggle_broadcast_test, NULL, interval * 10 * 1000);
+				g_nodeTestTimer = TL_ZB_TIMER_SCHEDULE(node_toggle_broadcast_test, NULL, interval * 10);
 			}
 		}
 #endif
@@ -806,7 +806,7 @@ s32 zbhci_nodeManageCmdHandler(void *arg){
 			txrx_performce_test_req_t *txrxTest = (txrx_performce_test_req_t *)ev_buf_allocate(sizeof(txrx_performce_test_req_t));
 			if(txrxTest){
 				memcpy(txrxTest, p, sizeof(txrx_performce_test_req_t));
-				TL_ZB_TIMER_SCHEDULE(rxtx_performance_test, txrxTest, 10 * 1000);
+				TL_ZB_TIMER_SCHEDULE(rxtx_performance_test, txrxTest, 10);
 			}
 		}
 #endif
@@ -894,7 +894,7 @@ void zbhciCmdHandler(u16 msgType, u16 msgLen, u8 *p){
 			case ZBHCI_CMD_NODES_TOGLE_TEST_REQ:
 			case ZBHCI_CMD_TXRX_PERFORMANCE_TEST_REQ:
 			case ZBHCI_CMD_AF_DATA_SEND_TEST_REQ:
-				TL_ZB_TIMER_SCHEDULE(zbhci_nodeManageCmdHandler, cmdInfo, 100 * 1000);
+				TL_ZB_TIMER_SCHEDULE(zbhci_nodeManageCmdHandler, cmdInfo, 100);
 				break;
 
 			case ZBHCI_CMD_ZCL_ATTR_READ:

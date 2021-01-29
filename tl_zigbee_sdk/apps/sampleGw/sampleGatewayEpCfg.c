@@ -240,25 +240,25 @@ const zclAttrInfo_t identify_attrTbl[] =
  */
 const zcl_specClusterInfo_t g_sampleGwClusterList[] =
 {
-	{ZCL_CLUSTER_GEN_BASIC,						ZCL_BASIC_ATTR_NUM, 	basic_attrTbl,  	zcl_basic_register,		sampleGW_basicCb},
-	{ZCL_CLUSTER_GEN_IDENTIFY,					ZCL_IDENTIFY_ATTR_NUM,	identify_attrTbl,	zcl_identify_register,	sampleGW_identifyCb},
+	{ZCL_CLUSTER_GEN_BASIC,						MANUFACTURER_CODE_NONE, ZCL_BASIC_ATTR_NUM, 	basic_attrTbl,  	zcl_basic_register,		sampleGW_basicCb},
+	{ZCL_CLUSTER_GEN_IDENTIFY,					MANUFACTURER_CODE_NONE, ZCL_IDENTIFY_ATTR_NUM,	identify_attrTbl,	zcl_identify_register,	sampleGW_identifyCb},
 #ifdef ZCL_GROUP
-	{ZCL_CLUSTER_GEN_GROUPS,					0, 						NULL,  				zcl_group_register,		sampleGW_groupCb},
+	{ZCL_CLUSTER_GEN_GROUPS,					MANUFACTURER_CODE_NONE, 0, 						NULL,  				zcl_group_register,		sampleGW_groupCb},
 #endif
 #ifdef ZCL_SCENE
-	{ZCL_CLUSTER_GEN_SCENES,					0,						NULL,				zcl_scene_register,		sampleGW_sceneCb},
+	{ZCL_CLUSTER_GEN_SCENES,					MANUFACTURER_CODE_NONE, 0,						NULL,				zcl_scene_register,		sampleGW_sceneCb},
 #endif
 #ifdef ZCL_DOOR_LOCK
-	{ZCL_CLUSTER_CLOSURES_DOOR_LOCK,			0, 						NULL, 				zcl_doorLock_register, 	&sampleGW_doorLockCb},
+	{ZCL_CLUSTER_CLOSURES_DOOR_LOCK,			MANUFACTURER_CODE_NONE, 0, 						NULL, 				zcl_doorLock_register, 	&sampleGW_doorLockCb},
 #endif
 #ifdef ZCL_TEMPERATURE_MEASUREMENT
-	{ZCL_CLUSTER_MS_TEMPERATURE_MEASUREMENT,	0, 						NULL, 				zcl_temperature_measurement_register, 	NULL},
+	{ZCL_CLUSTER_MS_TEMPERATURE_MEASUREMENT,	MANUFACTURER_CODE_NONE, 0, 						NULL, 				zcl_temperature_measurement_register, 	NULL},
 #endif
 #ifdef ZCL_IAS_ZONE
-	{ZCL_CLUSTER_SS_IAS_ZONE,					0, 						NULL, 				zcl_iasZone_register, 	&sampleGW_iasZoneCb},
+	{ZCL_CLUSTER_SS_IAS_ZONE,					MANUFACTURER_CODE_NONE, 0, 						NULL, 				zcl_iasZone_register, 	&sampleGW_iasZoneCb},
 #endif
 #ifdef ZCL_POLL_CTRL
-	{ZCL_CLUSTER_GEN_POLL_CONTROL,				0, 						NULL, 				zcl_pollCtrl_register, 	&sampleGW_pollCtrlCb},
+	{ZCL_CLUSTER_GEN_POLL_CONTROL,				MANUFACTURER_CODE_NONE, 0, 						NULL, 				zcl_pollCtrl_register, 	&sampleGW_pollCtrlCb},
 #endif
 };
 

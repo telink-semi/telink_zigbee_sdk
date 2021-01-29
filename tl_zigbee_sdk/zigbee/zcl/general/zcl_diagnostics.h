@@ -96,7 +96,7 @@ extern const u8 zcl_diagnostics_attrNum;
 #endif
 
 
-status_t zcl_diagnostics_register(u8 endpoint, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
+status_t zcl_diagnostics_register(u8 endpoint, u16 manuCode, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
 
 
 #endif	/* ZCL_DIAGNOSTICS_H */

@@ -164,14 +164,6 @@ extern "C" {
  * EV configuration
  */
 typedef enum{
-	EV_EVENT_MAX = 1,
-}ev_event_e;
-
-enum{
-	EV_FIRED_EVENT_MAX = 1
-};
-
-typedef enum{
 	EV_POLL_ED_DETECT,
 	EV_POLL_HCI,
     EV_POLL_IDLE,

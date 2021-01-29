@@ -148,7 +148,7 @@ static void hidvendor_recvData(void)
 			hidvendor_v->rxCb(p);
 		}
 	}else{
-		hidvendor_v->timer = TL_ZB_TIMER_SCHEDULE(hidvendor_recvTimeoutCb, NULL, 500);
+		hidvendor_v->timer = TL_ZB_TIMER_SCHEDULE(hidvendor_recvTimeoutCb, NULL, 20);
 	}
 }
 

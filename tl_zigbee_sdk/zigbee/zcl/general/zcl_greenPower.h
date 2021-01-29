@@ -820,7 +820,7 @@ extern const zclAttrInfo_t gp_attrTbl[];
 extern const u8 zcl_gp_attrNum;
 #endif
 
-status_t zcl_gp_register(u8 endpoint, u8 arrtNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
+status_t zcl_gp_register(u8 endpoint, u16 manuCode, u8 arrtNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
 
 status_t zcl_gp_notificationCmd(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, zcl_gp_notificationCmd_t *pCmd);
 #define zcl_gp_notificationCmdSend(a,b,c,d)	(zcl_gp_notificationCmd((a), (b), (c), ZCL_SEQ_NUM, (d)))

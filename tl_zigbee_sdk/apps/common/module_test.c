@@ -237,16 +237,15 @@ void moduleTest_NV(void){
 
 #if MODULE_TEST_PM
 
-#if (__PROJECT_TL_SWITCH_826x__ || __PROJECT_TL_SWITCH_8258__ || __PROJECT_TL_SWITCH_8278__ || __PROJECT_TL_SWITCH_B91__)
+#if (__PROJECT_TL_SWITCH__)
 #define PAD_WAKUPUP_TEST		1
 #define TIMER_WAKUPUP_TEST		1
-#define DEEP_SLEEP_TEST			1
 
 extern drv_pm_pinCfg_t g_switchPmCfg[];
 extern void light_on(void);
 extern void light_off(void);
 
-unsigned char  txPktForPm[48] __attribute__ ((aligned (4))) = {0x09, 0x00, 0x00, 0x00, 0x0a, 0x03, 0x08, 0xd0, 0xff, 0xff, 0xff, 0xff, 0x07};//{0x14,0x00,0x00,0x00,0x15, 0x00, 0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xaa,0xbb,0xcc,0xdd,0xee,0xff, 0xee, 0xdd, 0xcc, 0xbb};
+unsigned char txPktForPm[48] __attribute__ ((aligned (4))) = {0x09, 0x00, 0x00, 0x00, 0x0a, 0x03, 0x08, 0xd0, 0xff, 0xff, 0xff, 0xff, 0x07};//{0x14,0x00,0x00,0x00,0x15, 0x00, 0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xaa,0xbb,0xcc,0xdd,0xee,0xff, 0xee, 0xdd, 0xcc, 0xbb};
 
 void moduleTest_PM(void){
 	drv_pm_wakeup_src_e wakeupSrc = 0;
@@ -273,14 +272,10 @@ void moduleTest_PM(void){
 	wakeupSrc |= PM_WAKEUP_SRC_TIMER;
 #endif
 
-#if DEEP_SLEEP_TEST
-#if (__PROJECT_TL_SWITCH_826x__)
-	mode = PM_SLEEP_MODE_DEEPSLEEP;
-#elif (__PROJECT_TL_SWITCH_8258__ || __PROJECT_TL_SWITCH_8278__ || __PROJECT_TL_SWITCH_B91__)
-	mode = PM_SLEEP_MODE_DEEP_WITH_RETENTION;
-#endif
-#else
+#if defined(MCU_CORE_826x)
 	mode = PM_SLEEP_MODE_SUSPEND;
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91)
+	mode = PM_SLEEP_MODE_DEEP_WITH_RETENTION;
 #endif
 
 	if(wakeupSrc == (PM_WAKEUP_SRC_PAD | PM_WAKEUP_SRC_TIMER)){
@@ -292,7 +287,6 @@ void moduleTest_PM(void){
 	WaitUs(1000*1000);
 
 	while(1){
-#if DEEP_SLEEP_TEST
 		ZB_RADIO_TX_START(txPktForPm);
 
 		for(u32 i = 0; i < 2; i++){
@@ -301,23 +295,12 @@ void moduleTest_PM(void){
 			light_off();
 			WaitUs(100*1000);
 		}
-#endif
 
 		drv_pm_sleep(mode, wakeupSrc, interval);
-		//tx_packet[8]++;
-
-		ZB_RADIO_TX_START(txPktForPm);
-
-		for(u32 i = 0; i < 2; i++){
-			light_on();
-			WaitUs(100*1000);
-			light_off();
-			WaitUs(100*1000);
-		}
 	}
 }
 #else
-	#error please compile the project of "sampleSwith_xxxx"
+	#error please compile the project of "sampleSwith"
 #endif
 #endif
 
@@ -517,7 +500,7 @@ void moduleTest_timer(void){
 #define MODULE_TEST_PWM		0
 #if MODULE_TEST_PWM
 
-#if __PROJECT_TL_DIMMABLE_LIGHT__
+#if (__PROJECT_TL_DIMMABLE_LIGHT__)
 void moduleTest_pwm(void){
 	PWM_W_CHANNEL_SET();
 	drv_pwm_init();

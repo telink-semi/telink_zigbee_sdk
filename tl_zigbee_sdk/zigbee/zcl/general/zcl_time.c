@@ -68,9 +68,9 @@
 /**********************************************************************
  * LOCAL FUNCTIONS
  */
-_CODE_ZCL_ status_t zcl_time_register(u8 endpoint, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb)
+_CODE_ZCL_ status_t zcl_time_register(u8 endpoint, u16 manuCode, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb)
 {
-	return zcl_registerCluster(endpoint, ZCL_CLUSTER_GEN_TIME, attrNum, attrTbl, NULL, cb);
+	return zcl_registerCluster(endpoint, ZCL_CLUSTER_GEN_TIME, manuCode, attrNum, attrTbl, NULL, cb);
 }
 
 #endif	/* ZCL_TIME */

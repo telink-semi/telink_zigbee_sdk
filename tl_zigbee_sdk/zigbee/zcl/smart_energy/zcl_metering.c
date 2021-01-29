@@ -71,9 +71,9 @@
 static status_t zcl_metering_cmdHandler(zclIncoming_t *pInMsg);
 
 
-_CODE_ZCL_ status_t zcl_metering_register(u8 endpoint, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb)
+_CODE_ZCL_ status_t zcl_metering_register(u8 endpoint, u16 manuCode, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb)
 {
-	return zcl_registerCluster(endpoint, ZCL_CLUSTER_SE_METERING, attrNum, attrTbl, zcl_metering_cmdHandler, cb);
+	return zcl_registerCluster(endpoint, ZCL_CLUSTER_SE_METERING, manuCode, attrNum, attrTbl, zcl_metering_cmdHandler, cb);
 }
 
 

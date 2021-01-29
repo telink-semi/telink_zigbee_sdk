@@ -111,11 +111,11 @@
 #define	ZDO_MAX_PARENT_THRESHOLD_RETRY				5
 
 //Contents of the rejoin interval in seconds
-#define ZDO_REJOIN_TIMES							2
-#define	ZDO_REJOIN_INTERVAL							6
-#define ZDO_MAX_REJOIN_INTERVAL						30
+#define ZDO_REJOIN_TIMES							5
+#define	ZDO_REJOIN_DURATION							6
 #define ZDO_REJOIN_BACKOFF_TIME						30
 #define ZDO_MAX_REJOIN_BACKOFF_TIME					90
+#define ZDO_REJOIN_BACKOFF_ITERATION				8
 /******************************************************************************************************************************/
 
 #if defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91)
@@ -160,8 +160,16 @@
 #define APS_FRAME_SECURITY
 
 //default TX power idx.
-#define ZB_DEFAULT_TX_POWER_IDX						0 /* idx = 0, means MAX TX power. */
-
-
+#if defined (MCU_CORE_826x)
+	#define ZB_DEFAULT_TX_POWER_IDX					RF_POWER_7dBm
+#elif defined(MCU_CORE_8258)
+	#define ZB_DEFAULT_TX_POWER_IDX					RF_POWER_INDEX_P10p46dBm
+#elif defined(MCU_CORE_8278)
+	#define ZB_DEFAULT_TX_POWER_IDX					RF_POWER_INDEX_P11p26dBm
+#elif defined(MCU_CORE_B91)
+	#define ZB_DEFAULT_TX_POWER_IDX					RF_POWER_INDEX_P9p11dBm
+#else
+	#define ZB_DEFAULT_TX_POWER_IDX					0/* idx = 0, means MAX TX power. */
+#endif
 
 #endif	/* ZB_CONFIG_H */

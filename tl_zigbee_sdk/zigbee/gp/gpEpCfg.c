@@ -151,7 +151,7 @@ const zclAttrInfo_t gp_attrTbl[] =
  */
 const zcl_specClusterInfo_t g_gpClusterList[] =
 {
-	{ZCL_CLUSTER_GEN_GREEN_POWER, ZCL_GP_ATTR_NUM,	gp_attrTbl, zcl_gp_register, zcl_gpCb},
+	{ZCL_CLUSTER_GEN_GREEN_POWER, MANUFACTURER_CODE_NONE, ZCL_GP_ATTR_NUM, gp_attrTbl, zcl_gp_register, zcl_gpCb},
 };
 
 u8 GP_CB_CLUSTER_NUM = (sizeof(g_gpClusterList)/sizeof(g_gpClusterList[0]));

@@ -86,7 +86,7 @@ extern mac_appIndCb_t macAppIndCbList;
 ota_preamble_t sampleGW_otaInfo = {
 	.fileVer 			= FILE_VERSION,
 	.imageType 			= IMAGE_TYPE,
-	.manufacturerCode 	= MANUFACTURER_CODE,
+	.manufacturerCode 	= MANUFACTURER_CODE_TELINK,
 };
 #endif
 
@@ -163,7 +163,7 @@ void stack_init(void)
  */
 void user_app_init(void)
 {
-	af_nodeDescManuCodeUpdate(MANUFACTURER_CODE);
+	af_nodeDescManuCodeUpdate(MANUFACTURER_CODE_TELINK);
 
     /* Initialize ZCL layer */
 	/* Register Incoming ZCL Foundation command/response messages */

@@ -61,8 +61,6 @@
 	#define WaitMs(ms)						delay_ms(ms)
 #endif
 
-#define CLOCK_SYS_CLOCK_1US					(S_TIMER_CLOCK_1US)
-
 #define TIMER_TICK_1US_GET(idx)				((idx < TIMER_IDX_3) ? H_TIMER_CLOCK_1US : S_TIMER_CLOCK_1US)
  
 /**

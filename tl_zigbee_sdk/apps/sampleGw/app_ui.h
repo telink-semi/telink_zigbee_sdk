@@ -53,7 +53,6 @@
 #define LED_ON						1
 #define LED_OFF						0
 
-#define LINK_KEY_TYPE_INVALID   	0xff
 
 /**********************************************************************
  * TYPEDEFS

@@ -62,7 +62,7 @@
 /**********************************************************************
  * LOCAL VARIABLES
  */
-static ev_time_event_t *onWithTimedOffTimerEvt = NULL;
+static ev_timer_event_t *onWithTimedOffTimerEvt = NULL;
 
 /**********************************************************************
  * FUNCTIONS
@@ -226,7 +226,7 @@ static void sampleLight_onoff_onWithTimedOffProcess(zcl_onoff_onWithTimeOffCmd_t
 	if((pOnOff->onTime < 0xFFFF) && (pOnOff->offWaitTime < 0xFFFF)){
 		if(pOnOff->onTime || pOnOff->offWaitTime){
 			sampleLight_OnWithTimedOffTimerStop();
-			onWithTimedOffTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_OnWithTimedOffTimerCb, NULL, ZCL_ONOFF_TIMER_INTERVAL * 1000);
+			onWithTimedOffTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_OnWithTimedOffTimerCb, NULL, ZCL_ONOFF_TIMER_INTERVAL);
 		}
 	}
 }

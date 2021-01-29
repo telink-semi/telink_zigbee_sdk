@@ -69,9 +69,9 @@
  */
 static status_t zcl_iasAce_cmdHandler(zclIncoming_t *pInMsg);
 
-_CODE_ZCL_ status_t zcl_iasAce_register(u8 endpoint, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb)
+_CODE_ZCL_ status_t zcl_iasAce_register(u8 endpoint, u16 manuCode, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb)
 {
-	return zcl_registerCluster(endpoint, ZCL_CLUSTER_SS_IAS_ACE, attrNum, attrTbl, zcl_iasAce_cmdHandler, cb);
+	return zcl_registerCluster(endpoint, ZCL_CLUSTER_SS_IAS_ACE, manuCode, attrNum, attrTbl, zcl_iasAce_cmdHandler, cb);
 }
 
 

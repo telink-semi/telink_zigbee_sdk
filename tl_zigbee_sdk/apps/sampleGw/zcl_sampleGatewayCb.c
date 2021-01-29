@@ -94,7 +94,7 @@ static void sampleGW_zclDfltRspCmd(zclDefaultRspCmd_t *pDftRspCmd);
  * LOCAL VARIABLES
  */
 #ifdef ZCL_IDENTIFY
-static ev_time_event_t *identifyTimerEvt = NULL;
+static ev_timer_event_t *identifyTimerEvt = NULL;
 #endif
 
 
@@ -446,7 +446,7 @@ void sampleGW_zclIdentifyCmdHandler(u8 endpoint, u16 srcAddr, u16 identifyTime)
 	}else{
 		if(!identifyTimerEvt){
 			light_blink_start(identifyTime, 500, 500);
-			identifyTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleGW_zclIdentifyTimerCb, NULL, 1000*1000);
+			identifyTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleGW_zclIdentifyTimerCb, NULL, 1000);
 		}
 	}
 }

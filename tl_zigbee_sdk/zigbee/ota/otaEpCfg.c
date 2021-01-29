@@ -103,7 +103,7 @@ const zclAttrInfo_t ota_attrTbl[] =
  */
 const zcl_specClusterInfo_t g_otaClusterList[] =
 {
-	{ZCL_CLUSTER_OTA, ZCL_OTA_ATTR_NUM,	ota_attrTbl, zcl_ota_register, zcl_otaCb},
+	{ZCL_CLUSTER_OTA, MANUFACTURER_CODE_NONE, ZCL_OTA_ATTR_NUM,	ota_attrTbl, zcl_ota_register, zcl_otaCb},
 };
 
 u8 OTA_CB_CLUSTER_NUM = (sizeof(g_otaClusterList)/sizeof(g_otaClusterList[0]));

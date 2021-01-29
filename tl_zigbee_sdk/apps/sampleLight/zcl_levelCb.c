@@ -78,7 +78,7 @@ static zcl_levelInfo_t levelInfo = {
 	.withOnOff			= 0,
 };
 
-static ev_time_event_t *levelTimerEvt = NULL;
+static ev_timer_event_t *levelTimerEvt = NULL;
 
 /**********************************************************************
  * FUNCTIONS
@@ -203,7 +203,7 @@ static void sampleLight_moveToLevelProcess(u8 cmdId, moveToLvl_t *cmd)
 
 	if(pLevel->remainingTime){
 		sampleLight_LevelTimerStop();
-		levelTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_levelTimerEvtCb, NULL, ZCL_LEVEL_CHANGE_INTERVAL * 1000);
+		levelTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_levelTimerEvtCb, NULL, ZCL_LEVEL_CHANGE_INTERVAL);
 	}else{
 		sampleLight_LevelTimerStop();
 	}
@@ -248,7 +248,7 @@ static void sampleLight_moveProcess(u8 cmdId, move_t *cmd)
 
 	if(pLevel->remainingTime){
 		sampleLight_LevelTimerStop();
-		levelTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_levelTimerEvtCb, NULL, ZCL_LEVEL_CHANGE_INTERVAL * 1000);
+		levelTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_levelTimerEvtCb, NULL, ZCL_LEVEL_CHANGE_INTERVAL);
 	}else{
 		sampleLight_LevelTimerStop();
 	}
@@ -293,7 +293,7 @@ static void sampleLight_stepProcess(u8 cmdId, step_t *cmd)
 
 	if(pLevel->remainingTime){
 		sampleLight_LevelTimerStop();
-		levelTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_levelTimerEvtCb, NULL, ZCL_LEVEL_CHANGE_INTERVAL * 1000);
+		levelTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_levelTimerEvtCb, NULL, ZCL_LEVEL_CHANGE_INTERVAL);
 	}else{
 		sampleLight_LevelTimerStop();
 	}

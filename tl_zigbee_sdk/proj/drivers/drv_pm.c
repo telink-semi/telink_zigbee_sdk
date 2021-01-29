@@ -47,11 +47,8 @@
 #include "zb_common.h"
 
 
-#define PM_STIMER_SLEEP_TIME_MAX			120//120s
-
 #define PM_FC_SET_FLAG						0x5A
 #define PM_FC_CLR_FLAG						0x00
-
 
 #if defined(MCU_CORE_826x)
 	#define PM_ANA_REG_FRAME_COUNTER_FLAG	DEEP_ANA_REG0
@@ -64,6 +61,19 @@
 	#define PM_ANA_REG_FRAME_COUNTER		PM_ANA_REG_POWER_ON_CLR_BUF2
 #endif
 
+static u32 prevSleepTick = 0;
+
+
+u32 drv_pm_sleepTime_get(void)
+{
+	u32 sleepTime = 0;
+#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+	sleepTime = (pm_get_32k_tick() - prevSleepTick) / 32;
+#elif defined(MCU_CORE_B91)
+	sleepTime = (clock_get_32k_tick() - prevSleepTick) / 32;
+#endif
+	return sleepTime;
+}
 
 void drv_pm_deepSleep_frameCnt_set(u32 frameCounter)
 {
@@ -107,11 +117,15 @@ bool drv_pm_deepSleep_flag_get(void)
 void drv_pm_sleep(drv_pm_sleep_mode_e mode, drv_pm_wakeup_src_e src, u32 durationMs)
 {
 #if defined(MCU_CORE_826x)
-	u8 sleep_mode = 0;
+	u8 sleep_mode = SUSPEND_MODE;
 	WakeupSrc_TypeDef srcType = 0;
 
-	if(mode == PM_SLEEP_MODE_DEEPSLEEP){
-		sleep_mode = 1;
+	if(mode == PM_SLEEP_MODE_SUSPEND){
+		sleep_mode = SUSPEND_MODE;
+	}else if(mode == PM_SLEEP_MODE_DEEPSLEEP){
+		sleep_mode = DEEPSLEEP_MODE;
+	}else{
+		return;
 	}
 
 	if(src & PM_WAKEUP_SRC_PAD){
@@ -121,15 +135,23 @@ void drv_pm_sleep(drv_pm_sleep_mode_e mode, drv_pm_wakeup_src_e src, u32 duratio
 		srcType |= WAKEUP_SRC_TIMER;
 	}
 
-	PM_LowPwrEnter(sleep_mode, srcType, clock_time() + durationMs*1000*CLOCK_SYS_CLOCK_1US);
+	prevSleepTick = pm_get_32k_tick();
+
+	PM_LowPwrEnter(sleep_mode, srcType, clock_time() + durationMs*1000*S_TIMER_CLOCK_1US);
+
+	drv_pm_wakeupTimeUpdate();
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	SleepMode_TypeDef sleep_mode = SUSPEND_MODE;
 	SleepWakeupSrc_TypeDef srcType = 0;
 
 	if(mode == PM_SLEEP_MODE_SUSPEND){
 		sleep_mode = SUSPEND_MODE;
+	}else if(mode == PM_SLEEP_MODE_DEEPSLEEP){
+		sleep_mode = DEEPSLEEP_MODE;
 	}else if(mode == PM_SLEEP_MODE_DEEP_WITH_RETENTION){
 		sleep_mode = DEEPSLEEP_MODE_RET_SRAM_LOW32K;
+	}else{
+		return;
 	}
 
 	if(src & PM_WAKEUP_SRC_PAD){
@@ -139,7 +161,11 @@ void drv_pm_sleep(drv_pm_sleep_mode_e mode, drv_pm_wakeup_src_e src, u32 duratio
 		srcType |= PM_WAKEUP_TIMER;
 	}
 
-	cpu_sleep_wakeup(sleep_mode, srcType, clock_time() + durationMs*1000*CLOCK_SYS_CLOCK_1US);
+	prevSleepTick = pm_get_32k_tick();
+
+	cpu_sleep_wakeup(sleep_mode, srcType, clock_time() + durationMs*1000*S_TIMER_CLOCK_1US);
+
+	drv_pm_wakeupTimeUpdate();
 
 	/* reconfigure some module used */
 	ZB_RADIO_INIT();
@@ -154,8 +180,12 @@ void drv_pm_sleep(drv_pm_sleep_mode_e mode, drv_pm_wakeup_src_e src, u32 duratio
 
 	if(mode == PM_SLEEP_MODE_SUSPEND){
 		sleep_mode = SUSPEND_MODE;
+	}else if(mode == PM_SLEEP_MODE_DEEPSLEEP){
+		sleep_mode = DEEPSLEEP_MODE;
 	}else if(mode == PM_SLEEP_MODE_DEEP_WITH_RETENTION){
 		sleep_mode = DEEPSLEEP_MODE_RET_SRAM_LOW64K;
+	}else{
+		return;
 	}
 
 	if(src & PM_WAKEUP_SRC_PAD){
@@ -165,7 +195,11 @@ void drv_pm_sleep(drv_pm_sleep_mode_e mode, drv_pm_wakeup_src_e src, u32 duratio
 		srcType |= PM_WAKEUP_TIMER;
 	}
 
-	pm_sleep_wakeup(sleep_mode, srcType, PM_TICK_STIMER_16M, clock_time() + durationMs*1000*CLOCK_SYS_CLOCK_1US);
+	prevSleepTick = clock_get_32k_tick();
+
+	pm_sleep_wakeup(sleep_mode, srcType, PM_TICK_STIMER_16M, clock_time() + durationMs*1000*S_TIMER_CLOCK_1US);
+
+	drv_pm_wakeupTimeUpdate();
 
 	/* reconfigure some module used */
 	ZB_RADIO_INIT();
@@ -180,11 +214,15 @@ void drv_pm_sleep(drv_pm_sleep_mode_e mode, drv_pm_wakeup_src_e src, u32 duratio
 void drv_pm_longSleep(drv_pm_sleep_mode_e mode, drv_pm_wakeup_src_e src, u32 durationMs)
 {
 #if defined(MCU_CORE_826x)
-	u8 sleep_mode = 0;
+	u8 sleep_mode = SUSPEND_MODE;
 	WakeupSrc_TypeDef srcType = 0;
 
-	if(mode == PM_SLEEP_MODE_DEEPSLEEP){
-		sleep_mode = 1;
+	if(mode == PM_SLEEP_MODE_SUSPEND){
+		sleep_mode = SUSPEND_MODE;
+	}else if(mode == PM_SLEEP_MODE_DEEPSLEEP){
+		sleep_mode = DEEPSLEEP_MODE;
+	}else{
+		return;
 	}
 
 	if(src & PM_WAKEUP_SRC_PAD){
@@ -194,7 +232,11 @@ void drv_pm_longSleep(drv_pm_sleep_mode_e mode, drv_pm_wakeup_src_e src, u32 dur
 		srcType |= WAKEUP_SRC_TIMER;
 	}
 
+	prevSleepTick = pm_get_32k_tick();
+
 	PM_LowPwrEnter2(sleep_mode, srcType, durationMs * 1000);
+
+	drv_pm_wakeupTimeUpdate();
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	SleepMode_TypeDef sleep_mode = SUSPEND_MODE;
 	SleepWakeupSrc_TypeDef srcType = 0;
@@ -203,6 +245,10 @@ void drv_pm_longSleep(drv_pm_sleep_mode_e mode, drv_pm_wakeup_src_e src, u32 dur
 		sleep_mode = SUSPEND_MODE;
 	}else if(mode == PM_SLEEP_MODE_DEEPSLEEP){
 		sleep_mode = DEEPSLEEP_MODE;
+	}else if(mode == PM_SLEEP_MODE_DEEP_WITH_RETENTION){
+		sleep_mode = DEEPSLEEP_MODE_RET_SRAM_LOW32K;
+	}else{
+		return;
 	}
 
 	if(src & PM_WAKEUP_SRC_PAD){
@@ -212,7 +258,11 @@ void drv_pm_longSleep(drv_pm_sleep_mode_e mode, drv_pm_wakeup_src_e src, u32 dur
 		srcType |= PM_WAKEUP_TIMER;
 	}
 
+	prevSleepTick = pm_get_32k_tick();
+
 	pm_long_sleep_wakeup(sleep_mode, srcType, durationMs * 32);
+
+	drv_pm_wakeupTimeUpdate();
 
 	/* reconfigure some module used */
 	ZB_RADIO_INIT();
@@ -222,8 +272,39 @@ void drv_pm_longSleep(drv_pm_sleep_mode_e mode, drv_pm_wakeup_src_e src, u32 dur
 	tl_zbMacAttrGet(MAC_PHY_ATTR_CURRENT_CHANNEL, &value, &len);
 	ZB_TRANSCEIVER_SET_CHANNEL(value);
 #elif defined(MCU_CORE_B91)
-	//not support currently
-	while(1);
+	pm_sleep_mode_e sleep_mode = SUSPEND_MODE;
+	pm_sleep_wakeup_src_e srcType = 0;
+
+	if(mode == PM_SLEEP_MODE_SUSPEND){
+		sleep_mode = SUSPEND_MODE;
+	}else if(mode == PM_SLEEP_MODE_DEEPSLEEP){
+		sleep_mode = DEEPSLEEP_MODE;
+	}else if(mode == PM_SLEEP_MODE_DEEP_WITH_RETENTION){
+		sleep_mode = DEEPSLEEP_MODE_RET_SRAM_LOW64K;
+	}else{
+		return;
+	}
+
+	if(src & PM_WAKEUP_SRC_PAD){
+		srcType |= PM_WAKEUP_PAD;
+	}
+	if(src & PM_WAKEUP_SRC_TIMER){
+		srcType |= PM_WAKEUP_TIMER;
+	}
+
+	prevSleepTick = clock_get_32k_tick();
+
+	pm_sleep_wakeup(sleep_mode, srcType, PM_TICK_32K, durationMs * 32);
+
+	drv_pm_wakeupTimeUpdate();
+
+	/* reconfigure some module used */
+	ZB_RADIO_INIT();
+
+	u8 value;
+	u8 len;
+	tl_zbMacAttrGet(MAC_PHY_ATTR_CURRENT_CHANNEL, &value, &len);
+	ZB_TRANSCEIVER_SET_CHANNEL(value);
 #endif
 }
 
@@ -266,92 +347,77 @@ void drv_pm_wakeupPinConfig(drv_pm_pinCfg_t *pinCfg, u32 pinNum)
 	}
 }
 
-static void pm_lowPowerEnter(drv_pm_sleep_mode_e mode, drv_pm_wakeup_src_e wakeUpSrc, u32 ms)
+volatile u8 T_DBG_pmTest[8] = {0};
+void drv_pm_lowPowerEnter(void)
 {
-	/* If 'ms' is 0, use default value 120s for sleep. */
-	u32 interval = (ms == 0) ? (PM_STIMER_SLEEP_TIME_MAX * 1000) : ms;
+	drv_pm_wakeup_src_e wakeupSrc = PM_WAKEUP_SRC_PAD;
+	u32 sleepTime = 0;
+	bool longSleep = 0;
 
-	interval = (ev_nearestInterval() <= (interval * 1000 * CLOCK_SYS_CLOCK_1US)) ? ev_nearestInterval() / (1000 * CLOCK_SYS_CLOCK_1US)
-																				 : interval;
-	if(interval){
-		rf_paShutDown();
+	T_DBG_pmTest[0]++;
 
-		if(mode == PM_SLEEP_MODE_DEEPSLEEP){
-			drv_pm_deepSleep_frameCnt_set(ss_outgoingFrameCntGet());
-		}
-
-		drv_pm_sleep(mode, wakeUpSrc, interval);
-	}
-}
-
-u8 drv_pm_suspendEnter(drv_pm_wakeup_src_e wakeUpSrc, u32 ms)
-{
 	if(tl_stackBusy() || !zb_isTaskDone()){
-		return FAILURE;
+		return;
 	}
+
+	T_DBG_pmTest[1]++;
 
 	u32 r = drv_disable_irq();
 
-	pm_lowPowerEnter(PM_SLEEP_MODE_SUSPEND, wakeUpSrc, ms);
+	ev_timer_event_t *timerEvt = ev_timer_nearestGet();
+	if(timerEvt){
+		wakeupSrc |= PM_WAKEUP_SRC_TIMER;
+		sleepTime = timerEvt->timeout;
 
-	drv_restore_irq(r);
-
-	return SUCCESS;
-}
-
-u8 drv_pm_deepSleepEnter(drv_pm_wakeup_src_e wakeUpSrc, u32 ms)
-{
-	if(tl_stackBusy() || !zb_isTaskDone()){
-		return FAILURE;
+		T_DBG_pmTest[2]++;
 	}
-
-	u32 r = drv_disable_irq();
 
 #if defined(MCU_CORE_826x)
-	pm_lowPowerEnter(PM_SLEEP_MODE_DEEPSLEEP, wakeUpSrc, ms);
+	drv_pm_sleep_mode_e sleepMode = (wakeupSrc & PM_WAKEUP_SRC_TIMER) ? PM_SLEEP_MODE_SUSPEND : PM_SLEEP_MODE_DEEPSLEEP;
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91)
-	pm_lowPowerEnter(PM_SLEEP_MODE_DEEP_WITH_RETENTION, wakeUpSrc, ms);
+	drv_pm_sleep_mode_e sleepMode = (wakeupSrc & PM_WAKEUP_SRC_TIMER) ? PM_SLEEP_MODE_DEEP_WITH_RETENTION : PM_SLEEP_MODE_DEEPSLEEP;
 #endif
 
-	drv_restore_irq(r);
+	if(sleepTime){
+		if(sleepTime > PM_NORMAL_SLEEP_MAX){
+			T_DBG_pmTest[3]++;
 
-	return SUCCESS;
-}
+#if defined(MCU_CORE_826x)
+			sleepTime = PM_NORMAL_SLEEP_MAX;
+			longSleep = 0;
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91)
+			longSleep = 1;
+#endif
+		}
+	}else{
+		drv_restore_irq(r);
 
-u8 drv_pm_interleaveSleepEnter(drv_pm_wakeup_src_e wakeUpSrc, u32 ms)
-{
-	if(tl_stackBusy() || !zb_isTaskDone()){
-		return FAILURE;
+		return;
 	}
 
-	u32 r = drv_disable_irq();
-
-	u32 interval = ev_nearestInterval();
-
-	/* Go to long sleep mode if there is no timer event exist.
-	 * Otherwise enter suspend or deep with retention mode according to the platform.
-	 * 826x --> suspend mode.
-	 * 8258 --> deep with retention mode.
-	 */
-	if((interval == 0xFFFFFFFF) && (ms >= (PM_STIMER_SLEEP_TIME_MAX * 1000))){
-		rf_paShutDown();
+	rf_paShutDown();
+	if(sleepMode == PM_SLEEP_MODE_DEEPSLEEP){
+		T_DBG_pmTest[4]++;
 
 		drv_pm_deepSleep_frameCnt_set(ss_outgoingFrameCntGet());
+	}
 
-		drv_pm_longSleep(PM_SLEEP_MODE_DEEPSLEEP, wakeUpSrc, ms);
+	if(!longSleep){
+		T_DBG_pmTest[5]++;
+
+		drv_pm_sleep(sleepMode, wakeupSrc, sleepTime);
 	}else{
-#if defined(MCU_CORE_826x)
-		drv_pm_sleep_mode_e mode = PM_SLEEP_MODE_SUSPEND;
-#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91)
-		drv_pm_sleep_mode_e mode = PM_SLEEP_MODE_DEEP_WITH_RETENTION;
-#endif
+		T_DBG_pmTest[6]++;
 
-		pm_lowPowerEnter(mode, wakeUpSrc, ms);
+		drv_pm_longSleep(sleepMode, wakeupSrc, sleepTime);
 	}
 
 	drv_restore_irq(r);
-
-	return SUCCESS;
 }
 
-
+void drv_pm_wakeupTimeUpdate(void)
+{
+	u32 sleepTime = drv_pm_sleepTime_get();
+	ev_timer_update(sleepTime);
+	ev_timer_setPrevSysTick(clock_time());
+}

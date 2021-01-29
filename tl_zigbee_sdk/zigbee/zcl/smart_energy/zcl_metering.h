@@ -307,7 +307,7 @@ extern const u8 zcl_metering_attrNum;
 #endif
 
 
-status_t zcl_metering_register(u8 endpoint, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
+status_t zcl_metering_register(u8 endpoint, u16 manuCode, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
 
 status_t zcl_metering_getProfile(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, zcl_metering_getProfileCmd_t *pReq);
 #define zcl_metering_getProfileCmd(a,b,c,d)	(zcl_metering_getProfile((a), (b), (c), ZCL_SEQ_NUM, (d)))

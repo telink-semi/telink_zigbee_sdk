@@ -127,7 +127,7 @@ typedef struct
 	/* End [8 bytes]*/
 
 	/* For coordinator or router store current joining device info */
-	ev_time_event_t *curJoiningDevTimerEvt;
+	ev_timer_event_t *curJoiningDevTimerEvt;
 
 	nwkDiscoveryUserCb_t nwkDiscConf;
 
@@ -144,7 +144,8 @@ typedef struct
 	u8	joinAccept:1;
 	u8	known_panids_cnt:4;
 	u8	discoverRoute:1;	/*!< Always TRUE for NLDE data request! see 2.2.4.1.1.3 */
-	u8  resv:2;
+	u8  panidUpdateRecv:1;	/*receive network update for panid conflict*/
+	u8  resv:1;
 	u8	parentIsChanged:1;	/*!< A flag indicates that the device's parent is changed through rejoin */
 	u8 	user_state:4;		/*!< Current network user_state_t */
 	u8 	state:4; 			/*!< Current network subsystem state nlme_state_t */
