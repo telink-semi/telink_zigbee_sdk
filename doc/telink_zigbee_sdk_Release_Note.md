@@ -1,3 +1,39 @@
+## V3.6.2-Beta
+
+### Features
+* Add binary/multistate input/output cluster in the ZCL layer.
+* Add manufacturer code processing in the ZCL layer.
+### Bug Fixes
+* Fix the stack buffer free issue.
+* Fix the MAC TRX state machine issue.
+* Fix the NWK broadcast passive ack buffer allocation issue.
+### Code Refactoring
+* Refactor the software timing task processing framework.
+* Refactor the sleep management mechanism.
+### Performance
+* Modify the rejoin backoff processing mechanism.
+### BREAKING CHANGES
+* None.
+### Note
+* The current version SDK only verified on the 8258 platform.
+
+### Features
+* ZCL层添加binary/multistate input/output cluster。
+* ZCL层manufacturer code处理。
+### Bug Fixes
+* 修复协议栈buffer释放问题。
+* 修复MAC层TRX状态机处理问题。
+* 修复NWK层广播passive ack申请buffer问题。
+### Code Refactoring
+* 重构软件计时任务处理框架。
+* 重构睡眠管理机制。
+### Performance
+* 修改rejoin退避处理机制。
+### BREAKING CHANGES
+* 无。
+### Note
+* 当前版本仅在8258平台上得到验证。
+
 ## V3.6.1-Beta
 
 ### Dependency Updates

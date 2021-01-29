@@ -79,7 +79,7 @@
 #define PM_ANA_REG_WD_CLR_BUF0 			0x38 // initial value 0xff. [Bit0] is already occupied. The customer cannot change!
 
 /**
- * @brief analog register below can store infomation when MCU in deepsleep mode or deepsleep with SRAM retention mode.
+ * @brief analog register below can store information when MCU in deepsleep mode or deepsleep with SRAM retention mode.
  * 	      Reset these analog registers only by power cycle
  */
 #define PM_ANA_REG_POWER_ON_CLR_BUF0 	0x39 // initial value 0x00. [Bit0][Bit1] is already occupied. The customer cannot change!

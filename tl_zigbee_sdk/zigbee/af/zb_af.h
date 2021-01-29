@@ -236,7 +236,7 @@ typedef struct{
 }af_simple_descriptor_t;
 
 /**
- *  @brief  Definition for endpoint infomation type
+ *  @brief  Definition for endpoint information type
  */
 typedef struct{
 	tl_zb_addr_t dstAddr;
@@ -496,8 +496,8 @@ bool af_endpointUnregister(u8 ep);
  * @brief       Send AF data
  *
  * @param[in]   srcEp 		- source endpoint
- * @param[in]   pDstEpInfo  - destination infomation
- * @param[in]   clusterId  	- cluster indentifer
+ * @param[in]   pDstEpInfo  - destination information
+ * @param[in]   clusterId  	- cluster identifier
  * @param[in]   cmdPldLen   - data length
  * @param[in]   cmdPld		- data payload
  * @param[in]   apsCnt   	- the APS count

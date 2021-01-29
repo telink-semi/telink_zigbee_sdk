@@ -194,7 +194,7 @@ void mac_trigger_tx(void *arg);
  *
  * @param[in]   macPld        - mac payload
  *
- * @param[in]	len			  - the lenght of the mac payload
+ * @param[in]	len			  - the length of the mac payload
  *
  * @param[in]	needDrop	  - 1: this frame should be drop
  *
@@ -212,7 +212,7 @@ u8 *zb_macDataFilter(u8 *macPld, u8 len, u8 *needDrop, u8 *ackPkt);
  *
  * @param[in]	data		- the address of the valid data buffer
  * *
- * @param[in]	len			- data lenght
+ * @param[in]	len			- data length
  * *
  * @param[in]	ackPkt		- this frame is ack packet
  * *

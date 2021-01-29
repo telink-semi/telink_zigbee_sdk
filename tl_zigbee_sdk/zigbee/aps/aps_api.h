@@ -275,7 +275,7 @@ typedef struct{
 	u8	aps_counter;
 } aps_data_ind_t;
 
-//Structure for parameter of apsdeDataCnf callback function, for external useage
+//Structure for parameter of apsdeDataCnf callback function, for external usage
 typedef struct{
     union{
     	u16		  addr_short;
@@ -605,7 +605,7 @@ void aps_init_group_num_set(void);
 aps_group_tbl_ent_t *aps_group_search_by_addr(u16 group_addr);
 
 /***********************************************************************//**
- * @brief   get the endpoint infomation according to the group address
+ * @brief   get the endpoint information according to the group address
  *
  * @param	group_addr the group address
  *

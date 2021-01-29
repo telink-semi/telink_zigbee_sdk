@@ -64,7 +64,7 @@
 
 
 /**
- * @brief analog register below can store infomation when MCU in deepsleep mode
+ * @brief analog register below can store information when MCU in deepsleep mode
  * 	      store your information in these ana_regs before deepsleep by calling analog_write function
  * 	      when MCU wakeup from deepsleep, read the information by by calling analog_read function
  * 	      Reset these analog registers only by power cycle

@@ -90,7 +90,7 @@
 #define BIT_FLIP(x, n)   				((x) ^= BIT(n))
 #define BIT_SET_HIGH(x) 				((x) |=  BIT((sizeof((x))*8-1)))				// set the highest bit
 #define BIT_CLR_HIGH(x) 				((x) &= ~ BIT((sizeof((x))*8-1)))				// clr the highest bit
-#define BIT_IS_SET_HIGH(x) 				((x) & BIT((sizeof((x))*8-1)))					// check the higest bit
+#define BIT_IS_SET_HIGH(x) 				((x) & BIT((sizeof((x))*8-1)))					// check the highest bit
 
 #define BIT_MASK_LEN(len)       		(BIT(len)-1)
 #define BIT_MASK(start, len)    		(BIT_MASK_LEN(len) << (start) )

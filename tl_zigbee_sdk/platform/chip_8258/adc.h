@@ -1051,12 +1051,12 @@ static inline void pga_right_chn_power_on(unsigned char on_off)
 	analog_write(areg_adc_pga_ctrl, (analog_read(areg_adc_pga_ctrl) & (~FLD_POWER_DOWN_PGA_CHN_R)) | (!on_off) << 7);
 }
 
-#define areg_fe	 0xfe//0xfe default value is 0xe5,for output audio, mast claer 0xfe<7:5>
+#define areg_fe	 0xfe//0xfe default value is 0xe5,for output audio, mast clear 0xfe<7:5>
 
 /**
- * @brief      This function sets  ADC RNS channel source and random updata type.
+ * @brief      This function sets  ADC RNS channel source and random update type.
  * @param[in]  src - the type of ADC RNS channel source
- * @param[in]  update_type - the type of random updata
+ * @param[in]  update_type - the type of random update
  * @return     none
  */
 static inline void RNG_Set(RNG_SrcTypeDef src,RNG_UpdataTypeDef update_type)

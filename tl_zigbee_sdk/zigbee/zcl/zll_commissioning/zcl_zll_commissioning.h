@@ -168,7 +168,7 @@ enum{
  *  @{
  */
 /**
- *  @brief  Definition for zigbee infomation for zll commissiong
+ *  @brief  Definition for zigbee information for zll commissioning
  */
 typedef struct{
 	union{
@@ -183,7 +183,7 @@ typedef struct{
 
 
 /**
- *  @brief  Definition for zll infomation for zll commissiong
+ *  @brief  Definition for zll information for zll commissioning
  */
 typedef struct{
 	union{

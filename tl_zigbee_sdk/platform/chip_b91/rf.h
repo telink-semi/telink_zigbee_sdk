@@ -390,7 +390,7 @@ static inline void rf_rx_acc_code_pipe_en(rf_channel_e pipe)
 /**
  * @brief		this function is to select access_code channel for RF tx terminal.
  * @param[in]	pipe  	- Bit0~bit2 the value correspond to channel 0~5, respectively.
- *						  if value > 5 enable channel 5.And only 1 channel can be selected everytime.
+ *						  if value > 5 enable channel 5.And only 1 channel can be selected every time.
  *						- #0:Disable.
  *						- #1:Enable.
  *						  If "enable" is set as 0x7 (i.e. 0111),

@@ -97,7 +97,7 @@ extern volatile unsigned char uart_status;
 *
 *	@parm	none
 *
-*	@return	'1' RX error flag rised and cleard success; '0' RX error flag not rised 
+*	@return	'1' RX error flag rise and cleared success; '0' RX error flag not rise
 *
 */
 unsigned char uart_ErrorCLR(void);

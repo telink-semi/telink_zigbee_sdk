@@ -81,7 +81,7 @@
 
 
 /*
- * @breif:   crc8 calculate
+ * @brief:   crc8 calculate
  *
  * */
 u8 crc8Calculate(u16 type, u16 length, u8 *data){
@@ -102,7 +102,7 @@ u8 crc8Calculate(u16 type, u16 length, u8 *data){
 
 
 /*
- * @breif:   data send by HCI
+ * @brief:   data send by HCI
  *
  * */
 zbhciTx_e zbhciTx(u16 u16Type, u16 u16Length, u8 *pu8Data){

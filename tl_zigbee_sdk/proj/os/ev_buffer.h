@@ -115,7 +115,7 @@ typedef struct ev_bufItem {
 } ev_bufItem_t;
 
 /**
- *  @brief Definiton error code of EV buffer operation
+ *  @brief Definition error code of EV buffer operation
  */
 typedef enum buf_sts_e {
     // SUCCESS always be ZERO

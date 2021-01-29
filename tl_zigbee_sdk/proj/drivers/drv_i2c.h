@@ -92,7 +92,7 @@ void drv_i2c_write_byte(u8 slaveID, u32 addr, u32 addrLen, u8 data);
 u8 drv_i2c_read_byte(u8 slaveID, u32 addr, u32 addrLen);
 
 /**
- *  @brief      write continous data to slave
+ *  @brief      write continuous data to slave
  *  @param[in]  slaveID - id of the slave device
  *  @param[in]  addr - the register that master write data to slave in. support one byte and two bytes. i.e param2 AddrLen may be 1 or 2.
  *  @param[in]  addrLen - the length of register. enum 0 or 1 or 2 or 3. based on the spec of i2c slave.
@@ -103,7 +103,7 @@ u8 drv_i2c_read_byte(u8 slaveID, u32 addr, u32 addrLen);
 void drv_i2c_write_series(u8 slaveID, u32 addr, u32 addrLen, u8 *dataBuf, int dataLen);
 
 /**
- * @brief      read continous data from slave
+ * @brief      read continuous data from slave
  * @param[in]  slaveID - id of the slave device
  * @param[in]  addr - the register master read data from slave in. support one byte and two bytes.
  * @param[in]  addrLen - the length of register. enum 0 or 1 or 2 or 3 based on the spec of i2c slave.

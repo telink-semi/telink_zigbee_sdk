@@ -1217,7 +1217,7 @@ enum{
 	FLD_TMR2_STA =				BIT(26),
 	FLD_CLR_WD =				BIT(27),
 };
-#define WATCHDOG_TIMEOUT_COEFF	18		//  check register definiton, 0x622
+#define WATCHDOG_TIMEOUT_COEFF	18		//  check register definition, 0x622
 
 #define reg_tmr_sta				REG_ADDR8(0x623)
 enum{

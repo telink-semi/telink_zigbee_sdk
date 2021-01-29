@@ -299,7 +299,7 @@ extern void uart_init(uart_num_e uart_num,unsigned short div, unsigned char bwpc
 void uart_cal_div_and_bwpc(unsigned int baudrate, unsigned int sysclk, unsigned short* div, unsigned char *bwpc);
 
 /**
- * @brief  		This funtion serves to set r_rxtimeout. this setting is transfer one bytes need cycles base on uart_clk.
+ * @brief  		This function serves to set r_rxtimeout. this setting is transfer one bytes need cycles base on uart_clk.
  * 				For example, if transfer one bytes (1start bit+8bits data+1 priority bit+2stop bits) total 12 bits,
  * 				this register setting should be (bpwc+1)*12.
  * @param[in]	uart_num - UART0 or UART1.
