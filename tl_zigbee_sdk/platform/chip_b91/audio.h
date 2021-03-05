@@ -183,20 +183,44 @@ typedef enum{
 	I2S_DATA_INVERT_EN ,
 }audio_data_invert_e;
 
+typedef enum{
+	I2S_LR_CLK_INVERT_DIS,
+	I2S_LR_CLK_INVERT_EN,
+}audio_i2s_lr_clk_invert_e;
+
+typedef enum
+{
+	DAC_OUTPUT_L_R_CHN,
+	DAC_OUTPUT_L_CHN,
+}audio_output_chn_e;
+
+typedef enum
+{
+	SINGLE_ENDED_INPUT,
+	DIFF_ENDED_INPUT,
+}audio_input_mode_select_e;
+
 typedef struct {
 	unsigned char  audio_in_mode;
 	unsigned char  audio_out_mode;
 	unsigned char 	i2s_data_select;
 	unsigned char  codec_data_select;
 	unsigned char  i2s_codec_m_s_mode;
-	unsigned char  i2s_data_invert_select;
 	unsigned char  in_digital_gain;
 	unsigned char  in_analog_gain;
 	unsigned char  out_digital_gain;
 	unsigned char  out_analog_gain;
 	unsigned char  mic_input_mode_select;
+	unsigned char  dac_output_chn_select;
 	unsigned char  adc_wnf_mode_select;
 }aduio_i2s_codec_config_t;
+
+
+typedef struct {
+	unsigned char  i2s_lr_clk_invert_select;
+	unsigned char  i2s_data_invert_select;
+}aduio_i2s_invert_config_t;
+
 
 
 typedef enum{
@@ -699,10 +723,15 @@ void audio_codec_adc_config(i2s_codec_m_s_mode_e mode,audio_input_mode_e in_mode
  * @param[in] i2s_format - interface protocol
  * @param[in] wl   		 - audio data word length
  * @param[in] m_s        - select i2s as master or slave
- * @param[in] en         - 1 enable audio data invert , 0 disable audio data invert .for example in mono mode switch R and L channel data to fifo0
+ * @param[in] i2s_config_t - the prt of i2s_config_t that configure i2s lr_clk phase and lr_clk swap.
+ *  i2s_config_t->i2s_lr_clk_invert_select-lr_clk phase control(in RJ,LJ or i2s modes),in i2s mode(opposite phasing in  RJ,LJ mode), 0=right channel data when lr_clk high ,1=right channel data when lr_clk low.
+ *                                                                                     in DSP mode(in DSP mode only), DSP mode A/B select,0=DSP mode A ,1=DSP mode B.
+ *            i2s_config_t->i2s_data_invert_select - 0=left channel data left,1=right channel data left.
+ * @attention:If the left and right channels are both active in i2s mode,there will be a phase difference(about 1 sample) between the left and right channels,you can set i2s_lr_clk_invert_select=1 to eliminate the phase difference,
+ * but data output channel will be inverted,you can also set i2s_config_t->i2s_data_invert_select=1 to recovery it.
  * @return    none
  */
-void audio_i2s_config(i2s_mode_select_e i2s_format,i2s_data_select_e wl,  i2s_codec_m_s_mode_e m_s , audio_data_invert_e en );
+void audio_i2s_config(i2s_mode_select_e i2s_format,i2s_data_select_e wl,  i2s_codec_m_s_mode_e m_s , aduio_i2s_invert_config_t * i2s_config_t);
 
 /**
  * @brief     This function serves to set i2s clock and audio sampling rate when i2s as master.
@@ -827,11 +856,38 @@ void audio_rx_dma_chain_init (dma_chn_e chn,unsigned short * in_buff,unsigned in
  */
 void audio_tx_dma_chain_init (dma_chn_e chn,unsigned short * out_buff,unsigned int buff_size);
 
+/**
+ * @brief      This function serves to invert data between R channel and L channel.
+ * @param[in]  en - I2S_DATA_INVERT_DIS: L channel ( left channel data left);  I2S_DATA_INVERT_EN(right channel data left)
+ * @attention must be set before audio_init().
+ * @return     none
+ */
+void audio_set_mono_chn(audio_data_invert_e en);
+
+/**
+ * @brief      This function serves to invert LR-clk.
+ * @param[in]  en -lr_clk phase control(in RJ,LJ or i2s modes),in i2s mode(opposite phasing in  RJ,LJ mode), 0=right channel data when lr_clk high ,1=right channel data when lr_clk low.
+ *                                                             in DSP mode(in DSP mode only), DSP mode A/B select,0=DSP mode A ,1=DSP mode B
+ * @attention  If the left and right channels are both active,there will be a phase difference(about 1 sample) between the left and right channels,invert lr_clk can eliminate the phase difference,but data output channel will invert.
+ * @attention must be set before audio_init().
+ * @return     none
+ */
+void audio_invert_i2s_lr_clk(audio_i2s_lr_clk_invert_e en);
+
+
+/**
+ * @brief      This function serves to set mic input mode.
+ * @param[in]  input_mode - 0 single-ended input, 1 differential input.
+ * @attention must be set before audio_init().
+ * @return     none
+ */
+void audio_set_codec_mic_input_mode (audio_input_mode_select_e input_mode);
 
 /**
  * 	@brief      This function serves to set in path digital and analog gain  .
  * 	@param[in]  d_gain - digital gain value
  * 	@param[in]  a_gain - analog  gain value
+ *  @attention must be set before audio_init().
  * 	@return     none
  */
 void audio_set_codec_in_path_a_d_gain (codec_in_path_digital_gain_e d_gain,codec_in_path_analog_gain_e a_gain );
@@ -847,6 +903,7 @@ void audio_set_codec_in_path_a_d_gain (codec_in_path_digital_gain_e d_gain,codec
  /**
   * @brief      This function serves to choose which is master to provide clock.
   * @param[in]  m_s - I2S_S_CODEC_M: i2s as slave ,codec as master; I2S_M_CODEC_S: i2s as  master, codec  as slave.
+  * @attention must be set before audio_init().
   * @return     none
   */
  void audio_set_i2s_codec_m_s (i2s_codec_m_s_mode_e m_s);
@@ -858,9 +915,19 @@ void audio_set_codec_in_path_a_d_gain (codec_in_path_digital_gain_e d_gain,codec
  *                                              Mode1  -3dB   59Hz
  *  Wind Noise Filter corner frequency          Mode2  -3dB   117Hz
  			                                    Mode3  -3dB   235Hz
+ * @attention must be set before audio_init().
  * @return    none
-  */
+ */
  void audio_set_codec_wnf(adc_wnf_mode_sel_e mode);
+
+ /**
+  * @brief  This function serves to set dac output channel.
+  * @param[in] chn -DAC_OUTPUT_L_R_CHN - right and left channel both active ; DAC_OUTPUT_L_CHN, only left channel active.
+  * @return    none
+  * @attention must be set before audio_init().
+  */
+ void audio_set_output_chn(audio_output_chn_e chn);
+
  /**
   * @brief    This function serves to active soft mute dac and disable dma.
   * @return    none

@@ -48,7 +48,6 @@
 #include "assert.h"
 #include "../os/ev_buffer.h"
 #include "../os/ev.h"
-#include "zb_buffer.h"
 
 char *strcpy(char *dst0, const char *src0){
 	char *s = dst0;
@@ -137,10 +136,6 @@ void *memset(void *dest, int val, unsigned int len){
     	ZB_EXCEPTION_POST(SYS_EXCEPTTION_COMMON_MEM_ACCESS);
     	return NULL;
     }
-    if(is_zb_buf(dest) && (len > ZB_BUF_SIZE)){
-    	ZB_EXCEPTION_POST(SYS_EXCEPTTION_COMMON_MEM_ACCESS);
-    	return NULL;
-    }
 
 	register unsigned char *ptr = (unsigned char *)dest;
 	while(len-- > 0)
@@ -161,10 +156,6 @@ void *memcpy(void *out, const void *in, unsigned int length){
 		return NULL;
 	}
     if(is_ev_buf(out) && (length > LARGE_BUFFER)){
-    	ZB_EXCEPTION_POST(SYS_EXCEPTTION_COMMON_MEM_ACCESS);
-    	return NULL;
-    }
-    if(is_zb_buf(out) && (length > ZB_BUF_SIZE) && (length != (ZB_BUF_SIZE + sizeof(zb_buf_hdr_t) - 1))){
     	ZB_EXCEPTION_POST(SYS_EXCEPTTION_COMMON_MEM_ACCESS);
     	return NULL;
     }

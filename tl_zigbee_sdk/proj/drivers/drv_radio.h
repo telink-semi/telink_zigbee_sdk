@@ -91,6 +91,12 @@
 /* disable rx */
 #define ZB_RADIO_RX_DISABLE								RFDMA_RX_DISABLE
 
+/* clear mask bit to disable tx irq */
+#define ZB_RADIO_IRQ_MASK_CLR							irq_clr_mask(FLD_IRQ_ZB_RT_EN)
+
+/* clear mask bit to disable tx irq */
+#define ZB_RADIO_IRQ_MASK_SET							irq_set_mask(FLD_IRQ_ZB_RT_EN)
+
 /* trx status get */
 #define ZB_RADIO_TRX_STA_GET()							RF_TrxStateGet()
 
@@ -163,6 +169,8 @@
 															if(mode == RF_GAIN_MODE_AUTO){				\
 																maxEd = -6;   /* AGC */					\
 															}											\
+															if(rssi > maxEd){rssi = maxEd;}				\
+															if(rssi < minEd){rssi = minEd;}				\
 															lqi = 255*(rssi - minEd)/(maxEd - minEd); 	\
 														}while(0)
 
@@ -214,6 +222,12 @@
 
 /* disable rx */
 #define ZB_RADIO_RX_DISABLE								RFDMA_RX_DISABLE
+
+/* clear mask bit to disable tx irq */
+#define ZB_RADIO_IRQ_MASK_CLR							irq_clr_mask(FLD_IRQ_ZB_RT_EN)
+
+/* clear mask bit to disable tx irq */
+#define ZB_RADIO_IRQ_MASK_SET							irq_set_mask(FLD_IRQ_ZB_RT_EN)
 
 /* trx status get */
 #define ZB_RADIO_TRX_STA_GET()							rf_trx_state_get()
@@ -287,6 +301,8 @@
 															(void)mode;									\
 															s16 minEd = -110;							\
 															s16 maxEd = -15;  /* AGC */					\
+															if(rssi > maxEd){rssi = maxEd;}				\
+															if(rssi < minEd){rssi = minEd;}				\
 															lqi = 255*(rssi - minEd)/(maxEd - minEd); 	\
 														}while(0)
 
@@ -338,6 +354,12 @@
 
 /* disable rx */
 #define ZB_RADIO_RX_DISABLE								RFDMA_RX_DISABLE
+
+/* clear mask bit to disable tx irq */
+#define ZB_RADIO_IRQ_MASK_CLR							irq_clr_mask(FLD_IRQ_ZB_RT_EN)
+
+/* clear mask bit to disable tx irq */
+#define ZB_RADIO_IRQ_MASK_SET							irq_set_mask(FLD_IRQ_ZB_RT_EN)
 
 /* trx status get */
 #define ZB_RADIO_TRX_STA_GET()							rf_trx_state_get()
@@ -411,6 +433,8 @@
 															(void)mode;									\
 															s16 minEd = -110;							\
 															s16 maxEd = -15;  /* AGC */					\
+															if(rssi > maxEd){rssi = maxEd;}				\
+															if(rssi < minEd){rssi = minEd;}				\
 															lqi = 255*(rssi - minEd)/(maxEd - minEd); 	\
 														}while(0)
 
@@ -462,6 +486,12 @@
 
 /* disable rx */
 #define ZB_RADIO_RX_DISABLE								dma_chn_dis(DMA1)//todo: Doesn't seem to work
+
+/* clear mask bit to disable tx irq */
+#define ZB_RADIO_IRQ_MASK_CLR							rf_clr_irq_mask(FLD_RF_IRQ_TX)
+
+/* clear mask bit to disable tx irq */
+#define ZB_RADIO_IRQ_MASK_SET							rf_set_irq_mask(FLD_RF_IRQ_TX)
 
 /* trx status get */
 #define ZB_RADIO_TRX_STA_GET()							rf_get_trx_state()
@@ -543,6 +573,8 @@
 															(void)mode;									\
 															s16 minEd = -110;							\
 															s16 maxEd = -15;  /* AGC */					\
+															if(rssi > maxEd){rssi = maxEd;}				\
+															if(rssi < minEd){rssi = minEd;}				\
 															lqi = 255*(rssi - minEd)/(maxEd - minEd); 	\
 														}while(0)
 #endif

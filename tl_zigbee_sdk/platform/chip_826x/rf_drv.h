@@ -123,8 +123,8 @@ extern RF_ModeTypeDef g_RFMode;
 #define	RFDMA_TX_DISABLE				(reg_dma_chn_en &= (~FLD_DMA_RF_TX))
 #define	RFDMA_TX_ENABLE					(reg_dma_chn_en |= (FLD_DMA_RF_TX))
 
-#define RF_TxFinishClearFlag()		 	(reg_rf_irq_status |= FLD_RF_IRQ_TX)
-#define RF_RxFinishClearFlag()		 	(reg_rf_irq_status |= FLD_RF_IRQ_RX)
+#define RF_TxFinishClearFlag()		 	(reg_rf_irq_status = FLD_RF_IRQ_TX)
+#define RF_RxFinishClearFlag()		 	(reg_rf_irq_status = FLD_RF_IRQ_RX)
 #define RF_TxFinish()				 	(reg_rf_irq_status & FLD_RF_IRQ_TX)
 
 static inline void rf_irq_enable(unsigned int msk)

@@ -74,6 +74,9 @@
 	#endif
 #endif
 
+//system ticks per US
+u32 sysTimerPerUs;
+
 
 static void randInit(void)
 {
@@ -97,16 +100,16 @@ static void randInit(void)
  */
 static void internalFlashSizeCheck(void){
 #if defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91)
-	u8 mid[4] = {0};
-	flash_read_mid(mid);
+	u32 mid = flash_read_mid();
+	u8 *pMid = (u8 *)&mid;
 
-	if( (mid[2] < FLASH_SIZE_512K) ||
-		((g_u32MacFlashAddr == MAC_ADDR_1M_FLASH) && (mid[2] < FLASH_SIZE_1M)) ){
+	if( (pMid[2] < FLASH_SIZE_512K) ||
+		((g_u32MacFlashAddr == MAC_ADDR_1M_FLASH) && (pMid[2] < FLASH_SIZE_1M)) ){
 		/* Flash space not matched. */
 		while(1);
 	}
 
-	if( (g_u32MacFlashAddr == MAC_ADDR_512K_FLASH) && (mid[2] >= FLASH_SIZE_1M) ){
+	if( (g_u32MacFlashAddr == MAC_ADDR_512K_FLASH) && (pMid[2] >= FLASH_SIZE_1M) ){
 		g_u32MacFlashAddr = MAC_ADDR_1M_FLASH;
 		g_u32CfgFlashAddr = CFG_ADDR_1M_FLASH;
 	}
@@ -154,7 +157,20 @@ startup_state_e drv_platform_init(void)
 	CLOCK_INIT;
 #endif
 
+	/* Get system ticks per US, must be after the clock is initialized. */
+#if defined(MCU_CORE_826x)
+	sysTimerPerUs = tickPerUs;
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+	sysTimerPerUs = sys_tick_per_us;
+#elif defined(MCU_CORE_B91)
+	sysTimerPerUs = SYSTEM_TIMER_TICK_1US;
+#endif
+
 	gpio_init(TRUE);
+
+#if UART_PRINTF_MODE
+	DEBUG_TX_PIN_INIT();
+#endif
 
 	if(state == SYSTEM_RETENTION_NONE){
 		randInit();
@@ -167,10 +183,6 @@ startup_state_e drv_platform_init(void)
 		drv_pm_wakeupTimeUpdate();
 #endif
 	}
-
-#if UART_PRINTF_MODE
-	DEBUG_TX_PIN_INIT();
-#endif
 
 	ZB_RADIO_INIT();
 

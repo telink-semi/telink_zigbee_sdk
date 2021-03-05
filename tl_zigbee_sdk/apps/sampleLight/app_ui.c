@@ -166,27 +166,4 @@ void app_key_handler(void){
 	}
 }
 
-
-void zb_pre_install_code_load(app_linkkey_info_t *appLinkKey){
-	u8 invalidInstallCode[SEC_KEY_LEN] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-										   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
-	u8 installCode[SEC_KEY_LEN];
-
-	flash_read(CFG_PRE_INSTALL_CODE, SEC_KEY_LEN, (u8 *)installCode);
-
-	if(!memcmp((u8 *)installCode, (u8 *)invalidInstallCode, SEC_KEY_LEN)){
-		return;
-	}
-
-	u8 key[SEC_KEY_LEN];
-	tl_bdbUseInstallCode(installCode, key);
-
-	appLinkKey->tcLinkKey.keyType = SS_UNIQUE_LINK_KEY;
-	memcpy(appLinkKey->tcLinkKey.key, key, SEC_KEY_LEN);
-
-	gLightCtx.installCodeAvailable = TRUE;
-	gLightCtx.useInstallCodeFlg = TRUE;
-}
-
-
 #endif  /* __PROJECT_TL_DIMMABLE_LIGHT__ */

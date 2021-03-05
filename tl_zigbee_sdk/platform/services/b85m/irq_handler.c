@@ -55,7 +55,9 @@ volatile u8 T_DBG_irqTest[16] = {0};
 
 //called by irq in cstartup.s
 _attribute_ram_code_ void irq_handler(void){
-#if (__PROJECT_TL_SNIFFER__)
+#if(__PROJECT_TL_BOOT_LOADER__)
+
+#elif (__PROJECT_TL_SNIFFER__)
 	irq_sniffer_handler();
 #else
 	u16 src_rf = rf_irq_src_get();

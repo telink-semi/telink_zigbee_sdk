@@ -57,11 +57,12 @@
 #define OTA_HDR_LEN_OFFSET							6
 #define OTA_STACK_VER_OFFSET						18
 
-#define OTA_UPGRADE_IMAGE_TAG_ID					0
 #define OTA_UPGRADE_FILE_ID							0x0BEEF11E
 
-#define OTA_CHECK_PERIOD_MIN 						30// Actual OTA check period, in minutes
-#define OTA_PERIODIC_QUERY_SERVER_INTERVAL_S		60//s
+#define OTA_UPGRADE_IMAGE_TAG_ID					0x0000	//Upgrade Image
+#define OTA_UPGRADE_IMAGE_AES_TAG_ID				0xF000	//Upgrade Image with AES, Manufacturer Specific Use
+
+#define OTA_PERIODIC_QUERY_INTERVAL					60//s
 #define OTA_MAX_IMAGE_BLOCK_RSP_WAIT_TIME			5//s
 
 #define OTA_IMAGE_BLOCK_FC							BLOCK_FC_BITMASK_MIN_PERIOD_PRESENT//BLOCK_FC_BITMASK_GENERIC
@@ -88,10 +89,10 @@ typedef struct{
 	/*The value is a unique 4-byte value that is included at the beginning of all ZigBee OTA upgrade image
 	files in order to quickly identify and distinguish the file as being a ZigBee OTA cluster upgrade file,
 	without having to examine the whole file content. This helps distinguishing the file from other file
-	types on disk. The value is defined to be ¡°0x0BEEF11E¡±.*/
+	types on disk. The value is defined to be "0x0BEEF11E".*/
 	u32			otaUpgradeFileID;
 
-	/*The current OTA header version shall be 0x0100 with major version of ¡°01¡± and minor version of ¡°00¡±.*/
+	/*The current OTA header version shall be 0x0100 with major version of "01" and minor version of "00".*/
 	u16			otaHdrVer;
 
 	/*This value indicates full length of the OTA header in bytes, including the OTA upgrade file identifier,
@@ -163,6 +164,8 @@ typedef enum{
 	OTA_FLAG_IMAGE_ELEM_LEN2,
 	OTA_FLAG_IMAGE_ELEM_LEN3,
 	OTA_FLAG_IMAGE_ELEM_LEN4,
+	OTA_FLAG_IMAGE_ELEM_INFO1,//manufacturer specific use
+	OTA_FLAG_IMAGE_ELEM_INFO2,//manufacturer specific use
 	OTA_FLAG_IMAGE_ELEMENT,
 }otaFlg_t;
 
@@ -182,6 +185,8 @@ typedef struct{
 	u32		otaElementPos;
 	u32		otaElementLen;
 	u16		otaElementTag;
+	u8		otaElementInfo1;//manufacturer specific use
+	u8		otaElementInfo2;//manufacturer specific use, fillNum
 	u8		clientOtaFlg;
 }ota_clientInfo_t;
 
@@ -217,10 +222,10 @@ extern u8 OTA_CB_CLUSTER_NUM;
 
 status_t zcl_otaCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
 
-unsigned int xcrc32 (const unsigned char *buf, int len, unsigned int init);
+unsigned int xcrc32(const unsigned char *buf, int len, unsigned int init);
 
 void ota_init(ota_type_e type, af_simple_descriptor_t *simpleDesc, ota_preamble_t *otaPreamble, ota_callBack_t *cb);
-void ota_queryStart(u8 period);
+void ota_queryStart(u16 seconds);
 void ota_serverAddrPerprogrammed(addrExt_t ieeeAddr, u8 srvEndPoint);
 void ota_mcuReboot(void);
 void ota_upgradeAbort(void);

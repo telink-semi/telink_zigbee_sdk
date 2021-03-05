@@ -66,10 +66,10 @@
  * BIT[4]  set dual io mode.master only
  * BIT[5:6] set spi 4 mode. master/slave
  *  *  *         bit5: CPHA-SPI_CLK Phase,bit6: CPOL-SPI_CLK Polarity
- *            MODE0:  CPHA = 0 , CPOL =0;
- *            MODE1:  CPHA = 0 , CPOL =1;
- *            MODE2:  CPHA = 1 , CPOL =0;
- *            MODE3:  CPHA = 1,  CPOL =1;
+ *            MODE0:  CPOL = 0, CPHA =0;
+ *            MODE1:  CPOL = 0, CPHA =1;
+ *            MODE2:  CPOL = 1, CPHA =0;
+ *            MODE3:  CPOL = 1, CPHA =1;
  * BIT[7]  set master/slave mode. 0 slave 1 master default.master/slave
  */
 #define reg_spi_mode0(i) 			REG_ADDR8(PSPI_BASE_ADDR+(i)*BASE_ADDR_DIFF)

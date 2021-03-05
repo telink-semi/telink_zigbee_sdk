@@ -234,9 +234,9 @@ void app_task(void)
 
 static void sampleSwitchSysException(void)
 {
-	//SYSTEM_RESET();
-	light_on();
-	while(1);
+	SYSTEM_RESET();
+	//light_on();
+	//while(1);
 }
 
 /*********************************************************************
@@ -282,7 +282,10 @@ void user_init(bool isRetention)
 		ev_on_poll(EV_POLL_IDLE, app_task);
 
 		/* Load the pre-install code from flash */
-		zb_pre_install_code_load(&g_switchAppCtx.linkKey);
+		if(bdb_preInstallCodeLoad(&g_switchAppCtx.tcLinkKey.keyType, g_switchAppCtx.tcLinkKey.key) == RET_OK){
+			g_bdbCommissionSetting.linkKey.tcLinkKey.keyType = g_switchAppCtx.tcLinkKey.keyType;
+			g_bdbCommissionSetting.linkKey.tcLinkKey.key = g_switchAppCtx.tcLinkKey.key;
+		}
 
 		bdb_findBindMatchClusterSet(FIND_AND_BIND_CLUSTER_NUM, bdb_findBindClusterList);
 

@@ -426,17 +426,13 @@ static void zbhci_bdbCmdHandler(void *arg){
 	}else if(cmdID == ZBHCI_CMD_BDB_FACTORY_RESET){
 		zb_resetDevice2FN();
 	}else if(cmdID == ZBHCI_CMD_BDB_PRE_INSTALL_CODE){
-		ss_dev_pair_set_t keyPair;
+		u8 installCode[SEC_KEY_LEN] = {0};
+		addrExt_t device_address;
 
-		u8 pInstallCode[SEC_KEY_LEN] = {0};
-		ZB_IEEE_ADDR_REVERT(keyPair.device_address, &p[0]);
-		memcpy(pInstallCode, &p[8], SEC_KEY_LEN);
-		tl_bdbUseInstallCode(pInstallCode, keyPair.linkKey);
+		ZB_IEEE_ADDR_REVERT(device_address, &p[0]);
+		memcpy(installCode, &p[8], SEC_KEY_LEN);
 
-		keyPair.incomingFrmaeCounter = keyPair.outgoingFrameCounter = 0;
-		keyPair.apsLinkKeyType = SS_UNIQUE_LINK_KEY;
-		keyPair.keyAttr = SS_UNVERIFIED_KEY;
-		ss_devKeyPairSave(&keyPair);
+		bdb_preInstallCodeAdd(device_address, installCode);
 	}else if(cmdID == ZBHCI_CMD_BDB_CHANNEL_SET){
 		zb_apsChannelMaskSet((1 << p[0]));
 	}else if(cmdID == ZBHCI_CMD_BDB_DONGLE_WORKING_MODE_SET){

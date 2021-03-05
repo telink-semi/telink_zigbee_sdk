@@ -46,14 +46,11 @@
 #pragma once
 
 
-#if defined(MCU_CORE_826x)
-	#define S_TIMER_CLOCK_1US				tickPerUs
-	#define H_TIMER_CLOCK_1US				(CLOCK_SYS_CLOCK_HZ / 1000000)
-#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-	#define S_TIMER_CLOCK_1US				sys_tick_per_us
+#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+	#define S_TIMER_CLOCK_1US				sysTimerPerUs
 	#define H_TIMER_CLOCK_1US				(CLOCK_SYS_CLOCK_HZ / 1000000)
 #elif defined(MCU_CORE_B91)
-	#define S_TIMER_CLOCK_1US				SYSTEM_TIMER_TICK_1US
+	#define S_TIMER_CLOCK_1US				sysTimerPerUs
 	#define H_TIMER_CLOCK_1US				(sys_clk.pclk)
 
 	#define clock_time()					stimer_get_tick()

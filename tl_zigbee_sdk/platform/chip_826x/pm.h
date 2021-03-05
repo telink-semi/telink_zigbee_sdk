@@ -153,9 +153,8 @@ static inline unsigned char pm_get_mcu_status(void)
 
 extern void PM_PadSet(GPIO_PinTypeDef pin, int pol, int en);
 extern void PM_GPIOSet(GPIO_PinTypeDef pin, int pol, int en);
-extern int  PM_LowPwrEnter(int DeepSleep, int WakeupSrc, unsigned long WakeupTick);
-extern int  PM_LowPwrEnter2(int DeepSleep, int WakeupSrc, unsigned long SleepDurationUs);
-extern int  cpu_sleep_wakeup(int DeepSleep, int WakeupSrc, unsigned long WakeupTick);
+extern int pm_sleep_wakeup(int DeepSleep, int WakeupSrc, unsigned long WakeupTick);
+extern int pm_long_sleep_wakeup(int DeepSleep, int WakeupSrc, unsigned long WakeupTick);
 extern void cpu_wakeup_init(void);
 extern void sleep_start(void);
 extern void suspend_start(void);

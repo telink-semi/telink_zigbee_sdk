@@ -207,20 +207,6 @@ void zbdemo_bdbCommissioningCb(u8 status, void *arg){
 	}else if(status == BDB_COMMISSION_STA_NOT_AA_CAPABLE){
 
 	}else if((status == BDB_COMMISSION_STA_NO_NETWORK)||(status == BDB_COMMISSION_STA_TCLK_EX_FAILURE)){
-		if(gLightCtx.installCodeAvailable){
-			/* Switch the two kinds of link keys (default TCLK or install code derived key) to attempt join network. */
-			if(gLightCtx.useInstallCodeFlg){
-				g_bdbCommissionSetting.linkKey.tcLinkKey.keyType = gLightCtx.linkKey.tcLinkKey.keyType;
-				g_bdbCommissionSetting.linkKey.tcLinkKey.key = gLightCtx.linkKey.tcLinkKey.key;
-			}else{
-				g_bdbCommissionSetting.linkKey.tcLinkKey.keyType = SS_GLOBAL_LINK_KEY;
-				g_bdbCommissionSetting.linkKey.tcLinkKey.key = (u8 *)tcLinkKeyCentralDefault;
-			}
-
-			bdb_linkKeyCfg(&g_bdbCommissionSetting, TRUE);
-			gLightCtx.useInstallCodeFlg = !gLightCtx.useInstallCodeFlg;
-		}
-
 		u16 jitter = 0;
 		do{
 			jitter = zb_random();

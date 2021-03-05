@@ -50,7 +50,6 @@
 extern "C" {
 #endif
 
-
 /**********************************************************************
  * Product Information
  */
@@ -86,7 +85,11 @@ extern "C" {
 	/* system clock config */
 	#define CLOCK_SYS_CLOCK_HZ  	32000000
 #elif defined(MCU_CORE_8258)
-	#define BOARD					BOARD_8258_DONGLE//BOARD_8258_EVK
+	#if(BOOT_LOADER_MODE)
+		#define BOARD					BOARD_8258_DONGLE_1M //BOARD_8258_EVK
+	#else
+		#define BOARD					BOARD_8258_DONGLE    //BOARD_8258_EVK
+	#endif
 	/* system clock config */
 	#define CLOCK_SYS_CLOCK_HZ  	48000000
 #elif defined(MCU_CORE_8278)

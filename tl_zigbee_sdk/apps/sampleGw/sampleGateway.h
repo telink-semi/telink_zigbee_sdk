@@ -57,18 +57,6 @@
  * TYPEDEFS
  */
 typedef struct{
-	u8 keyType; /* ERTIFICATION_KEY or MASTER_KEY key for touch-link or distribute network
-	 	 	 	 SS_UNIQUE_LINK_KEY or SS_GLOBAL_LINK_KEY for distribute network */
-	u8 key[16];	/* the key used */
-}app_linkKeyType_t;
-
-typedef struct{
-	app_linkKeyType_t tcLinkKey;
-	app_linkKeyType_t distributeLinkKey;
-	app_linkKeyType_t touchlinkKey;
-}app_linkkey_info_t;
-
-typedef struct{
 	ev_timer_event_t *timerLedEvt;
 	u32 keyPressedTime;
 
@@ -79,8 +67,6 @@ typedef struct{
 	u8 	times;		//blink times
 	u8  state;
 	u8	keyPressed;
-
-	app_linkkey_info_t linkKey;
 }app_ctx_t;
 
 /**

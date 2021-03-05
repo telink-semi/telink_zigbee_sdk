@@ -547,6 +547,11 @@ _attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_rx_irq_handler(voi
 		return;
 	}
 
+	/* Use the backup buffer to receive next packet */
+	rf_rxBuf = rxNextBuf;
+	ZB_RADIO_RX_BUF_CLEAR(rf_rxBuf);
+	ZB_RADIO_RX_BUF_SET(rf_rxBuf);
+
     /*----------------------------------------------------------
 	 *  Send ACK
 	 */
@@ -583,15 +588,27 @@ _attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_rx_irq_handler(voi
 			WaitUs(ZB_TX_WAIT_US - txDelayUs);
 		}
 
+		/* wait until tx done,
+		 *  disable tx irq here, rfMode still is RF_STATE_RX;
+		 *  */
+		/* clear rf interrupt mask bit*/
+		ZB_RADIO_IRQ_MASK_CLR;
+		/* start to send ack */
 		ZB_RADIO_TX_START(rf_ack_buf);//Manual Mode
-		rf_busyFlag |= (TX_ACKPACKET|TX_BUSY);
-		while(!ZB_RADIO_TX_DONE);
+
+		/* wait until tx done or timeout */
+		u32 cur_tick = clock_time();
+		while(!ZB_RADIO_TX_DONE && !clock_time_exceed(cur_tick, 1000));
+
+		/* clear the tx done status */
+		ZB_RADIO_TX_DONE_CLR;
+		/* set interrupt mask bit again */
+		ZB_RADIO_IRQ_MASK_SET;
+		/* rf is set to rx mode again */
+		ZB_SWTICH_TO_RXMODE();
 	}
 
-	/* Use the backup buffer to receive next packet */
-	rf_rxBuf = rxNextBuf;
-	ZB_RADIO_RX_BUF_CLEAR(rf_rxBuf);
-	ZB_RADIO_RX_BUF_SET(rf_rxBuf);
+	/* enable rf rx dma again */
 	ZB_RADIO_RX_ENABLE;
 
 	/* zb_mac_receive_data handler */
@@ -610,17 +627,13 @@ _attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_rx_irq_handler(voi
  */
 _attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_tx_irq_handler(void)
 {
+	rf_busyFlag &= ~TX_BUSY;//Clear TX busy flag after receive TX done signal
+
     g_sysDiags.macTxIrqCnt++;
 
+    rfMode = RF_STATE_RX;
     ZB_SWTICH_TO_RXMODE();
 
-	rfMode = RF_STATE_RX;
-    rf_busyFlag &= ~TX_BUSY;//Clear TX busy flag after receive TX done signal
-
-    if(rf_busyFlag & TX_ACKPACKET){
-    	rf_busyFlag &= ~TX_ACKPACKET;//Clear ACK TX done
-    }else{
-		zb_macDataSendHander();
-	}
+    zb_macDataSendHander();
 }
 

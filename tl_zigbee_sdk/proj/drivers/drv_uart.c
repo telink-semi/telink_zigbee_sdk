@@ -54,13 +54,7 @@ static u8 *pUartRxBuf = NULL;
 static u32 uartRxBufLen = 0;
 
 #define UART_RCV_DMA_LEN_FIX()		do{	\
-										u32 rcvDataLen = 0;																\
-										u8 cnt = (reg_uart_status1(UART_IDX) & FLD_UART_RBCNT) % 4;						\
-										if(cnt){																		\
-											rcvDataLen = 4 * (0xffffff - reg_dma_size(UART_DMA_CHANNEL_RX) - 1) + cnt;	\
-										}else{																			\
-											rcvDataLen = 4 * (0xffffff - reg_dma_size(UART_DMA_CHANNEL_RX));			\
-										}																				\
+										u32 rcvDataLen = uart_get_dma_rev_data_len(UART_IDX, UART_DMA_CHANNEL_RX);		\
 										if(pUartRxBuf){																	\
 											pUartRxBuf[0] = (u8)(rcvDataLen);											\
 											pUartRxBuf[1] = (u8)(rcvDataLen >> 8);										\

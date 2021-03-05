@@ -121,21 +121,13 @@ extern u32 g_u32CfgFlashAddr;
  * Following configuration could be changed by customer.
  */
 #if FLASH_CAP_SIZE_1M
-/* pre-install key
-	0x77050:	preCnfLinkKey;	 		pre-configure link key for central network(global: ZC/ZR/ZED; unique: only for ZR/ZED)
-	0x77061:	distributeLinkKey;		distribute link key for distribute network
-	0x77072:	preCnfTouchlinkLinkKey;	 touch-link key for distribute network
- */
+/* Pre-install code, 16-byte. */
 #define CFG_PRE_INSTALL_CODE			(FLASH_BASE_ADDR + 0xFD000)
 
 /* One sector for factory reset by power up/down N times */
 #define CFG_FACTORY_RST_CNT			  	(FLASH_BASE_ADDR + 0xFC000)
 #else
-/* pre-install key
-	0x77050:	preCnfLinkKey;	 		pre-configure link key for central network(global: ZC/ZR/ZED; unique: only for ZR/ZED)
-	0x77061:	distributeLinkKey;		distribute link key for distribute network
-	0x77072:	preCnfTouchlinkLinkKey;	 touch-link key for distribute network
- */
+/* Pre-install code, 16-byte. */
 #define CFG_PRE_INSTALL_CODE			(FLASH_BASE_ADDR + 0x78000)
 
 /* One sector for factory reset by power up/down N times */

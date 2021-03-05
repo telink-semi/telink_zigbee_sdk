@@ -769,7 +769,7 @@ _CODE_ZCL_ status_t zcl_foundationCmdHandler(zclIncoming_t *pCmd)
 		case ZCL_CMD_DISCOVER_CMDS_RCVD_RSP:
 		case ZCL_CMD_DISCOVER_CMDS_GEN:
 		case ZCL_CMD_DISCOVER_CMDS_GEN_RSP:
-			status = ZCL_STA_UNSUP_GENERAL_COMMAND;
+			status = (pCmd->hdr.manufCode == MANUFACTURER_CODE_NONE) ? ZCL_STA_UNSUP_GENERAL_COMMAND : ZCL_STA_UNSUP_MANU_GENERAL_COMMAND;
 			break;
 		case ZCL_CMD_DISCOVER_ATTR_EXTD:
 			status = zcl_discAttrsExtendedHandler(pCmd);
@@ -779,7 +779,7 @@ _CODE_ZCL_ status_t zcl_foundationCmdHandler(zclIncoming_t *pCmd)
 			break;
 #endif
 		default:
-			status = ZCL_STA_UNSUP_GENERAL_COMMAND;
+			status = (pCmd->hdr.manufCode == MANUFACTURER_CODE_NONE) ? ZCL_STA_UNSUP_GENERAL_COMMAND : ZCL_STA_UNSUP_MANU_GENERAL_COMMAND;
 			break;
 	}
 
@@ -838,22 +838,17 @@ _CODE_ZCL_ void zcl_cmdHandler(u8 *pCmd)
 	u16 devEnableAttrLen = 0;
 	bool devEnable = TRUE;
 
-	clusterInfo_t *pCluster = zcl_findCluster(pApsdeInd->indInfo.dst_ep, pApsdeInd->indInfo.cluster_id);
-
 	/* Command dispatch */
 	if(inMsg.hdr.frmCtrl.bf.type == ZCL_FRAME_TYPE_PROFILE_CMD){
-		if(!pCluster || (inMsg.hdr.cmd > ZCL_CMD_MAX) ||
-			(pCluster && inMsg.hdr.manufCode && (inMsg.hdr.manufCode != pCluster->manuCode))){
-			// Unsupported message
-			status = (inMsg.hdr.manufCode == MANUFACTURER_CODE_NONE) ? ZCL_STA_UNSUP_GENERAL_COMMAND : ZCL_STA_UNSUP_MANU_GENERAL_COMMAND;
-		}else{
-			status = zcl_foundationCmdHandler(&inMsg);
-			if((status != ZCL_STA_SUCCESS) && (status != ZCL_STA_CMD_HAS_RESP)){
-				status = ZCL_STA_FAILURE;
-			}
-			toAppFlg = 1;
+		status = zcl_foundationCmdHandler(&inMsg);
+		if((status != ZCL_STA_UNSUP_GENERAL_COMMAND) && (status != ZCL_STA_UNSUP_MANU_GENERAL_COMMAND) &&
+		   (status != ZCL_STA_SUCCESS) && (status != ZCL_STA_CMD_HAS_RESP)){
+			status = ZCL_STA_FAILURE;
 		}
+		toAppFlg = 1;
 	}else{/* Cluster command */
+		clusterInfo_t *pCluster = zcl_findCluster(pApsdeInd->indInfo.dst_ep, pApsdeInd->indInfo.cluster_id);
+
 		if(!pCluster || (pCluster && (pCluster->manuCode != inMsg.hdr.manufCode))){
 			status = (inMsg.hdr.manufCode == MANUFACTURER_CODE_NONE) ? ZCL_STA_UNSUP_CLUSTER_COMMAND : ZCL_STA_UNSUP_MANU_CLUSTER_COMMAND;
 		}else{
@@ -1385,10 +1380,8 @@ _CODE_ZCL_ status_t zcl_writeHandler(zclIncoming_t *pCmd)
 			if(status == ZCL_STA_SUCCESS){
 				succWriteAttrCnt++;
 			}else{
-				failWriteAttrCnt++;
-
-				pWriteRspCmd->attrList[i].status = status;
-				pWriteRspCmd->attrList[i].attrID = pWriteRec->attrID;
+				pWriteRspCmd->attrList[failWriteAttrCnt].status = status;
+				pWriteRspCmd->attrList[failWriteAttrCnt++].attrID = pWriteRec->attrID;
 			}
 		}
 	}

@@ -78,15 +78,4 @@ void led_off(u32 pin);
 
 void app_key_handler(void);
 
-/**
- * @brief      store pre-install code into NV
- *
- * @param[in]   ieeeAdrr:  the ieee address of the device using unique link key join
- *
- * @param[in]   pInstallCode: the pointer of install code
- *
- * @return      None
- */
-void zb_pre_install_code_store(addrExt_t ieeeAdrr, u8 *pInstallCode);
-
 #endif	/* _APP_UI_H_ */

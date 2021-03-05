@@ -70,11 +70,10 @@ typedef enum {
 
 
 
-typedef enum
-{
-	 DEVELOPMENT_KEY = 0,
-	 MASTER_KEY = 4,
-	 CERTIFICATION_KEY = 15
+typedef enum {
+	DEVELOPMENT_KEY = 0,
+	MASTER_KEY = 4,
+	CERTIFICATION_KEY = 15
 }TOUCHLINK_KEY_TYPE; // zll_key_encryption_algorithms;
 
 /*********************************************************************

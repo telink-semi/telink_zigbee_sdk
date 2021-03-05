@@ -272,24 +272,4 @@ void app_key_handler(void){
 	}
 }
 
-void zb_pre_install_code_store(addrExt_t ieeeAdrr, u8 *pInstallCode){
-	if(!pInstallCode ||
-		ZB_IS_64BIT_ADDR_INVAILD(ieeeAdrr) ||
-		ZB_IS_64BIT_ADDR_ZERO(ieeeAdrr)){
-		return;
-	}
-
-	u8 key[SEC_KEY_LEN];
-	tl_bdbUseInstallCode(pInstallCode, key);
-
-	/* config unique link key for ZC */
-	ss_dev_pair_set_t keyPair;
-	memcpy(keyPair.device_address, ieeeAdrr, 8);
-	memcpy(keyPair.linkKey, key, SEC_KEY_LEN);
-	keyPair.incomingFrmaeCounter = keyPair.outgoingFrameCounter = 0;
-	keyPair.apsLinkKeyType = SS_UNIQUE_LINK_KEY;
-	keyPair.keyAttr = SS_UNVERIFIED_KEY;
-	ss_devKeyPairSave(&keyPair);
-}
-
 #endif  /* __PROJECT_TL_GW__ */

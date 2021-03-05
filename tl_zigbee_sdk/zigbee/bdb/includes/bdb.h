@@ -383,9 +383,9 @@ typedef struct{
 
 
 typedef struct{
-	u8 keyType; /* ERTIFICATION_KEY or MASTER_KEY key for touch-link or distribute network
-	 	 	 	 SS_UNIQUE_LINK_KEY or SS_GLOBAL_LINK_KEY for distribute network */
 	u8 *key;	/* the key used */
+	u8 keyType; /* ERTIFICATION_KEY or MASTER_KEY key for touch-link or distribute network
+	 	 	 	 SS_UNIQUE_LINK_KEY or SS_GLOBAL_LINK_KEY for central network */
 }bdb_linkKey_t;
 
 typedef struct{
@@ -394,7 +394,7 @@ typedef struct{
 											unique tc link key: only for ZR/ZED,
 											if ZC is using unique link key, need to access paieKeySet to set/get link key */
 	bdb_linkKey_t distributeLinkKey;	/* link key for distribute network, for distribute network  */
-	bdb_linkKey_t touchLinkKey;			/* touch link  key, for distribute network */
+	bdb_linkKey_t touchLinkKey;			/* touch link key, for distribute network */
 }bdb_linkKey_info_t;
 
 
@@ -403,14 +403,7 @@ typedef struct{
  * @{
  */
 typedef struct{
-	u8 usedInstallCode;						/* only for ZC  */
 	bdb_linkKey_info_t linkKey;
-
-#if 0
-	u8 distributeLinkKeyMode;  	/* distribute link key mode: MASTER_KEY or CERTIFICATION_KEY */
-	u8 linkKeyType;				/* linkKeyType: Default global Trust Center link key,
-								   used for the node which is ready to form a network  */
-#endif
 
 	u8 touchlinkEnable;			/* enable/disable touch-link */
 	u8 touchlinkChannel;		/* operation channel for touch-link target */
@@ -580,14 +573,25 @@ void bdb_zdoStartDevCnf(zdo_start_device_confirm_t *startDevCnf);
 void tl_bdbAttrInit(void);
 
 /**
- * @brief      bdb use install code
+ * @brief      	Load install code from NV
  *
- * @param[in]   pInstallCode
- * @param[out]  pKey
+ * @param[out]  keyType
+ * @param[out]  derivedKey
+ *
+ * @return      RET_OK or RET_NOT_FOUND
+ */
+u8 bdb_preInstallCodeLoad(u8 *keyType, u8 derivedKey[]);
+
+/**
+ * @brief		Add pre-install code to NV
+ *
+ * @param[in]   ieeeAddr:  the ieee address of the device using unique link key join
+ *
+ * @param[in]   pInstallCode: the pointer of install code
  *
  * @return      None
  */
-void tl_bdbUseInstallCode(u8 *pInstallCode, u8 *pKey);
+void bdb_preInstallCodeAdd(addrExt_t ieeeAddr, u8 *pInstallCode);
 
 /**
  * @brief      bdb re-start

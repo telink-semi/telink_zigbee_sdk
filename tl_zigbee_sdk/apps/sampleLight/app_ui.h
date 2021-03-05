@@ -71,6 +71,5 @@ void led_on(u32 pin);
 void led_off(u32 pin);
 void localPermitJoinState(void);
 void app_key_handler(void);
-void zb_pre_install_code_load(app_linkkey_info_t *appLinkKey);
 
 #endif	/* _APP_UI_H_ */

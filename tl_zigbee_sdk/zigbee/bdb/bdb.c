@@ -1562,16 +1562,22 @@ _CODE_BDB_ u8 bdb_init(af_simple_descriptor_t *simple_desc, bdb_commissionSettin
 	g_bdbCtx.bdbAppCb = cb;
 	g_bdbCtx.simpleDesc = simple_desc;
 	g_bdbCtx.commissionSettings = setting;
-	BDB_STATE_SET(BDB_STATE_INIT);
-
-	/* check if it's a factory-new device */
 	g_bdbCtx.factoryNew = zb_isDeviceFactoryNew();
 
-	/* security configure */
-	ss_zdoInit(TRUE, SS_PRECONFIGURED_NOKEY);
+	BDB_STATE_SET(BDB_STATE_INIT);
 
-	/* link configure */
+	/* security config, must be first. */
+	ss_zdoInit(TRUE);
+
+	/* pre-configure the link key here. */
 	bdb_linkKeyCfg(setting, g_bdbCtx.factoryNew);
+
+	/* pre-configure the nwk key here. */
+	if(g_bdbCtx.factoryNew){
+		//u8 preNwkKey[] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+		//				  0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f};
+		//zb_preConfigNwkKey(preNwkKey, TRUE);
+	}
 
 	/* pre-configure for touch link */
 	bdb_touchLinkPreCfg(simple_desc->endpoint, setting, &bdb_touchlinkCb);
@@ -1580,6 +1586,7 @@ _CODE_BDB_ u8 bdb_init(af_simple_descriptor_t *simple_desc, bdb_commissionSettin
 
 	g_bdbAttrs.commissioningStatus = BDB_COMMISSION_STA_SUCCESS;
 	g_bdbAttrs.nodeIsOnANetwork = g_bdbCtx.factoryNew ? 0 : 1;
+
 	if(g_bdbAttrs.nodeIsOnANetwork){
 		/* update outgoing frame count */
 		bdb_outgoingFrameCountUpdate(repower);
@@ -1602,7 +1609,7 @@ _CODE_BDB_ u8 bdb_init(af_simple_descriptor_t *simple_desc, bdb_commissionSettin
 	/* get the real operation channel for non-factory new device */
 	u8 len = 0;
 	tl_zbMacAttrGet(MAC_PHY_ATTR_CURRENT_CHANNEL, &g_bdbCtx.channel, &len);
-	return 1;
+	return 0;
 }
 
 
@@ -1781,6 +1788,7 @@ _CODE_BDB_ void tl_bdbAttrInit(void)
 	memcpy(&g_bdbAttrs, &g_bdbAttrsDft, sizeof(bdb_attr_t));
 }
 
+
 _CODE_BDB_ u16 tl_bdbInstallCodeCRC16(u8 *pInstallCode, u8 len)
 {
 	u16 crc = 0xffff;
@@ -1819,5 +1827,65 @@ _CODE_BDB_ void tl_bdbUseInstallCode(u8 *pInstallCode, u8 *pKey)
 	tmpBuf[SEC_KEY_LEN + 1] = (u8)(crc >> 8);
 
 	ss_mmoHash(tmpBuf, SEC_KEY_LEN + 2, pKey);
+}
+
+/**
+ * @brief      	Load install code from NV
+ *
+ * @param[out]  keyType
+ * @param[out]  derivedKey
+ *
+ * @return      None
+ */
+_CODE_BDB_ u8 bdb_preInstallCodeLoad(u8 *keyType, u8 derivedKey[])
+{
+	u8 invalidInstallCode[SEC_KEY_LEN] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+										   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
+	u8 installCode[SEC_KEY_LEN];
+
+	flash_read(CFG_PRE_INSTALL_CODE, SEC_KEY_LEN, (u8 *)installCode);
+
+	if(!memcmp((u8 *)installCode, (u8 *)invalidInstallCode, SEC_KEY_LEN)){
+		return RET_NOT_FOUND;
+	}
+
+	tl_bdbUseInstallCode(installCode, derivedKey);
+	*keyType = SS_UNIQUE_LINK_KEY;
+
+	return RET_OK;
+}
+
+/**
+ * @brief		Add pre-install code to NV
+ *
+ * @param[in]   ieeeAddr:  the ieee address of the device using unique link key join
+ *
+ * @param[in]   pInstallCode: the pointer of install code
+ *
+ * @return      None
+ */
+_CODE_BDB_ void bdb_preInstallCodeAdd(addrExt_t ieeeAddr, u8 *pInstallCode)
+{
+	if(!pInstallCode || ZB_IS_64BIT_ADDR_INVAILD(ieeeAddr) || ZB_IS_64BIT_ADDR_ZERO(ieeeAddr)){
+		return;
+	}
+
+	ss_dev_pair_set_t keyPair;
+
+	if(NV_SUCC == ss_devKeyPairFind(ieeeAddr, &keyPair)){
+		return;
+	}
+
+	memset((u8 *)&keyPair, 0, sizeof(ss_dev_pair_set_t));
+
+	tl_bdbUseInstallCode(pInstallCode, keyPair.linkKey);
+
+	memcpy(keyPair.device_address, ieeeAddr, 8);
+
+	keyPair.incomingFrameCounter = keyPair.outgoingFrameCounter = 0;
+	keyPair.apsLinkKeyType = SS_UNIQUE_LINK_KEY;
+	keyPair.keyAttr = SS_UNVERIFIED_KEY;
+
+	ss_devKeyPairSave(&keyPair);
 }
 

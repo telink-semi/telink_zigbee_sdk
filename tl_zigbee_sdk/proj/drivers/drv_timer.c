@@ -46,7 +46,6 @@
 #include "../tl_common.h"
 
 
-
 #define TIMER_SAFE_BOUNDARY_IN_US(v)		(10 * v)
 #define TIMER_OVERFLOW_VALUE        		(0xFFFFFFFE)
 

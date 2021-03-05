@@ -51,10 +51,10 @@
 #define TLSR_8278						3
 #define TLSR_9518						4
 
-
-#define IMAGE_TYPE_GW					0
-#define IMAGE_TYPE_LIGHT				1
-#define IMAGE_TYPE_SWITCH				2
-#define IMAGE_TYPE_CONTACT_SENSOR		3
+#define IMAGE_TYPE_BOOTLOADER			0
+#define IMAGE_TYPE_GW					1
+#define IMAGE_TYPE_LIGHT				2
+#define IMAGE_TYPE_SWITCH				3
+#define IMAGE_TYPE_CONTACT_SENSOR		4
 
 

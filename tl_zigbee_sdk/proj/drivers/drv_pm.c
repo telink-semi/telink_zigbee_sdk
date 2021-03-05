@@ -137,7 +137,7 @@ void drv_pm_sleep(drv_pm_sleep_mode_e mode, drv_pm_wakeup_src_e src, u32 duratio
 
 	prevSleepTick = pm_get_32k_tick();
 
-	PM_LowPwrEnter(sleep_mode, srcType, clock_time() + durationMs*1000*S_TIMER_CLOCK_1US);
+	pm_sleep_wakeup(sleep_mode, srcType, clock_time() + durationMs*1000*S_TIMER_CLOCK_1US);
 
 	drv_pm_wakeupTimeUpdate();
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
@@ -234,7 +234,7 @@ void drv_pm_longSleep(drv_pm_sleep_mode_e mode, drv_pm_wakeup_src_e src, u32 dur
 
 	prevSleepTick = pm_get_32k_tick();
 
-	PM_LowPwrEnter2(sleep_mode, srcType, durationMs * 1000);
+	pm_long_sleep_wakeup(sleep_mode, srcType, durationMs * 32);
 
 	drv_pm_wakeupTimeUpdate();
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
@@ -347,20 +347,15 @@ void drv_pm_wakeupPinConfig(drv_pm_pinCfg_t *pinCfg, u32 pinNum)
 	}
 }
 
-volatile u8 T_DBG_pmTest[8] = {0};
 void drv_pm_lowPowerEnter(void)
 {
 	drv_pm_wakeup_src_e wakeupSrc = PM_WAKEUP_SRC_PAD;
 	u32 sleepTime = 0;
 	bool longSleep = 0;
 
-	T_DBG_pmTest[0]++;
-
 	if(tl_stackBusy() || !zb_isTaskDone()){
 		return;
 	}
-
-	T_DBG_pmTest[1]++;
 
 	u32 r = drv_disable_irq();
 
@@ -368,8 +363,6 @@ void drv_pm_lowPowerEnter(void)
 	if(timerEvt){
 		wakeupSrc |= PM_WAKEUP_SRC_TIMER;
 		sleepTime = timerEvt->timeout;
-
-		T_DBG_pmTest[2]++;
 	}
 
 #if defined(MCU_CORE_826x)
@@ -380,14 +373,9 @@ void drv_pm_lowPowerEnter(void)
 
 	if(sleepTime){
 		if(sleepTime > PM_NORMAL_SLEEP_MAX){
-			T_DBG_pmTest[3]++;
-
-#if defined(MCU_CORE_826x)
-			sleepTime = PM_NORMAL_SLEEP_MAX;
-			longSleep = 0;
-#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91)
 			longSleep = 1;
-#endif
+		}else{
+			longSleep = 0;
 		}
 	}else{
 		drv_restore_irq(r);
@@ -397,18 +385,12 @@ void drv_pm_lowPowerEnter(void)
 
 	rf_paShutDown();
 	if(sleepMode == PM_SLEEP_MODE_DEEPSLEEP){
-		T_DBG_pmTest[4]++;
-
 		drv_pm_deepSleep_frameCnt_set(ss_outgoingFrameCntGet());
 	}
 
 	if(!longSleep){
-		T_DBG_pmTest[5]++;
-
 		drv_pm_sleep(sleepMode, wakeupSrc, sleepTime);
 	}else{
-		T_DBG_pmTest[6]++;
-
 		drv_pm_longSleep(sleepMode, wakeupSrc, sleepTime);
 	}
 
@@ -418,6 +400,8 @@ void drv_pm_lowPowerEnter(void)
 void drv_pm_wakeupTimeUpdate(void)
 {
 	u32 sleepTime = drv_pm_sleepTime_get();
-	ev_timer_update(sleepTime);
-	ev_timer_setPrevSysTick(clock_time());
+	if(sleepTime){
+		ev_timer_update(sleepTime);
+		ev_timer_setPrevSysTick(clock_time());
+	}
 }

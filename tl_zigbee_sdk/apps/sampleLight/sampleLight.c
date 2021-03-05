@@ -309,8 +309,11 @@ void user_init(bool isRetention)
 #endif
 	ev_on_poll(EV_POLL_IDLE, app_task);
 
-    /* Read the pre-insatll code from NV */
-    zb_pre_install_code_load(&gLightCtx.linkKey);
+    /* Read the pre-install code from NV */
+	if(bdb_preInstallCodeLoad(&gLightCtx.tcLinkKey.keyType, gLightCtx.tcLinkKey.key) == RET_OK){
+		g_bdbCommissionSetting.linkKey.tcLinkKey.keyType = gLightCtx.tcLinkKey.keyType;
+		g_bdbCommissionSetting.linkKey.tcLinkKey.key = gLightCtx.tcLinkKey.key;
+	}
 
     /* Set default reporting configuration */
     u8 reportableChange = 0x00;

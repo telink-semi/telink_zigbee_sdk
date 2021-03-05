@@ -431,15 +431,20 @@ unsigned char uart_send(uart_num_e uart_num, unsigned char * addr, unsigned char
  * @brief     	This function serves to receive data function by DMA, this  function tell the DMA to get data from the uart data fifo.
  * @param[in]  	uart_num - UART0 or UART1.
  * @param[in] 	addr     - pointer to the buffer  receive data.
- * @param[in]   rev_size - the receive length of DMA.The maximum transmission length of DMA is 0xFFFFFC bytes, so dont'n over this length.
- * @note        The DMA version of A0  has some limitians.
- *              1:The receive length should be greater or equal to the data you want to receive,then the data won't be lost.
- *              2:You have to estimate the data-length that you want to receive.If the data length you set isn't the multiple
- *              of 4(the DMA carry 4-byte one time),like 5,it will carry 8 byte,while the last 3-byte data is random.
- *              The DMA version of A1 can receive any length of data,the rev_size is useless.
+ * @param[in]   rev_size - the receive length of DMA,The maximum transmission length of DMA is 0xFFFFFC bytes, so dont'n over this length.
+ * @note        1. rev_size must be larger than the data you received actually.
+ *              2. the data length can be arbitrary if less than rev_size.
  * @return    	none
  */
 extern void uart_receive_dma(uart_num_e uart_num, unsigned char * addr,unsigned int rev_size);
+
+/**
+ * @brief     This function serves to get the length of the data that dma received.
+ * @param[in] uart_num - UART0 or UART1.
+ * @param[in] chn - dma channel.
+ * @return    data length.
+ */
+extern unsigned int uart_get_dma_rev_data_len(uart_num_e uart_num, dma_chn_e chn);
 
 /**
   * @brief     This function serves to set uart tx_dam channel and config dma tx default.

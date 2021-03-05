@@ -108,10 +108,10 @@ typedef struct{
 }ss_material_set_t;
 
 typedef enum{
-	SS_PRECONFIGURED_NOKEY,
-	SS_PRECONFIGURED_GLOBALLINKKEY,
-	SS_PRECONFIGURED_UNIQUELLINKKEY,
-	SS_PRECONFIGURED_NWKKEY
+	SS_PRECONFIGURED_NOKEY			= 0,
+	SS_PRECONFIGURED_GLOBALLINKKEY	= BIT(0),
+	SS_PRECONFIGURED_UNIQUELLINKKEY = BIT(1),
+	SS_PRECONFIGURED_NWKKEY			= BIT(2),
 }ss_preconfiguredKey_e;
 
 typedef struct{
@@ -161,7 +161,7 @@ typedef struct{
 	u8					rsv;//used as mapping index to stack item
 
 	u32					outgoingFrameCounter;
-	u32					incomingFrmaeCounter;
+	u32					incomingFrameCounter;
 }ss_dev_pair_set_t;
 
 typedef struct{
@@ -172,10 +172,10 @@ typedef struct{
 	ss_material_set_t		nwkSecurMaterialSet[SECUR_N_SECUR_MATERIAL];//36
 	u16						devKeyPairNum;
 	addrExt_t				trust_center_address;						//10
-	u8						securityLevel:4;
-	u8						secureAllFrames:1;
+	u8						securityLevel:3;
+	u8						secureAllFresh:1;
 	u8						activeSecureMaterialIndex:2;
-	u8						reserved:1;
+	u8						reserved:2;
 	u8						activeKeySeqNum;
 	ss_preconfiguredKey_e	preConfiguredKeyType;//pre-configured type, should be set during init state which used for ZDO auth
 	ss_tcPolicy_t			tcPolicy;									//10
@@ -257,9 +257,8 @@ u8 aes_ccmDecAuthTran(u8 micLen, u8 *key, u8 *iv, u8 *mStr, u16 mStrLen, u8 *aSt
 void ss_mmoHash(u8 *data, u8 len, u8 *result);
 
 bool ss_keyPreconfigured(void);
-void ss_zdoNwkKeyConfigure(const u8 *key, u8 i, u8 keyType);
 u8 ss_apsDecryptFrame(void *p);
-u8 ss_apsSecureFrame(void *p, u8 apsHdrAuxLen,u8 apsHdrLen, addrExt_t extAddr);
+u8 ss_apsSecureFrame(void *p, u8 apsHdrAuxLen, u8 apsHdrLen, addrExt_t extAddr);
 
 u8 ss_apsmeDeviceRemoveReq(ss_apsDevRemoveReq_t *req);
 u8 ss_apsmeRequestKeyReq(ss_keyReqType_e keyType, addrExt_t dstAddr, addrExt_t partnerAddr);
@@ -286,8 +285,6 @@ u8 ss_devKeyPairDelete(addrExt_t extAddr);
 u16 ss_nodeMacAddrFromdevKeyPair(u16 start_idx, u8 num, u8 *validNum, addrExt_t *nodeMacAddrList);
 
 u32 ss_outgoingFrameCntGet(void);
-
-void ss_zdoUseKey(u8 index);
 
 void ss_apsKeySwitchReq(void *p);
 
@@ -332,10 +329,8 @@ void ss_nwkKeyStore(u8 *nwkKey);
  *
  * @param	enSecurity  security enable
  *
- * @param	type  		pre-configure key mode
- *
  * */
-void ss_zdoInit(bool enSecurity, ss_preconfiguredKey_e type);
+void ss_zdoInit(bool enSecurity);
 
 
 /*

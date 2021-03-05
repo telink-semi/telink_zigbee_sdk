@@ -72,7 +72,7 @@ typedef struct{
 }drv_pm_pinCfg_t;
 
 #if defined(MCU_CORE_826x)
-	#define PM_CLOCK_INIT()
+	#define PM_CLOCK_INIT()					do{ rc_32k_cal(); }while(0)
 
 	#define PM_NORMAL_SLEEP_MAX				(100 * 1000)//100s, (0xC0000000 / 32)
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)

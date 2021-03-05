@@ -78,14 +78,4 @@ void led_off(u32 pin);
 
 void app_key_handler(void);
 
-
-/**
- * @brief      load pre-install key from NV
- *
- * @param[out]   appLinkKey
- *
- * @return      None
- */
-void zb_pre_install_code_load(app_linkkey_info_t *appLinkKey);
-
 #endif	/* _APP_UI_H_ */

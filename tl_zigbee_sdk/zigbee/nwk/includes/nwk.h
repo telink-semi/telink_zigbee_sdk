@@ -74,7 +74,7 @@
 */
 #define NWK_MAX_BROADCAST_RETRIES 			3
 
-#define NWK_ENDDEV_TIMEOUT_DEFAULT			8
+#define NWK_ENDDEV_TIMEOUT_DEFAULT			8//REQTIMEOUTENUM_256_MINUTES
 
 /***************************************************************************
 * @brief	The maximum time duration in OctetDurations allowed for the parent and all

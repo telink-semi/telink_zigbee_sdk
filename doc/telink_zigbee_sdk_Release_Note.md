@@ -1,3 +1,28 @@
+## V3.6.3
+
+### Features
+* update flash driver(open source)
+* add bootloader
+* End Device accept the mgmt_leave from the node which isn't its parent node
+### Bug Fixes
+* Rf rx should be set off when the rx window is expired
+### Performance
+*  imporove mac layer performance.
+### BREAKING CHANGES
+* None.
+
+### Features
+* 更新flash驱动并开源。
+* 添加bootloader。
+* ZED设备处理来自非父节点设备的mgmt_leave命令
+### Bug Fixes
+* ZED设备超过rx window， 射频应设置为off
+### Performance
+* 提升mac的处理性能。
+### BREAKING CHANGES
+* 无。
+
+
 ## V3.6.2-Beta
 
 ### Features

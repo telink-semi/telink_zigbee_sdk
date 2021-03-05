@@ -56,6 +56,7 @@ typedef enum{
 	SYSTEM_RETENTION_EN,
 }startup_state_e;
 
+extern u32 sysTimerPerUs;
 
 startup_state_e drv_platform_init(void);
 

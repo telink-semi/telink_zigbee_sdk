@@ -91,7 +91,7 @@ static inline unsigned int clock_time_exceed(unsigned int ref, unsigned int span
 
 
 void clock_init(SYS_CLK_TYPEDEF SYS_CLK);
-
+void rc_32k_cal(void);
 void sleep_us(unsigned int us);
 
 #define WaitUs(t)			sleep_us(t)

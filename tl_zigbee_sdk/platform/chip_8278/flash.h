@@ -124,12 +124,13 @@ _attribute_ram_code_ void flash_write_page(unsigned long addr, unsigned long len
  */
 _attribute_ram_code_ void flash_read_page(unsigned long addr, unsigned long len, unsigned char *buf);
 
-/***********************************
- * @brief	  This function serves to read MID of flash
- * @param[in] buf - store MID of flash
- * @return    none.
+/**
+ * @brief	  	This function serves to read MID of flash(MAC id). Before reading UID of flash,
+ * 				you must read MID of flash. and then you can look up the related table to select
+ * 				the idcmd and read UID of flash
+ * @return    	MID of the flash.
  */
-_attribute_ram_code_ void flash_read_mid(unsigned char *buf);
+_attribute_ram_code_ unsigned int flash_read_mid(void);
 
 /**
  * @brief	  This function serves to read UID of flash

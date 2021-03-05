@@ -57,7 +57,7 @@ u8 g_ev_timer_maxNum = TIMER_EVENT_NUM;
 ev_timer_ctrl_t ev_timer;
 
 static u32 prevSysTick = 0;
-//static u32 remSysTick = 0;
+static u32 remSysTick = 0;
 
 void ev_timer_init(void)
 {
@@ -117,7 +117,7 @@ void ev_timer_nearestUpdate(void)
 
 bool ev_timer_enough(void)
 {
-	if(ev_timer.timerEventPool.used_num < g_ev_timer_maxNum){
+	if(ev_timer.timerEventPool.used_num < TIMER_EVENT_ENOUGH_NUM){
 		return TRUE;
 	}
 	return FALSE;
@@ -289,20 +289,24 @@ void ev_timer_executeCB(void)
 void ev_timer_process(void)
 {
 	u32 updateTime = 0;
+	u32 sysTicks = 0;
 	u32 currSysTick = clock_time();
 
 	if(currSysTick != prevSysTick){
-		updateTime = (u32)(currSysTick - prevSysTick);
+		sysTicks = (u32)(currSysTick - prevSysTick);
+
+		/* store current ticks. */
+		prevSysTick = currSysTick;
+
+		updateTime = sysTicks / (S_TIMER_CLOCK_1US * 1000);
+		remSysTick += sysTicks % (S_TIMER_CLOCK_1US * 1000);
+
+		updateTime += remSysTick / (S_TIMER_CLOCK_1US * 1000);
+		remSysTick = remSysTick % (S_TIMER_CLOCK_1US * 1000);
 
 		/* more than 1 ms. */
-		if(updateTime >= (S_TIMER_CLOCK_1US * 1000)){
-			prevSysTick = currSysTick;
-
-			updateTime = updateTime / (S_TIMER_CLOCK_1US * 1000);
-			//remSysTick = updateTime % (S_TIMER_CLOCK_1US * 1000);
-
+		if(updateTime){
 			ev_timer_update(updateTime);
-
 			ev_timer_executeCB();
 		}
 	}

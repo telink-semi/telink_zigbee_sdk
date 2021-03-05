@@ -282,7 +282,7 @@ enum{
 													((((u8 *)buf)[3]) =	((u8)data));			\
 												}while(0)
 
-#define ZB_IS_16BIT_SECURITY_KEY_ZERO(key) 		(!memcmp((key), g_null_securityKey, SEC_KEY_LEN))
+#define ZB_IS_16BYTE_SECURITY_KEY_ZERO(key) 	(!memcmp((key), g_null_securityKey, SEC_KEY_LEN))
 #define ZB_IS_64BIT_ADDR_ZERO(addr) 			(!memcmp((addr), g_zero_addr, EXT_ADDR_LEN))
 #define ZB_IS_64BIT_ADDR_INVAILD(addr) 			(!memcmp((addr), g_invalid_addr, EXT_ADDR_LEN))
 #define ZB_64BIT_ADDR_ZERO(addr)       			(memset((addr), 0, EXT_ADDR_LEN))
@@ -301,7 +301,7 @@ enum{
 #define ZB_IEEE_ADDR_COPY 						ZB_64BIT_ADDR_COPY
 #define ZB_IEEE_ADDR_CMP 						ZB_64BIT_ADDR_CMP
 
-#define ZB_SEC_KEY_IS_NULL						ZB_IS_16BIT_SECURITY_KEY_ZERO
+#define ZB_SEC_KEY_IS_NULL						ZB_IS_16BYTE_SECURITY_KEY_ZERO
 
 #define ZB_MAC_FRAME_HEADER						9
 #define ZB_NWK_FRAME_HEADER						(8 + NWK_MAX_SOURCE_ROUTE * 2 + 14 + 4)

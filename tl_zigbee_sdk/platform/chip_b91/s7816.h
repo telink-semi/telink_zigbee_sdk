@@ -87,10 +87,9 @@ typedef enum{
  * @brief      	This function is used to set the s7816 clock.
  * @param[in]  	div	- set the divider of clock of 7816 module.
  * @return     	none.
- * @note        system clk is 24MHZ
- * 				7816clk:    0x60-4Mhz     0x40-6Mhz   0x20-12Mhz
+ * @note        the clk-source of s7816 is 24M-pad,the clk of clk-pin can be divided as follow.
+ * 				div:        0x60-4Mhz     0x40-6Mhz   0x20-12Mhz
  * 				baudrate:   0x60-10752    0x40-16194  0x20-32388
- * 				the clk-pin is PA0 by default.
  */
 extern void s7816_set_clk(unsigned char div);
 

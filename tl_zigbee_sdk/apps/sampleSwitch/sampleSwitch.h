@@ -59,13 +59,7 @@ typedef struct{
 	u8 keyType; /* ERTIFICATION_KEY or MASTER_KEY key for touch-link or distribute network
 	 	 	 	 SS_UNIQUE_LINK_KEY or SS_GLOBAL_LINK_KEY for distribute network */
 	u8 key[16];	/* the key used */
-}app_linkKeyType_t;
-
-typedef struct{
-	app_linkKeyType_t tcLinkKey;
-	app_linkKeyType_t distributeLinkKey;
-	app_linkKeyType_t touchlinkKey;
-}app_linkkey_info_t;
+}app_linkKey_info_t;
 
 typedef struct{
 	ev_timer_event_t *bdbFBTimerEvt;
@@ -82,11 +76,7 @@ typedef struct{
 
 	u8  keyPressed;
 
-	app_linkkey_info_t linkKey;
-
-	bool installCodeAvailable:1;	//flag indicates if support install code
-	bool useInstallCodeFlg:1;		//flag indicates switch link key between install code and default link key
-	bool reserved:6;
+	app_linkKey_info_t tcLinkKey;
 }app_ctx_t;
 
 /**

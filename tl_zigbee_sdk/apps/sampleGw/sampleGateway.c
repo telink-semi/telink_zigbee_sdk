@@ -109,8 +109,6 @@ const zdo_appIndCb_t appCbLst = {
  *  @brief Definition for bdb commissioning setting
  */
 bdb_commissionSetting_t g_bdbCommissionSetting = {
-	.usedInstallCode = 0,
-
 	.linkKey.tcLinkKey.keyType = SS_GLOBAL_LINK_KEY,
 	.linkKey.tcLinkKey.key = (u8 *)tcLinkKeyCentralDefault,       		//can use unique link key stored in NV
 
@@ -214,13 +212,12 @@ void app_task(void)
 
 static void sampleGwSysException(void)
 {
-	//SYSTEM_RESET();
-	light_off();
+	SYSTEM_RESET();
 
-	while(1){
-		gpio_toggle(LED_POWER);
-		WaitMs(100);
-	}
+//	while(1){
+//		gpio_toggle(LED_POWER);
+//		WaitMs(100);
+//	}
 }
 
 

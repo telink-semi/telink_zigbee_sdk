@@ -49,7 +49,8 @@
 /**
  *  @brief Definition for timer event
  */
-#define TIMER_EVENT_NUM		24
+#define TIMER_EVENT_NUM				(24)
+#define TIMER_EVENT_ENOUGH_NUM		(TIMER_EVENT_NUM - 4)
 
 /**
  *  @brief Type definition for timer callback function

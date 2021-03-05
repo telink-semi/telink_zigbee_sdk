@@ -190,6 +190,7 @@ static inline void sys_reboot(void)
 /**
  * @brief   	This function serves to initialize system.
  * @param[in]	power_mode - power mode(LDO/DCDC/LDO_DCDC)
+ * @param[in]	vbat_v		- vbat voltage type: 0 vbat may be greater than 3.6V,  1 vbat must be below 3.6V.
  * @return  	none
  */
 void sys_init(power_mode_e power_mode, vbat_type_e vbat_v);
