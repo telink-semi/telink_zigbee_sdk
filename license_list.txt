@@ -356,7 +356,7 @@
 ./tl_zigbee_sdk/platform/chip_b91/lpc.h		TELINK_BSD
 ./tl_zigbee_sdk/platform/chip_b91/sys.h		TELINK_BSD
 ./tl_zigbee_sdk/platform/chip_b91/clock.h		TELINK_BSD
-./tl_zigbee_sdk/platform/chip_b91/plic.h		TELINK_PROP
+./tl_zigbee_sdk/platform/chip_b91/plic.h		TELINK_BSD
 ./tl_zigbee_sdk/platform/chip_b91/uart.h		TELINK_BSD
 ./tl_zigbee_sdk/platform/chip_b91/npe.h		TELINK_BSD
 ./tl_zigbee_sdk/platform/chip_b91/watchdog.h		TELINK_BSD
@@ -366,7 +366,7 @@
 ./tl_zigbee_sdk/platform/chip_b91/mdec.h		TELINK_BSD
 ./tl_zigbee_sdk/platform/chip_b91/timer.h		TELINK_BSD
 ./tl_zigbee_sdk/platform/chip_b91/i2c.h		TELINK_BSD
-./tl_zigbee_sdk/platform/chip_b91/plic.c		TELINK_BSD
+./tl_zigbee_sdk/platform/chip_b91/plic.c		TELINK_PROP
 ./tl_zigbee_sdk/platform/chip_b91/pm.h		TELINK_BSD
 ./tl_zigbee_sdk/platform/chip_b91/pwm.h		TELINK_BSD
 ./tl_zigbee_sdk/platform/chip_b91/swire.h		TELINK_BSD
