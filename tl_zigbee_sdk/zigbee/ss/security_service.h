@@ -220,9 +220,33 @@ typedef struct{
 }ss_apsmeTxKeyReq_t;
 
 typedef struct{
-	addrExt_t	destddr;
+	/* The extended 64-bit address of the device to which the switch-key command is sent.
+	 * This may be the broadcast address 0xFFFFFFFFFFFFFFFF.
+	 */
+	addrExt_t	dstAddr;
+
+	/* A sequence number assigned to a network key by the TC
+	 * and used to distinguish network keys.
+	 */
 	u8			keySeqNum;
 }ss_apsKeySwitchReq_t;
+
+typedef struct{
+	/* The address of the device which the request-key command should be sent. */
+	tl_zb_addr_t 	dstAddr;
+
+	/* If the key type is SS_KEYREQ_TYPE_APPLK, this parameter shall indicate an
+	 * extend 64-bit address of a device that shall receive the same key as the
+	 * device requesting the key.
+	 */
+	addrExt_t		partnerAddr;
+
+	/* ZB_ADDR_16BIT_DEV_OR_BROADCAST or ZB_ADDR_64BIT_DEV. */
+	u8				dstAddrMode;//zb_addr_mode_t
+
+	/* the type of key being requested. */
+	ss_keyReqType_e	keyType;
+}ss_apsRequestKeyReq_t;
 
 #define AES_BLOCK_SIZE     16
 
@@ -261,7 +285,8 @@ u8 ss_apsDecryptFrame(void *p);
 u8 ss_apsSecureFrame(void *p, u8 apsHdrAuxLen, u8 apsHdrLen, addrExt_t extAddr);
 
 u8 ss_apsmeDeviceRemoveReq(ss_apsDevRemoveReq_t *req);
-u8 ss_apsmeRequestKeyReq(ss_keyReqType_e keyType, addrExt_t dstAddr, addrExt_t partnerAddr);
+u8 ss_apsmeRequestKeyReq(ss_apsRequestKeyReq_t *req);
+u8 ss_apsmeKeySwitchReq(ss_apsKeySwitchReq_t *req);
 
 u8 ss_devKeyPairFind(addrExt_t extAddr, ss_dev_pair_set_t *keyPair);
 void ss_devKeyPairSave(ss_dev_pair_set_t *keyPair);
@@ -285,8 +310,6 @@ u8 ss_devKeyPairDelete(addrExt_t extAddr);
 u16 ss_nodeMacAddrFromdevKeyPair(u16 start_idx, u8 num, u8 *validNum, addrExt_t *nodeMacAddrList);
 
 u32 ss_outgoingFrameCntGet(void);
-
-void ss_apsKeySwitchReq(void *p);
 
 void ss_zdoNwkKeyUpdateReq(void *p);
 

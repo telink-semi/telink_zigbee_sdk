@@ -44,8 +44,23 @@
  *
  *******************************************************************************************************/
 #include "../tl_common.h"
-#include "zb_common.h"
 
+#if defined(__PROJECT_TL_BOOT_LOADER__) || defined(__PROJECT_TL_SNIFFER__)
+	#define RF_RECOVERY()
+#else
+	#include "zb_common.h"
+	/*
+	 * 8258/8278/B91 must recovery RF when waking up from suspend mode,
+	 * and must be before the interrupt is restored.
+	 */
+	#define RF_RECOVERY()					do{ \
+												u8 value;			\
+												u8 len;				\
+												ZB_RADIO_INIT();	\
+												tl_zbMacAttrGet(MAC_PHY_ATTR_CURRENT_CHANNEL, &value, &len); \
+												ZB_TRANSCEIVER_SET_CHANNEL(value);							 \
+											}while(0)
+#endif
 
 #define PM_FC_SET_FLAG						0x5A
 #define PM_FC_CLR_FLAG						0x00
@@ -167,13 +182,7 @@ void drv_pm_sleep(drv_pm_sleep_mode_e mode, drv_pm_wakeup_src_e src, u32 duratio
 
 	drv_pm_wakeupTimeUpdate();
 
-	/* reconfigure some module used */
-	ZB_RADIO_INIT();
-
-	u8 value;
-	u8 len;
-	tl_zbMacAttrGet(MAC_PHY_ATTR_CURRENT_CHANNEL, &value, &len);
-	ZB_TRANSCEIVER_SET_CHANNEL(value);
+	RF_RECOVERY();
 #elif defined(MCU_CORE_B91)
 	pm_sleep_mode_e sleep_mode = SUSPEND_MODE;
 	pm_sleep_wakeup_src_e srcType = 0;
@@ -201,13 +210,7 @@ void drv_pm_sleep(drv_pm_sleep_mode_e mode, drv_pm_wakeup_src_e src, u32 duratio
 
 	drv_pm_wakeupTimeUpdate();
 
-	/* reconfigure some module used */
-	ZB_RADIO_INIT();
-
-	u8 value;
-	u8 len;
-	tl_zbMacAttrGet(MAC_PHY_ATTR_CURRENT_CHANNEL, &value, &len);
-	ZB_TRANSCEIVER_SET_CHANNEL(value);
+	RF_RECOVERY();
 #endif
 }
 
@@ -264,13 +267,7 @@ void drv_pm_longSleep(drv_pm_sleep_mode_e mode, drv_pm_wakeup_src_e src, u32 dur
 
 	drv_pm_wakeupTimeUpdate();
 
-	/* reconfigure some module used */
-	ZB_RADIO_INIT();
-
-	u8 value;
-	u8 len;
-	tl_zbMacAttrGet(MAC_PHY_ATTR_CURRENT_CHANNEL, &value, &len);
-	ZB_TRANSCEIVER_SET_CHANNEL(value);
+	RF_RECOVERY();
 #elif defined(MCU_CORE_B91)
 	pm_sleep_mode_e sleep_mode = SUSPEND_MODE;
 	pm_sleep_wakeup_src_e srcType = 0;
@@ -298,13 +295,7 @@ void drv_pm_longSleep(drv_pm_sleep_mode_e mode, drv_pm_wakeup_src_e src, u32 dur
 
 	drv_pm_wakeupTimeUpdate();
 
-	/* reconfigure some module used */
-	ZB_RADIO_INIT();
-
-	u8 value;
-	u8 len;
-	tl_zbMacAttrGet(MAC_PHY_ATTR_CURRENT_CHANNEL, &value, &len);
-	ZB_TRANSCEIVER_SET_CHANNEL(value);
+	RF_RECOVERY();
 #endif
 }
 
@@ -353,9 +344,11 @@ void drv_pm_lowPowerEnter(void)
 	u32 sleepTime = 0;
 	bool longSleep = 0;
 
+#if !defined(__PROJECT_TL_BOOT_LOADER__) && !defined(__PROJECT_TL_SNIFFER__)
 	if(tl_stackBusy() || !zb_isTaskDone()){
 		return;
 	}
+#endif
 
 	u32 r = drv_disable_irq();
 
@@ -377,16 +370,14 @@ void drv_pm_lowPowerEnter(void)
 		}else{
 			longSleep = 0;
 		}
-	}else{
-		drv_restore_irq(r);
-
-		return;
 	}
 
+#if !defined(__PROJECT_TL_BOOT_LOADER__) && !defined(__PROJECT_TL_SNIFFER__)
 	rf_paShutDown();
 	if(sleepMode == PM_SLEEP_MODE_DEEPSLEEP){
 		drv_pm_deepSleep_frameCnt_set(ss_outgoingFrameCntGet());
 	}
+#endif
 
 	if(!longSleep){
 		drv_pm_sleep(sleepMode, wakeupSrc, sleepTime);

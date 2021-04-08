@@ -45,6 +45,10 @@
  *******************************************************************************************************/
 #pragma once
 
+#ifndef NULL
+#define NULL  0
+#endif
+
 void *memmove(void *dest, const void *src, unsigned int n);
 #if 1
 void *memset(void *d, int c, unsigned int n);

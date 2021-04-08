@@ -618,27 +618,32 @@ zdo_status_t zb_mgmtBindReq(u16 dstNwkAddr, zdo_mgmt_bind_req_t *pReq, u8 *seqNo
 /***********************************************************************//**
  * @brief		Remove device request command.
  *
- * @param[in]	parentAddr - parent address of the device to be removed (64-bit)
- * @param[in]	devExt     - address of the device to be removed
+ * @param[in]	pRemoveDevReq
  *
  * @return		Status
  *
  **************************************************************************/
-aps_status_t zb_apsmeRemoveDevReq(addrExt_t parentAddr, addrExt_t devExt);
+aps_status_t zb_apsmeRemoveDevReq(ss_apsDevRemoveReq_t *pRemoveDevReq);
 
 /***********************************************************************//**
  * @brief		APSME request key command.
  *
- * @param[in]	keyType 	- the type of key being requested
- * @param[in]	dstAddr     - the extend address of the device which the request-key command should be sent
- * @param[in]	partnerAddr - if the key type is SS_KEYREQ_TYPE_APPLK, this parameter shall indicate an
- * 							  extend 64-bit address of a device that shall receive the same key as the
- * 							  device requesting the key
+ * @param[in]	pRequestKeyReq
  *
  * @return		Status
  *
  **************************************************************************/
-aps_status_t zb_apsmeRequestKeyReq(ss_keyReqType_e keyType, addrExt_t dstAddr, addrExt_t partnerAddr);
+aps_status_t zb_apsmeRequestKeyReq(ss_apsRequestKeyReq_t *pRequestKeyReq);
+
+/***********************************************************************//**
+ * @brief		APSME switch key command.
+ *
+ * @param[in]	pSwitchKeyReq
+ *
+ * @return		Status
+ *
+ **************************************************************************/
+aps_status_t zb_apsmeSwitchKeyReq(ss_apsKeySwitchReq_t *pSwitchKeyReq);
 
 /***********************************************************************//**
  * @brief       Perform a route request.

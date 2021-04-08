@@ -143,7 +143,7 @@ void ota_upgradeComplete(u8 status);
  */
 u8 mcuBootAddrGet(void)
 {
-#if(BOOT_LOADER_MODE)
+#if (BOOT_LOADER_MODE)
 	return 0;
 #else
 	u8 flashInfo = 0;
@@ -154,26 +154,24 @@ u8 mcuBootAddrGet(void)
 
 void ota_mcuReboot(void)
 {
-#if(BOOT_LOADER_MODE)
 	u8 flashInfo = 0x4b;
-	flash_write((FLASH_OTA_NEWIMAGE_ADDR + 8), 1, &flashInfo);//enable boot-up flag
-	SYSTEM_RESET();
+	u32 newAddr = FLASH_ADDR_OF_OTA_IMAGE;
+
+#if (BOOT_LOADER_MODE)
+	flash_write((newAddr + FLASH_TLNK_FLAG_OFFSET), 1, &flashInfo);//enable boot-up flag
 #else
 	u32 baseAddr = 0;
-	u32 newAddr = FLASH_OTA_NEWIMAGE_ADDR;
-	u8 flashInfo = 0x4b;
 
 	if(mcuBootAddr){
-		baseAddr = FLASH_OTA_NEWIMAGE_ADDR;
+		baseAddr = FLASH_ADDR_OF_OTA_IMAGE;
 		newAddr = 0;
 	}
 
-	flash_write((newAddr + FLASH_TLNK_FLAG_OFFSET),1,&flashInfo);//enable boot-up flag
+	flash_write((newAddr + FLASH_TLNK_FLAG_OFFSET), 1, &flashInfo);//enable boot-up flag
 	flashInfo = 0;
-	flash_write((baseAddr + FLASH_TLNK_FLAG_OFFSET),1,&flashInfo);//disable boot-up flag
-
-	SYSTEM_RESET();
+	flash_write((baseAddr + FLASH_TLNK_FLAG_OFFSET), 1, &flashInfo);//disable boot-up flag
 #endif
+	SYSTEM_RESET();
 }
 
 /**********************************************************************
@@ -194,7 +192,7 @@ u8 ota_loadImageInfo(ota_hdrFields_t *oh)
 	ota_hdrFields_t hdr;
 	if(!lh){
 		lh = &hdr;
-		u32 flashAddr = (mcuBootAddr) ? 0 : FLASH_OTA_NEWIMAGE_ADDR;
+		u32 flashAddr = (mcuBootAddr) ? 0 : FLASH_ADDR_OF_OTA_IMAGE;
 		flash_read(flashAddr, sizeof(hdr), (u8 *)&hdr);
 	}
 	if(lh->otaUpgradeFileID == OTA_UPGRADE_FILE_ID){
@@ -895,7 +893,7 @@ u8 ota_imageDataProcess(u8 len, u8 *pData)
 						&& ((otaClientInfo.otaElementPos + dataSize) >= FLASH_TLNK_FLAG_OFFSET + 1)){
 						pData[i + (FLASH_TLNK_FLAG_OFFSET - otaClientInfo.otaElementPos)] = 0xff;
 					}
-					u32 baseAddr = (mcuBootAddr) ? 0 : FLASH_OTA_NEWIMAGE_ADDR;
+					u32 baseAddr = (mcuBootAddr) ? 0 : FLASH_ADDR_OF_OTA_IMAGE;
 					flash_write(baseAddr + otaClientInfo.otaElementPos, copyLen, &pData[i]);
 
 					otaClientInfo.otaElementPos += copyLen;
@@ -1062,7 +1060,7 @@ static status_t ota_imageBlockReqHandler(zclIncomingAddrInfo_t *pAddrInfo, ota_i
 			rsp.rsp.wait.reqTime = 0;
 			rsp.rsp.wait.blockReqDelay = zcl_attr_minBlockPeriod;
 		}else{
-			u32 flashAddr = (mcuBootAddr) ? 0 : FLASH_OTA_NEWIMAGE_ADDR;
+			u32 flashAddr = (mcuBootAddr) ? 0 : FLASH_ADDR_OF_OTA_IMAGE;
 			flash_read(flashAddr + pImageBlockReq->fileOffset, len, buf);
 			rsp.st = ZCL_STA_SUCCESS;
 			rsp.rsp.success.manuCode = pImageBlockReq->manuCode;
@@ -1180,6 +1178,10 @@ static status_t ota_queryNextImageRspHandler(zclIncomingAddrInfo_t *pAddrInfo, o
 			return ZCL_STA_SUCCESS;
 		}
 
+		if(pQueryNextImageRsp->imageSize > FLASH_OTA_IMAGE_MAX_SIZE){
+			return ZCL_STA_INSUFFICIENT_SPACE;
+		}
+
 		zcl_attr_imageUpgradeStatus = IMAGE_UPGRADE_STATUS_DOWNLOAD_IN_PROGRESS;
 
 		//stop server query start timer
@@ -1195,7 +1197,7 @@ static status_t ota_queryNextImageRspHandler(zclIncomingAddrInfo_t *pAddrInfo, o
 				/* the whole image already has been received, shall validate the image */
 				if(otaClientInfo.otaElementPos == otaClientInfo.otaElementLen){
 					/* validate the CRC */
-					u32 baseAddr = (mcuBootAddr) ? 0 : FLASH_OTA_NEWIMAGE_ADDR;
+					u32 baseAddr = (mcuBootAddr) ? 0 : FLASH_ADDR_OF_OTA_IMAGE;
 					u16 crcFirmware = 0;
 					flash_read(baseAddr + 6, 2, (u8 *)&crcFirmware);
 					if(((crcFirmware & 0xff) == 0x5D) && ((crcFirmware >> 8) & 0xff) == 0x02){
@@ -1230,7 +1232,7 @@ static status_t ota_queryNextImageRspHandler(zclIncomingAddrInfo_t *pAddrInfo, o
 		g_otaCtx.downloadImageSize = pQueryNextImageRsp->imageSize;
 
 		u16 sectorNumUsed = g_otaCtx.downloadImageSize / FLASH_SECTOR_SIZE + 1;
-		u32 baseAddr = (mcuBootAddr) ? 0 : FLASH_OTA_NEWIMAGE_ADDR;
+		u32 baseAddr = (mcuBootAddr) ? 0 : FLASH_ADDR_OF_OTA_IMAGE;
 
 		for(u16 i = 0; i < sectorNumUsed; i++){
 			flash_erase(baseAddr + i * FLASH_SECTOR_SIZE);

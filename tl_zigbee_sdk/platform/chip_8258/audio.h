@@ -52,7 +52,6 @@
 
 #define DMIC_INPUT_MODE_STEREO    	0
 #define AUDIO_DBL_BUF_ENABLE	   	0
-#define AUDIO_CODEC_TO_CODEC   		1
 
 /**
  * define audio amic mode.
@@ -231,6 +230,13 @@ void audio_set_codec(I2C_GPIO_GroupTypeDef i2c_pin_group, CodecMode_Typedef Code
  */
 void audio_rx_data_from_buff(signed char* buf,unsigned int len);
 
+/**
+ * @brief     This function servers to receive data from sample buffer by 16 bits.
+ * @param[in] buf - the buffer in which the data need to write
+ * @param[in] len - the length of the buffer by short.
+ * @return    none.
+ */
+void audio_rx_data_from_sample_buff(const short *buf, unsigned int len);
 
 /**
  * @brief     This function servers to receive data from sample buffer by 16 bits.

@@ -852,7 +852,14 @@ _CODE_BDB_ static void bdb_nodeDescRespHandler(void *arg)
 	if((rsp->status == ZDO_SUCCESS)){
 		u8 stackRev = (rsp->node_descriptor.server_mask >> 9) & 0x3f;
 		if(stackRev >= 21){
-			if(zb_apsmeRequestKeyReq(SS_KEYREQ_TYPE_TCLK, ss_ib.trust_center_address, NULL) != APS_STATUS_ILLEGAL_REQUEST){
+			ss_apsRequestKeyReq_t requestKey;
+			TL_SETSTRUCTCONTENT(requestKey, 0);
+
+			requestKey.keyType = SS_KEYREQ_TYPE_TCLK;
+			requestKey.dstAddr.shortAddr = 0x0000;
+			requestKey.dstAddrMode = ZB_ADDR_16BIT_DEV_OR_BROADCAST;
+
+			if(zb_apsmeRequestKeyReq(&requestKey) != APS_STATUS_ILLEGAL_REQUEST){
 				g_bdbAttrs.nodeIsOnANetwork = 0;
 				return;
 			}

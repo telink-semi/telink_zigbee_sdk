@@ -156,6 +156,22 @@ void audio_amic_init(AudioRate_Typedef Audio_Rate);
 void audio_codec_and_pga_disable(void);
 
 /**
+ * @brief     This function servers to receive data from buffer.
+ * @param[in] buf - the buffer in which the data need to write
+ * @param[in] len - the length of the buffer.
+ * @return    none.
+ */
+void audio_rx_data_from_buff(signed char* buf,unsigned int len);
+
+/**
+ * @brief     This function servers to receive data from sample buffer by 16 bits.
+ * @param[in] buf - the buffer in which the data need to write
+ * @param[in] len - the length of the buffer by short.
+ * @return    none.
+ */
+void audio_rx_data_from_sample_buff(const short *buf, unsigned int len);
+
+/**
  * 	@brief     audio DMIC init function, config the speed of DMIC and downsample audio data to required speed.         actually audio data is dmic_speed/d_samp.
  * 	@param[in] Audio_Rate - set the DMIC speed. such as 1 indicate 1M and 2 indicate 2M.
  * 	@return    none.

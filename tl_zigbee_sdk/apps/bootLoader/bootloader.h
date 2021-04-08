@@ -1,9 +1,9 @@
 /********************************************************************************************************
- * @file	spi_i.h
+ * @file	bootloader.h
  *
- * @brief	This is the header file for B85
+ * @brief	This is the header file for bootloader
  *
- * @author	Driver & Zigbee Group
+ * @author	Zigbee Group
  * @date	2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
@@ -43,79 +43,10 @@
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
-#pragma once
-
-#include "register.h"
-#include "compiler.h"
-
-/**
- * @brief     This function servers to set the spi wait.
- * @param[in] none
- * @return    none
- */
-_attribute_ram_code_sec_ static inline void mspi_wait(void){
-	while(reg_mspi_ctrl & FLD_MSPI_BUSY)
-		;
-}
-
-/**
- * @brief     This function servers to set the spi high level.
- * @param[in] none
- * @return    none
- */
-_attribute_ram_code_sec_ static inline void mspi_high(void){
-	reg_mspi_ctrl = FLD_MSPI_CS;
-}
-
-/**
- * @brief     This function servers to set the spi low level.
- * @param[in] none
- * @return    none
- */
-_attribute_ram_code_sec_ static inline void mspi_low(void){
-	reg_mspi_ctrl = 0;
-}
-
-/**
- * @brief     This function servers to gets the spi data.
- * @param[in] none.
- * @return    the spi data.
- */
-_attribute_ram_code_sec_ static inline unsigned char mspi_get(void){
-	return reg_mspi_data;
-}
-
-/**
- * @brief     This function servers to write the spi.
- * @param[in] c - the char need to be write.
- * @return    none
- */
-_attribute_ram_code_sec_ static inline void mspi_write(unsigned char c){
-	reg_mspi_data = c;
-}
-
-/**
- * @brief     This function servers to control the write.
- * @param[in] c - need to be write.
- * @return    none
- */
-_attribute_ram_code_sec_ static inline void mspi_ctrl_write(unsigned char c){
-	reg_mspi_ctrl = c;
-}
-
-/**
- * @brief     This function servers to spi read.
- * @param[in] none.
- * @return    read reault.
- */
-_attribute_ram_code_sec_ static inline unsigned char mspi_read(void){
-	mspi_write(0);		// dummy, issue clock
-	mspi_wait();
-	return mspi_get();
-}
+#ifndef _BOOTLOADER_H_
+#define _BOOTLOADER_H_
 
 
+void bootloader_init(void);
 
-
-
-
+#endif	/* _BOOTLOADER_H_ */

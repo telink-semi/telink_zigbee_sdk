@@ -1,7 +1,7 @@
 /********************************************************************************************************
- * @file	link_config.h
+ * @file	main.c
  *
- * @brief	This is the header file for linker configuration
+ * @brief	This is the source file for main
  *
  * @author	Zigbee Group
  * @date	2019
@@ -43,24 +43,38 @@
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
-#if __PROJECT_TL_BOOT_LOADER__
-asm(".equ __BOOT_LOADER_IMAGE,         1");  //means: it's a bootloader image
-asm(".equ __FW_RAMCODE_SIZE_MAX,    0x4000");
-asm(".equ __FW_OFFSET,      		0");
-#else
-asm(".equ __BOOT_LOADER_IMAGE,         0");  //means: it isn't a bootloader image
-asm(".equ __FW_RAMCODE_SIZE_MAX,    0x4000");
-#if BOOT_LOADER_MODE
-asm(".equ __FW_OFFSET,     		0xC0000");
-#else
-asm(".equ __FW_OFFSET,     		0");
-#endif
+#include "tl_common.h"
+#include "bootloader.h"
+
+
+int main(void){
+	u32 tick = 0;
+	u8 isRetention = drv_platform_init();
+
+#if VOLTAGE_DETECT_ENABLE
+	if(!isRetention){
+		voltage_detect();
+	}
 #endif
 
-asm(".equ __MCU_RUN_SRAM_EN,         0");
+	bootloader_init();
 
-asm(".global     __MCU_RUN_SRAM_EN");
-asm(".global     __BOOT_LOADER_IMAGE");
-asm(".global     __FW_OFFSET");
-asm(".global     __FW_RAMCODE_SIZE_MAX");
+#if VOLTAGE_DETECT_ENABLE
+    tick = clock_time();
+#endif
+
+	while(1){
+#if VOLTAGE_DETECT_ENABLE
+		if(clock_time_exceed(tick, 200 * 1000)){
+			voltage_detect();
+			tick = clock_time();
+		}
+#endif
+
+		gpio_toggle(LED_POWER);
+		WaitMs(100);
+	}
+
+	return 0;
+}
 

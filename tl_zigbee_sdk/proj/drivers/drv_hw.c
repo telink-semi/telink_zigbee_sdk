@@ -74,8 +74,11 @@
 	#endif
 #endif
 
+#define BATTERY_SAFETY_THRESHOLD	2200   //2.2v
+
 //system ticks per US
 u32 sysTimerPerUs;
+
 
 
 static void randInit(void)
@@ -104,16 +107,55 @@ static void internalFlashSizeCheck(void){
 	u8 *pMid = (u8 *)&mid;
 
 	if( (pMid[2] < FLASH_SIZE_512K) ||
-		((g_u32MacFlashAddr == MAC_ADDR_1M_FLASH) && (pMid[2] < FLASH_SIZE_1M)) ){
+		((g_u32MacFlashAddr == FLASH_ADDR_0F_MAC_ADDR_1M) && (pMid[2] < FLASH_SIZE_1M)) ){
 		/* Flash space not matched. */
 		while(1);
 	}
 
-	if( (g_u32MacFlashAddr == MAC_ADDR_512K_FLASH) && (pMid[2] >= FLASH_SIZE_1M) ){
-		g_u32MacFlashAddr = MAC_ADDR_1M_FLASH;
-		g_u32CfgFlashAddr = CFG_ADDR_1M_FLASH;
+	if( (g_u32MacFlashAddr == FLASH_ADDR_OF_MAC_ADDR_512K) && (pMid[2] >= FLASH_SIZE_1M) ){
+		g_u32MacFlashAddr = FLASH_ADDR_0F_MAC_ADDR_1M;
+		g_u32CfgFlashAddr = FLASH_ADDR_OF_F_CFG_INFO_1M;
 	}
 #endif
+}
+
+static void voltage_detect_init(void)
+{
+	drv_adc_init();
+
+#if defined(MCU_CORE_826x)
+	drv_adc_mode_pin_set(DRV_ADC_VBAT_MODE, NOINPUT);
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+	drv_adc_mode_pin_set(DRV_ADC_VBAT_MODE, GPIO_PB3);
+#elif defined(MCU_CORE_B91)
+	drv_adc_mode_pin_set(DRV_ADC_BASE_MODE, ADC_GPIO_PB0);
+#endif
+
+	drv_adc_enable(1);
+}
+
+void voltage_detect(void)
+{
+#if defined(MCU_CORE_B91)
+	//EVK board and dongle do not support.
+	return;
+#endif
+
+	u16 voltage = drv_get_adc_data();
+	u32 curTick = clock_time();
+
+	//printf("VDD: %d\n", voltage);
+
+	while(voltage < BATTERY_SAFETY_THRESHOLD){
+		if(clock_time_exceed(curTick, 1000 * 1000)){
+#if PM_ENABLE
+			drv_pm_sleep(PM_SLEEP_MODE_DEEPSLEEP, 0, 0);
+#else
+			SYSTEM_RESET();
+#endif
+		}
+		voltage = drv_get_adc_data();
+	}
 }
 
 static startup_state_e platform_wakeup_init(void)
@@ -183,6 +225,10 @@ startup_state_e drv_platform_init(void)
 		drv_pm_wakeupTimeUpdate();
 #endif
 	}
+
+#if VOLTAGE_DETECT_ENABLE
+	voltage_detect_init();
+#endif
 
 	ZB_RADIO_INIT();
 

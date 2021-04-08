@@ -50,34 +50,6 @@
 #include "firmwareEncryptChk.h"
 
 
-#if defined(MCU_CORE_826x)
-int flash_read_mid_uid_with_check( unsigned int *flash_mid ,unsigned char *flash_uid)
-{
-	unsigned char no_uid[16]={0x51,0x01,0x51,0x01,0x51,0x01,0x51,0x01,0x51,0x01,0x51,0x01,0x51,0x01,0x51,0x01};
-	int i,f_cnt=0;
-	unsigned int mid;
-	flash_read_mid((unsigned char*)&mid);
-	mid = mid & 0xffff;
-	*flash_mid  = mid;
-
-	if((mid == 0x4051) || (mid == 0x60C8)|| (mid == 0x6085) || (mid==0x40c8)){
-		flash_read_uid(0x4b,(unsigned char *)flash_uid);
-	}else{
-	  return 0;
-	}
-	for(i = 0; i < 16; i++){
-		if(flash_uid[i] == no_uid[i]){
-			f_cnt++;
-		}
-	}
-	if(f_cnt==16) {
-		return 0;
-	}else{
-		return 1;
-	}
-}
-#endif
-
 /**
  *  @brief Only support for 8258/8278/b91, if you want to this function, please contact to us.
  */

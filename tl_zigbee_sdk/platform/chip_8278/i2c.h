@@ -96,6 +96,10 @@ typedef enum {
 	I2C_SLAVE_MAP,
 }I2C_SlaveMode;
 
+typedef enum{
+	HOST_CMD_IRQ  = 	BIT(0),  SLAVE_SPI_IRQ = HOST_CMD_IRQ,  //both host write & read trigger this status
+	HOST_READ_IRQ = 	BIT(1),                                        //only host read trigger this status
+}i2c_irq_e;
 
 /**
  * @brief This function reset I2C module.
@@ -195,4 +199,24 @@ void i2c_write_series(unsigned int Addr, unsigned int AddrLen, unsigned char * d
  */
 void i2c_read_series(unsigned int Addr, unsigned int AddrLen, unsigned char * dataBuf, int dataLen);
 
+
+/**
+ * @brief     This fuction servers to clear the i2c slave interrupt status.
+ * @param[in] irq_status  - i2c slave all interrupt status.
+ * @return	  none.
+ */
+static inline void i2c_clear_interrupt_status(i2c_irq_e irq_status)
+{
+	reg_i2c_slave_irq_status= irq_status;
+}
+
+
+/**
+ * @brief     This fuction servers to get the i2c slave interrupt status.
+ * @param[in] irq_status  - i2c slave all interrupt status.
+ * @return	  i2c slave interrupt status.
+ */
+static inline unsigned char i2c_get_interrupt_status(i2c_irq_e irq_status){
+	 return reg_i2c_slave_irq_status & irq_status;
+}
 #endif

@@ -342,7 +342,7 @@ static inline unsigned short rf_get_irq_status(rf_irq_e status)
  */
 static inline void rf_clr_irq_status(rf_irq_e status)
 {
-	 BM_SET(reg_rf_irq_status, status);
+	  reg_rf_irq_status = status;
 }
 
 

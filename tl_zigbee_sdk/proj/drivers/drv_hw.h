@@ -71,4 +71,5 @@ void drv_wd_clear(void);
 u32 drv_u32Rand(void);
 void drv_generateRandomData(u8 *pData, u8 len);
 
+void voltage_detect(void);
 

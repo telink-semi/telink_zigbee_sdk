@@ -67,13 +67,15 @@ typedef struct ev_timer_event_t {
     void *data;         			//!< Callback function arguments.
     u32 timeout;             		//!< In millisecond
     u32 period;      				//!< Used internal
-	u8 resv[3];
-    u8 used;
+    u32 curSysTick;					//!< Used internal, system tick when registering
+	u8 resv[2];
+	u8 isRunning;					//!< Used internal
+    u8 used;						//!< Used internal
 } ev_timer_event_t;
 
 typedef struct ev_timer_event_pool_s {
 	ev_timer_event_t evt[TIMER_EVENT_NUM];
-    u8 used_num;
+    u32 used_num;
 } ev_timer_event_pool_t;
 
 

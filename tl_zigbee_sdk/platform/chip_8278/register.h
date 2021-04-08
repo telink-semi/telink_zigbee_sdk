@@ -467,16 +467,16 @@ enum{
 #define reg_usb_sups_cyc_cali	REG_ADDR8(0x10c)
 #define reg_usb_intf_alt		REG_ADDR8(0x10d)
 #define reg_usb_ep_en			REG_ADDR8(0x10e)
-enum{
-	FLD_USB_EDP8 = BIT(0),
-	FLD_USB_EDP1 = BIT(1),
-	FLD_USB_EDP2 = BIT(2),
-	FLD_USB_EDP3 = BIT(3),
-	FLD_USB_EDP4 = BIT(4),
-	FLD_USB_EDP5 = BIT(5),
-	FLD_USB_EDP6 = BIT(6),
-	FLD_USB_EDP7 = BIT(7),
-};
+typedef enum{
+	FLD_USB_EDP8_EN 		= 	BIT(0),	// printer
+	FLD_USB_EDP1_EN 		= 	BIT(1),	// keyboard
+	FLD_USB_EDP2_EN 		= 	BIT(2),	// mouse
+	FLD_USB_EDP3_EN 		= 	BIT(3),
+	FLD_USB_EDP4_EN 		= 	BIT(4),
+	FLD_USB_EDP5_EN 		= 	BIT(5),	// printer
+	FLD_USB_EDP6_EN 		= 	BIT(6),	// audio
+	FLD_USB_EDP7_EN 		= 	BIT(7),	// audio
+}usb_ep_en_e;
 #define reg_usb_ep8123_ptr		REG_ADDR32(0x110)
 #define reg_usb_ep8_ptr			REG_ADDR8(0x110)
 #define reg_usb_ep1_ptr			REG_ADDR8(0x111)
@@ -1156,8 +1156,8 @@ enum{
 	FLD_DMA_CHN1 =	BIT(1),		FLD_DMA_CHN_UART_TX =	BIT(1),
 	FLD_DMA_CHN2 =	BIT(2),		FLD_DMA_CHN_RF_RX =		BIT(2),
 	FLD_DMA_CHN3 =	BIT(3),		FLD_DMA_CHN_RF_TX =		BIT(3),
-	FLD_DMA_CHN4 =	BIT(4),		FLD_DMA_CHN_AES_DECO =  BIT(4),
-	FLD_DMA_CHN5 =	BIT(5),     FLD_DMA_CHN_AES_CODE =  BIT(5),
+	FLD_DMA_CHN4 =	BIT(4),		FLD_DMA_CHN_AES_OUT =  BIT(4),
+	FLD_DMA_CHN5 =	BIT(5),     FLD_DMA_CHN_AES_IN =  BIT(5),
 	FLD_DMA_CHN7 =	BIT(7),		FLD_DMA_CHN_PWM  	 =	BIT(7),
 };
 
@@ -1213,8 +1213,10 @@ enum{
 	FLD_RF_BTX_NESN_INIT	 	=   BIT(7),
 };
 
-#define  	FSM_TIMEOUT_ENABLE 	 	( reg_rf_ll_ctrl_1 |= FLD_RF_FSM_TIMEOUT_EN )
-#define  	FSM_TIMEOUT_DISABLE		( reg_rf_ll_ctrl_1 &= (~FLD_RF_FSM_TIMEOUT_EN) )
+#define  	FSM_TIMEOUT_ENABLE 	 			( reg_rf_ll_ctrl_1 |= FLD_RF_FSM_TIMEOUT_EN )
+#define  	FSM_TIMEOUT_DISABLE				( reg_rf_ll_ctrl_1 &= (~FLD_RF_FSM_TIMEOUT_EN) )
+#define		FSM_RX_FIRST_TIMEOUT_ENABLE		( reg_rf_ll_ctrl_1 |= FLD_RF_RX_FIRST_TIMEOUT_EN )
+#define 	FSM_RX_FIRST_TIMEOUT_DISABLE	( reg_rf_ll_ctrl_1 &= (~FLD_RF_RX_FIRST_TIMEOUT_EN) )
 
 #define reg_rf_rx_timeout		REG_ADDR16(0xf0a)
 

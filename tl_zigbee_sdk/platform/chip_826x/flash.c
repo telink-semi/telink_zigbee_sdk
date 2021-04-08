@@ -47,7 +47,7 @@
 #include "register.h"
 #include "clock.h"
 #include "irq.h"
-
+#include "string.h"
 
 static inline void mspi_wait(void){
 	while(reg_master_spi_ctrl & FLD_MASTER_SPI_BUSY);
@@ -79,11 +79,13 @@ static inline unsigned char mspi_read(void){
 	return mspi_get();
 }
 
-_attribute_ram_code_ static inline int flash_is_busy(void){
+_attribute_ram_code_sec_ static inline int flash_is_busy(void)
+{
 	return mspi_read() & 0x01;				//  the busy bit, pls check flash spec
 }
 
-_attribute_ram_code_ static void flash_send_cmd(unsigned char cmd){
+_attribute_ram_code_sec_noinline_ static void flash_send_cmd(unsigned char cmd)
+{
 	mspi_high();
 	sleep_us(1);
 	mspi_low();
@@ -91,7 +93,8 @@ _attribute_ram_code_ static void flash_send_cmd(unsigned char cmd){
 	mspi_wait();
 }
 
-_attribute_ram_code_ static void flash_send_addr(unsigned long addr){
+_attribute_ram_code_sec_noinline_ static void flash_send_addr(unsigned long addr)
+{
 	mspi_write((unsigned char)(addr>>16));
 	mspi_wait();
 	mspi_write((unsigned char)(addr>>8));
@@ -101,10 +104,10 @@ _attribute_ram_code_ static void flash_send_addr(unsigned long addr){
 }
 
 //  make this a asynchorous version
-_attribute_ram_code_ static void flash_wait_done(void)
+_attribute_ram_code_sec_noinline_ static void flash_wait_done(void)
 {
 	sleep_us(100);
-	flash_send_cmd(FLASH_READ_STATUS_CMD);
+	flash_send_cmd(FLASH_READ_STATUS_CMD_LOWBYTE);
 
 	int i;
 	for(i = 0; i < 10000000; ++i){
@@ -115,118 +118,141 @@ _attribute_ram_code_ static void flash_wait_done(void)
 	mspi_high();
 }
 
-_attribute_ram_code_ void flash_erase_sector(unsigned long addr){
-	unsigned char r = irq_disable();
-	flash_send_cmd(FLASH_WRITE_ENABLE_CMD);
-	flash_send_cmd(FLASH_SECT_ERASE_CMD);
-	flash_send_addr(addr);
-	mspi_high();
-	flash_wait_done();
-	irq_restore(r);
-}
-
-_attribute_ram_code_ void flash_write_page(unsigned long addr, unsigned long len, unsigned char *buf){
-	unsigned char r = irq_disable();
-	// important:  buf must not reside at flash, such as constant string.  If that case, pls copy to memory first before write
-	flash_send_cmd(FLASH_WRITE_ENABLE_CMD);
-	flash_send_cmd(FLASH_WRITE_CMD);
-	flash_send_addr(addr);
-
-	unsigned int i;
-	for(i = 0; i < len; ++i){
-		mspi_write(buf[i]);		/* write data */
-		mspi_wait();
-	}
-	mspi_high();
-	flash_wait_done();
-	irq_restore(r);
-}
-
-_attribute_ram_code_ void flash_read_page(unsigned long addr, unsigned long len, unsigned char *buf){
-	unsigned char r = irq_disable();
-	flash_send_cmd(FLASH_READ_CMD);
-	flash_send_addr(addr);
-
-	mspi_write(0x00);		/* dummy,  to issue clock */
-	mspi_wait();
-	mspi_ctrl_write(0x0a);	/* auto mode */
-	mspi_wait();
-	/* get data */
-	for(int i = 0; i < len; ++i){
-		*buf++ = mspi_get();
-		mspi_wait();
-	}
-	mspi_high();
-	irq_restore(r);
-}
-
-_attribute_ram_code_ unsigned char flash_write_status(unsigned char data)
+_attribute_ram_code_sec_noinline_ void flash_mspi_read_ram(unsigned char cmd, unsigned long addr, unsigned char addr_en, unsigned char dummy_cnt, unsigned char *data, unsigned long data_len)
 {
 	unsigned char r = irq_disable();
 
-	flash_send_cmd(FLASH_WRITE_ENABLE_CMD);
-	flash_send_cmd(FLASH_WRITE_STATUS_CMD);
-	mspi_write(data);
-	mspi_wait();
-	mspi_high();
-	flash_wait_done();
-#if 0
-	sleep_us(100);
-	flash_send_cmd(FLASH_READ_STATUS_CMD);
-
-	result = mspi_read();
-	mspi_high();
-#endif
-
-	irq_restore(r);
- 	return data;
-}
-
-__attribute__((section(".ram_code"))) void flash_read_mid(unsigned char *buf)
-{
-	unsigned char j = 0;
-	unsigned char r = irq_disable();
-	flash_send_cmd(FLASH_GET_JEDEC_ID);
-	mspi_write(0x00);		/* dummy,  to issue clock */
-	mspi_wait();
-	mspi_ctrl_write(0x0a);	/* auto mode */
-	mspi_wait();
-
-	for(j = 0; j < 3; ++j){
-		*buf++ = mspi_get();
-		mspi_wait();
-	}
-	mspi_high();
-	irq_restore(r);
-}
-
-__attribute__((section(".ram_code"))) void flash_read_uid(unsigned char idcmd, unsigned char *buf)
-{
-	unsigned char j = 0;
-	unsigned char r = irq_disable();
-	flash_send_cmd(idcmd);
-	if(idcmd==0x4b)//GD/puya
+	flash_send_cmd(cmd);
+	if(addr_en)
 	{
-		flash_send_addr(0x00);
-		mspi_write(0x00);		/* dummy,  to issue clock */
-		mspi_wait();
+		flash_send_addr(addr);
 	}
-	else if (idcmd==0x5a)//XTX
+	for(int i = 0; i < dummy_cnt; ++i)
 	{
-		flash_send_addr(0x80);
-		mspi_write(0x00);		/* dummy,  to issue clock */
+		mspi_write(0x00);		/* dummy */
 		mspi_wait();
-
 	}
-	mspi_write(0x00);		/* dummy,  to issue clock */
+	mspi_write(0x00);			/* to issue clock */
 	mspi_wait();
-	mspi_ctrl_write(0x0a);	/* auto mode */
+	mspi_ctrl_write(0x0a);		/* auto mode */
 	mspi_wait();
-
-	for(j = 0; j < 16; ++j){
-		*buf++ = mspi_get();
+	for(int i = 0; i < data_len; ++i)
+	{
+		*data++ = mspi_get();
 		mspi_wait();
 	}
 	mspi_high();
+
 	irq_restore(r);
+}
+
+_attribute_ram_code_sec_noinline_ void flash_mspi_write_ram(unsigned char cmd, unsigned long addr, unsigned char addr_en, unsigned char *data, unsigned long data_len)
+{
+	unsigned char r = irq_disable();
+
+	flash_send_cmd(FLASH_WRITE_ENABLE_CMD);
+	flash_send_cmd(cmd);
+	if(addr_en)
+	{
+		flash_send_addr(addr);
+	}
+	for(int i = 0; i < data_len; ++i)
+	{
+		mspi_write(data[i]);
+		mspi_wait();
+	}
+	mspi_high();
+	flash_wait_done();
+
+	irq_restore(r);
+}
+
+void flash_erase_sector(unsigned long addr)
+{
+	flash_mspi_write_ram(FLASH_SECT_ERASE_CMD, addr, 1, NULL, 0);
+}
+
+void flash_read_page(unsigned long addr, unsigned long len, unsigned char *buf)
+{
+	flash_mspi_read_ram(FLASH_READ_CMD, addr, 1, 0, buf, len);
+}
+
+void flash_write_page(unsigned long addr, unsigned long len, unsigned char *buf)
+{
+	unsigned int ns = PAGE_SIZE - (addr&(PAGE_SIZE - 1));
+	int nw = 0;
+
+	do{
+		nw = len > ns ? ns :len;
+		flash_mspi_write_ram(FLASH_WRITE_CMD, addr, 1, buf, nw);
+		ns = PAGE_SIZE;
+		addr += nw;
+		buf += nw;
+		len -= nw;
+	}while(len > 0);
+}
+
+unsigned char flash_read_status(unsigned char cmd)
+{
+	unsigned char status = 0;
+	flash_mspi_read_ram(cmd, 0, 0, 0, &status, 1);
+	return status;
+}
+
+void flash_write_status(flash_status_typedef_e type, unsigned short data)
+{
+	unsigned char buf[2];
+
+	buf[0] = data;
+	buf[1] = data>>8;
+	if(type == FLASH_TYPE_8BIT_STATUS){
+		flash_mspi_write_ram(FLASH_WRITE_STATUS_CMD_LOWBYTE, 0, 0, buf, 1);
+	}else if(type == FLASH_TYPE_16BIT_STATUS_ONE_CMD){
+		flash_mspi_write_ram(FLASH_WRITE_STATUS_CMD_LOWBYTE, 0, 0, buf, 2);
+	}
+}
+
+unsigned int flash_read_mid(void)
+{
+	unsigned int flash_mid = 0;
+	flash_mspi_read_ram(FLASH_GET_JEDEC_ID, 0, 0, 0, (unsigned char*)(&flash_mid), 3);
+	return flash_mid;
+}
+
+void flash_read_uid(unsigned char idcmd, unsigned char *buf)
+{
+	if(idcmd == FLASH_READ_UID_CMD_GD_PUYA_ZB_UT)	//< GD/PUYA/ZB/UT
+	{
+		flash_mspi_read_ram(idcmd, 0x00, 1, 1, buf, 16);
+	}
+	else if (idcmd == FLASH_READ_UID_CMD_XTX)		//< XTX
+	{
+		flash_mspi_read_ram(idcmd, 0x80, 1, 1, buf, 16);
+	}
+}
+
+int flash_read_mid_uid_with_check(unsigned int *flash_mid, unsigned char *flash_uid)
+{
+	unsigned char no_uid[16]={0x51,0x01,0x51,0x01,0x51,0x01,0x51,0x01,0x51,0x01,0x51,0x01,0x51,0x01,0x51,0x01};
+	int i,f_cnt=0;
+	*flash_mid = flash_read_mid();
+	unsigned int mid = (*flash_mid) & 0xffff;
+
+	if((mid == 0x4051) || (mid == 0x60C8)|| (mid == 0x6085) || (mid == 0x40c8)){
+		flash_read_uid(FLASH_READ_UID_CMD_GD_PUYA_ZB_UT, (unsigned char *)flash_uid);
+	}else{
+		return 0;
+	}
+
+	for(i = 0; i < 16; i++){
+		if(flash_uid[i] == no_uid[i]){
+			f_cnt++;
+		}
+	}
+
+	if(f_cnt == 16){
+		return 0;
+	}else{
+		return 1;
+	}
 }

@@ -50,57 +50,63 @@
 extern "C" {
 #endif
 
+
+/**********************************************************************
+ * Version configuration
+ */
+#include "version_cfg.h"
+
 /**********************************************************************
  * Product Information
  */
 /* Debug mode config */
-#define	UART_PRINTF_MODE			0
-#define USB_PRINTF_MODE         	0
+#define	UART_PRINTF_MODE				0
+#define USB_PRINTF_MODE         		0
 
 /* PM */
-#define PM_ENABLE					1
+#define PM_ENABLE						1
 
 /* PA */
-#define PA_ENABLE					0
+#define PA_ENABLE						0
 
 /* BDB */
-#define TOUCHLINK_SUPPORT			1
-#define FIND_AND_BIND_SUPPORT		0
+#define TOUCHLINK_SUPPORT				1
+#define FIND_AND_BIND_SUPPORT			0
 
 /* Board ID */
-#define BOARD_826x_EVK				0
-#define BOARD_826x_DONGLE			1
-#define BOARD_826x_DONGLE_PA		2
-#define BOARD_8258_EVK				3
-#define BOARD_8258_EVK_V1P2			4//C1T139A30_V1.2
-#define BOARD_8258_DONGLE			5
-#define BOARD_8258_DONGLE_1M		6
-#define BOARD_8278_EVK				7
-#define BOARD_8278_DONGLE			8
-#define BOARD_9518_EVK				9
-#define BOARD_9518_DONGLE			10
+#define BOARD_826x_EVK					0
+#define BOARD_826x_DONGLE				1
+#define BOARD_826x_DONGLE_PA			2
+#define BOARD_8258_EVK					3
+#define BOARD_8258_EVK_V1P2				4//C1T139A30_V1.2
+#define BOARD_8258_DONGLE				5
+#define BOARD_8278_EVK					6
+#define BOARD_8278_DONGLE				7
+#define BOARD_9518_EVK					8
+#define BOARD_9518_DONGLE				9
 
 /* Board define */
 #if defined(MCU_CORE_826x)
 #if !PA_ENABLE
-	#define BOARD					BOARD_826x_DONGLE
+	#define BOARD						BOARD_826x_DONGLE
 #else
-	#define BOARD					BOARD_826x_DONGLE_PA
+	#define BOARD						BOARD_826x_DONGLE_PA
 #endif
-	/* system clock config */
-	#define CLOCK_SYS_CLOCK_HZ  	32000000
+	#define CLOCK_SYS_CLOCK_HZ  		32000000
 #elif defined(MCU_CORE_8258)
-	#define BOARD					BOARD_8258_DONGLE//BOARD_8258_EVK
-	/* system clock config */
-	#define CLOCK_SYS_CLOCK_HZ  	48000000
+#if (CHIP_TYPE == TLSR_8258_1M)
+	#define FLASH_CAP_SIZE_1M			1
+#endif
+	#define BOARD						BOARD_8258_DONGLE//BOARD_8258_EVK
+	#define CLOCK_SYS_CLOCK_HZ  		48000000
 #elif defined(MCU_CORE_8278)
-	#define BOARD					BOARD_8278_DONGLE//BOARD_8278_EVK
-	/* system clock config */
-	#define CLOCK_SYS_CLOCK_HZ  	48000000
+	#define FLASH_CAP_SIZE_1M			1
+	#define BOARD						BOARD_8278_DONGLE//BOARD_8278_EVK
+	#define CLOCK_SYS_CLOCK_HZ  		48000000
 #elif defined(MCU_CORE_B91)
-	#define BOARD					BOARD_9518_EVK
-	/* system clock config */
-	#define CLOCK_SYS_CLOCK_HZ  	48000000
+	#define FLASH_CAP_SIZE_1M			1
+	#define BOARD						BOARD_9518_DONGLE//BOARD_9518_EVK
+	#define CLOCK_SYS_CLOCK_HZ  		48000000
 #else
 	#error "MCU is undefined!"
 #endif
@@ -112,7 +118,7 @@ extern "C" {
 	#include "board_826x_dongle.h"
 #elif (BOARD == BOARD_826x_DONGLE_PA)
 	#include "board_826x_dongle_pa.h"
-#elif ((BOARD == BOARD_8258_DONGLE) || (BOARD == BOARD_8258_DONGLE_1M))
+#elif (BOARD == BOARD_8258_DONGLE)
 	#include "board_8258_dongle.h"
 #elif (BOARD == BOARD_8258_EVK)
 	#include "board_8258_evk.h"
@@ -128,6 +134,9 @@ extern "C" {
 	#include "board_9518_dongle.h"
 #endif
 
+
+/* Voltage detect module */
+#define VOLTAGE_DETECT_ENABLE						1
 
 /* Watch dog module */
 #define MODULE_WATCHDOG_ENABLE						0
@@ -152,10 +161,6 @@ extern "C" {
 #define ZCL_ZLL_COMMISSIONING_SUPPORT				1
 #endif
 
-/**********************************************************************
- * Version configuration
- */
-#include "version_cfg.h"
 
 /**********************************************************************
  * Stack configuration

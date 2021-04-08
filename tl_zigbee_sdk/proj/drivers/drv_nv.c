@@ -45,26 +45,25 @@
  *******************************************************************************************************/
 #include "../tl_common.h"
 
-#define FLASH_ADDR_512					0x80000
-#define FLASH_ADDR_1K					0x100000
+
+
 
 #if FLASH_CAP_SIZE_1M
-#define IS_ADDR_IN_FLASH_AREA(addr)		((addr >= FLASH_BASE_ADDR) && (addr < (FLASH_BASE_ADDR + FLASH_ADDR_1K)))
+	#define FLASH_ADDR_1K					0x100000
+	#define IS_ADDR_IN_FLASH_AREA(addr)		((addr >= FLASH_BASE_ADDR) && (addr < (FLASH_BASE_ADDR + FLASH_ADDR_1K)))
 #else
-#define IS_ADDR_IN_FLASH_AREA(addr)		((addr >= FLASH_BASE_ADDR) && (addr < (FLASH_BASE_ADDR + FLASH_ADDR_512)))
+	#define FLASH_ADDR_512					0x80000
+	#define IS_ADDR_IN_FLASH_AREA(addr)		((addr >= FLASH_BASE_ADDR) && (addr < (FLASH_BASE_ADDR + FLASH_ADDR_512)))
 #endif
 
 
-#if (FLASH_PROTECT)
-const u8 protect_flash_cmd = FLASH_PROTECT_CMD;
-#endif
 
 #if FLASH_CAP_SIZE_1M
-u32 g_u32MacFlashAddr = MAC_ADDR_1M_FLASH;
-u32 g_u32CfgFlashAddr = CFG_ADDR_1M_FLASH;
+u32 g_u32MacFlashAddr = FLASH_ADDR_0F_MAC_ADDR_1M;
+u32 g_u32CfgFlashAddr = FLASH_ADDR_OF_F_CFG_INFO_1M;
 #else
-u32 g_u32MacFlashAddr = MAC_ADDR_512K_FLASH;
-u32 g_u32CfgFlashAddr = CFG_ADDR_512K_FLASH;
+u32 g_u32MacFlashAddr = FLASH_ADDR_OF_MAC_ADDR_512K;
+u32 g_u32CfgFlashAddr = FLASH_ADDR_OF_F_CFG_INFO_512K;
 #endif
 
 

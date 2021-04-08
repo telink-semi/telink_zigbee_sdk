@@ -50,7 +50,6 @@
 extern "C" {
 #endif
 
-#define FLASH_CAP_SIZE_1M			1
 
 // BUTTON
 #define BUTTON1               		GPIO_PB2

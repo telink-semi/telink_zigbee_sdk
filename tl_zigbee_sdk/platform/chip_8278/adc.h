@@ -712,5 +712,5 @@ unsigned short adc_sample_and_get_result_manual_mode(void);
  * @param[in]  none.
  * @return the result of temperature.
  */
-unsigned short adc_temp_result(void);
+signed short adc_temp_result(void);
 

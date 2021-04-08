@@ -532,7 +532,7 @@ void cust_ota_start_req(epInfo_t *dstEpInfo,u8 srcEp,u8 **payload)
 	u32 ota_start_addr = 0;
 	if(mcuBootAddrGet() == 0)//boot from 0
 	{
-		ota_start_addr = FLASH_OTA_NEWIMAGE_ADDR;
+		ota_start_addr = FLASH_ADDR_OF_OTA_IMAGE;
 	}
 	else		//boot from 0x40000
 	{

@@ -43,7 +43,7 @@
  *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *******************************************************************************************************/
-#include "../tl_common.h"
+#include "tl_common.h"
 
 #if (__PROJECT_TL_SNIFFER__)
 extern void irq_sniffer_handler(void);
@@ -55,7 +55,7 @@ volatile u8 T_DBG_irqTest[16] = {0};
 
 //called by irq in cstartup.s
 _attribute_ram_code_ void irq_handler(void){
-#if(__PROJECT_TL_BOOT_LOADER__)
+#if (__PROJECT_TL_BOOT_LOADER__)
 
 #elif (__PROJECT_TL_SNIFFER__)
 	irq_sniffer_handler();

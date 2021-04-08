@@ -50,10 +50,6 @@
 extern "C" {
 #endif
 
-#if (BOARD == BOARD_8258_DONGLE_1M)
-	/* Running chip flash size select. If '1' - 1M, otherwise (or undefined) - 512K. */
-	#define FLASH_CAP_SIZE_1M		1
-#endif
 
 #define DONGLE_8258_32				0
 #define	DONGLE_8258_48				1

@@ -48,9 +48,6 @@
 
 
 
-
-#define	FLASH_OTA_NEWIMAGE_ADDR						0x40000//256K
-
 #define	OTA_IMAGESECTORHDR_SIZE						6
 #define OTA_IMAGE_MAX_DATA_SIZE						48
 

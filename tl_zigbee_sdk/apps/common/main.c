@@ -52,7 +52,14 @@ extern void user_init(bool isRetention);
  * main:
  * */
 int main(void){
+	u32 tick = 0;
 	u8 isRetention = drv_platform_init();
+
+#if VOLTAGE_DETECT_ENABLE
+	if(!isRetention){
+		voltage_detect();
+	}
+#endif
 
 	os_init(isRetention);
 
@@ -70,14 +77,25 @@ int main(void){
     drv_wd_start();
 #endif
 
+#if VOLTAGE_DETECT_ENABLE
+    tick = clock_time();
+#endif
+
 	while(1){
-    	tl_zbTaskProcedure();
+#if VOLTAGE_DETECT_ENABLE
+		if(clock_time_exceed(tick, 200 * 1000)){
+			voltage_detect();
+			tick = clock_time();
+		}
+#endif
+
+    	ev_main();
 
 #if (MODULE_WATCHDOG_ENABLE)
 		drv_wd_clear();
 #endif
 
-		ev_main();
+		tl_zbTaskProcedure();
 
 #if	(MODULE_WATCHDOG_ENABLE)
 		drv_wd_clear();

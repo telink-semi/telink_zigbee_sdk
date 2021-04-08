@@ -48,6 +48,9 @@
 #include "compiler.h"
 
 
+#define PAGE_SIZE		256
+#define PAGE_SIZE_OTP	256
+
 /**
  * @brief     flash command definition
  */
@@ -79,12 +82,28 @@ enum{
 };
 
 /**
- * @brief     flash capacity definition
- * Call flash_read_mid function to get the size of flash capacity.
- * Example is as follows:
- * unsigned char temp_buf[4];
- * flash_read_mid(temp_buf);
- * The value of temp_buf[2] reflects flash capacity.
+ * @brief     flash status type definition
+ */
+typedef enum{
+	FLASH_TYPE_8BIT_STATUS   			= 0,
+	FLASH_TYPE_16BIT_STATUS_ONE_CMD  	= 1,
+	FLASH_TYPE_16BIT_STATUS_TWO_CMD  	= 2,
+}flash_status_typedef_e;
+
+/**
+ * @brief     flash uid cmd definition
+ */
+typedef enum{
+	FLASH_UID_CMD_GD_PUYA   = 0x4b,
+	FLASH_XTX_READ_UID_CMD	= 0x5A,
+}flash_uid_cmddef_e;
+
+/**
+ * @brief	flash capacity definition
+ *			Call flash_read_mid function to get the size of flash capacity.
+ *			Example is as follows:
+ *			unsigned int mid = flash_read_mid();
+ *			The value of (mid&0x00ff0000)>>16 reflects flash capacity.
  */
 typedef enum {
     FLASH_SIZE_64K     = 0x10,
@@ -98,32 +117,6 @@ typedef enum {
 } Flash_CapacityDef;
 
 
-/**
- * @brief     flash status type definition
- */
-typedef enum{
-	FLASH_TYPE_8BIT_STATUS   			= 0,
-	FLASH_TYPE_16BIT_STATUS_ONE_CMD  	= 1,
-	FLASH_TYPE_16BIT_STATUS_TWO_CMD  	= 2,
-}flash_status_typedef_e;
-
-/**
- * @brief     flash uid type definition
- */
-typedef enum{
-	FLASH_TYPE_8BYTE_UID   = 8,
-	FLASH_TYPE_16BYTE_UID  = 16,
-}flash_uid_typedef_e;
-
-/**
- * @brief     flash uid cmd definition
- */
-typedef enum{
-	FLASH_UID_CMD_GD_PUYA   = 0x4b,
-	FLASH_XTX_READ_UID_CMD	= 0x5A,
-}flash_uid_cmddef_e;
-
-
 /*******************************************************************************************************************
  *												Primary interface
  ******************************************************************************************************************/
@@ -132,8 +125,17 @@ typedef enum{
  * @brief 		This function serves to erase a sector.
  * @param[in]   addr	- the start address of the sector needs to erase.
  * @return 		none.
+ * @note        Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
+ *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.
+ *              Taking into account the factors such as power supply fluctuations, the safe voltage value needs to be greater
+ *              than the minimum chip operating voltage. For the specific value, please make a reasonable setting according
+ *              to the specific application and hardware circuit.
+ *
+ *              Risk description: When the chip power supply voltage is relatively low, due to the unstable power supply,
+ *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
+ *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
-_attribute_ram_code_ void flash_erase_sector(unsigned long addr);
+void flash_erase_sector(unsigned long addr);
 
 /**
  * @brief 		This function reads the content from a page to the buf.
@@ -141,8 +143,17 @@ _attribute_ram_code_ void flash_erase_sector(unsigned long addr);
  * @param[in]   len		- the length(in byte) of content needs to read out from the page.
  * @param[out]  buf		- the start address of the buffer.
  * @return 		none.
+ * @note        Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
+ *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.
+ *              Taking into account the factors such as power supply fluctuations, the safe voltage value needs to be greater
+ *              than the minimum chip operating voltage. For the specific value, please make a reasonable setting according
+ *              to the specific application and hardware circuit.
+ *
+ *              Risk description: When the chip power supply voltage is relatively low, due to the unstable power supply,
+ *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
+ *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
-_attribute_ram_code_ void flash_read_page(unsigned long addr, unsigned long len, unsigned char *buf);
+void flash_read_page(unsigned long addr, unsigned long len, unsigned char *buf);
 
 /**
  * @brief 		This function writes the buffer's content to the flash.
@@ -151,26 +162,68 @@ _attribute_ram_code_ void flash_read_page(unsigned long addr, unsigned long len,
  * @param[in]   buf		- the start address of the content needs to write into.
  * @return 		none.
  * @note        the funciton support cross-page writing,which means the len of buf can bigger than 256.
+ *
+ *              Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
+ *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.
+ *              Taking into account the factors such as power supply fluctuations, the safe voltage value needs to be greater
+ *              than the minimum chip operating voltage. For the specific value, please make a reasonable setting according
+ *              to the specific application and hardware circuit.
+ *
+ *              Risk description: When the chip power supply voltage is relatively low, due to the unstable power supply,
+ *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
+ *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
-_attribute_ram_code_ void flash_write_page(unsigned long addr, unsigned long len, unsigned char *buf);
+void flash_write_page(unsigned long addr, unsigned long len, unsigned char *buf);
+
+/**
+ * @brief	  	This function serves to read MID of flash(MAC id).
+ * @return    	MID of the flash(3 bytes).
+ * @note        Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
+ *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.
+ *              Taking into account the factors such as power supply fluctuations, the safe voltage value needs to be greater
+ *              than the minimum chip operating voltage. For the specific value, please make a reasonable setting according
+ *              to the specific application and hardware circuit.
+ *
+ *              Risk description: When the chip power supply voltage is relatively low, due to the unstable power supply,
+ *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
+ *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
+ */
+unsigned int flash_read_raw_mid(void);
 
 /**
  * @brief	  	This function serves to read MID of flash(MAC id). Before reading UID of flash,
  * 				you must read MID of flash. and then you can look up the related table to select
  * 				the idcmd and read UID of flash
  * @return    	MID of the flash.
+ * @note        Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
+ *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.
+ *              Taking into account the factors such as power supply fluctuations, the safe voltage value needs to be greater
+ *              than the minimum chip operating voltage. For the specific value, please make a reasonable setting according
+ *              to the specific application and hardware circuit.
+ *
+ *              Risk description: When the chip power supply voltage is relatively low, due to the unstable power supply,
+ *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
+ *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
-_attribute_ram_code_ unsigned int flash_read_mid(void);
+unsigned int flash_read_mid(void);
 
 /**
  * @brief	  	This function serves to read UID of flash.Before reading UID of flash, you must read MID of flash.
  * 				and then you can look up the related table to select the idcmd and read UID of flash.
  * @param[in] 	idcmd	- different flash vendor have different read-uid command. E.g: GD/PUYA:0x4B; XTX: 0x5A
- * @param[in] 	buf		- store UID of flash
- * @param[in] 	uidtype	- the number of uid bytes.
+ * @param[in] 	buf		- store UID of flash.
  * @return    	none.
+ * @note        Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
+ *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.
+ *              Taking into account the factors such as power supply fluctuations, the safe voltage value needs to be greater
+ *              than the minimum chip operating voltage. For the specific value, please make a reasonable setting according
+ *              to the specific application and hardware circuit.
+ *
+ *              Risk description: When the chip power supply voltage is relatively low, due to the unstable power supply,
+ *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
+ *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
-_attribute_ram_code_ void flash_read_uid(unsigned char idcmd,unsigned char *buf, flash_uid_typedef_e uidtype);
+void flash_read_uid(unsigned char idcmd, unsigned char *buf);
 
 /*******************************************************************************************************************
  *												Primary interface
@@ -178,9 +231,18 @@ _attribute_ram_code_ void flash_read_uid(unsigned char idcmd,unsigned char *buf,
 
 /**
  * @brief		This function serves to read flash mid and uid,and check the correctness of mid and uid.
- * @param[out]	flash_mid	- Flash Manufacturer ID
- * @param[out]	flash_uid	- Flash Unique ID
+ * @param[out]	flash_mid	- Flash Manufacturer ID.
+ * @param[out]	flash_uid	- Flash Unique ID.
  * @return		0: flash no uid or not a known flash model 	 1:the flash model is known and the uid is read.
+ * @note        Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
+ *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.
+ *              Taking into account the factors such as power supply fluctuations, the safe voltage value needs to be greater
+ *              than the minimum chip operating voltage. For the specific value, please make a reasonable setting according
+ *              to the specific application and hardware circuit.
+ *
+ *              Risk description: When the chip power supply voltage is relatively low, due to the unstable power supply,
+ *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
+ *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
-_attribute_ram_code_ int flash_read_mid_uid_with_check( unsigned int *flash_mid ,unsigned char *flash_uid);
+int flash_read_mid_uid_with_check( unsigned int *flash_mid, unsigned char *flash_uid);
 

@@ -1,7 +1,7 @@
 /********************************************************************************************************
- * @file	version_cfg.h
+ * @file	board_826x_dongle.h
  *
- * @brief	This is the header file for version_cfg
+ * @brief	This is the header file for board_826x_dongle
  *
  * @author	Zigbee Group
  * @date	2019
@@ -45,34 +45,86 @@
  *******************************************************************************************************/
 #pragma once
 
-#include "../common/version_comm.h"
-
-#if defined(MCU_CORE_826x)
-	#if (CHIP_8269)
-		#define CHIP_TYPE	TLSR_8269
-	#else
-		#define CHIP_TYPE	TLSR_8267
-	#endif
-#elif defined(MCU_CORE_8258)
-		#define CHIP_TYPE	TLSR_8258
-#elif defined(MCU_CORE_8278)
-		#define CHIP_TYPE	TLSR_8278
-#elif defined(MCU_CORE_B91)
-		#define CHIP_TYPE	TLSR_9518
+/* Enable C linkage for C++ Compilers: */
+#if defined(__cplusplus)
+extern "C" {
 #endif
 
-#define APP_RELEASE									0x10//app release 1.0
-#define APP_BUILD									0x01//app build 01
-#define STACK_RELEASE								0x30//stack release 3.0
-#define STACK_BUILD									0x01//stack build 01
+//KEY
+#define	BUTTON1 						GPIO_PD2
+#define PD2_FUNC						AS_GPIO
+#define PD2_OUTPUT_ENABLE				0
+#define PD2_INPUT_ENABLE				1
+#define	PULL_WAKEUP_SRC_PD2				PM_PIN_PULLUP_10K
 
-/*********************************************************************************************
- * During OTA upgrade, the upgraded device will check the rules of the following three fields.
- * Refer to ZCL OTA specification for details.
- */
-#define MANUFACTURER_CODE_TELINK           			0x1141//Telink ID
+#define	BUTTON2 						GPIO_PC5
+#define PC5_FUNC						AS_GPIO
+#define PC5_OUTPUT_ENABLE				0
+#define PC5_INPUT_ENABLE				1
+#define	PULL_WAKEUP_SRC_PC5				PM_PIN_PULLUP_10K
 
-#define	IMAGE_TYPE								  	((CHIP_TYPE << 8) | IMAGE_TYPE_GW)
+//LED
+#define LED_B							GPIO_PB6
+#define PB6_FUNC						AS_GPIO
+#define PB6_OUTPUT_ENABLE				1
+#define PB6_INPUT_ENABLE				0
 
-#define	FILE_VERSION					  			((APP_RELEASE << 24) | (APP_BUILD << 16) | (STACK_RELEASE << 8) | STACK_BUILD)
+#define LED_W							GPIO_PB4
+#define PB4_FUNC						AS_GPIO
+#define PB4_OUTPUT_ENABLE				1
+#define PB4_INPUT_ENABLE				0
 
+#define LED_POWER						LED_W
+#define LED_PERMIT						LED_B
+
+//UART
+#if	ZBHCI_UART
+	#define UART_TX_PIN         		GPIO_PC2
+	#define PC2_FUNC                	AS_UART
+	#define PC2_INPUT_ENABLE        	0
+	#define PC2_OUTPUT_ENABLE       	1
+	#define PC2_DATA_STRENGTH       	0
+
+	#define UART_RX_PIN         		GPIO_PC3
+	#define PC3_FUNC                	AS_UART
+	#define PC3_INPUT_ENABLE        	1
+	#define PC3_OUTPUT_ENABLE       	0
+	#define PC3_DATA_STRENGTH       	0
+	#define PULL_WAKEUP_SRC_PC3     	PM_PIN_PULLUP_10K
+
+	#define UART_PIN_CFG()				UART_GPIO_CFG_PC2_PC3()
+#endif
+
+//DEBUG
+#if UART_PRINTF_MODE
+	#define	DEBUG_INFO_TX_PIN	    	GPIO_PB5//print
+#endif
+
+//USB
+#if ZBHCI_USB_PRINT || ZBHCI_USB_CDC || ZBHCI_USB_HID
+	#define HW_USB_CFG()				do{ \
+											usb_set_pin_en();	\
+										}while(0)
+#endif
+
+
+enum{
+	VK_SW1 = 0x01,
+	VK_SW2 = 0x02
+};
+
+#define	KB_MAP_NORMAL	{\
+		{VK_SW1,}, \
+		{VK_SW2,}, }
+
+#define	KB_MAP_NUM		KB_MAP_NORMAL
+#define	KB_MAP_FN		KB_MAP_NORMAL
+
+#define KB_DRIVE_PINS  {NULL }
+#define KB_SCAN_PINS   {BUTTON1,  BUTTON2}
+
+
+/* Disable C linkage for C++ Compilers: */
+#if defined(__cplusplus)
+}
+#endif

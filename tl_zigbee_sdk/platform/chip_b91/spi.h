@@ -698,7 +698,7 @@ static inline void hspi_addr_dis(void)
 
 /**
  * @brief 		This function servers to set hspi address length.
- * @param[in] 	len 	- 2'b00:1bye  2'b01:2bytes  2'b10:3bytes  2'b11:4bytes
+ * @param[in] 	len 	The number of bytes of address, range is 1~4.
  * @return 		none
  */
 static inline void hspi_set_addr_len(unsigned char len)
@@ -956,12 +956,6 @@ void hspi_cs_pin_en(hspi_csn_pin_def_e pin);
 void hspi_cs_pin_dis(hspi_csn_pin_def_e pin);
 
 /**
- * @brief     	This function change hspi csn pin.
- * @param[in] 	next_csn_pin - the next csn pin.
- * @return 		next_csn_pin - the next csn pin.
- */
-hspi_csn_pin_def_e hspi_change_csn_pin(hspi_csn_pin_def_e next_csn_pin);
-/**
  * @brief     	This function enable pspi csn pin.
  * @param[in] 	pin - the csn pin.
  * @return 		none
@@ -975,12 +969,6 @@ void pspi_cs_pin_en(pspi_csn_pin_def_e pin);
  */
 void pspi_cs_pin_dis(pspi_csn_pin_def_e pin);
 
-/**
- * @brief     	This function change pspi csn pin.
- * @param[in] 	next_csn_pin - the next csn pin.
- * @return 		next_csn_pin - the next csn pin.
- */
-pspi_csn_pin_def_e pspi_change_csn_pin(pspi_csn_pin_def_e next_csn_pin);
 /**
  * @brief     	This function configures the clock and working mode for SPI interface.
  * @param[in] 	spi_sel 	- the spi module.

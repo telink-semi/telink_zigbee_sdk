@@ -225,17 +225,30 @@ static void sampleLight_moveProcess(u8 cmdId, move_t *cmd)
 
 	levelInfo.withOnOff = (cmdId == ZCL_CMD_LEVEL_MOVE_WITH_ON_OFF) ? TRUE : FALSE;
 	levelInfo.currentLevel256 = (u16)(pLevel->curLevel) << 8;
-	levelInfo.stepLevel256 = (((s32)cmd->rate) << 8) / 10;
+
+	u32 rate = (u32)cmd->rate * 100;
+	u8 newLevel;
+	u8 deltaLevel;
+	if(cmd->moveMode == LEVEL_MOVE_UP){
+		newLevel = ZCL_LEVEL_ATTR_MAX_LEVEL;
+		deltaLevel = ZCL_LEVEL_ATTR_MAX_LEVEL - pLevel->curLevel;
+	}else{
+		newLevel = ZCL_LEVEL_ATTR_MIN_LEVEL;
+		deltaLevel = pLevel->curLevel - ZCL_LEVEL_ATTR_MIN_LEVEL;
+	}
+	pLevel->remainingTime = ((u32)deltaLevel * 1000) / rate;
+	if(pLevel->remainingTime == 0){
+		pLevel->remainingTime = 1;
+	}
+
+	levelInfo.stepLevel256 = ((s32)(newLevel - pLevel->curLevel)) << 8;
+	levelInfo.stepLevel256 /= (s32)pLevel->remainingTime;
 
 	if(cmd->moveMode == LEVEL_MOVE_UP){
 		if(levelInfo.withOnOff){
 			sampleLight_onoff(ZCL_CMD_ONOFF_ON);
 		}
-	}else{
-		levelInfo.stepLevel256 = -levelInfo.stepLevel256;
 	}
-
-	pLevel->remainingTime = 0xFFFF;
 
 	light_applyUpdate(&pLevel->curLevel, &levelInfo.currentLevel256, &levelInfo.stepLevel256, &pLevel->remainingTime,
 							ZCL_LEVEL_ATTR_MIN_LEVEL, ZCL_LEVEL_ATTR_MAX_LEVEL, FALSE);

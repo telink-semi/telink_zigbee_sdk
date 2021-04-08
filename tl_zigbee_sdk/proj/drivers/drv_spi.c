@@ -45,6 +45,9 @@
  *******************************************************************************************************/
 #include "../tl_common.h"
 
+#if defined(MCU_CORE_B91)
+pspi_csn_pin_def_e drv_cs_pin;
+#endif
 
 /**
  * @brief     This function configures the clock and working mode for SPI interface
@@ -116,6 +119,8 @@ void drv_spi_master_pin_select(pspi_clk_pin_def_e sclk_pin, pspi_csn_pin_def_e c
 	pspi_pin_config.pspi_mosi_io0_pin = mosi_pin;
 	pspi_pin_config.pspi_miso_io1_pin = miso_pin;
 
+	drv_cs_pin = cs_pin;
+
 	pspi_set_pin(&pspi_pin_config);
 }
 #endif
@@ -150,6 +155,8 @@ void drv_spi_slave_pin_select(pspi_clk_pin_def_e sclk_pin, pspi_csn_pin_def_e cs
 	pspi_pin_config.pspi_mosi_io0_pin = mosi_pin;
 	pspi_pin_config.pspi_miso_io1_pin = miso_pin;
 
+	drv_cs_pin = cs_pin;
+
 	pspi_set_pin(&pspi_pin_config);
 }
 #endif
@@ -174,7 +181,11 @@ void drv_spi_write(u8 *cmd, int cmdLen, u8 *data, int dataLen, u32 csPin)
 #elif defined(MCU_CORE_B91)
 	u8 *pBuf = (u8 *)ev_buf_allocate(cmdLen + dataLen);
 	if(pBuf){
-		pspi_change_csn_pin(csPin);
+		if(drv_cs_pin != csPin){
+			pspi_cs_pin_dis(drv_cs_pin);
+			pspi_cs_pin_en(csPin);
+			drv_cs_pin = csPin;
+		}
 
 		u8 *pData = pBuf;
 
@@ -209,7 +220,11 @@ void drv_spi_read(u8 *cmd, int cmdLen, u8 *data, int dataLen, u32 csPin)
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	spi_read(cmd, cmdLen, data, dataLen, csPin);
 #elif defined(MCU_CORE_B91)
-	pspi_change_csn_pin(csPin);
+	if(drv_cs_pin != csPin){
+		pspi_cs_pin_dis(drv_cs_pin);
+		pspi_cs_pin_en(csPin);
+		drv_cs_pin = csPin;
+	}
 	spi_master_write_read(PSPI_MODULE, cmd, cmdLen, data, dataLen);
 #endif
 }

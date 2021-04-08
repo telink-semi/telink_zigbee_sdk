@@ -111,9 +111,9 @@
 			<locationURI>PARENT-2-PROJECT_LOC/zigbee</locationURI>
 		</link>
 		<link>
-			<name>apps/boot_loader</name>
+			<name>apps/bootLoader</name>
 			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/apps/boot_loader</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/apps/bootLoader</locationURI>
 		</link>
 		<link>
 			<name>apps/common</name>
@@ -181,34 +181,24 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>platform/boot/boot_8258.link</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/platform/boot/8258/boot_8258.link</locationURI>
+			<name>platform/boot/8258</name>
+			<type>2</type>
+			<locationURI>PARENT-2-PROJECT_LOC/platform/boot/8258</locationURI>
 		</link>
 		<link>
-			<name>platform/boot/boot_826x.link</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/platform/boot/826x/boot_826x.link</locationURI>
+			<name>platform/boot/826x</name>
+			<type>2</type>
+			<locationURI>PARENT-2-PROJECT_LOC/platform/boot/826x</locationURI>
 		</link>
 		<link>
-			<name>platform/boot/boot_8278.link</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/platform/boot/8278/boot_8278.link</locationURI>
+			<name>platform/boot/8278</name>
+			<type>2</type>
+			<locationURI>PARENT-2-PROJECT_LOC/platform/boot/8278</locationURI>
 		</link>
 		<link>
-			<name>platform/boot/cstartup_8258.S</name>
+			<name>platform/boot/link_cfg.S</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/platform/boot/8258/cstartup_8258.S</locationURI>
-		</link>
-		<link>
-			<name>platform/boot/cstartup_826x.S</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/platform/boot/826x/cstartup_826x.S</locationURI>
-		</link>
-		<link>
-			<name>platform/boot/cstartup_8278.S</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/platform/boot/8278/cstartup_8278.S</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/platform/boot/link_cfg.S</locationURI>
 		</link>
 		<link>
 			<name>platform/services/irq_handler.c</name>

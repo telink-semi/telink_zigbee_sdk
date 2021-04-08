@@ -93,6 +93,9 @@ ev_timer_event_t *ev_timer_freeGet(void)
 
 void ev_timer_poolDelUpdate(ev_timer_event_t *evt)
 {
+	evt->isRunning = 0;
+	evt->curSysTick = 0;
+
 	if(((u32)evt >= (u32)&ev_timer.timerEventPool.evt[0]) &&
 	   ((u32)evt <= (u32)&ev_timer.timerEventPool.evt[g_ev_timer_maxNum - 1]) &&
 	   (evt->used)){
@@ -153,6 +156,9 @@ void ev_on_timer(ev_timer_event_t *evt, u32 timeout)
 	if(out){
 		out->timeout = evt->period;
 	}else{
+		if(evt->isRunning == 0){
+			evt->curSysTick = clock_time();
+		}
 		evt->timeout = evt->period;
 		LIST_ADD(ev_timer.timer_head, evt);
 	}
@@ -233,6 +239,9 @@ u8 ev_timer_taskCancel(ev_timer_event_t **evt)
 
 void ev_timer_update(u32 updateTime)
 {
+	u32 updateTimeMs = 0;
+	u32 curSysTick = clock_time();
+
 	if(updateTime == 0){
 		return;
 	}
@@ -242,8 +251,18 @@ void ev_timer_update(u32 updateTime)
 	ev_timer_event_t *timerEvt = ev_timer.timer_head;
 
 	while(timerEvt){
-		if(timerEvt->timeout > updateTime){
-			timerEvt->timeout -= updateTime;
+		if(timerEvt->isRunning){
+			/* Elapsed time, including time that may be blocked. */
+			updateTimeMs = updateTime;
+		}else{
+			/* Just calculate the elapsed time from the time of registration to the present. */
+			updateTimeMs = (curSysTick - timerEvt->curSysTick) / (S_TIMER_CLOCK_1US * 1000);
+
+			timerEvt->isRunning = 1;
+		}
+
+		if(timerEvt->timeout > updateTimeMs){
+			timerEvt->timeout -= updateTimeMs;
 		}else{
 			timerEvt->timeout = 0;
 		}

@@ -46,93 +46,201 @@
 #pragma once
 
 
+
+/********************************************************************
+ * @brief	Flash map usage.
+ *
+ * #if !defined(BOOT_LOADER_MODE) || (BOOT_LOADER_MODE == 0)
+ *	 				512k							  1M
+ * 		0x80000  ------------			0x100000  ------------
+ *	 			|		     |					 |  MAC_Addr  |
+ *	  		    |  	 NV_2 	 |			 0xFF000 |------------|
+ *	 		    |		     |					 | F_CFG_Info |
+ *		0x7A000 |------------|			 0xFE000 |------------|
+ *	 		    | U_Cfg_Info |					 | U_Cfg_Info |
+ * 		0x78000 |------------|			 0xFC000 |------------|
+ *		   		| F_CFG_Info |					 |  Reserved  |
+ * 		0x77000 |------------|			 0x96000 |------------|
+ * 		   		|  MAC_Addr  |					 |     NV     |
+ * 		0x76000 |------------|			 0x80000 |------------|
+ * 		   		|		     |					 |			  |
+ * 		   		|  OTA_Image |					 |			  |
+ * 		   		|		     |					 |	OTA_Image |
+ * 		0x40000 |------------|					 |			  |
+ * 		   		|		     |					 |			  |
+ * 		   		|  	 NV_1 	 |			 0x40000 |------------|
+ * 		   		|		     |					 |			  |
+ * 		0x34000 |------------|					 |			  |
+ * 		   		|		     |					 |  Firmware  |
+ * 		   		|  Firmware  |	208k			 |			  | 256k
+ * 		   		|		     |					 |			  |
+ * 		0x00000  ------------			 0x00000  ------------
+ *
+ * #else
+ *	 				512k							  1M
+ * 		0x80000  ------------			0x100000  ------------
+ *	 			|			 |					 |  MAC_Addr  |
+ *	 			|  	 NV_2 	 |			 0xFF000 |------------|
+ *	 			|			 |					 | F_CFG_Info |
+ *	 	0x7A000 |------------|			 0xFE000 |------------|
+ *	 			| U_Cfg_Info |					 | U_Cfg_Info |
+ *	 	0x78000 |------------|			 0xFC000 |------------|
+ *	 			| F_CFG_Info |					 |		      |
+ *	 	0x77000 |------------|					 |     NV     |
+ *	 			|  MAC_Addr  |					 |		      |
+ *	 	0x76000 |------------|			 0xE6000 |------------|
+ *	 			|		     |					 |		      |
+ *	 			|  	 NV_1	 |					 |		      |
+ *	 			|		     |					 |	OTA_Image |
+ *	 	0x6A000 |------------|					 |		      |
+ *	 			|		     |					 |		      |
+ *	 			|  OTA_Image |			 0x77000 |------------|
+ *	 			|		     |					 |		      |
+ *	 	0x39000 |------------|					 |		      |
+ *	 			|			 |					 |  Firmware  |
+ *	 			|  Firmware	 |	196k			 |		      | 444k
+ *	 			|			 |					 |		      |
+ *	 	0x08000 |------------|			 0x08000 |------------|
+ *	 			| BootLoader |					 | BootLoader |
+ *	 	0x00000  ------------			 0x00000  ------------
+ *
+ * #endif
+ */
+
+/* Flash Base Address define */
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-	#define FLASH_BASE_ADDR				(0x0)
-	#define FLASH_TLNK_FLAG_OFFSET		8
+#define FLASH_BASE_ADDR					(0x0)
+#define FLASH_TLNK_FLAG_OFFSET			8
 #elif defined(MCU_CORE_B91)
-	#define FLASH_BASE_ADDR				(0x20000000)
-	#define FLASH_TLNK_FLAG_OFFSET		32
+#define FLASH_BASE_ADDR					(0x20000000)
+#define FLASH_TLNK_FLAG_OFFSET			32
 #endif
 
-#define FLASH_4K_PAGE_NUM				16
 
-#define FLASH_PAGE_SIZE					256
-#define	FLASH_SECTOR_SIZE				4096//4K
 
-/* Flash address of MAC address. */
-enum{
-	MAC_ADDR_512K_FLASH		= 0x76000,
-	MAC_ADDR_1M_FLASH		= 0xFF000,
-};
+/************************************************************************
+ * Flash address of factory setting parameters,
+ * where are stored the MAC ADDRESS and CALIBRATION information.
+ */
+//512k flash
+#define FLASH_ADDR_OF_MAC_ADDR_512K		0x76000
+#define FLASH_ADDR_OF_F_CFG_INFO_512K	0x77000
+//1M flash
+#define FLASH_ADDR_0F_MAC_ADDR_1M		0xFF000
+#define FLASH_ADDR_OF_F_CFG_INFO_1M		0xFE000
 
-/* Flash address of factory pre-configured parameters. */
-enum{
-	CFG_ADDR_512K_FLASH		= 0x77000,
-	CFG_ADDR_1M_FLASH		= 0xFE000,
-};
-
+/************************************************************************/
 extern u32 g_u32MacFlashAddr;
 extern u32 g_u32CfgFlashAddr;
 
-/*******************************************************************************************************
- * Following configuration could NOT be changed by customer.
+#define MAC_BASE_ADD					(FLASH_BASE_ADDR + g_u32MacFlashAddr)
+#define FACTORY_CFG_BASE_ADD			(FLASH_BASE_ADDR + g_u32CfgFlashAddr)
+/************************************************************************/
+
+/**************************************************************************************
+ * The following is the detailed factory configuration information (F_CFG_Info).
  */
-/* NV modules start address */
+/* 8 bytes for MAC address. */
+#define CFG_MAC_ADDRESS              	(MAC_BASE_ADD)
+
+/* 2 bytes for USB ID. */
+#define CFG_TELINK_USB_ID				(MAC_BASE_ADD + 0x40)
+
+/* 1 byte for frequency offset calibration. */
+#define CFG_FREQUENCY_OFFSET			(FACTORY_CFG_BASE_ADD)
+
+/* 2 bytes for TP GAIN.
+ * 0x77040(or 0xFE040) for BLE TP_GAIN_0, 0x77041(or 0xFE041) for BLE TP_GAIN_1,
+ * 0x77042(or 0xFE042) for zigbee TP_GAIN_0, 0x77043(or 0xFE043) for zigbee TP_GAIN_1. */
+#define CFG_TP_GAIN                  	(FACTORY_CFG_BASE_ADD + 0x42)
+
+/* Not supported for current SDK. */
+#define CFG_32K_COUNTER_CALIBRATION	 	(FACTORY_CFG_BASE_ADD + 0x80)
+
+/* Not supported for current SDK. */
+#define CFG_ADC_CALIBRATION           	(FACTORY_CFG_BASE_ADD + 0xC0)
+
+/* Not supported for current SDK. */
+#define CFG_24M_CRYSTAL_CALIBRATION     (FACTORY_CFG_BASE_ADD + 0x100)
+
+/* Not supported for current SDK. */
+#define CFG_T_SENSOR_CALIBRATION     	(FACTORY_CFG_BASE_ADD + 0x140)
+
+/* UID-based Firmware Encryption data(16 bytes), 0x77180(or 0xFE180) ~ 0x7718F(or 0xFE18F). */
+#define CFG_FIRMWARE_ENCRYPTION			(FACTORY_CFG_BASE_ADD + 0x180)
+
+
+/**************************************************************************************
+ * The following is the detailed user configuration information (U_CFG_Info).
+ */
+/* 16 bytes for pre-install code. */
 #if FLASH_CAP_SIZE_1M
-#define NV_BASE_ADDRESS					(FLASH_BASE_ADDR + 0x80000)
-#define MODULES_START_ADDR(id)			(NV_BASE_ADDRESS + FLASH_SECTOR_SIZE * (2 * id))
+#define CFG_PRE_INSTALL_CODE			(FLASH_BASE_ADDR + 0xFD000)
 #else
-#define	NV_BASE_ADDRESS					(FLASH_BASE_ADDR + 0x34000)//start from 208K address
-#define	NV_BASE_ADDRESS2				(FLASH_BASE_ADDR + 0x7A000)//start from 488K address
-#define MODULES_START_ADDR(id)			((id<6) ? (NV_BASE_ADDRESS + FLASH_SECTOR_SIZE * (2 * id)) : (NV_BASE_ADDRESS2 + FLASH_SECTOR_SIZE * (2 * (id-6))))
+#define CFG_PRE_INSTALL_CODE			(FLASH_BASE_ADDR + 0x78000)
+#endif
+
+/* 1 byte for factory reset.
+ * If not 0xFF, means the device is doing factory reset(erase NV).
+ * The device will check this byte when powered on, if it is not 0xFF,
+ * it will erase NV first.
+ */
+#if FLASH_CAP_SIZE_1M
+#define CFG_FACTORY_RST_CNT			  	(FLASH_BASE_ADDR + 0xFC000)
+#else
+#define CFG_FACTORY_RST_CNT			  	(FLASH_BASE_ADDR + 0x79000)
+#endif
+
+/**************************************************************************************
+ * Flash address of NV module.
+ */
+#if !defined(BOOT_LOADER_MODE) || (BOOT_LOADER_MODE == 0)
+#if FLASH_CAP_SIZE_1M
+	#define NV_BASE_ADDRESS				(FLASH_BASE_ADDR + 0x80000)
+#else
+	#define	NV_BASE_ADDRESS				(FLASH_BASE_ADDR + 0x34000)
+	#define	NV_BASE_ADDRESS2			(FLASH_BASE_ADDR + 0x7A000)
+#endif
+#else
+#if FLASH_CAP_SIZE_1M
+	#define NV_BASE_ADDRESS				(FLASH_BASE_ADDR + 0xE6000)
+#else
+	#define	NV_BASE_ADDRESS				(FLASH_BASE_ADDR + 0x6A000)
+	#define	NV_BASE_ADDRESS2			(FLASH_BASE_ADDR + 0x7A000)
+#endif
 #endif
 
 
-/* Chipset pre-configured parameters */
-#define MAC_BASE_ADD					(FLASH_BASE_ADDR + g_u32MacFlashAddr)
-#define FACTORY_CFG_BASE_ADD			(FLASH_BASE_ADDR + g_u32CfgFlashAddr)
-
-/* 8 bytes for IEEE address */
-#define CFG_MAC_ADDRESS              	(MAC_BASE_ADD)
-#define CFG_TELINK_USB_ID				(MAC_BASE_ADD + 0x40)
-
-/*0x76180~0x76fff is for vendor specific use, to store parameters which don't need to
- * be calibrated, can be defined by user*/
-
-/*The block start from 0x77000~0x77fff is used to store the parameters which need to be calibrated */
-
-/*0x77000~0x7703f, 1 byte, used for frequency offset calibration*/
-#define CFG_FREQUENCY_OFFSET			(FACTORY_CFG_BASE_ADD)
-/*0x77040~0x7707F, 2 byte, 0x77040 for BLE TP_GAIN_0, 0x77041 for BLE TP_GAIN_1,
-  0x77042 for zigbee TP_GAIN_0, 0x77043 for zigbee TP_GAIN_1 */
-#define CFG_TP_GAIN                  	(FACTORY_CFG_BASE_ADD + 0x42)
-/*Not supported for current SDK*/
-#define CFG_32K_COUNTER_CALIBRATION	 	(FACTORY_CFG_BASE_ADD + 0x80)
-/*Not supported for current SDK*/
-#define CFG_ADC_CALIBRATION           	(FACTORY_CFG_BASE_ADD + 0xC0)
-/*Not supported for current SDK*/
-#define CFG_24M_CRYSTAL_CALIBRATION     (FACTORY_CFG_BASE_ADD + 0x100)
-/*Not supported for current SDK*/
-#define CFG_T_SENSOR_CALIBRATION     	(FACTORY_CFG_BASE_ADD + 0x140)
-/*UID-based Firmware Encryption data(16 bytes), 0x77180 ~ 0x7718F*/
-#define CFG_FIRMWARE_ENCRYPTION			(FACTORY_CFG_BASE_ADD + 0x180)
-
-/*******************************************************************************************************
- * Following configuration could be changed by customer.
+/************************************************************************
+ * Flash address of APP firmware.
  */
+#define FLASH_ADDR_OF_APP_FW			APP_IMAGE_ADDR
+
+
+/************************************************************************
+ * Flash address of OTA image.
+ */
+#if !defined(BOOT_LOADER_MODE) || (BOOT_LOADER_MODE == 0)
 #if FLASH_CAP_SIZE_1M
-/* Pre-install code, 16-byte. */
-#define CFG_PRE_INSTALL_CODE			(FLASH_BASE_ADDR + 0xFD000)
-
-/* One sector for factory reset by power up/down N times */
-#define CFG_FACTORY_RST_CNT			  	(FLASH_BASE_ADDR + 0xFC000)
+	//max size = (0x80000 - 0) / 2 = 256k
+	#define FLASH_OTA_IMAGE_MAX_SIZE	((NV_BASE_ADDRESS - FLASH_BASE_ADDR - FLASH_ADDR_OF_APP_FW) / 2)
 #else
-/* Pre-install code, 16-byte. */
-#define CFG_PRE_INSTALL_CODE			(FLASH_BASE_ADDR + 0x78000)
+	//max size = (0x34000 - 0) = 208k
+	#define FLASH_OTA_IMAGE_MAX_SIZE	(NV_BASE_ADDRESS - FLASH_BASE_ADDR - FLASH_ADDR_OF_APP_FW)
+#endif
+	//unchangeable address
+	#define FLASH_ADDR_OF_OTA_IMAGE		0x40000
+#else
+	//1M   Flash: max size = (0xE6000 - 0x8000) / 2 = 444k
+	//512k Flash: max size = (0x6A000 - 0x8000) / 2 = 196k
+	#define FLASH_OTA_IMAGE_MAX_SIZE	((NV_BASE_ADDRESS - FLASH_BASE_ADDR - FLASH_ADDR_OF_APP_FW) / 2)
+	//1M   Flash: ota addr = 0x8000 + 444k = 0x77000
+	//512k Flash: ota addr = 0x8000 + 196k = 0x39000
+	#define FLASH_ADDR_OF_OTA_IMAGE		(FLASH_ADDR_OF_APP_FW + FLASH_OTA_IMAGE_MAX_SIZE)
+#endif
 
-/* One sector for factory reset by power up/down N times */
-#define CFG_FACTORY_RST_CNT			  	(FLASH_BASE_ADDR + 0x79000)
-
+/******************************************* DUAL_MODE ********************************************************/
+/* Don't care, will be delete. */
 #if DUAL_MODE
 //NOTE: firmware must less then 192K if UDAL_MODE used
 typedef enum{
@@ -149,37 +257,12 @@ typedef enum{
 #define CFG_TELINK_SIG_MESH_CODE_4K		(FLASH_BASE_ADDR + 0x75000)
 #define CFG_TELINK_DUAL_MODE_ENABLE		(FLASH_BASE_ADDR + 0x76080)
 #endif	/* DUAL_MODE */
-
-#endif
-
 /******************************************** END ***********************************************************/
 
 
-/* flash write protect */
-#define FLASH_PROTECT_NONE              0x00  // unprotect
-#define FLASH_PROTECT_CMD_GIGADEVICE  	0x6C  //flash of telink evb
-#define FLASH_PROTECT_CMD_ADESTO      	0x3C  //flash of customer selection
 
-#define FLASH_PROTECT_CMD       		FLASH_PROTECT_CMD_ADESTO
 
-#define PAGE_AVAILABLE_SIZE(offset)     (FLASH_PAGE_SIZE - offset)
 
-#define NV_HEADER_TABLE_SIZE           	10
-#define NV_ALIGN_LENTH(len)             ((((len) % 4) == 0) ? len : (((len)/4 + 1) * 4))
-
-#define INVALID_NV_VALUE            	0xFF
-
-#define NV_SECTOR_VALID					0x5A5A
-#define NV_SECTOR_INVALID				0x5050
-#define NV_SECTOR_IDLE					0xFFFF
-
-#define ITEM_FIELD_VALID				0x5A
-#define ITEM_FIELD_INVALID				0x50
-#define ITEM_FIELD_OPERATION			0xFA
-#define ITEM_FIELD_IDLE					0xFF
-
-#define FLASH_FIELD_IDLE				0xFFFF
-#define FLASH_FIELD_IDLE_WORD			0xFFFFFFFF
 
 /* sector info(4Bytes) + index info(8Bytes) + index info(8Bytes) + ... */
 typedef struct{
@@ -208,7 +291,6 @@ typedef struct{
 	u8 	opSect;
 }itemIfno_t;
 
-
 //If OTA enabled, the maximum space used for nv module t is 56K, thus the item num cannot over 14
 /*****************************************************************************************************************************
  * Store zigbee information in flash.
@@ -225,7 +307,7 @@ typedef struct{
  * 								|	*16K - can store 127 nodes		|	*32K - can store 302 nodes		|
  * NV_MAX_MODULS
  */
-typedef enum {
+typedef enum{
 	NV_MODULE_ZB_INFO 				= 0,
 	NV_MODULE_ADDRESS_TABLE 		= 1,
     NV_MODULE_APS 					= 2,
@@ -237,7 +319,7 @@ typedef enum {
     NV_MAX_MODULS
 }nv_module_t;
 
-typedef enum {
+typedef enum{
 	NV_ITEM_ID_INVALID				= 0,/* Item id 0 should not be used. */
 
 	NV_ITEM_ZB_INFO 				= 1,
@@ -268,9 +350,9 @@ typedef enum {
 	NV_ITEM_ID_MAX					= 0xFF,/* Item id 0xFF should not be used. */
 }nv_item_t;
 
-typedef enum nv_sts_e {
+typedef enum{
 	NV_SUCC,
-    NV_INVALID_MODULS = 1,
+    NV_INVALID_MODULS 				= 1,
     NV_INVALID_ID ,
     NV_ITEM_NOT_FOUND,
     NV_NOT_ENOUGH_SAPCE,
@@ -280,10 +362,26 @@ typedef enum nv_sts_e {
     NV_NO_MEDIA
 } nv_sts_t;
 
+
+#define FLASH_PAGE_SIZE							256
+#define	FLASH_SECTOR_SIZE						4096//4K
+
+#define NV_SECTOR_VALID							0x5A5A
+#define NV_SECTOR_INVALID						0x5050
+#define NV_SECTOR_IDLE							0xFFFF
+
+#define ITEM_FIELD_VALID						0x5A
+#define ITEM_FIELD_INVALID						0x50
+#define ITEM_FIELD_OPERATION					0xFA
+#define ITEM_FIELD_IDLE							0xFF
+
+
 #if FLASH_CAP_SIZE_1M
-#define NV_SECTOR_SIZE(id)						((id == NV_MODULE_KEYPAIR) ?  (4 * FLASH_SECTOR_SIZE) : FLASH_SECTOR_SIZE)
+#define MODULES_START_ADDR(id)					(NV_BASE_ADDRESS + FLASH_SECTOR_SIZE * (2 * id))
+#define NV_SECTOR_SIZE(id)						((id == NV_MODULE_KEYPAIR) ? (4 * FLASH_SECTOR_SIZE) : FLASH_SECTOR_SIZE)
 #define MODULE_INFO_SIZE(id)					((id == NV_MODULE_OTA || id == NV_MODULE_KEYPAIR || id == NV_MODULE_ADDRESS_TABLE) ? ((id == NV_MODULE_KEYPAIR) ? (12*FLASH_PAGE_SIZE) : (4*FLASH_PAGE_SIZE)) : (2*FLASH_PAGE_SIZE))
 #else
+#define MODULES_START_ADDR(id)					((id < 6) ? (NV_BASE_ADDRESS + FLASH_SECTOR_SIZE * (2 * id)) : (NV_BASE_ADDRESS2 + FLASH_SECTOR_SIZE * (2 * (id-6))))
 #define NV_SECTOR_SIZE(id)						((id == NV_MODULE_KEYPAIR) ?  (2 * FLASH_SECTOR_SIZE) : FLASH_SECTOR_SIZE)
 #define MODULE_INFO_SIZE(id)					((id == NV_MODULE_OTA || id == NV_MODULE_KEYPAIR || id == NV_MODULE_ADDRESS_TABLE) ? (4*FLASH_PAGE_SIZE) : (2*FLASH_PAGE_SIZE))
 #endif

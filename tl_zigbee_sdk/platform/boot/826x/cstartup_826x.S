@@ -219,6 +219,7 @@ DATA_I:
 	.word	_dstored_
 	.word	_start_data_
 	.word	_end_data_
+	.word	_rstored_
 
 @GPIO_PC4:
 @	.word	(0x800592)

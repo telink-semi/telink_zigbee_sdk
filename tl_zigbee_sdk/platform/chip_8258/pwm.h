@@ -86,6 +86,8 @@ typedef enum{
 	PWM_IRQ_PWM3_FRAME =				BIT(5),
 	PWM_IRQ_PWM4_FRAME =				BIT(6),
 	PWM_IRQ_PWM5_FRAME =				BIT(7),
+
+	PWM_IRQ_PWM0_IR_FIFO =              BIT(16)
 }PWM_IRQ;
 
 typedef enum{
@@ -255,27 +257,44 @@ static inline void pwm_polo_enable(pwm_id id, int en)
 }
 
 /**
- * @brief     This fuction servers to enable the pwm interrupt.
+ * @brief     This fuction servers to mask the pwm interrupt.
  * @param[in] irq - variable of enum to select the pwm interrupt source.
  * @return	  none.
  */
 static inline void pwm_set_interrupt_enable(PWM_IRQ irq){
-	BM_SET(reg_pwm_irq_mask, irq);
+	if(irq == PWM_IRQ_PWM0_IR_FIFO){
+		BM_SET(reg_pwm0_fifo_mode_irq_mask,BIT(0));
+	}else{
+	    BM_SET(reg_pwm_irq_mask, irq);
+	}
 }
-
-static inline void pwm_set_interrupt_disable(PWM_IRQ irq){
-	BM_CLR(reg_pwm_irq_mask, irq);
-}
-
 
 /**
- * @brief     This fuction servers to clear the pwm interrupt.
+ * @brief     This fuction servers to clear the pwm mask.
  * @param[in] irq  - variable of enum to select the pwm interrupt source.
  * @return	  none.
  */
-static inline void pwm_clear_interrupt_status( PWM_IRQ irq)
+static inline void pwm_set_interrupt_disable(PWM_IRQ irq){
+    if(irq == PWM_IRQ_PWM0_IR_FIFO){
+		BM_CLR(reg_pwm0_fifo_mode_irq_mask,BIT(0));
+	}else{
+		BM_CLR(reg_pwm_irq_mask, irq);
+	}
+ }
+
+
+/**
+ * @brief     This fuction servers to clear the pwm interrupt status.
+ * @param[in] irq  - variable of enum to select the pwm interrupt source.
+ * @return	  none.
+ */
+static inline void pwm_clear_interrupt_status(PWM_IRQ status)
 {
-	reg_pwm_irq_sta = irq;
+	if(status == PWM_IRQ_PWM0_IR_FIFO){
+		reg_pwm0_fifo_mode_irq_sta = BIT(0);
+	}else{
+		reg_pwm_irq_sta = status;
+	}
 }
 
 /**
@@ -363,12 +382,20 @@ static inline unsigned short pwm_config_dma_fifo_waveform(int carrier_en, Pwm0Pu
  * @brief     This fuction servers to set the pwm's dma address.
  * @param[in] pdat - variable of pointer to indicate the address.
  * @return	  none.
+ * @note	  The maximum length that the PWM can send is 511bytes
  */
 static inline void pwm_set_dma_address(void * pdat)
 {
 	reg_dma_pwm_addr = (unsigned short)((unsigned int)pdat);
 	reg_dma7_addrHi = 0x04;
 	reg_dma_pwm_mode  &= ~FLD_DMA_WR_MEM;
+	//In the PWM ir_dma_fifo model, the reg_dma7_size default is 0x14(20*16 = 320 bytes) (160 group configuration),
+	//when the pwm_dma send byte length is greater than 320 bytes, can appear abnormal,
+    //abnormal phenomenon: when after sending the first 160 group configuration waveform,
+	//waveform will send 160th group configuration, and not interrupt,
+	//so set reg_dma7_size to the maximum, it has been guaranteed that the maximum length supported by the hardware (511bytes) can be sent.
+	//The maximum length that dma hardware can send is limited to the setting range of the first four bytes in ram (the actual length of dma sent)
+	reg_dma7_size = 0xff;    
 }
 
 /**
@@ -393,4 +420,20 @@ static inline void pwm_stop_dma_ir_sending(void)
 	sleep_us(20);  //1us <-> 4 byte
 	reg_rst0 = 0;
 }
+
+/**
+ * @brief     This fuction servers to get the pwm interrupt status.
+ * @param[in] status - variable of enum to select the pwm interrupt source.
+ * @return	  none.
+ */
+static inline unsigned char pwm_get_interrupt_status(PWM_IRQ status){
+
+	if(status == PWM_IRQ_PWM0_IR_FIFO){
+		return (reg_pwm0_fifo_mode_irq_sta & BIT(0));
+	}else{
+		return (reg_pwm_irq_sta & status);
+	}
+
+}
+
 #endif /* PWM_H_ */
