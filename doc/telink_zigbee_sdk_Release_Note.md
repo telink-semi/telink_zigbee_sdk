@@ -1,3 +1,31 @@
+## V3.6.4
+
+### Dependency Updates
+* telink_b91_driver_sdk V1.5.0-Beta
+### Features
+* Add voltage detection feature to avoid abnormal low voltage operation.
+### Bug Fixes
+* Fix the move command processing bug in the sampleLight demo.
+### Code Refactoring
+* Refactor the flash mapping in nv.c/.h to adapt to the bootloader mode.
+### Performance
+* Improve the configuration of bootloader working mode.
+* Improve timing task management to reduce time deviation.
+### BREAKING CHANGES
+* None.
+
+### Features
+* 增加电压检测功能，避免异常低压运行。
+### Bug Fixes
+* 修复sampleLight实例中的move命令处理bug。
+### Code Refactoring
+* 重构nv.c/.h地址分配代码，兼容适配bootloader模式。
+### Performance
+* 改进bootloader工作模式的配置。
+* 改善定时任务管理以减少时间偏差。
+### BREAKING CHANGES
+* 无。
+
 ## V3.6.3
 
 ### Features
