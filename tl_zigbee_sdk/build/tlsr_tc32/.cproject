@@ -11726,10 +11726,12 @@
 								<option id="com.telink.tc32eclipse.linker.option.libs.945258735" name="Libraries (-l)" superClass="com.telink.tc32eclipse.linker.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="zb_router"/>
 									<listOptionValue builtIn="false" value="drivers_8258"/>
+									<listOptionValue builtIn="false" value="soft-fp"/>
 								</option>
 								<option id="com.telink.tc32eclipse.linker.option.libpath.724767690" name="Libraries Path (-L)" superClass="com.telink.tc32eclipse.linker.option.libpath" valueType="stringList">
 									<listOptionValue builtIn="false" value="../../../zigbee/lib/tc32"/>
 									<listOptionValue builtIn="false" value="../../../platform/lib"/>
+									<listOptionValue builtIn="false" value="../../../platform/tc32"/>
 								</option>
 								<inputType id="com.telink.tc32eclipse.tool.linker.input.2122059168" name="OBJ Files" superClass="com.telink.tc32eclipse.tool.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
@@ -16392,10 +16394,12 @@
 								<option id="com.telink.tc32eclipse.linker.option.libs.871483405" name="Libraries (-l)" superClass="com.telink.tc32eclipse.linker.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="zb_router"/>
 									<listOptionValue builtIn="false" value="drivers_8278"/>
+									<listOptionValue builtIn="false" value="soft-fp"/>
 								</option>
 								<option id="com.telink.tc32eclipse.linker.option.libpath.1405294317" name="Libraries Path (-L)" superClass="com.telink.tc32eclipse.linker.option.libpath" valueType="stringList">
 									<listOptionValue builtIn="false" value="../../../zigbee/lib/tc32"/>
 									<listOptionValue builtIn="false" value="../../../platform/lib"/>
+									<listOptionValue builtIn="false" value="../../../platform/tc32"/>
 								</option>
 								<inputType id="com.telink.tc32eclipse.tool.linker.input.1864862960" name="OBJ Files" superClass="com.telink.tc32eclipse.tool.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>

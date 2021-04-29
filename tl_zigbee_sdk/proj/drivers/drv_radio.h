@@ -509,7 +509,7 @@
 #define ZB_RADIO_TRX_CFG(size)							do{ \
 															rf_set_rx_maxlen(size);							\
 															rf_set_rx_dma_config();							\
-															rf_set_rx_dma_fifo_num(1);						\
+															rf_set_rx_dma_fifo_num(0);						\
 															rf_set_rx_dma_fifo_size(size);					\
 															rf_set_tx_dma_config();							\
 															rf_set_tx_dma_fifo_num(1);						\

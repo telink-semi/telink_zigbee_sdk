@@ -119,4 +119,6 @@ s32 zcl_zllTouchLinkStartNetworkStartOrJoinTimerStop(void);
 
 void ll_zllAttrClr(void);
 
+void tl_zbNwkZllCommissionScanConfirm(void *arg);
+
 #endif	/* ZCL_ZLL_COMMOSSIONING_INTERNAL_H */

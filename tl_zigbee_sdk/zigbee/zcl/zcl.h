@@ -550,7 +550,6 @@ typedef struct {
 #endif
 
 typedef struct {
-	ev_queue_t zb2zclQ;
 	zcl_hookFn_t hookFn;
 	u16 reserved;
 	u8 curState;

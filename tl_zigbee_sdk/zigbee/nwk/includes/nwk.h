@@ -1284,6 +1284,16 @@ void tl_zbNwkNlmeSetRequestHandler(void *arg);
 typedef void (*nwkDataIndCb_t)(void *p);
 void tl_nwkDataIndRegister(nwkDataIndCb_t cb);
 
+typedef void (*nwkScanConfirmTouchlinkCb_t)(void *arg);
+typedef void (*nwkTouchlinkAttrClear_t)(void);
+
+typedef struct{
+	nwkScanConfirmTouchlinkCb_t scanConfCb;
+	nwkTouchlinkAttrClear_t     attrClrCb;
+}nwkForTouchlinkCb_t;
+
+void tl_nwkTouchLinkCbRegister(nwkForTouchlinkCb_t *cb);
+
 u8 is_device_factory_new(void);
 
 

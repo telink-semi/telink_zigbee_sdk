@@ -126,7 +126,7 @@ static void voltage_detect_init(void)
 #if defined(MCU_CORE_826x)
 	drv_adc_mode_pin_set(DRV_ADC_VBAT_MODE, NOINPUT);
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-	drv_adc_mode_pin_set(DRV_ADC_VBAT_MODE, GPIO_PB3);
+	drv_adc_mode_pin_set(DRV_ADC_VBAT_MODE, GPIO_PC5);
 #elif defined(MCU_CORE_B91)
 	drv_adc_mode_pin_set(DRV_ADC_BASE_MODE, ADC_GPIO_PB0);
 #endif

@@ -116,6 +116,19 @@ typedef enum {
     FLASH_SIZE_8M      = 0x17,
 } Flash_CapacityDef;
 
+/**
+ * @brief	flash voltage definition
+ */
+typedef enum {
+    FLASH_VOLTAGE_1V95     = 0x07,
+    FLASH_VOLTAGE_1V9      = 0x06,
+    FLASH_VOLTAGE_1V85     = 0x05,
+    FLASH_VOLTAGE_1V8      = 0x04,
+    FLASH_VOLTAGE_1V75     = 0x03,
+    FLASH_VOLTAGE_1V7      = 0x02,
+    FLASH_VOLTAGE_1V65     = 0x01,
+    FLASH_VOLTAGE_1V6      = 0x00,
+} Flash_VoltageDef;
 
 /*******************************************************************************************************************
  *												Primary interface
@@ -245,4 +258,52 @@ void flash_read_uid(unsigned char idcmd, unsigned char *buf);
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
 int flash_read_mid_uid_with_check( unsigned int *flash_mid, unsigned char *flash_uid);
+
+/**
+ * @brief		This function serves to find whether it is zb flash.
+ * @param[in]	none.
+ * @return		1 - is zb flash;   0 - is not zb flash.
+ */
+unsigned char flash_is_zb(void);
+
+/**
+ * @brief		This function serves to calibration the flash voltage(VDD_F),if the flash has the calib_value,we will use it,either will
+ * 				trim vdd_f to 1.95V(2b'111 the max) if the flash is zb.
+ * @param[in]	vol - the voltage which you want to set.
+ * @return		none.
+ */
+void flash_vdd_f_calib(void);
+
+/**
+ * @brief		This function serves to get the vdd_f calibration value.
+ * @param[in]	none.
+ * @return		none.
+ */
+static inline unsigned char flash_get_vdd_f_calib_value(void)
+{
+	unsigned int mid = flash_read_mid();
+	unsigned char dcdc_flash_volatage = 0;
+	switch((mid & 0xff0000) >> 16)
+	{
+	case(FLASH_SIZE_64K):
+		flash_read_page(0xe1c0, 1, &dcdc_flash_volatage);
+		break;
+	case(FLASH_SIZE_128K):
+		flash_read_page(0x1e1c0, 1, &dcdc_flash_volatage);
+		break;
+	case(FLASH_SIZE_512K):
+		flash_read_page(0x771c0, 1, &dcdc_flash_volatage);
+		break;
+	case(FLASH_SIZE_1M):
+		flash_read_page(0xfe1c0, 1, &dcdc_flash_volatage);
+		break;
+	case(FLASH_SIZE_2M):
+		flash_read_page(0x1fe1c0, 1, &dcdc_flash_volatage);
+		break;
+	default:
+		dcdc_flash_volatage = 0xff;
+		break;
+	}
+	return dcdc_flash_volatage;
+}
 

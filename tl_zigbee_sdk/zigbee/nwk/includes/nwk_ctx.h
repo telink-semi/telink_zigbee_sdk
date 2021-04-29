@@ -107,6 +107,7 @@ typedef void (*nwkDiscoveryUserCb_t)(void);
 */
 typedef struct
 {
+	nwkForTouchlinkCb_t	touchLinkCb;
 	/* For coordinator to store formation information */
 	struct{
 		u8 energy_detect[TL_ZB_MAC_CHANNEL_NUM];

@@ -1054,9 +1054,11 @@ static void bdb_task(void *arg)
 					nv_nwkFrameCountSaveToFlash(ss_ib.outgoingFrameCounter);
 
 					if(g_bdbCtx.initResult == BDB_INIT_STATUS_SUCCESS){
-						if((zdo_ssInfoKeyGet() != ss_ib.activeSecureMaterialIndex) || g_zbNwkCtx.parentIsChanged){
-							g_zbNwkCtx.parentIsChanged = 0;
-							TL_SCHEDULE_TASK(bdb_commissioningInfoSave, NULL);  //for tcRejoin when the network key is changed
+						if((zdo_ssInfoKeyGet() != ss_ib.activeSecureMaterialIndex) ||
+						   (g_zbInfo.macPib.phyChannelCur != g_bdbCtx.channel) ||
+						    g_zbNwkCtx.parentIsChanged){
+								g_zbNwkCtx.parentIsChanged = 0;
+								TL_SCHEDULE_TASK(bdb_commissioningInfoSave, NULL);  //for tcRejoin when the network key is changed
 						}
 
 #if ZB_ROUTER_ROLE
@@ -1087,11 +1089,12 @@ static void bdb_task(void *arg)
 					if(!g_bdbAttrs.nodeIsOnANetwork){
 						ss_securityModeSet(SS_SEMODE_DISTRIBUTED);
 					}
-
+#if ((ROUTER || END_DEVICE) && TOUCHLINK_SUPPORT)
 					if(g_bdbCtx.role == BDB_COMMISSIONING_ROLE_INITIATOR){
 						zcl_touchLinkStart();
 						status = BDB_STATE_COMMISSIONING_TOUCHLINK;
 					}
+#endif
 				}
 
 				if(status == BDB_STATE_IDLE){
@@ -1228,9 +1231,11 @@ _CODE_BDB_ void bdb_zdoStartDevCnf(zdo_start_device_confirm_t *startDevCnf){
 				g_zbNwkCtx.joinAccept = 1;
 #endif
 				BDB_STATUS_SET(BDB_COMMISSION_STA_SUCCESS);
-				if((zdo_ssInfoKeyGet() != ss_ib.activeSecureMaterialIndex) || g_zbNwkCtx.parentIsChanged){
-					g_zbNwkCtx.parentIsChanged = 0;
-					TL_SCHEDULE_TASK(bdb_commissioningInfoSave, NULL);
+				if((zdo_ssInfoKeyGet() != ss_ib.activeSecureMaterialIndex) ||
+				   (g_zbInfo.macPib.phyChannelCur != g_bdbCtx.channel) ||
+				    g_zbNwkCtx.parentIsChanged){
+						g_zbNwkCtx.parentIsChanged = 0;
+						TL_SCHEDULE_TASK(bdb_commissioningInfoSave, NULL);
 				}
 			}else{
 				if(startDevCnf->status == ZDO_NETWORK_LOST){
@@ -1253,6 +1258,7 @@ _CODE_BDB_ void bdb_zdoStartDevCnf(zdo_start_device_confirm_t *startDevCnf){
 			TL_SCHEDULE_TASK(bdb_task, (void *)evt);
 			break;
 
+#if ((ROUTER || END_DEVICE) && TOUCHLINK_SUPPORT)
 		case BDB_STATE_COMMISSIONING_TOUCHLINK:
 			if(startDevCnf->status == SUCCESS){
 				g_bdbAttrs.nodeIsOnANetwork = 1;
@@ -1270,6 +1276,7 @@ _CODE_BDB_ void bdb_zdoStartDevCnf(zdo_start_device_confirm_t *startDevCnf){
 				}
 			}
 			break;
+#endif
 
 		case BDB_STATE_COMMISSIONING_NETWORK_STEER:
 			if(startDevCnf->status == SUCCESS){
@@ -1586,8 +1593,10 @@ _CODE_BDB_ u8 bdb_init(af_simple_descriptor_t *simple_desc, bdb_commissionSettin
 		//zb_preConfigNwkKey(preNwkKey, TRUE);
 	}
 
+#if ((ROUTER || END_DEVICE) && TOUCHLINK_SUPPORT)
 	/* pre-configure for touch link */
 	bdb_touchLinkPreCfg(simple_desc->endpoint, setting, &bdb_touchlinkCb);
+#endif
 
 	bdb_scanCfg(g_bdbAttrs.primaryChannelSet | g_bdbAttrs.secondaryChannelSet, g_bdbAttrs.scanDuration);
 

@@ -109,11 +109,9 @@
 
 /* Flash Base Address define */
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-#define FLASH_BASE_ADDR					(0x0)
-#define FLASH_TLNK_FLAG_OFFSET			8
+	#define FLASH_TLNK_FLAG_OFFSET		8
 #elif defined(MCU_CORE_B91)
-#define FLASH_BASE_ADDR					(0x20000000)
-#define FLASH_TLNK_FLAG_OFFSET			32
+	#define FLASH_TLNK_FLAG_OFFSET		32
 #endif
 
 
@@ -133,12 +131,12 @@
 extern u32 g_u32MacFlashAddr;
 extern u32 g_u32CfgFlashAddr;
 
-#define MAC_BASE_ADD					(FLASH_BASE_ADDR + g_u32MacFlashAddr)
-#define FACTORY_CFG_BASE_ADD			(FLASH_BASE_ADDR + g_u32CfgFlashAddr)
+#define MAC_BASE_ADD					(g_u32MacFlashAddr)
+#define FACTORY_CFG_BASE_ADD			(g_u32CfgFlashAddr)
 /************************************************************************/
 
 /**************************************************************************************
- * The following is the detailed factory configuration information (F_CFG_Info).
+ * The following is the detailed factory configure information (F_CFG_Info).
  */
 /* 8 bytes for MAC address. */
 #define CFG_MAC_ADDRESS              	(MAC_BASE_ADD)
@@ -169,15 +167,21 @@ extern u32 g_u32CfgFlashAddr;
 /* UID-based Firmware Encryption data(16 bytes), 0x77180(or 0xFE180) ~ 0x7718F(or 0xFE18F). */
 #define CFG_FIRMWARE_ENCRYPTION			(FACTORY_CFG_BASE_ADD + 0x180)
 
+/* 2 bytes for VDD_F calibration.
+ * 0x771C0(or 0xFF1C0) for DCDC trim,
+ * 0x771C1(or 0xFF1C1) for LDO trim.
+ */
+#define CFG_VDD_F_CALIBRATION			(FACTORY_CFG_BASE_ADD + 0x1C0)
+
 
 /**************************************************************************************
- * The following is the detailed user configuration information (U_CFG_Info).
+ * The following is the detailed user configure information (U_CFG_Info).
  */
 /* 16 bytes for pre-install code. */
 #if FLASH_CAP_SIZE_1M
-#define CFG_PRE_INSTALL_CODE			(FLASH_BASE_ADDR + 0xFD000)
+#define CFG_PRE_INSTALL_CODE			(0xFD000)
 #else
-#define CFG_PRE_INSTALL_CODE			(FLASH_BASE_ADDR + 0x78000)
+#define CFG_PRE_INSTALL_CODE			(0x78000)
 #endif
 
 /* 1 byte for factory reset.
@@ -186,9 +190,9 @@ extern u32 g_u32CfgFlashAddr;
  * it will erase NV first.
  */
 #if FLASH_CAP_SIZE_1M
-#define CFG_FACTORY_RST_CNT			  	(FLASH_BASE_ADDR + 0xFC000)
+#define CFG_FACTORY_RST_CNT			  	(0xFC000)
 #else
-#define CFG_FACTORY_RST_CNT			  	(FLASH_BASE_ADDR + 0x79000)
+#define CFG_FACTORY_RST_CNT			  	(0x79000)
 #endif
 
 /**************************************************************************************
@@ -196,17 +200,17 @@ extern u32 g_u32CfgFlashAddr;
  */
 #if !defined(BOOT_LOADER_MODE) || (BOOT_LOADER_MODE == 0)
 #if FLASH_CAP_SIZE_1M
-	#define NV_BASE_ADDRESS				(FLASH_BASE_ADDR + 0x80000)
+	#define NV_BASE_ADDRESS				(0x80000)
 #else
-	#define	NV_BASE_ADDRESS				(FLASH_BASE_ADDR + 0x34000)
-	#define	NV_BASE_ADDRESS2			(FLASH_BASE_ADDR + 0x7A000)
+	#define	NV_BASE_ADDRESS				(0x34000)
+	#define	NV_BASE_ADDRESS2			(0x7A000)
 #endif
 #else
 #if FLASH_CAP_SIZE_1M
-	#define NV_BASE_ADDRESS				(FLASH_BASE_ADDR + 0xE6000)
+	#define NV_BASE_ADDRESS				(0xE6000)
 #else
-	#define	NV_BASE_ADDRESS				(FLASH_BASE_ADDR + 0x6A000)
-	#define	NV_BASE_ADDRESS2			(FLASH_BASE_ADDR + 0x7A000)
+	#define	NV_BASE_ADDRESS				(0x6A000)
+	#define	NV_BASE_ADDRESS2			(0x7A000)
 #endif
 #endif
 
@@ -223,17 +227,17 @@ extern u32 g_u32CfgFlashAddr;
 #if !defined(BOOT_LOADER_MODE) || (BOOT_LOADER_MODE == 0)
 #if FLASH_CAP_SIZE_1M
 	//max size = (0x80000 - 0) / 2 = 256k
-	#define FLASH_OTA_IMAGE_MAX_SIZE	((NV_BASE_ADDRESS - FLASH_BASE_ADDR - FLASH_ADDR_OF_APP_FW) / 2)
+	#define FLASH_OTA_IMAGE_MAX_SIZE	((NV_BASE_ADDRESS - FLASH_ADDR_OF_APP_FW) / 2)
 #else
 	//max size = (0x34000 - 0) = 208k
-	#define FLASH_OTA_IMAGE_MAX_SIZE	(NV_BASE_ADDRESS - FLASH_BASE_ADDR - FLASH_ADDR_OF_APP_FW)
+	#define FLASH_OTA_IMAGE_MAX_SIZE	(NV_BASE_ADDRESS - FLASH_ADDR_OF_APP_FW)
 #endif
 	//unchangeable address
-	#define FLASH_ADDR_OF_OTA_IMAGE		0x40000
+	#define FLASH_ADDR_OF_OTA_IMAGE		(0x40000)
 #else
 	//1M   Flash: max size = (0xE6000 - 0x8000) / 2 = 444k
 	//512k Flash: max size = (0x6A000 - 0x8000) / 2 = 196k
-	#define FLASH_OTA_IMAGE_MAX_SIZE	((NV_BASE_ADDRESS - FLASH_BASE_ADDR - FLASH_ADDR_OF_APP_FW) / 2)
+	#define FLASH_OTA_IMAGE_MAX_SIZE	((NV_BASE_ADDRESS - FLASH_ADDR_OF_APP_FW) / 2)
 	//1M   Flash: ota addr = 0x8000 + 444k = 0x77000
 	//512k Flash: ota addr = 0x8000 + 196k = 0x39000
 	#define FLASH_ADDR_OF_OTA_IMAGE		(FLASH_ADDR_OF_APP_FW + FLASH_OTA_IMAGE_MAX_SIZE)
@@ -252,10 +256,10 @@ typedef enum{
 	TYPE_DUAL_MODE_RECOVER 				= 0x00000056,// don't change, must same with telink mesh SDK, recover for mesh
 }telink_sdk_type_t;
 
-#define CFG_TELINK_SDK_TYPE				(FLASH_BASE_ADDR + 0x73000)
-#define CFG_TELINK_SIG_MESH_CRC			(FLASH_BASE_ADDR + 0x73040)
-#define CFG_TELINK_SIG_MESH_CODE_4K		(FLASH_BASE_ADDR + 0x75000)
-#define CFG_TELINK_DUAL_MODE_ENABLE		(FLASH_BASE_ADDR + 0x76080)
+#define CFG_TELINK_SDK_TYPE				(0x73000)
+#define CFG_TELINK_SIG_MESH_CRC			(0x73040)
+#define CFG_TELINK_SIG_MESH_CODE_4K		(0x75000)
+#define CFG_TELINK_DUAL_MODE_ENABLE		(0x76080)
 #endif	/* DUAL_MODE */
 /******************************************** END ***********************************************************/
 

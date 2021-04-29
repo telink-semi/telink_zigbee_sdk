@@ -117,11 +117,6 @@ _CODE_ZCL_ void zcl_reset(void)
 {
 	zcl_vars.hookFn = NULL;
 
-	/* Reset queue */
-	if(zcl_vars.zb2zclQ.curNum){
-		ev_queue_freeQ(&zcl_vars.zb2zclQ);
-	}
-
 	/* Reset attribute list */
 	zcl_vars.clusterNum = 0;
 	for(u8 i = 0; i < ZCL_CLUSTER_NUM_MAX; i++){
@@ -143,8 +138,6 @@ _CODE_ZCL_ void zcl_reset(void)
  */
 _CODE_ZCL_ void zcl_init(zcl_hookFn_t fn)
 {
-	ev_queue_init(&zcl_vars.zb2zclQ, NULL);
-
 	/* reset control module */
 	zcl_reset();
 	zcl_seqNum = (u8)zb_random();
@@ -795,7 +788,7 @@ _CODE_ZCL_ status_t zcl_foundationCmdHandler(zclIncoming_t *pCmd)
  *
  * @return  None
  */
-_CODE_ZCL_ void zcl_cmdHandler(u8 *pCmd)
+_CODE_ZCL_ void zcl_cmdHandler(void *pCmd)
 {
 	apsdeDataInd_t *pApsdeInd = (apsdeDataInd_t*)pCmd;
 	u8 status = ZCL_STA_SUCCESS;
@@ -880,29 +873,6 @@ _CODE_ZCL_ void zcl_cmdHandler(u8 *pCmd)
 }
 
 /*********************************************************************
- * @fn      zcl_task
- *
- * @brief   ZCL layer maintenance
- *
- * @param   arg
- *
- * @return  None
- */
-_CODE_ZCL_ void zcl_task(void *arg)
-{
-	if(zcl_vars.zb2zclQ.curNum == 0){
-		return;
-	}
-
-	u8 *pCmd = ev_queue_pop(&zcl_vars.zb2zclQ);
-	if(!pCmd){
-		return;
-	}
-
-	zcl_cmdHandler(pCmd);
-}
-
-/*********************************************************************
  * @fn      zcl_rx_handler
  *
  * @brief   Receive handler for data from APS/AF layer
@@ -913,8 +883,7 @@ _CODE_ZCL_ void zcl_task(void *arg)
  */
 _CODE_ZCL_ void zcl_rx_handler(void *pData)
 {
-	ev_queue_push(&zcl_vars.zb2zclQ, pData);
-	TL_SCHEDULE_TASK(zcl_task, NULL);
+	TL_SCHEDULE_TASK(zcl_cmdHandler, pData);
 }
 
 

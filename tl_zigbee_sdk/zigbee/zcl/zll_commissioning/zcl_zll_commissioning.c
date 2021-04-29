@@ -81,6 +81,11 @@ touchlink_attr_t g_touchlinkAttrDft = { 0x0001, 0xfff7, 0x0001, 0xfeff };
 
 zdo_touchLinkCb_t touchLinkCb = {zcl_zllTouchLinkLeaveCnfCb};
 
+nwkForTouchlinkCb_t g_nwkTouchlinkCb = {
+	.scanConfCb = tl_zbNwkZllCommissionScanConfirm,
+	.attrClrCb = ll_zllAttrClr,
+};
+
 #define TOUCHLIK_INITIATOR_SET(mode) 		g_zllTouchLink.zllInfo.bf.linkInitiator = mode
 #define TOUCHLIK_ADDR_ASSIGN_SET(mode) 		g_zllTouchLink.zllInfo.bf.addrAssign = mode
 #define TOUCHLIK_FACTORY_NEW_SET(mode) 		g_zllTouchLink.zllInfo.bf.factoryNew = mode
@@ -894,9 +899,9 @@ _CODE_ZCL_ void  touchlink_commissionTxPowerSet(u8 power){
 }
 
 /*
-*
-*
-*/
+ *
+ *
+ */
 _CODE_ZCL_ u8 zcl_touchLinkCmdHandler(zclIncoming_t *pInMsg){
 	if (pInMsg->hdr.frmCtrl.bf.dir == ZCL_FRAME_CLIENT_SERVER_DIR) {
 		return zcl_touchLinkClientCmdHandler(pInMsg);
@@ -907,12 +912,13 @@ _CODE_ZCL_ u8 zcl_touchLinkCmdHandler(zclIncoming_t *pInMsg){
 
 
 /*
-	*  zcl_touchlink_register
-	*
-*/
+ *  zcl_touchlink_register
+ *
+ */
 _CODE_ZCL_ status_t zcl_touchlink_register(u8 endpoint, const zcl_touchlinkAppCallbacks_t *cb){
 	g_zllCommission.appCb = cb;
 	zcl_touchLinkInit();
+	tl_nwkTouchLinkCbRegister(&g_nwkTouchlinkCb);
 	return zcl_registerCluster(endpoint, ZCL_CLUSTER_TOUCHLINK_COMMISSIONING, 0, 0, NULL, zcl_touchLinkCmdHandler, NULL);
 }
 

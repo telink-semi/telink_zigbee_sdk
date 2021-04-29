@@ -236,9 +236,18 @@ int flash_read_mid_uid_with_check(unsigned int *flash_mid, unsigned char *flash_
 	unsigned char no_uid[16]={0x51,0x01,0x51,0x01,0x51,0x01,0x51,0x01,0x51,0x01,0x51,0x01,0x51,0x01,0x51,0x01};
 	int i,f_cnt=0;
 	*flash_mid = flash_read_mid();
-	unsigned int mid = (*flash_mid) & 0xffff;
 
-	if((mid == 0x4051) || (mid == 0x60C8)|| (mid == 0x6085) || (mid == 0x40c8)){
+	/*
+	 * If add flash type, need pay attention to the read uid cmd and the bir number of status register
+	   Flash Type	CMD			MID		Company
+	   MD25D40C		0x4b	0x134051	GD
+	   MD25D40D		0x4b	0x134051	GD
+	   GD25D10B		0x4b	0x1140C8	GD
+	   GD25D10C		0x4b	0x1140C8	GD
+	   ZB25WD40B	0x4b	0x13325E	ZB
+	 */
+
+	if((*flash_mid == 0x134051)||(*flash_mid == 0x1140C8)||(*flash_mid == 0x13325E)){
 		flash_read_uid(FLASH_READ_UID_CMD_GD_PUYA_ZB_UT, (unsigned char *)flash_uid);
 	}else{
 		return 0;
@@ -250,7 +259,7 @@ int flash_read_mid_uid_with_check(unsigned int *flash_mid, unsigned char *flash_
 		}
 	}
 
-	if(f_cnt == 16){
+	if(f_cnt == 16){ //no uid flash
 		return 0;
 	}else{
 		return 1;

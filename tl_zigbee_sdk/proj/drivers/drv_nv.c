@@ -49,16 +49,6 @@
 
 
 #if FLASH_CAP_SIZE_1M
-	#define FLASH_ADDR_1K					0x100000
-	#define IS_ADDR_IN_FLASH_AREA(addr)		((addr >= FLASH_BASE_ADDR) && (addr < (FLASH_BASE_ADDR + FLASH_ADDR_1K)))
-#else
-	#define FLASH_ADDR_512					0x80000
-	#define IS_ADDR_IN_FLASH_AREA(addr)		((addr >= FLASH_BASE_ADDR) && (addr < (FLASH_BASE_ADDR + FLASH_ADDR_512)))
-#endif
-
-
-
-#if FLASH_CAP_SIZE_1M
 u32 g_u32MacFlashAddr = FLASH_ADDR_0F_MAC_ADDR_1M;
 u32 g_u32CfgFlashAddr = FLASH_ADDR_OF_F_CFG_INFO_1M;
 #else
@@ -143,7 +133,7 @@ nv_sts_t nv_sector_read(u16 id, u8 sectTotalNum, nv_sect_info_t *sectInfo){
 	return ret;
 }
 
-nv_sts_t nv_write_item(u16 id, u8 itemId, u8 opSect, u16 opItemIdx, u16 len, u8 *buf){
+nv_sts_t nv_write_item(u16 id, u8 itemId, u8 opSect, u16 opItemIdx, u16 len, u8 *buf, bool isFlashCopy){
 	/* write index to flash */
 	nv_info_idx_t idxInfo;
 	memset((u8 *)&idxInfo, 0, sizeof(nv_info_idx_t));
@@ -164,7 +154,7 @@ nv_sts_t nv_write_item(u16 id, u8 itemId, u8 opSect, u16 opItemIdx, u16 len, u8 
 	flash_write(idxStartAddr+opItemIdx*sizeof(nv_info_idx_t), sizeof(nv_info_idx_t), (u8 *)&idxInfo);
 
 	/* write context to flash */
-	if(IS_ADDR_IN_FLASH_AREA((u32)buf)){
+	if(isFlashCopy){
 		/* if need copy th data from flash, read it into ram, and then write it to flash */
 		u8 copyLen = 48;
 		u8 *pTemp = (u8 *)ev_buf_allocate(copyLen);
@@ -331,7 +321,7 @@ nv_sts_t nv_flashWriteNew(u8 single, u16 id, u8 itemId, u16 len, u8 *buf){
 			for( i = 0; i < readIdxNum; i++){
 				if(idxInfo[i].usedState == ITEM_FIELD_VALID &&
 					(idxInfo[i].itemId != itemId || ((idxInfo[i].itemId == itemId) && !single))){
-					ret = nv_write_item(id, idxInfo[i].itemId, opSect, wItemIdx, idxInfo[i].size-sizeof(itemHdr_t), (u8*)idxInfo[i].offset);
+					ret = nv_write_item(id, idxInfo[i].itemId, opSect, wItemIdx, idxInfo[i].size-sizeof(itemHdr_t), (u8*)idxInfo[i].offset, TRUE);
 					if(ret != NV_SUCC){
 						return ret;
 					}
@@ -362,7 +352,7 @@ nv_sts_t nv_flashWriteNew(u8 single, u16 id, u8 itemId, u16 len, u8 *buf){
 	}
 
 	/* sector is full, and then need write in the another sector */
-	ret = nv_write_item(id, itemId, opSect, wItemIdx, len, buf);
+	ret = nv_write_item(id, itemId, opSect, wItemIdx, len, buf, FALSE);
 
 	/* the last item set as invalid */
 	idxStartAddr = MODULE_IDX_START(id, opSect);

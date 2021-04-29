@@ -1194,8 +1194,8 @@ enum{
 	FLD_DMA_CHN1 =	BIT(1),		FLD_DMA_CHN_UART_TX =	BIT(1),
 	FLD_DMA_CHN2 =	BIT(2),		FLD_DMA_CHN_RF_RX =		BIT(2),
 	FLD_DMA_CHN3 =	BIT(3),		FLD_DMA_CHN_RF_TX =		BIT(3),
-	FLD_DMA_CHN4 =	BIT(4),		FLD_DMA_CHN_AES_DECO =  BIT(4),
-	FLD_DMA_CHN5 =	BIT(5),     FLD_DMA_CHN_AES_CODE =  BIT(5),
+	FLD_DMA_CHN4 =	BIT(4),		FLD_DMA_CHN_AES_OUT =    BIT(4),
+	FLD_DMA_CHN5 =	BIT(5),     FLD_DMA_CHN_AES_IN =   BIT(5),
 	FLD_DMA_CHN7 =	BIT(7),		FLD_DMA_CHN_PWM  	 =	BIT(7),
 };
 
@@ -1251,8 +1251,10 @@ enum{
 	FLD_RF_BTX_NESN_INIT	 	=   BIT(7),
 };
 
-#define  	FSM_TIMEOUT_ENABLE 	 	( reg_rf_ll_ctrl_1 |= FLD_RF_FSM_TIMEOUT_EN )
-#define  	FSM_TIMEOUT_DISABLE		( reg_rf_ll_ctrl_1 &= (~FLD_RF_FSM_TIMEOUT_EN) )
+#define  	FSM_TIMEOUT_ENABLE 	 			( reg_rf_ll_ctrl_1 |= FLD_RF_FSM_TIMEOUT_EN )
+#define  	FSM_TIMEOUT_DISABLE				( reg_rf_ll_ctrl_1 &= (~FLD_RF_FSM_TIMEOUT_EN) )
+#define		FSM_RX_FIRST_TIMEOUT_ENABLE		( reg_rf_ll_ctrl_1 |= FLD_RF_RX_FIRST_TIMEOUT_EN )
+#define 	FSM_RX_FIRST_TIMEOUT_DISABLE	( reg_rf_ll_ctrl_1 &= (~FLD_RF_RX_FIRST_TIMEOUT_EN) )
 
 #define reg_rf_rx_timeout		REG_ADDR16(0xf0a)
 
@@ -1288,6 +1290,21 @@ enum{
 	FLD_RF_IRQ_STX_TIMEOUT =    BIT(12),
 	FLD_RF_IRQ_ALL =            0X1FFF,
 };
+/*******************************      aura registers: 0x1200      ******************************/
+
+#define REG_AURA_BASE            0x1200
+
+#define reg_mode_cfg_txrx_1        REG_ADDR8(REG_AURA_BASE+0x27)
+
+enum
+{
+	FLD_TX_PA_PWR_H     = BIT_RNG(0,4),
+	FLD_TX_MI_SEL       = BIT(5),
+	FLD_RX_MI_SEL       = BIT(6),
+};
+
+
+
 
 
 /********************************************************************************************

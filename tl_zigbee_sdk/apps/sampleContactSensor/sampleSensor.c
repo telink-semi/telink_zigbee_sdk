@@ -121,7 +121,7 @@ bdb_commissionSetting_t g_bdbCommissionSetting = {
 	.touchlinkEnable = 0,												/* disable touch-link */
 #endif
 	.touchlinkChannel = DEFAULT_CHANNEL, 								/* touch-link default operation channel for target */
-	.touchlinkLqiThreshold = 0x3f,			   							/* threshold for touch-link scan req/resp command */
+	.touchlinkLqiThreshold = 0xA0,			   							/* threshold for touch-link scan req/resp command */
 };
 
 #if PM_ENABLE

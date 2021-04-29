@@ -1252,7 +1252,39 @@ enum{
 	FLD_RF_IRQ_STX_TIMEOUT =    BIT(12),
 	FLD_RF_IRQ_ALL =            0X1FFF,
 };
+/*******************************      aura registers: 0x1200      ******************************/
+#define REG_AURA_BASE            0x1200
+#define reg_rf_tx_flex_mi_0      REG_ADDR8(REG_AURA_BASE+0x1c)
+enum
+{
+	FLD_RF_TX_MI_FRACTION     = BIT_RNG(0,5),
+	FLD_RF_TX_MI_INTEGER_1    = BIT_RNG(6,7),
+};
+#define reg_rf_tx_flex_mi_1     REG_ADDR8(REG_AURA_BASE+0x1d)
+enum
+{
+	FLD_RF_TX_MI_INTEGER_2   = BIT(0),
+};
 
+#define reg_rf_rx_flex_mi_0      REG_ADDR8(REG_AURA_BASE+0x1e)
+enum
+{
+	FLD_RF_RX_MI_FRACTION     = BIT_RNG(0,5),
+	FLD_RF_RX_MI_INTEGER_1    = BIT_RNG(6,7),
+};
+#define reg_rf_rx_flex_mi_1     REG_ADDR8(REG_AURA_BASE+0x1f)
+enum
+{
+	FLD_RF_RX_MI_INTEGER_2   = BIT(0),
+};
+
+#define		reg_rf_mode_cfg_tx1_0		REG_ADDR8(REG_AURA_BASE+0x22)
+enum
+{
+	FLD_RF_BLE_MODE_TX			      =	BIT(0),
+	FLD_RF_VCO_TRIM_KVM			      = BIT_RNG(1,3),
+	FLD_RF_HPMC_EXP_DIFF_COUNT_L	  = BIT_RNG(4,7),
+};
 /*******************************      pke registers: 0x2000      ******************************/
 #define reg_pke_ctrl             REG_ADDR32(0x2000)
 enum{

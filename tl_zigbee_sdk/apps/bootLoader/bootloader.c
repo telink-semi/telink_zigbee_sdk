@@ -76,7 +76,7 @@
 
 static bool is_valid_fw_bootloader(u32 addr_fw){
 	u8 startup_flag = 0;
-    flash_read_page(addr_fw + FLASH_TLNK_FLAG_OFFSET, 1, &startup_flag);
+    flash_read(addr_fw + FLASH_TLNK_FLAG_OFFSET, 1, &startup_flag);
 
     return ((startup_flag == FW_START_UP_FLAG) ? TRUE : FALSE);
 }
@@ -86,26 +86,26 @@ void bootloader_with_ota_check(u32 addr_load, u32 new_image_addr){
 		if(is_valid_fw_bootloader(new_image_addr)){
 			u8 buf[256];
 
-			flash_read_page(new_image_addr, 256, buf);
+			flash_read(new_image_addr, 256, buf);
 			u32 fw_size = *(u32 *)(buf + 0x18);
 
 			if(fw_size <= FLASH_OTA_IMAGE_MAX_SIZE){
 				for(int i = 0; i < fw_size; i += 256){
 					if((i & 0xfff) == 0){
-						flash_erase_sector(addr_load + i);
+						flash_erase(addr_load + i);
 					}
 
-					flash_read_page(new_image_addr + i, 256, buf);
-					flash_write_page(addr_load + i, 256, buf);
+					flash_read(new_image_addr + i, 256, buf);
+					flash_write(addr_load + i, 256, buf);
 				}
 			}
 
 			buf[0] = 0;
-			flash_write_page(new_image_addr + FLASH_TLNK_FLAG_OFFSET, 1, buf);   //clear OTA flag
+			flash_write(new_image_addr + FLASH_TLNK_FLAG_OFFSET, 1, buf);   //clear OTA flag
 
 			//erase the new firmware
 			for(int i = 0; i < ((fw_size + 4095)/4096); i++) {
-				flash_erase_sector(new_image_addr + i*4096);
+				flash_erase(new_image_addr + i*4096);
 			}
 		}
 	}
@@ -113,13 +113,13 @@ void bootloader_with_ota_check(u32 addr_load, u32 new_image_addr){
     if(is_valid_fw_bootloader(addr_load)){
 #if !defined(MCU_CORE_B91)
     	u32 ramcode_size = 0;
-        flash_read_page(addr_load + 0x0c, 2, (u8 *)&ramcode_size);
+        flash_read(addr_load + 0x0c, 2, (u8 *)&ramcode_size);
         ramcode_size *= 16;
 
         if(ramcode_size > FW_RAMCODE_SIZE_MAX){
             ramcode_size = FW_RAMCODE_SIZE_MAX; // error, should not run here
         }
-        flash_read_page(addr_load, ramcode_size, (u8 *)MCU_RAM_START_ADDR); // copy ram code
+        flash_read(addr_load, ramcode_size, (u8 *)MCU_RAM_START_ADDR); // copy ram code
 #endif
         REBOOT();
     }
