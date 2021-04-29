@@ -1,3 +1,35 @@
+## V3.6.5.0
+
+### Dependency Updates
+* telink_b85m_driver_sdk V1.1.0
+### Features
+* Support zbit flash, and calibrate the power supply voltage of zbit according to the calibration value.
+### Bug Fixes
+* Change the voltage detect pin from PB3 to PC5, because the PB3 is a button on the 8258 EVK board.
+* Fix the issue that the rejoin succeeds but the channel is not saved when the channel is changed.
+* Fix RX DMA setting issue of RF on b91.
+* Fix the DMA length setting issue of random.c on b85.
+### Code Refactoring
+* Change the routerAgeLimit default vaule to 3.
+* Clean the nv.c/.h code, remove the FLASH_BASE_ADDR.
+* Clean the zcl and touchLink code to reduce the size of the firmware.
+### BREAKING CHANGES
+* None.
+
+### Features
+* 支持zbit flash，并根据校准值校准zbit的电源电压。
+### Bug Fixes
+* 将电压检测引脚从PB3更改为PC5，因为PB3是8258 EVK板上的按键。
+* 修复在channel改变的情况下，rejoin成功但channel未保存的问题。
+* 修复b91中RF的RX DMA设置问题。
+* 修复b85中random.c的DMA长度设置问题。
+### Code Refactoring
+* 将routerAgeLimit的默认值更改为3。
+* 清理nv.c/.h代码, 移除FLASH_BASE_ADDR。
+* 清理zcl和touchLink代码，减小固件的大小。
+### BREAKING CHANGES
+* 无。
+
 ## V3.6.4
 
 ### Dependency Updates
