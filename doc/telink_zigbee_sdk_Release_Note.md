@@ -1,3 +1,34 @@
+## V3.6.6.0
+
+### Features
+* Add NWK key updating mechanism.
+* Add WWAH feature for router device.
+* Provide AUTO_QUICK_DATA_POLL_ENABLE to enable/disable automatic fast data polling.
+### Bug Fixes
+* The router device that has been connected to the network will no longer broadcast Device_annce command after being powered on.
+* Fix the OTA server ID request failure issue.
+### Code Refactoring
+* Clean up the SS and ZDP layer code.
+### Performance
+* Improve routing performance and compatibility.
+### BREAKING CHANGES
+* None.
+
+### Features
+* 添加网络密钥更新机制。
+* Router设备添加WWAH功能。
+* 提供AUTO_QUICK_DATA_POLL_ENABLE以使能或关闭自动快速数据轮询。
+### Bug Fixes
+* 已经入网的路由设备上电后不再广播Device_annce命令。
+* 修复OTA服务ID请求失败的问题。
+### Code Refactoring
+* 清理SS层和ZDP层代码。
+### Performance
+* 提升路由性能和兼容性。
+### BREAKING CHANGES
+* 无。
+
+
 ## V3.6.5.0
 
 ### Dependency Updates
