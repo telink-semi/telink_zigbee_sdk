@@ -250,9 +250,9 @@
 ./tl_zigbee_sdk/zigbee/zcl/smart_energy/zcl_metering_attr.c		TELINK_BSD
 ./tl_zigbee_sdk/zigbee/zcl/smart_energy/zcl_metering.c		TELINK_BSD
 ./tl_zigbee_sdk/zigbee/zcl/zcl_include.h		TELINK_BSD
-./tl_zigbee_sdk/zigbee/zcl/wwah/zcl_wwah_attr.c		TELINK_BSD
-./tl_zigbee_sdk/zigbee/zcl/wwah/zcl_wwah.c		TELINK_BSD
-./tl_zigbee_sdk/zigbee/zcl/wwah/zcl_wwah.h		TELINK_BSD
+./tl_zigbee_sdk/zigbee/zcl/zcl_wwah/zcl_wwah_attr.c		TELINK_BSD
+./tl_zigbee_sdk/zigbee/zcl/zcl_wwah/zcl_wwah.c		TELINK_BSD
+./tl_zigbee_sdk/zigbee/zcl/zcl_wwah/zcl_wwah.h		TELINK_BSD
 ./tl_zigbee_sdk/zigbee/zcl/hvac/zcl_thermostat.h		TELINK_BSD
 ./tl_zigbee_sdk/zigbee/zcl/hvac/zcl_thermostat.c		TELINK_BSD
 ./tl_zigbee_sdk/zigbee/zcl/zcl_config.h		TELINK_BSD
