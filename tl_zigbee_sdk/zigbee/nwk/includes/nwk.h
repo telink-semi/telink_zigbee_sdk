@@ -1141,8 +1141,9 @@ typedef struct
 	u8	routeReqId;
 	u8	forwardCost;
 	u8	residCost;
-	u8	retries:7;
-	u8	used:1;
+	u8	lastCost;
+	u8	retries;
+	u8	used;
 }nwk_routeDiscEntry_t;
 
 /***************************************************************************
@@ -1182,11 +1183,13 @@ extern nwk_brcTransRecordEntry_t g_brcTransTab[];
 extern u16 NWK_ROUTE_RECORD_TABLE_SIZE;
 extern nwk_routeRecordTabEntry_t g_routeRecTab[];
 #endif
+extern bool AUTO_QUICK_DATA_POLL_ENABLE;
 
 extern u8 NWK_COST_THRESHOLD_ONEHOP;
 extern u8 NWK_NEIGHBOR_SEND_OUTGOING_THRESHOLD;
 extern u16 TL_ZB_ASSOCJOIN_FILTER_PANID;
 extern u16 TL_ZB_ASSOCJOIN_PERMIT_PANID;
+extern u32 LONG_UPTIME_THRESHOLD;
 
 
 u16 tl_zbNwkStochasticAddrCal(void);

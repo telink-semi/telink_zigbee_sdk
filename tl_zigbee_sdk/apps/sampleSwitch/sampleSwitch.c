@@ -99,6 +99,7 @@ const zdo_appIndCb_t appCbLst = {
 	NULL,//permit join ind cb
 	NULL,//nlme sync cnf cb
 	NULL,//tc join ind cb
+	NULL,//tc detects that the frame counter is near limit
 };
 
 

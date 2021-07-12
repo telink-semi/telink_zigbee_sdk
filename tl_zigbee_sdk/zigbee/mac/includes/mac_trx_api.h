@@ -114,7 +114,7 @@
 #define	MAC_CAP_GET_DEVICE_TYPE(c)		((c >> 1) & 1)
 #define	MAC_CAP_GET_RXON_WHEN_IDLE(c)	((c >> 3) & 1)
 
-#define	TX_QUEUE_BN						8
+#define	TX_QUEUE_BN						16
 
 
 typedef enum{

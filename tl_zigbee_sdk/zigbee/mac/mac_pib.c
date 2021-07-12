@@ -167,8 +167,7 @@ _CODE_MAC_ void generateIEEEAddr(void){
 		unsigned int t0 = clock_time();
 		u32 jitter = 0;
 		do{
-			jitter = drv_u32Rand();
-			jitter &= 0xfff;
+			jitter = drv_u32Rand() % 0x0fff;
 		}while(jitter == 0);
 		while(!clock_time_exceed(t0, jitter));
 

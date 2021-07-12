@@ -61,7 +61,9 @@
 #if ZBHCI_EN
 #include "zbhci.h"
 #endif
-
+#if ZCL_WWAH_SUPPORT
+#include "wwah.h"
+#endif
 
 /**********************************************************************
  * LOCAL CONSTANTS
@@ -102,6 +104,7 @@ const zdo_appIndCb_t appCbLst = {
 	NULL,//permit join ind cb
 	NULL,//nlme sync cnf cb
 	NULL,//tc join ind cb
+	NULL,//tc detects that the frame counter is near limit
 };
 
 
@@ -195,6 +198,11 @@ void user_app_init(void)
 #ifdef ZCL_OTA
 	/* Initialize OTA */
     ota_init(OTA_TYPE_CLIENT, (af_simple_descriptor_t *)&sampleLight_simpleDesc, &sampleLight_otaInfo, &sampleLight_otaCb);
+#endif
+
+#ifdef ZCL_WWAH
+    /* Initialize WWAH server */
+    wwah_init(WWAH_TYPE_SERVER, (af_simple_descriptor_t *)&sampleLight_simpleDesc);
 #endif
 }
 

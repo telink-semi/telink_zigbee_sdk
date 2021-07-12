@@ -59,14 +59,17 @@
 #define OTA_UPGRADE_IMAGE_TAG_ID					0x0000	//Upgrade Image
 #define OTA_UPGRADE_IMAGE_AES_TAG_ID				0xF000	//Upgrade Image with AES, Manufacturer Specific Use
 
-#define OTA_PERIODIC_QUERY_INTERVAL					60//s
+#define OTA_QUERY_START_JITTER						(5 * 1000)//ms
+#define OTA_PERIODIC_QUERY_INTERVAL					(5 * 60)//s
 #define OTA_MAX_IMAGE_BLOCK_RSP_WAIT_TIME			5//s
+#define OTA_IEEE_ADDR_RSP_WAIT_TIME					2//s
 
 #define OTA_IMAGE_BLOCK_FC							BLOCK_FC_BITMASK_MIN_PERIOD_PRESENT//BLOCK_FC_BITMASK_GENERIC
 
 
 #define OTA_MAX_IMAGE_BLOCK_RETRIES					10
 #define OTA_MAX_UPGRADE_END_REQ_RETRIES				2
+#define OTA_IEEE_ADDR_REQ_RETRIES					3
 
 typedef enum{
 	OTA_TYPE_CLIENT,
@@ -220,6 +223,8 @@ extern u8 OTA_CB_CLUSTER_NUM;
 status_t zcl_otaCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
 
 unsigned int xcrc32(const unsigned char *buf, int len, unsigned int init);
+
+void ota_wwah_useTrustCenter(u8 endpoint);
 
 void ota_init(ota_type_e type, af_simple_descriptor_t *simpleDesc, ota_preamble_t *otaPreamble, ota_callBack_t *cb);
 void ota_queryStart(u16 seconds);

@@ -291,13 +291,52 @@ bool sampleGw_macAssocReqIndHandler(void *arg){
 }
 #endif
 
-
+/*********************************************************************
+ *
+ * @brief   Receive notification of PAN ID conflict.
+ *
+ * @param   pNwkUpdateCmd - Conflicting PAN ID information
+ *
+ * @return  TRUE  - Allow PAN ID conflict handling
+ * 			FALSE - Truncate the execution of PAN ID conflict handling
+ */
 bool sampleGW_nwkUpdateIndicateHandler(nwkCmd_nwkUpdate_t *pNwkUpdateCmd){
-	return FAILURE;
+	return FALSE;
 }
 
+/*********************************************************************
+ *
+ * @brief   Notification of trust center join.
+ *
+ * @param   pTcJoinInd - address information
+ *
+ * @return  TRUE  - Allow delivery of transport key
+ * 			FALSE - Truncate delivery transport key
+ */
 bool sampleGW_tcJoinIndHandler(zdo_tc_join_ind_t *pTcJoinInd){
 	return TRUE;
+}
+
+/*********************************************************************
+ *
+ * @brief   Notification of frame counter near limit.
+ * 			The function will be called when the truster center detects
+ * 			the frame counter for any device in its neighbor table is
+ * 			grater than 0x80000000, or its outgoing frame counter
+ * 			reaches 0x40000000.
+ *
+ * @param   None
+ *
+ * @return  None
+ */
+void sampleGW_tcFrameCntReachedHandler(void){
+	ss_tcUpdateNwkKey_t updateNwkKey;
+
+	/* Broadcast NWK key updates. */
+	ZB_IEEE_ADDR_ZERO(updateNwkKey.dstAddr);
+	drv_generateRandomData(updateNwkKey.key, CCM_KEY_SIZE);
+
+	zb_tcUpdateNwkKey(&updateNwkKey);
 }
 
 #endif  /* __PROJECT_TL_GW__ */

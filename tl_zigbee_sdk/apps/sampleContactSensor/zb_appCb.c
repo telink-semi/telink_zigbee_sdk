@@ -127,7 +127,7 @@ void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
 			zb_setPollRate(POLL_RATE);
 
 #ifdef ZCL_OTA
-			ota_queryStart(30);
+			ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
 #endif
 
 #ifdef ZCL_POLL_CTRL
@@ -136,8 +136,7 @@ void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
 		}else{
 			u16 jitter = 0;
 			do{
-				jitter = zb_random();
-				jitter &= 0xfff;
+				jitter = zb_random() % 0x0fff;
 			}while(jitter == 0);
 			TL_ZB_TIMER_SCHEDULE(sampleSensor_bdbNetworkSteerStart, NULL, jitter);
 		}
@@ -168,7 +167,7 @@ void zbdemo_bdbCommissioningCb(u8 status, void *arg){
 		light_blink_start(2, 200, 200);
 
 #ifdef ZCL_OTA
-        ota_queryStart(30);
+        ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
 #endif
 	}else if(status == BDB_COMMISSION_STA_IN_PROGRESS){
 
@@ -177,8 +176,7 @@ void zbdemo_bdbCommissioningCb(u8 status, void *arg){
 	}else if(status == BDB_COMMISSION_STA_NO_NETWORK){
 		u16 jitter = 0;
 		do{
-			jitter = zb_random();
-			jitter &= 0xfff;
+			jitter = zb_random() % 0x0fff;
 		}while(jitter == 0);
 		TL_ZB_TIMER_SCHEDULE(sampleSensor_bdbNetworkSteerStart, NULL, jitter);
 	}else if(status == BDB_COMMISSION_STA_TARGET_FAILURE){
@@ -232,7 +230,7 @@ void sampleSensor_otaProcessMsgHandler(u8 evt, u8 status)
 		if(status == ZCL_STA_SUCCESS){
 			ota_mcuReboot();
 		}else{
-			ota_queryStart(30);
+			ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
 		}
 	}
 }

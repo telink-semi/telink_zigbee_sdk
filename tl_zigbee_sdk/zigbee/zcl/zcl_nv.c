@@ -165,6 +165,138 @@ nv_sts_t zcl_sceneTable_restore(void)
 	return st;
 }
 
+#ifdef ZCL_WWAH
+/*********************************************************************
+ * @fn      zcl_apsLinkKeyAuthInfo_save
+ *
+ * @brief
+ *
+ * @param   None
+ *
+ * @return
+ */
+nv_sts_t zcl_apsLinkKeyAuthInfo_save(void)
+{
+	nv_sts_t st = NV_SUCC;
 
+#if NV_ENABLE
+	st = nv_flashWriteNew(1, NV_MODULE_ZCL, NV_ITEM_ZCL_WWAH_APS_AUTH_INFO, sizeof(wwah_apsLinkKeyAuthInfo_t), (u8*)&g_zcl_apsLinkKeyAuthInfo);
+#else
+	st = NV_ENABLE_PROTECT_ERROR;
+#endif
+
+	return st;
+}
+
+/*********************************************************************
+ * @fn      zcl_apsLinkKeyAuthInfo_restore
+ *
+ * @brief
+ *
+ * @param   None
+ *
+ * @return
+ */
+nv_sts_t zcl_apsLinkKeyAuthInfo_restore(void)
+{
+	nv_sts_t st = NV_SUCC;
+
+#if NV_ENABLE
+	st = nv_flashReadNew(1, NV_MODULE_ZCL, NV_ITEM_ZCL_WWAH_APS_AUTH_INFO, sizeof(wwah_apsLinkKeyAuthInfo_t), (u8*)&g_zcl_apsLinkKeyAuthInfo);
+#else
+	st = NV_ENABLE_PROTECT_ERROR;
+#endif
+
+	return st;
+}
+
+/*********************************************************************
+ * @fn      zcl_apsAcksRequireInfo_save
+ *
+ * @brief
+ *
+ * @param   None
+ *
+ * @return
+ */
+nv_sts_t zcl_apsAcksRequireInfo_save(void)
+{
+	nv_sts_t st = NV_SUCC;
+
+#if NV_ENABLE
+	st = nv_flashWriteNew(1, NV_MODULE_ZCL, NV_ITEM_ZCL_WWAH_APS_ACKS_INFO, sizeof(wwah_apsAcksRequireInfo_t), (u8*)&g_zcl_apsAcksRequireInfo);
+#else
+	st = NV_ENABLE_PROTECT_ERROR;
+#endif
+
+	return st;
+}
+
+/*********************************************************************
+ * @fn      zcl_apsAcksRequireInfo_restore
+ *
+ * @brief
+ *
+ * @param   None
+ *
+ * @return
+ */
+nv_sts_t zcl_apsAcksRequireInfo_restore(void)
+{
+	nv_sts_t st = NV_SUCC;
+
+#if NV_ENABLE
+	st = nv_flashReadNew(1, NV_MODULE_ZCL, NV_ITEM_ZCL_WWAH_APS_ACKS_INFO, sizeof(wwah_apsAcksRequireInfo_t), (u8*)&g_zcl_apsAcksRequireInfo);
+#else
+	st = NV_ENABLE_PROTECT_ERROR;
+#endif
+
+	return st;
+}
+
+/*********************************************************************
+ * @fn      zcl_useTCForClusterInfo_save
+ *
+ * @brief
+ *
+ * @param   None
+ *
+ * @return
+ */
+nv_sts_t zcl_useTCForClusterInfo_save(void)
+{
+	nv_sts_t st = NV_SUCC;
+
+#if NV_ENABLE
+	st = nv_flashWriteNew(1, NV_MODULE_ZCL, NV_ITEM_ZCL_WWAH_USE_TC_CLUSTER_INFO, sizeof(wwah_useTCForClusterInfo_t), (u8*)&g_zcl_useTCForClusterInfo);
+#else
+	st = NV_ENABLE_PROTECT_ERROR;
+#endif
+
+	return st;
+}
+
+/*********************************************************************
+ * @fn      zcl_useTCForClusterInfo_restore
+ *
+ * @brief
+ *
+ * @param   None
+ *
+ * @return
+ */
+nv_sts_t zcl_useTCForClusterInfo_restore(void)
+{
+	nv_sts_t st = NV_SUCC;
+
+#if NV_ENABLE
+	st = nv_flashReadNew(1, NV_MODULE_ZCL, NV_ITEM_ZCL_WWAH_USE_TC_CLUSTER_INFO, sizeof(wwah_useTCForClusterInfo_t), (u8*)&g_zcl_useTCForClusterInfo);
+#else
+	st = NV_ENABLE_PROTECT_ERROR;
+#endif
+
+	return st;
+}
+#endif /* ZCL_WWAH */
 
 

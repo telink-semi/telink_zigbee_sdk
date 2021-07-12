@@ -620,7 +620,8 @@ static void zbhci_bindCmdHandler(void *arg){
 
 
 s32 node_toggle_unicast_test(void *arg){
-	//u32 onOff = (u32)arg;
+	u32 mode = (u32)arg;
+
 	static s32 startIdx = 0;
 	static u32 onOff = 0;
 	itemIfno_t itemInfo;
@@ -639,6 +640,19 @@ s32 node_toggle_unicast_test(void *arg){
 	}
 	startIdx = i+1;
 
+	if(i >= itemInfo.opIndex){
+		startIdx = 0;
+		zbhciTx(ZBHCI_CMD_NODES_TOGLE_TEST_RSP, 0, NULL);
+		onOff ^= 1;
+
+		if(mode >= 2){
+			g_nodeTestTimer = NULL;
+			return -1;
+		}else{
+			return 0;
+		}
+	}
+
 	u8 srcEp = 1;
 	epInfo_t dstEpInfo;
 	memset(&dstEpInfo, 0, sizeof(epInfo_t));
@@ -646,19 +660,12 @@ s32 node_toggle_unicast_test(void *arg){
 	ZB_IEEE_ADDR_COPY(dstEpInfo.dstAddr.extAddr,extAddr);
 	dstEpInfo.dstEp = 1;
 	dstEpInfo.profileId = HA_PROFILE_ID;
-	//dstEpInfo.txOptions |= APS_TX_OPT_ACK_TX;
+	dstEpInfo.txOptions |= APS_TX_OPT_ACK_TX;
 
 	if(onOff){
 		zcl_onOff_onCmd(srcEp, &dstEpInfo, 0);
 	}else{
 		zcl_onOff_offCmd(srcEp, &dstEpInfo, 0);
-	}
-
-	if(i >= itemInfo.opIndex){
-		startIdx = 0;
-		zbhciTx(ZBHCI_CMD_NODES_TOGLE_TEST_RSP, 0, NULL);
-		onOff ^= 1;
-		return 0;
 	}
 
 	return 0;
@@ -788,9 +795,9 @@ s32 zbhci_nodeManageCmdHandler(void *arg){
 		}
 		if(interval != 0){
 			if(mode){
-				g_nodeTestTimer = TL_ZB_TIMER_SCHEDULE(node_toggle_unicast_test, NULL, interval * 10);
+				g_nodeTestTimer = TL_ZB_TIMER_SCHEDULE(node_toggle_unicast_test, (void *)mode, (u32)interval * 10);
 			}else{
-				g_nodeTestTimer = TL_ZB_TIMER_SCHEDULE(node_toggle_broadcast_test, NULL, interval * 10);
+				g_nodeTestTimer = TL_ZB_TIMER_SCHEDULE(node_toggle_broadcast_test, NULL, (u32)interval * 10);
 			}
 		}
 #endif

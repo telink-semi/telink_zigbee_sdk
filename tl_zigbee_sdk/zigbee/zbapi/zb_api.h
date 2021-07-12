@@ -623,7 +623,7 @@ zdo_status_t zb_mgmtBindReq(u16 dstNwkAddr, zdo_mgmt_bind_req_t *pReq, u8 *seqNo
  * @return		Status
  *
  **************************************************************************/
-aps_status_t zb_apsmeRemoveDevReq(ss_apsDevRemoveReq_t *pRemoveDevReq);
+u8 zb_apsmeRemoveDevReq(ss_apsmeRemoveDeviceReq_t *pRemoveDevReq);
 
 /***********************************************************************//**
  * @brief		APSME request key command.
@@ -633,7 +633,17 @@ aps_status_t zb_apsmeRemoveDevReq(ss_apsDevRemoveReq_t *pRemoveDevReq);
  * @return		Status
  *
  **************************************************************************/
-aps_status_t zb_apsmeRequestKeyReq(ss_apsRequestKeyReq_t *pRequestKeyReq);
+u8 zb_apsmeRequestKeyReq(ss_apsmeRequestKeyReq_t *pRequestKeyReq);
+
+/***********************************************************************//**
+ * @brief		APSME transport key command.
+ *
+ * @param[in]	pTransportKeyReq
+ *
+ * @return		Status
+ *
+ **************************************************************************/
+u8 zb_apsmeTransportKeyReq(ss_apsmeTransportKeyReq_t *pTransportKeyReq);
 
 /***********************************************************************//**
  * @brief		APSME switch key command.
@@ -643,7 +653,18 @@ aps_status_t zb_apsmeRequestKeyReq(ss_apsRequestKeyReq_t *pRequestKeyReq);
  * @return		Status
  *
  **************************************************************************/
-aps_status_t zb_apsmeSwitchKeyReq(ss_apsKeySwitchReq_t *pSwitchKeyReq);
+u8 zb_apsmeSwitchKeyReq(ss_apsmeSwitchKeyReq_t *pSwitchKeyReq);
+
+/***********************************************************************//**
+ * @brief		API for Trust center to update NWK key.
+ *
+ * @param[in]	pTcUpdateNwkKey
+ * 				dstAddr all zero means boradcast.
+ *
+ * @return		Status
+ *
+ **************************************************************************/
+u8 zb_tcUpdateNwkKey(ss_tcUpdateNwkKey_t *pTcUpdateNwkKey);
 
 /***********************************************************************//**
  * @brief       Perform a route request.

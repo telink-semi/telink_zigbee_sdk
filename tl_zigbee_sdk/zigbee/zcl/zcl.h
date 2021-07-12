@@ -61,6 +61,8 @@
  *  @{
  */
 #define MANUFACTURER_CODE_NONE							0x0000
+#define MANUFACTURER_CODE_AMAZON						0x1217
+
 
 //Global Cluster Revision (0x0001 - 0xFFFE)
 #define ZCL_ATTR_GLOBAL_CLUSTER_REVISION_DEFAULT	    0x0001

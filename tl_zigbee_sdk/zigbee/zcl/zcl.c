@@ -828,31 +828,37 @@ _CODE_ZCL_ void zcl_cmdHandler(void *pCmd)
 		return;
 	}
 
+#ifdef ZCL_WWAH
+	status = zcl_wwah_acceptCheck(&inMsg);
+#endif
+
 	u16 devEnableAttrLen = 0;
 	bool devEnable = TRUE;
 
-	/* Command dispatch */
-	if(inMsg.hdr.frmCtrl.bf.type == ZCL_FRAME_TYPE_PROFILE_CMD){
-		status = zcl_foundationCmdHandler(&inMsg);
-		if((status != ZCL_STA_UNSUP_GENERAL_COMMAND) && (status != ZCL_STA_UNSUP_MANU_GENERAL_COMMAND) &&
-		   (status != ZCL_STA_SUCCESS) && (status != ZCL_STA_CMD_HAS_RESP)){
-			status = ZCL_STA_FAILURE;
-		}
-		toAppFlg = 1;
-	}else{/* Cluster command */
-		clusterInfo_t *pCluster = zcl_findCluster(pApsdeInd->indInfo.dst_ep, pApsdeInd->indInfo.cluster_id);
+	if(status == ZCL_STA_SUCCESS){
+		/* Command dispatch */
+		if(inMsg.hdr.frmCtrl.bf.type == ZCL_FRAME_TYPE_PROFILE_CMD){
+			status = zcl_foundationCmdHandler(&inMsg);
+			if((status != ZCL_STA_UNSUP_GENERAL_COMMAND) && (status != ZCL_STA_UNSUP_MANU_GENERAL_COMMAND) &&
+			   (status != ZCL_STA_SUCCESS) && (status != ZCL_STA_CMD_HAS_RESP)){
+				status = ZCL_STA_FAILURE;
+			}
+			toAppFlg = 1;
+		}else{/* Cluster command */
+			clusterInfo_t *pCluster = zcl_findCluster(pApsdeInd->indInfo.dst_ep, pApsdeInd->indInfo.cluster_id);
 
-		if(!pCluster || (pCluster && (pCluster->manuCode != inMsg.hdr.manufCode))){
-			status = (inMsg.hdr.manufCode == MANUFACTURER_CODE_NONE) ? ZCL_STA_UNSUP_CLUSTER_COMMAND : ZCL_STA_UNSUP_MANU_CLUSTER_COMMAND;
-		}else{
-			/* Check if basic device enable support */
-			zcl_getAttrVal(pApsdeInd->indInfo.dst_ep, ZCL_CLUSTER_GEN_BASIC, ZCL_ATTRID_BASIC_DEV_ENABLED, &devEnableAttrLen, &devEnable);
+			if(!pCluster || (pCluster && (pCluster->manuCode != inMsg.hdr.manufCode))){
+				status = (inMsg.hdr.manufCode == MANUFACTURER_CODE_NONE) ? ZCL_STA_UNSUP_CLUSTER_COMMAND : ZCL_STA_UNSUP_MANU_CLUSTER_COMMAND;
+			}else{
+				/* Check if basic device enable support */
+				zcl_getAttrVal(pApsdeInd->indInfo.dst_ep, ZCL_CLUSTER_GEN_BASIC, ZCL_ATTRID_BASIC_DEV_ENABLED, &devEnableAttrLen, &devEnable);
 
-			if(devEnable || (pCluster->clusterID == ZCL_CLUSTER_GEN_IDENTIFY)){
-				inMsg.clusterAppCb = pCluster->clusterAppCb;
-				status = pCluster->cmdHandlerFunc(&inMsg);
+				if(devEnable || (pCluster->clusterID == ZCL_CLUSTER_GEN_IDENTIFY)){
+					inMsg.clusterAppCb = pCluster->clusterAppCb;
+					status = pCluster->cmdHandlerFunc(&inMsg);
 
-				devEnable = TRUE;
+					devEnable = TRUE;
+				}
 			}
 		}
 	}

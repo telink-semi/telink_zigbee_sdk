@@ -175,7 +175,7 @@ extern "C" {
 #define ZCL_SCENE_SUPPORT							1
 #define ZCL_OTA_SUPPORT								1
 
-#define AF_TEST_ENABLE								1
+#define AF_TEST_ENABLE								0
 
 
 /**********************************************************************

@@ -11718,6 +11718,7 @@
 									<listOptionValue builtIn="false" value="../../../zigbee/gp"/>
 									<listOptionValue builtIn="false" value="../../../zigbee/zcl"/>
 									<listOptionValue builtIn="false" value="../../../zigbee/ota"/>
+									<listOptionValue builtIn="false" value="../../../zigbee/wwah"/>
 									<listOptionValue builtIn="false" value="../../../zbhci"/>
 								</option>
 								<inputType id="com.telink.tc32eclipse.compiler.TC32Win.input.1755905662" name="C Source Files" superClass="com.telink.tc32eclipse.compiler.TC32Win.input"/>

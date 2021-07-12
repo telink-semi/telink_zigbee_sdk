@@ -52,7 +52,7 @@
  */
 #define RF_PKT_BUFF_LEN				(144)//(128+32) //(128+16)
 
-#define CCA_THRESHOLD       		(-60)
+#define CCA_THRESHOLD       		(-70)
 #define RSSI_PASS_THRESHOLD			(-30)
 
 /*********************************************************************

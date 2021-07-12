@@ -153,11 +153,13 @@ extern "C" {
 #define ZCL_GROUP_SUPPORT							1
 #define ZCL_SCENE_SUPPORT							1
 #define ZCL_OTA_SUPPORT								1
+#define ZCL_WWAH_SUPPORT							0
 #if TOUCHLINK_SUPPORT
 #define ZCL_ZLL_COMMISSIONING_SUPPORT				1
 #endif
 
-#define AF_TEST_ENABLE								1
+#define AF_TEST_ENABLE								0
+
 
 
 /**********************************************************************

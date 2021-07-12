@@ -431,6 +431,8 @@ typedef struct{
 	u8 		msduHandle;
 	u8 		status;
 	u16		macDstAddr;
+	s8		rssi;
+	u8		lqi;
 }zb_mscp_data_conf_t;
 
 /** @defgroup mac_mcsp_data_primitive MAC-MCSP:indication primitive Types
@@ -784,7 +786,8 @@ typedef struct zb_mac_beacon_payload_s{
 	u8 stack_profile:4;
 	u8 protocol_version:4;
 
-	u8 reserved:2;
+	u8 long_uptime:1;		//wwah, has been up for more than 24 hours
+	u8 tc_connectivity:1;	//wwah, active communication path to TC
 	u8 router_capacity:1;
 	u8 device_depth:4;
 	u8 end_device_capacity:1;

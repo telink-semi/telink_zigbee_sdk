@@ -62,93 +62,118 @@
  * */
 typedef enum{
 	//Request
-	NWK_ADDR_CLID                		= 0x0000,
-	IEEE_ADDR_CLID               		= 0x0001,
-	NODE_DESCRIPTOR_CLID         		= 0x0002,
-	POWER_DESCRIPTOR_CLID        		= 0x0003,
-	SIMPLE_DESCRIPTOR_CLID       		= 0x0004,
-	ACTIVE_ENDPOINTS_CLID        		= 0x0005,
-	MATCH_DESCRIPTOR_CLID        		= 0x0006,
-	COMPLEX_DESCRIPTOR_CLID      		= 0x0010,
-	USER_DESCRIPTOR_CLID         		= 0x0011,
-	DISCOVERY_CACHE_CLID          		= 0x0012,
-	DEVICE_ANNCE_CLID            		= 0x0013,
-	USER_DESC_CONF_CLID          		= 0x0014,
-	SYSTEM_SERVER_DISCOVERY_CLID 		= 0x0015,
-	DISCOVERY_STORE_CLID         		= 0x0016,
-	NODE_DESC_STORE_CLID         		= 0x0017,
-	POWER_DESC_STORE_CLID        		= 0x0018,
-	ACTIVE_EP_STORE_CLID         		= 0x0019,
-	SIMPLE_DESC_STORE_CLID       		= 0x001A,
-	REMOVE_NODE_CACHE_CLID       		= 0x001B,
-	FIND_NODE_CACHE_CLID         		= 0x001C,
-	EXTENDED_SIMPLE_DESC_CLID    		= 0x001D,
-	EXTENDED_ACTIVE_EP_CLID      		= 0x001E,
-	PARENT_ANNCE_CLID			 		= 0x001F,
-	END_DEVICE_BIND_CLID         		= 0x0020,
-	BIND_CLID                    		= 0x0021,
-	UNBIND_CLID                  		= 0x0022,
-	BIND_REGISTER_CLID           		= 0x0023,
-	REPLACE_DEVICE_CLID          		= 0x0024,
-	STORE_BCKUP_BIND_ENTRY_CLID  		= 0x0025,
-	REMOVE_BCKUP_BIND_ENTRY_CLID 		= 0x0026,
-	BACKUP_BIND_TABLE_CLID       		= 0x0027,
-	RECOVER_BIND_TABLE_CLID      		= 0x0028,
-	BACKUP_SOURCE_BIND_CLID      		= 0x0029,
-	RECOVER_SOURCE_BIND_CLID     		= 0x002A,
-	MGMT_NWK_DISC_CLID           		= 0x0030,
-	MGMT_LQI_CLID                		= 0x0031,
-	MGMT_RTG_CLID                		= 0x0032,
-	MGMT_BIND_CLID               		= 0x0033,
-	MGMT_LEAVE_CLID              		= 0x0034,
-	MGMT_DIRECT_JOIN_CLID        		= 0x0035,
-	MGMT_PERMIT_JOINING_CLID     		= 0x0036,
-	MGMT_CACHE_CLID              		= 0x0037,
-	MGMT_NWK_UPDATE_CLID	     		= 0x0038,
+	NWK_ADDR_REQ_CLID                				= 0x0000,
+	IEEE_ADDR_REQ_CLID               				= 0x0001,
+	NODE_DESC_REQ_CLID         						= 0x0002,
+	POWER_DESC_REQ_CLID        						= 0x0003,
+	SIMPLE_DESC_REQ_CLID       						= 0x0004,
+	ACTIVE_EP_REQ_CLID		        				= 0x0005,
+	MATCH_DESC_REQ_CLID        						= 0x0006,
+	COMPLEX_DESC_REQ_CLID      						= 0x0010,//DEPRECATED
+	USER_DESC_REQ_CLID         						= 0x0011,//DEPRECATED
+	DISCOVERY_CACHE_REQ_CLID          				= 0x0012,//DEPRECATED
+	DEVICE_ANNCE_CLID            					= 0x0013,
+	USER_DESC_SET_CLID          					= 0x0014,//DEPRECATED
+	SYSTEM_SERVER_DISCOVERY_REQ_CLID 				= 0x0015,
+	DISCOVERY_STORE_REQ_CLID         				= 0x0016,//DEPRECATED
+	NODE_DESC_STORE_REQ_CLID         				= 0x0017,//DEPRECATED
+	POWER_DESC_STORE_REQ_CLID        				= 0x0018,//DEPRECATED
+	ACTIVE_EP_STORE_REQ_CLID         				= 0x0019,//DEPRECATED
+	SIMPLE_DESC_STORE_REQ_CLID       				= 0x001A,//DEPRECATED
+	REMOVE_NODE_CACHE_REQ_CLID       				= 0x001B,//DEPRECATED
+	FIND_NODE_CACHE_REQ_CLID         				= 0x001C,//DEPRECATED
+	EXTENDED_SIMPLE_DESC_REQ_CLID    				= 0x001D,//DEPRECATED
+	EXTENDED_ACTIVE_EP_REQ_CLID      				= 0x001E,//DEPRECATED
+	PARENT_ANNCE_CLID			 					= 0x001F,
+	END_DEVICE_BIND_REQ_CLID         				= 0x0020,//DEPRECATED
+	BIND_REQ_CLID                    				= 0x0021,
+	UNBIND_REQ_CLID                  				= 0x0022,
+	BIND_REGISTER_REQ_CLID           				= 0x0023,//DEPRECATED
+	REPLACE_DEVICE_REQ_CLID          				= 0x0024,//DEPRECATED
+	STORE_BCKUP_BIND_ENTRY_REQ_CLID  				= 0x0025,//DEPRECATED
+	REMOVE_BCKUP_BIND_ENTRY_REQ_CLID 				= 0x0026,//DEPRECATED
+	BACKUP_BIND_TABLE_REQ_CLID       				= 0x0027,//DEPRECATED
+	RECOVER_BIND_TABLE_REQ_CLID      				= 0x0028,//DEPRECATED
+	BACKUP_SOURCE_BIND_REQ_CLID      				= 0x0029,//DEPRECATED
+	RECOVER_SOURCE_BIND_REQ_CLID     				= 0x002A,//DEPRECATED
+	CLEAR_ALL_BINDINGS_REQ_CLID						= 0x002B,//TODO
+	MGMT_NWK_DISC_REQ_CLID           				= 0x0030,//DEPRECATED
+	MGMT_LQI_REQ_CLID                				= 0x0031,
+	MGMT_RTG_REQ_CLID                				= 0x0032,
+	MGMT_BIND_REQ_CLID               				= 0x0033,
+	MGMT_LEAVE_REQ_CLID              				= 0x0034,
+	MGMT_DIRECT_JOIN_REQ_CLID        				= 0x0035,//DEPRECATED
+	MGMT_PERMIT_JOINING_REQ_CLID     				= 0x0036,
+	MGMT_CACHE_REQ_CLID              				= 0x0037,//DEPRECATED
+	MGMT_NWK_UPDATE_REQ_CLID	     				= 0x0038,
+	MGMT_NWK_ENHANCED_UPDATE_REQ_CLID				= 0x0039,//TODO
+	MGMT_NWK_IEEE_JOINING_LIST_REQ_CLID 			= 0x003A,//TODO
+	MGMT_NWK_BEACON_SURVEY_REQ_CLID					= 0x003C,//TODO
+	SEC_START_KEY_NEGOTIATION_REQ_CLID				= 0x0040,//TODO
+	SEC_GET_AUTH_TOKEN_REQ_CLID						= 0x0041,//TODO
+	SEC_GET_AUTH_LEVEL_REQ_CLID						= 0x0042,//TODO
+	SEC_SET_CFG_REQ_CLID							= 0x0043,//TODO
+	SEC_GET_CFG_REQ_CLID							= 0x0044,//TODO
+	SEC_START_KEY_UPDATE_REQ_CLID					= 0x0045,//TODO
+	SEC_DECOMMISSION_REQ_CLID						= 0x0046,//TODO
+	SEC_CHALLENGE_REQ_CLID							= 0x0047,//TODO
 
 	//Response
-	NWK_ADDR_RESP_CLID 					= 0x8000,
-	IEEE_ADDR_RESP_CLID					= 0x8001,
-	NODE_DESC_RESP_CLID 				= 0x8002,
-	POWER_DESC_RESP_CLID				= 0x8003,
-	SIMPLE_DESC_RESP_CLID				= 0x8004,
-	ACTIVE_EP_RESP_CLID					= 0x8005,
-	MATCH_DESC_RESP_CLID				= 0x8006,
-	COMPLEX_DESC_RESP_CLID				= 0x8010,
-	USER_DESCRIPTOR_RESP_CLID         	= 0x8011,
-	DISCOVERY_CACHE_RESP_CLID          	= 0x8012,
-	USER_DESC_CONF_RESP_CLID          	= 0x8014,
-	SYSTEM_SERVER_DISCOVERY_RESP_CLID	= 0x8015,
-	DISCOVERY_STORE_RESP_CLID         	= 0x8016,
-	NODE_DESC_STORE_RESP_CLID         	= 0x8017,
-	POWER_DESC_STORE_RESP_CLID        	= 0x8018,
-	ACTIVE_EP_STORE_RESP_CLID         	= 0x8019,
-	SIMPLE_DESC_STORE_RESP_CLID       	= 0x801A,
-	REMOVE_NODE_CACHE_RESP_CLID       	= 0x801B,
-	FIND_NODE_CACHE_RESP_CLID         	= 0x801C,
-	EXTENDED_SIMPLE_DESC_RESP_CLID    	= 0x801D,
-	EXTENDED_ACTIVE_EP_RESP_CLID      	= 0x801E,
-	PARENT_ANNCE_RESP_CLID			    = 0x801F,
-	END_DEVICE_BIND_RESP_CLID			= 0x8020,
-	BIND_RESP_CLID						= 0x8021,
-	UNBIND_RESP_CLID					= 0x8022,
-	BIND_REGISTER_RESP_CLID           	= 0x8023,
-	REPLACE_DEVICE_RESP_CLID          	= 0x8024,
-	STORE_BCKUP_BIND_ENTRY_RESP_CLID  	= 0x8025,
-	REMOVE_BCKUP_BIND_ENTRY_RESP_CLID 	= 0x8026,
-	BACKUP_BIND_TABLE_RESP_CLID       	= 0x8027,
-	RECOVER_BIND_TABLE_RESP_CLID      	= 0x8028,
-	BACKUP_SOURCE_BIND_RESP_CLID      	= 0x8029,
-	RECOVER_SOURCE_BIND_RESP_CLID     	= 0x802A,
-	MGMT_NWK_DISC_RESP_CLID           	= 0x8030,
-	MGMT_LQI_RESP_CLID					= 0x8031,
-	MGMT_RTG_RESP_CLID                	= 0x8032,
-	MGMT_BIND_RESP_CLID					= 0x8033,
-	MGMT_LEAVE_RESP_CLID				= 0x8034,
-	MGMT_DIRECT_JOIN_RESP_CLID        	= 0x8035,
-	MGMT_PERMIT_JOINING_RESP_CLID		= 0x8036,
-	MGMT_CACHE_RESP_CLID              	= 0x8037,
-	MGMT_NWK_UPDATE_NOTIFY_CLID			= 0x8038,
+	NWK_ADDR_RSP_CLID 								= 0x8000,
+	IEEE_ADDR_RSP_CLID								= 0x8001,
+	NODE_DESC_RSP_CLID 								= 0x8002,
+	POWER_DESC_RSP_CLID								= 0x8003,
+	SIMPLE_DESC_RSP_CLID							= 0x8004,
+	ACTIVE_EP_RSP_CLID								= 0x8005,
+	MATCH_DESC_RSP_CLID								= 0x8006,
+	COMPLEX_DESC_RSP_CLID							= 0x8010,//DEPRECATED
+	USER_DESC_RSP_CLID         						= 0x8011,//DEPRECATED
+	DISCOVERY_CACHE_RSP_CLID          				= 0x8012,//DEPRECATED
+	USER_DESC_CONF_RSP_CLID          				= 0x8014,//DEPRECATED
+	SYSTEM_SERVER_DISCOVERY_RSP_CLID				= 0x8015,
+	DISCOVERY_STORE_RSP_CLID         				= 0x8016,//DEPRECATED
+	NODE_DESC_STORE_RSP_CLID         				= 0x8017,//DEPRECATED
+	POWER_DESC_STORE_RSP_CLID        				= 0x8018,//DEPRECATED
+	ACTIVE_EP_STORE_RSP_CLID         				= 0x8019,//DEPRECATED
+	SIMPLE_DESC_STORE_RSP_CLID       				= 0x801A,//DEPRECATED
+	REMOVE_NODE_CACHE_RSP_CLID       				= 0x801B,//DEPRECATED
+	FIND_NODE_CACHE_RSP_CLID         				= 0x801C,//DEPRECATED
+	EXTENDED_SIMPLE_DESC_RSP_CLID    				= 0x801D,//DEPRECATED
+	EXTENDED_ACTIVE_EP_RSP_CLID      				= 0x801E,//DEPRECATED
+	PARENT_ANNCE_RSP_CLID			    			= 0x801F,
+	END_DEVICE_BIND_RSP_CLID						= 0x8020,//DEPRECATED
+	BIND_RSP_CLID									= 0x8021,
+	UNBIND_RSP_CLID									= 0x8022,
+	BIND_REGISTER_RSP_CLID           				= 0x8023,//DEPRECATED
+	REPLACE_DEVICE_RSP_CLID          				= 0x8024,//DEPRECATED
+	STORE_BCKUP_BIND_ENTRY_RSP_CLID  				= 0x8025,//DEPRECATED
+	REMOVE_BCKUP_BIND_ENTRY_RSP_CLID 				= 0x8026,//DEPRECATED
+	BACKUP_BIND_TABLE_RSP_CLID       				= 0x8027,//DEPRECATED
+	RECOVER_BIND_TABLE_RSP_CLID      				= 0x8028,//DEPRECATED
+	BACKUP_SOURCE_BIND_RSP_CLID      				= 0x8029,//DEPRECATED
+	RECOVER_SOURCE_BIND_RSP_CLID     				= 0x802A,//DEPRECATED
+	CLEAR_ALL_BINDINGS_RSP_CLID						= 0x802B,//TODO
+	MGMT_NWK_DISC_RSP_CLID           				= 0x8030,//DEPRECATED
+	MGMT_LQI_RSP_CLID								= 0x8031,
+	MGMT_RTG_RSP_CLID                				= 0x8032,
+	MGMT_BIND_RSP_CLID								= 0x8033,
+	MGMT_LEAVE_RSP_CLID								= 0x8034,
+	MGMT_DIRECT_JOIN_RSP_CLID        				= 0x8035,//DEPRECATED
+	MGMT_PERMIT_JOINING_RSP_CLID					= 0x8036,
+	MGMT_CACHE_RSP_CLID              				= 0x8037,//DEPRECATED
+	MGMT_NWK_UPDATE_NOTIFY_CLID						= 0x8038,
+	MGMT_NWK_ENHANCED_UPDATE_NOTIFY_CLID 			= 0x8039,//TODO
+	MGMT_NWK_IEEE_JOINING_LIST_RSP_CLID 			= 0x803A,//TODO
+	MGMT_NWK_UNSOLICITED_ENHANCED_UPDATE_NOTIFY_CLID = 0x803B,//TODO
+	MGMT_NWK_BEACON_SURVEY_RSP_CLID					= 0x803C,//TODO
+	SEC_START_KEY_NEGOTIATION_RSP_CLID				= 0x8040,//TODO
+	SEC_GET_AUTH_TOKEN_RSP_CLID						= 0x8041,//TODO
+	SEC_GET_AUTH_LEVEL_RSP_CLID						= 0x8042,//TODO
+	SEC_SET_CFG_RSP_CLID							= 0x8043,//TODO
+	SEC_GET_CFG_RSP_CLID							= 0x8044,//TODO
+	SEC_START_KEY_UPDATE_RSP_CLID					= 0x8045,//TODO
+	SEC_DECOMMISSION_RSP_CLID						= 0x8046,//TODO
+	SEC_CHALLENGE_RSP_CLID							= 0x8047,//TODO
 }zdp_clusterId_e;
 
 
@@ -651,12 +676,12 @@ typedef struct{
 
 
 typedef struct{
+	u8  *zpdu;
 	u16	src_addr; /*! the nwk address of the node that send this response */
 	u16	clusterId;/*! cluster identifier */
 	u8 	seq_num;  /*! Sequence number which same with the request value */
 	u8 	status;	  /*! Response status */
 	u8  length;
-	u8  *zpdu;
 }zdo_zdpDataInd_t;
 
 
@@ -801,7 +826,7 @@ void zdo_mgmtLqiIndictate(void *buf);
 void zdo_mgmtBindIndicate(void *buf);
 
 /*****************************************************************************************
- * @brief	Interface to process mgmt leave cmd, after receive MGMT_LEAVE_CLID, and also this function
+ * @brief	Interface to process mgmt leave cmd, after receive MGMT_LEAVE_REQ_CLID, and also this function
  * 			can be called by local. After receive this cmd, this interface try to add the leave entry
  * 			to the leave req table in the NWK layer. If add failed, send out leave req immediately. If success,
  * 			would call nlme_leave_request later
@@ -822,7 +847,7 @@ void zdo_mgmtLeaveIndicate(void *buf);
 void zdo_mgmtPermitJoinIndicate(void *buf);
 
 /**************************************************************************************************************
- * @brief	Interface invoked when receive MGMT_NWK_UPDATE_CLID, process channel update, attributes change or ED
+ * @brief	Interface invoked when receive MGMT_NWK_UPDATE_REQ_CLID, process channel update, attributes change or ED
  * 			scan requests
  *
  * @param	buf: received packet info with APS data indication primitive

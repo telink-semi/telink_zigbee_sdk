@@ -69,12 +69,8 @@
 
 #define TL_ZB_ADDITION_NEIGHBOR_TABLE_SIZE  6
 
-#define	TRANSFAILURE_CNT_MAX				3
+#define	TRANSFAILURE_CNT_MAX				2
 
-/***************************************************************************
-* @brief	NWK static path cost
-*/
-#define NWK_STATIC_PATH_COST 				7
 
 typedef struct nebTbl_t{
 	struct nebTbl_t *freeNext;

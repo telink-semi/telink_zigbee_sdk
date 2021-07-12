@@ -138,7 +138,7 @@ void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
 			zb_setPollRate(POLL_RATE * 3);
 
 #ifdef ZCL_OTA
-			ota_queryStart(30);
+			ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
 #endif
 
 #ifdef ZCL_POLL_CTRL
@@ -147,8 +147,7 @@ void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
 		}else{
 			u16 jitter = 0;
 			do{
-				jitter = zb_random();
-				jitter &= 0xfff;
+				jitter = zb_random() % 0x0fff;
 			}while(jitter == 0);
 			TL_ZB_TIMER_SCHEDULE(sampleSwitch_bdbNetworkSteerStart, NULL, jitter);
 		}
@@ -180,7 +179,7 @@ void zbdemo_bdbCommissioningCb(u8 status, void *arg){
 		light_blink_start(2, 200, 200);
 
 #ifdef ZCL_OTA
-        ota_queryStart(30);
+        ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
 #endif
 
 #if FIND_AND_BIND_SUPPORT
@@ -201,8 +200,7 @@ void zbdemo_bdbCommissioningCb(u8 status, void *arg){
 		{
 			u16 jitter = 0;
 			do{
-				jitter = zb_random();
-				jitter &= 0xfff;
+				jitter = zb_random() % 0x0fff;
 			}while(jitter == 0);
 			TL_ZB_TIMER_SCHEDULE(sampleSwitch_bdbNetworkSteerStart, NULL, jitter);
 		}
@@ -283,7 +281,7 @@ void sampleSwitch_otaProcessMsgHandler(u8 evt, u8 status)
 		if(status == ZCL_STA_SUCCESS){
 			ota_mcuReboot();
 		}else{
-			ota_queryStart(30);
+			ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
 		}
 	}
 }

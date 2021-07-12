@@ -84,7 +84,7 @@ u8 ZB_MAC_PENDING_TRANS_QUEUE_SIZE = ZB_MAC_PENDING_TRANS_QUEUE_NUM;
 u8 ZB_MAC_EXT_EXPEIRY_CNT = ZB_MAC_INTERNAL_EXPIRY_CNT;
 
 /* the lqi threshold for neighbor */
-u8 NWK_NEIGHBORTBL_ADD_LQITHRESHOLD = 0x5F;
+u8 NWK_NEIGHBORTBL_ADD_LQITHRESHOLD = 0x45;
 
 /* the life time for unauthorized child table, 5 seconds */
 u32 NWK_UNAUTH_CHILD_TABLE_LIFE_TIME = (5 * 1000);
@@ -93,10 +93,10 @@ u32 NWK_UNAUTH_CHILD_TABLE_LIFE_TIME = (5 * 1000);
 u32 TRANSPORT_NETWORK_KEY_WAIT_TIME = (2 * 1000);
 
 /* the cost threshold for one hop */
-u8 NWK_COST_THRESHOLD_ONEHOP = 3;
+u8 NWK_COST_THRESHOLD_ONEHOP = 7;
 
 /* the cost threshold to choose next hop from neighbor table */
-u8 NWK_NEIGHBOR_SEND_OUTGOING_THRESHOLD = 4;
+u8 NWK_NEIGHBOR_SEND_OUTGOING_THRESHOLD = 5;
 
 /* address mapping table */
 u16 TL_ZB_NWK_ADDR_MAP_SIZE = TL_ZB_NWK_ADDR_MAP_NUM;
@@ -137,6 +137,10 @@ u8 NWK_BRC_TRANSTBL_SIZE = NWK_BRC_TRANSTBL_NUM;
 nwk_brcTransRecordEntry_t g_brcTransTab[NWK_BRC_TRANSTBL_NUM];
 #endif
 
+#if ZB_ED_ROLE
+bool AUTO_QUICK_DATA_POLL_ENABLE = TRUE;
+#endif
+
 /* binding table */
 u8 APS_BINDING_TABLE_SIZE = APS_BINDING_TABLE_NUM;
 aps_binding_table_t aps_binding_tbl;
@@ -146,11 +150,14 @@ u8 APS_GROUP_TABLE_SIZE = APS_GROUP_TABLE_NUM;
 aps_group_tbl_ent_t aps_group_tbl[APS_GROUP_TABLE_NUM];
 u16 GROUP_MESSAGE_SEND_ADDRESS = NWK_BROADCAST_RX_ON_WHEN_IDLE;
 
-/* the offset of the rx buffer to the zb-buffer*/
+/* the offset of the rx buffer to the zb-buffer */
 u8 RX_ZBBUF_OFFSET = TL_RXPRIMITIVEHDR;
 
 /* MAC layer TX Queue size */
 u8 MAC_TX_QUEUE_SIZE = TX_QUEUE_BN;
+
+/* WWAH long up time threshold, (24 * 60 * 60) seconds. */
+u32 LONG_UPTIME_THRESHOLD = 86400;
 
 //default network key
 /* If all zero, will generate 16-bytes network key randomly. */

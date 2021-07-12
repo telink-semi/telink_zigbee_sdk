@@ -299,7 +299,7 @@
 
 #define ZB_RADIO_RSSI_TO_LQI(mode, rssi, lqi)			do{ \
 															(void)mode;									\
-															s16 minEd = -110;							\
+															s16 minEd = -99;							\
 															s16 maxEd = -15;  /* AGC */					\
 															if(rssi > maxEd){rssi = maxEd;}				\
 															if(rssi < minEd){rssi = minEd;}				\
@@ -431,7 +431,7 @@
 
 #define ZB_RADIO_RSSI_TO_LQI(mode, rssi, lqi)			do{ \
 															(void)mode;									\
-															s16 minEd = -110;							\
+															s16 minEd = -99;							\
 															s16 maxEd = -15;  /* AGC */					\
 															if(rssi > maxEd){rssi = maxEd;}				\
 															if(rssi < minEd){rssi = minEd;}				\
@@ -571,7 +571,7 @@
 
 #define ZB_RADIO_RSSI_TO_LQI(mode, rssi, lqi)			do{ \
 															(void)mode;									\
-															s16 minEd = -110;							\
+															s16 minEd = -99;							\
 															s16 maxEd = -15;  /* AGC */					\
 															if(rssi > maxEd){rssi = maxEd;}				\
 															if(rssi < minEd){rssi = minEd;}				\

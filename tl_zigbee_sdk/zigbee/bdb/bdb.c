@@ -852,14 +852,14 @@ _CODE_BDB_ static void bdb_nodeDescRespHandler(void *arg)
 	if((rsp->status == ZDO_SUCCESS)){
 		u8 stackRev = (rsp->node_descriptor.server_mask >> 9) & 0x3f;
 		if(stackRev >= 21){
-			ss_apsRequestKeyReq_t requestKey;
+			ss_apsmeRequestKeyReq_t requestKey;
 			TL_SETSTRUCTCONTENT(requestKey, 0);
 
 			requestKey.keyType = SS_KEYREQ_TYPE_TCLK;
 			requestKey.dstAddr.shortAddr = 0x0000;
 			requestKey.dstAddrMode = ZB_ADDR_16BIT_DEV_OR_BROADCAST;
 
-			if(zb_apsmeRequestKeyReq(&requestKey) != APS_STATUS_ILLEGAL_REQUEST){
+			if(zb_apsmeRequestKeyReq(&requestKey) == RET_OK){
 				g_bdbAttrs.nodeIsOnANetwork = 0;
 				return;
 			}
@@ -1268,12 +1268,7 @@ _CODE_BDB_ void bdb_zdoStartDevCnf(zdo_start_device_confirm_t *startDevCnf){
 				TL_ZB_TIMER_SCHEDULE(zcl_touchLinkDevStartIndicate, (void *)(startDevCnf->status), 400);
 			}else{
 				//g_bdbAttrs.commissioningStatus = BDB_COMMISSION_STA_NO_NETWORK;
-				if(startDevCnf->status != ZDO_NETWORK_LEFT){
-//					BDB_STATUS_SET(BDB_COMMISSION_STA_NO_NETWORK);
-//					evt = BDB_EVT_COMMISSIONING_TOUCHLINK_FINISH;
-//					TL_SCHEDULE_TASK(bdb_task, (void *)evt);
-					zcl_touchLinkDevStartIndicate((void *)(startDevCnf->status));
-				}
+				zcl_touchLinkDevStartIndicate((void *)(startDevCnf->status));
 			}
 			break;
 #endif

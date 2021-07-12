@@ -103,6 +103,6 @@
 #include "ota_upgrading/zcl_ota.h"
 
 /* Work with all hub */
-#include "wwah/zcl_wwah.h"
+#include "zcl_wwah/zcl_wwah.h"
 
 #endif

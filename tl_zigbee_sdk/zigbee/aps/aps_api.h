@@ -406,11 +406,8 @@ typedef struct{
 	addrExt_t	aps_use_ext_panid;//The 64-bit address of a network to form or to join.
 
 	bool aps_designated_coordinator;//TRUE if the device should become the ZigBee Coordinator on startup, FALSE if otherwise.
-	u8	 aps_parent_announce_timer;
-
-	//default value 2
-	u8	aps_nonmember_radius;//The value to be used for the NonmemberRadius  parameter when using NWK layer multicast.
-
+	u8	aps_parent_announce_timer;
+	u8	aps_nonmember_radius;//The value to be used for the NonmemberRadius parameter when using NWK layer multicast. Default value 2.
 	u8	aps_interframe_delay;
 	u8	aps_max_window_size;
 	u8	aps_fragment_payload_size;
@@ -418,8 +415,8 @@ typedef struct{
 	u8	aps_use_insecure_join:1;//A flag controlling the use of insecure join at startup. Default TRUE
 	u8	aps_authenticated:1;//authenticated or not
 	u8	aps_updateDevice_holdApsSecurity:1;//if set, will not send update device with aps encryption
-	u8	aps_reserved:5;
-	u8	aps_flags;//Flag used in APS layers, see the enum of aps_flag_e
+	u8	aps_zdo_restricted_mode:1;//Is the configuration mode restricted
+	u8	aps_reserved:4;
 }aps_pib_attributes_t;
 
 typedef void (*apsDataIndCb_t)(void *p);
@@ -440,10 +437,16 @@ extern aps_pib_attributes_t aps_ib;
 
 #define ZB_SET_UPDATE_DEVICE_APS_SEC_HOLD(v)	(aps_ib.aps_updateDevice_holdApsSecurity = v)
 
-/******************************************************************************
-                              Prototypes section
- ******************************************************************************/
-void tl_apsDataIndRegister(apsDataIndCb_t cb);
+
+/***********************************************************************//**
+ * @brief   Set channel mask of APSIB.
+ *
+ * @param	chnMask
+ *
+ * @return	aps_status_t
+ *
+ **************************************************************************/
+aps_status_t apsSetChnMsk(u32 chnMask);
 
 /************************************************************************//**
  * @brief 	Initialization internal state and main variables of APS-layer.
@@ -474,11 +477,22 @@ u8 aps_get_current_counter_value(void);
  **************************************************************************/
 u8 aps_get_counter_value(void);
 
+
 aps_status_t aps_me_bind_req(aps_me_bind_req_t *amr);
 
 aps_status_t aps_me_unbind_req(aps_me_unbind_req_t *amr);
 
 aps_status_t aps_search_dst_from_bind_tbl(aps_data_req_t *apsreq, bind_dst_list_tbl *bindList);
+
+/***********************************************************************//**
+ * @brief   get the entry of the binding table
+ *
+ * @param	None
+ *
+ * @return	the point to the binding table
+ *
+ **************************************************************************/
+aps_binding_table_t *aps_bindingTblGet(void);
 
 /***********************************************************************//**
  * @brief   get binding table number
@@ -491,7 +505,7 @@ aps_status_t aps_search_dst_from_bind_tbl(aps_data_req_t *apsreq, bind_dst_list_
 u8 aps_bindingTblNum(void);
 
 /***********************************************************************//**
- * @brief   delete bind information searched by destional address
+ * @brief   delete bind information searched by destination address
  *
  * @param dst_addr_ref:idx in address map
  *
@@ -499,6 +513,17 @@ u8 aps_bindingTblNum(void);
  *
  **************************************************************************/
 void aps_delete_bind_by_dst(u16 dst_addr_ref);
+
+/***********************************************************************//**
+ * @brief   clear all binding table information
+ *
+ * @param
+ *
+ * @return
+ *
+ **************************************************************************/
+void aps_bindingTab_clear(void);
+
 
 /***********************************************************************//**
  * @brief   group table initialization(restore th table from NV)
@@ -616,37 +641,8 @@ aps_group_tbl_ent_t *aps_group_search_by_addr(u16 group_addr);
  **************************************************************************/
 u8 *aps_group_ep_info_get(u16 group_addr, u8 *epNum);
 
-/***********************************************************************//**
- * @brief   get the entry of the group table
- *
- * @param	None
- *
- * @return	the point to the group table
- *
- **************************************************************************/
-aps_binding_table_t *aps_bindingTblGet(void);
 
-/***********************************************************************//**
- * @brief   search destination binding table base on the bind request
- *
- * @param	req   binding request
- *
- * @return	TL_RETURN_INVALID  - no match:
- * 			other:  the index of the binding table
- *
- **************************************************************************/
-u8 aps_me_find_dst_ref(aps_me_bind_req_t *req);
-
-/***********************************************************************//**
- * @brief   search source binding table base on the bind request
- *
- * @param
- *
- * @return	TL_RETURN_INVALID  - table is full
- * 			other:  the index of the binding table
- *
- **************************************************************************/
-u8 aps_me_free_src_table_find(void);
+void tl_apsDataIndRegister(apsDataIndCb_t cb);
 
 /***********************************************************************//**
  * @brief       Send an APS data request
@@ -663,15 +659,7 @@ u8 aps_me_free_src_table_find(void);
 u8 apsDataRequest(aps_data_req_t *dataReq, u8 *asdu, u8 length);
 u8 apsDataFragmentRequest(aps_data_req_t *dataReq, u8 *asdu, u16 length);
 
-/***********************************************************************//**
- * @brief   Set channel mask of APSIB.
- *
- * @param	chnMask
- *
- * @return	aps_status_t
- *
- **************************************************************************/
-aps_status_t apsSetChnMsk(u32 chnMask);
+
 
 
 #endif	/* APS_API_H */

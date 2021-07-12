@@ -245,6 +245,34 @@ typedef struct{
 	u8  numOfBeacons;
 }zcl_wwah_surveyBeaconsRspCmd_t;
 
+
+#define CLUSTER_ID_MAX_NUM		10
+
+typedef enum{
+	APS_LINK_KEY_AUTH_DISABLE,
+	APS_LINK_KEY_AUTH_ENABLE,
+}apsLinkKeyAuthStatus_t;
+
+typedef struct{
+	u16	 clusterID[CLUSTER_ID_MAX_NUM];
+	u8	 num;
+	apsLinkKeyAuthStatus_t status;
+}wwah_apsLinkKeyAuthInfo_t;
+
+typedef struct{
+	u16 clusterID[CLUSTER_ID_MAX_NUM];
+	u8  num;
+}wwah_apsAcksRequireInfo_t;
+
+typedef struct{
+	u16 clusterID[CLUSTER_ID_MAX_NUM];
+	u8  num;
+}wwah_useTCForClusterInfo_t;
+
+extern wwah_apsLinkKeyAuthInfo_t g_zcl_apsLinkKeyAuthInfo;
+extern wwah_apsAcksRequireInfo_t g_zcl_apsAcksRequireInfo;
+extern wwah_useTCForClusterInfo_t g_zcl_useTCForClusterInfo;
+
 #if 0
 /**
  *  @brief  External variable for WWAH Attribute
@@ -274,6 +302,12 @@ extern u16 zcl_attr_wwah_otaMaxOfflineDuration;
 extern const zclAttrInfo_t wwah_attrTbl[];
 extern const u8 zcl_wwah_attrNum;
 #endif
+
+
+void zcl_wwah_clearRouterCheckedFlag(void);
+bool zcl_wwah_getRouterCheckedFlag(void);
+status_t zcl_wwah_acceptCheck(zclIncoming_t *pInMsg);
+
 
 status_t zcl_wwah_register(u8 endpoint, u16 manuCode, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
 
@@ -373,9 +407,6 @@ status_t zcl_wwah_useTrustCenterForClusterCmd(u8 srcEp, epInfo_t *pDstEpInfo, u8
 status_t zcl_wwah_trustCenterForClusterServerQueryCmd(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo);
 #define zcl_wwah_trustCenterForClusterServerQueryCmdSend(a,b,c)	(zcl_wwah_trustCenterForClusterServerQueryCmd((a), (b), (c), ZCL_SEQ_NUM))
 
-status_t zcl_wwah_apsLinkKeyAuthQueryRspCmd(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, zcl_wwah_apsLinkKeyAuthQueryRspCmd_t *pCmd);
-#define zcl_wwah_apsLinkKeyAuthQueryRspCmdSend(a,b,c,d)	(zcl_wwah_apsLinkKeyAuthQueryRspCmd((a), (b), (c), ZCL_SEQ_NUM, (d)))
-
 status_t zcl_wwah_poweringOffNotificationCmd(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, zcl_wwah_poweringNotificationCmd_t *pCmd);
 #define zcl_wwah_poweringOffNotificationCmdSend(a,b,c,d)	(zcl_wwah_poweringOffNotificationCmd((a), (b), (c), ZCL_SEQ_NUM, (d)))
 
@@ -385,20 +416,11 @@ status_t zcl_wwah_poweringOnNotificationCmd(u8 srcEp, epInfo_t *pDstEpInfo, u8 d
 status_t zcl_wwah_shortAddrChangeCmd(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, zcl_wwah_shortAddrChangeCmd_t *pCmd);
 #define zcl_wwah_shortAddrChangeCmdSend(a,b,c,d)	(zcl_wwah_shortAddrChangeCmd((a), (b), (c), ZCL_SEQ_NUM, (d)))
 
-status_t zcl_wwah_apsAckRequirementQueryRspCmd(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, clustersToExempt_t *pCmd);
-#define zcl_wwah_apsAckRequirementQueryRspCmdSend(a,b,c,d)	(zcl_wwah_apsAckRequirementQueryRspCmd((a), (b), (c), ZCL_SEQ_NUM, (d)))
-
 status_t zcl_wwah_powerDescriptorChangeCmd(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, zcl_wwah_powerDescChangeCmd_t *pCmd);
 #define zcl_wwah_powerDescriptorChangeCmdSend(a,b,c,d)	(zcl_wwah_powerDescriptorChangeCmd((a), (b), (c), ZCL_SEQ_NUM, (d)))
 
 status_t zcl_wwah_newDebugReportNotificationCmd(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, zcl_wwah_newDbgReportNotiCmd_t *pCmd);
 #define zcl_wwah_newDebugReportNotificationCmdSend(a,b,c,d)	(zcl_wwah_newDebugReportNotificationCmd((a), (b), (c), ZCL_SEQ_NUM, (d)))
-
-status_t zcl_wwah_debugReportQueryRspCmd(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, zcl_wwah_dbgReportQueryRspCmd_t *pCmd);
-#define zcl_wwah_debugReportQueryRspCmdSend(a,b,c,d)	(zcl_wwah_debugReportQueryRspCmd((a), (b), (c), ZCL_SEQ_NUM, (d)))
-
-status_t zcl_wwah_trustCenterForClusterServerQueryRspCmd(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, zcl_wwah_tcForClusterServerQueryRspCmd_t *pCmd);
-#define zcl_wwah_trustCenterForClusterServerQueryRspCmdSend(a,b,c,d)	(zcl_wwah_trustCenterForClusterServerQueryRspCmd((a), (b), (c), ZCL_SEQ_NUM, (d)))
 
 status_t zcl_wwah_surveyBeaconsRspCmd(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, zcl_wwah_surveyBeaconsRspCmd_t *pCmd);
 #define zcl_wwah_surveyBeaconsRspCmdSend(a,b,c,d)	(zcl_wwah_surveyBeaconsRspCmd((a), (b), (c), ZCL_SEQ_NUM, (d)))

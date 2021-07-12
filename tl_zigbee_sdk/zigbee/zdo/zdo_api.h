@@ -68,27 +68,8 @@
 */
 typedef enum{
 	ZDO_SUCCESS								= 0x00,
-	ZDO_INVALID_PARAMETERS					= 0x01,
-	ZDO_RESPONSE_WAIT_TIMEOUT			    = 0x02,
-	ZDO_BUSY                           		= 0x04,
-	ZDO_NO_NETWORKS                         = 0x05,
-	ZDO_EXTPANID_ALREADY_EXIST	            = 0x06,
-	ZDO_FAIL								= 0x07,
-	ZDO_AUTHENTICATION_SUCCESS				= 0x08,
-	ZDO_AUTHENTICATION_FAIL					= 0x09,
-	ZDO_SECURITY_SUCCESS					= 0x0A,
-	ZDO_SECURITY_FAIL						= 0x0B,
-	ZDO_SECURITY_NOT_SUPPORTED				= 0x0C,
-	ZDO_CMD_COMPLETED						= 0x0D,
-	ZDO_KEY_ESTABLISHMENT_NOT_SUPPORTED		= 0x0E,
 
-	ZDO_NO_KEY_PAIR_DESCRIPTOR				= 0x50,
-	ZDO_UPDATE_LINK_KEY						= 0x51,
-	ZDO_UPDATE_MASTER_KEY					= 0x52,
-	ZDO_DELETE_KEY_PAIR						= 0x53,
-	ZDO_DELETE_LINK_KEY						= 0x54,
-
-	ZDO_TC_NOT_AVAILABLE					= 0x60,
+	ZDO_NETWORK_LOST						= 0x60,//Non-standard status
 
 	ZDO_INVALID_REQUEST						= 0x80,
 	ZDO_DEVICE_NOT_FOUND					= 0x81,
@@ -105,13 +86,7 @@ typedef enum{
 	ZDO_TABLE_FULL							= 0x8C,
 	ZDO_NOT_AUTHORIZED						= 0x8D,
 	ZDO_DEVICE_BINDING_TABLE_FALL			= 0x8E,
-	ZDO_NETWORK_STARTED						= 0x8F,
-	ZDO_NETWORK_LOST						= 0x90,
-	ZDO_NETWORK_LEFT						= 0x91,
-	ZDO_CHILD_JOINED						= 0x92,
-	ZDO_CHILD_REMOVED						= 0x93,
-	ZDO_USER_DESCRIPTOR_UPDATE				= 0x94,
-	ZDO_STATIC_ADDRESS_CONFLICT				= 0x95
+	ZDO_INVALID_INDEX						= 0x8F,
 }zdo_status_t;
 
 
@@ -152,6 +127,11 @@ typedef struct{
 	u16	config_max_rejoin_backoff_time;//Upper limit of the config_rejoin_backoff_time.
 	u16 config_rejoin_backoff_iteration;//The number of iterations of the Fast Rejoin backoff, in seconds.
 										//If 0 means do not reset the backoff duration.
+
+	u16 config_accept_nwk_update_pan_id;
+	u8	config_accept_nwk_update_channel;
+	bool config_mgmt_leave_use_aps_sec;
+	bool config_use_tc_sec_on_nwk_key_rotation;
 }zdo_attrCfg_t;
 
 
@@ -181,17 +161,19 @@ typedef bool (*zdo_nwkUpdateCb_t)(nwkCmd_nwkUpdate_t *p);
 typedef void (*zdo_permitJoinIndCb_t)(nlme_permitJoining_req_t *p);
 typedef void (*zdo_nlmeSyncCnfCb_t)(nlme_sync_cnf_t *p);
 typedef bool (*zdo_tcJoinIndCb_t)(zdo_tc_join_ind_t *p);
+typedef void (*zdo_tcFrameCntReachedCb_t)(void);
 
 typedef struct{
-	zdo_startDveCnfCb_t		zdpStartDevCnfCb;
-	zdo_nlmeResetCnfCb_t	zdpResetCnfCb;
-	zdo_dveAnnceIndCb_t		zdpDevAnnounceIndCb;
-	zdo_leaveIndCb_t		zdpLeaveIndCb;
-	zdo_leaveCnfCb_t		zdpLeaveCnfCb;
-	zdo_nwkUpdateCb_t		zdpNwkUpdateIndCb;
-	zdo_permitJoinIndCb_t	zdpPermitJoinIndCb;
-	zdo_nlmeSyncCnfCb_t		zdoNlmeSyncCnfCb;
-	zdo_tcJoinIndCb_t		zdoTcJoinIndCb;
+	zdo_startDveCnfCb_t				zdpStartDevCnfCb;
+	zdo_nlmeResetCnfCb_t			zdpResetCnfCb;
+	zdo_dveAnnceIndCb_t				zdpDevAnnounceIndCb;
+	zdo_leaveIndCb_t				zdpLeaveIndCb;
+	zdo_leaveCnfCb_t				zdpLeaveCnfCb;
+	zdo_nwkUpdateCb_t				zdpNwkUpdateIndCb;
+	zdo_permitJoinIndCb_t			zdpPermitJoinIndCb;
+	zdo_nlmeSyncCnfCb_t				zdoNlmeSyncCnfCb;
+	zdo_tcJoinIndCb_t				zdoTcJoinIndCb;			//only for ZC
+	zdo_tcFrameCntReachedCb_t		ssTcFrameCntReachedCb;	//only for ZC
 }zdo_appIndCb_t;
 
 
@@ -289,6 +271,18 @@ u16 zdo_af_get_nwk_time_btwn_scans(void);
  */
 u8 zdo_af_get_permit_join_duration(void);
 
+
+void zdo_af_set_accept_nwk_update_pan_id(u16 panId);
+u16 zdo_af_get_accept_nwk_update_pan_id(void);
+
+void zdo_af_set_accept_nwk_update_channel(u8 channel);
+u8 zdo_af_get_accept_nwk_update_channel(void);
+
+void zdo_af_set_mgmtLeave_use_aps_sec(bool enable);
+bool zdo_af_get_mgmtLeave_use_aps_sec(void);
+
+void zdo_af_set_use_tc_sec_on_nwk_key_rotation(bool enable);
+bool zdo_af_get_use_tc_sec_on_nwk_key_rotation(void);
 
 
 /************************************************************************************
