@@ -1,0 +1,1612 @@
+import struct
+import os
+
+import serial
+import serial.tools.list_ports
+from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import QMessageBox, QFileDialog
+from PyQt5.QtCore import QTimer, QThread, pyqtSignal
+from mainwindow import Ui_MainWindow
+
+from datetime import datetime
+from csvFiles import CsvFiles
+from txtFiles import TxtFiles
+from settings import Settings
+from ringbuffer import RingBuffer
+from hcicommandparse import parse_packet
+
+
+def crc8_calculate(datatype, length, data):
+    crc8 = (datatype >> 0) & 0xff
+    crc8 ^= (datatype >> 8) & 0xff
+    crc8 ^= (length >> 0) & 0xff
+    crc8 ^= (length >> 8) & 0xff
+
+    for n in range(length):
+        crc8 ^= data[n]
+
+    return crc8
+
+
+def simple_str2hex(input_s):
+    result = []
+    if input_s != '' and input_s[0:2] == '0x':
+        input_s = input_s[2:].strip()  # 把前后的空格去掉
+        while input_s != '':
+            try:
+                num = int(input_s[0:2], 16)
+            except ValueError:
+                break
+            input_s = input_s[2:].strip()  # 把前后的空格去掉
+            result.append(num)
+    return result
+
+
+def line_edit_str2int(input_len, input_s):
+    # print(input_s)
+    covert_result = True
+    send_list = []
+    convert_cnt = 0
+    if input_s != '' and input_s[0:2] == '0x':
+        input_s = input_s[2:].strip()  # 把前后的空格去掉
+        while input_s != '':
+            try:
+                if len(input_s) < 2:
+                    num = int(input_s[0:1], 16)
+                else:
+                    num = int(input_s[0:2], 16)
+            except ValueError:
+                covert_result = False
+                break
+            input_s = input_s[2:].strip()  # 把前后的空格去掉
+            # print(input_s)
+            send_list.append(num)
+            convert_cnt += 1
+    else:
+        covert_result = False
+
+    if not covert_result or convert_cnt != input_len:
+        # print('convert error!')
+        send_list = []
+        for i in range(input_len):
+            send_list.append(0xcc)
+    # print(send_list)
+
+    return send_list
+
+
+class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
+    def __init__(self):
+        super(Pyqt5Serial, self).__init__()
+        self.setupUi(self)  # 初始化UI到主窗口，主要是建立代码到UI之间的signal和slot
+        self.setWindowTitle("ZGC TOOL")
+        self.ser = serial.Serial()
+        self.portisopen = 0
+        self.port_com = ''
+        self.ai_setting = Settings()
+        self.ring_buffer = RingBuffer()
+        self.CsvFiles = CsvFiles()
+        self.txtFiles = TxtFiles()
+        self.choose_node_addr = ''
+        self.init()
+
+    def init(self):
+        self.serial_init()
+        self.bdb_init()
+        self.nodes_mgmt_init()
+        self.mgmt_init()
+        self.zcl_general_init()
+        self.zcl_group_init()
+        self.zcl_onoff_init()
+        self.zcl_level_init()
+        self.zcl_color_init()
+        self.zcl_identify_init()
+        self.zcl_scene_init()
+        self.ota_init()
+        self.af_test_init()
+        self.hci_ota_init()
+        self.command_analyze_init()
+
+    def serial_init(self):
+        self.port_detect()
+
+        # 打开串口按钮
+        self.pushButton_openPort.clicked.connect(self.port_open)
+
+        # 关闭串口按钮
+        self.pushButton_closePort.clicked.connect(self.port_close)
+
+        # 发送数据按钮
+        self.pushButton_send.clicked.connect(self.data_send)
+
+        # 定时监测有效串口
+        self.portDetectTimer = QTimer(self)
+        self.portDetectTimer.timeout.connect(self.port_detect)
+        self.portDetectTimer.start(5000)
+
+        # 定时器接收数据
+        self.recvTimer = QTimer(self)
+        self.recvTimer.timeout.connect(self.data_receive)
+
+        # 定时器解析数据
+        self.showTimer = QTimer(self)
+        self.showTimer.timeout.connect(self.packet_show)
+
+        # 定时发送数据
+        self.sendTimer = QTimer(self)
+        self.sendTimer.timeout.connect(self.data_send)
+        self.checkBox_timesend.stateChanged.connect(self.data_send_timer)
+
+        # 清除发送窗口
+        self.pushButton_clear.clicked.connect(self.command_data_clear)
+
+        # 解析接收窗口的数据
+        self.listWidget_commandData.itemClicked.connect(self.command_data_parse)
+        self.listWidget_commandData.currentItemChanged.connect(self.command_data_parse)
+
+    def port_detect(self):
+        # 检测所有存在的串口，将信息存储在字典中
+        com_dict = {}
+        port_list = list(serial.tools.list_ports.comports())
+        port_name_current = self.comboBox_portName.currentText()
+        self.comboBox_portName.clear()
+        for port in port_list:
+            com_dict["%s" % port[0]] = "%s" % port[1]
+            self.comboBox_portName.addItem(port[0])
+
+        if self.portisopen == 1:
+            for port in port_list:
+                # print(self.port_com)
+                # print(port[0])
+                if self.port_com == port[0]:
+                    break
+            else:
+                # print('the serial port has lost!!')
+                self.port_close()
+        self.comboBox_portName.setCurrentText(port_name_current)
+
+    def port_open(self):
+        self.ser.port = self.comboBox_portName.currentText()
+        self.ser.baudrate = int(self.comboBox_baudrate.currentText())
+        self.ser.bytesize = int(self.comboBox_databits.currentText())
+        self.ser.stopbits = int(self.comboBox_stopbits.currentText())
+        self.ser.parity = self.comboBox_parity.currentText()[0:1]
+        self.ser.timeout = 5
+
+        try:
+            self.ser.open()
+        except serial.SerialException:
+            QMessageBox.critical(self, 'port error', "此串口不能打开！")
+        else:
+            self.portisopen = 1
+            self.port_com = self.ser.port
+            self.label_portState.setText(self.ser.port + '串口已打开')
+            self.recvTimer.start(5)  # 2ms
+            self.showTimer.start(5)
+            self.pushButton_openPort.setEnabled(False)
+            self.pushButton_closePort.setEnabled(True)
+
+    def port_close(self):
+        if self.portisopen:
+            self.portisopen = 0
+            self.port_com = ''
+            self.recvTimer.stop()
+            self.showTimer.stop()
+            self.ser.close()
+            self.label_portState.setText('串口已关闭')
+            self.pushButton_openPort.setEnabled(True)
+            self.pushButton_closePort.setEnabled(False)
+            self.port_detect()
+        else:
+            return
+
+    def data_send(self):
+        if self.portisopen:
+            input_s = self.plainTextEdit_sendData.toPlainText()
+            # print(type(input_s))
+            # print(input_s)
+            if input != '':
+                if not self.checkBox_thread.isChecked():  # hex发送
+                    input_s = input_s.strip()
+                    # print(input_s)
+                    send_list = []
+                    while input_s != '':
+                        try:
+                            num = int(input_s[0:2], 16)
+                        except ValueError:
+                            QMessageBox.warning(self, 'wrong data', '请输入十六进制数据，以空格分开!')
+                            return None
+                        input_s = input_s[2:].strip()  # 把前后的空格去掉
+                        # print(input_s)
+                        send_list.append(num)
+                    send_data = bytes(send_list)
+                else:  # ascii 发送
+                    send_data = (input_s + '\n').encode('utf-8')
+                    # print('ascii 发送::')
+                    # print(send_data)
+                self.send_show_data(send_data)
+        else:
+            QMessageBox.warning(self, 'port warning', "串口未打开！")
+            if self.checkBox_timesend.isChecked():
+                self.checkBox_timesend.setChecked(False)
+            return
+
+    def data_receive(self):
+        try:
+            num = self.ser.inWaiting()
+        except:
+            # print('data receive error!!')
+            self.port_close()
+            return None
+        if num > 0:
+            # print('recv num:%d' % num)
+            recv_data = self.ser.read(num)
+            if not self.checkBox_thread.isChecked():  # hex发送
+                self.ring_buffer.ring_buffer_write(recv_data)
+            else:
+                # self.listWidget_commandData.addItem(recv_data.decode('utf-8')) #ascii
+                dt = datetime.now()
+                timestr = dt.strftime('%y-%m-%d %I:%M:%S.%f')
+                self.listWidget_commandData.addItem(timestr + ' recv<--:')
+                # print(recv_data)
+                recv_data_str = ''
+                try:
+                    recv_data_str = recv_data.decode('utf-8')
+                    self.listWidget_commandData.addItem(recv_data_str)
+                except UnicodeDecodeError:
+                    pass
+
+                write_result = self.txtFiles.write_file(timestr, recv_data_str, 'recv<--')
+                if write_result != 1:
+                    QMessageBox.warning(self, 'write file warning', "请不要打开文件夹下文件！")
+        if self.checkBox_scroll.isChecked():
+            self.listWidget_commandData.scrollToBottom()
+        # # 升级过程中不允许更改文件地址和开始ota，如果升级一半出错，得重启工具
+        # if self.progressBar_hciOta.text() != '0%' and self.progressBar_hciOta.text() != '100%':
+        #     self.pushButton_hciOtaFileChoose.setEnabled(False)
+        #     self.pushButton_hciOtaStart.setEnabled(False)
+        # else:
+        #     self.pushButton_hciOtaFileChoose.setEnabled(True)
+        #     self.pushButton_hciOtaStart.setEnabled(True)
+
+    def command_data_clear(self):
+        self.listWidget_commandData.clear()
+        self.listWidget_commandDataParse.clear()
+
+    def command_data_parse(self, item):
+        # print('enter recv_data_parse!')
+        self.listWidget_commandDataParse.clear()
+        if not self.checkBox_thread.isChecked():
+            try:
+                get_data = item.text()
+            except AttributeError:
+                return
+            # print(get_data)
+            get_real_data = get_data[33:]
+            # print('get_real_data:')
+            # print(get_real_data)
+            parse_items = parse_packet(self.ai_setting, get_real_data)
+            self.listWidget_commandDataParse.addItems(parse_items)
+
+    def data_send_timer(self):
+        if self.checkBox_timesend.isChecked():
+            # print('send time ischeck')
+            try:
+                send_interval = int(self.lineEdit_sendInterval.text())
+            except ValueError:
+                QMessageBox.warning(self, 'wrong data', '请输入十六进制数据，以空格分开!')
+                return
+            # print('send_interval:%d' % send_interval)
+            if send_interval < 10:
+                send_interval = 10
+                self.lineEdit_sendInterval.setText('%d' % send_interval)
+            self.sendTimer.start(send_interval)
+            self.lineEdit_sendInterval.setEnabled(False)
+        else:
+            self.sendTimer.stop()
+            self.lineEdit_sendInterval.setEnabled(True)
+
+    def packet_show(self):
+        while self.ring_buffer.valid_data_length >= self.ai_setting.command_length_min:
+            recv_packet = []
+            recv_result, recv_len = self.ring_buffer.ring_buffer_get_packet(recv_packet)
+            # print('recv_result:%d, recv_len:%d' % (recv_result, recv_len))
+            if recv_result:
+                recv_data_str = ''
+                for i in range(recv_len):
+                    hvol = recv_packet[i]
+                    hhex = '%02x' % hvol
+                    recv_data_str += hhex + ' '
+
+                dt = datetime.now()
+                timestr = dt.strftime('%y-%m-%d %I:%M:%S.%f')
+                # QApplication.processEvents() # 可以实现一边执行耗时程序，一边刷新页面的功能
+                write_result = self.CsvFiles.write_file(self.ai_setting, dt, recv_packet, recv_data_str)
+                # print('write_result:%d' % write_result)
+                if write_result == 1:
+                    if self.checkBox_autoClear.isChecked():
+                        if self.listWidget_commandData.count() > 2000:
+                            self.listWidget_commandData.clear()
+                    self.listWidget_commandData.addItem(timestr + ' recv<--:' + recv_data_str)
+                    # print('total count:%d' % self.listWidget_commandData.count())
+                    if self.CsvFiles.get_joined_info_change:
+                        # print('clear the getJoindNodeListWidget!!!')
+                        self.getJoindNodeListWidget.clear()
+                    if len(self.CsvFiles.joined_nodes_info):
+                        for node in self.CsvFiles.joined_nodes_info:
+                            self.getJoindNodeListWidget.addItem(hex(node) + ': ' +
+                                                                hex(self.CsvFiles.joined_nodes_info[node]))
+                        self.CsvFiles.joined_nodes_info = {}
+                else:
+                    QMessageBox.warning(self, 'write file warning', "请不要打开文件夹下文件！")
+                # print('self.CsvFiles.send_data len:%d' % len(self.CsvFiles.send_data))
+                if len(self.CsvFiles.send_data):
+                    self.send_show_data(self.CsvFiles.send_data)
+
+                if self.CsvFiles.hci_ota_offset != 0:
+                    percent = int((self.CsvFiles.hci_ota_offset * 100) / self.CsvFiles.hci_ota_file_size)
+                    if percent >= 100:
+                        percent = 100
+                    self.progressBar_hciOta.setValue(percent)
+
+    def bdb_init(self):
+        self.pushButton_BDBsetCh.clicked.connect(self.set_working_channel)
+        self.pushButton_BDBstartNet.clicked.connect(self.start_network)
+        self.pushButton_BDBfactoryRst.clicked.connect(self.factory_reset)
+        self.pushButton_BDBpreinstallCode.clicked.connect(self.preinstall_code)
+        self.pushButton_BDBdongleMode.clicked.connect(self.working_mode_set)
+        self.pushButton_BDBnodeDelete.clicked.connect(self.node_delete)
+        self.pushButton_BDBsetTXPower.clicked.connect(self.set_tx_power)
+
+    def set_working_channel(self):
+        channel = int(self.comboBox_channelList.currentText())
+        # print(channel)
+        # print(type(channel))
+        payload = struct.pack("!B", channel)
+        # print(payload)
+        self.send_hci_command(0x0007, len(payload), payload)
+
+    def start_network(self):
+        self.send_hci_command(0x0001, 0, 'None')
+
+    def factory_reset(self):
+        self.send_hci_command(0x0005, 0, 'None')
+
+    def preinstall_code(self):
+        dst_ieee_addr_s = self.lineEdit_dstAddr.text()
+        # print(type(dst_ieee_addr_s))
+        # print(dst_ieee_addr_s)
+        ieee_addr = line_edit_str2int(8, dst_ieee_addr_s)
+
+        install_code_s = self.lineEdit_installcode.text()
+        # print(install_code_s)
+        install_code = line_edit_str2int(16, install_code_s)
+
+        payload = struct.pack("!%dB" % len(ieee_addr), *ieee_addr)
+        payload += struct.pack("!%dB" % len(install_code), *install_code)
+
+        self.send_hci_command(0x0006, len(payload), payload)
+
+    def working_mode_set(self):
+        mode_int = self.comboBox_mode.currentIndex()
+        payload = struct.pack("!B", mode_int)
+        self.send_hci_command(0x0008, len(payload), payload)
+
+    def node_delete(self):
+        dst_ieee_addr_s = self.lineEdit_macAddr.text()
+        ieee_addr = line_edit_str2int(8, dst_ieee_addr_s)
+        payload = struct.pack("!%dB" % len(ieee_addr), *ieee_addr)
+        self.send_hci_command(0x0009, len(payload), payload)
+
+    def set_tx_power(self):
+        tx_power_s = self.lineEdit_TxIndex.text()
+        tx_power = line_edit_str2int(1, tx_power_s)
+        payload = struct.pack("!%dB" % len(tx_power), *tx_power)
+        self.send_hci_command(0x000a, len(payload), payload)
+
+    def nodes_mgmt_init(self):
+        self.pushButton_getJoinedNodes.clicked.connect(self.get_joined_nodes)
+        self.pushButton_on.clicked.connect(self.chosen_nodes_on)
+        self.pushButton_off.clicked.connect(self.chosen_nodes_off)
+        self.pushButton_leave.clicked.connect(self.chosen_nodes_leave)
+        self.get_choose_node_ieee_addr()
+
+    def get_joined_nodes(self):
+        start_idx = 0
+        payload = struct.pack("!H", start_idx)
+        self.send_hci_command(0x0040, len(payload), payload)
+
+    def get_choose_node_ieee_addr(self):  # get joined nodes info parse
+        self.getJoindNodeListWidget.itemClicked.connect(self.get_joined_nodes_parse)
+        self.getJoindNodeListWidget.currentItemChanged.connect(self.get_joined_nodes_parse)
+
+    def get_joined_nodes_parse(self, item):
+        try:
+            get_data = item.text()
+        except AttributeError:
+            return
+        node_ieee_info_str = get_data[:18]
+        self.choose_node_addr = node_ieee_info_str
+        # print('choose_node_addr:')
+        # print(self.choose_node_addr)
+
+    def chosen_nodes_on(self):
+        dst_mode_s = 'ieee'
+        dst_addr_s = self.choose_node_addr
+        src_ep_s = '0x01'
+        dst_ep_s = '0x01'
+        payload = self.zcl_cluster_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s)
+        self.send_hci_command(0x0140, len(payload), payload)
+
+    def chosen_nodes_off(self):
+        dst_mode_s = 'ieee'
+        dst_addr_s = self.choose_node_addr
+        src_ep_s = '0x01'
+        dst_ep_s = '0x01'
+        payload = self.zcl_cluster_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s)
+        self.send_hci_command(0x0141, len(payload), payload)
+
+    def chosen_nodes_leave(self):
+        dst_addr_s = '0xffff'
+        dst_addr = line_edit_str2int(2, dst_addr_s)
+        payload = struct.pack("!%dB" % len(dst_addr), *dst_addr)
+
+        leave_ieee_addr_s = self.choose_node_addr
+        leave_ieee_addr = line_edit_str2int(8, leave_ieee_addr_s)
+        payload += struct.pack("!%dB" % len(leave_ieee_addr), *leave_ieee_addr)
+
+        rejoin = 0
+        remove_child = 0
+        payload += struct.pack("!2B", rejoin, remove_child)
+        self.send_hci_command(0x0032, len(payload), payload)
+
+    def mgmt_init(self):
+        self.pushButton_permitJoin.clicked.connect(self.permit_join_req_send)
+        self.pushButton_ieeeReq.clicked.connect(self.ieee_req_send)
+        self.pushButton_nwkReq.clicked.connect(self.nwk_req_send)
+        self.pushButton_activeReq.clicked.connect(self.active_req_send)
+        self.pushButton_nodeDescReq.clicked.connect(self.node_desc_req_send)
+        self.pushButton_simpleDescReq.clicked.connect(self.simple_desc_req_send)
+        self.pushButton_matchDescReq.clicked.connect(self.match_desc_req_send)
+        self.pushButton_bindReq.clicked.connect(self.bind_req_send)
+        self.pushButton_unbindReq.clicked.connect(self.unbind_req_send)
+        self.pushButton_lqiReq.clicked.connect(self.mgmt_liq_req_send)
+        self.pushButton_mgmtBindReq.clicked.connect(self.mgmt_bind_req_send)
+        self.pushButton_mgmtLeaveReq.clicked.connect(self.mgmt_leave_req_send)
+        self.pushButton_nwkUpdateReq.clicked.connect(self.mgmt_nwk_update_req_send)
+
+    def permit_join_req_send(self):
+        # print('permit_join_req_send')
+        dst_addr_s = self.lineEdit_permit_dstAddr.text()
+        dst_addr = line_edit_str2int(2, dst_addr_s)
+        payload = struct.pack("!%dB" % len(dst_addr), *dst_addr)
+        # print(payload)
+        interval_s = self.lineEdit_interval.text()
+        interval = line_edit_str2int(1, interval_s)
+        payload += struct.pack("!%dB" % len(interval), *interval)
+        # print(payload)
+        tc_sign = 1
+        payload += struct.pack("!B", tc_sign)
+
+        # print(payload)
+        self.send_hci_command(0x0034, len(payload), payload)
+
+    def ieee_req_send(self):
+        dst_addr_s = self.lineEdit_ieeeReqdstAddr.text()
+        dst_addr = line_edit_str2int(2, dst_addr_s)
+        payload = struct.pack("!%dB" % len(dst_addr), *dst_addr)
+        interest_addr_s = self.lineEdit_ieeeReqInterestAddr.text()
+        interest_addr = line_edit_str2int(2, interest_addr_s)
+        payload += struct.pack("!%dB" % len(interest_addr), *interest_addr)
+
+        req_type = self.comboBox_ieeeReqType.currentIndex()
+        payload += struct.pack("!B", req_type)
+
+        start_idx_s = self.lineEdit_ieeeReqStartIdx.text()
+        start_idx = line_edit_str2int(1, start_idx_s)
+        payload += struct.pack("!%dB" % len(start_idx), *start_idx)
+        self.send_hci_command(0x0011, len(payload), payload)
+
+    def nwk_req_send(self):
+        dst_addr_s = self.lineEdit_nwkReqDstAddr.text()
+        dst_addr = line_edit_str2int(2, dst_addr_s)
+        payload = struct.pack("!%dB" % len(dst_addr), *dst_addr)
+        interest_addr_s = self.lineEdit_nwkReqInterestAddr.text()
+        interest_addr = line_edit_str2int(8, interest_addr_s)
+        payload += struct.pack("!%dB" % len(interest_addr), *interest_addr)
+
+        req_type = self.comboBox_nwkReqReqtype.currentIndex()
+        payload += struct.pack("!B", req_type)
+
+        start_idx_s = self.lineEdit_nwkReqStartIdx.text()
+        start_idx = line_edit_str2int(1, start_idx_s)
+        payload += struct.pack("!%dB" % len(start_idx), *start_idx)
+        self.send_hci_command(0x0010, len(payload), payload)
+
+    def active_req_send(self):
+        dst_addr_s = self.lineEdit_activeReqDstAddr.text()
+        dst_addr = line_edit_str2int(2, dst_addr_s)
+        payload = struct.pack("!%dB" % len(dst_addr), *dst_addr)
+        interest_addr_s = self.lineEdit_activeReqInterestAddr.text()
+        interest_addr = line_edit_str2int(2, interest_addr_s)
+        payload += struct.pack("!%dB" % len(interest_addr), *interest_addr)
+        self.send_hci_command(0x0015, len(payload), payload)
+
+    def node_desc_req_send(self):
+        dst_addr_s = self.lineEdit_nodeReqDstAddr.text()
+        dst_addr = line_edit_str2int(2, dst_addr_s)
+        payload = struct.pack("!%dB" % len(dst_addr), *dst_addr)
+        interest_addr_s = self.lineEdit_nodeReqInterestAddr.text()
+        interest_addr = line_edit_str2int(2, interest_addr_s)
+        payload += struct.pack("!%dB" % len(interest_addr), *interest_addr)
+        self.send_hci_command(0x0012, len(payload), payload)
+
+    def simple_desc_req_send(self):
+        dst_addr_s = self.lineEdit_simpleReqDstAddr.text()
+        dst_addr = line_edit_str2int(2, dst_addr_s)
+        payload = struct.pack("!%dB" % len(dst_addr), *dst_addr)
+        interest_addr_s = self.lineEdit_simpleReqInterestAddr.text()
+        interest_addr = line_edit_str2int(2, interest_addr_s)
+        payload += struct.pack("!%dB" % len(interest_addr), *interest_addr)
+        ep_s = self.lineEdit_simpleReqEndpoint.text()
+        ep = line_edit_str2int(1, ep_s)
+        payload += struct.pack("!%dB" % len(ep), *ep)
+        self.send_hci_command(0x0013, len(payload), payload)
+
+    def match_desc_req_send(self):
+        dst_addr_s = self.lineEdit_matchReqDstAddr.text()
+        dst_addr = line_edit_str2int(2, dst_addr_s)
+        payload = struct.pack("!%dB" % len(dst_addr), *dst_addr)
+
+        interest_addr_s = self.lineEdit_matchReqInterestAddr.text()
+        interest_addr = line_edit_str2int(2, interest_addr_s)
+        payload += struct.pack("!%dB" % len(interest_addr), *interest_addr)
+
+        profile_id_s = self.lineEdit_matchReqProfileId.text()
+        profile_id = line_edit_str2int(2, profile_id_s)
+        payload += struct.pack("!%dB" % len(profile_id), *profile_id)
+
+        incluster_id_s = self.lineEdit_matchReqInCluster.text()
+        incluster_cnt = int((len(incluster_id_s) - 2)/4)
+        incluster_id = line_edit_str2int(incluster_cnt*2, incluster_id_s)  # 2bytes in 1 cluster
+
+        outcluster_id_s = self.lineEdit_matchReqOutCluster.text()
+        # print(outcluster_id_s)
+        outcluster_cnt = int((len(outcluster_id_s) - 2) / 4)
+        outcluster_id = line_edit_str2int(outcluster_cnt*2, outcluster_id_s)
+
+        payload += struct.pack("!2B", incluster_cnt, outcluster_cnt)
+        payload += struct.pack("!%dB" % len(incluster_id), *incluster_id)
+        payload += struct.pack("!%dB" % len(outcluster_id), *outcluster_id)
+        self.send_hci_command(0x0014, len(payload), payload)
+
+    def bind_req_send(self):
+        src_ieee_addr_s = self.lineEdit_bindReqSrcAddr.text()
+        src_ieee_addr = line_edit_str2int(8, src_ieee_addr_s)
+        payload = struct.pack("!%dB" % len(src_ieee_addr), *src_ieee_addr)
+
+        src_ep_s = self.lineEdit_bindReqSrcEp.text()
+        src_ep = line_edit_str2int(1, src_ep_s)
+        payload += struct.pack("!%dB" % len(src_ep), *src_ep)
+
+        cluster_id_s = self.lineEdit_bindReqClusterId.text()
+        cluster_id = line_edit_str2int(2, cluster_id_s)
+        payload += struct.pack("!%dB" % len(cluster_id), *cluster_id)
+
+        dst_mode_s = self.comboBox_bindReqDstMode.currentText()
+        dst_addr_s = self.lineEdit_bindReqDstAddr.text()
+        if dst_mode_s == 'group':
+            dst_mode = 1
+            dst_addr = line_edit_str2int(2, dst_addr_s)
+            payload += struct.pack("!B%dB" % len(dst_addr), dst_mode, *dst_addr)
+        else:
+            dst_mode = 3
+            dst_addr = line_edit_str2int(8, dst_addr_s)
+            payload += struct.pack("!B%dB" % len(dst_addr), dst_mode, *dst_addr)
+            dst_ep_s = self.lineEdit_bindReqDstEp.text()
+            dst_ep = line_edit_str2int(1, dst_ep_s)
+            payload += struct.pack("!%dB" % len(dst_ep), *dst_ep)
+        self.send_hci_command(0x0020, len(payload), payload)
+
+    def unbind_req_send(self):
+        src_ieee_addr_s = self.lineEdit_unbindReqSrcAddr.text()
+        src_ieee_addr = line_edit_str2int(8, src_ieee_addr_s)
+        payload = struct.pack("!%dB" % len(src_ieee_addr), *src_ieee_addr)
+
+        src_ep_s = self.lineEdit_unbindReqSrcEp.text()
+        src_ep = line_edit_str2int(1, src_ep_s)
+        payload += struct.pack("!%dB" % len(src_ep), *src_ep)
+
+        cluster_id_s = self.lineEdit_unbindReqClusterId.text()
+        cluster_id = line_edit_str2int(2, cluster_id_s)
+        payload += struct.pack("!%dB" % len(cluster_id), *cluster_id)
+
+        dst_mode_s = self.comboBox_unbindReqDstMode.currentText()
+        dst_addr_s = self.lineEdit_unbindReqDstAddr.text()
+        if dst_mode_s == 'group':
+            dst_mode = 1
+            dst_addr = line_edit_str2int(2, dst_addr_s)
+            payload += struct.pack("!B%dB" % len(dst_addr), dst_mode, *dst_addr)
+        else:
+            dst_mode = 3
+            dst_addr = line_edit_str2int(8, dst_addr_s)
+            payload += struct.pack("!B%dB" % len(dst_addr), dst_mode, *dst_addr)
+            dst_ep_s = self.lineEdit_unbindReqDstEp.text()
+            dst_ep = line_edit_str2int(1, dst_ep_s)
+            payload += struct.pack("!%dB" % len(dst_ep), *dst_ep)
+        self.send_hci_command(0x0021, len(payload), payload)
+
+    def mgmt_liq_req_send(self):
+        dst_addr_s = self.lineEdit_lqiReqDstAddr.text()
+        dst_addr = line_edit_str2int(2, dst_addr_s)
+        payload = struct.pack("!%dB" % len(dst_addr), *dst_addr)
+
+        start_idx_s = self.lineEdit_lqiReqStartIdx.text()
+        start_idx = line_edit_str2int(1, start_idx_s)
+        payload += struct.pack("!%dB" % len(start_idx), *start_idx)
+        self.send_hci_command(0x0030, len(payload), payload)
+
+    def mgmt_bind_req_send(self):
+        dst_addr_s = self.lineEdit_mgmtBindReqDstAddr.text()
+        dst_addr = line_edit_str2int(2, dst_addr_s)
+        payload = struct.pack("!%dB" % len(dst_addr), *dst_addr)
+
+        start_idx_s = self.lineEdit_mgmtBindReqStartIdx.text()
+        start_idx = line_edit_str2int(1, start_idx_s)
+        payload += struct.pack("!%dB" % len(start_idx), *start_idx)
+        self.send_hci_command(0x0031, len(payload), payload)
+
+    def mgmt_leave_req_send(self):
+        dst_addr_s = self.lineEdit_mgmtLeaveReqDstAddr.text()
+        dst_addr = line_edit_str2int(2, dst_addr_s)
+        payload = struct.pack("!%dB" % len(dst_addr), *dst_addr)
+
+        leave_ieee_addr_s = self.lineEdit_leaveIeeeAddr.text()
+        leave_ieee_addr = line_edit_str2int(8, leave_ieee_addr_s)
+        payload += struct.pack("!%dB" % len(leave_ieee_addr), *leave_ieee_addr)
+
+        rejoin_s = self.lineEdit_rejoin.text()
+        rejoin = line_edit_str2int(1, rejoin_s)
+        payload += struct.pack("!%dB" % len(rejoin), *rejoin)
+
+        remove_child_s = self.lineEdit_removeChild.text()
+        remove_child = line_edit_str2int(1, remove_child_s)
+        payload += struct.pack("!%dB" % len(remove_child), *remove_child)
+        self.send_hci_command(0x0032, len(payload), payload)
+
+    def mgmt_nwk_update_req_send(self):
+        dst_addr_s = self.lineEdit_nwkUpdateReqDstAddr.text()
+        dst_addr = line_edit_str2int(2, dst_addr_s)
+        payload = struct.pack("!%dB" % len(dst_addr), *dst_addr)
+
+        nwk_manager_addr_s = self.lineEdit_nwkUpdateReqMgtAddr.text()
+        nwk_manager_addr = line_edit_str2int(2, nwk_manager_addr_s)
+        payload += struct.pack("!%dB" % len(nwk_manager_addr), *nwk_manager_addr)
+
+        scan_channel_s = self.lineEdit_nwkUpdateReqChannel.text()
+        scan_channel = line_edit_str2int(4, scan_channel_s)
+        payload += struct.pack("!%dB" % len(scan_channel), *scan_channel)
+
+        scan_duration_s = self.lineEdit_nwkUpdateReqDuration.text()
+        scan_duration = line_edit_str2int(1, scan_duration_s)
+        payload += struct.pack("!%dB" % len(scan_duration), *scan_duration)
+
+        scan_count_s = self.lineEdit_nwkUpdateReqCount.text()
+        scan_count = line_edit_str2int(1, scan_count_s)
+        payload += struct.pack("!%dB" % len(scan_count), *scan_count)
+        self.send_hci_command(0x0035, len(payload), payload)
+
+    def zcl_general_init(self):
+        self.pushButton_genRead.clicked.connect(self.zcl_general_attr_read)
+        self.pushButton_writeAttr.clicked.connect(self.zcl_general_attr_write)
+        self.pushButton_genConfig.clicked.connect(self.zcl_general_config_report)
+        self.pushButton_readReportCfg.clicked.connect(self.zcl_general_read_report_config)
+        self.pushButton_genReset.clicked.connect(self.zcl_basic_reset)
+
+    def zcl_general_addr_handle(self, dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s, direct, cluster_id_s):
+        dst_mode = self.ai_setting.addr_mode[dst_mode_s]
+        # print(dst_mode)
+        payload = struct.pack("!B", dst_mode)
+        if dst_mode_s == 'ieee' or dst_mode_s == 'ieee_no_ack':
+            dst_addr = line_edit_str2int(8, dst_addr_s)
+            payload += struct.pack("!%dB" % len(dst_addr), *dst_addr)
+        elif dst_mode_s == 'short' or dst_mode_s == 'short_no_ack' or dst_mode_s == 'group' or \
+                dst_mode_s == 'broadcast':
+            dst_addr = line_edit_str2int(2, dst_addr_s)
+            payload += struct.pack("!%dB" % len(dst_addr), *dst_addr)
+
+        src_ep = line_edit_str2int(1, src_ep_s)
+        payload += struct.pack("!%dB" % len(src_ep), *src_ep)
+
+        if dst_mode_s == 'bound' or dst_mode_s == 'group' or dst_mode_s == 'bound_no_ack':
+            pass
+        else:
+            dst_ep = line_edit_str2int(1, dst_ep_s)
+            payload += struct.pack("!%dB" % len(dst_ep), *dst_ep)
+
+        if direct is not None:
+            payload += struct.pack("!B", direct)
+
+        if cluster_id_s is not None:
+            cluster_id = line_edit_str2int(2, cluster_id_s)
+            payload += struct.pack("!%dB" % len(cluster_id), *cluster_id)
+        # print(payload)
+        return payload
+
+    def zcl_cluster_addr_handle(self, dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s):
+        dst_mode = self.ai_setting.addr_mode[dst_mode_s]
+        # print(dst_mode)
+        payload = struct.pack("!B", dst_mode)
+        if dst_mode_s == 'ieee' or dst_mode_s == 'ieee_no_ack':
+            dst_addr = line_edit_str2int(8, dst_addr_s)
+            payload += struct.pack("!%dB" % len(dst_addr), *dst_addr)
+        elif dst_mode_s == 'short' or dst_mode_s == 'short_no_ack' or dst_mode_s == 'group' or \
+                dst_mode_s == 'broadcast':
+            dst_addr = line_edit_str2int(2, dst_addr_s)
+            payload += struct.pack("!%dB" % len(dst_addr), *dst_addr)
+
+        src_ep = line_edit_str2int(1, src_ep_s)
+        payload += struct.pack("!%dB" % len(src_ep), *src_ep)
+
+        if dst_mode_s == 'bound' or dst_mode_s == 'group' or dst_mode_s == 'bound_no_ack':
+            pass
+        else:
+            dst_ep = line_edit_str2int(1, dst_ep_s)
+            payload += struct.pack("!%dB" % len(dst_ep), *dst_ep)
+        # print(payload)
+        return payload
+
+    def zcl_general_attr_read(self):
+        dst_mode_s = self.comboBox_readAttrDstMode.currentText()
+        dst_addr_s = self.lineEdit_readAttrDstAddr.text()
+        src_ep_s = self.lineEdit_readAttrSrcEp.text()
+        dst_ep_s = self.lineEdit_readAttrDstEp.text()
+        direct = self.comboBox_readAttrDirect.currentIndex()
+        cluster_id_s = self.lineEdit_readAttrClusterId.text()
+        payload = self.zcl_general_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s, direct, cluster_id_s)
+
+        attr_id_s = self.lineEdit_readAttrAttrId.text()
+        attr_id_cnt = int((len(attr_id_s) - 2) / 4)
+        attr_id = line_edit_str2int(attr_id_cnt * 2, attr_id_s)
+        payload += struct.pack("!B%dB" % len(attr_id), attr_id_cnt, *attr_id)
+        self.send_hci_command(0x0100, len(payload), payload)
+
+    def zcl_general_attr_write(self):
+        dst_mode_s = self.comboBox_writeAttDstMode.currentText()
+        dst_addr_s = self.lineEdit_writeAttrDstAddr.text()
+        src_ep_s = self.lineEdit_writeAttrSrcEp.text()
+        dst_ep_s = self.lineEdit_writeAttrDstEp.text()
+        direct = self.comboBox_writeAttrDirect.currentIndex()
+        cluster_id_s = self.lineEdit_writeAttrClusterId.text()
+        payload = self.zcl_general_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s, direct, cluster_id_s)
+
+        attr_id_s = self.lineEdit_writeAttrAttrId.text()
+        attr_id_cnt = int((len(attr_id_s) - 2) / 4)
+        attr_id = line_edit_str2int(attr_id_cnt * 2, attr_id_s)
+        payload += struct.pack("!B%dB" % len(attr_id), attr_id_cnt, *attr_id)
+
+        data_type_idx = self.comboBox_writeAttrDataType.currentIndex()
+        # print(data_type_idx)
+        data_type = self.ai_setting.data_type_list[data_type_idx]
+        # print(data_type)
+        data_s = self.lineEdit_writeAttrData.text()
+        data_hex = simple_str2hex(data_s)
+        data_len = self.ai_setting.get_attr_size(data_type, data_hex)
+        # print(data_len)
+        data = line_edit_str2int(data_len, data_s)
+        payload += struct.pack("!B%dB" % len(data), data_type, *data)
+
+        self.send_hci_command(0x0101, len(payload), payload)
+
+    def zcl_general_config_report(self):
+        dst_mode_s = self.comboBox_configReportDstMode.currentText()
+        dst_addr_s = self.lineEdit_configReportDstAddr.text()
+        src_ep_s = self.lineEdit_configReportSrcEp.text()
+        dst_ep_s = self.lineEdit_configReportDstEp.text()
+        direct = self.comboBox_configReportDirect.currentIndex()
+        cluster_id_s = self.lineEdit_configReportClusterId.text()
+        payload = self.zcl_general_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s, direct, cluster_id_s)
+
+        report_dir = self.comboBox_configReportSendType.currentIndex()
+
+        attr_id_cnt = 1
+        attr_id_s = self.lineEdit_configReportAttrId.text()
+        # attr_id_cnt = int((len(attr_id_s) - 2) / 4)
+        attr_id = line_edit_str2int(attr_id_cnt * 2, attr_id_s)
+        payload += struct.pack("!2B%dB" % len(attr_id), attr_id_cnt, report_dir, *attr_id)
+        if report_dir == 0:
+            data_type_idx = self.comboBox_configReportDataType.currentIndex()
+            data_type = self.ai_setting.data_type_list[data_type_idx]
+            payload += struct.pack("!B", data_type)
+
+            min_interval_s = self.lineEdit_configReportMinInt.text()
+            min_interval = line_edit_str2int(2, min_interval_s)
+            payload += struct.pack("!%dB" % len(min_interval), *min_interval)
+
+            max_interval_s = self.lineEdit_configReportMaxInt.text()
+            max_interval = line_edit_str2int(2, max_interval_s)
+            payload += struct.pack("!%dB" % len(max_interval), *max_interval)
+
+            # print('zcl_general_config_report, data_type:0x%x' % data_type)
+            if self.ai_setting.is_analog_data_type(data_type):
+                date_len = self.ai_setting.get_data_type_len(data_type)
+                data_s = self.lineEdit_configReportChange.text()
+                data = line_edit_str2int(date_len, data_s)
+                payload += struct.pack("!%dB" % len(data), *data)
+        else:
+            timeout_period_s = self.lineEdit_configReportTimeOut.text()
+            timeout_period = line_edit_str2int(2, timeout_period_s)
+            payload += struct.pack("!%dB" % len(timeout_period), *timeout_period)
+        self.send_hci_command(0x0102, len(payload), payload)
+
+    def zcl_general_read_report_config(self):
+        dst_mode_s = self.comboBox_readReportCfgDstMode.currentText()
+        dst_addr_s = self.lineEdit_readReportCfgDstAddr.text()
+        src_ep_s = self.lineEdit_readReportCfgSrcEp.text()
+        dst_ep_s = self.lineEdit_readReportCfgDstEp.text()
+        direct = self.comboBox_readReportCfgDir.currentIndex()
+        cluster_id_s = self.lineEdit_readReportCfgClusterId.text()
+        payload = self.zcl_general_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s, direct, cluster_id_s)
+
+        report_dir = self.comboBox_readReportCfgType.currentIndex()
+
+        attr_id_s = self.lineEdit_readReportCfgAttrId.text()
+        attr_id_cnt = int((len(attr_id_s) - 2) / 4)
+        attr_id = line_edit_str2int(attr_id_cnt * 2, attr_id_s)
+        payload += struct.pack("!2B%dB" % len(attr_id), attr_id_cnt, report_dir, *attr_id)
+        self.send_hci_command(0x0103, len(payload), payload)
+
+    def zcl_basic_reset(self):
+        dst_mode_s = self.comboBox_resetDstMode.currentText()
+        dst_addr_s = self.lineEdit_resetDstAddr.text()
+        src_ep_s = self.lineEdit_resetSrcEp.text()
+        dst_ep_s = self.lineEdit_resetDstEp.text()
+
+        payload = self.zcl_cluster_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s)
+        self.send_hci_command(0x0110, len(payload), payload)
+
+    def zcl_group_init(self):
+        self.pushButton_addGroup.clicked.connect(self.zcl_add_group)
+        self.pushButton_viewGroup.clicked.connect(self.zcl_view_group)
+        self.pushButton_getGroup.clicked.connect(self.zcl_get_group)
+        self.pushButton_removeGroup.clicked.connect(self.zcl_remove_group)
+        self.pushButton_removeAll.clicked.connect(self.zcl_remove_all_group)
+        self.pushButton_addIfIdentify.clicked.connect(self.zcl_add_group_if_identify)
+
+    def zcl_add_group(self):
+        dst_mode_s = self.comboBox_addGroupDstmode.currentText()
+        dst_addr_s = self.lineEdit_addGroupDstAddr.text()
+        src_ep_s = self.lineEdit_addGroupSrcEp.text()
+        dst_ep_s = self.lineEdit_addGroupDstEp.text()
+        payload = self.zcl_cluster_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s)
+
+        group_id_s = self.lineEdit_addGroupGroupId.text()
+        group_id = line_edit_str2int(2, group_id_s)
+        payload += struct.pack("!%dB" % len(group_id), *group_id)
+        group_name_s = self.lineEdit_addGroupName.text()
+        if group_name_s:
+            group_name_len = int((len(group_name_s) - 2) / 2)
+            group_name = line_edit_str2int(group_name_len, group_name_s)
+            # print('group_name_len:%d' % group_name_len)
+            payload += struct.pack("!B%dB" % len(group_name), group_name_len, *group_name)
+        else:
+            group_name_len = 0
+            payload += struct.pack("!B", group_name_len)
+
+        self.send_hci_command(0x0120, len(payload), payload)
+
+    def zcl_view_group(self):
+        dst_mode_s = self.comboBox_viewGroupDstMode.currentText()
+        dst_addr_s = self.lineEdit_viewGroupDstAddr.text()
+        src_ep_s = self.lineEdit_viewGoupSrcEp.text()
+        dst_ep_s = self.lineEdit_viewGroupDstEp.text()
+        payload = self.zcl_cluster_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s)
+
+        group_id_s = self.lineEdit_viewGroupGroupId.text()
+        group_id = line_edit_str2int(2, group_id_s)
+        payload += struct.pack("!%dB" % len(group_id), *group_id)
+        self.send_hci_command(0x0121, len(payload), payload)
+
+    def zcl_get_group(self):
+        dst_mode_s = self.comboBox_getGroupDstMode.currentText()
+        dst_addr_s = self.lineEdit_getGroupDstAddr.text()
+        src_ep_s = self.lineEdit_getGroupSrcEp.text()
+        dst_ep_s = self.lineEdit_getGroupDstEp.text()
+        payload = self.zcl_cluster_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s)
+
+        group_list_s = self.lineEdit_getGroupList.text()
+        # print(group_list_s)
+        group_list_cnt = int((len(group_list_s) - 2) / 4)
+        group_list = line_edit_str2int(group_list_cnt * 2, group_list_s)
+        payload += struct.pack("!B%dB" % len(group_list), group_list_cnt, *group_list)
+        self.send_hci_command(0x0122, len(payload), payload)
+
+    def zcl_remove_group(self):
+        dst_mode_s = self.comboBox_rmGroupDstMode.currentText()
+        dst_addr_s = self.lineEdit_rmGroupDstAddr.text()
+        src_ep_s = self.lineEdit_rmGroupSrcEp.text()
+        dst_ep_s = self.lineEdit_rmGroupDstEp.text()
+        payload = self.zcl_cluster_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s)
+
+        group_id_s = self.lineEdit_rmGroupId.text()
+        group_id = line_edit_str2int(2, group_id_s)
+        payload += struct.pack("!%dB" % len(group_id), *group_id)
+        self.send_hci_command(0x0123, len(payload), payload)
+
+    def zcl_remove_all_group(self):
+        dst_mode_s = self.comboBox_removeAllDstMode.currentText()
+        dst_addr_s = self.lineEdit_removeAllDstAddr.text()
+        src_ep_s = self.lineEdit_removeAllSrcEp.text()
+        dst_ep_s = self.lineEdit_removeAllDstEp.text()
+        payload = self.zcl_cluster_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s)
+
+        self.send_hci_command(0x0124, len(payload), payload)
+
+    def zcl_add_group_if_identify(self):
+        dst_mode_s = self.comboBox_addIdenDstMode.currentText()
+        dst_addr_s = self.lineEdit_addIdenDstAddr.text()
+        src_ep_s = self.lineEdit_addIdenSrcEp.text()
+        dst_ep_s = self.lineEdit_addIdenDstEp.text()
+        payload = self.zcl_cluster_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s)
+
+        group_id_s = self.lineEdit_addIdenGroupId.text()
+        group_id = line_edit_str2int(2, group_id_s)
+        payload += struct.pack("!%dB" % len(group_id), *group_id)
+        group_name_s = self.lineEdit_addIdenName.text()
+        if group_name_s:
+            group_name_len = int((len(group_name_s) - 2) / 2)
+            group_name = line_edit_str2int(group_name_len, group_name_s)
+            payload += struct.pack("!B%dB" % len(group_name), group_name_len, *group_name)
+        else:
+            group_name_len = 0
+            payload += struct.pack("!B", group_name_len)
+        self.send_hci_command(0x0125, len(payload), payload)
+
+    def zcl_onoff_init(self):
+        self.pushButton_onOff.clicked.connect(self.zcl_onoff)
+
+    def zcl_onoff(self):
+        dst_mode_s = self.comboBox_onoffDstMode.currentText()
+        dst_addr_s = self.lineEdit_onoffDstAddr.text()
+        src_ep_s = self.lineEdit_onoffSrcEp.text()
+        dst_ep_s = self.lineEdit_onoffDstEp.text()
+        payload = self.zcl_cluster_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s)
+
+        on_off = self.comboBox_onOff.currentText()
+        if on_off == 'on':
+            command_id = 0x0140
+        elif on_off == 'off':
+            command_id = 0x0141
+        elif on_off == 'toggle':
+            command_id = 0x0142
+        else:
+            command_id = 0xffff
+        self.send_hci_command(command_id, len(payload), payload)
+
+    def zcl_level_init(self):
+        self.pushButton_moveToLevel.clicked.connect(self.zcl_level_move_to_level)
+        self.pushButton_move.clicked.connect(self.zcl_level_move)
+        self.pushButton_step.clicked.connect(self.zcl_level_step)
+        self.pushButton_stop.clicked.connect(self.zcl_level_stop)
+
+    def zcl_level_move_to_level(self):
+        dst_mode_s = self.comboBox_toLevelDstMode.currentText()
+        dst_addr_s = self.lineEdit_toLevelDstAddr.text()
+        src_ep_s = self.lineEdit_toLevelSrcEp.text()
+        dst_ep_s = self.lineEdit_toLevelDstEp.text()
+        payload = self.zcl_cluster_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s)
+
+        level_s = self.lineEdit_toLevelLevel.text()
+        level = line_edit_str2int(1, level_s)
+        payload += struct.pack("!%dB" % len(level), *level)
+
+        transition_time_s = self.lineEdit_toLevelTime.text()
+        transition_time = line_edit_str2int(2, transition_time_s)
+        payload += struct.pack("!%dB" % len(transition_time), *transition_time)
+
+        with_on_off = self.comboBox_withOnOff.currentText()
+        if with_on_off == 'with onOff':
+            command_id = 0x0154
+        else:
+            command_id = 0x0150
+        self.send_hci_command(command_id, len(payload), payload)
+
+    def zcl_level_move(self):
+        dst_mode_s = self.comboBox_moveDstMode.currentText()
+        dst_addr_s = self.lineEdit_moveDstAddr.text()
+        src_ep_s = self.lineEdit_moveSrcEp.text()
+        dst_ep_s = self.lineEdit_moveDstEp.text()
+        payload = self.zcl_cluster_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s)
+
+        move_mode_s = self.lineEdit_moveMode.text()
+        move_mode = line_edit_str2int(1, move_mode_s)
+        payload += struct.pack("!%dB" % len(move_mode), *move_mode)
+
+        move_rate_s = self.lineEdit_moveRate.text()
+        move_rate = line_edit_str2int(1, move_rate_s)
+        payload += struct.pack("!%dB" % len(move_rate), *move_rate)
+
+        with_on_off = self.comboBox_moveWithOnoff.currentText()
+        if with_on_off == 'with onOff':
+            command_id = 0x0155
+        else:
+            command_id = 0x0151
+        self.send_hci_command(command_id, len(payload), payload)
+
+    def zcl_level_step(self):
+        dst_mode_s = self.comboBox_stepDstMode.currentText()
+        dst_addr_s = self.lineEdit_stepDstAddr.text()
+        src_ep_s = self.lineEdit_stepSrcEp.text()
+        dst_ep_s = self.lineEdit_stepDstEp.text()
+        payload = self.zcl_cluster_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s)
+
+        move_mode_s = self.lineEdit_stepMode.text()
+        move_mode = line_edit_str2int(1, move_mode_s)
+        payload += struct.pack("!%dB" % len(move_mode), *move_mode)
+
+        step_size_s = self.lineEdit_stepSize.text()
+        step_size = line_edit_str2int(1, step_size_s)
+        payload += struct.pack("!%dB" % len(step_size), *step_size)
+
+        transition_time_s = self.lineEdit_stepTime.text()
+        transition_time = line_edit_str2int(2, transition_time_s)
+        payload += struct.pack("!%dB" % len(transition_time), *transition_time)
+
+        with_on_off = self.comboBox_moveWithOnoff.currentText()
+        if with_on_off == 'with onOff':
+            command_id = 0x0156
+        else:
+            command_id = 0x0152
+        self.send_hci_command(command_id, len(payload), payload)
+
+    def zcl_level_stop(self):
+        dst_mode_s = self.comboBox_stepDstMode.currentText()
+        dst_addr_s = self.lineEdit_stepDstAddr.text()
+        src_ep_s = self.lineEdit_stepSrcEp.text()
+        dst_ep_s = self.lineEdit_stepDstEp.text()
+        payload = self.zcl_cluster_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s)
+
+        with_on_off = self.comboBox_moveWithOnoff.currentText()
+        if with_on_off == 'with onOff':
+            command_id = 0x0157
+        else:
+            command_id = 0x0153
+        self.send_hci_command(command_id, len(payload), payload)
+
+    def zcl_color_init(self):
+        self.pushButton_moveHue.clicked.connect(self.zcl_color_move_to_hue)
+        self.pushButton_color.clicked.connect(self.zcl_color_move_to_color)
+        self.pushButton_saturation.clicked.connect(self.zcl_color_move_to_saturation)
+        self.pushButton_temperature.clicked.connect(self.zcl_color_move_to_temperature)
+
+    def zcl_color_move_to_hue(self):
+        dst_mode_s = self.comboBox_moveHueDstMode.currentText()
+        dst_addr_s = self.lineEdit_moveHueDstAddr.text()
+        src_ep_s = self.lineEdit_moveHueSrcEp.text()
+        dst_ep_s = self.lineEdit_moveHueDstEp.text()
+        payload = self.zcl_cluster_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s)
+
+        hue_s = self.lineEdit_moveHueHue.text()
+        hue = line_edit_str2int(1, hue_s)
+        payload += struct.pack("!%dB" % len(hue), *hue)
+
+        direction_s = self.lineEdit_moveHueDir.text()
+        direction = line_edit_str2int(1, direction_s)
+        payload += struct.pack("!%dB" % len(direction), *direction)
+
+        transition_time_s = self.lineEdit_moveHueTime.text()
+        transition_time = line_edit_str2int(2, transition_time_s)
+        payload += struct.pack("!%dB" % len(transition_time), *transition_time)
+        self.send_hci_command(0x0170, len(payload), payload)
+
+    def zcl_color_move_to_color(self):
+        dst_mode_s = self.comboBox_moveColorDstMode.currentText()
+        dst_addr_s = self.lineEdit_moveColorDstAddr.text()
+        src_ep_s = self.lineEdit_moveColorSrcEp.text()
+        dst_ep_s = self.lineEdit_moveColorDstEp.text()
+        payload = self.zcl_cluster_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s)
+
+        color_x_s = self.lineEdit_moveColorX.text()
+        color_x = line_edit_str2int(2, color_x_s)
+        payload += struct.pack("!%dB" % len(color_x), *color_x)
+
+        color_y_s = self.lineEdit_moveColorY.text()
+        color_y = line_edit_str2int(2, color_y_s)
+        payload += struct.pack("!%dB" % len(color_y), *color_y)
+
+        transition_time_s = self.lineEdit_moveColorTime.text()
+        transition_time = line_edit_str2int(2, transition_time_s)
+        payload += struct.pack("!%dB" % len(transition_time), *transition_time)
+        self.send_hci_command(0x0171, len(payload), payload)
+
+    def zcl_color_move_to_saturation(self):
+        dst_mode_s = self.comboBox_moveSatDstMode.currentText()
+        dst_addr_s = self.lineEdit_moveSatDstAddr.text()
+        src_ep_s = self.lineEdit_moveSatSrcEp.text()
+        dst_ep_s = self.lineEdit_moveSatDstEp.text()
+        payload = self.zcl_cluster_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s)
+
+        saturation_s = self.lineEdit_moveSatSat.text()
+        saturation = line_edit_str2int(1, saturation_s)
+        payload += struct.pack("!%dB" % len(saturation), *saturation)
+
+        transition_time_s = self.lineEdit_moveSatTime.text()
+        transition_time = line_edit_str2int(2, transition_time_s)
+        payload += struct.pack("!%dB" % len(transition_time), *transition_time)
+        self.send_hci_command(0x0172, len(payload), payload)
+
+    def zcl_color_move_to_temperature(self):
+        dst_mode_s = self.comboBox_moveTempDstMode.currentText()
+        dst_addr_s = self.lineEdit_moveTempDstAddr.text()
+        src_ep_s = self.lineEdit_moveTempSrcEp.text()
+        dst_ep_s = self.lineEdit_moveTempDstEp.text()
+        payload = self.zcl_cluster_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s)
+
+        saturation_s = self.lineEdit_moveTempTemp.text()
+        saturation = line_edit_str2int(2, saturation_s)
+        payload += struct.pack("!%dB" % len(saturation), *saturation)
+
+        transition_time_s = self.lineEdit_moveTempTime.text()
+        transition_time = line_edit_str2int(2, transition_time_s)
+        payload += struct.pack("!%dB" % len(transition_time), *transition_time)
+        self.send_hci_command(0x0173, len(payload), payload)
+
+    def zcl_identify_init(self):
+        self.pushButton_identify.clicked.connect(self.zcl_identify)
+        self.pushButton_identifyQuery.clicked.connect(self.zcl_identify_query)
+
+    def zcl_identify(self):
+        dst_mode_s = self.comboBox_identifyDstMode.currentText()
+        dst_addr_s = self.lineEdit_identifyDstAddr.text()
+        src_ep_s = self.lineEdit_identifySrcEp.text()
+        dst_ep_s = self.lineEdit_identifyDstEp.text()
+        payload = self.zcl_cluster_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s)
+
+        identify_time_s = self.lineEdit_identifyTime.text()
+        identify_time = line_edit_str2int(2, identify_time_s)
+        payload += struct.pack("!%dB" % len(identify_time), *identify_time)
+        self.send_hci_command(0x0130, len(payload), payload)
+
+    def zcl_identify_query(self):
+        dst_mode_s = self.comboBox_identifyQueryDstMode.currentText()
+        dst_addr_s = self.lineEdit_identifyQueryDstAddr.text()
+        src_ep_s = self.lineEdit_identifyQuerySrcEp.text()
+        dst_ep_s = self.lineEdit_identifyQueryDstEp.text()
+        payload = self.zcl_cluster_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s)
+        self.send_hci_command(0x0131, len(payload), payload)
+
+    def zcl_scene_init(self):
+        self.pushButton_addScene.clicked.connect(self.zcl_scene_add_scene)
+        self.pushButton_viewScene.clicked.connect(self.zcl_scene_view_scene)
+        self.pushButton_removeScene.clicked.connect(self.zcl_scene_remove_scene)
+        self.pushButton_sceneRemoveAll.clicked.connect(self.zcl_scene_remove_all)
+        self.pushButton_storeScene.clicked.connect(self.zcl_scene_store_scene)
+        self.pushButton_recallScene.clicked.connect(self.zcl_scene_recall_scene)
+        self.pushButton_sceneGetMembership.clicked.connect(self.zcl_scene_get_membership)
+
+    def zcl_scene_add_scene(self):
+        dst_mode_s = self.comboBox_addSceneDstMode.currentText()
+        dst_addr_s = self.lineEdit_addSceneDstAddr.text()
+        src_ep_s = self.lineEdit_addSceneSrcEp.text()
+        dst_ep_s = self.lineEdit_addSceneDstEp.text()
+        payload = self.zcl_cluster_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s)
+
+        group_id_s = self.lineEdit_addSceneGroupId.text()
+        group_id = line_edit_str2int(2, group_id_s)
+        payload += struct.pack("!%dB" % len(group_id), *group_id)
+
+        scene_id_s = self.lineEdit_addSceneSceneId.text()
+        scene_id = line_edit_str2int(1, scene_id_s)
+        payload += struct.pack("!%dB" % len(scene_id), *scene_id)
+
+        transition_time_s = self.lineEdit_addSceneTime.text()
+        transition_time = line_edit_str2int(2, transition_time_s)
+        payload += struct.pack("!%dB" % len(transition_time), *transition_time)
+
+        scene_name_len_s = self.lineEdit_addSceneNameLen.text()
+        if scene_name_len_s:
+            # print('scene_name_len_s:')
+            scene_name_len = line_edit_str2int(1, scene_name_len_s)
+            # print(scene_name_len)
+            payload += struct.pack("!%dB" % len(scene_name_len), *scene_name_len)
+
+            scene_name_s = self.lineEdit_addSceneName.text()
+            scene_name = line_edit_str2int(scene_name_len[0], scene_name_s)
+            payload += struct.pack("!%dB" % len(scene_name), *scene_name)
+        else:
+            scene_name_len = 0
+            payload += struct.pack("!B", scene_name_len)
+
+        ext_len_s = self.lineEdit_addSceneExtLen.text()
+        if ext_len_s:
+            # print('ext_len_s:')
+            # print(ext_len_s)
+            ext_len = line_edit_str2int(1, ext_len_s)
+            payload += struct.pack("!%dB" % len(ext_len), *ext_len)
+
+            ext_field_s = self.lineEdit_addSceneExtField.text()
+            ext_field = line_edit_str2int(ext_len[0], ext_field_s)
+            payload += struct.pack("!%dB" % len(ext_field), *ext_field)
+        else:
+            ext_len = 0
+            payload += struct.pack("!B", ext_len)
+
+        self.send_hci_command(0x0160, len(payload), payload)
+
+    def zcl_scene_view_scene(self):
+        dst_mode_s = self.comboBox_viewSceneDstMode.currentText()
+        dst_addr_s = self.lineEdit_viewSceneDstAddr.text()
+        src_ep_s = self.lineEdit_viewSceneSrcEp.text()
+        dst_ep_s = self.lineEdit_viewSceneDstEp.text()
+        payload = self.zcl_cluster_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s)
+
+        group_id_s = self.lineEdit_viewSceneGroupId.text()
+        group_id = line_edit_str2int(2, group_id_s)
+        payload += struct.pack("!%dB" % len(group_id), *group_id)
+
+        scene_id_s = self.lineEdit_viewSceneId.text()
+        scene_id = line_edit_str2int(1, scene_id_s)
+        payload += struct.pack("!%dB" % len(scene_id), *scene_id)
+        self.send_hci_command(0x0161, len(payload), payload)
+
+    def zcl_scene_remove_scene(self):
+        dst_mode_s = self.comboBox_removeSceneDstMode.currentText()
+        dst_addr_s = self.lineEdit_removeSceneDstAddr.text()
+        src_ep_s = self.lineEdit_removeSceneSrcEp.text()
+        dst_ep_s = self.lineEdit_removeSceneDstEp.text()
+        payload = self.zcl_cluster_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s)
+
+        group_id_s = self.lineEdit_removeSceneGroupId.text()
+        group_id = line_edit_str2int(2, group_id_s)
+        payload += struct.pack("!%dB" % len(group_id), *group_id)
+
+        scene_id_s = self.lineEdit_removeSceneId.text()
+        scene_id = line_edit_str2int(1, scene_id_s)
+        payload += struct.pack("!%dB" % len(scene_id), *scene_id)
+        self.send_hci_command(0x0162, len(payload), payload)
+
+    def zcl_scene_remove_all(self):
+        dst_mode_s = self.comboBox_sceneRemoveAllDstMode.currentText()
+        dst_addr_s = self.lineEdit_sceneRemoveAllDstAddr.text()
+        src_ep_s = self.lineEdit_sceneRemoveAllSrcEp.text()
+        dst_ep_s = self.lineEdit_sceneRemoveAllDstEp.text()
+        payload = self.zcl_cluster_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s)
+
+        group_id_s = self.lineEdit_sceneRemoveAllGroupId.text()
+        group_id = line_edit_str2int(2, group_id_s)
+        payload += struct.pack("!%dB" % len(group_id), *group_id)
+        self.send_hci_command(0x0163, len(payload), payload)
+
+    def zcl_scene_store_scene(self):
+        dst_mode_s = self.comboBox_storeSceneDstMode.currentText()
+        dst_addr_s = self.lineEdit_storeSceneDstAddr.text()
+        src_ep_s = self.lineEdit_storeSceneSrcEp.text()
+        dst_ep_s = self.lineEdit_storeSceneDstEp.text()
+        payload = self.zcl_cluster_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s)
+
+        group_id_s = self.lineEdit_storeSceneGroupId.text()
+        group_id = line_edit_str2int(2, group_id_s)
+        payload += struct.pack("!%dB" % len(group_id), *group_id)
+
+        scene_id_s = self.lineEdit_storeSceneId.text()
+        scene_id = line_edit_str2int(1, scene_id_s)
+        payload += struct.pack("!%dB" % len(scene_id), *scene_id)
+        self.send_hci_command(0x0164, len(payload), payload)
+
+    def zcl_scene_recall_scene(self):
+        dst_mode_s = self.comboBox_recallSceneDstMode.currentText()
+        dst_addr_s = self.lineEdit_recallSceneDstAddr.text()
+        src_ep_s = self.lineEdit_recallSceneSrcEp.text()
+        dst_ep_s = self.lineEdit_recallSceneDstEp.text()
+        payload = self.zcl_cluster_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s)
+
+        group_id_s = self.lineEdit_recallSceneGroupId.text()
+        group_id = line_edit_str2int(2, group_id_s)
+        payload += struct.pack("!%dB" % len(group_id), *group_id)
+
+        scene_id_s = self.lineEdit_recallSceneId.text()
+        scene_id = line_edit_str2int(1, scene_id_s)
+        payload += struct.pack("!%dB" % len(scene_id), *scene_id)
+        self.send_hci_command(0x0165, len(payload), payload)
+
+    def zcl_scene_get_membership(self):
+        dst_mode_s = self.comboBox_getSceneDstMode.currentText()
+        dst_addr_s = self.lineEdit_getSceneDstAddr.text()
+        src_ep_s = self.lineEdit_getSceneSrcEp.text()
+        dst_ep_s = self.lineEdit_getSceneDstEp.text()
+        payload = self.zcl_cluster_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s)
+
+        group_id_s = self.lineEdit_getSceneGroupId.text()
+        group_id = line_edit_str2int(2, group_id_s)
+        payload += struct.pack("!%dB" % len(group_id), *group_id)
+        self.send_hci_command(0x0166, len(payload), payload)
+
+    def ota_init(self):
+        self.pushButton_imageNotify.clicked.connect(self.ota_image_notify_send)
+
+    def ota_image_notify_send(self):
+        dst_mode_s = self.comboBox_otaDstMode.currentText()
+        dst_addr_s = self.lineEdit_otaDstAddr.text()
+        src_ep_s = self.lineEdit_otaSrcEp.text()
+        dst_ep_s = self.lineEdit_otaDstEp.text()
+        payload = self.zcl_cluster_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s)
+
+        dst_mode_s = self.comboBox_payloadType.currentIndex()
+        payload += struct.pack("!B", dst_mode_s)
+        jitter_str = self.lineEdit_jitter.text()
+        jitter = line_edit_str2int(1, jitter_str)
+        payload += struct.pack("!%dB" % len(jitter), *jitter)
+        self.send_hci_command(0x0190, len(payload), payload)
+
+    def af_test_init(self):
+        self.pushButton_txrxTest.clicked.connect(self.af_txrx_test)
+        self.pushButton_afDataSend.clicked.connect(self.af_data_send)
+        self.pushButton_nodesToggleTest.clicked.connect(self.af_nodes_toggle_test)
+
+    def af_txrx_test(self):
+        dst_addr_s = self.lineEdit_txrxTestDstAddr.text()
+        dst_addr = line_edit_str2int(2, dst_addr_s)
+        payload = struct.pack("!%dB" % len(dst_addr), *dst_addr)
+
+        src_ep_s = self.lineEdit_txrxTestSrcEp.text()
+        src_ep = line_edit_str2int(1, src_ep_s)
+        payload += struct.pack("!%dB" % len(src_ep), *src_ep)
+
+        dst_ep_s = self.lineEdit_txrxTestDstEp.text()
+        dst_ep = line_edit_str2int(1, dst_ep_s)
+        payload += struct.pack("!%dB" % len(dst_ep), *dst_ep)
+
+        send_count_s = self.lineEdit_txrxTestSendCount.text()
+        send_count = line_edit_str2int(2, send_count_s)
+        payload += struct.pack("!%dB" % len(send_count), *send_count)
+
+        send_interval_s = self.lineEdit_txrxTestInterval.text()
+        send_interval = line_edit_str2int(1, send_interval_s)
+        payload += struct.pack("!%dB" % len(send_interval), *send_interval)
+
+        send_tx_power_s = self.lineEdit_txrxTestTxPower.text()
+        send_tx_power = line_edit_str2int(1, send_tx_power_s)
+        payload += struct.pack("!%dB" % len(send_tx_power), *send_tx_power)
+        self.send_hci_command(0x0042, len(payload), payload)
+
+    def af_data_send(self):
+        dst_addr_s = self.lineEdit_afDataSendDstAddr.text()
+        dst_addr = line_edit_str2int(2, dst_addr_s)
+        payload = struct.pack("!%dB" % len(dst_addr), *dst_addr)
+
+        src_ep_s = self.lineEdit_afDataSendSrcEp.text()
+        src_ep = line_edit_str2int(1, src_ep_s)
+        payload += struct.pack("!%dB" % len(src_ep), *src_ep)
+
+        dst_ep_s = self.lineEdit_afDataSendDstEp.text()
+        dst_ep = line_edit_str2int(1, dst_ep_s)
+        payload += struct.pack("!%dB" % len(dst_ep), *dst_ep)
+
+        cluster_id_s = self.lineEdit_afDataSendClusterId.text()
+        cluster_id = line_edit_str2int(2, cluster_id_s)
+        payload += struct.pack("!%dB" % len(cluster_id), *cluster_id)
+
+        data_send_s = self.lineEdit_afDataSendData.text()
+        if data_send_s:
+            data_len = int((len(data_send_s) - 2) / 2)
+            payload += struct.pack("!H", data_len)
+            data_send = line_edit_str2int(data_len, data_send_s)
+            payload += struct.pack("!%dB" % len(data_send), *data_send)
+        else:
+            data_len = 0
+            payload += struct.pack("!H", data_len)
+        self.send_hci_command(0x0044, len(payload), payload)
+
+    def af_nodes_toggle_test(self):
+        dst_mode = self.comboBox_toggleTestMode.currentIndex()
+        payload = struct.pack("!B", dst_mode)
+
+        interval_s = self.lineEdit_toggleInterval.text()
+        interval = line_edit_str2int(1, interval_s)
+        payload += struct.pack("!%dB" % len(interval), *interval)
+        self.send_hci_command(0x0041, len(payload), payload)
+
+    def hci_ota_init(self):
+        self.pushButton_hciOtaFileChoose.clicked.connect(self.choose_hci_ota_file)
+        self.pushButton_hciOtaStart.clicked.connect(self.start_hci_ota)
+
+    def choose_hci_ota_file(self):
+        get_path, file_type = QFileDialog.getOpenFileName(self, '选择文件', os.path.expanduser(os.getcwd()),
+                                                          "OTA(*.ota);; BIN(*.bin)")
+        self.lineEdit_hciOtaFilePath.setText(get_path)
+
+    def start_hci_ota(self):
+        self.CsvFiles.hci_ota_offset = 0
+        self.CsvFiles.hci_ota_file_size = 0
+        hci_ota_path = self.lineEdit_hciOtaFilePath.text()
+        if hci_ota_path:
+            self.CsvFiles.hci_ota_file_path = hci_ota_path
+            self.CsvFiles.hci_ota_file_size = os.path.getsize(hci_ota_path)
+            # print('ota_file_size:%d' % self.CsvFiles.hci_ota_file_size)
+            payload = struct.pack("!L", self.CsvFiles.hci_ota_file_size)
+            payload_len = len(payload)
+            self.send_hci_command(0x0210, payload_len, payload)
+            self.progressBar_hciOta.setValue(0)
+        else:
+            QMessageBox.warning(self, 'hci ota warning', "请先指定串口升级文件！")
+
+    def command_analyze_init(self):
+        self.pushButton_analyzePathChoose.clicked.connect(self.choose_analyze_folder)
+        self.pushButton_getNwkAddr.clicked.connect(self.select_differ_nodes)
+        self.pushButton_startAnalyze.clicked.connect(self.start_analyze)
+
+    def select_differ_nodes(self):
+        self.pushButton_getNwkAddr.setEnabled(False)
+        self.textEdit_nwkAddrShow.clear()
+        self.textEdit_nwkAddrShow.setText('获取中。。。')
+        file_path = self.lineEdit_analyzePath.text()
+        self.nodeswork = WorkThread(file_path, self.CsvFiles)
+        self.nodeswork.nodes_signals.connect(self.get_nodes_result_show)  # 信号连接槽函数
+        self.nodeswork.start()  # 开启线程
+
+    def get_nodes_result_show(self, read_file_flag, get_nodes_addrs):
+        get_nodes_info = ''
+        if read_file_flag == 1:
+            if len(get_nodes_addrs) == 0:
+                QMessageBox.warning(self, '获取入网设备地址', "还没有通信数据！")
+            else:
+                cell_num = 0
+                for cell in get_nodes_addrs:
+                    get_nodes_info += cell + ' '
+                    cell_num += 1
+                get_nodes_info += '(共%d个节点)' % cell_num
+                # print('get_nodes_info:')
+                # print(get_nodes_info)
+        elif read_file_flag == 4:
+            QMessageBox.warning(self, '获取入网设备地址', "文件被破坏，请检查文件信息！")
+        elif read_file_flag == 3:
+            QMessageBox.warning(self, '获取入网设备地址', "请不要打开文件夹下文件！")
+        elif read_file_flag == 2:
+            QMessageBox.warning(self, '获取入网设备地址', "请选择正确文件夹！")
+        else:
+            pass
+        self.textEdit_nwkAddrShow.clear()
+        self.textEdit_nwkAddrShow.setText(get_nodes_info)
+        self.pushButton_getNwkAddr.setEnabled(True)
+
+    def choose_analyze_folder(self):
+        default_dir = os.path.expanduser(os.getcwd()) + '/userdata'
+        get_path = QFileDialog.getExistingDirectory(self, '选择文件夹', default_dir)
+        self.lineEdit_analyzePath.setText(get_path)
+
+    def get_analyze_nwk_addr(self):
+        get_nodes_info = ''
+        analyze_folder_path = self.lineEdit_analyzePath.text()
+        # print('self.analyze_folder_path:{}'.format(analyze_folder_path))
+        read_file_flag, get_nodes_addrs = self.CsvFiles.pickup_diff_nodes_info(analyze_folder_path)
+        # print(read_file_flag)
+        # print(get_nodes_addrs)
+
+        if read_file_flag == 4:
+            QMessageBox.warning(self, '获取入网设备地址', "文件被破坏，请检查文件信息！")
+        elif read_file_flag == 3:
+            QMessageBox.warning(self, '获取入网设备地址', "请不要打开文件夹下文件！")
+        elif read_file_flag == 2:
+            QMessageBox.warning(self, '获取入网设备地址', "请选择正确文件夹！")
+        elif read_file_flag == 1:
+            cell_num = 0
+            for cell in get_nodes_addrs:
+                get_nodes_info += cell + ' '
+                cell_num += 1
+            get_nodes_info += '(共%d个节点)' % cell_num
+            # print(get_nodes_info)
+        else:
+            pass
+        self.textEdit_nwkAddrShow.clear()
+        self.textEdit_nwkAddrShow.setText(get_nodes_info)
+        self.pushButton_getNwkAddr.setEnabled(True)
+
+    def start_analyze(self):
+        folder_path = self.lineEdit_analyzePath.text()
+        analyze_addr = self.lineEdit_analyzeAddr.text()
+        analyze_interval = self.lineEdit_analyzeInterval.text()
+        analyze_command = self.lineEdit_analyzeCommandId.text()
+        self.pushButton_startAnalyze.setEnabled(False)
+        self.pushButton_startAnalyze.setText('解析中。。。')
+        self.processwork = ProcessWorkThread(self.CsvFiles, folder_path, analyze_addr, analyze_interval, analyze_command)
+        self.processwork.process_result.connect(self.process_result_show)  # 信号连接槽函数
+        self.processwork.start()  # 开启线程
+
+    def process_result_show(self, read_file_flag, command_cnt_show):
+        # print(read_file_flag)
+        self.pushButton_startAnalyze.setText('开始解析')
+        self.pushButton_startAnalyze.setEnabled(True)
+        if read_file_flag == 1:
+            QMessageBox.warning(self, '查找结果', '共查到' + str(command_cnt_show) + '条记录!')
+        elif read_file_flag == 2:
+            QMessageBox.warning(self, '查找结果', "没有节点信息!")
+        elif read_file_flag == 3:
+            QMessageBox.warning(self, '查找结果', "请不要打开文件夹下文件!")
+        elif read_file_flag == 4:
+            QMessageBox.warning(self, '查找结果', "文件被破坏，请检查文件信息！")
+        elif read_file_flag == 5:
+            QMessageBox.warning(self, '查找结果', "输入信息有误！")
+        else:
+            pass
+
+    def send_hci_command(self, command_id, payload_len, payload):
+        command_start = self.ai_setting.command_start
+        command_crc = crc8_calculate(command_id, payload_len, payload)
+        command_end = self.ai_setting.command_end
+        if payload_len > 0:
+            # payload_str = bytes(payload)
+            send_data: bytes = struct.pack("!B2HB%dsB" % payload_len, command_start, command_id, payload_len,
+                                           command_crc, payload, command_end)
+        else:
+            send_data: bytes = struct.pack("!B2H2B", command_start, command_id, payload_len, command_crc, command_end)
+        self.send_show_data(send_data)
+
+    def send_show_data(self, send_data):
+        if not self.checkBox_thread.isChecked():
+            if len(send_data) > self.ai_setting.command_length_max:
+                QMessageBox.warning(self, 'port warning', "发送长度超过设定最大值(%d)" % self.ai_setting.command_length_max)
+                return
+        try:
+            self.ser.write(send_data)
+            self.show_bytes_to_widget(send_data)
+        except serial.serialutil.PortNotOpenError:
+            QMessageBox.warning(self, 'port warning', "串口未打开！")
+        except serial.SerialTimeoutException:
+            QMessageBox.warning(self, 'port warning', "串口发送超时！")
+        except serial.SerialException:
+            QMessageBox.warning(self, 'port warning', '串口异常！')
+
+    def show_bytes_to_widget(self, send_data):
+        dt = datetime.now()
+        timestr = dt.strftime('%y-%m-%d %I:%M:%S.%f')
+        if not self.checkBox_thread.isChecked():
+            send_data_str = ''
+            for hvol in send_data:
+                hhex = '%02x' % hvol
+                send_data_str += hhex + ' '
+            self.listWidget_commandData.addItem(timestr + ' send-->:' + send_data_str)
+            write_result = self.CsvFiles.write_file(self.ai_setting, dt, send_data, send_data_str)
+            if write_result != 1:
+                QMessageBox.warning(self, 'write file warning', "请不要打开文件夹下文件！")
+        else:
+            # print(str(send_data))
+            send_data_str = send_data.decode('utf-8', 'ignore')
+            self.listWidget_commandData.addItem(timestr + ' send-->:')
+            self.listWidget_commandData.addItem(send_data_str)
+            write_result = self.txtFiles.write_file(timestr, send_data_str, 'send-->')
+            if write_result != 1:
+                QMessageBox.warning(self, 'write file warning', "请不要打开文件夹下文件！")
+
+
+# 继承QThread，重写run方法
+class WorkThread(QThread):
+    nodes_signals = pyqtSignal(int, list)  # 定义信号对象,传递值为str类型，使用int，可以为int类型
+
+    def __init__(self, folder_path, csv):  # 向线程中传递参数，以便在run方法中使用
+        super(WorkThread, self).__init__()
+        self.folder_path = folder_path
+        self.csvFile = csv
+
+    def run(self):  # 重写run方法
+        # print(self.folder_path)
+        read_file_flag, get_nodes_addrs = self.csvFile.pickup_diff_nodes_info(self.folder_path)
+        self.nodes_signals.emit(read_file_flag, get_nodes_addrs)  # 发射信号，str类型数据，内容为需要传递的数据
+        # self.write_signel.emit(read_file_flag)
+
+
+# 继承QThread，重写run方法
+class ProcessWorkThread(QThread):
+    process_result = pyqtSignal(int, int)  # 定义信号对象,传递值为str类型，使用int，可以为int类型
+
+    def __init__(self, csv, folder_path, analyze_addr, analyze_interval, analyze_command):  # 向线程中传递参数，以便在run方法中使用
+        super(ProcessWorkThread, self).__init__()
+        self.csvFile = csv
+        self.folder_path = folder_path
+        self.analyze_addr = analyze_addr
+        self.analyze_interval = analyze_interval
+        self.analyze_command = analyze_command
+
+    def run(self):  # 重写run方法
+        read_flag, command_cnt = self.csvFile.pick_out_command_by_addr_time(self.folder_path, self.analyze_addr,
+                                                                            self.analyze_interval, self.analyze_command)
+        self.process_result.emit(read_flag, command_cnt)  # 发射信号，str类型数据，内容为需要传递的数据
