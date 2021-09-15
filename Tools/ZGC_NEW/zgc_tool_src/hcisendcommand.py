@@ -703,7 +703,7 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         self.pushButton_readReportCfg.clicked.connect(self.zcl_general_read_report_config)
         self.pushButton_genReset.clicked.connect(self.zcl_basic_reset)
 
-    def zcl_general_addr_handle(self, dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s, direct, cluster_id_s):
+    def zcl_general_addr_handle(self, dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s, profile_id_s, direct, cluster_id_s):
         dst_mode = self.ai_setting.addr_mode[dst_mode_s]
         # print(dst_mode)
         payload = struct.pack("!B", dst_mode)
@@ -723,6 +723,9 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             dst_ep = line_edit_str2int(1, dst_ep_s)
             payload += struct.pack("!%dB" % len(dst_ep), *dst_ep)
+
+        profile_id = line_edit_str2int(2, profile_id_s)
+        payload += struct.pack("!%dB" % len(profile_id), *profile_id)
 
         if direct is not None:
             payload += struct.pack("!B", direct)
@@ -761,9 +764,10 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         dst_addr_s = self.lineEdit_readAttrDstAddr.text()
         src_ep_s = self.lineEdit_readAttrSrcEp.text()
         dst_ep_s = self.lineEdit_readAttrDstEp.text()
+        profile_id_s = self.lineEdit_readAttrProfileId.text()
         direct = self.comboBox_readAttrDirect.currentIndex()
         cluster_id_s = self.lineEdit_readAttrClusterId.text()
-        payload = self.zcl_general_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s, direct, cluster_id_s)
+        payload = self.zcl_general_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s, profile_id_s, direct, cluster_id_s)
 
         attr_id_s = self.lineEdit_readAttrAttrId.text()
         attr_id_cnt = int((len(attr_id_s) - 2) / 4)
@@ -776,9 +780,10 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         dst_addr_s = self.lineEdit_writeAttrDstAddr.text()
         src_ep_s = self.lineEdit_writeAttrSrcEp.text()
         dst_ep_s = self.lineEdit_writeAttrDstEp.text()
+        profile_id_s = self.lineEdit_writeAttrProfileId.text()
         direct = self.comboBox_writeAttrDirect.currentIndex()
         cluster_id_s = self.lineEdit_writeAttrClusterId.text()
-        payload = self.zcl_general_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s, direct, cluster_id_s)
+        payload = self.zcl_general_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s, profile_id_s, direct, cluster_id_s)
 
         attr_id_s = self.lineEdit_writeAttrAttrId.text()
         attr_id_cnt = int((len(attr_id_s) - 2) / 4)
@@ -803,9 +808,10 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         dst_addr_s = self.lineEdit_configReportDstAddr.text()
         src_ep_s = self.lineEdit_configReportSrcEp.text()
         dst_ep_s = self.lineEdit_configReportDstEp.text()
+        profile_id_s = self.lineEdit_configReportProfileId.text()
         direct = self.comboBox_configReportDirect.currentIndex()
         cluster_id_s = self.lineEdit_configReportClusterId.text()
-        payload = self.zcl_general_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s, direct, cluster_id_s)
+        payload = self.zcl_general_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s, profile_id_s, direct, cluster_id_s)
 
         report_dir = self.comboBox_configReportSendType.currentIndex()
 
@@ -844,9 +850,10 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         dst_addr_s = self.lineEdit_readReportCfgDstAddr.text()
         src_ep_s = self.lineEdit_readReportCfgSrcEp.text()
         dst_ep_s = self.lineEdit_readReportCfgDstEp.text()
+        profile_id_s = self.lineEdit_readReportCfgProfileId.text()
         direct = self.comboBox_readReportCfgDir.currentIndex()
         cluster_id_s = self.lineEdit_readReportCfgClusterId.text()
-        payload = self.zcl_general_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s, direct, cluster_id_s)
+        payload = self.zcl_general_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s, profile_id_s, direct, cluster_id_s)
 
         report_dir = self.comboBox_readReportCfgType.currentIndex()
 

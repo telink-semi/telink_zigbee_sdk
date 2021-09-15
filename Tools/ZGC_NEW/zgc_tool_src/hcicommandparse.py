@@ -472,14 +472,16 @@ class ParseRecvCommand:
                               '\tstatus:' + hex(status) + '(' + self.recv_status + ')']
 
     def hci_mgmt_leave_rsp_handle(self, ai_setting, payload, nodes_info):
-        self.recv_status = ai_setting.get_zdp_msg_status_str(0)  # success
         bytes_data = bytearray(payload)
-        src_addr, seq_num, total_cnt, ieee_addr = struct.unpack("!HBHQ", bytes_data)
-        self.description = 'seq_num:' + hex(seq_num) + ' total_cnt:' + hex(total_cnt) + ' ieee_addr:0x%16x' % ieee_addr
+        src_addr, seq_num, status, ieee_addr, rejoin = struct.unpack("!H2BQB", bytes_data)
+        self.recv_status = ai_setting.get_zdp_msg_status_str(status)
+        self.description = 'seq_num:' + hex(seq_num) + ' status:' + hex(status) + '(' + self.recv_status + ')' + \
+                           ' ieee_addr:0x%16x' % ieee_addr + ' rejoin:' + hex(rejoin)
         self.payload_items = ['\tsrc_addr:0x%04x' % src_addr,
                               '\tseq_num:' + hex(seq_num),
-                              '\ttotal_cnt:' + hex(total_cnt),
-                              '\tieee_addr:0x%16x' % ieee_addr]
+                              '\tstatus:' + hex(status) + '(' + self.recv_status + ')',
+                              '\tieee_addr:0x%16x' % ieee_addr,
+                              '\trejoin:' + hex(rejoin)]
         if ieee_addr in nodes_info:
             self.nodes_info_change = True
             del nodes_info[ieee_addr]
@@ -1510,8 +1512,9 @@ class ParseSendCommand:
     def hci_zcl_attr_read_parse(self, ai_setting, payload):
         bytes_data = bytearray(payload)
         ptr = self.hci_zcl_addr_resolve(ai_setting, bytes_data)
-        direction, cluster_id, attr_cnt = struct.unpack("!BHB", bytes_data[ptr: ptr + 4])
-        ptr += 4
+        profile_id, direction, cluster_id, attr_cnt = struct.unpack("!HBHB", bytes_data[ptr: ptr + 6])
+        ptr += 6
+        self.parse_items.append('\tprofile_id:  0x%04x' % profile_id)
         if direction == 0:
             self.parse_items.append('\tdirection: ' + hex(direction) + '(to server)')
             self.description += ' direction: ' + hex(direction) + '(to server)'
@@ -1534,8 +1537,9 @@ class ParseSendCommand:
     def hci_zcl_attr_write_parse(self, ai_setting, payload_len, payload):
         bytes_data = bytearray(payload)
         ptr = self.hci_zcl_addr_resolve(ai_setting, bytes_data)
-        direction, cluster_id, attr_cnt = struct.unpack("!BHB", bytes_data[ptr: ptr + 4])
-        ptr += 4
+        profile_id, direction, cluster_id, attr_cnt = struct.unpack("!HBHB", bytes_data[ptr: ptr + 6])
+        ptr += 6
+        self.parse_items.append('\tprofile_id:  0x%04x' % profile_id)
         if direction == 0:
             self.parse_items.append('\tdirection: ' + hex(direction) + '(to server)')
             self.description += ' direction: ' + hex(direction) + '(to server)'
@@ -1568,8 +1572,9 @@ class ParseSendCommand:
     def hci_zcl_config_report_parse(self, ai_setting, payload):
         bytes_data = bytearray(payload)
         ptr = self.hci_zcl_addr_resolve(ai_setting, bytes_data)
-        direction, cluster_id, attr_cnt = struct.unpack("!BHB", bytes_data[ptr: ptr + 4])
-        ptr += 4
+        profile_id, direction, cluster_id, attr_cnt = struct.unpack("!HBHB", bytes_data[ptr: ptr + 6])
+        ptr += 6
+        self.parse_items.append('\tprofile_id:  0x%04x' % profile_id)
         if direction == 0:
             self.parse_items.append('\tdirection: ' + hex(direction) + '(to server)')
             self.description += ' direction: ' + hex(direction) + '(to server)'
@@ -1613,8 +1618,9 @@ class ParseSendCommand:
     def hci_zcl_read_report_cfg_parse(self, ai_setting, payload):
         bytes_data = bytearray(payload)
         ptr = self.hci_zcl_addr_resolve(ai_setting, bytes_data)
-        direction, cluster_id, attr_cnt = struct.unpack("!BHB", bytes_data[ptr: ptr + 4])
-        ptr += 4
+        profile_id, direction, cluster_id, attr_cnt = struct.unpack("!HBHB", bytes_data[ptr: ptr + 6])
+        ptr += 6
+        self.parse_items.append('\tprofile_id:  0x%04x' % profile_id)
         if direction == 0:
             self.parse_items.append('\tdirection: ' + hex(direction) + '(to server)')
             self.description += ' direction: ' + hex(direction) + '(to server)'
