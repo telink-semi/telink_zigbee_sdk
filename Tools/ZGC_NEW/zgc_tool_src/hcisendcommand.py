@@ -88,6 +88,8 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         self.CsvFiles = CsvFiles()
         self.txtFiles = TxtFiles()
         self.choose_node_addr = ''
+        self.recv_interval = 5
+        self.recv_interval_pre = 5
         self.init()
 
     def init(self):
@@ -165,6 +167,19 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.port_close()
         self.comboBox_portName.setCurrentText(port_name_current)
 
+    def recv_interval_change(self):
+        try:
+            self.recv_interval = int(self.lineEdit_recvInterval.text())
+        except ValueError:
+            self.recv_interval = 5
+            self.lineEdit_recvInterval.setText('%d' % self.recv_interval)
+
+        # print("self.recv_interval_pre:%d, self.recv_interval:%d\n" % (self.recv_interval_pre, self.recv_interval))
+        if self.recv_interval_pre != self.recv_interval:
+            self.recv_interval_pre = self.recv_interval
+            self.recvTimer.start(self.recv_interval)  # 2ms
+            self.showTimer.start(self.recv_interval)
+
     def port_open(self):
         self.ser.port = self.comboBox_portName.currentText()
         self.ser.baudrate = int(self.comboBox_baudrate.currentText())
@@ -172,19 +187,25 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         self.ser.stopbits = int(self.comboBox_stopbits.currentText())
         self.ser.parity = self.comboBox_parity.currentText()[0:1]
         self.ser.timeout = 5
-
+        try:
+            self.recv_interval = int(self.lineEdit_recvInterval.text())
+        except ValueError:
+            self.recv_interval = 5
+            self.lineEdit_recvInterval.setText('%d' % self.recv_interval)
+        # print("self.recv_interval:%d\n" % self.recv_interval)
         try:
             self.ser.open()
         except serial.SerialException:
-            QMessageBox.critical(self, 'port error', "此串口不能打开！")
+            QMessageBox.critical(self, 'port error', "Can not open！")
         else:
             self.portisopen = 1
             self.port_com = self.ser.port
-            self.label_portState.setText(self.ser.port + '串口已打开')
-            self.recvTimer.start(5)  # 2ms
-            self.showTimer.start(5)
+            self.label_portState.setText(self.ser.port + ' Opened')
+            self.recvTimer.start(self.recv_interval)  # 2ms
+            self.showTimer.start(self.recv_interval)
             self.pushButton_openPort.setEnabled(False)
             self.pushButton_closePort.setEnabled(True)
+            self.lineEdit_recvInterval.textChanged.connect(self.recv_interval_change)
 
     def port_close(self):
         if self.portisopen:
@@ -193,7 +214,7 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
             self.recvTimer.stop()
             self.showTimer.stop()
             self.ser.close()
-            self.label_portState.setText('串口已关闭')
+            self.label_portState.setText(' Closed')
             self.pushButton_openPort.setEnabled(True)
             self.pushButton_closePort.setEnabled(False)
             self.port_detect()
@@ -214,7 +235,7 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
                         try:
                             num = int(input_s[0:2], 16)
                         except ValueError:
-                            QMessageBox.warning(self, 'wrong data', '请输入十六进制数据，以空格分开!')
+                            QMessageBox.warning(self, 'wrong data', 'Input hex with space(eg:AA 55)!')
                             return None
                         input_s = input_s[2:].strip()  # 把前后的空格去掉
                         # print(input_s)
@@ -226,7 +247,7 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
                     # print(send_data)
                 self.send_show_data(send_data)
         else:
-            QMessageBox.warning(self, 'port warning', "串口未打开！")
+            QMessageBox.warning(self, 'port warning', "Please open the port！")
             if self.checkBox_timesend.isChecked():
                 self.checkBox_timesend.setChecked(False)
             return
@@ -245,20 +266,23 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.ring_buffer.ring_buffer_write(recv_data)
             else:
                 # self.listWidget_commandData.addItem(recv_data.decode('utf-8')) #ascii
+                if self.checkBox_autoClear.isChecked():
+                    if self.listWidget_commandData.count() > 1000:
+                        self.listWidget_commandData.clear()
                 dt = datetime.now()
-                timestr = dt.strftime('%y-%m-%d %I:%M:%S.%f')
-                self.listWidget_commandData.addItem(timestr + ' recv<--:')
+                timestr = dt.strftime('%y-%m-%d %H:%M:%S.%f')
+                # self.listWidget_commandData.addItem(timestr + ' recv<--:')
                 # print(recv_data)
                 recv_data_str = ''
                 try:
                     recv_data_str = recv_data.decode('utf-8')
-                    self.listWidget_commandData.addItem(recv_data_str)
+                    self.listWidget_commandData.addItem('【' + timestr + '】' + recv_data_str)
                 except UnicodeDecodeError:
                     pass
 
                 write_result = self.txtFiles.write_file(timestr, recv_data_str, 'recv<--')
                 if write_result != 1:
-                    QMessageBox.warning(self, 'write file warning', "请不要打开文件夹下文件！")
+                    QMessageBox.warning(self, 'write file warning', "Do not open the file when writing！")
         if self.checkBox_scroll.isChecked():
             self.listWidget_commandData.scrollToBottom()
         # # 升级过程中不允许更改文件地址和开始ota，如果升级一半出错，得重启工具
@@ -294,8 +318,9 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
             try:
                 send_interval = int(self.lineEdit_sendInterval.text())
             except ValueError:
-                QMessageBox.warning(self, 'wrong data', '请输入十六进制数据，以空格分开!')
-                return
+                send_interval = 1000
+                self.lineEdit_sendInterval.setText('%d' % send_interval)
+
             # print('send_interval:%d' % send_interval)
             if send_interval < 10:
                 send_interval = 10
@@ -319,7 +344,7 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
                     recv_data_str += hhex + ' '
 
                 dt = datetime.now()
-                timestr = dt.strftime('%y-%m-%d %I:%M:%S.%f')
+                timestr = dt.strftime('%y-%m-%d %H:%M:%S.%f')
                 # QApplication.processEvents() # 可以实现一边执行耗时程序，一边刷新页面的功能
                 write_result = self.CsvFiles.write_file(self.ai_setting, dt, recv_packet, recv_data_str)
                 # print('write_result:%d' % write_result)
@@ -338,7 +363,7 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
                                                                 hex(self.CsvFiles.joined_nodes_info[node]))
                         self.CsvFiles.joined_nodes_info = {}
                 else:
-                    QMessageBox.warning(self, 'write file warning', "请不要打开文件夹下文件！")
+                    QMessageBox.warning(self, 'write file warning', "Do not open the file when writing！")
                 # print('self.CsvFiles.send_data len:%d' % len(self.CsvFiles.send_data))
                 if len(self.CsvFiles.send_data):
                     self.send_show_data(self.CsvFiles.send_data)
@@ -1418,7 +1443,7 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         self.pushButton_hciOtaStart.clicked.connect(self.start_hci_ota)
 
     def choose_hci_ota_file(self):
-        get_path, file_type = QFileDialog.getOpenFileName(self, '选择文件', os.path.expanduser(os.getcwd()),
+        get_path, file_type = QFileDialog.getOpenFileName(self, 'choose file', os.path.expanduser(os.getcwd()),
                                                           "OTA(*.ota);; BIN(*.bin)")
         self.lineEdit_hciOtaFilePath.setText(get_path)
 
@@ -1435,7 +1460,7 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
             self.send_hci_command(0x0210, payload_len, payload)
             self.progressBar_hciOta.setValue(0)
         else:
-            QMessageBox.warning(self, 'hci ota warning', "请先指定串口升级文件！")
+            QMessageBox.warning(self, 'hci ota warning', "Please choose the OTA file!")
 
     def command_analyze_init(self):
         self.pushButton_analyzePathChoose.clicked.connect(self.choose_analyze_folder)
@@ -1445,7 +1470,7 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
     def select_differ_nodes(self):
         self.pushButton_getNwkAddr.setEnabled(False)
         self.textEdit_nwkAddrShow.clear()
-        self.textEdit_nwkAddrShow.setText('获取中。。。')
+        self.textEdit_nwkAddrShow.setText('Getting。。。')
         file_path = self.lineEdit_analyzePath.text()
         self.nodeswork = WorkThread(file_path, self.CsvFiles)
         self.nodeswork.nodes_signals.connect(self.get_nodes_result_show)  # 信号连接槽函数
@@ -1455,21 +1480,21 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         get_nodes_info = ''
         if read_file_flag == 1:
             if len(get_nodes_addrs) == 0:
-                QMessageBox.warning(self, '获取入网设备地址', "还没有通信数据！")
+                QMessageBox.warning(self, 'get joined nodes address', "No data！")
             else:
                 cell_num = 0
                 for cell in get_nodes_addrs:
                     get_nodes_info += cell + ' '
                     cell_num += 1
-                get_nodes_info += '(共%d个节点)' % cell_num
+                get_nodes_info += '(total nodes number:%d)' % cell_num
                 # print('get_nodes_info:')
                 # print(get_nodes_info)
         elif read_file_flag == 4:
-            QMessageBox.warning(self, '获取入网设备地址', "文件被破坏，请检查文件信息！")
+            QMessageBox.warning(self, 'get joined nodes address', "Dab file, please check！")
         elif read_file_flag == 3:
-            QMessageBox.warning(self, '获取入网设备地址', "请不要打开文件夹下文件！")
+            QMessageBox.warning(self, 'get joined nodes address', "Do not open file when writing！")
         elif read_file_flag == 2:
-            QMessageBox.warning(self, '获取入网设备地址', "请选择正确文件夹！")
+            QMessageBox.warning(self, 'get joined nodes address', "Please choose the right folder！")
         else:
             pass
         self.textEdit_nwkAddrShow.clear()
@@ -1478,7 +1503,7 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def choose_analyze_folder(self):
         default_dir = os.path.expanduser(os.getcwd()) + '/userdata'
-        get_path = QFileDialog.getExistingDirectory(self, '选择文件夹', default_dir)
+        get_path = QFileDialog.getExistingDirectory(self, 'choose folder', default_dir)
         self.lineEdit_analyzePath.setText(get_path)
 
     def get_analyze_nwk_addr(self):
@@ -1490,17 +1515,17 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         # print(get_nodes_addrs)
 
         if read_file_flag == 4:
-            QMessageBox.warning(self, '获取入网设备地址', "文件被破坏，请检查文件信息！")
+            QMessageBox.warning(self, 'get joined nodes address', "Dab file, please check！")
         elif read_file_flag == 3:
-            QMessageBox.warning(self, '获取入网设备地址', "请不要打开文件夹下文件！")
+            QMessageBox.warning(self, 'get joined nodes address', "Do not open the file when writing！")
         elif read_file_flag == 2:
-            QMessageBox.warning(self, '获取入网设备地址', "请选择正确文件夹！")
+            QMessageBox.warning(self, 'get joined nodes address', "Please choose the right folder！")
         elif read_file_flag == 1:
             cell_num = 0
             for cell in get_nodes_addrs:
                 get_nodes_info += cell + ' '
                 cell_num += 1
-            get_nodes_info += '(共%d个节点)' % cell_num
+            get_nodes_info += '(total nodes number:%d)' % cell_num
             # print(get_nodes_info)
         else:
             pass
@@ -1514,25 +1539,25 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         analyze_interval = self.lineEdit_analyzeInterval.text()
         analyze_command = self.lineEdit_analyzeCommandId.text()
         self.pushButton_startAnalyze.setEnabled(False)
-        self.pushButton_startAnalyze.setText('解析中。。。')
+        self.pushButton_startAnalyze.setText('Getting。。。')
         self.processwork = ProcessWorkThread(self.CsvFiles, folder_path, analyze_addr, analyze_interval, analyze_command)
         self.processwork.process_result.connect(self.process_result_show)  # 信号连接槽函数
         self.processwork.start()  # 开启线程
 
     def process_result_show(self, read_file_flag, command_cnt_show):
         # print(read_file_flag)
-        self.pushButton_startAnalyze.setText('开始解析')
+        self.pushButton_startAnalyze.setText('Start Filter')
         self.pushButton_startAnalyze.setEnabled(True)
         if read_file_flag == 1:
-            QMessageBox.warning(self, '查找结果', '共查到' + str(command_cnt_show) + '条记录!')
+            QMessageBox.warning(self, 'Result', 'total records number:' + str(command_cnt_show))
         elif read_file_flag == 2:
-            QMessageBox.warning(self, '查找结果', "没有节点信息!")
+            QMessageBox.warning(self, 'Result', "No record!")
         elif read_file_flag == 3:
-            QMessageBox.warning(self, '查找结果', "请不要打开文件夹下文件!")
+            QMessageBox.warning(self, 'Result', "Do not open the file!")
         elif read_file_flag == 4:
-            QMessageBox.warning(self, '查找结果', "文件被破坏，请检查文件信息！")
+            QMessageBox.warning(self, 'Result', "Bad file, please check！")
         elif read_file_flag == 5:
-            QMessageBox.warning(self, '查找结果', "输入信息有误！")
+            QMessageBox.warning(self, 'Result', "Wrong input message！")
         else:
             pass
 
@@ -1551,21 +1576,21 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
     def send_show_data(self, send_data):
         if not self.checkBox_thread.isChecked():
             if len(send_data) > self.ai_setting.command_length_max:
-                QMessageBox.warning(self, 'port warning', "发送长度超过设定最大值(%d)" % self.ai_setting.command_length_max)
+                QMessageBox.warning(self, 'port warning', "Out of the max length:(%d)" % self.ai_setting.command_length_max)
                 return
         try:
             self.ser.write(send_data)
             self.show_bytes_to_widget(send_data)
         except serial.serialutil.PortNotOpenError:
-            QMessageBox.warning(self, 'port warning', "串口未打开！")
+            QMessageBox.warning(self, 'port warning', "Port not open！")
         except serial.SerialTimeoutException:
-            QMessageBox.warning(self, 'port warning', "串口发送超时！")
+            QMessageBox.warning(self, 'port warning', "Send timeout！")
         except serial.SerialException:
-            QMessageBox.warning(self, 'port warning', '串口异常！')
+            QMessageBox.warning(self, 'port warning', "Port error！")
 
     def show_bytes_to_widget(self, send_data):
         dt = datetime.now()
-        timestr = dt.strftime('%y-%m-%d %I:%M:%S.%f')
+        timestr = dt.strftime('%y-%m-%d %H:%M:%S.%f')
         if not self.checkBox_thread.isChecked():
             send_data_str = ''
             for hvol in send_data:
@@ -1574,15 +1599,14 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
             self.listWidget_commandData.addItem(timestr + ' send-->:' + send_data_str)
             write_result = self.CsvFiles.write_file(self.ai_setting, dt, send_data, send_data_str)
             if write_result != 1:
-                QMessageBox.warning(self, 'write file warning', "请不要打开文件夹下文件！")
+                QMessageBox.warning(self, 'write file warning', "Do not open the file when writing！")
         else:
             # print(str(send_data))
             send_data_str = send_data.decode('utf-8', 'ignore')
-            self.listWidget_commandData.addItem(timestr + ' send-->:')
-            self.listWidget_commandData.addItem(send_data_str)
+            self.listWidget_commandData.addItem('【' + timestr + '】' + send_data_str)
             write_result = self.txtFiles.write_file(timestr, send_data_str, 'send-->')
             if write_result != 1:
-                QMessageBox.warning(self, 'write file warning', "请不要打开文件夹下文件！")
+                QMessageBox.warning(self, 'write file warning', "Do not open the file when writing！")
 
 
 # 继承QThread，重写run方法

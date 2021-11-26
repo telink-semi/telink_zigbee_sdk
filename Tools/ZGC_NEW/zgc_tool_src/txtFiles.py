@@ -24,8 +24,8 @@ class TxtFiles:
             self.create_folder()
         try:
             with open(self.all_packets_path, 'a', encoding='utf-8') as f:
-                f.write('\n' + time_insert + ' ' + direct + ':\n')
-                f.write(datastr)
+                # f.write('\n' + time_insert + ' ' + direct + ':\n')
+                f.write('【' + time_insert + '】' + datastr + '\n')
         except FileNotFoundError:
             self.create_folder()
         except PermissionError:
