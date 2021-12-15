@@ -53,6 +53,7 @@
  */
 /* 4 + 8 + 8N + 69 + 9 + 8 + (20 + 8)N = 4096; N = 110*/
 #define FLASH_WRITE_COUNT_GET(size)		((size / (110 * OTA_IMAGE_MAX_DATA_SIZE)) + 1)
+#define TL_IMAGE_START_FLAG				0x4b
 
 /**********************************************************************
  * TYPEDEFS
@@ -149,13 +150,13 @@ u8 mcuBootAddrGet(void)
 #else
 	u8 flashInfo = 0;
 	flash_read(0 + FLASH_TLNK_FLAG_OFFSET, 1, &flashInfo);
-	return ((flashInfo == 0x4b) ? 0 : 1);
+	return ((flashInfo == TL_IMAGE_START_FLAG) ? 0 : 1);
 #endif
 }
 
 void ota_mcuReboot(void)
 {
-	u8 flashInfo = 0x4b;
+	u8 flashInfo = TL_IMAGE_START_FLAG;
 	u32 newAddr = FLASH_ADDR_OF_OTA_IMAGE;
 
 #if (BOOT_LOADER_MODE)
@@ -319,6 +320,10 @@ static void ota_ieeeAddrRspCb(void *arg)
 	zdo_zdpDataInd_t *p = (zdo_zdpDataInd_t *)arg;
 	zdo_ieee_addr_resp_t *rsp = (zdo_ieee_addr_resp_t*)p->zpdu;
 
+	if(rsp->status == ZDO_SUCCESS){
+		ZB_IEEE_ADDR_COPY(zcl_attr_upgradeServerID, rsp->ieee_addr_remote);
+	}
+
 	if((zcl_attr_imageUpgradeStatus != IMAGE_UPGRADE_STATUS_DOWNLOAD_IN_PROGRESS) ||
 	   (otaClientInfo.clientOtaFlg >= OTA_FLAG_IMAGE_MAGIC_0)){
 		return;
@@ -328,7 +333,6 @@ static void ota_ieeeAddrRspCb(void *arg)
 	ev_unon_timer(&otaTimer);
 
 	if((rsp->status == ZDO_SUCCESS)){
-		ZB_IEEE_ADDR_COPY(zcl_attr_upgradeServerID, rsp->ieee_addr_remote);
 
 		//stop server query start timer
 
@@ -390,6 +394,8 @@ static void ota_matchDescRspCb(void *arg)
 		g_otaCtx.otaServerEpInfo.dstAddrMode = APS_SHORT_DSTADDR_WITHEP;
 		g_otaCtx.otaServerEpInfo.dstAddr.shortAddr = rsp->nwk_addr_interest;
 		g_otaCtx.otaServerEpInfo.profileId = g_otaCtx.simpleDesc->app_profile_id;
+
+		ota_ieeeAddrReqSend(NULL);
 
 		if(otaClientInfo.clientOtaFlg == OTA_FLAG_INIT_DONE){
 			otaClientInfo.clientOtaFlg = OTA_FLAG_IMAGE_PULL_READY;
@@ -968,6 +974,9 @@ u8 ota_imageDataProcess(u8 len, u8 *pData)
 					//write image to flash
 					if((otaClientInfo.otaElementPos < FLASH_TLNK_FLAG_OFFSET + 1)
 						&& ((otaClientInfo.otaElementPos + dataSize) >= FLASH_TLNK_FLAG_OFFSET + 1)){
+						if(pData[i + (FLASH_TLNK_FLAG_OFFSET - otaClientInfo.otaElementPos)] != TL_IMAGE_START_FLAG){
+							return ZCL_STA_INVALID_IMAGE;
+						}
 						pData[i + (FLASH_TLNK_FLAG_OFFSET - otaClientInfo.otaElementPos)] = 0xff;
 					}
 					u32 baseAddr = (mcuBootAddr) ? 0 : FLASH_ADDR_OF_OTA_IMAGE;
@@ -988,6 +997,8 @@ u8 ota_imageDataProcess(u8 len, u8 *pData)
 							if(crcReceived != otaClientInfo.crcValue){
 								return ZCL_STA_INVALID_IMAGE;
 							}
+						}else{
+							return ZCL_STA_INVALID_IMAGE;
 						}
 
 						otaClientInfo.clientOtaFlg = OTA_FLAG_IMAGE_ELEM_TAG1;
@@ -999,6 +1010,8 @@ u8 ota_imageDataProcess(u8 len, u8 *pData)
 						i += copyLen - 1;
 					}
 					zcl_attr_fileOffset--;
+				}else{
+					return ZCL_STA_INVALID_IMAGE;
 				}
 
 				break;
