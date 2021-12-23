@@ -708,6 +708,8 @@ void ota_saveUpdateInfo2NV(void *arg)
 
 u8 ota_imageDataProcess(u8 len, u8 *pData)
 {
+	bool validChecked = 0;
+
 	if(zcl_attr_imageUpgradeStatus != IMAGE_UPGRADE_STATUS_DOWNLOAD_IN_PROGRESS){
 		return ZCL_STA_ABORT;
 	}
@@ -997,6 +999,7 @@ u8 ota_imageDataProcess(u8 len, u8 *pData)
 							if(crcReceived != otaClientInfo.crcValue){
 								return ZCL_STA_INVALID_IMAGE;
 							}
+							validChecked = 1;
 						}else{
 							return ZCL_STA_INVALID_IMAGE;
 						}
@@ -1024,9 +1027,12 @@ u8 ota_imageDataProcess(u8 len, u8 *pData)
 
 		//check if the download is complete
 		if(zcl_attr_fileOffset >= g_otaCtx.downloadImageSize){
-			zcl_attr_imageUpgradeStatus = IMAGE_UPGRADE_STATUS_DOWNLOAD_COMPLETE;
-
-			return ZCL_STA_SUCCESS;
+			if(validChecked){
+				zcl_attr_imageUpgradeStatus = IMAGE_UPGRADE_STATUS_DOWNLOAD_COMPLETE;
+				return ZCL_STA_SUCCESS;
+			}else{
+				return ZCL_STA_INVALID_IMAGE;
+			}
 		}
 	}
 

@@ -305,6 +305,8 @@ _CODE_ZCL_ status_t zcl_scene_copySceneEntry(u8 endpoint, copyScene_t *pCopyScen
 			pSceneToEntry->used = 1;
 			pSceneToEntry->endpoint = endpoint;
 			memcpy((u8 *)&pSceneToEntry->scene, (u8 *)&pSceneEntry->scene, sizeof(zcl_sceneEntry_t));
+			pSceneToEntry->scene.sceneId = addSceneId;             //re-write scene id
+			pSceneToEntry->scene.groupId = pCopyScene->groupIdTo;  //re-write group id
 		}
 	}
 
