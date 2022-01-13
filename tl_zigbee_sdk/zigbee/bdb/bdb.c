@@ -1,48 +1,26 @@
 /********************************************************************************************************
- * @file	bdb.c
+ * @file    bdb.c
  *
- * @brief	This is the source file for bdb
+ * @brief   This is the source file for bdb
  *
- * @author	Zigbee Group
- * @date	2019
+ * @author  Zigbee Group
+ * @date    2021
  *
- * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
+ * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *
- *          Redistribution and use in source and binary forms, with or without
- *          modification, are permitted provided that the following conditions are met:
+ *          Licensed under the Apache License, Version 2.0 (the "License");
+ *          you may not use this file except in compliance with the License.
+ *          You may obtain a copy of the License at
  *
- *              1. Redistributions of source code must retain the above copyright
- *              notice, this list of conditions and the following disclaimer.
+ *              http://www.apache.org/licenses/LICENSE-2.0
  *
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions
- *              in binary form must reproduce the above copyright notice, this list of
- *              conditions and the following disclaimer in the documentation and/or other
- *              materials provided with the distribution.
- *
- *              3. Neither the name of TELINK, nor the names of its contributors may be
- *              used to endorse or promote products derived from this software without
- *              specific prior written permission.
- *
- *              4. This software, with or without modification, must only be used with a
- *              TELINK integrated circuit. All other usages are subject to written permission
- *              from TELINK and different commercial license may apply.
- *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
- *              relating to such deletion(s), modification(s) or alteration(s).
- *
- *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
- *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
+ *          Unless required by applicable law or agreed to in writing, software
+ *          distributed under the License is distributed on an "AS IS" BASIS,
+ *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *          See the License for the specific language governing permissions and
+ *          limitations under the License.
  *******************************************************************************************************/
+
 /**********************************************************************
  * INCLUDES
  */
@@ -634,6 +612,7 @@ _CODE_BDB_ static s32 bdb_findBindIdentifyTimeout(void *arg)
 	u16 attrLen = 0;
 
 	if(zcl_getAttrVal(g_bdbCtx.simpleDesc->endpoint, ZCL_CLUSTER_GEN_IDENTIFY, ZCL_ATTRID_IDENTIFY_TIME, &attrLen, (u8 *)&identifyTime) != ZCL_STA_SUCCESS){
+		g_bdbCtx.identifyTimer = NULL;
 		return -1;
 	}
 
@@ -1150,7 +1129,7 @@ static void bdb_task(void *arg)
 #if ZB_COORDINATOR_ROLE
 				ss_securityModeSet(SS_SEMODE_CENTRALIZED);
 #else
-				if((!g_bdbAttrs.nodeIsOnANetwork)||(ZB_IEEE_ADDR_IS_INVAILD(ss_ib.trust_center_address))){
+				if((!g_bdbAttrs.nodeIsOnANetwork)||(ZB_IEEE_ADDR_IS_INVALID(ss_ib.trust_center_address))){
 					ss_securityModeSet(SS_SEMODE_DISTRIBUTED);
 				}
 #endif
@@ -1278,7 +1257,7 @@ _CODE_BDB_ void bdb_zdoStartDevCnf(zdo_start_device_confirm_t *startDevCnf){
 				//g_bdbAttrs.commissioningStatus = BDB_COMMISSION_STA_SUCCESS;
 				g_bdbAttrs.nodeIsOnANetwork = 1;
 				BDB_STATUS_SET(BDB_COMMISSION_STA_SUCCESS);
-				if(!ZB_IEEE_ADDR_IS_INVAILD(ss_ib.trust_center_address)){
+				if(!ZB_IEEE_ADDR_IS_INVALID(ss_ib.trust_center_address) && ss_ib.securityLevel){
 					evt = BDB_EVT_COMMISSIONING_NETWORK_STEER_RETRIEVE_TCLINK_KEY;
 				}else{
 					evt = BDB_EVT_COMMISSIONING_NETWORK_STEER_PERMITJOIN;
@@ -1473,7 +1452,7 @@ _CODE_BDB_ u8 bdb_networkFormationStart(void)
 #if ZB_COORDINATOR_ROLE
 	ss_securityModeSet(SS_SEMODE_CENTRALIZED);
 #else
-	if((!g_bdbAttrs.nodeIsOnANetwork)||(ZB_IEEE_ADDR_IS_INVAILD(ss_ib.trust_center_address))){
+	if((!g_bdbAttrs.nodeIsOnANetwork)||(ZB_IEEE_ADDR_IS_INVALID(ss_ib.trust_center_address))){
 		ss_securityModeSet(SS_SEMODE_DISTRIBUTED);
 	}
 #endif
@@ -1576,7 +1555,15 @@ _CODE_BDB_ u8 bdb_init(af_simple_descriptor_t *simple_desc, bdb_commissionSettin
 	BDB_STATE_SET(BDB_STATE_INIT);
 
 	/* security config, must be first. */
-	ss_zdoInit(TRUE);
+#if SECURITY_ENABLE
+	if(g_bdbCtx.securityDisable){
+		ss_zdoInit(FALSE);
+	}else{
+		ss_zdoInit(TRUE);
+	}
+#else
+	ss_zdoInit(FALSE);
+#endif
 
 	/* pre-configure the link key here. */
 	bdb_linkKeyCfg(setting, g_bdbCtx.factoryNew);
@@ -1877,7 +1864,7 @@ _CODE_BDB_ u8 bdb_preInstallCodeLoad(u8 *keyType, u8 derivedKey[])
  */
 _CODE_BDB_ void bdb_preInstallCodeAdd(addrExt_t ieeeAddr, u8 *pInstallCode)
 {
-	if(!pInstallCode || ZB_IS_64BIT_ADDR_INVAILD(ieeeAddr) || ZB_IS_64BIT_ADDR_ZERO(ieeeAddr)){
+	if(!pInstallCode || ZB_IS_64BIT_ADDR_INVALID(ieeeAddr) || ZB_IS_64BIT_ADDR_ZERO(ieeeAddr)){
 		return;
 	}
 

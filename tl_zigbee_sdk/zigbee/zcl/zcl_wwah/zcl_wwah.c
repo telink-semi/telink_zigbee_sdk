@@ -1,48 +1,26 @@
 /********************************************************************************************************
- * @file	zcl_wwah.c
+ * @file    zcl_wwah.c
  *
- * @brief	This is the source file for zcl_wwah
+ * @brief   This is the source file for zcl_wwah
  *
- * @author	Zigbee Group
- * @date	2019
+ * @author  Zigbee Group
+ * @date    2021
  *
- * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
+ * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *
- *          Redistribution and use in source and binary forms, with or without
- *          modification, are permitted provided that the following conditions are met:
+ *          Licensed under the Apache License, Version 2.0 (the "License");
+ *          you may not use this file except in compliance with the License.
+ *          You may obtain a copy of the License at
  *
- *              1. Redistributions of source code must retain the above copyright
- *              notice, this list of conditions and the following disclaimer.
+ *              http://www.apache.org/licenses/LICENSE-2.0
  *
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions
- *              in binary form must reproduce the above copyright notice, this list of
- *              conditions and the following disclaimer in the documentation and/or other
- *              materials provided with the distribution.
- *
- *              3. Neither the name of TELINK, nor the names of its contributors may be
- *              used to endorse or promote products derived from this software without
- *              specific prior written permission.
- *
- *              4. This software, with or without modification, must only be used with a
- *              TELINK integrated circuit. All other usages are subject to written permission
- *              from TELINK and different commercial license may apply.
- *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
- *              relating to such deletion(s), modification(s) or alteration(s).
- *
- *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
- *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
+ *          Unless required by applicable law or agreed to in writing, software
+ *          distributed under the License is distributed on an "AS IS" BASIS,
+ *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *          See the License for the specific language governing permissions and
+ *          limitations under the License.
  *******************************************************************************************************/
+
 /**********************************************************************
  * INCLUDES
  */
@@ -882,17 +860,9 @@ _CODE_ZCL_ static u8 zcl_cmdNoPayloadPrc(zclIncoming_t *pInMsg)
 
     if(UNICAST_MSG(pApsdeInd)){
     	if(pInMsg->clusterAppCb){
-    		zclIncomingAddrInfo_t addrInfo;
-    		addrInfo.dirCluster = pInMsg->hdr.frmCtrl.bf.dir;
-    		addrInfo.profileId = pApsdeInd->indInfo.profile_id;
-    		addrInfo.srcAddr = pApsdeInd->indInfo.src_short_addr;
-    		addrInfo.dstAddr = pApsdeInd->indInfo.dst_addr;
-    		addrInfo.srcEp = pApsdeInd->indInfo.src_ep;
-    		addrInfo.dstEp = pApsdeInd->indInfo.dst_ep;
-
     		//no payload.
 
-    		status = pInMsg->clusterAppCb(&addrInfo, pInMsg->hdr.cmd, NULL);
+    		status = pInMsg->clusterAppCb(&(pInMsg->addrInfo), pInMsg->hdr.cmd, NULL);
     	}else{
     		status = ZCL_STA_FAILURE;
     	}
@@ -904,18 +874,9 @@ _CODE_ZCL_ static u8 zcl_cmdNoPayloadPrc(zclIncoming_t *pInMsg)
 _CODE_ZCL_ static u8 zcl_wwah_enableAppEvtRetryAlgorithmPrc(zclIncoming_t *pInMsg)
 {
 	status_t status = ZCL_STA_SUCCESS;
-    apsdeDataInd_t *pApsdeInd = (apsdeDataInd_t*)pInMsg->msg;
     u8 *pData = pInMsg->pData;
 
 	if(pInMsg->clusterAppCb){
-		zclIncomingAddrInfo_t addrInfo;
-		addrInfo.dirCluster = pInMsg->hdr.frmCtrl.bf.dir;
-		addrInfo.profileId = pApsdeInd->indInfo.profile_id;
-		addrInfo.srcAddr = pApsdeInd->indInfo.src_short_addr;
-		addrInfo.dstAddr = pApsdeInd->indInfo.dst_addr;
-		addrInfo.srcEp = pApsdeInd->indInfo.src_ep;
-		addrInfo.dstEp = pApsdeInd->indInfo.dst_ep;
-
 		zcl_wwah_enableAppEvtRetryAlgorithmCmd_t cmd;
 		TL_SETSTRUCTCONTENT(cmd, 0);
 
@@ -925,7 +886,7 @@ _CODE_ZCL_ static u8 zcl_wwah_enableAppEvtRetryAlgorithmPrc(zclIncoming_t *pInMs
 		pData += 4;
 		cmd.maxReDeliveryAttepts = *pData++;
 
-		status = pInMsg->clusterAppCb(&addrInfo, pInMsg->hdr.cmd, &cmd);
+		status = pInMsg->clusterAppCb(&(pInMsg->addrInfo), pInMsg->hdr.cmd, &cmd);
 	}else{
 		status = ZCL_STA_FAILURE;
 	}
@@ -936,18 +897,9 @@ _CODE_ZCL_ static u8 zcl_wwah_enableAppEvtRetryAlgorithmPrc(zclIncoming_t *pInMs
 _CODE_ZCL_ static u8 zcl_wwah_enableRejoinAlgorithmPrc(zclIncoming_t *pInMsg)
 {
 	status_t status = ZCL_STA_SUCCESS;
-    apsdeDataInd_t *pApsdeInd = (apsdeDataInd_t*)pInMsg->msg;
     u8 *pData = pInMsg->pData;
 
 	if(pInMsg->clusterAppCb){
-		zclIncomingAddrInfo_t addrInfo;
-		addrInfo.dirCluster = pInMsg->hdr.frmCtrl.bf.dir;
-		addrInfo.profileId = pApsdeInd->indInfo.profile_id;
-		addrInfo.srcAddr = pApsdeInd->indInfo.src_short_addr;
-		addrInfo.dstAddr = pApsdeInd->indInfo.dst_addr;
-		addrInfo.srcEp = pApsdeInd->indInfo.src_ep;
-		addrInfo.dstEp = pApsdeInd->indInfo.dst_ep;
-
 		zcl_wwah_enableRejoinAlgorithmCmd_t cmd;
 		TL_SETSTRUCTCONTENT(cmd, 0);
 
@@ -962,7 +914,7 @@ _CODE_ZCL_ static u8 zcl_wwah_enableRejoinAlgorithmPrc(zclIncoming_t *pInMsg)
 		cmd.maxBackoffIterations = BUILD_U16(pData[0], pData[1]);
 		pData += 2;
 
-		status = pInMsg->clusterAppCb(&addrInfo, pInMsg->hdr.cmd, &cmd);
+		status = pInMsg->clusterAppCb(&(pInMsg->addrInfo), pInMsg->hdr.cmd, &cmd);
 	}else{
 		status = ZCL_STA_FAILURE;
 	}
@@ -973,24 +925,15 @@ _CODE_ZCL_ static u8 zcl_wwah_enableRejoinAlgorithmPrc(zclIncoming_t *pInMsg)
 _CODE_ZCL_ static u8 zcl_wwah_setIasZoneEnrollmentMethodPrc(zclIncoming_t *pInMsg)
 {
 	status_t status = ZCL_STA_SUCCESS;
-    apsdeDataInd_t *pApsdeInd = (apsdeDataInd_t*)pInMsg->msg;
     u8 *pData = pInMsg->pData;
 
 	if(pInMsg->clusterAppCb){
-		zclIncomingAddrInfo_t addrInfo;
-		addrInfo.dirCluster = pInMsg->hdr.frmCtrl.bf.dir;
-		addrInfo.profileId = pApsdeInd->indInfo.profile_id;
-		addrInfo.srcAddr = pApsdeInd->indInfo.src_short_addr;
-		addrInfo.dstAddr = pApsdeInd->indInfo.dst_addr;
-		addrInfo.srcEp = pApsdeInd->indInfo.src_ep;
-		addrInfo.dstEp = pApsdeInd->indInfo.dst_ep;
-
 		zcl_wwah_setIasZoneEnrollmentMethodCmd_t cmd;
 		TL_SETSTRUCTCONTENT(cmd, 0);
 
 		cmd.enrollmentMode = *pData++;
 
-		status = pInMsg->clusterAppCb(&addrInfo, pInMsg->hdr.cmd, &cmd);
+		status = pInMsg->clusterAppCb(&(pInMsg->addrInfo), pInMsg->hdr.cmd, &cmd);
 	}else{
 		status = ZCL_STA_FAILURE;
 	}
@@ -1027,20 +970,11 @@ _CODE_ZCL_ static u8 zcl_wwah_enablePeriodicRouterCheckInsPrc(zclIncoming_t *pIn
 
     if(UNICAST_MSG(pApsdeInd)){
     	if(pInMsg->clusterAppCb){
-    		zclIncomingAddrInfo_t addrInfo;
-    		addrInfo.apsSec = pInMsg->msg->indInfo.security_status & SECURITY_IN_APSLAYER ? TRUE : FALSE;
-    		addrInfo.dirCluster = pInMsg->hdr.frmCtrl.bf.dir;
-    		addrInfo.profileId = pApsdeInd->indInfo.profile_id;
-    		addrInfo.srcAddr = pApsdeInd->indInfo.src_short_addr;
-    		addrInfo.dstAddr = pApsdeInd->indInfo.dst_addr;
-    		addrInfo.srcEp = pApsdeInd->indInfo.src_ep;
-    		addrInfo.dstEp = pApsdeInd->indInfo.dst_ep;
-
         	zcl_wwah_enablePeriodicRouterCheckInsCmd_t cmd;
 
         	cmd.checkInInterval = BUILD_U16(pData[0], pData[1]);
 
-        	status = pInMsg->clusterAppCb(&addrInfo, pInMsg->hdr.cmd, &cmd);
+        	status = pInMsg->clusterAppCb(&(pInMsg->addrInfo), pInMsg->hdr.cmd, &cmd);
     	}else{
     		status = ZCL_STA_FAILURE;
     	}
@@ -1052,24 +986,15 @@ _CODE_ZCL_ static u8 zcl_wwah_enablePeriodicRouterCheckInsPrc(zclIncoming_t *pIn
 _CODE_ZCL_ static u8 zcl_wwah_setMacPollFailureWaitTimePrc(zclIncoming_t *pInMsg)
 {
 	status_t status = ZCL_STA_SUCCESS;
-    apsdeDataInd_t *pApsdeInd = (apsdeDataInd_t*)pInMsg->msg;
     u8 *pData = pInMsg->pData;
 
 	if(pInMsg->clusterAppCb){
-		zclIncomingAddrInfo_t addrInfo;
-		addrInfo.dirCluster = pInMsg->hdr.frmCtrl.bf.dir;
-		addrInfo.profileId = pApsdeInd->indInfo.profile_id;
-		addrInfo.srcAddr = pApsdeInd->indInfo.src_short_addr;
-		addrInfo.dstAddr = pApsdeInd->indInfo.dst_addr;
-		addrInfo.srcEp = pApsdeInd->indInfo.src_ep;
-		addrInfo.dstEp = pApsdeInd->indInfo.dst_ep;
-
 		zcl_wwah_setMacPollFailureWaitTimeCmd_t cmd;
 		TL_SETSTRUCTCONTENT(cmd, 0);
 
 		cmd.waitTime = *pData++;
 
-		status = pInMsg->clusterAppCb(&addrInfo, pInMsg->hdr.cmd, &cmd);
+		status = pInMsg->clusterAppCb(&(pInMsg->addrInfo), pInMsg->hdr.cmd, &cmd);
 	}else{
 		status = ZCL_STA_FAILURE;
 	}
@@ -1089,21 +1014,13 @@ _CODE_ZCL_ static u8 zcl_wwah_setPendingNwkUpdatePrc(zclIncoming_t *pInMsg)
 
 	if(UNICAST_MSG(pApsdeInd)){
 		if(pInMsg->clusterAppCb){
-			zclIncomingAddrInfo_t addrInfo;
-			addrInfo.dirCluster = pInMsg->hdr.frmCtrl.bf.dir;
-			addrInfo.profileId = pApsdeInd->indInfo.profile_id;
-			addrInfo.srcAddr = pApsdeInd->indInfo.src_short_addr;
-			addrInfo.dstAddr = pApsdeInd->indInfo.dst_addr;
-			addrInfo.srcEp = pApsdeInd->indInfo.src_ep;
-			addrInfo.dstEp = pApsdeInd->indInfo.dst_ep;
-
 			zcl_wwah_setPendingNwkUpdateCmd_t cmd;
 			TL_SETSTRUCTCONTENT(cmd, 0);
 
 			cmd.channel = *pData++;
 			cmd.panID = BUILD_U16(pData[0], pData[1]);
 
-			status = pInMsg->clusterAppCb(&addrInfo, pInMsg->hdr.cmd, &cmd);
+			status = pInMsg->clusterAppCb(&(pInMsg->addrInfo), pInMsg->hdr.cmd, &cmd);
 		}else{
 			status = ZCL_STA_FAILURE;
 		}
@@ -1212,24 +1129,15 @@ _CODE_ZCL_ static u8 zcl_wwah_debugReportQueryPrc(zclIncoming_t *pInMsg)
 _CODE_ZCL_ static u8 zcl_wwah_surveyBeaconsPrc(zclIncoming_t *pInMsg)
 {
 	status_t status = ZCL_STA_SUCCESS;
-    apsdeDataInd_t *pApsdeInd = (apsdeDataInd_t*)pInMsg->msg;
     u8 *pData = pInMsg->pData;
 
 	if(pInMsg->clusterAppCb){
-		zclIncomingAddrInfo_t addrInfo;
-		addrInfo.dirCluster = pInMsg->hdr.frmCtrl.bf.dir;
-		addrInfo.profileId = pApsdeInd->indInfo.profile_id;
-		addrInfo.srcAddr = pApsdeInd->indInfo.src_short_addr;
-		addrInfo.dstAddr = pApsdeInd->indInfo.dst_addr;
-		addrInfo.srcEp = pApsdeInd->indInfo.src_ep;
-		addrInfo.dstEp = pApsdeInd->indInfo.dst_ep;
-
 		zcl_wwah_surveyBeaconsCmd_t cmd;
 		TL_SETSTRUCTCONTENT(cmd, 0);
 
 		cmd.standardBeacons = *pData++;
 
-		status = pInMsg->clusterAppCb(&addrInfo, pInMsg->hdr.cmd, &cmd);
+		status = pInMsg->clusterAppCb(&(pInMsg->addrInfo), pInMsg->hdr.cmd, &cmd);
 	}else{
 		status = ZCL_STA_FAILURE;
 	}
@@ -1252,17 +1160,9 @@ _CODE_ZCL_ static u8 zcl_wwah_disableMgmtLeaveWithoutRejoinPrc(zclIncoming_t *pI
 
     if(UNICAST_MSG(pApsdeInd)){
     	if(pInMsg->clusterAppCb){
-    		zclIncomingAddrInfo_t addrInfo;
-    		addrInfo.dirCluster = pInMsg->hdr.frmCtrl.bf.dir;
-    		addrInfo.profileId = pApsdeInd->indInfo.profile_id;
-    		addrInfo.srcAddr = pApsdeInd->indInfo.src_short_addr;
-    		addrInfo.dstAddr = pApsdeInd->indInfo.dst_addr;
-    		addrInfo.srcEp = pApsdeInd->indInfo.src_ep;
-    		addrInfo.dstEp = pApsdeInd->indInfo.dst_ep;
-
     		//no payload
 
-    		status = pInMsg->clusterAppCb(&addrInfo, pInMsg->hdr.cmd, NULL);
+    		status = pInMsg->clusterAppCb(&(pInMsg->addrInfo), pInMsg->hdr.cmd, NULL);
     	}else{
     		status = ZCL_STA_FAILURE;
     	}
@@ -1302,15 +1202,7 @@ _CODE_ZCL_ static u8 zcl_wwah_useTrustCenterForClusterPrc(zclIncoming_t *pInMsg)
 		TL_SCHEDULE_TASK(zcl_wwah_useTCForClusterInfoSave, NULL);
 
 		if(pInMsg->clusterAppCb && useTCForClusterInfo.num){
-			zclIncomingAddrInfo_t addrInfo;
-			addrInfo.dirCluster = pInMsg->hdr.frmCtrl.bf.dir;
-			addrInfo.profileId = pApsdeInd->indInfo.profile_id;
-			addrInfo.srcAddr = pApsdeInd->indInfo.src_short_addr;
-			addrInfo.dstAddr = pApsdeInd->indInfo.dst_addr;
-			addrInfo.srcEp = pApsdeInd->indInfo.src_ep;
-			addrInfo.dstEp = pApsdeInd->indInfo.dst_ep;
-
-			status = pInMsg->clusterAppCb(&addrInfo, pInMsg->hdr.cmd, &g_zcl_useTCForClusterInfo);
+			status = pInMsg->clusterAppCb(&(pInMsg->addrInfo), pInMsg->hdr.cmd, &g_zcl_useTCForClusterInfo);
 		}
     }
 
@@ -1354,18 +1246,9 @@ _CODE_ZCL_ static u8 zcl_wwah_trustCenterForClusterServerQueryPrc(zclIncoming_t 
 _CODE_ZCL_ static u8 zcl_wwah_apsLinkKeyAuthQueryRspPrc(zclIncoming_t *pInMsg)
 {
 	status_t status = ZCL_STA_SUCCESS;
-    apsdeDataInd_t *pApsdeInd = (apsdeDataInd_t*)pInMsg->msg;
     u8 *pData = pInMsg->pData;
 
 	if(pInMsg->clusterAppCb){
-		zclIncomingAddrInfo_t addrInfo;
-		addrInfo.dirCluster = pInMsg->hdr.frmCtrl.bf.dir;
-		addrInfo.profileId = pApsdeInd->indInfo.profile_id;
-		addrInfo.srcAddr = pApsdeInd->indInfo.src_short_addr;
-		addrInfo.dstAddr = pApsdeInd->indInfo.dst_addr;
-		addrInfo.srcEp = pApsdeInd->indInfo.src_ep;
-		addrInfo.dstEp = pApsdeInd->indInfo.dst_ep;
-
 		zcl_wwah_apsLinkKeyAuthQueryRspCmd_t cmd;
 		TL_SETSTRUCTCONTENT(cmd, 0);
 
@@ -1373,7 +1256,7 @@ _CODE_ZCL_ static u8 zcl_wwah_apsLinkKeyAuthQueryRspPrc(zclIncoming_t *pInMsg)
 		pData += 2;
 		cmd.status = *pData++;
 
-		status = pInMsg->clusterAppCb(&addrInfo, pInMsg->hdr.cmd, &cmd);
+		status = pInMsg->clusterAppCb(&(pInMsg->addrInfo), pInMsg->hdr.cmd, &cmd);
 	}else{
 		status = ZCL_STA_FAILURE;
 	}
@@ -1384,18 +1267,9 @@ _CODE_ZCL_ static u8 zcl_wwah_apsLinkKeyAuthQueryRspPrc(zclIncoming_t *pInMsg)
 _CODE_ZCL_ static u8 zcl_wwah_poweringNotificationPrc(zclIncoming_t *pInMsg)
 {
 	status_t status = ZCL_STA_SUCCESS;
-    apsdeDataInd_t *pApsdeInd = (apsdeDataInd_t*)pInMsg->msg;
     u8 *pData = pInMsg->pData;
 
 	if(pInMsg->clusterAppCb){
-		zclIncomingAddrInfo_t addrInfo;
-		addrInfo.dirCluster = pInMsg->hdr.frmCtrl.bf.dir;
-		addrInfo.profileId = pApsdeInd->indInfo.profile_id;
-		addrInfo.srcAddr = pApsdeInd->indInfo.src_short_addr;
-		addrInfo.dstAddr = pApsdeInd->indInfo.dst_addr;
-		addrInfo.srcEp = pApsdeInd->indInfo.src_ep;
-		addrInfo.dstEp = pApsdeInd->indInfo.dst_ep;
-
 		zcl_wwah_poweringNotificationCmd_t cmd;
 		TL_SETSTRUCTCONTENT(cmd, 0);
 
@@ -1405,7 +1279,7 @@ _CODE_ZCL_ static u8 zcl_wwah_poweringNotificationPrc(zclIncoming_t *pInMsg)
 		cmd.manuPowerNotiReasonLen = *pData++;
 		cmd.pManuPowerNotiReason = cmd.manuPowerNotiReasonLen ? pData : NULL;
 
-		status = pInMsg->clusterAppCb(&addrInfo, pInMsg->hdr.cmd, &cmd);
+		status = pInMsg->clusterAppCb(&(pInMsg->addrInfo), pInMsg->hdr.cmd, &cmd);
 	}else{
 		status = ZCL_STA_FAILURE;
 	}
@@ -1416,18 +1290,9 @@ _CODE_ZCL_ static u8 zcl_wwah_poweringNotificationPrc(zclIncoming_t *pInMsg)
 _CODE_ZCL_ static u8 zcl_wwah_shortAddressChangePrc(zclIncoming_t *pInMsg)
 {
 	status_t status = ZCL_STA_SUCCESS;
-    apsdeDataInd_t *pApsdeInd = (apsdeDataInd_t*)pInMsg->msg;
     u8 *pData = pInMsg->pData;
 
 	if(pInMsg->clusterAppCb){
-		zclIncomingAddrInfo_t addrInfo;
-		addrInfo.dirCluster = pInMsg->hdr.frmCtrl.bf.dir;
-		addrInfo.profileId = pApsdeInd->indInfo.profile_id;
-		addrInfo.srcAddr = pApsdeInd->indInfo.src_short_addr;
-		addrInfo.dstAddr = pApsdeInd->indInfo.dst_addr;
-		addrInfo.srcEp = pApsdeInd->indInfo.src_ep;
-		addrInfo.dstEp = pApsdeInd->indInfo.dst_ep;
-
 		zcl_wwah_shortAddrChangeCmd_t cmd;
 		TL_SETSTRUCTCONTENT(cmd, 0);
 
@@ -1436,7 +1301,7 @@ _CODE_ZCL_ static u8 zcl_wwah_shortAddressChangePrc(zclIncoming_t *pInMsg)
 		cmd.deviceShort = BUILD_U16(pData[0], pData[1]);
 		pData += 2;
 
-		status = pInMsg->clusterAppCb(&addrInfo, pInMsg->hdr.cmd, &cmd);
+		status = pInMsg->clusterAppCb(&(pInMsg->addrInfo), pInMsg->hdr.cmd, &cmd);
 	}else{
 		status = ZCL_STA_FAILURE;
 	}
@@ -1447,25 +1312,16 @@ _CODE_ZCL_ static u8 zcl_wwah_shortAddressChangePrc(zclIncoming_t *pInMsg)
 _CODE_ZCL_ static u8 zcl_wwah_apsAckRequirementQueryRspPrc(zclIncoming_t *pInMsg)
 {
 	status_t status = ZCL_STA_SUCCESS;
-    apsdeDataInd_t *pApsdeInd = (apsdeDataInd_t*)pInMsg->msg;
     u8 *pData = pInMsg->pData;
 
 	if(pInMsg->clusterAppCb){
-		zclIncomingAddrInfo_t addrInfo;
-		addrInfo.dirCluster = pInMsg->hdr.frmCtrl.bf.dir;
-		addrInfo.profileId = pApsdeInd->indInfo.profile_id;
-		addrInfo.srcAddr = pApsdeInd->indInfo.src_short_addr;
-		addrInfo.dstAddr = pApsdeInd->indInfo.dst_addr;
-		addrInfo.srcEp = pApsdeInd->indInfo.src_ep;
-		addrInfo.dstEp = pApsdeInd->indInfo.dst_ep;
-
 		clustersToExempt_t cmd;
 		TL_SETSTRUCTCONTENT(cmd, 0);
 
 		cmd.numOfClustersToExempt = *pData++;
 		cmd.pClusterID = cmd.numOfClustersToExempt ? (u16 *)pData : NULL;
 
-		status = pInMsg->clusterAppCb(&addrInfo, pInMsg->hdr.cmd, &cmd);
+		status = pInMsg->clusterAppCb(&(pInMsg->addrInfo), pInMsg->hdr.cmd, &cmd);
 	}else{
 		status = ZCL_STA_FAILURE;
 	}
@@ -1476,18 +1332,9 @@ _CODE_ZCL_ static u8 zcl_wwah_apsAckRequirementQueryRspPrc(zclIncoming_t *pInMsg
 _CODE_ZCL_ static u8 zcl_wwah_powerDescriptorChangePrc(zclIncoming_t *pInMsg)
 {
 	status_t status = ZCL_STA_SUCCESS;
-    apsdeDataInd_t *pApsdeInd = (apsdeDataInd_t*)pInMsg->msg;
     u8 *pData = pInMsg->pData;
 
 	if(pInMsg->clusterAppCb){
-		zclIncomingAddrInfo_t addrInfo;
-		addrInfo.dirCluster = pInMsg->hdr.frmCtrl.bf.dir;
-		addrInfo.profileId = pApsdeInd->indInfo.profile_id;
-		addrInfo.srcAddr = pApsdeInd->indInfo.src_short_addr;
-		addrInfo.dstAddr = pApsdeInd->indInfo.dst_addr;
-		addrInfo.srcEp = pApsdeInd->indInfo.src_ep;
-		addrInfo.dstEp = pApsdeInd->indInfo.dst_ep;
-
 		zcl_wwah_powerDescChangeCmd_t cmd;
 		TL_SETSTRUCTCONTENT(cmd, 0);
 
@@ -1496,7 +1343,7 @@ _CODE_ZCL_ static u8 zcl_wwah_powerDescriptorChangePrc(zclIncoming_t *pInMsg)
 		cmd.currentPowerSrc = (pData[1] & 0xf0) >> 4;
 		cmd.currentPowerSrcLevel = pData[1] & 0x0f;
 
-		status = pInMsg->clusterAppCb(&addrInfo, pInMsg->hdr.cmd, &cmd);
+		status = pInMsg->clusterAppCb(&(pInMsg->addrInfo), pInMsg->hdr.cmd, &cmd);
 	}else{
 		status = ZCL_STA_FAILURE;
 	}
@@ -1507,18 +1354,9 @@ _CODE_ZCL_ static u8 zcl_wwah_powerDescriptorChangePrc(zclIncoming_t *pInMsg)
 _CODE_ZCL_ static u8 zcl_wwah_newDebugReportNotificationPrc(zclIncoming_t *pInMsg)
 {
 	status_t status = ZCL_STA_SUCCESS;
-    apsdeDataInd_t *pApsdeInd = (apsdeDataInd_t*)pInMsg->msg;
     u8 *pData = pInMsg->pData;
 
 	if(pInMsg->clusterAppCb){
-		zclIncomingAddrInfo_t addrInfo;
-		addrInfo.dirCluster = pInMsg->hdr.frmCtrl.bf.dir;
-		addrInfo.profileId = pApsdeInd->indInfo.profile_id;
-		addrInfo.srcAddr = pApsdeInd->indInfo.src_short_addr;
-		addrInfo.dstAddr = pApsdeInd->indInfo.dst_addr;
-		addrInfo.srcEp = pApsdeInd->indInfo.src_ep;
-		addrInfo.dstEp = pApsdeInd->indInfo.dst_ep;
-
 		zcl_wwah_newDbgReportNotiCmd_t cmd;
 		TL_SETSTRUCTCONTENT(cmd, 0);
 
@@ -1526,7 +1364,7 @@ _CODE_ZCL_ static u8 zcl_wwah_newDebugReportNotificationPrc(zclIncoming_t *pInMs
 		cmd.sizeOfReport = BUILD_U32(pData[0], pData[1], pData[2], pData[3]);
 		pData += 4;
 
-		status = pInMsg->clusterAppCb(&addrInfo, pInMsg->hdr.cmd, &cmd);
+		status = pInMsg->clusterAppCb(&(pInMsg->addrInfo), pInMsg->hdr.cmd, &cmd);
 	}else{
 		status = ZCL_STA_FAILURE;
 	}
@@ -1537,18 +1375,9 @@ _CODE_ZCL_ static u8 zcl_wwah_newDebugReportNotificationPrc(zclIncoming_t *pInMs
 _CODE_ZCL_ static u8 zcl_wwah_debugReportQueryRspPrc(zclIncoming_t *pInMsg)
 {
 	status_t status = ZCL_STA_SUCCESS;
-    apsdeDataInd_t *pApsdeInd = (apsdeDataInd_t*)pInMsg->msg;
     u8 *pData = pInMsg->pData;
 
 	if(pInMsg->clusterAppCb){
-		zclIncomingAddrInfo_t addrInfo;
-		addrInfo.dirCluster = pInMsg->hdr.frmCtrl.bf.dir;
-		addrInfo.profileId = pApsdeInd->indInfo.profile_id;
-		addrInfo.srcAddr = pApsdeInd->indInfo.src_short_addr;
-		addrInfo.dstAddr = pApsdeInd->indInfo.dst_addr;
-		addrInfo.srcEp = pApsdeInd->indInfo.src_ep;
-		addrInfo.dstEp = pApsdeInd->indInfo.dst_ep;
-
 		zcl_wwah_dbgReportQueryRspCmd_t cmd;
 		TL_SETSTRUCTCONTENT(cmd, 0);
 
@@ -1556,7 +1385,7 @@ _CODE_ZCL_ static u8 zcl_wwah_debugReportQueryRspPrc(zclIncoming_t *pInMsg)
 		cmd.reportDataLen = *pData++;
 		cmd.pReportData = cmd.reportDataLen ? pData : NULL;
 
-		status = pInMsg->clusterAppCb(&addrInfo, pInMsg->hdr.cmd, &cmd);
+		status = pInMsg->clusterAppCb(&(pInMsg->addrInfo), pInMsg->hdr.cmd, &cmd);
 	}else{
 		status = ZCL_STA_FAILURE;
 	}
@@ -1567,25 +1396,16 @@ _CODE_ZCL_ static u8 zcl_wwah_debugReportQueryRspPrc(zclIncoming_t *pInMsg)
 _CODE_ZCL_ static u8 zcl_wwah_trustCenterForClusterServerQueryRspPrc(zclIncoming_t *pInMsg)
 {
 	status_t status = ZCL_STA_SUCCESS;
-    apsdeDataInd_t *pApsdeInd = (apsdeDataInd_t*)pInMsg->msg;
     u8 *pData = pInMsg->pData;
 
 	if(pInMsg->clusterAppCb){
-		zclIncomingAddrInfo_t addrInfo;
-		addrInfo.dirCluster = pInMsg->hdr.frmCtrl.bf.dir;
-		addrInfo.profileId = pApsdeInd->indInfo.profile_id;
-		addrInfo.srcAddr = pApsdeInd->indInfo.src_short_addr;
-		addrInfo.dstAddr = pApsdeInd->indInfo.dst_addr;
-		addrInfo.srcEp = pApsdeInd->indInfo.src_ep;
-		addrInfo.dstEp = pApsdeInd->indInfo.dst_ep;
-
 		zcl_wwah_tcForClusterServerQueryRspCmd_t cmd;
 		TL_SETSTRUCTCONTENT(cmd, 0);
 
 		cmd.numOfClusters = *pData++;
 		cmd.pClusterID = cmd.numOfClusters ? (u16 *)pData : NULL;
 
-		status = pInMsg->clusterAppCb(&addrInfo, pInMsg->hdr.cmd, &cmd);
+		status = pInMsg->clusterAppCb(&(pInMsg->addrInfo), pInMsg->hdr.cmd, &cmd);
 	}else{
 		status = ZCL_STA_FAILURE;
 	}
@@ -1596,25 +1416,16 @@ _CODE_ZCL_ static u8 zcl_wwah_trustCenterForClusterServerQueryRspPrc(zclIncoming
 _CODE_ZCL_ static u8 zcl_wwah_surveyBeaconsRspPrc(zclIncoming_t *pInMsg)
 {
 	status_t status = ZCL_STA_SUCCESS;
-    apsdeDataInd_t *pApsdeInd = (apsdeDataInd_t*)pInMsg->msg;
     u8 *pData = pInMsg->pData;
 
 	if(pInMsg->clusterAppCb){
-		zclIncomingAddrInfo_t addrInfo;
-		addrInfo.dirCluster = pInMsg->hdr.frmCtrl.bf.dir;
-		addrInfo.profileId = pApsdeInd->indInfo.profile_id;
-		addrInfo.srcAddr = pApsdeInd->indInfo.src_short_addr;
-		addrInfo.dstAddr = pApsdeInd->indInfo.dst_addr;
-		addrInfo.srcEp = pApsdeInd->indInfo.src_ep;
-		addrInfo.dstEp = pApsdeInd->indInfo.dst_ep;
-
 		zcl_wwah_surveyBeaconsRspCmd_t cmd;
 		TL_SETSTRUCTCONTENT(cmd, 0);
 
 		cmd.numOfBeacons = *pData++;
 		cmd.pBeacon = cmd.numOfBeacons ? (beaconSurvey_t *)pData : NULL;
 
-		status = pInMsg->clusterAppCb(&addrInfo, pInMsg->hdr.cmd, &cmd);
+		status = pInMsg->clusterAppCb(&(pInMsg->addrInfo), pInMsg->hdr.cmd, &cmd);
 	}else{
 		status = ZCL_STA_FAILURE;
 	}

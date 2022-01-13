@@ -1,48 +1,26 @@
 /********************************************************************************************************
- * @file	zb_common.h
+ * @file    zb_common.h
  *
- * @brief	This is the header file for zb_common
+ * @brief   This is the header file for zb_common
  *
- * @author	Zigbee Group
- * @date	2019
+ * @author  Zigbee Group
+ * @date    2021
  *
- * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
+ * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *
- *          Redistribution and use in source and binary forms, with or without
- *          modification, are permitted provided that the following conditions are met:
+ *          Licensed under the Apache License, Version 2.0 (the "License");
+ *          you may not use this file except in compliance with the License.
+ *          You may obtain a copy of the License at
  *
- *              1. Redistributions of source code must retain the above copyright
- *              notice, this list of conditions and the following disclaimer.
+ *              http://www.apache.org/licenses/LICENSE-2.0
  *
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions
- *              in binary form must reproduce the above copyright notice, this list of
- *              conditions and the following disclaimer in the documentation and/or other
- *              materials provided with the distribution.
- *
- *              3. Neither the name of TELINK, nor the names of its contributors may be
- *              used to endorse or promote products derived from this software without
- *              specific prior written permission.
- *
- *              4. This software, with or without modification, must only be used with a
- *              TELINK integrated circuit. All other usages are subject to written permission
- *              from TELINK and different commercial license may apply.
- *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
- *              relating to such deletion(s), modification(s) or alteration(s).
- *
- *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
- *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
+ *          Unless required by applicable law or agreed to in writing, software
+ *          distributed under the License is distributed on an "AS IS" BASIS,
+ *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *          See the License for the specific language governing permissions and
+ *          limitations under the License.
  *******************************************************************************************************/
+
 #ifndef ZB_COMMON_H
 #define ZB_COMMON_H
 
@@ -197,6 +175,8 @@ enum{
 #define	TL_ZB_PROFILE_ID						1
 #define	TL_RETURN_INVALID						0xff
 
+//all channels: 11 ~ 26
+#define ZB_TRANSCEIVER_ALL_CHANNELS_MASK   		0x07FFF800 /* 0000.0111 1111.1111 1111.1000 0000.0000*/
 
 #define ZB_BEACON_INTERVAL_USEC 				15360 /* in microseconds */
 
@@ -284,7 +264,7 @@ enum{
 
 #define ZB_IS_16BYTE_SECURITY_KEY_ZERO(key) 	(!memcmp((key), g_null_securityKey, SEC_KEY_LEN))
 #define ZB_IS_64BIT_ADDR_ZERO(addr) 			(!memcmp((addr), g_zero_addr, EXT_ADDR_LEN))
-#define ZB_IS_64BIT_ADDR_INVAILD(addr) 			(!memcmp((addr), g_invalid_addr, EXT_ADDR_LEN))
+#define ZB_IS_64BIT_ADDR_INVALID(addr) 			(!memcmp((addr), g_invalid_addr, EXT_ADDR_LEN))
 #define ZB_64BIT_ADDR_ZERO(addr)       			(memset((addr), 0, EXT_ADDR_LEN))
 #define ZB_64BIT_ADDR_COPY(dst, src) 			(memcpy(dst, src, EXT_ADDR_LEN))
 #define ZB_64BIT_ADDR_CMP(one, two) 			((bool)!memcmp((one), (two), EXT_ADDR_LEN))
@@ -295,7 +275,7 @@ enum{
 #define ZB_EXTPANID_CMP 						ZB_64BIT_ADDR_CMP
 
 #define ZB_IEEE_ADDR_IS_ZERO 					ZB_IS_64BIT_ADDR_ZERO
-#define ZB_IEEE_ADDR_IS_INVAILD 				ZB_IS_64BIT_ADDR_INVAILD
+#define ZB_IEEE_ADDR_IS_INVALID 				ZB_IS_64BIT_ADDR_INVALID
 #define ZB_IEEE_ADDR_ZERO 						ZB_64BIT_ADDR_ZERO
 #define	ZB_IEEE_ADDR_INVALID(addr)				ZB_64BIT_ADDR_COPY(addr, g_invalid_addr)
 #define ZB_IEEE_ADDR_COPY 						ZB_64BIT_ADDR_COPY

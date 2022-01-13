@@ -1,48 +1,26 @@
 /********************************************************************************************************
- * @file	zcl_sampleGatewayCb.c
+ * @file    zcl_sampleGatewayCb.c
  *
- * @brief	This is the source file for zcl_sampleGatewayCb
+ * @brief   This is the source file for zcl_sampleGatewayCb
  *
- * @author	Zigbee Group
- * @date	2019
+ * @author  Zigbee Group
+ * @date    2021
  *
- * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
+ * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *
- *          Redistribution and use in source and binary forms, with or without
- *          modification, are permitted provided that the following conditions are met:
+ *          Licensed under the Apache License, Version 2.0 (the "License");
+ *          you may not use this file except in compliance with the License.
+ *          You may obtain a copy of the License at
  *
- *              1. Redistributions of source code must retain the above copyright
- *              notice, this list of conditions and the following disclaimer.
+ *              http://www.apache.org/licenses/LICENSE-2.0
  *
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions
- *              in binary form must reproduce the above copyright notice, this list of
- *              conditions and the following disclaimer in the documentation and/or other
- *              materials provided with the distribution.
- *
- *              3. Neither the name of TELINK, nor the names of its contributors may be
- *              used to endorse or promote products derived from this software without
- *              specific prior written permission.
- *
- *              4. This software, with or without modification, must only be used with a
- *              TELINK integrated circuit. All other usages are subject to written permission
- *              from TELINK and different commercial license may apply.
- *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
- *              relating to such deletion(s), modification(s) or alteration(s).
- *
- *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
- *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
+ *          Unless required by applicable law or agreed to in writing, software
+ *          distributed under the License is distributed on an "AS IS" BASIS,
+ *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *          See the License for the specific language governing permissions and
+ *          limitations under the License.
  *******************************************************************************************************/
+
 #if (__PROJECT_TL_GW__)
 
 /**********************************************************************
@@ -72,18 +50,18 @@
  * LOCAL FUNCTIONS
  */
 #ifdef ZCL_READ
-static void sampleGW_zclReadRspCmd(zclReadRspCmd_t *pReadRspCmd);
+static void sampleGW_zclReadRspCmd(zclIncoming_t *pInMsg);
 #endif
 #ifdef ZCL_WRITE
 static void sampleGW_zclWriteRspCmd(zclIncoming_t *pInMsg);
 #endif
 #ifdef ZCL_REPORT
 static void sampleGW_zclCfgReportCmd(zclCfgReportCmd_t *pCfgReportCmd);
-static void sampleGW_zclCfgReportRspCmd(zclCfgReportRspCmd_t *pCfgReportRspCmd);
+static void sampleGW_zclCfgReportRspCmd(zclIncoming_t *pInMsg);
 static void sampleGW_zclReportCmd(zclIncoming_t *pInMsg);
-static void sampleGW_zclCfgReadRspCmd(zclReadReportCfgRspCmd_t *pReadCfgRspCmd);
+static void sampleGW_zclCfgReadRspCmd(zclIncoming_t *pInMsg);
 #endif
-static void sampleGW_zclDfltRspCmd(zclDefaultRspCmd_t *pDftRspCmd);
+static void sampleGW_zclDfltRspCmd(zclIncoming_t *pInMsg);
 
 /**********************************************************************
  * GLOBAL VARIABLES
@@ -119,7 +97,7 @@ void sampleGW_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg)
 	{
 #ifdef ZCL_READ
 		case ZCL_CMD_READ_RSP:
-			sampleGW_zclReadRspCmd(pInHdlrMsg->attrCmd);
+			sampleGW_zclReadRspCmd(pInHdlrMsg);
 			break;
 #endif
 #ifdef ZCL_WRITE
@@ -132,17 +110,17 @@ void sampleGW_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg)
 			sampleGW_zclCfgReportCmd(pInHdlrMsg->attrCmd);
 			break;
 		case ZCL_CMD_CONFIG_REPORT_RSP:
-			sampleGW_zclCfgReportRspCmd(pInHdlrMsg->attrCmd);
+			sampleGW_zclCfgReportRspCmd(pInHdlrMsg);
 			break;
 		case ZCL_CMD_READ_REPORT_CFG_RSP:
-			sampleGW_zclCfgReadRspCmd(pInHdlrMsg->attrCmd);
+			sampleGW_zclCfgReadRspCmd(pInHdlrMsg);
 			break;
 		case ZCL_CMD_REPORT:
 			sampleGW_zclReportCmd(pInHdlrMsg);
 			break;
 #endif
 		case ZCL_CMD_DEFAULT_RSP:
-			sampleGW_zclDfltRspCmd(pInHdlrMsg->attrCmd);
+			sampleGW_zclDfltRspCmd(pInHdlrMsg);
 			break;
 		default:
 			break;
@@ -159,14 +137,26 @@ void sampleGW_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg)
  *
  * @return  None
  */
-static void sampleGW_zclReadRspCmd(zclReadRspCmd_t *pReadRspCmd)
+static void sampleGW_zclReadRspCmd(zclIncoming_t *pInMsg)
 {
 #if ZBHCI_EN
 	u8 array[64];
 	memset(array, 0, 64);
+	zclReadRspCmd_t *pReadRspCmd = pInMsg->attrCmd;
 
 	u16 dataLen = 0;
 	u8 *pBuf = array;
+
+	*pBuf++ = HI_UINT16(pInMsg->msg->indInfo.src_short_addr);
+	*pBuf++ = LO_UINT16(pInMsg->msg->indInfo.src_short_addr);
+
+	*pBuf++ = pInMsg->msg->indInfo.src_ep;
+	*pBuf++ = pInMsg->msg->indInfo.dst_ep;
+
+	*pBuf++ = pInMsg->hdr.seqNum;
+
+	*pBuf++ = HI_UINT16(pInMsg->msg->indInfo.cluster_id);
+	*pBuf++ = LO_UINT16(pInMsg->msg->indInfo.cluster_id);
 
 	*pBuf++ = pReadRspCmd->numAttr;
 	for(u8 i = 0; i < pReadRspCmd->numAttr; i++){
@@ -208,10 +198,19 @@ static void sampleGW_zclWriteRspCmd(zclIncoming_t *pInMsg)
 	memset(array, 0, 64);
 
 	u8 *pBuf = array;
+
+	*pBuf++ = HI_UINT16(pInMsg->msg->indInfo.src_short_addr);
+	*pBuf++ = LO_UINT16(pInMsg->msg->indInfo.src_short_addr);
+
+	*pBuf++ = pInMsg->msg->indInfo.src_ep;
+	*pBuf++ = pInMsg->msg->indInfo.dst_ep;
+
+	*pBuf++ = pInMsg->hdr.seqNum;
+
+	*pBuf++ = HI_UINT16(pInMsg->msg->indInfo.cluster_id);
+	*pBuf++ = LO_UINT16(pInMsg->msg->indInfo.cluster_id);
+
 	zclWriteRspCmd_t *pWriteRsp = (zclWriteRspCmd_t *)pInMsg->attrCmd;
-
-	*pBuf++ = pWriteRsp->numAttr;
-
 	if(pInMsg->dataLen == 1){//the case of successful writing of all attributes
 		*pBuf++ = pWriteRsp->attrList[0].status;
 		*pBuf++ = 0xFF;
@@ -238,10 +237,32 @@ static void sampleGW_zclWriteRspCmd(zclIncoming_t *pInMsg)
  *
  * @return  None
  */
-static void sampleGW_zclDfltRspCmd(zclDefaultRspCmd_t *pDftRspCmd)
+static void sampleGW_zclDfltRspCmd(zclIncoming_t *pInMsg)
 {
 //    printf("sampleGW_zclDfltRspCmd\n");
+#if 0
+	u8 array[16];
+	memset(array, 0, 16);
 
+	u8 *pBuf = array;
+
+	*pBuf++ = HI_UINT16(pInMsg->msg->indInfo.src_short_addr);
+	*pBuf++ = LO_UINT16(pInMsg->msg->indInfo.src_short_addr);
+
+	*pBuf++ = pInMsg->msg->indInfo.src_ep;
+	*pBuf++ = pInMsg->msg->indInfo.dst_ep;
+
+	*pBuf++ = pInMsg->hdr.seqNum;
+
+	*pBuf++ = HI_UINT16(pInMsg->msg->indInfo.cluster_id);
+	*pBuf++ = LO_UINT16(pInMsg->msg->indInfo.cluster_id);
+
+	zclDefaultRspCmd_t *pDefaultRsp = (zclDefaultRspCmd_t *)pInMsg->attrCmd;
+	*pBuf++ = pDefaultRsp->commandID;
+	*pBuf++ = pDefaultRsp->statusCode;
+
+	zbhciTx(ZBHCI_CMD_ZCL_DEFAULT_RSP, pBuf - array, array);
+#endif
 }
 
 #ifdef ZCL_REPORT
@@ -268,14 +289,25 @@ static void sampleGW_zclCfgReportCmd(zclCfgReportCmd_t *pCfgReportCmd)
  *
  * @return  None
  */
-static void sampleGW_zclCfgReportRspCmd(zclCfgReportRspCmd_t *pCfgReportRspCmd)
+static void sampleGW_zclCfgReportRspCmd(zclIncoming_t *pInMsg)
 {
 //    printf("sampleGW_zclCfgReportRspCmd\n");
 #if ZBHCI_EN
+	zclCfgReportRspCmd_t *pCfgReportRspCmd = (zclCfgReportRspCmd_t*)pInMsg->attrCmd;
 	u8 array[64];
 	memset(array, 0, 64);
 
 	u8 *pBuf = array;
+	*pBuf++ = HI_UINT16(pInMsg->msg->indInfo.src_short_addr);
+	*pBuf++ = LO_UINT16(pInMsg->msg->indInfo.src_short_addr);
+
+	*pBuf++ = pInMsg->msg->indInfo.src_ep;
+	*pBuf++ = pInMsg->msg->indInfo.dst_ep;
+
+	*pBuf++ = pInMsg->hdr.seqNum;
+
+	*pBuf++ = HI_UINT16(pInMsg->msg->indInfo.cluster_id);
+	*pBuf++ = LO_UINT16(pInMsg->msg->indInfo.cluster_id);
 
 	*pBuf++ = pCfgReportRspCmd->numAttr;
 
@@ -314,6 +346,12 @@ static void sampleGW_zclReportCmd(zclIncoming_t *pInMsg)
 	*pBuf++ = HI_UINT16(pInMsg->msg->indInfo.src_short_addr);
 	*pBuf++ = LO_UINT16(pInMsg->msg->indInfo.src_short_addr);
 	*pBuf++ = pInMsg->msg->indInfo.src_ep;
+	*pBuf++ = pInMsg->msg->indInfo.dst_ep;
+
+	*pBuf++ = pInMsg->hdr.seqNum;
+
+	*pBuf++ = HI_UINT16(pInMsg->msg->indInfo.cluster_id);
+	*pBuf++ = LO_UINT16(pInMsg->msg->indInfo.cluster_id);
 
 	*pBuf++ = pReportCmd->numAttr;
 	for(u8 i = 0; i < pReportCmd->numAttr; i++){
@@ -344,14 +382,26 @@ static void sampleGW_zclReportCmd(zclIncoming_t *pInMsg)
  * @return  None
  */
 
-static void sampleGW_zclCfgReadRspCmd(zclReadReportCfgRspCmd_t *pReadCfgRspCmd)
+static void sampleGW_zclCfgReadRspCmd(zclIncoming_t *pInMsg)
 {
 #if ZBHCI_EN
+	zclReadReportCfgRspCmd_t *pReadCfgRspCmd = (zclReadReportCfgRspCmd_t *)pInMsg->attrCmd;
 	u8 array[64];
 	memset(array, 0, 64);
 
 	u16 dataLen = 0;
 	u8 *pBuf = array;
+
+	*pBuf++ = HI_UINT16(pInMsg->msg->indInfo.src_short_addr);
+	*pBuf++ = LO_UINT16(pInMsg->msg->indInfo.src_short_addr);
+
+	*pBuf++ = pInMsg->msg->indInfo.src_ep;
+	*pBuf++ = pInMsg->msg->indInfo.dst_ep;
+
+	*pBuf++ = pInMsg->hdr.seqNum;
+
+	*pBuf++ = HI_UINT16(pInMsg->msg->indInfo.cluster_id);
+	*pBuf++ = LO_UINT16(pInMsg->msg->indInfo.cluster_id);
 
 	*pBuf++ = pReadCfgRspCmd->numAttr;
 
@@ -499,16 +549,20 @@ static void sampleGW_zcltriggerCmdHandler(zcl_triggerEffect_t *pTriggerEffect)
  *
  * @return  None
  */
-static void sampleGW_zclIdentifyQueryRspCmdHandler(u16 srcAddr, zcl_identifyRspCmd_t *cmdPayload)
+static void sampleGW_zclIdentifyQueryRspCmdHandler(zclIncomingAddrInfo_t *pAddrInfo, zcl_identifyRspCmd_t *cmdPayload)
 {
 #if ZBHCI_EN
-	u8 array[4];
-	memset(array, 0, 4);
+	u8 array[8];
+	memset(array, 0, 8);
 
 	u8 *pBuf = array;
 
-	*pBuf++ = HI_UINT16(srcAddr);
-	*pBuf++ = LO_UINT16(srcAddr);
+	*pBuf++ = HI_UINT16(pAddrInfo->srcAddr);
+	*pBuf++ = LO_UINT16(pAddrInfo->srcAddr);
+	*pBuf++ = pAddrInfo->srcEp;
+	*pBuf++ = pAddrInfo->dstEp;
+	*pBuf++ = pAddrInfo->seqNum;
+
 	*pBuf++ = HI_UINT16(cmdPayload->timeout);
 	*pBuf++ = LO_UINT16(cmdPayload->timeout);
 
@@ -543,7 +597,7 @@ status_t sampleGW_identifyCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *c
 			}
 		}else{
 			if(cmdId == ZCL_CMD_IDENTIFY_QUERY_RSP){
-				sampleGW_zclIdentifyQueryRspCmdHandler(pAddrInfo->srcAddr, (zcl_identifyRspCmd_t *)cmdPayload);
+				sampleGW_zclIdentifyQueryRspCmdHandler(pAddrInfo, (zcl_identifyRspCmd_t *)cmdPayload);
 			}
 		}
 	}
@@ -564,13 +618,18 @@ status_t sampleGW_identifyCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *c
  *
  * @return  None
  */
-static void sampleGW_zclAddGroupRspCmdHandler(zcl_addGroupRsp_t *pAddGroupRsp)
+static void sampleGW_zclAddGroupRspCmdHandler(zclIncomingAddrInfo_t *pAddrInfo, zcl_addGroupRsp_t *pAddGroupRsp)
 {
 #if ZBHCI_EN
-	u8 array[4];
-	memset(array, 0, 4);
+	u8 array[8];
+	memset(array, 0, 8);
 
 	u8 *pBuf = array;
+	*pBuf++ = HI_UINT16(pAddrInfo->srcAddr);
+	*pBuf++ = LO_UINT16(pAddrInfo->srcAddr);
+	*pBuf++ = pAddrInfo->srcEp;
+	*pBuf++ = pAddrInfo->dstEp;
+	*pBuf++ = pAddrInfo->seqNum;
 
 	*pBuf++ = pAddGroupRsp->status;
 	*pBuf++ = HI_UINT16(pAddGroupRsp->groupId);
@@ -590,13 +649,19 @@ static void sampleGW_zclAddGroupRspCmdHandler(zcl_addGroupRsp_t *pAddGroupRsp)
  *
  * @return  None
  */
-static void sampleGW_zclViewGroupRspCmdHandler(zcl_viewGroupRsp_t *pViewGroupRsp)
+static void sampleGW_zclViewGroupRspCmdHandler(zclIncomingAddrInfo_t *pAddrInfo, zcl_viewGroupRsp_t *pViewGroupRsp)
 {
 #if ZBHCI_EN
 	u8 array[64];
 	memset(array, 0, 64);
 
 	u8 *pBuf = array;
+
+	*pBuf++ = HI_UINT16(pAddrInfo->srcAddr);
+	*pBuf++ = LO_UINT16(pAddrInfo->srcAddr);
+	*pBuf++ = pAddrInfo->srcEp;
+	*pBuf++ = pAddrInfo->dstEp;
+	*pBuf++ = pAddrInfo->seqNum;
 
 	*pBuf++ = pViewGroupRsp->status;
 	*pBuf++ = HI_UINT16(pViewGroupRsp->groupId);
@@ -623,13 +688,19 @@ static void sampleGW_zclViewGroupRspCmdHandler(zcl_viewGroupRsp_t *pViewGroupRsp
  *
  * @return  None
  */
-static void sampleGW_zclRemoveGroupRspCmdHandler(zcl_removeGroupRsp_t *pRemoveGroupRsp)
+static void sampleGW_zclRemoveGroupRspCmdHandler(zclIncomingAddrInfo_t *pAddrInfo, zcl_removeGroupRsp_t *pRemoveGroupRsp)
 {
 #if ZBHCI_EN
-	u8 array[4];
-	memset(array, 0, 4);
+	u8 array[8];
+	memset(array, 0, 8);
 
 	u8 *pBuf = array;
+
+	*pBuf++ = HI_UINT16(pAddrInfo->srcAddr);
+	*pBuf++ = LO_UINT16(pAddrInfo->srcAddr);
+	*pBuf++ = pAddrInfo->srcEp;
+	*pBuf++ = pAddrInfo->dstEp;
+	*pBuf++ = pAddrInfo->seqNum;
 
 	*pBuf++ = pRemoveGroupRsp->status;
 	*pBuf++ = HI_UINT16(pRemoveGroupRsp->groupId);
@@ -649,13 +720,18 @@ static void sampleGW_zclRemoveGroupRspCmdHandler(zcl_removeGroupRsp_t *pRemoveGr
  *
  * @return  None
  */
-static void sampleGW_zclGetGroupMembershipRspCmdHandler(zcl_getGroupMembershipRsp_t *pGetGroupMembershipRsp)
+static void sampleGW_zclGetGroupMembershipRspCmdHandler(zclIncomingAddrInfo_t *pAddrInfo, zcl_getGroupMembershipRsp_t *pGetGroupMembershipRsp)
 {
 #if ZBHCI_EN
 	u8 array[64];
 	memset(array, 0, 64);
 
 	u8 *pBuf = array;
+	*pBuf++ = HI_UINT16(pAddrInfo->srcAddr);
+	*pBuf++ = LO_UINT16(pAddrInfo->srcAddr);
+	*pBuf++ = pAddrInfo->srcEp;
+	*pBuf++ = pAddrInfo->dstEp;
+	*pBuf++ = pAddrInfo->seqNum;
 
 	*pBuf++ = pGetGroupMembershipRsp->capacity;
 	*pBuf++ = pGetGroupMembershipRsp->groupCnt;
@@ -685,16 +761,16 @@ status_t sampleGW_groupCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdP
 		if(pAddrInfo->dirCluster == ZCL_FRAME_SERVER_CLIENT_DIR){
 			switch(cmdId){
 				case ZCL_CMD_GROUP_ADD_GROUP_RSP:
-					sampleGW_zclAddGroupRspCmdHandler((zcl_addGroupRsp_t *)cmdPayload);
+					sampleGW_zclAddGroupRspCmdHandler(pAddrInfo, (zcl_addGroupRsp_t *)cmdPayload);
 					break;
 				case ZCL_CMD_GROUP_VIEW_GROUP_RSP:
-					sampleGW_zclViewGroupRspCmdHandler((zcl_viewGroupRsp_t *)cmdPayload);
+					sampleGW_zclViewGroupRspCmdHandler(pAddrInfo, (zcl_viewGroupRsp_t *)cmdPayload);
 					break;
 				case ZCL_CMD_GROUP_REMOVE_GROUP_RSP:
-					sampleGW_zclRemoveGroupRspCmdHandler((zcl_removeGroupRsp_t *)cmdPayload);
+					sampleGW_zclRemoveGroupRspCmdHandler(pAddrInfo, (zcl_removeGroupRsp_t *)cmdPayload);
 					break;
 				case ZCL_CMD_GROUP_GET_MEMBERSHIP_RSP:
-					sampleGW_zclGetGroupMembershipRspCmdHandler((zcl_getGroupMembershipRsp_t *)cmdPayload);
+					sampleGW_zclGetGroupMembershipRspCmdHandler(pAddrInfo,(zcl_getGroupMembershipRsp_t *)cmdPayload);
 					break;
 				default:
 					break;
@@ -718,13 +794,18 @@ status_t sampleGW_groupCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdP
  *
  * @return  None
  */
-static void sampleGW_zclAddSceneRspCmdHandler(u8 cmdId, addSceneRsp_t *pAddSceneRsp)
+static void sampleGW_zclAddSceneRspCmdHandler(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, addSceneRsp_t *pAddSceneRsp)
 {
 #if ZBHCI_EN
-	u8 array[4];
-	memset(array, 0, 4);
+	u8 array[16];
+	memset(array, 0, 16);
 
 	u8 *pBuf = array;
+	*pBuf++ = HI_UINT16(pAddrInfo->srcAddr);
+	*pBuf++ = LO_UINT16(pAddrInfo->srcAddr);
+	*pBuf++ = pAddrInfo->srcEp;
+	*pBuf++ = pAddrInfo->dstEp;
+	*pBuf++ = pAddrInfo->seqNum;
 
 	*pBuf++ = pAddSceneRsp->status;
 	*pBuf++ = HI_UINT16(pAddSceneRsp->groupId);
@@ -746,13 +827,18 @@ static void sampleGW_zclAddSceneRspCmdHandler(u8 cmdId, addSceneRsp_t *pAddScene
  *
  * @return  None
  */
-static void sampleGW_zclViewSceneRspCmdHandler(u8 cmdId, viewSceneRsp_t *pViewSceneRsp)
+static void sampleGW_zclViewSceneRspCmdHandler(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, viewSceneRsp_t *pViewSceneRsp)
 {
 #if ZBHCI_EN
 	u8 array[64];
 	memset(array, 0, 64);
 
 	u8 *pBuf = array;
+	*pBuf++ = HI_UINT16(pAddrInfo->srcAddr);
+	*pBuf++ = LO_UINT16(pAddrInfo->srcAddr);
+	*pBuf++ = pAddrInfo->srcEp;
+	*pBuf++ = pAddrInfo->dstEp;
+	*pBuf++ = pAddrInfo->seqNum;
 
 	*pBuf++ = pViewSceneRsp->status;
 	*pBuf++ = HI_UINT16(pViewSceneRsp->scene.groupId);
@@ -787,13 +873,18 @@ static void sampleGW_zclViewSceneRspCmdHandler(u8 cmdId, viewSceneRsp_t *pViewSc
  *
  * @return  None
  */
-static void sampleGW_zclRemoveSceneRspCmdHandler(removeSceneRsp_t *pRemoveSceneRsp)
+static void sampleGW_zclRemoveSceneRspCmdHandler(zclIncomingAddrInfo_t *pAddrInfo, removeSceneRsp_t *pRemoveSceneRsp)
 {
 #if ZBHCI_EN
-	u8 array[4];
-	memset(array, 0, 4);
+	u8 array[12];
+	memset(array, 0, 12);
 
 	u8 *pBuf = array;
+	*pBuf++ = HI_UINT16(pAddrInfo->srcAddr);
+	*pBuf++ = LO_UINT16(pAddrInfo->srcAddr);
+	*pBuf++ = pAddrInfo->srcEp;
+	*pBuf++ = pAddrInfo->dstEp;
+	*pBuf++ = pAddrInfo->seqNum;
 
 	*pBuf++ = pRemoveSceneRsp->status;
 	*pBuf++ = HI_UINT16(pRemoveSceneRsp->groupId);
@@ -814,13 +905,19 @@ static void sampleGW_zclRemoveSceneRspCmdHandler(removeSceneRsp_t *pRemoveSceneR
  *
  * @return  None
  */
-static void sampleGW_zclRemoveAllSceneRspCmdHandler(removeAllSceneRsp_t *pRemoveAllSceneRsp)
+static void sampleGW_zclRemoveAllSceneRspCmdHandler(zclIncomingAddrInfo_t *pAddrInfo, removeAllSceneRsp_t *pRemoveAllSceneRsp)
 {
 #if ZBHCI_EN
-	u8 array[4];
-	memset(array, 0, 4);
+	u8 array[12];
+	memset(array, 0, 12);
 
 	u8 *pBuf = array;
+
+	*pBuf++ = HI_UINT16(pAddrInfo->srcAddr);
+	*pBuf++ = LO_UINT16(pAddrInfo->srcAddr);
+	*pBuf++ = pAddrInfo->srcEp;
+	*pBuf++ = pAddrInfo->dstEp;
+	*pBuf++ = pAddrInfo->seqNum;
 
 	*pBuf++ = pRemoveAllSceneRsp->status;
 	*pBuf++ = HI_UINT16(pRemoveAllSceneRsp->groupId);
@@ -840,13 +937,19 @@ static void sampleGW_zclRemoveAllSceneRspCmdHandler(removeAllSceneRsp_t *pRemove
  *
  * @return  None
  */
-static void sampleGW_zclStoreSceneRspCmdHandler(storeSceneRsp_t *pStoreSceneRsp)
+static void sampleGW_zclStoreSceneRspCmdHandler(zclIncomingAddrInfo_t *pAddrInfo, storeSceneRsp_t *pStoreSceneRsp)
 {
 #if ZBHCI_EN
-	u8 array[4];
-	memset(array, 0, 4);
+	u8 array[12];
+	memset(array, 0, 12);
 
 	u8 *pBuf = array;
+
+	*pBuf++ = HI_UINT16(pAddrInfo->srcAddr);
+	*pBuf++ = LO_UINT16(pAddrInfo->srcAddr);
+	*pBuf++ = pAddrInfo->srcEp;
+	*pBuf++ = pAddrInfo->dstEp;
+	*pBuf++ = pAddrInfo->seqNum;
 
 	*pBuf++ = pStoreSceneRsp->status;
 	*pBuf++ = HI_UINT16(pStoreSceneRsp->groupId);
@@ -867,13 +970,19 @@ static void sampleGW_zclStoreSceneRspCmdHandler(storeSceneRsp_t *pStoreSceneRsp)
  *
  * @return  None
  */
-static void sampleGW_zclGetSceneMembershipRspCmdHandler(getSceneMemRsp_t *pGetSceneMembershipRsp)
+static void sampleGW_zclGetSceneMembershipRspCmdHandler(zclIncomingAddrInfo_t *pAddrInfo, getSceneMemRsp_t *pGetSceneMembershipRsp)
 {
 #if ZBHCI_EN
 	u8 array[64];
 	memset(array, 0, 64);
 
 	u8 *pBuf = array;
+
+	*pBuf++ = HI_UINT16(pAddrInfo->srcAddr);
+	*pBuf++ = LO_UINT16(pAddrInfo->srcAddr);
+	*pBuf++ = pAddrInfo->srcEp;
+	*pBuf++ = pAddrInfo->dstEp;
+	*pBuf++ = pAddrInfo->seqNum;
 
 	*pBuf++ = pGetSceneMembershipRsp->status;
 	*pBuf++ = pGetSceneMembershipRsp->capacity;
@@ -906,23 +1015,23 @@ status_t sampleGW_sceneCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdP
 			switch(cmdId){
 				case ZCL_CMD_SCENE_ADD_SCENE_RSP:
 				case ZCL_CMD_SCENE_ENHANCED_ADD_SCENE_RSP:
-					sampleGW_zclAddSceneRspCmdHandler(cmdId, (addSceneRsp_t *)cmdPayload);
+					sampleGW_zclAddSceneRspCmdHandler(pAddrInfo, cmdId, (addSceneRsp_t *)cmdPayload);
 					break;
 				case ZCL_CMD_SCENE_VIEW_SCENE_RSP:
 				case ZCL_CMD_SCENE_ENHANCED_VIEW_SCENE_RSP:
-					sampleGW_zclViewSceneRspCmdHandler(cmdId, (viewSceneRsp_t *)cmdPayload);
+					sampleGW_zclViewSceneRspCmdHandler(pAddrInfo, cmdId, (viewSceneRsp_t *)cmdPayload);
 					break;
 				case ZCL_CMD_SCENE_REMOVE_SCENE_RSP:
-					sampleGW_zclRemoveSceneRspCmdHandler((removeSceneRsp_t *)cmdPayload);
+					sampleGW_zclRemoveSceneRspCmdHandler(pAddrInfo, (removeSceneRsp_t *)cmdPayload);
 					break;
 				case ZCL_CMD_SCENE_REMOVE_ALL_SCENE_RSP:
-					sampleGW_zclRemoveAllSceneRspCmdHandler((removeAllSceneRsp_t *)cmdPayload);
+					sampleGW_zclRemoveAllSceneRspCmdHandler(pAddrInfo, (removeAllSceneRsp_t *)cmdPayload);
 					break;
 				case ZCL_CMD_SCENE_STORE_SCENE_RSP:
-					sampleGW_zclStoreSceneRspCmdHandler((storeSceneRsp_t *)cmdPayload);
+					sampleGW_zclStoreSceneRspCmdHandler(pAddrInfo, (storeSceneRsp_t *)cmdPayload);
 					break;
 				case ZCL_CMD_SCENE_GET_SCENE_MEMSHIP_RSP:
-					sampleGW_zclGetSceneMembershipRspCmdHandler((getSceneMemRsp_t *)cmdPayload);
+					sampleGW_zclGetSceneMembershipRspCmdHandler(pAddrInfo, (getSceneMemRsp_t *)cmdPayload);
 					break;
 				default:
 					break;
@@ -1036,7 +1145,7 @@ static status_t sampleGW_zclPollCtrlChkInCmdHandler(zclIncomingAddrInfo_t *pAddr
 	checkInRsp.startFastPolling = FALSE;
 	checkInRsp.fastPollTimeout = 0;
 
-	zcl_pollCtrl_chkInRspCmd(SAMPLE_GW_ENDPOINT, &dstEpInfo, TRUE, &checkInRsp);
+	zcl_pollCtrl_chkInRspCmd(SAMPLE_GW_ENDPOINT, &dstEpInfo, TRUE, pAddrInfo->seqNum, &checkInRsp);
 
 	return ZCL_STA_CMD_HAS_RESP;
 }

@@ -1,48 +1,26 @@
 /********************************************************************************************************
- * @file	gp.c
+ * @file    gp.c
  *
- * @brief	This is the source file for gp
+ * @brief   This is the source file for gp
  *
- * @author	Zigbee Group
- * @date	2019
+ * @author  Zigbee Group
+ * @date    2021
  *
- * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
+ * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *
- *          Redistribution and use in source and binary forms, with or without
- *          modification, are permitted provided that the following conditions are met:
+ *          Licensed under the Apache License, Version 2.0 (the "License");
+ *          you may not use this file except in compliance with the License.
+ *          You may obtain a copy of the License at
  *
- *              1. Redistributions of source code must retain the above copyright
- *              notice, this list of conditions and the following disclaimer.
+ *              http://www.apache.org/licenses/LICENSE-2.0
  *
- *              2. Unless for usage inside a TELINK integrated circuit, redistributions
- *              in binary form must reproduce the above copyright notice, this list of
- *              conditions and the following disclaimer in the documentation and/or other
- *              materials provided with the distribution.
- *
- *              3. Neither the name of TELINK, nor the names of its contributors may be
- *              used to endorse or promote products derived from this software without
- *              specific prior written permission.
- *
- *              4. This software, with or without modification, must only be used with a
- *              TELINK integrated circuit. All other usages are subject to written permission
- *              from TELINK and different commercial license may apply.
- *
- *              5. Licensee shall be solely responsible for any claim to the extent arising out of or
- *              relating to such deletion(s), modification(s) or alteration(s).
- *
- *          THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *          ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *          WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *          DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
- *          DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *          (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *          LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- *          ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *          (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *          SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
+ *          Unless required by applicable law or agreed to in writing, software
+ *          distributed under the License is distributed on an "AS IS" BASIS,
+ *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *          See the License for the specific language governing permissions and
+ *          limitations under the License.
  *******************************************************************************************************/
+
 /**********************************************************************
  * INCLUDES
  */
@@ -108,8 +86,8 @@ void gp_init(void)
 	COPY_U24TOBUFFER(zclGpAttr_gppFunc, GPP_FUNCTIONALITY);
 	COPY_U24TOBUFFER(zclGpAttr_gppActiveFunc, GPP_ACTIVE_FUNCTIONALITY);
 
-	zclGpAttr_gpSharedSecKeyType = GP_SEC_KEY_TYPE_GPD_GROUP_KEY;
-	memcpy(zclGpAttr_gpSharedSecKey, g_gpSharedKey, SEC_KEY_LEN);
+	//zclGpAttr_gpSharedSecKeyType = GP_SEC_KEY_TYPE_GPD_GROUP_KEY;
+	//memcpy(zclGpAttr_gpSharedSecKey, g_gpSharedKey, SEC_KEY_LEN);
 }
 
 /*********************************************************************
@@ -168,17 +146,17 @@ static s32 gpCommissioningWindowTimeoutCb(void *arg)
 	return 0;
 }
 
-u8 gp_proxyTabEntryUpdate(gpProxyTabEntry_t *pEntry, zcl_gp_pairingCmd_t *pCmd)
+static status_t gp_proxyTabEntryUpdate(gpProxyTabEntry_t *pEntry, zcl_gp_pairingCmd_t *pCmd)
 {
 	if(pCmd->options.bits.addSink){
 		if(pCmd->options.bits.commMode == GPS_COMM_MODE_LIGHTWEIGHT_UNICAST){
 			if(lwSinkAddrListAdd(pEntry, pCmd->sinkIeeeAddr, pCmd->sinkNwkAddr) == FAILURE){
-				return FAILURE;
+				return ZCL_STA_INSUFFICIENT_SPACE;
 			}
 		}else if(pCmd->options.bits.commMode == GPS_COMM_MODE_GROUP_PRE_COMMISSIONED_GROUPID){
 			u16 alias = pCmd->options.bits.assignedAliasPresent ? pCmd->assignedAlias : gpAliasSrcAddrDerived(pCmd->options.bits.appId, pCmd->gpdId);
 			if(sinkGroupListAdd(pEntry, pCmd->sinkGroupID, alias) == FAILURE){
-				return FAILURE;
+				return ZCL_STA_INSUFFICIENT_SPACE;
 			}
 		}else if(pCmd->options.bits.commMode == GPS_COMM_MODE_GROUP_DGROUPID){
 			pEntry->options.bits.assignedAlias = pCmd->options.bits.assignedAliasPresent;
@@ -220,11 +198,11 @@ u8 gp_proxyTabEntryUpdate(gpProxyTabEntry_t *pEntry, zcl_gp_pairingCmd_t *pCmd)
 	}else{
 		if(pCmd->options.bits.commMode == GPS_COMM_MODE_LIGHTWEIGHT_UNICAST){
 			if(lwSinkAddrListRemove(pEntry, pCmd->sinkIeeeAddr, pCmd->sinkNwkAddr) == FAILURE){
-				return FAILURE;
+				return ZCL_STA_NOT_FOUND;
 			}
 		}else if(pCmd->options.bits.commMode == GPS_COMM_MODE_GROUP_PRE_COMMISSIONED_GROUPID){
 			if(sinkGroupListRemove(pEntry, pCmd->sinkGroupID) == FAILURE){
-				return FAILURE;
+				return ZCL_STA_NOT_FOUND;
 			}
 		}
 
@@ -233,28 +211,28 @@ u8 gp_proxyTabEntryUpdate(gpProxyTabEntry_t *pEntry, zcl_gp_pairingCmd_t *pCmd)
 		}
 	}
 
-	return SUCCESS;
+	return ZCL_STA_SUCCESS;
 }
 
-static u8 gp_pairingUpdateProxyTab(zcl_gp_pairingCmd_t *pCmd)
+static status_t gp_pairingUpdateProxyTab(zcl_gp_pairingCmd_t *pCmd)
 {
 	gpProxyTabEntry_t *pEntry = gp_getProxyTabByGpdId(pCmd->options.bits.appId, pCmd->gpdId);
 
 	if(pCmd->options.bits.removeGPD){
 		if(pEntry){
 			gp_proxyTabEntryClear(pEntry);
-			return SUCCESS;
+			return ZCL_STA_SUCCESS;
 		}
-		return FAILURE;
+		return ZCL_STA_NOT_FOUND;
 	}
 
 	if(pCmd->options.bits.commMode == GPS_COMM_MODE_FULL_UNICAST){
 		//not support
-		return FAILURE;
+		return ZCL_STA_INVALID_FIELD;
 	}
 
 	if(pCmd->options.bits.secLevel == GP_SEC_LEVEL_RESERVED){
-		return FAILURE;
+		return ZCL_STA_INVALID_FIELD;
 	}
 
 	//not found the entry
@@ -262,10 +240,10 @@ static u8 gp_pairingUpdateProxyTab(zcl_gp_pairingCmd_t *pCmd)
 		if(pCmd->options.bits.addSink){
 			pEntry = gp_proxyTabEntryFreeGet();
 			if(!pEntry){
-				return FAILURE;
+				return ZCL_STA_INSUFFICIENT_SPACE;
 			}
 		}else{
-			return FAILURE;
+			return ZCL_STA_NOT_FOUND;
 		}
 	}
 
@@ -281,9 +259,11 @@ static u8 gp_pairingUpdateProxyTab(zcl_gp_pairingCmd_t *pCmd)
  *
  * @return  None
  */
-static void gpPairingCmdProcess(zcl_gp_pairingCmd_t *pCmd)
+static status_t gpPairingCmdProcess(zcl_gp_pairingCmd_t *pCmd)
 {
-	if(gp_pairingUpdateProxyTab(pCmd) == SUCCESS){
+	status_t status = gp_pairingUpdateProxyTab(pCmd);
+
+	if(status == ZCL_STA_SUCCESS){
 		//update the proxy table
 		//printf("updated\n");
 		gpProxyTabUpdate();
@@ -309,6 +289,8 @@ static void gpPairingCmdProcess(zcl_gp_pairingCmd_t *pCmd)
 
 		zb_zdoSendDevAnnance();
 	}
+
+	return status;
 }
 
 /*********************************************************************
@@ -320,15 +302,15 @@ static void gpPairingCmdProcess(zcl_gp_pairingCmd_t *pCmd)
  *
  * @return  None
  */
-static void gpProxyTabReqCmdProcess(u16 srcAddr, zcl_gp_proxyTabReqCmd_t *pCmd)
+static void gpProxyTabReqCmdProcess(zclIncomingAddrInfo_t *pAddrInfo, zcl_gp_proxyTabReqCmd_t *pCmd)
 {
 	epInfo_t dstEpInfo;
 	TL_SETSTRUCTCONTENT(dstEpInfo, 0);
 
 	dstEpInfo.dstAddrMode = APS_SHORT_DSTADDR_WITHEP;
-	dstEpInfo.dstAddr.shortAddr = srcAddr;
-	dstEpInfo.dstEp = GREEN_POWER_ENDPOINT;
-	dstEpInfo.profileId = GP_PROFILE_ID;
+	dstEpInfo.dstAddr.shortAddr = pAddrInfo->srcAddr;
+	dstEpInfo.dstEp = pAddrInfo->srcEp;
+	dstEpInfo.profileId = pAddrInfo->profileId;
 
 	zcl_gp_proxyTabRspCmd_t proxyTabRspCmd;
 	TL_SETSTRUCTCONTENT(proxyTabRspCmd, 0);
@@ -338,12 +320,12 @@ static void gpProxyTabReqCmdProcess(u16 srcAddr, zcl_gp_proxyTabReqCmd_t *pCmd)
 	proxyTabRspCmd.totalTabEntries = gp_getProxyTabEntryTotalNum();
 
 	if(proxyTabRspCmd.totalTabEntries == 0){
-		proxyTabRspCmd.status = ZCL_STA_SUCCESS;
+		proxyTabRspCmd.status = ZCL_STA_NOT_FOUND;
 		proxyTabRspCmd.startIdx = (pCmd->options.bits.reqType == REQUEST_TABLE_ENTRIES_BY_GPD_ID) ? 0xFF : pCmd->index;
 		proxyTabRspCmd.entriesCnt = 0;
 		proxyTabRspCmd.entriesLen = 0;
 
-		zcl_gp_proxyTableRspCmdSend(GREEN_POWER_ENDPOINT, &dstEpInfo, TRUE, &proxyTabRspCmd);
+		zcl_gp_proxyTableRspCmdSend(GREEN_POWER_ENDPOINT, &dstEpInfo, TRUE, pAddrInfo->seqNum, &proxyTabRspCmd);
 		return;
 	}
 
@@ -428,7 +410,7 @@ static void gpProxyTabReqCmdProcess(u16 srcAddr, zcl_gp_proxyTabReqCmd_t *pCmd)
 		}
 	}
 
-	zcl_gp_proxyTableRspCmdSend(GREEN_POWER_ENDPOINT, &dstEpInfo, TRUE, &proxyTabRspCmd);
+	zcl_gp_proxyTableRspCmdSend(GREEN_POWER_ENDPOINT, &dstEpInfo, TRUE, pAddrInfo->seqNum, &proxyTabRspCmd);
 
 	if(pBuf){
 		ev_buf_free(pBuf);
@@ -499,21 +481,17 @@ static void gpResponseCmdProcess(zcl_gp_responseCmd_t *pCmd)
 {
 	//printf("gpResponseCmdCb\n");
 
-	if(!g_gpCtx.gpInCommMode){
-		return;
-	}
-
-	if(pCmd->tempMasterShortAddr == NWK_NIB().nwkAddr){
-		g_gpCtx.firstToForward = TRUE;//TODO: not sure
-	}else{
-		g_gpCtx.firstToForward = FALSE;
-		return;
-	}
-
 	gp_data_req_t gpDataReq;
 	TL_SETSTRUCTCONTENT(gpDataReq, 0);
 
-	gpDataReq.action = TRUE;
+	if(pCmd->tempMasterShortAddr == NWK_NIB().nwkAddr){
+		g_gpCtx.firstToForward = TRUE;//TODO: not sure
+		gpDataReq.action = TRUE;
+	}else{
+		g_gpCtx.firstToForward = FALSE;
+		gpDataReq.action = FALSE;
+	}
+
 	if(pCmd->gpdCmdID == GP_CHANNEL_CONFIGURATION_COMMAND_ID){
 		gpDataReq.gpepHandle = GP_HANDLE_CHANNEL_CONFIGURATION;
 	}else{
@@ -559,7 +537,7 @@ status_t zcl_gpCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
 		if(pAddrInfo->dirCluster == ZCL_FRAME_SERVER_CLIENT_DIR){
 			switch(cmdId){
 				case ZCL_CMD_GP_PAIRING:
-					gpPairingCmdProcess((zcl_gp_pairingCmd_t *)cmdPayload);
+					status = gpPairingCmdProcess((zcl_gp_pairingCmd_t *)cmdPayload);
 					break;
 				case ZCL_CMD_GP_PROXY_COMMISSIONING_MODE:
 					gpProxyCommissioningModeCmdProcess(pAddrInfo->srcAddr, (zcl_gp_proxyCommissioningModeCmd_t *)cmdPayload);
@@ -568,7 +546,7 @@ status_t zcl_gpCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
 					gpResponseCmdProcess((zcl_gp_responseCmd_t *)cmdPayload);
 					break;
 				case ZCL_CMD_GP_PROXY_TABLE_REQUEST:
-					gpProxyTabReqCmdProcess(pAddrInfo->srcAddr, (zcl_gp_proxyTabReqCmd_t *)cmdPayload);
+					gpProxyTabReqCmdProcess(pAddrInfo, (zcl_gp_proxyTabReqCmd_t *)cmdPayload);
 					break;
 				default:
 					status = ZCL_STA_UNSUP_CLUSTER_COMMAND;
