@@ -14,7 +14,8 @@
 ### Performance
 * Improve network performance and authentication speed.([ac626730](http://192.168.48.36/src/zigbee/telink_zigbee_src/commit/ac626730c2dc973ac4cbbda7c4feaffcdee64335))
 ### BREAKING CHANGES
-* None.
+* N/A
+
 ### CodeSize
 * Flash:
   - ZC: 165kb
@@ -39,7 +40,8 @@
 ### Performance
 * 提升网络性能和鉴权速度。([ac626730](http://192.168.48.36/src/zigbee/telink_zigbee_src/commit/ac626730c2dc973ac4cbbda7c4feaffcdee64335))
 ### BREAKING CHANGES
-* 无。
+* N/A
+
 ### CodeSize
 * Flash:
   - ZC: 165kb
