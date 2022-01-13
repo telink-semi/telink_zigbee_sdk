@@ -1,18 +1,18 @@
 ## V3.6.7.0(Public release)
 
 ### Features
-* Replace Telink BSD license with Apache 2.0 License.(43aa6dc2fdf59f599a1eb1d2be2f4ce7dee07a3e)
-* Update low voltage detection mechanism.(aff6c2d1fefdd60a31cd168f7656ca2c9c4a1440)
+* Replace Telink BSD license with Apache 2.0 License.([43aa6dc2](http://192.168.48.36/src/zigbee/telink_zigbee_src/commit/43aa6dc2fdf59f599a1eb1d2be2f4ce7dee07a3e))
+* Update low voltage detection mechanism.([aff6c2d1](http://192.168.48.36/src/zigbee/telink_zigbee_src/commit/aff6c2d1fefdd60a31cd168f7656ca2c9c4a1440))
 ### Bug Fixes
-* Fix OTA message processing issue.(26157426f2d649ff5f7d9ad5e12984b58606026b)
-* Fix pre-config NWK key issue.(ffd26cba8b9055925a4fc8b94e3c74656215acb2)
-* Fix GPPB security issue.(2ea2a1ea05b5a179593f0fb18328f88d93e20ea5)
-* Fix Trust Center Rejoin mechanism.(b9fc3b002477fbc8a63c579a21e6298aee9baa34)
+* Fix OTA message processing issue.([26157426](http://192.168.48.36/src/zigbee/telink_zigbee_src/commit/26157426f2d649ff5f7d9ad5e12984b58606026b))
+* Fix pre-config NWK key issue.([ffd26cba](http://192.168.48.36/src/zigbee/telink_zigbee_src/commit/ffd26cba8b9055925a4fc8b94e3c74656215acb2))
+* Fix GPPB security issue.([2ea2a1ea](http://192.168.48.36/src/zigbee/telink_zigbee_src/commit/2ea2a1ea05b5a179593f0fb18328f88d93e20ea5))
+* Fix Trust Center Rejoin mechanism.([b9fc3b00](http://192.168.48.36/src/zigbee/telink_zigbee_src/commit/b9fc3b002477fbc8a63c579a21e6298aee9baa34))
 ### Code Refactoring
-* Clean up the ZCL code.(298161105a5cac68f0dace08f394fbc370c8d7ee)
-* Clean up the HCI code.(861240ec9ebee31c53cb3d14eef543f627021dc3)
+* Clean up the ZCL code.([29816110](http://192.168.48.36/src/zigbee/telink_zigbee_src/commit/298161105a5cac68f0dace08f394fbc370c8d7ee))
+* Clean up the HCI code.([861240ec](http://192.168.48.36/src/zigbee/telink_zigbee_src/commit/861240ec9ebee31c53cb3d14eef543f627021dc3))
 ### Performance
-* Improve network performance and authentication speed.(ac626730c2dc973ac4cbbda7c4feaffcdee64335)
+* Improve network performance and authentication speed.([ac626730](http://192.168.48.36/src/zigbee/telink_zigbee_src/commit/ac626730c2dc973ac4cbbda7c4feaffcdee64335))
 ### BREAKING CHANGES
 * None.
 ### CodeSize
@@ -26,18 +26,18 @@
   - ZED:25kb
 
 ### Features
-* 将 Telink BSD license替换为 Apache 2.0 license。(43aa6dc2fdf59f599a1eb1d2be2f4ce7dee07a3e)
-* 更新低压检测机制。(aff6c2d1fefdd60a31cd168f7656ca2c9c4a1440)
+* 将 Telink BSD license替换为 Apache 2.0 license。([43aa6dc2](http://192.168.48.36/src/zigbee/telink_zigbee_src/commit/43aa6dc2fdf59f599a1eb1d2be2f4ce7dee07a3e))
+* 更新低压检测机制。([aff6c2d1](http://192.168.48.36/src/zigbee/telink_zigbee_src/commit/aff6c2d1fefdd60a31cd168f7656ca2c9c4a1440))
 ### Bug Fixes
-* 修复OTA消息处理问题。(26157426f2d649ff5f7d9ad5e12984b58606026b)
-* 修复预配网络密钥问题。(ffd26cba8b9055925a4fc8b94e3c74656215acb2)
-* 修复GPPB安全问题。(2ea2a1ea05b5a179593f0fb18328f88d93e20ea5)
-* 修复Truster Center rejoin机制。(b9fc3b002477fbc8a63c579a21e6298aee9baa34)
+* 修复OTA消息处理问题。([26157426](http://192.168.48.36/src/zigbee/telink_zigbee_src/commit/26157426f2d649ff5f7d9ad5e12984b58606026b))
+* 修复预配网络密钥问题。([ffd26cba](http://192.168.48.36/src/zigbee/telink_zigbee_src/commit/ffd26cba8b9055925a4fc8b94e3c74656215acb2))
+* 修复GPPB安全问题。([2ea2a1ea](http://192.168.48.36/src/zigbee/telink_zigbee_src/commit/2ea2a1ea05b5a179593f0fb18328f88d93e20ea5))
+* 修复Truster Center rejoin机制。([b9fc3b00](http://192.168.48.36/src/zigbee/telink_zigbee_src/commit/b9fc3b002477fbc8a63c579a21e6298aee9baa34))
 ### Code Refactoring
-* 清理ZCL代码。(298161105a5cac68f0dace08f394fbc370c8d7ee)
-* 清理HCI代码。(861240ec9ebee31c53cb3d14eef543f627021dc3)
+* 清理ZCL代码。([29816110](http://192.168.48.36/src/zigbee/telink_zigbee_src/commit/298161105a5cac68f0dace08f394fbc370c8d7ee))
+* 清理HCI代码。([861240ec](http://192.168.48.36/src/zigbee/telink_zigbee_src/commit/861240ec9ebee31c53cb3d14eef543f627021dc3))
 ### Performance
-* 提升网络性能和鉴权速度。(ac626730c2dc973ac4cbbda7c4feaffcdee64335)
+* 提升网络性能和鉴权速度。([ac626730](http://192.168.48.36/src/zigbee/telink_zigbee_src/commit/ac626730c2dc973ac4cbbda7c4feaffcdee64335))
 ### BREAKING CHANGES
 * 无。
 ### CodeSize
