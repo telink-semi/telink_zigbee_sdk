@@ -1,3 +1,54 @@
+## V3.6.7.0(Public release)
+
+### Features
+* None.
+### Bug Fixes
+* Fix OTA message processing issue.
+* Fix pre-config NWK key issue.
+* Fix GPPB security issue.
+* Fix Trust Center Rejoin mechanisms.
+### Code Refactoring
+* Clean up the ZCL code.
+* Clean up the HCI code.
+### Performance
+* Improve network performance and authentication speed.
+### BREAKING CHANGES
+* None.
+### CodeSize
+* Flash:
+  - ZC: 165kb
+  - ZR: 187kb
+  - ZED:127kb
+* RAM:
+  - ZC: 33kb
+  - ZR: 30kb
+  - ZED:25kb
+
+### Features
+* 无。
+### Bug Fixes
+* 修复OTA消息处理问题。
+* 修复预配网络密钥问题。
+* 修复GPPB安全问题。
+* 修复Truster Center rejoin机制。
+### Code Refactoring
+* 清理ZCL代码。
+* 清理HCI代码。
+### Performance
+* 提升网络性能和鉴权速度。
+### BREAKING CHANGES
+* 无。
+### CodeSize
+* Flash:
+  - ZC: 165kb
+  - ZR: 187kb
+  - ZED:127kb
+* RAM:
+  - ZC: 33kb
+  - ZR: 30kb
+  - ZED:25kb
+
+
 ## V3.6.6.0
 
 ### Features
