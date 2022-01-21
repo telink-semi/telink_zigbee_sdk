@@ -96,7 +96,7 @@ ota_updateInfo_t *pOtaUpdateInfo = NULL;
 //server side
 ota_preamble_t otaServerBinInfo;
 
-
+bool g_otaEncryptionNeeded = 0;
 
 
 /**********************************************************************
@@ -918,6 +918,13 @@ u8 ota_imageDataProcess(u8 len, u8 *pData)
 				otaClientInfo.clientOtaFlg = OTA_FLAG_IMAGE_ELEMENT;
 				break;
 			case OTA_FLAG_IMAGE_ELEMENT:
+				/*
+				 * if g_otaEncryptionNeeded is set as 1, it will reject the un-encrypted ota image data
+				 * */
+				if(g_otaEncryptionNeeded && otaClientInfo.otaElementTag != OTA_UPGRADE_IMAGE_AES_TAG_ID){
+					return ZCL_STA_INVALID_IMAGE;
+				}
+
 				if((otaClientInfo.otaElementTag == OTA_UPGRADE_IMAGE_TAG_ID) || (otaClientInfo.otaElementTag == OTA_UPGRADE_IMAGE_AES_TAG_ID)){
 					if((otaClientInfo.otaElementLen == 0) || (otaClientInfo.otaElementPos > otaClientInfo.otaElementLen)){
 						return ZCL_STA_INVALID_IMAGE;

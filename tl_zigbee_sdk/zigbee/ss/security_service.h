@@ -36,6 +36,12 @@ typedef enum{
 	SS_KEYREQ_TYPE_TCLK  = 0x04
 }ss_keyReqType_e;
 
+typedef enum{
+	LINKKEY_PUBLINK_KEY_DIS      = (0),
+	LINKKEY_MASTER_KEY_EN        = (1 << 0),
+	LINKKEY_CERTIFICATION_KEY_EN = (1 << 1),
+}ss_pubLinkKeyOpt_e;;
+
 enum{
 	SS_SECUR_NO_ENCR,
 	SS_SECUR_NWK_ENCR,
@@ -430,5 +436,16 @@ void ss_securityModeSet(ss_securityMode_e m);
 bool ss_securityModeIsDistributed(void);
 
 bool ss_keyPreconfigured(void);
+
+/*
+ * @brief	the public link and certification link key is supported
+ *          even if the pre-install link key is used
+ *
+ * @param	ks  LINKKEY_MASTER_KEY_EN, LINKKEY_CERTIFICATION_KEY_EN,
+ *              or LINKKEY_MASTER_KEY_EN|LINKKEY_CERTIFICATION_KEY_EN
+ *
+ *
+ * */
+void ss_pubLinkKeySelect(ss_pubLinkKeyOpt_e ks);
 
 #endif	/* SECURITY_SERVICE_H */

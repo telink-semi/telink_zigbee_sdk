@@ -323,6 +323,7 @@ u8 T_DBG_installCode[18] = {0x83,0xfe,0xd3,0x40,0x7a,0x93,0x97,0x23,0xa5,0xc6,0x
 u16 T_DBG_insCodeCRC;
 /*
  * expected: "66B6900981E1EE3CA4206B6B861C02BB"
+ * crc: c3 b5
  */
 u8 T_DBG_hashOut[16] = {0};
 

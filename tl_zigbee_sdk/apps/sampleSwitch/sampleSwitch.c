@@ -157,6 +157,13 @@ void stack_init(void)
 
 	/* Register stack CB */
 	zb_zdoCbRegister((zdo_appIndCb_t *)&appCbLst);
+
+#if PUBLIC_LINKKEY_DISABLE
+    /*
+     * disable public default link if the pre-install key is used
+     * */
+    ss_pubLinkKeySelect(LINKKEY_PUBLINK_KEY_DIS);
+#endif
 }
 
 /*********************************************************************
@@ -264,6 +271,11 @@ void user_init(bool isRetention)
 		if(bdb_preInstallCodeLoad(&g_switchAppCtx.tcLinkKey.keyType, g_switchAppCtx.tcLinkKey.key) == RET_OK){
 			g_bdbCommissionSetting.linkKey.tcLinkKey.keyType = g_switchAppCtx.tcLinkKey.keyType;
 			g_bdbCommissionSetting.linkKey.tcLinkKey.key = g_switchAppCtx.tcLinkKey.key;
+
+#if DISTRIBUTE_LINKKEY_FROM_FLASH
+		    g_bdbCommissionSetting.linkKey.distributeLinkKey.keyType = MASTER_KEY,
+		    g_bdbCommissionSetting.linkKey.distributeLinkKey.key = g_switchAppCtx.tcLinkKey.key;
+#endif
 		}
 
 		bdb_findBindMatchClusterSet(FIND_AND_BIND_CLUSTER_NUM, bdb_findBindClusterList);

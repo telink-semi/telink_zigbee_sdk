@@ -46,7 +46,7 @@ extern "C" {
 
 /* HCI interface */
 #define	ZBHCI_UART						0
-#define ZBHCI_USB_CDC					0
+#define ZBHCI_USB_CDC					1
 #define ZBHCI_USB_HID					0
 
 /* Board ID */

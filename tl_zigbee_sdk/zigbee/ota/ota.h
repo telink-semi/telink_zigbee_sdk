@@ -198,6 +198,11 @@ extern const zcl_specClusterInfo_t g_otaClusterList[];
 extern u8 OTA_CB_CLUSTER_NUM;
 
 
+extern bool g_otaEncryptionNeeded;
+#define OTA_IMAGE_UNENCRYPTION_SUPPORT()    g_otaEncryptionNeeded = 0
+#define OTA_IMAGE_UNENCRYPTION_REJECT()     g_otaEncryptionNeeded = 1
+
+
 status_t zcl_otaCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
 
 unsigned int xcrc32(const unsigned char *buf, int len, unsigned int init);

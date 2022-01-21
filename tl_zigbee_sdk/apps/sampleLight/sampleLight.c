@@ -135,6 +135,15 @@ void stack_init(void)
 
 	/* Register stack CB */
     zb_zdoCbRegister((zdo_appIndCb_t *)&appCbLst);
+
+
+#if 1 || PUBLIC_LINKKEY_DISABLE
+    /*
+     * disable public default link if the pre-install key is used
+     *
+     * */
+    ss_pubLinkKeySelect(LINKKEY_PUBLINK_KEY_DIS);
+#endif
 }
 
 /*********************************************************************
@@ -299,6 +308,11 @@ void user_init(bool isRetention)
 	if(bdb_preInstallCodeLoad(&gLightCtx.tcLinkKey.keyType, gLightCtx.tcLinkKey.key) == RET_OK){
 		g_bdbCommissionSetting.linkKey.tcLinkKey.keyType = gLightCtx.tcLinkKey.keyType;
 		g_bdbCommissionSetting.linkKey.tcLinkKey.key = gLightCtx.tcLinkKey.key;
+
+#if 1 || DISTRIBUTE_LINKKEY_FROM_FLASH
+		g_bdbCommissionSetting.linkKey.distributeLinkKey.keyType = MASTER_KEY,
+		g_bdbCommissionSetting.linkKey.distributeLinkKey.key = gLightCtx.tcLinkKey.key;
+#endif
 	}
 
     /* Set default reporting configuration */
