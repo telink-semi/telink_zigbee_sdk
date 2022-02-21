@@ -236,8 +236,9 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
             self.lineEdit_clusterId.textChanged.connect(self.auto_bind_para_change)
             self.lineEdit_dstEp.textChanged.connect(self.auto_bind_para_change)
             self.checkBox_autobind.stateChanged.connect(self.auto_bind_para_change)
-            self.get_joined_nodes()
             self.auto_bind_para_change()
+            if not self.checkBox_thread.isChecked():
+                self.get_joined_nodes()
 
     def auto_bind_para_change(self):
         if self.checkBox_autobind.isChecked():
