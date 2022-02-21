@@ -6,11 +6,12 @@ class Settings:
 
         self.time_column = 0
         self.delta_column = 1
-        self.payload_column = 2
+        self.addr_mode_column = 2
         self.nwkaddr_column = 3
-        self.command_column = 4
-        self.status_column = 5
-        self.desc_column = 6
+        self.payload_column = 4
+        self.command_column = 5
+        self.status_column = 6
+        self.desc_column = 7
 
         self.command_start = 0x55
         self.command_end = 0xaa
@@ -23,6 +24,8 @@ class Settings:
         self.packet_length_idx_low = 4
         self.packet_checksum_idx = 5
         self.packet_payload_start_idx = 6
+
+        self.auto_bind_retry_max = 3
 
         self.hci_msg_status = {
             0x00: 'ZBHCI_MSG_STATUS_SUCCESS',
@@ -39,7 +42,7 @@ class Settings:
             0xe2: 'ZBHCI_MSG_STATUS_ERROR_END_CHAR',
             0xe3: 'ZBHCI_MSG_STATUS_BAD_MSG',
             0xe4: 'ZBHCI_MSG_STATUS_UART_EXCEPT',
-            0xe5: 'ZBHCI_MSG_STATUS_CRC_ERROR'
+            0xe5: 'ZBHCI_MSG_STATUS_CRC_ERROR',
         }
 
         self.hci_ota_status = {
@@ -494,6 +497,13 @@ class Settings:
             'ieee_no_ack': 7,
         }
 
+        self.conf_addrmode = {
+            'APS_DSTADDR_EP_NOTPRESETNT': 0,
+            'APS_SHORT_GROUPADDR_NOEP': 1,
+            'APS_SHORT_DSTADDR_WITHEP': 2,
+            'APS_LONG_DSTADDR_WITHEP': 3,
+        }
+
         self.data_type_list = {
             0: 0x00,  # ZCL_DATA_TYPE_NO_DATA
             1: 0x08,  # ZCL_DATA_TYPE_DATA8
@@ -676,6 +686,13 @@ class Settings:
     def get_dst_addr_mode(self, key_value):
         for item in self.addr_mode:
             if key_value == self.addr_mode[item]:
+                return item
+        else:
+            return self.not_defined
+
+    def get_conf_dst_addrmode(self, key_value):
+        for item in self.conf_addrmode:
+            if key_value == self.conf_addrmode[item]:
                 return item
         else:
             return self.not_defined

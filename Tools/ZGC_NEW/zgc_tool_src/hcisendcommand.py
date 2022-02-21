@@ -1,6 +1,6 @@
 import struct
 import os
-
+import copy
 import serial
 import serial.tools.list_ports
 from PyQt5 import QtWidgets
@@ -13,7 +13,7 @@ from csvFiles import CsvFiles
 from txtFiles import TxtFiles
 from settings import Settings
 from ringbuffer import RingBuffer
-from hcicommandparse import parse_packet
+from hcicommandparse import parse_packet_detail_show, SetAutoBindPara, hci_mgmt_bind_req_send, hci_bind_req_send
 
 
 def crc8_calculate(datatype, length, data):
@@ -75,6 +75,20 @@ def line_edit_str2int(input_len, input_s):
     return send_list
 
 
+def line_edit_str2hex_result(input_s):
+    covert_result = True
+    convert_data = 0
+    if input_s[0:2] == '0x':
+        try:
+            convert_data = int(input_s, 16)
+        except:
+            covert_result = False
+    else:
+        covert_result = False
+
+    return covert_result, convert_data
+
+
 class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self):
         super(Pyqt5Serial, self).__init__()
@@ -87,7 +101,12 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         self.ring_buffer = RingBuffer()
         self.CsvFiles = CsvFiles()
         self.txtFiles = TxtFiles()
-        self.choose_node_addr = ''
+        self.autoBindPro = SetAutoBindPara()
+        self.choose_node_ieee = ''
+        self.choose_node_nwk = ''
+        self.get_joined_list = ''
+        self.auto_bind_list = []
+        self.auto_bind_fail_list = []
         self.recv_interval = 5
         self.recv_interval_pre = 5
         self.init()
@@ -119,7 +138,7 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         self.pushButton_closePort.clicked.connect(self.port_close)
 
         # 发送数据按钮
-        self.pushButton_send.clicked.connect(self.data_send)
+        self.pushButton_send.clicked.connect(self.input_data_send)
 
         # 定时监测有效串口
         self.portDetectTimer = QTimer(self)
@@ -128,23 +147,30 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # 定时器接收数据
         self.recvTimer = QTimer(self)
-        self.recvTimer.timeout.connect(self.data_receive)
+        self.recvTimer.timeout.connect(self.serial_data_receive)
 
         # 定时器解析数据
         self.showTimer = QTimer(self)
-        self.showTimer.timeout.connect(self.packet_show)
+        self.showTimer.timeout.connect(self.get_ring_buffer_data)
+
+        # 定时获取节点地址
+        self.getNwkAddrTimer = QTimer(self)
+        self.getNwkAddrTimer.timeout.connect(self.get_nwkaddr_by_ieee)
 
         # 定时发送数据
         self.sendTimer = QTimer(self)
-        self.sendTimer.timeout.connect(self.data_send)
-        self.checkBox_timesend.stateChanged.connect(self.data_send_timer)
+        self.sendTimer.timeout.connect(self.input_data_send)
+        self.checkBox_timesend.stateChanged.connect(self.input_data_send_timer)
+
+        self.bindReqSendTimer = QTimer(self)
+        self.bindReqSendTimer.timeout.connect(self.auto_bind_req_send)
 
         # 清除发送窗口
         self.pushButton_clear.clicked.connect(self.command_data_clear)
 
         # 解析接收窗口的数据
-        self.listWidget_commandData.itemClicked.connect(self.command_data_parse)
-        self.listWidget_commandData.currentItemChanged.connect(self.command_data_parse)
+        self.listWidget_commandData.itemClicked.connect(self.command_entry_parse)
+        self.listWidget_commandData.currentItemChanged.connect(self.command_entry_parse)
 
     def port_detect(self):
         # 检测所有存在的串口，将信息存储在字典中
@@ -171,13 +197,13 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         try:
             self.recv_interval = int(self.lineEdit_recvInterval.text())
         except ValueError:
-            self.recv_interval = 5
+            self.recv_interval = 50
             self.lineEdit_recvInterval.setText('%d' % self.recv_interval)
 
         # print("self.recv_interval_pre:%d, self.recv_interval:%d\n" % (self.recv_interval_pre, self.recv_interval))
         if self.recv_interval_pre != self.recv_interval:
             self.recv_interval_pre = self.recv_interval
-            self.recvTimer.start(self.recv_interval)  # 2ms
+            self.recvTimer.start(self.recv_interval)  # 5ms
             self.showTimer.start(self.recv_interval)
 
     def port_open(self):
@@ -201,11 +227,40 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
             self.portisopen = 1
             self.port_com = self.ser.port
             self.label_portState.setText(self.ser.port + ' Opened')
-            self.recvTimer.start(self.recv_interval)  # 2ms
+            self.recvTimer.start(self.recv_interval)  # 5ms
             self.showTimer.start(self.recv_interval)
             self.pushButton_openPort.setEnabled(False)
             self.pushButton_closePort.setEnabled(True)
             self.lineEdit_recvInterval.textChanged.connect(self.recv_interval_change)
+            self.lineEdit_srcEp.textChanged.connect(self.auto_bind_para_change)
+            self.lineEdit_clusterId.textChanged.connect(self.auto_bind_para_change)
+            self.lineEdit_dstEp.textChanged.connect(self.auto_bind_para_change)
+            self.checkBox_autobind.stateChanged.connect(self.auto_bind_para_change)
+            self.get_joined_nodes()
+            self.auto_bind_para_change()
+
+    def auto_bind_para_change(self):
+        if self.checkBox_autobind.isChecked():
+            src_ep_s = self.lineEdit_srcEp.text()
+            ret, src_ep = line_edit_str2hex_result(src_ep_s)
+            if not ret or src_ep == 0 or src_ep > 0xfe:
+                self.label_bindConfigState.setText('(para invalid)')
+                return
+            cluster_id_s = self.lineEdit_clusterId.text()
+            ret, cluster_id = line_edit_str2hex_result(cluster_id_s)
+            if not ret or cluster_id == 0xffff:
+                self.label_bindConfigState.setText('(para invalid)')
+                return
+            dst_ep_s = self.lineEdit_dstEp.text()
+            ret, dst_ep = line_edit_str2hex_result(dst_ep_s)
+            if not ret or dst_ep == 0 or dst_ep > 0xfe:
+                self.label_bindConfigState.setText('(para invalid)')
+                return
+            self.label_bindConfigState.clear()
+            self.autoBindPro.auto_bind_set_para(True, src_ep, cluster_id, dst_ep)
+        else:
+            self.label_bindConfigState.clear()
+            self.autoBindPro.auto_bind_set_para(False, 0, 0, 0)
 
     def port_close(self):
         if self.portisopen:
@@ -213,15 +268,17 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
             self.port_com = ''
             self.recvTimer.stop()
             self.showTimer.stop()
+            self.getNwkAddrTimer.stop()
             self.ser.close()
             self.label_portState.setText(' Closed')
             self.pushButton_openPort.setEnabled(True)
             self.pushButton_closePort.setEnabled(False)
             self.port_detect()
+            self.bindReqSendTimer.stop()
         else:
             return
 
-    def data_send(self):
+    def input_data_send(self):
         if self.portisopen:
             input_s = self.plainTextEdit_sendData.toPlainText()
             # print(type(input_s))
@@ -245,14 +302,14 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
                     send_data = (input_s + '\n').encode('utf-8')
                     # print('ascii 发送::')
                     # print(send_data)
-                self.send_show_data(send_data)
+                self.send_serial_data(send_data)
         else:
             QMessageBox.warning(self, 'port warning', "Please open the port！")
             if self.checkBox_timesend.isChecked():
                 self.checkBox_timesend.setChecked(False)
             return
 
-    def data_receive(self):
+    def serial_data_receive(self):
         try:
             num = self.ser.inWaiting()
         except:
@@ -297,7 +354,7 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         self.listWidget_commandData.clear()
         self.listWidget_commandDataParse.clear()
 
-    def command_data_parse(self, item):
+    def command_entry_parse(self, item):
         # print('enter recv_data_parse!')
         self.listWidget_commandDataParse.clear()
         if not self.checkBox_thread.isChecked():
@@ -309,10 +366,10 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
             get_real_data = get_data[33:]
             # print('get_real_data:')
             # print(get_real_data)
-            parse_items = parse_packet(self.ai_setting, get_real_data)
+            parse_items = parse_packet_detail_show(self.ai_setting, get_real_data)
             self.listWidget_commandDataParse.addItems(parse_items)
 
-    def data_send_timer(self):
+    def input_data_send_timer(self):
         if self.checkBox_timesend.isChecked():
             # print('send time ischeck')
             try:
@@ -331,7 +388,75 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
             self.sendTimer.stop()
             self.lineEdit_sendInterval.setEnabled(True)
 
-    def packet_show(self):
+    def get_nwkaddr_by_ieee(self):
+        # print("get_nwkaddr_by_ieee,self.get_joined_list:" + str(len(self.get_joined_list)))
+        find_to_search = False
+        for node in self.get_joined_list:
+            if self.get_joined_list[node] == 0xfffe:
+                find_to_search = True
+                payload = struct.pack("!H", 0xffff)
+                # payload += struct.pack("!%dB" % len(node), *node)
+                payload += struct.pack("!Q", node)
+                payload += struct.pack("!B", 0)
+                payload += struct.pack("!B", 0)
+                self.send_hci_command(0x0010, len(payload), payload)  # nwk_addr_req
+                del self.get_joined_list[node]
+                break
+        if not find_to_search:
+            self.getJoindNodeListWidget.clear()
+            index = 0
+            # print("CsvFiles.joined_nodes_info:" + str(len(self.CsvFiles.joined_nodes_info)))
+            for node in self.CsvFiles.joined_nodes_info:
+                index += 1
+                if node in self.CsvFiles.nodes_info:
+                    self.getJoindNodeListWidget.addItem('%04d:' % index + '  ' + hex(node) +
+                                                        ' (0x%04x)' % self.CsvFiles.nodes_info[node]['nwk_addr'])
+            self.CsvFiles.joined_nodes_info = {}
+            self.getNwkAddrTimer.stop()
+
+    def auto_bind_req_send(self):
+        if len(self.auto_bind_list) != 0:
+            for cell in self.auto_bind_fail_list:
+                if cell['info'] == self.auto_bind_list[0]['info']:
+                    self.auto_bind_fail_list.remove(cell)
+                    break
+
+            if self.auto_bind_list[0]['type'] == 'bind_req':
+                data_send = hci_mgmt_bind_req_send(self.auto_bind_list[0]['nwk_addr'], 0)  # 发送mgmt_bind
+                self.send_serial_data(data_send)
+                self.auto_bind_list[0]['type'] = 'mgmt_req'
+                self.auto_bind_list[0]['retry_cnt'] += 1
+            elif self.auto_bind_list[0]['type'] == 'mgmt_req':
+                if self.auto_bind_list[0]['retry_cnt'] >= self.ai_setting.auto_bind_retry_max:
+                    for cell in self.auto_bind_fail_list:
+                        if cell['info'] == self.auto_bind_list[0]['info']:
+                            break
+                    else:
+                        self.auto_bind_fail_list.append(self.auto_bind_list[0])
+                    del self.auto_bind_list[0]
+                else:
+                    data_send = hci_bind_req_send(self.auto_bind_list[0]['info']['ieee_addr'],
+                                                  self.auto_bind_list[0]['info']['src_ep'],
+                                                  self.auto_bind_list[0]['info']['src_cluster'],
+                                                  0x03, self.auto_bind_list[0]['info']['dst_addr'],
+                                                  self.auto_bind_list[0]['info']['dst_ep'])  # 发送bind_req
+                    self.send_serial_data(data_send)
+                    self.auto_bind_list[0]['type'] = 'bind_req'
+        else:
+            if len(self.auto_bind_fail_list):
+                fail_str = 'auto bind fail list:(total number: %d)\n' % len(self.auto_bind_fail_list)
+                for cell in self.auto_bind_fail_list:
+                    fail_str += '   src_ieee:' + hex(cell['info']['ieee_addr']) + ' src_ep:' + \
+                                hex(cell['info']['src_ep']) + ' cluster: 0x%04x' % cell['info']['src_cluster']\
+                                + ' dst_ieee:' + hex(cell['info']['dst_addr']) + \
+                                ' dst_ep:' + hex(cell['info']['dst_ep']) + '\n'
+
+                self.label_bindFailList.setText(fail_str)
+            else:
+                self.label_bindFailList.clear()
+            self.bindReqSendTimer.stop()
+
+    def get_ring_buffer_data(self):
         while self.ring_buffer.valid_data_length >= self.ai_setting.command_length_min:
             recv_packet = []
             recv_result, recv_len = self.ring_buffer.ring_buffer_get_packet(recv_packet)
@@ -346,7 +471,8 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
                 dt = datetime.now()
                 timestr = dt.strftime('%y-%m-%d %H:%M:%S.%f')
                 # QApplication.processEvents() # 可以实现一边执行耗时程序，一边刷新页面的功能
-                write_result = self.CsvFiles.write_file(self.ai_setting, dt, recv_packet, recv_data_str)
+                self.CsvFiles.set_auto_bind_parameters(self.autoBindPro, self.auto_bind_list)
+                write_result = self.CsvFiles.command_parsing_record(self.ai_setting, dt, recv_packet, recv_data_str)
                 # print('write_result:%d' % write_result)
                 if write_result == 1:
                     if self.checkBox_autoClear.isChecked():
@@ -354,19 +480,32 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
                             self.listWidget_commandData.clear()
                     self.listWidget_commandData.addItem(timestr + ' recv<--:' + recv_data_str)
                     # print('total count:%d' % self.listWidget_commandData.count())
-                    if self.CsvFiles.get_joined_info_change:
-                        # print('clear the getJoindNodeListWidget!!!')
-                        self.getJoindNodeListWidget.clear()
-                    if len(self.CsvFiles.joined_nodes_info):
-                        for node in self.CsvFiles.joined_nodes_info:
-                            self.getJoindNodeListWidget.addItem(hex(node) + ': ' +
-                                                                hex(self.CsvFiles.joined_nodes_info[node]))
-                        self.CsvFiles.joined_nodes_info = {}
+                    index = 0
+                    has_no_nwkaddr = False
+                    if self.CsvFiles.get_joined_info_finish:
+                        if len(self.CsvFiles.joined_nodes_info):
+                            # print("self.CsvFiles.joined_nodes_info:" + str(len(self.CsvFiles.joined_nodes_info)))
+                            for node in self.CsvFiles.joined_nodes_info:
+                                index += 1
+                                self.getJoindNodeListWidget.addItem('%04d:' % index + '  ' + hex(node) +
+                                                                    ' (0x%04x)' % self.CsvFiles.joined_nodes_info[node])
+                                if self.CsvFiles.joined_nodes_info[node] == 0xfffe:
+                                    has_no_nwkaddr = True
+                                    self.get_joined_list = copy.deepcopy(self.CsvFiles.joined_nodes_info)
+
+                        if has_no_nwkaddr:
+                            self.getNwkAddrTimer.start(500)
+                        else:
+                            self.CsvFiles.joined_nodes_info = {}
+                    self.CsvFiles.get_joined_info_finish = False
+
+                    if len(self.auto_bind_list) != 0 and not self.bindReqSendTimer.isActive():
+                        self.bindReqSendTimer.start(1000)
                 else:
                     QMessageBox.warning(self, 'write file warning', "Do not open the file when writing！")
                 # print('self.CsvFiles.send_data len:%d' % len(self.CsvFiles.send_data))
                 if len(self.CsvFiles.send_data):
-                    self.send_show_data(self.CsvFiles.send_data)
+                    self.send_serial_data(self.CsvFiles.send_data)
 
                 if self.CsvFiles.hci_ota_offset != 0:
                     percent = int((self.CsvFiles.hci_ota_offset * 100) / self.CsvFiles.hci_ota_file_size)
@@ -439,6 +578,7 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
     def get_joined_nodes(self):
         start_idx = 0
         payload = struct.pack("!H", start_idx)
+        self.getJoindNodeListWidget.clear()
         self.send_hci_command(0x0040, len(payload), payload)
 
     def get_choose_node_ieee_addr(self):  # get joined nodes info parse
@@ -450,14 +590,13 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
             get_data = item.text()
         except AttributeError:
             return
-        node_ieee_info_str = get_data[:18]
-        self.choose_node_addr = node_ieee_info_str
-        # print('choose_node_addr:')
-        # print(self.choose_node_addr)
+        node_ieee_info_str = get_data[7:25]
+        self.choose_node_ieee = node_ieee_info_str
+        self.choose_node_nwk = get_data[27:33]
 
     def chosen_nodes_on(self):
         dst_mode_s = 'ieee'
-        dst_addr_s = self.choose_node_addr
+        dst_addr_s = self.choose_node_ieee
         src_ep_s = '0x01'
         dst_ep_s = '0x01'
         payload = self.zcl_cluster_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s)
@@ -465,18 +604,21 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def chosen_nodes_off(self):
         dst_mode_s = 'ieee'
-        dst_addr_s = self.choose_node_addr
+        dst_addr_s = self.choose_node_ieee
         src_ep_s = '0x01'
         dst_ep_s = '0x01'
         payload = self.zcl_cluster_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s)
         self.send_hci_command(0x0141, len(payload), payload)
 
     def chosen_nodes_leave(self):
-        dst_addr_s = '0xffff'
+        if self.choose_node_nwk != '0xfffe':
+            dst_addr_s = self.choose_node_nwk
+        else:
+            dst_addr_s = '0xffff'
         dst_addr = line_edit_str2int(2, dst_addr_s)
         payload = struct.pack("!%dB" % len(dst_addr), *dst_addr)
 
-        leave_ieee_addr_s = self.choose_node_addr
+        leave_ieee_addr_s = self.choose_node_ieee
         leave_ieee_addr = line_edit_str2int(8, leave_ieee_addr_s)
         payload += struct.pack("!%dB" % len(leave_ieee_addr), *leave_ieee_addr)
 
@@ -592,13 +734,13 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         payload += struct.pack("!%dB" % len(profile_id), *profile_id)
 
         incluster_id_s = self.lineEdit_matchReqInCluster.text()
-        incluster_cnt = int((len(incluster_id_s) - 2)/4)
-        incluster_id = line_edit_str2int(incluster_cnt*2, incluster_id_s)  # 2bytes in 1 cluster
+        incluster_cnt = int((len(incluster_id_s) - 2) / 4)
+        incluster_id = line_edit_str2int(incluster_cnt * 2, incluster_id_s)  # 2bytes in 1 cluster
 
         outcluster_id_s = self.lineEdit_matchReqOutCluster.text()
         # print(outcluster_id_s)
         outcluster_cnt = int((len(outcluster_id_s) - 2) / 4)
-        outcluster_id = line_edit_str2int(outcluster_cnt*2, outcluster_id_s)
+        outcluster_id = line_edit_str2int(outcluster_cnt * 2, outcluster_id_s)
 
         payload += struct.pack("!2B", incluster_cnt, outcluster_cnt)
         payload += struct.pack("!%dB" % len(incluster_id), *incluster_id)
@@ -792,7 +934,8 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         profile_id_s = self.lineEdit_readAttrProfileId.text()
         direct = self.comboBox_readAttrDirect.currentIndex()
         cluster_id_s = self.lineEdit_readAttrClusterId.text()
-        payload = self.zcl_general_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s, profile_id_s, direct, cluster_id_s)
+        payload = self.zcl_general_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s, profile_id_s, direct,
+                                               cluster_id_s)
 
         attr_id_s = self.lineEdit_readAttrAttrId.text()
         attr_id_cnt = int((len(attr_id_s) - 2) / 4)
@@ -808,7 +951,8 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         profile_id_s = self.lineEdit_writeAttrProfileId.text()
         direct = self.comboBox_writeAttrDirect.currentIndex()
         cluster_id_s = self.lineEdit_writeAttrClusterId.text()
-        payload = self.zcl_general_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s, profile_id_s, direct, cluster_id_s)
+        payload = self.zcl_general_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s, profile_id_s, direct,
+                                               cluster_id_s)
 
         attr_id_s = self.lineEdit_writeAttrAttrId.text()
         attr_id_cnt = int((len(attr_id_s) - 2) / 4)
@@ -836,7 +980,8 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         profile_id_s = self.lineEdit_configReportProfileId.text()
         direct = self.comboBox_configReportDirect.currentIndex()
         cluster_id_s = self.lineEdit_configReportClusterId.text()
-        payload = self.zcl_general_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s, profile_id_s, direct, cluster_id_s)
+        payload = self.zcl_general_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s, profile_id_s, direct,
+                                               cluster_id_s)
 
         report_dir = self.comboBox_configReportSendType.currentIndex()
 
@@ -878,7 +1023,8 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         profile_id_s = self.lineEdit_readReportCfgProfileId.text()
         direct = self.comboBox_readReportCfgDir.currentIndex()
         cluster_id_s = self.lineEdit_readReportCfgClusterId.text()
-        payload = self.zcl_general_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s, profile_id_s, direct, cluster_id_s)
+        payload = self.zcl_general_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s, profile_id_s, direct,
+                                               cluster_id_s)
 
         report_dir = self.comboBox_readReportCfgType.currentIndex()
 
@@ -1464,31 +1610,25 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def command_analyze_init(self):
         self.pushButton_analyzePathChoose.clicked.connect(self.choose_analyze_folder)
-        self.pushButton_getNwkAddr.clicked.connect(self.select_differ_nodes)
-        self.pushButton_startAnalyze.clicked.connect(self.start_analyze)
+        self.pushButton_startAnalyze.clicked.connect(self.analyze_differ_nodes)
+        self.pushButton_startFilter.clicked.connect(self.start_filter_nodes)
 
-    def select_differ_nodes(self):
-        self.pushButton_getNwkAddr.setEnabled(False)
+    def analyze_differ_nodes(self):
+        self.pushButton_startAnalyze.setEnabled(False)
         self.textEdit_nwkAddrShow.clear()
         self.textEdit_nwkAddrShow.setText('Getting。。。')
         file_path = self.lineEdit_analyzePath.text()
-        self.nodeswork = WorkThread(file_path, self.CsvFiles)
-        self.nodeswork.nodes_signals.connect(self.get_nodes_result_show)  # 信号连接槽函数
-        self.nodeswork.start()  # 开启线程
+        self.analyzenodeswork = AnalizeWorkThread(file_path, self.CsvFiles)
+        self.analyzenodeswork.nodes_signals.connect(self.get_nodes_result_show)  # 信号连接槽函数
+        self.analyzenodeswork.start()  # 开启线程
 
-    def get_nodes_result_show(self, read_file_flag, get_nodes_addrs):
-        get_nodes_info = ''
+    def get_nodes_result_show(self, read_file_flag, analyze_result_str):
+        # get_nodes_info = ''
+        # print('analyze_result_str:')
+        # print(analyze_result_str)
         if read_file_flag == 1:
-            if len(get_nodes_addrs) == 0:
+            if len(analyze_result_str) == 0:
                 QMessageBox.warning(self, 'get joined nodes address', "No data！")
-            else:
-                cell_num = 0
-                for cell in get_nodes_addrs:
-                    get_nodes_info += cell + ' '
-                    cell_num += 1
-                get_nodes_info += '(total nodes number:%d)' % cell_num
-                # print('get_nodes_info:')
-                # print(get_nodes_info)
         elif read_file_flag == 4:
             QMessageBox.warning(self, 'get joined nodes address', "Dab file, please check！")
         elif read_file_flag == 3:
@@ -1498,56 +1638,30 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             pass
         self.textEdit_nwkAddrShow.clear()
-        self.textEdit_nwkAddrShow.setText(get_nodes_info)
-        self.pushButton_getNwkAddr.setEnabled(True)
+        self.textEdit_nwkAddrShow.setText(analyze_result_str)
+        self.pushButton_startAnalyze.setEnabled(True)
 
     def choose_analyze_folder(self):
         default_dir = os.path.expanduser(os.getcwd()) + '/userdata'
         get_path = QFileDialog.getExistingDirectory(self, 'choose folder', default_dir)
         self.lineEdit_analyzePath.setText(get_path)
 
-    def get_analyze_nwk_addr(self):
-        get_nodes_info = ''
-        analyze_folder_path = self.lineEdit_analyzePath.text()
-        # print('self.analyze_folder_path:{}'.format(analyze_folder_path))
-        read_file_flag, get_nodes_addrs = self.CsvFiles.pickup_diff_nodes_info(analyze_folder_path)
-        # print(read_file_flag)
-        # print(get_nodes_addrs)
-
-        if read_file_flag == 4:
-            QMessageBox.warning(self, 'get joined nodes address', "Dab file, please check！")
-        elif read_file_flag == 3:
-            QMessageBox.warning(self, 'get joined nodes address', "Do not open the file when writing！")
-        elif read_file_flag == 2:
-            QMessageBox.warning(self, 'get joined nodes address', "Please choose the right folder！")
-        elif read_file_flag == 1:
-            cell_num = 0
-            for cell in get_nodes_addrs:
-                get_nodes_info += cell + ' '
-                cell_num += 1
-            get_nodes_info += '(total nodes number:%d)' % cell_num
-            # print(get_nodes_info)
-        else:
-            pass
-        self.textEdit_nwkAddrShow.clear()
-        self.textEdit_nwkAddrShow.setText(get_nodes_info)
-        self.pushButton_getNwkAddr.setEnabled(True)
-
-    def start_analyze(self):
+    def start_filter_nodes(self):
         folder_path = self.lineEdit_analyzePath.text()
         analyze_addr = self.lineEdit_analyzeAddr.text()
         analyze_interval = self.lineEdit_analyzeInterval.text()
         analyze_command = self.lineEdit_analyzeCommandId.text()
-        self.pushButton_startAnalyze.setEnabled(False)
-        self.pushButton_startAnalyze.setText('Getting。。。')
-        self.processwork = ProcessWorkThread(self.CsvFiles, folder_path, analyze_addr, analyze_interval, analyze_command)
+        self.pushButton_startFilter.setEnabled(False)
+        self.pushButton_startFilter.setText('Getting。。。')
+        self.processwork = ProcessWorkThread(self.CsvFiles, folder_path, analyze_addr, analyze_interval,
+                                             analyze_command)
         self.processwork.process_result.connect(self.process_result_show)  # 信号连接槽函数
         self.processwork.start()  # 开启线程
 
     def process_result_show(self, read_file_flag, command_cnt_show):
         # print(read_file_flag)
-        self.pushButton_startAnalyze.setText('Start Filter')
-        self.pushButton_startAnalyze.setEnabled(True)
+        self.pushButton_startFilter.setText('Start Filter')
+        self.pushButton_startFilter.setEnabled(True)
         if read_file_flag == 1:
             QMessageBox.warning(self, 'Result', 'total records number:' + str(command_cnt_show))
         elif read_file_flag == 2:
@@ -1571,16 +1685,17 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
                                            command_crc, payload, command_end)
         else:
             send_data: bytes = struct.pack("!B2H2B", command_start, command_id, payload_len, command_crc, command_end)
-        self.send_show_data(send_data)
+        self.send_serial_data(send_data)
 
-    def send_show_data(self, send_data):
+    def send_serial_data(self, send_data):
         if not self.checkBox_thread.isChecked():
             if len(send_data) > self.ai_setting.command_length_max:
-                QMessageBox.warning(self, 'port warning', "Out of the max length:(%d)" % self.ai_setting.command_length_max)
+                QMessageBox.warning(self, 'port warning',
+                                    "Out of the max length:(%d)" % self.ai_setting.command_length_max)
                 return
         try:
             self.ser.write(send_data)
-            self.show_bytes_to_widget(send_data)
+            self.parsing_send_command(send_data)
         except serial.serialutil.PortNotOpenError:
             QMessageBox.warning(self, 'port warning', "Port not open！")
         except serial.SerialTimeoutException:
@@ -1588,7 +1703,7 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         except serial.SerialException:
             QMessageBox.warning(self, 'port warning', "Port error！")
 
-    def show_bytes_to_widget(self, send_data):
+    def parsing_send_command(self, send_data):
         dt = datetime.now()
         timestr = dt.strftime('%y-%m-%d %H:%M:%S.%f')
         if not self.checkBox_thread.isChecked():
@@ -1597,7 +1712,7 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
                 hhex = '%02x' % hvol
                 send_data_str += hhex + ' '
             self.listWidget_commandData.addItem(timestr + ' send-->:' + send_data_str)
-            write_result = self.CsvFiles.write_file(self.ai_setting, dt, send_data, send_data_str)
+            write_result = self.CsvFiles.command_parsing_record(self.ai_setting, dt, send_data, send_data_str)
             if write_result != 1:
                 QMessageBox.warning(self, 'write file warning', "Do not open the file when writing！")
         else:
@@ -1610,18 +1725,18 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
 
 
 # 继承QThread，重写run方法
-class WorkThread(QThread):
-    nodes_signals = pyqtSignal(int, list)  # 定义信号对象,传递值为str类型，使用int，可以为int类型
+class AnalizeWorkThread(QThread):
+    nodes_signals = pyqtSignal(int, str)  # 定义信号对象,传递值为str类型，使用int，可以为int类型
 
     def __init__(self, folder_path, csv):  # 向线程中传递参数，以便在run方法中使用
-        super(WorkThread, self).__init__()
+        super(AnalizeWorkThread, self).__init__()
         self.folder_path = folder_path
         self.csvFile = csv
 
     def run(self):  # 重写run方法
         # print(self.folder_path)
-        read_file_flag, get_nodes_addrs = self.csvFile.pickup_diff_nodes_info(self.folder_path)
-        self.nodes_signals.emit(read_file_flag, get_nodes_addrs)  # 发射信号，str类型数据，内容为需要传递的数据
+        read_file_flag, analyze_result_str = self.csvFile.pickup_diff_nodes_info(self.folder_path)
+        self.nodes_signals.emit(read_file_flag, analyze_result_str)  # 发射信号，str类型数据，内容为需要传递的数据
         # self.write_signel.emit(read_file_flag)
 
 

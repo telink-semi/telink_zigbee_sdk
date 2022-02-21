@@ -56,7 +56,7 @@ def convert_str2int(input_s):
         return input_int
 
 
-def parse_packet(ai_setting, data_str):
+def parse_packet_detail_show(ai_setting, data_str):
     data_int = convert_str2int(data_str)
     # print('data_int:')
     # print(data_int)
@@ -71,14 +71,15 @@ def parse_packet(ai_setting, data_str):
     if commandid_hex >= 0x8000:
         # parse_items = ['not support!']
         nodes_info = {}
-
+        auto_bind = SetAutoBindPara()
+        list1 = []
         command_str = ai_setting.get_command_id_str(commandid_hex)
         parse_items.append('hci commandid: 0x%04x' % commandid_hex + ' (' + command_str + ')')
         parse_items.append('payload len: %d' % payload_len)
         # print(parse_items)
         ota_file_path = ''
         command_info = ParseRecvCommand(ai_setting, ota_file_path, commandid_hex, payload_len,
-                                        data_int[ai_setting.packet_payload_start_idx:-1], nodes_info)
+                                        data_int[ai_setting.packet_payload_start_idx:-1], nodes_info, auto_bind, list1)
         parse_items.extend(command_info.payload_items)
     else:
         command_info = ParseSendCommand(ai_setting, commandid_hex, payload_len,
@@ -87,23 +88,45 @@ def parse_packet(ai_setting, data_str):
     return parse_items
 
 
+class SetAutoBindPara:
+    def __init__(self):
+        self.auto_bind_enable = False
+        self.bind_srcep = 0x01
+        self.bind_clusterid = 0x0006
+        self.bind_dstep = 0x01
+
+    def auto_bind_set_para(self, auto_bind_enable, bind_srcep, bind_clusterid, bind_dstep):
+        self.auto_bind_enable = auto_bind_enable
+        self.bind_srcep = bind_srcep
+        self.bind_clusterid = bind_clusterid
+        self.bind_dstep = bind_dstep
+
+    def auto_bind_req(self, ieee_addr, dst_addr_mode, dst_ieee_addr):
+        return hci_bind_req_send(ieee_addr, self.bind_srcep, self.bind_clusterid, dst_addr_mode, dst_ieee_addr,
+                                 self.bind_dstep)
+
+
 class ParseRecvCommand:
-    def __init__(self, ai_setting, hci_ota_file_path, command_id, payload_len, payload, nodes_info):
+    def __init__(self, ai_setting, hci_ota_file_path, command_id, payload_len, payload, nodes_info, auto_bind,
+                 bind_list):
         # self.nwk_add = ''
         self.nodes_info_change = False
         self.payload_items = []
         self.recv_status = ''
         self.description = ''
-        self.recv_nwk_addr = ''
+        self.recv_nwk_addr = 0xfffe
+        self.addr_mode = 0xff
         self.recv_cluster_id = ''
         self.send_data = b''
         self.get_joined_nodes = []
-        self.get_joined_info_change = False
+        self.auto_bind_list = bind_list
+        # self.get_joined_info_change = False
+        self.get_joined_info_finish = False
         self.hci_ota_offset = 0
         self.hci_ota_file_path = hci_ota_file_path
-        self.parse_recv_command(ai_setting, command_id, payload_len, payload, nodes_info)
+        self.parse_recv_command(ai_setting, command_id, payload_len, payload, nodes_info, auto_bind)
 
-    def parse_recv_command(self, ai_setting, command_id, payload_len, payload, nodes_info):
+    def parse_recv_command(self, ai_setting, command_id, payload_len, payload, nodes_info, auto_bind):
         # print(' command_id:%s' % hex(command_id))
         # print(payload)
         try:
@@ -124,7 +147,7 @@ class ParseRecvCommand:
             elif command_id == 0x8030:  # mgmt_lqi_rsp
                 self.hci_lqi_rsp_handle(ai_setting, payload, nodes_info)
             elif command_id == 0x8031:  # mgmt_bind_rsp
-                self.hci_mgmt_bind_rsp_handle(ai_setting, payload)
+                self.hci_mgmt_bind_rsp_handle(ai_setting, payload, nodes_info)
             elif command_id == 0x8032:  # leave resp
                 self.hci_mgmt_leave_rsp_handle(ai_setting, payload, nodes_info)
             elif command_id == 0x8033:  # MGMT_DIRECT_JOIN_RSP
@@ -140,11 +163,11 @@ class ParseRecvCommand:
             elif command_id == 0x8042:  # TXRX_PERFORMANCE_TEST_RSP
                 self.hci_txrx_performance_test_rsp_handle(payload)
             elif command_id == 0x8043:  # dev annce
-                self.hci_dev_annce_handle(payload, nodes_info)
+                self.hci_dev_annce_handle(payload, nodes_info, auto_bind)
             elif command_id == 0x8044:  # AF_DATA_SEND_TEST_RSP
                 self.hci_af_data_send_test_rsp_handle(ai_setting, payload)
             elif command_id == 0x8045:  # GET_OWN_INFO_RSP
-                self.hci_get_own_info_rsp_handle(payload, nodes_info)
+                self.hci_get_own_info_rsp_handle(payload, nodes_info, auto_bind)
             elif command_id == 0x8100:  # ZCL_ATTR_READ_RSP
                 self.hci_zcl_attr_read_rsp_handle(ai_setting, payload)
             elif command_id == 0x8101:  # ZCL_ATTR_WRITE_RSP
@@ -252,8 +275,10 @@ class ParseRecvCommand:
             self.nodes_info_change = True
             if ieee_addr not in nodes_info:
                 nodes_info[ieee_addr] = {}
+                nodes_info[ieee_addr]['used_nwk_addr'] = []
             nodes_info[ieee_addr]['nwk_addr'] = nwk_adds_interest
-        self.recv_nwk_addr = '0x%04x' % src_addr
+        self.recv_nwk_addr = src_addr
+        self.addr_mode = 2
 
     def hci_node_desc_rsp_handle(self, ai_setting, payload, nodes_info):
         bytes_data = bytearray(payload)
@@ -291,7 +316,8 @@ class ParseRecvCommand:
                     self.nodes_info_change = True
                     nodes_info[node]['dev_type'] = node_type
                     break
-        self.recv_nwk_addr = '0x%04x' % src_addr
+        self.recv_nwk_addr = src_addr
+        self.addr_mode = 2
 
     def hci_simple_desc_rsp_handle(self, ai_setting, payload):
         bytes_data = bytearray(payload)
@@ -339,7 +365,8 @@ class ParseRecvCommand:
                     outcluster_id_list += '0x%04x' % outcluster_id + ' '
                     ptr += 2
                 self.payload_items.append(outcluster_id_list)
-        self.recv_nwk_addr = '0x%04x' % src_addr
+        self.recv_nwk_addr = src_addr
+        self.addr_mode = 2
 
     def hci_active_endpoint_rsp_handle(self, ai_setting, payload):
         bytes_data = bytearray(payload)
@@ -367,7 +394,8 @@ class ParseRecvCommand:
                     endpoint_list += '0x%02x,' % endpoint
                     ptr += 1
                 self.payload_items.append(endpoint_list)
-        self.recv_nwk_addr = '0x%04x' % src_addr
+        self.recv_nwk_addr = src_addr
+        self.addr_mode = 2
 
     def hci_match_desc_rsp_handle(self, ai_setting, payload):
         return self.hci_active_endpoint_rsp_handle(ai_setting, payload)
@@ -380,7 +408,8 @@ class ParseRecvCommand:
         self.payload_items = ['\tsrc_addr:0x%04x' % src_addr,
                               '\tseq_num:' + hex(seq_num),
                               '\tstatus:' + hex(status) + '(' + self.recv_status + ')']
-        self.recv_nwk_addr = '0x%04x' % src_addr
+        self.recv_nwk_addr = src_addr
+        self.addr_mode = 2
 
     def hci_lqi_rsp_handle(self, ai_setting, payload, nodes_info):
         bytes_data = bytearray(payload)
@@ -414,15 +443,15 @@ class ParseRecvCommand:
                                        '\tdepth:' + hex(depth)])
             if ieee_addr not in nodes_info:
                 nodes_info[ieee_addr] = {}
+                nodes_info[ieee_addr]['used_nwk_addr'] = []
             nodes_info[ieee_addr]['nwk_addr'] = nwk_addr
             nodes_info[ieee_addr]['dev_type'] = dev_type
             self.description += ' dev_type:' + dev_type
-            nodes_info[ieee_addr]['depth'] = depth
-            nodes_info[ieee_addr]['lqi'] = lqi
             self.nodes_info_change = True
-        self.recv_nwk_addr = '0x%04x' % src_addr
+        self.recv_nwk_addr = src_addr
+        self.addr_mode = 2
 
-    def hci_mgmt_bind_rsp_handle(self, ai_setting, payload):
+    def hci_mgmt_bind_rsp_handle(self, ai_setting, payload, nodes_info):
         bytes_data = bytearray(payload)
         src_addr, seq_num, status, bind_table_entries, start_idx, bind_table_listcount = struct.unpack("!H5B",
                                                                                                        bytes_data[:7])
@@ -458,15 +487,34 @@ class ParseRecvCommand:
                                            '\tdest_addr_mode:' + hex(dest_addr_mode),
                                            '\tdst_addr:' + hex(dst_addr),
                                            '\tdest_endpoint: 0x%02x' % dest_endpoint])
+                if dest_addr_mode == 3:
+                    try:
+                        nwk_addr = nodes_info[src_ieee_addr]['nwk_addr']
+                        bind_dev_info = {'info': {'ieee_addr': src_ieee_addr, 'src_ep': src_endpoint,
+                                                  'src_cluster': cluster_id, 'dst_addr': dst_addr,
+                                                  'dst_ep': dest_endpoint}, 'nwk_addr': nwk_addr,
+                                         'retry_cnt': 0}
+                        for bind_cell in self.auto_bind_list:
+                            if bind_cell['info'] == bind_dev_info['info']:
+                                # print('delete listcell: nwkaddr:')
+                                # print(hex(bind_cell['nwk_addr']))
+                                self.auto_bind_list.remove(bind_cell)
+                                break
+                    except KeyError:
+                        pass
 
-        self.recv_nwk_addr = '0x%04x' % src_addr
+        if bind_table_entries > start_idx + bind_table_listcount:
+            self.send_data = hci_mgmt_bind_req_send(src_addr, bind_table_listcount)
+        self.recv_nwk_addr = src_addr
+        self.addr_mode = 2
 
     def hci_mgmt_mgmt_permitjoin_rsp_handle(self, ai_setting, payload):
         bytes_data = bytearray(payload)
         src_addr, seq_num, status = struct.unpack("!H2B", bytes_data)
         self.recv_status = ai_setting.get_zdp_msg_status_str(status)
         self.description = 'seq_num:' + hex(seq_num) + ' status:' + hex(status) + '(' + self.recv_status + ')'
-        self.recv_nwk_addr = '0x%04x' % src_addr
+        self.recv_nwk_addr = src_addr
+        self.addr_mode = 2
         self.payload_items = ['\tsrc_addr:0x%04x' % src_addr,
                               '\tseq_num:' + hex(seq_num),
                               '\tstatus:' + hex(status) + '(' + self.recv_status + ')']
@@ -482,10 +530,13 @@ class ParseRecvCommand:
                               '\tstatus:' + hex(status) + '(' + self.recv_status + ')',
                               '\tieee_addr:0x%16x' % ieee_addr,
                               '\trejoin:' + hex(rejoin)]
-        if ieee_addr in nodes_info:
+        if ieee_addr in nodes_info and not rejoin:
             self.nodes_info_change = True
-            del nodes_info[ieee_addr]
-        self.recv_nwk_addr = '0x%04x' % src_addr
+            nodes_info[ieee_addr]['used_nwk_addr'].append(nodes_info[ieee_addr]['nwk_addr'])
+            nodes_info[ieee_addr]['nwk_addr'] = 0xfffe
+            # del nodes_info[ieee_addr]
+        self.recv_nwk_addr = src_addr
+        self.addr_mode = 2
 
     def hci_nodes_joined_get_rsp_handle(self, ai_setting, payload, nodes_info):
         # nodes_info_change = False
@@ -499,21 +550,22 @@ class ParseRecvCommand:
                               '\tlist_count:' + hex(list_count),
                               '\tstatus:' + hex(start_idx) + '(' + self.recv_status + ')']
         ptr = 6
-        if start_idx == 0:
-            self.get_joined_info_change = True
-        else:
-            self.get_joined_info_change = False
+        # if start_idx == 0:
+        #     self.get_joined_info_change = True
+        # else:
+        #     self.get_joined_info_change = False
         if self.recv_status == 'ZBHCI_MSG_STATUS_SUCCESS':
             for a in range(list_count):
-                ext_addr, = struct.unpack("!Q", bytes_data[ptr:ptr + 8])
-                ptr += 8
-                self.description += ' ieee_addr:' + hex(ext_addr)
-                self.payload_items.append('\tieee_addr:' + hex(ext_addr))
+                ext_addr, short_addr = struct.unpack("!QH", bytes_data[ptr:ptr + 10])
+                ptr += 10
+                self.description += ' ieee_addr:0x%16x' % ext_addr + ' short_addr:0x%04x' % short_addr
+                self.payload_items.append('\tieee_addr:' + hex(ext_addr) + ' short_addr:0x%04x' % short_addr)
                 self.nodes_info_change = True
                 self.get_joined_nodes.append(ext_addr)
                 if ext_addr not in nodes_info:
                     nodes_info[ext_addr] = {}
-                    nodes_info[ext_addr]['nwk_addr'] = 0xffff
+                    nodes_info[ext_addr]['used_nwk_addr'] = []
+                nodes_info[ext_addr]['nwk_addr'] = short_addr
             # print('total_cnt:%d' % total_cnt)
             # print('start_idx:%d' % start_idx)
             # print('list_count:%d' % list_count)
@@ -522,6 +574,8 @@ class ParseRecvCommand:
                 # print('total_cnt < start_idx + list_count')
                 start_idx_next = start_idx + list_count
                 self.send_data = hci_get_joined_nodes_req_send(start_idx_next)
+            elif total_cnt == start_idx + list_count:
+                self.get_joined_info_finish = True
         # return description, recv_status, nodes_info_change, payload_items
 
     def hci_txrx_performance_test_rsp_handle(self, payload):
@@ -536,7 +590,7 @@ class ParseRecvCommand:
                               '\tloss_rate' + loss_rate_str]
         # return description, payload_items
 
-    def hci_dev_annce_handle(self, payload, nodes_info):
+    def hci_dev_annce_handle(self, payload, nodes_info, auto_bind):
         bytes_data = bytearray(payload)
         nwk_addr, ieee_addr, node_cap = struct.unpack("!HQB", bytes_data)
 
@@ -550,6 +604,10 @@ class ParseRecvCommand:
         self.nodes_info_change = True
         if ieee_addr not in nodes_info:
             nodes_info[ieee_addr] = {}
+            nodes_info[ieee_addr]['used_nwk_addr'] = []
+        else:
+            if nodes_info[ieee_addr]['nwk_addr'] != 0xfffe and nodes_info[ieee_addr]['nwk_addr'] != nwk_addr:
+                nodes_info[ieee_addr]['used_nwk_addr'].append(nodes_info[ieee_addr]['nwk_addr'])
         nodes_info[ieee_addr]['nwk_addr'] = nwk_addr
         nodes_info[ieee_addr]['dev_type'] = node_type
 
@@ -559,17 +617,33 @@ class ParseRecvCommand:
                               '\tieee_addr:0x%16x' % ieee_addr,
                               '\tcapability:' + hex(node_cap),
                               '\tdev_type:' + node_type]
-        self.recv_nwk_addr = '0x%04x' % nwk_addr
+        self.recv_nwk_addr = nwk_addr
+        self.addr_mode = 2
 
-        if node_type == 'Router':
+        find_gw = False
+        if auto_bind.auto_bind_enable:
             for node in nodes_info:
-                if nodes_info[node]['nwk_addr'] == 0x0000:
+                # print(hex(nodes_info[node]['nwk_addr']))
+                if nodes_info[node]['nwk_addr'] == 0x0:
+                    find_gw = True
                     dst_ieee_addr = node
-                    self.send_data = hci_bind_req_send(ieee_addr, 0x01, 0x0006, 0x03, dst_ieee_addr, 0x01)
-                    break
-            else:
+                    # print('first send bind req:')
+                    self.send_data = auto_bind.auto_bind_req(ieee_addr, 0x03, dst_ieee_addr)
+                    bind_dev_info = {'info': {'ieee_addr': ieee_addr, 'src_ep': auto_bind.bind_srcep,
+                                              'src_cluster': auto_bind.bind_clusterid, 'dst_addr': dst_ieee_addr,
+                                              'dst_ep': auto_bind.bind_dstep}, 'nwk_addr': nwk_addr, 'retry_cnt': 0,
+                                     'type': 'bind_req'}
+                    for bind_cell in self.auto_bind_list:
+                        if bind_cell['info'] == bind_dev_info['info']:
+                            # bind_cell['retry_cnt'] += 1
+                            break
+                    else:
+                        self.auto_bind_list.append(bind_dev_info)
+                    pass
+            if not find_gw:
+                # print('get_own_info_req')
                 self.send_data = hci_get_own_info_req_send()
-                send_list[0x0031] = ieee_addr
+                send_list[0x0020] = [ieee_addr, nwk_addr]
 
     def hci_af_data_send_test_rsp_handle(self, ai_setting, payload):
         bytes_data = bytearray(payload)
@@ -584,10 +658,10 @@ class ParseRecvCommand:
                               '\tdst_endpoint: 0x%02x' % dst_endpoint,
                               '\tcluster_id: 0x%04x' % cluster_id + '(' + cluster_str + ')',
                               '\tpayload_len:' + hex(payload_len)]
-        self.recv_nwk_addr = '0x%04x' % src_addr
+        self.recv_nwk_addr = src_addr
         self.recv_cluster_id = cluster_str
 
-    def hci_get_own_info_rsp_handle(self, payload, nodes_info):
+    def hci_get_own_info_rsp_handle(self, payload, nodes_info, auto_bind):
         bytes_data = bytearray(payload)
         dev_type, capability, onnetwork, panid, ext_panid, nwk_addr, ieee_addr = struct.unpack("!3BHQHQ", bytes_data)
         dev_type_str = get_node_dev_type(dev_type)
@@ -603,15 +677,30 @@ class ParseRecvCommand:
                               '\tnetwork_addr: 0x%04x' % nwk_addr,
                               '\tieee_addr:0x%16x' % ieee_addr]
 
+        # print('onnetwork' + str(onnetwork))
         if onnetwork:
             self.nodes_info_change = True
             if ieee_addr not in nodes_info:
                 nodes_info[ieee_addr] = {}
+                nodes_info[ieee_addr]['used_nwk_addr'] = []
             nodes_info[ieee_addr]['nwk_addr'] = nwk_addr
             nodes_info[ieee_addr]['dev_type'] = dev_type_str
             for data in send_list:
-                if data == 0x0031:  # bind req
-                    self.send_data = hci_bind_req_send(send_list[data], 0x01, 0x0006, 0x03, ieee_addr, 0x01)
+                if data == 0x0020:  # bind req
+                    # print('0x0020 auto_bind_enable' + str(auto_bind.auto_bind_enable))
+                    if auto_bind.auto_bind_enable:
+                        # print('first send bind req:')
+                        self.send_data = auto_bind.auto_bind_req(send_list[data][0], 0x03, ieee_addr)
+                        bind_dev_info = {'info': {'ieee_addr': send_list[data][0], 'src_ep': auto_bind.bind_srcep,
+                                                  'src_cluster': auto_bind.bind_clusterid, 'dst_addr': ieee_addr,
+                                                  'dst_ep': auto_bind.bind_dstep}, 'nwk_addr': send_list[data][1],
+                                         'retry_cnt': 0, 'type': 'bind_req'}
+                        for bind_cell in self.auto_bind_list:
+                            if bind_cell['info'] == bind_dev_info['info']:
+                                # bind_cell['retry_cnt'] = 0
+                                break
+                        else:
+                            self.auto_bind_list.append(bind_dev_info)
                     del send_list[data]
                     break
         # return description, nodes_info_change, send_data, payload_items
@@ -629,7 +718,8 @@ class ParseRecvCommand:
                               '\tcluster_id: 0x%04x' % cluster_id + '(' + cluster_str + ')',
                               '\tseq_num:' + hex(seq_num)]
         self.recv_cluster_id = cluster_str
-        self.recv_nwk_addr = '0x%04x' % src_addr
+        self.recv_nwk_addr = src_addr
+        self.addr_mode = 2
         return ptr
 
     def parse_zcl_general_rsp_cmd_header(self, ai_setting, bytes_data):
@@ -645,7 +735,8 @@ class ParseRecvCommand:
                               '\tseq_num:' + hex(seq_num),
                               '\tcluster_id: 0x%04x' % cluster_id + '(' + cluster_str + ')']
         self.recv_cluster_id = cluster_str
-        self.recv_nwk_addr = '0x%04x' % src_addr
+        self.recv_nwk_addr = src_addr
+        self.addr_mode = 2
         return ptr
 
     def parse_zcl_rsp_cmd_header(self, bytes_data):
@@ -658,7 +749,8 @@ class ParseRecvCommand:
                               '\tsrc_endpoint: 0x%02x' % src_endpoint,
                               '\tdst_endpoint: 0x%02x' % dst_endpoint,
                               '\tseq_num:' + hex(seq_num)]
-        self.recv_nwk_addr = '0x%04x' % src_addr
+        self.recv_nwk_addr = src_addr
+        self.addr_mode = 2
         return ptr
 
     def hci_zcl_attr_read_rsp_handle(self, ai_setting, payload):
@@ -722,7 +814,7 @@ class ParseRecvCommand:
             status, direction, attribute_id = struct.unpack("!BBH", bytes_data[ptr: ptr + 4])
             item_recv_status = ai_setting.get_zcl_msg_status_str(status)
             self.recv_status += item_recv_status
-            self.description += ' status:' + hex(status) + '(' + item_recv_status + ')' + ' direction:%02x' % direction\
+            self.description += ' status:' + hex(status) + '(' + item_recv_status + ')' + ' direction:%02x' % direction \
                                 + ' attribute_id: 0x%04x' % attribute_id
             ptr += 4
             if direction == 0:
@@ -988,23 +1080,58 @@ class ParseRecvCommand:
 
     def hci_data_confirm_handle(self, ai_setting, payload):
         bytes_data = bytearray(payload)
-        dst_addr, src_endpoint, dst_endpoint, cluster_id, status, aps_cnt = struct.unpack("!H2BH2B", bytes_data)
+        ptr = 0
+        dst_mode, = struct.unpack("!B", bytes_data[ptr:ptr + 1])
+        ptr += 1
+        addr_mode_str = ai_setting.get_conf_dst_addrmode(dst_mode)
+        self.description = 'dstAddr_mode: 0x%02x' % dst_mode + "(" + addr_mode_str + ")"
+        self.payload_items = ['\tdstAddr_mode:0x%02x' % dst_mode + "(" + addr_mode_str + ")"]
+        dst_endpoint = 0xfe
+        dst_addr = 0xfffe
+
+        if dst_mode == 0:  # APS_DSTADDR_EP_NOTPRESETNT
+            src_endpoint, = struct.unpack("!B", bytes_data[ptr:ptr + 1])
+            ptr += 1
+            self.description += ' src_endpoint: 0x%02x' % src_endpoint
+            self.payload_items.extend(['\tsrc_endpoint: 0x%02x' % src_endpoint])
+        elif dst_mode == 1:  # APS_SHORT_GROUPADDR_NOEP
+            dst_addr, src_endpoint = struct.unpack("!HB", bytes_data[ptr:ptr + 3])
+            ptr += 3
+            self.description += ' dst_addr: 0x%04x' % dst_addr + ' src_endpoint: 0x%02x' % src_endpoint
+            self.payload_items.extend(['\tdst_addr: 0x%04x' % dst_addr,
+                                       '\tsrc_endpoint: 0x%02x' % src_endpoint])
+        elif dst_mode == 2:  # APS_SHORT_DSTADDR_WITHEP
+            dst_addr, src_endpoint, dst_endpoint = struct.unpack("!HBB", bytes_data[ptr:ptr + 4])
+            ptr += 4
+            self.description += 'dst_addr: 0x%04x' % dst_addr + ' src_endpoint: 0x%02x' % src_endpoint + \
+                                ' dst_endpoint: 0x%02x' % dst_endpoint
+            self.payload_items.extend(['\tdst_addr: 0x%04x' % dst_addr,
+                                       '\tsrc_endpoint: 0x%02x' % src_endpoint,
+                                       '\tdst_endpoint: 0x%02x' % dst_endpoint])
+        elif dst_mode == 3:  # APS_LONG_DSTADDR_WITHEP
+            dst_addr, src_endpoint, dst_endpoint = struct.unpack("!QBB", bytes_data[ptr:ptr + 10])
+            ptr += 10
+            self.description += ' dst_addr: 0x%16x' % dst_addr + ' src_endpoint: 0x%02x' % src_endpoint + \
+                                ' dst_endpoint: 0x%02x' % dst_endpoint
+            self.payload_items.extend(['\tdst_addr: 0x%16x' % dst_addr,
+                                       '\tsrc_endpoint: 0x%02x' % src_endpoint,
+                                       '\tdst_endpoint: 0x%02x' % dst_endpoint])
+        self.addr_mode = dst_mode
+
+        cluster_id, status, aps_cnt = struct.unpack("!H2B", bytes_data[ptr: ptr+4])
         if dst_endpoint == 0:
             cluster_str = ai_setting.get_zdp_cluster_str(cluster_id)
         else:
             cluster_str = ai_setting.get_zcl_cluster_str(cluster_id)
         self.recv_status = ai_setting.get_confirm_status_str(status)
-        self.description = 'src_endpoint: 0x%02x' % src_endpoint + ' dst_endpoint: 0x%02x' % dst_endpoint + \
-                           ' cluster_id:' + hex(cluster_id) + '(' + cluster_str + ')' + ' status:' + hex(status) + \
-                           '(' + self.recv_status + ')' + ' aps_cnt:' + hex(aps_cnt)
+        self.description += ' cluster_id:' + hex(cluster_id) + '(' + cluster_str + ')' + ' status:' + hex(status) + \
+                            '(' + self.recv_status + ')' + ' aps_cnt:' + hex(aps_cnt)
 
-        self.payload_items = ['\tdst_addr:0x%04x' % dst_addr,
-                              '\tsrc_endpoint: 0x%02x' % src_endpoint,
-                              '\tdst_endpoint: 0x%02x' % dst_endpoint,
-                              '\tcluster_id: 0x%04x' % cluster_id + '(' + cluster_str + ')',
-                              '\tstatus:' + hex(status) + '(' + self.recv_status + ')',
-                              '\taps_cnt:' + hex(aps_cnt)]
-        self.recv_nwk_addr = '0x%04x' % dst_addr
+        self.payload_items.extend(['\tcluster_id: 0x%04x' % cluster_id + '(' + cluster_str + ')',
+                                   '\tstatus:' + hex(status) + '(' + self.recv_status + ')',
+                                   '\taps_cnt:' + hex(aps_cnt)])
+        self.recv_nwk_addr = dst_addr
+        self.addr_mode = dst_mode
         self.recv_cluster_id = cluster_str
 
     def hci_mac_addr_ind_handle(self, payload):
@@ -1021,9 +1148,11 @@ class ParseRecvCommand:
                               '\tieee_addr:0x%16x' % ieee_addr]
         if ieee_addr in nodes_info:
             self.nodes_info_change = True
-            if 'nwk_addr' in nodes_info[ieee_addr]:
-                self.recv_nwk_addr = '0x%04x' % nodes_info[ieee_addr]['nwk_addr']
-            del nodes_info[ieee_addr]
+            nodes_info[ieee_addr]['used_nwk_addr'].append(nodes_info[ieee_addr]['nwk_addr'])
+            nodes_info[ieee_addr]['nwk_addr'] = 0xfffe
+            # del nodes_info[ieee_addr]
+        self.recv_nwk_addr = ieee_addr
+        self.addr_mode = 3
 
 
 class ParseSendCommand:
@@ -1033,7 +1162,8 @@ class ParseSendCommand:
         self.parse_items = []
         self.description = ''
         self.send_status = ''
-        self.send_dst_addr = ''
+        self.send_dst_addr = 0xfffe
+        self.addr_mode = 0xff
         self.parse_send_command(ai_setting, command_id, payload_len, payload)
 
     def parse_send_command(self, ai_setting, command_id, payload_len, payload):
@@ -1259,7 +1389,8 @@ class ParseSendCommand:
         self.parse_items.append('\tstart_idx: ' + hex(start_idx))
         self.description += 'interest_addr: 0x%016x' % interest_addr + ' single: ' + hex(single) + ' start_idx: ' + \
                             hex(start_idx)
-        self.send_dst_addr = '0x%04x' % dst_addr
+        self.send_dst_addr = dst_addr
+        self.addr_mode = 2
 
     def hci_ieee_addr_req_parse(self, payload):
         bytes_data = bytearray(payload)
@@ -1270,7 +1401,8 @@ class ParseSendCommand:
         self.parse_items.append('\tstart_idx: ' + hex(start_idx))
         self.description += 'interest_addr: 0x%04x' % interest_addr + ' single: ' + hex(single) + ' start_idx: ' + \
                             hex(start_idx)
-        self.send_dst_addr = '0x%04x' % dst_addr
+        self.send_dst_addr = dst_addr
+        self.addr_mode = 2
 
     def hci_node_desc_req_parse(self, payload):
         bytes_data = bytearray(payload)
@@ -1278,7 +1410,8 @@ class ParseSendCommand:
         self.parse_items.append('\tdst_addr: 0x%04x' % dst_addr)
         self.parse_items.append('\tinterest_addr: 0x%04x' % interest_addr)
         self.description += 'interest_addr: 0x%04x' % interest_addr
-        self.send_dst_addr = '0x%04x' % dst_addr
+        self.send_dst_addr = dst_addr
+        self.addr_mode = 2
 
     def hci_simple_desc_req_parse(self, payload):
         bytes_data = bytearray(payload)
@@ -1287,7 +1420,8 @@ class ParseSendCommand:
         self.parse_items.append('\tinterest_addr: 0x%04x' % interest_addr)
         self.parse_items.append('\tendpoint: ' + hex(endpoint))
         self.description += 'interest_addr: 0x%04x' % interest_addr + ' endpoint: ' + hex(endpoint)
-        self.send_dst_addr = '0x%04x' % dst_addr
+        self.send_dst_addr = dst_addr
+        self.addr_mode = 2
 
     def hci_match_desc_req_parse(self, payload):
         bytes_data = bytearray(payload)
@@ -1318,7 +1452,8 @@ class ParseSendCommand:
                 ptr += 2
             self.parse_items.append('\toutcluster_list: ' + outcluster_list)
             self.description += ' outcluster_list: ' + outcluster_list
-        self.send_dst_addr = '0x%04x' % dst_addr
+        self.send_dst_addr = dst_addr
+        self.addr_mode = 2
 
     def hci_active_endpoint_req_parse(self, payload):
         bytes_data = bytearray(payload)
@@ -1326,7 +1461,8 @@ class ParseSendCommand:
         self.parse_items.append('\tdst_addr: 0x%04x' % dst_addr)
         self.parse_items.append('\tinterest_addr: 0x%04x' % interest_addr)
         self.description += 'interest_addr: 0x%04x' % interest_addr
-        self.send_dst_addr = '0x%04x' % dst_addr
+        self.send_dst_addr = dst_addr
+        self.addr_mode = 2
 
     def hci_bind_req_parse(self, ai_setting, payload):
         bytes_data = bytearray(payload)
@@ -1354,7 +1490,8 @@ class ParseSendCommand:
             ptr += 2
             self.parse_items.append('\tdst_addr: 0x%04x' % dst_addr)
             self.description += ' dst_addr: 0x%04x' % dst_addr
-        self.send_dst_addr = '0x%016x' % src_addr
+        self.send_dst_addr = src_addr
+        self.addr_mode = 3
 
     def hci_unbind_req_parse(self, ai_setting, payload):
         self.hci_bind_req_parse(ai_setting, payload)
@@ -1365,7 +1502,8 @@ class ParseSendCommand:
         self.parse_items.append('\tdst_addr: 0x%04x' % dst_addr)
         self.parse_items.append('\tstart_idx: ' + hex(start_idx))
         self.description += 'start_idx:' + hex(start_idx)
-        self.send_dst_addr = '0x%04x' % dst_addr
+        self.send_dst_addr = dst_addr
+        self.addr_mode = 2
 
     def hci_mgmt_bind_req_parse(self, payload):
         bytes_data = bytearray(payload)
@@ -1373,7 +1511,8 @@ class ParseSendCommand:
         self.parse_items.append('\tdst_addr: 0x%04x' % dst_addr)
         self.parse_items.append('\tstart_idx: ' + hex(start_idx))
         self.description += 'start_idx:' + hex(start_idx)
-        self.send_dst_addr = '0x%04x' % dst_addr
+        self.send_dst_addr = dst_addr
+        self.addr_mode = 2
 
     def hci_mgmt_leave_req_parse(self, payload):
         bytes_data = bytearray(payload)
@@ -1384,7 +1523,8 @@ class ParseSendCommand:
         self.parse_items.append('\tchildren_leave: ' + hex(children_leave))
         self.description += 'ieee_addr: ' + hex(ieee_addr) + 'rejoin: ' + hex(rejoin) + 'children_leave: ' + \
                             hex(children_leave)
-        self.send_dst_addr = '0x%04x' % dst_addr
+        self.send_dst_addr = dst_addr
+        self.addr_mode = 2
 
     def hci_direct_join_req_parse(self, payload):
         pass
@@ -1396,7 +1536,8 @@ class ParseSendCommand:
         self.parse_items.append('\tduration: ' + hex(duration) + ' (s)')
         self.parse_items.append('\ttc_significance: ' + hex(tc_significance))
         self.description += 'duration: ' + hex(duration) + ' (s)' + ' tc_significance: ' + hex(tc_significance)
-        self.send_dst_addr = '0x%04x' % dst_addr
+        self.send_dst_addr = dst_addr
+        self.addr_mode = 2
 
     def hci_mgmt_nwkupdate_req_parse(self, payload):
         bytes_data = bytearray(payload)
@@ -1422,7 +1563,8 @@ class ParseSendCommand:
 
         self.description += 'nwk_manager_addr: 0x%04x' % nwk_manager_addr + ' scan_channel: 0x%08x' % scan_channel \
                             + ' scan_duration: ' + hex(scan_duration) + updata_type + ' ' + str_follow + hex(scan_cnt)
-        self.send_dst_addr = '0x%04x' % dst_addr
+        self.send_dst_addr = dst_addr
+        self.addr_mode = 2
 
     def hci_nodes_joined_get_parse(self, payload):
         bytes_data = bytearray(payload)
@@ -1452,7 +1594,8 @@ class ParseSendCommand:
         self.parse_items.append('\ttx_power_idx: ' + hex(tx_power))
         self.description += 'src_ep: 0x%02x' % src_ep + ' dst_ep:  0x%02x' % dst_ep + ' send_cnt: ' + hex(send_cnt) + \
                             ' send_interval: ' + hex(send_interval) + ' tx_power_idx: ' + hex(tx_power)
-        self.send_dst_addr = '0x%04x' % dst_addr
+        self.send_dst_addr = dst_addr
+        self.addr_mode = 2
 
     def hci_af_data_send_test_parse(self, ai_setting, payload):
         bytes_data = bytearray(payload)
@@ -1473,7 +1616,8 @@ class ParseSendCommand:
         self.description += 'src_ep: 0x%02x' % src_ep + ' dst_ep:  0x%02x' % dst_ep + \
                             ' cluster_id:  0x%04x' % cluster_id + '(' + cluster_id_str + ')' + \
                             ' data_len: ' + hex(data_len)
-        self.send_dst_addr = '0x%04x' % dst_addr
+        self.send_dst_addr = dst_addr
+        self.addr_mode = 2
 
     def hci_get_own_info_parse(self, payload):
         pass
@@ -1489,13 +1633,19 @@ class ParseSendCommand:
             ptr += 8
             self.parse_items.append('\tdst_addr:0x%016x' % dst_addr)
             self.description += ' dst_addr:0x%016x' % dst_addr
-            self.send_dst_addr = '0x%016x' % dst_addr
+            self.send_dst_addr = dst_addr
+            self.addr_mode = 3
         if dst_mode == 'group' or dst_mode == 'short' or dst_mode == 'broadcast' or dst_addr_mode == 'short_no_ack':
             dst_addr, = struct.unpack("!H", bytes_data[ptr: ptr + 2])
             ptr += 2
             self.parse_items.append('\tdst_addr: 0x%04x' % dst_addr)
             self.description += ' dst_addr:0x%04x' % dst_addr
-            self.send_dst_addr = '0x%04x' % dst_addr
+            self.send_dst_addr = dst_addr
+            self.addr_mode = 2
+        else:
+            self.addr_mode = 0
+        if dst_mode == 'group':
+            self.addr_mode = 1
         src_ep, = struct.unpack("!B", bytes_data[ptr: ptr + 1])
         ptr += 1
         self.parse_items.append('\tsrc_ep: 0x%02x' % src_ep)
@@ -1931,9 +2081,17 @@ def hci_command_struct(command_id, payload_len, payload):
     # print(send_data)
     # print(len(send_data))
     # for data in send_data:
-        # print(hex(data))
+    # print(hex(data))
 
     return send_data
+
+
+def hci_find_ieee_by_short(shortAddr):
+    payload = struct.pack("!H", 0xffff)
+    payload += struct.pack("!H", shortAddr)
+    payload += struct.pack("!B", 0)
+    payload += struct.pack("!B", 0)
+    return hci_command_struct(0x0011, len(payload), payload)
 
 
 def hci_get_joined_nodes_req_send(start_idx):
@@ -1949,6 +2107,12 @@ def hci_bind_req_send(src_ieee_addr, src_endpoint, cluster, dst_addr_mode, dst_i
     payload = struct.pack("!QBHBQB", src_ieee_addr, src_endpoint, cluster, dst_addr_mode, dst_ieee_addr, dst_endpoint)
     payload_len = len(payload)
     return hci_command_struct(0x0020, payload_len, payload)
+
+
+def hci_mgmt_bind_req_send(dst_addr, start_idx):
+    payload = struct.pack("!HB", dst_addr, start_idx)
+    payload_len = len(payload)
+    return hci_command_struct(0x0031, payload_len, payload)
 
 
 def hci_ota_block_response_send(status, file_offset, block_len, block_data):
