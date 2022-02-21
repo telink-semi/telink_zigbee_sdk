@@ -425,9 +425,9 @@ class CsvFiles:
             process_folder = self.create_folder_path
         if process_folder == '':
             return 2, 0   #no folder path
+        find_total_cnt = 0
         if nwk_addr == '0xffff':
             file_list = os.listdir(process_folder)
-            find_total_cnt = 0
             file_cnt = 0
             for file_name in file_list:
                 # print("ZCL_REPORT_MSG_RCV:")
@@ -448,6 +448,8 @@ class CsvFiles:
                     file_read_result, find_total_cnt = self.pick_out_node_command(process_folder, file_name, delta_time,
                                                                                   command_id)
                     break
+            else:
+                file_read_result = 2
         if file_read_result == 1:
             write_file_path = process_folder + '/all_packets_statistics.csv'
             try:
@@ -470,21 +472,25 @@ class CsvFiles:
         write_file_path = process_file_path
 
         # compare = 0
-        if '>' in delta_time:
-            compare = 1
-        elif '=' in delta_time:
-            compare = 2
-        elif '<' in delta_time:
-            compare = 3
-        else:
-            file_read_result = 5
-            return file_read_result, find_cnt
+        if len(delta_time):
+            if '>' in delta_time:
+                compare = 1
+            elif '=' in delta_time:
+                compare = 2
+            elif '<' in delta_time:
+                compare = 3
+            else:
+                file_read_result = 5
+                return file_read_result, find_cnt
 
-        try:
-            delta = float(delta_time[1:])
-        except ValueError:
-            file_read_result = 5
-            return file_read_result, find_cnt
+            try:
+                delta = float(delta_time[1:])
+            except ValueError:
+                file_read_result = 5
+                return file_read_result, find_cnt
+        else:
+            compare = 0xff
+            delta_time = '>=0'
 
         write_rows = []
         process_rows = []
@@ -510,12 +516,19 @@ class CsvFiles:
                                     if float(row[ai_setting.delta_column]) < float(delta):
                                         write_rows.append(row)
                                         find_cnt += 1
+                                elif compare == 0xff:
+                                    write_rows.append(row)
+                                    find_cnt += 1
                             else:
                                 if row[ai_setting.command_column] == command_id:
-                                    row[ai_setting.time_column] = datetime.strptime(row[ai_setting.time_column],
-                                                                                    "%y-%m-%d %H:%M:%S:%f")
-                                    process_cnt += 1
-                                    process_rows.append(row)
+                                    if compare != 0xff:
+                                        row[ai_setting.time_column] = datetime.strptime(row[ai_setting.time_column],
+                                                                                        "%y-%m-%d %H:%M:%S:%f")
+                                        process_cnt += 1
+                                        process_rows.append(row)
+                                    else:
+                                        write_rows.append(row)
+                                        find_cnt += 1
                         except ValueError:
                             process_cnt -= 1
                             continue
@@ -561,7 +574,7 @@ class CsvFiles:
                     writer.writerow(
                         [file_name + ' info as follows:'])
                     writer.writerow(['\tTotal ' + command_id + ' packets count: ' + str(process_cnt)])
-                    writer.writerow(['\tInterval greater than:' + str(delta_time) + 's ' + command_id +
+                    writer.writerow(['\tInterval:' + str(delta_time) + 's ' + command_id +
                                      ' packets count: ' + str(find_cnt)])
                     if find_cnt > 0:
                         writer.writerows(write_rows)

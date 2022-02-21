@@ -1629,7 +1629,7 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         # print(analyze_result_str)
         if read_file_flag == 1:
             if len(analyze_result_str) == 0:
-                QMessageBox.warning(self, 'get joined nodes address', "No data！")
+                QMessageBox.warning(self, 'get joined nodes address', "No communication data！")
         elif read_file_flag == 4:
             QMessageBox.warning(self, 'get joined nodes address', "Dab file, please check！")
         elif read_file_flag == 3:
@@ -1666,7 +1666,7 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         if read_file_flag == 1:
             QMessageBox.warning(self, 'Result', 'total records number:' + str(command_cnt_show))
         elif read_file_flag == 2:
-            QMessageBox.warning(self, 'Result', "No record!")
+            QMessageBox.warning(self, 'Result', "No data for this device!")
         elif read_file_flag == 3:
             QMessageBox.warning(self, 'Result', "Do not open the file!")
         elif read_file_flag == 4:
