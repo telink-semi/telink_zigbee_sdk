@@ -361,6 +361,12 @@ static void ota_ieeeAddrReqSend(void *arg)
 	ev_on_timer(&otaTimer, OTA_IEEE_ADDR_RSP_WAIT_TIME * 1000);
 }
 
+
+static s32 ota_queryNextImageReqDelay(void *arg){
+	ota_queryNextImageReq(g_otaCtx.otaServerEpInfo.dstEp, g_otaCtx.otaServerEpInfo.dstAddr.shortAddr, g_otaCtx.otaServerEpInfo.profileId);
+	return -1;
+}
+
 static void ota_matchDescRspCb(void *arg)
 {
 	zdo_zdpDataInd_t *p = (zdo_zdpDataInd_t *)arg;
@@ -373,11 +379,11 @@ static void ota_matchDescRspCb(void *arg)
 		g_otaCtx.otaServerEpInfo.dstAddr.shortAddr = rsp->nwk_addr_interest;
 		g_otaCtx.otaServerEpInfo.profileId = g_otaCtx.simpleDesc->app_profile_id;
 
-		ota_ieeeAddrReqSend(NULL);
+		ota_ieeeAddrReq(g_otaCtx.otaServerEpInfo.dstAddr.shortAddr);   //ota_ieeeAddrReqSend(NULL);
 
 		if(otaClientInfo.clientOtaFlg == OTA_FLAG_INIT_DONE){
 			otaClientInfo.clientOtaFlg = OTA_FLAG_IMAGE_PULL_READY;
-			ota_queryNextImageReq(g_otaCtx.otaServerEpInfo.dstEp, g_otaCtx.otaServerEpInfo.dstAddr.shortAddr, g_otaCtx.otaServerEpInfo.profileId);
+			TL_ZB_TIMER_SCHEDULE(ota_queryNextImageReqDelay, NULL, 500);
 		}
 	}
 }

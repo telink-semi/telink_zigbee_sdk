@@ -90,9 +90,6 @@
     #define ZB_ED_ROLE                            1
 #endif
 
-#if ZB_ROUTER_ROLE
-	#define GP_SUPPORT_ENABLE					  1
-#endif
 
 /***********************************************************************
  * If PM_ENABLE is set, the macro ZB_MAC_RX_ON_WHEN_IDLE must be ZERO.

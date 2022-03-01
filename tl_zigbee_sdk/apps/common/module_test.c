@@ -286,7 +286,8 @@ void moduleTest_PM(void){
 
 #if MODULE_TEST_RF
 
-#define TX 1
+#define TX 	1
+#define SRX	0
 
 unsigned char  rx_packet[128]  __attribute__ ((aligned (4)));
 
@@ -311,7 +312,13 @@ void moduleTest_RF(void){
 		ZB_RADIO_TX_START(tx_packet);
 	}
 #else
+
+#if SRX
+	ZB_RADIO_TRX_SWITCH(RF_MODE_AUTO, 50);
+	ZB_RADIO_SRX_START(clock_time());
+#else
 	ZB_RADIO_TRX_SWITCH(RF_MODE_RX, 50);
+#endif
 	while(1);
 #endif
 }

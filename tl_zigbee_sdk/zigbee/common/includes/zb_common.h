@@ -366,6 +366,8 @@ typedef struct{
 	u16 joinIndication;
 	u16 childMoved;
 
+	u32 panIdConflictCheck;
+
 	u16 nwkFCFailure;
 	u16 apsFCFailure;
 	u16 apsUnauthorizedKey;
@@ -384,6 +386,7 @@ typedef struct{
 	u8	phyLengthError;
 	u8	panIdConflict;
 	u8	panIdModified;
+	u8	nwkAddrConflict;
 }sys_diagnostics_t;
 
 extern sys_diagnostics_t g_sysDiags;

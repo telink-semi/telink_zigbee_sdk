@@ -46,7 +46,7 @@ extern "C" {
 
 /* HCI interface */
 #define	ZBHCI_UART						0
-#define ZBHCI_USB_CDC					1
+#define ZBHCI_USB_CDC					0
 #define ZBHCI_USB_HID					0
 
 /* Board ID */
@@ -156,6 +156,7 @@ extern "C" {
 #define ZCL_GROUP_SUPPORT							1
 #define ZCL_SCENE_SUPPORT							1
 #define ZCL_OTA_SUPPORT								1
+#define ZCL_GP_SUPPORT								1
 
 #define AF_TEST_ENABLE								0
 

@@ -128,6 +128,7 @@ typedef struct{
 	addrExt_t parentIeeeAddr;
 	addrExt_t devIeeeAddr;
 	u16 devShortAddr;
+	ss_apsmeUpdateDevStatus_e sta;
 }zdo_tc_join_ind_t;
 
 typedef void (*zdo_startDveCnfCb_t)(zdo_start_device_confirm_t *p);

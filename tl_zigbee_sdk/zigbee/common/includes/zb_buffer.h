@@ -45,7 +45,11 @@
 
 #ifndef ZB_BUF_POOL_NUM
 	#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91)
-		#define ZB_BUF_POOL_NUM			36
+		#if ZB_ROUTER_ROLE
+			#define ZB_BUF_POOL_NUM		36
+		#else
+			#define ZB_BUF_POOL_NUM		18
+		#endif
 	#else
 		#ifdef CHIP_8269
 			#define ZB_BUF_POOL_NUM		36
@@ -90,7 +94,7 @@ typedef struct zb_buf_s{
 #if ZB_BUFFER_DEBUG
 	zb_buf_allocInfo_t allocInfo[ZB_BUFF_DBG_NUM];
 #endif
-}zb_buf_t ;
+}zb_buf_t;
 
 typedef struct{
 	zb_buf_t *head;

@@ -135,6 +135,10 @@
 
 #define ZB_SECURITY									1
 
+#if ZB_ROUTER_ROLE
+	#define GP_SUPPORT_ENABLE					  	1
+#endif
+
 //default TX power idx.
 #if defined (MCU_CORE_826x)
 	#define ZB_DEFAULT_TX_POWER_IDX					RF_POWER_7dBm

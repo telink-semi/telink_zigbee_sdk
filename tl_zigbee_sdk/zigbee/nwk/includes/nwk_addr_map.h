@@ -71,6 +71,11 @@ typedef struct{
 	addrExt_t 	dstExtAddr;
 }zb_addrForBind_t;
 
+typedef struct{
+	u32 devTimeout;
+	addrExt_t extAddr;
+}zb_addrForEDTimeout_t;
+
 extern u16 TL_ZB_NWK_ADDR_MAP_SIZE;
 extern tl_zb_addr_map_t g_nwkAddrMap;
 

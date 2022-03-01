@@ -102,7 +102,7 @@
 #endif
 
 /********************* Green Power Configuration ***********************/
-#if GP_SUPPORT_ENABLE
+#if ZCL_GP_SUPPORT
 #define ZCL_GREEN_POWER
 #endif
 

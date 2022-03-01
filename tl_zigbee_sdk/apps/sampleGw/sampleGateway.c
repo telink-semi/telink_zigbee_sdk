@@ -156,11 +156,11 @@ void user_app_init(void)
 	/* Register ZCL specific cluster information */
 	zcl_register(SAMPLE_GW_ENDPOINT, SAMPLE_GW_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_sampleGwClusterList);
 
-#ifdef ZCL_GREEN_POWER
+#if ZCL_GP_SUPPORT
 	gp_init();
 #endif
 
-#ifdef ZCL_OTA
+#if ZCL_OTA_SUPPORT
     ota_init(OTA_TYPE_SERVER, (af_simple_descriptor_t *)&sampleGW_simpleDesc, &sampleGW_otaInfo, NULL);
 #endif
 }

@@ -130,10 +130,8 @@ void sampleSensor_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg);
 status_t sampleSensor_basicCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
 status_t sampleSensor_identifyCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
 status_t sampleSensor_iasZoneCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
-#ifdef ZCL_POLL_CTRL
 status_t sampleSensor_pollCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
 void sampleSensor_zclCheckInStart(void);
-#endif
 
 void sampleSensor_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf);
 void sampleSensor_leaveIndHandler(nlme_leave_ind_t *pLeaveInd);

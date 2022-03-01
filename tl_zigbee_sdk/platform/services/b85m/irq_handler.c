@@ -51,6 +51,14 @@ _attribute_ram_code_ void irq_handler(void){
 		rf_rx_irq_handler();
 	}
 
+	if(src_rf & FLD_RF_IRQ_RX_TIMEOUT){
+		rf_irq_clr_src(FLD_RF_IRQ_RX_TIMEOUT);
+	}
+
+	if(src_rf & FLD_RF_IRQ_FIRST_TIMEOUT){
+		rf_irq_clr_src(FLD_RF_IRQ_FIRST_TIMEOUT);
+	}
+
 	u32 src = irq_get_src();
 
 	if((src & FLD_IRQ_TMR0_EN)){

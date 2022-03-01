@@ -135,15 +135,6 @@ void stack_init(void)
 
 	/* Register stack CB */
     zb_zdoCbRegister((zdo_appIndCb_t *)&appCbLst);
-
-
-#if PUBLIC_LINKKEY_DISABLE
-    /*
-     * disable public default link if the pre-install key is used
-     *
-     * */
-    ss_pubLinkKeySelect(LINKKEY_PUBLINK_KEY_DIS);
-#endif
 }
 
 /*********************************************************************
@@ -177,17 +168,17 @@ void user_app_init(void)
 	/* Register ZCL specific cluster information */
 	zcl_register(SAMPLE_LIGHT_ENDPOINT, SAMPLELIGHT_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_sampleLightClusterList);
 
-#ifdef ZCL_GREEN_POWER
+#if ZCL_GP_SUPPORT
 	/* Initialize GP */
 	gp_init();
 #endif
 
-#ifdef ZCL_OTA
+#if ZCL_OTA_SUPPORT
 	/* Initialize OTA */
     ota_init(OTA_TYPE_CLIENT, (af_simple_descriptor_t *)&sampleLight_simpleDesc, &sampleLight_otaInfo, &sampleLight_otaCb);
 #endif
 
-#ifdef ZCL_WWAH
+#if ZCL_WWAH_SUPPORT
     /* Initialize WWAH server */
     wwah_init(WWAH_TYPE_SERVER, (af_simple_descriptor_t *)&sampleLight_simpleDesc);
 #endif
@@ -308,11 +299,6 @@ void user_init(bool isRetention)
 	if(bdb_preInstallCodeLoad(&gLightCtx.tcLinkKey.keyType, gLightCtx.tcLinkKey.key) == RET_OK){
 		g_bdbCommissionSetting.linkKey.tcLinkKey.keyType = gLightCtx.tcLinkKey.keyType;
 		g_bdbCommissionSetting.linkKey.tcLinkKey.key = gLightCtx.tcLinkKey.key;
-
-#if DISTRIBUTE_LINKKEY_FROM_FLASH
-		g_bdbCommissionSetting.linkKey.distributeLinkKey.keyType = MASTER_KEY,
-		g_bdbCommissionSetting.linkKey.distributeLinkKey.key = gLightCtx.tcLinkKey.key;
-#endif
 	}
 
     /* Set default reporting configuration */

@@ -91,9 +91,3 @@
     #define ZB_ED_ROLE                            1
 #endif
 
-#if ZB_ROUTER_ROLE
-	#define GP_SUPPORT_ENABLE					  1
-#endif
-
-
-

@@ -1035,7 +1035,8 @@ static void bdb_task(void *arg)
 					if(g_bdbCtx.initResult == BDB_INIT_STATUS_SUCCESS){
 						if((zdo_ssInfoKeyGet() != ss_ib.activeSecureMaterialIndex) ||
 						   (g_zbInfo.macPib.phyChannelCur != g_bdbCtx.channel) ||
-						    g_zbNwkCtx.parentIsChanged){
+						    g_zbNwkCtx.parentIsChanged||
+							g_bdbCtx.forceJoin){
 								g_zbNwkCtx.parentIsChanged = 0;
 								TL_SCHEDULE_TASK(bdb_commissioningInfoSave, NULL);  //for tcRejoin when the network key is changed
 						}
@@ -1050,6 +1051,7 @@ static void bdb_task(void *arg)
 				}
 
 				g_bdbCtx.inited = 0;
+				g_bdbCtx.forceJoin = 0;
 			}
 			break;
 
@@ -1212,7 +1214,7 @@ _CODE_BDB_ void bdb_zdoStartDevCnf(zdo_start_device_confirm_t *startDevCnf){
 				BDB_STATUS_SET(BDB_COMMISSION_STA_SUCCESS);
 				if((zdo_ssInfoKeyGet() != ss_ib.activeSecureMaterialIndex) ||
 				   (g_zbInfo.macPib.phyChannelCur != g_bdbCtx.channel) ||
-				    g_zbNwkCtx.parentIsChanged){
+				    g_zbNwkCtx.parentIsChanged || g_bdbCtx.forceJoin){
 						g_zbNwkCtx.parentIsChanged = 0;
 						TL_SCHEDULE_TASK(bdb_commissioningInfoSave, NULL);
 				}
@@ -1224,6 +1226,7 @@ _CODE_BDB_ void bdb_zdoStartDevCnf(zdo_start_device_confirm_t *startDevCnf){
 					BDB_STATUS_SET(BDB_COMMISSION_STA_REJOIN_FAILURE);
 				}
 			}
+			g_bdbCtx.forceJoin = 0;
 			evt = BDB_STATE_REJOIN_DONE;
 			TL_SCHEDULE_TASK(bdb_task, (void *)evt);
 			break;
@@ -1608,6 +1611,47 @@ _CODE_BDB_ u8 bdb_init(af_simple_descriptor_t *simple_desc, bdb_commissionSettin
 	u8 len = 0;
 	tl_zbMacAttrGet(MAC_PHY_ATTR_CURRENT_CHANNEL, &g_bdbCtx.channel, &len);
 	return 0;
+}
+
+
+/*********************************************************************
+ * @fn      bdb_join_direct()
+ *
+ * @brief   join/establish a network directly
+ *
+ * @param   channel
+ * 			panId
+ * 			shortAddr
+ * 			extPanId
+ * 		    nwkKey
+ * 		    inited
+ *
+ * @return  None
+ */
+_CODE_BDB_ u8 bdb_join_direct(u8 channel, u16 panId, u16 shortAddr, u8 *extPanId, u8 *nwkKey, u8 type, u8 inited){
+	u8 ret = FAILURE;
+
+	if(BDB_STATE_GET() == BDB_STATE_IDLE){
+		g_bdbCtx.forceJoin = 1;
+		zb_joinAFixedNetwork(channel,  panId, shortAddr, extPanId, nwkKey);
+
+		if(inited){
+			aps_ib.aps_authenticated = 1;
+			aps_ib.aps_use_insecure_join = FALSE; /* AIB */
+			ss_securityModeSet(type);
+
+#if ZB_COORDINATOR_ROLE
+			bdb_coordinatorStart();
+#elif ZB_ROUTER_ROLE
+			bdb_routerStart();
+#elif ZB_ED_ROLE
+			bdb_endDeviceStart(1);
+#endif
+		}
+		ret = SUCCESS;
+	}
+
+	return ret;
 }
 
 

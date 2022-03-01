@@ -48,7 +48,7 @@
  *  @brief  ZCL: MAX number of cluster list, in cluster number add  + out cluster number
  *
  */
-#define	ZCL_CLUSTER_NUM_MAX						10
+#define	ZCL_CLUSTER_NUM_MAX						16
 
 /**
  *  @brief  ZCL: maximum number for zcl reporting table
@@ -89,10 +89,4 @@
 #elif (END_DEVICE)
     #define ZB_ED_ROLE                            1
 #endif
-
-#if ZB_ROUTER_ROLE
-	#define GP_SUPPORT_ENABLE					  1
-#endif
-
-
 

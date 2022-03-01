@@ -97,15 +97,9 @@ status_t sampleGW_basicCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdP
 status_t sampleGW_identifyCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
 status_t sampleGW_groupCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
 status_t sampleGW_sceneCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
-#ifdef ZCL_DOOR_LOCK
 status_t sampleGW_doorLockCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
-#endif
-#ifdef ZCL_IAS_ZONE
 status_t sampleGW_iasZoneCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
-#endif
-#ifdef ZCL_POLL_CTRL
 status_t sampleGW_pollCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
-#endif
 
 void sampleGW_devAnnHandler(zdo_device_annce_req_t *pDevAnnceReq);
 void sampleGW_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf);

@@ -27,6 +27,9 @@
 #include "../common/includes/zb_common.h"
 #include "compiler.h"
 
+
+#define RF_SRX_MODE		0
+
 /**********************************************************************
  * LOCAL CONSTANTS
  */
@@ -74,22 +77,65 @@ u32 rf_pa_rxen_pin;
 /**********************************************************************
  * LOCAL FUNCTIONS
  */
-#define ZB_SWTICH_TO_TXMODE()    do{ \
-									if(fPaEn) {	\
-										drv_gpio_write(rf_pa_txen_pin, 1); 		\
-										drv_gpio_write(rf_pa_rxen_pin, 0); 		\
-									}										\
-									ZB_RADIO_TRX_SWITCH(RF_MODE_TX, LOGICCHANNEL_TO_PHYSICAL(rf_getChannel()));	\
+#if RF_SRX_MODE
+//switch single RX to manual TX
+#define ZB_SWITCH_TO_TXMODE()    do{ \
+									if(rfMode != RF_STATE_TX || ZB_RADIO_TRX_STA_GET() != RF_MODE_TX){	\
+										rfMode = RF_STATE_TX;	\
+										if(fPaEn){	\
+											drv_gpio_write(rf_pa_txen_pin, 1); 		\
+											drv_gpio_write(rf_pa_rxen_pin, 0); 		\
+										}										\
+										ZB_RADIO_TRX_OFF_AUTO_MODE();	\
+										ZB_RADIO_TRX_SWITCH(RF_MODE_TX, LOGICCHANNEL_TO_PHYSICAL(rf_getChannel()));	\
+									}	\
 								}while(0)
 
-#define ZB_SWTICH_TO_RXMODE()    do{ \
-									if(fPaEn) {	\
-										drv_gpio_write(rf_pa_txen_pin, 0); 		\
-										drv_gpio_write(rf_pa_rxen_pin, 1); 		\
-									}										\
-									ZB_RADIO_TRX_SWITCH(RF_MODE_RX, LOGICCHANNEL_TO_PHYSICAL(rf_getChannel()));	\
+//switch manual TX to single RX
+#define ZB_SWITCH_TO_RXMODE()	do{	\
+									if(rfMode != RF_STATE_RX || ZB_RADIO_TRX_STA_GET() != RF_MODE_AUTO){	\
+										rfMode = RF_STATE_RX;	\
+										if(fPaEn){	\
+											drv_gpio_write(rf_pa_txen_pin, 0); 	\
+											drv_gpio_write(rf_pa_rxen_pin, 1); 	\
+										}										\
+										ZB_RADIO_TRX_SWITCH(RF_MODE_AUTO, LOGICCHANNEL_TO_PHYSICAL(rf_getChannel())); \
+									}	\
+									ZB_RADIO_SRX_START(clock_time());	\
+								}while(0)
+#else
+//switch manual RX to manual TX
+#define ZB_SWITCH_TO_TXMODE()    do{ \
+									if(rfMode != RF_STATE_TX || ZB_RADIO_TRX_STA_GET() != RF_MODE_TX){	\
+										rfMode = RF_STATE_TX;	\
+										if(fPaEn){	\
+											drv_gpio_write(rf_pa_txen_pin, 1); 		\
+											drv_gpio_write(rf_pa_rxen_pin, 0); 		\
+										}										\
+										ZB_RADIO_TRX_SWITCH(RF_MODE_TX, LOGICCHANNEL_TO_PHYSICAL(rf_getChannel()));	\
+									}	\
 								}while(0)
 
+//switch manual TX to manual RX
+#define ZB_SWITCH_TO_RXMODE()    do{ \
+									if(rfMode != RF_STATE_RX || ZB_RADIO_TRX_STA_GET() != RF_MODE_RX){	\
+										rfMode = RF_STATE_RX;	\
+										if(fPaEn){	\
+											drv_gpio_write(rf_pa_txen_pin, 0); 	\
+											drv_gpio_write(rf_pa_rxen_pin, 1); 	\
+										}										\
+										ZB_RADIO_TRX_SWITCH(RF_MODE_RX, LOGICCHANNEL_TO_PHYSICAL(rf_getChannel()));	\
+									}	\
+								}while(0)
+#endif
+
+#define ZB_SWITCH_TO_OFFMODE()	do{	\
+									if(rfMode != RF_STATE_OFF || ZB_RADIO_TRX_STA_GET() != RF_MODE_OFF){	\
+										rfMode = RF_STATE_OFF;	\
+										rf_paShutDown();		\
+										ZB_RADIO_TRX_SWITCH(RF_MODE_OFF, LOGICCHANNEL_TO_PHYSICAL(rf_getChannel())); \
+									}	\
+								}while(0)
 
 /*********************************************************************
  * @fn      rf_reset
@@ -215,17 +261,13 @@ _attribute_ram_code_ void rf_setTrxState(u8 state)
     		ZB_RADIO_MODE_MAX_GAIN();
     	}
 
-    	ZB_SWTICH_TO_RXMODE();
-        rfMode = RF_STATE_RX;
+    	ZB_SWITCH_TO_RXMODE();
     }else if(RF_STATE_TX == state){
-    	ZB_SWTICH_TO_TXMODE();
+    	ZB_SWITCH_TO_TXMODE();
         WaitUs(ZB_TX_WAIT_US);
-        rfMode = RF_STATE_TX;
     }else{
         /* Close RF */
-    	rf_paShutDown();
-    	ZB_RADIO_TRX_SWITCH(RF_MODE_OFF, LOGICCHANNEL_TO_PHYSICAL(rf_getChannel()));
-        rfMode = RF_STATE_OFF;
+    	ZB_SWITCH_TO_OFFMODE();
     }
 #endif  /* WIN32 */
 }
@@ -245,7 +287,26 @@ void rf_setChannel(u8 chn)
 		return;
 	}
 	g_zbMacPib.phyChannelCur = chn;
-	ZB_RADIO_TRX_SWITCH(ZB_RADIO_TRX_STA_GET(), LOGICCHANNEL_TO_PHYSICAL(chn));
+
+	u32 r = drv_disable_irq();
+
+	u8 phySta = ZB_RADIO_TRX_STA_GET();
+	ZB_RADIO_TRX_SWITCH(phySta, LOGICCHANNEL_TO_PHYSICAL(chn));
+	if(phySta == RF_MODE_RX || phySta == RF_MODE_AUTO) {
+		rfMode = RF_STATE_RX;
+	}else if(phySta == RF_MODE_TX){
+		rfMode = RF_STATE_TX;
+	}else if(phySta == RF_MODE_OFF){
+		rfMode = RF_STATE_OFF;
+	}
+
+#if RF_SRX_MODE
+	if(phySta == RF_MODE_AUTO && rfMode == RF_STATE_RX){
+		ZB_RADIO_SRX_START(clock_time());
+	}
+#endif
+
+	drv_restore_irq(r);
 }
 
 /*********************************************************************
@@ -372,6 +433,15 @@ _attribute_ram_code_ u8 rf_performCCA(void)
 		rssi_cur = ZB_RADIO_RSSI_GET();
 		rssiSum += rssi_cur;
 		cnt++;
+
+#if RF_SRX_MODE
+		if(ZB_RADIO_RX_DONE){
+			ZB_RADIO_RX_DONE_CLR;
+			if(ZB_RADIO_TRX_STA_GET() == RF_MODE_AUTO){
+				ZB_RADIO_SRX_START(clock_time());
+			}
+		}
+#endif
 	}
 	rssi_peak = rssiSum/cnt;
 
@@ -461,20 +531,6 @@ _attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_rx_irq_handler(voi
 
     g_sysDiags.macRxIrqCnt++;
 
-#if 0
-    static s32 rfRxCnt = 0;
-    s8 rssi = ZB_RADION_PKT_RSSI_GET(p) - 110;
-    T_rxRssiBuf[rfRxCnt++ & 0x3f] = rssi;
-
-    T_rxRssiPass[0]++;
-    if(rssi < RSSI_PASS_THRESHOLD){
-    	ZB_RADIO_RX_BUF_CLEAR(rf_rxBuf);
-		ZB_RADIO_RX_ENABLE;
-		return;
-    }
-    T_rxRssiPass[1]++;
-#endif
-
     /*************************************************************
      * rf_busyFlag & TX_BUSY, means a packet received before during csma delay call back interrupt called,
      * should drop this packet
@@ -485,6 +541,9 @@ _attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_rx_irq_handler(voi
 
     	ZB_RADIO_RX_BUF_CLEAR(rf_rxBuf);
         ZB_RADIO_RX_ENABLE;
+#if RF_SRX_MODE
+        ZB_SWITCH_TO_RXMODE();
+#endif
         return;
     }
 
@@ -501,12 +560,15 @@ _attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_rx_irq_handler(voi
 		/* Drop the packet and recover the DMA */
     	ZB_RADIO_RX_BUF_CLEAR(rf_rxBuf);
 		ZB_RADIO_RX_ENABLE;
+#if RF_SRX_MODE
+		ZB_SWITCH_TO_RXMODE();
+#endif
 		return;
     }
 
     /* switch to tx in advance to let the pll stable */
  	if(macPld[0] & MAC_FCF_ACK_REQ_BIT){
- 		ZB_SWTICH_TO_TXMODE();
+ 		ZB_SWITCH_TO_TXMODE();
  		txTime = clock_time();
  	}
 
@@ -514,7 +576,7 @@ _attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_rx_irq_handler(voi
 	u8 *rxNextBuf = tl_getRxBuf();
 	if(!rxNextBuf){
 		if(macPld[0] & MAC_FCF_ACK_REQ_BIT){
-			ZB_SWTICH_TO_RXMODE();
+			ZB_SWITCH_TO_RXMODE();
 		}
 
     	/* diagnostics PHY to MAC queue limit */
@@ -522,6 +584,9 @@ _attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_rx_irq_handler(voi
 
 		ZB_RADIO_RX_BUF_CLEAR(rf_rxBuf);
 		ZB_RADIO_RX_ENABLE;
+#if RF_SRX_MODE
+		ZB_SWITCH_TO_RXMODE();
+#endif
 		return;
 	}
 
@@ -583,11 +648,14 @@ _attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_rx_irq_handler(voi
 		/* set interrupt mask bit again */
 		ZB_RADIO_IRQ_MASK_SET;
 		/* rf is set to rx mode again */
-		ZB_SWTICH_TO_RXMODE();
+		ZB_SWITCH_TO_RXMODE();
 	}
 
 	/* enable rf rx dma again */
 	ZB_RADIO_RX_ENABLE;
+#if RF_SRX_MODE
+	ZB_SWITCH_TO_RXMODE();
+#endif
 
 	/* zb_mac_receive_data handler */
 	zb_macDataRecvHander(p, macPld, len, fAck, ZB_RADIO_TIMESTAMP_GET(p), ZB_RADION_PKT_RSSI_GET(p) - 110);
@@ -609,8 +677,7 @@ _attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_tx_irq_handler(voi
 
     g_sysDiags.macTxIrqCnt++;
 
-    rfMode = RF_STATE_RX;
-    ZB_SWTICH_TO_RXMODE();
+    ZB_SWITCH_TO_RXMODE();
 
     zb_macDataSendHander();
 }

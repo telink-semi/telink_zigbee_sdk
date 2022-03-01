@@ -765,6 +765,7 @@ enum{
 	FLD_RF_IRQ_FSM_TIMEOUT  =	BIT(6),
 	FLD_RF_IRQ_RETRY_HIT =		BIT(7),
 	FLD_RF_IRQ_FIRST_TIMEOUT =	BIT(10),
+	FLD_RF_IRQ_ALL =            0X1FFF,
 };
 
 // The value for FLD_RF_RX_STATE

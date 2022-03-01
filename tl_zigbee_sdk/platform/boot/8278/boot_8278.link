@@ -41,8 +41,8 @@ SECTIONS
     }
     
     . = (((. + 15) / 16)*16);       /* must 16 byte align if use "AT" for ".text" */
-	PROVIDE(_rstored_ = . );
-	
+    PROVIDE(_rstored_ = . );
+    
 	PROVIDE(_ramcode_size_ = . );
 	PROVIDE(_ramcode_size_div_16_ = (. + 15 ) / 16);
 	PROVIDE(_ramcode_size_div_256_ = (. + 255) / 256);
@@ -61,11 +61,12 @@ SECTIONS
 	    *(.rodata)
 	    *(.rodata.*)
 	    }
-
-	. = (((. + 3) / 4)*4);    	
-        PROVIDE(_dstored_ = .);                     /*location in flash*/
+	
+	. = (((. + 3) / 4)*4);
+        PROVIDE(_dstored_ = .);						/*location in flash*/
         PROVIDE(_dstored_bin_ = . - __FW_OFFSET);   /*location in bin*/
-        PROVIDE(_code_size_ = . - __FW_OFFSET);             
+        PROVIDE(_code_size_ = . - __FW_OFFSET);
+          
 
 	
 	. = 0x840900 + _ramcode_size_align_256_;

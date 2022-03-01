@@ -344,6 +344,13 @@ extern void RF_StartStxToRx(unsigned char *RF_TxAddr, unsigned int RF_StartTick,
 extern void RF_StartSrxToTx(unsigned char* RF_TxAddr  ,unsigned int RF_StartTick,unsigned int RF_RxTimeoutUs);
 
 /********************************************************************************
+*	@brief	  	This function is turn off tx and rx auto mode
+*
+*	@return	 	none
+*/
+extern void RF_SetTxRxOffAutoMode(void);
+
+/********************************************************************************
 *	@brief	  	This function is turn off tx and rx
 *
 *	@return	 	none

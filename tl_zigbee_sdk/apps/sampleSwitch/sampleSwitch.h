@@ -119,9 +119,7 @@ status_t sampleSwitch_basicCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *
 status_t sampleSwitch_identifyCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
 status_t sampleSwitch_groupCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
 status_t sampleSwitch_sceneCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
-#ifdef ZCL_POLL_CTRL
 status_t sampleSwitch_pollCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
-#endif
 
 void sampleSwitch_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf);
 void sampleSwitch_leaveIndHandler(nlme_leave_ind_t *pLeaveInd);

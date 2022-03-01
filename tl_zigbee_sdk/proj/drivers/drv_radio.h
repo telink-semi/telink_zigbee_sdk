@@ -30,8 +30,14 @@
 /* radio module reset */
 #define ZB_RADIO_RESET()					 			RF_reset()
 
-/* trx swith */
+/* trx switch */
 #define ZB_RADIO_TRX_SWITCH(mode, chn) 					RF_TrxStateSet(mode, chn)
+
+/* trx off auto mode */
+#define ZB_RADIO_TRX_OFF_AUTO_MODE()					RF_SetTxRxOffAutoMode()
+
+/* srx start*/
+#define ZB_RADIO_SRX_START(tick)						RF_StartSrx(tick, 0x0fffffff)
 
 /* set tx power */
 #define ZB_RADIO_TX_POWER_SET(level)					RF_PowerLevelSet(level)
@@ -88,9 +94,12 @@
 														}while(0)
 
 /* set rx mode, maxium receiver buffer size, enable Rx/Tx interrupt */
-#define ZB_RADIO_TRX_CFG(len)							do{	\
-															RF_rx_cfg(len, 0);  \
+#define ZB_RADIO_TRX_CFG(size)							do{	\
+															/* disable SRX timeout interrupt */\
+															write_reg8(0xf03, read_reg8(0xf03) & 0xfb);	\
+															RF_rx_cfg(size, 0);  \
 															dma_irq_disable(FLD_DMA_CHN_RF_RX | FLD_DMA_CHN_RF_TX); \
+															rf_irq_disable(FLD_RF_IRQ_ALL);	\
 															rf_irq_enable(FLD_RF_IRQ_RX | FLD_RF_IRQ_TX);\
 															irq_set_mask(FLD_IRQ_ZB_RT_EN); \
 														}while(0)
@@ -159,8 +168,14 @@
 /* radio module reset */
 #define ZB_RADIO_RESET()
 
-/* trx swith */
+/* trx switch */
 #define ZB_RADIO_TRX_SWITCH(mode, chn) 					rf_trx_state_set(mode, chn)
+
+/* trx off auto mode */
+#define ZB_RADIO_TRX_OFF_AUTO_MODE()					rf_set_tx_rx_off_auto_mode()
+
+/* srx start*/
+#define ZB_RADIO_SRX_START(tick)						rf_start_srx(tick)
 
 /* set tx power */
 #define ZB_RADIO_TX_POWER_SET(level)					rf_set_power_level_index(level)
@@ -221,8 +236,11 @@
 
 /* set rx mode, maxium receiver buffer size, enable Rx/Tx interrupt */
 #define ZB_RADIO_TRX_CFG(size)							do{ \
+															/* disable SRX timeout interrupt */\
+															write_reg8(0xf03, read_reg8(0xf03) & 0xfb);	\
 															rf_rx_cfg(size, 0); \
 															dma_irq_disable(FLD_DMA_CHN_RF_RX | FLD_DMA_CHN_RF_TX); \
+															rf_irq_disable(FLD_RF_IRQ_ALL);	\
 															rf_irq_enable(FLD_RF_IRQ_RX | FLD_RF_IRQ_TX); \
 															irq_set_mask(FLD_IRQ_ZB_RT_EN); \
 														}while(0)
@@ -291,8 +309,14 @@
 /* radio module reset */
 #define ZB_RADIO_RESET()
 
-/* trx swith */
+/* trx switch */
 #define ZB_RADIO_TRX_SWITCH(mode, chn) 					rf_trx_state_set(mode, chn)
+
+/* trx off auto mode */
+#define ZB_RADIO_TRX_OFF_AUTO_MODE()					rf_set_tx_rx_off_auto_mode()
+
+/* srx start*/
+#define ZB_RADIO_SRX_START(tick)						rf_start_srx(tick)
 
 /* set tx power */
 #define ZB_RADIO_TX_POWER_SET(level)					rf_set_power_level_index(level)
@@ -352,9 +376,12 @@
 														}while(0)
 
 /* set rx mode, maxium receiver buffer size, enable Rx/Tx interrupt */
-#define ZB_RADIO_TRX_CFG(size)							do{ \
+#define ZB_RADIO_TRX_CFG(size)							do{	\
+															/* disable SRX timeout interrupt */\
+															write_reg8(0xf03, read_reg8(0xf03) & 0xfb);	\
 															rf_rx_cfg(size, 0); \
 															dma_irq_disable(FLD_DMA_CHN_RF_RX | FLD_DMA_CHN_RF_TX); \
+															rf_irq_disable(FLD_RF_IRQ_ALL);	\
 															rf_irq_enable(FLD_RF_IRQ_RX | FLD_RF_IRQ_TX); \
 															irq_set_mask(FLD_IRQ_ZB_RT_EN); \
 														}while(0)
@@ -423,8 +450,14 @@
 /* radio module reset */
 #define ZB_RADIO_RESET()
 
-/* trx swith */
+/* trx switch */
 #define ZB_RADIO_TRX_SWITCH(mode, chn) 					rf_set_trx_state(mode, chn)
+
+/* trx off auto mode */
+#define ZB_RADIO_TRX_OFF_AUTO_MODE()					rf_set_tx_rx_off_auto_mode()
+
+/* srx start*/
+#define ZB_RADIO_SRX_START(tick)						rf_start_srx(tick)
 
 /* set tx power */
 #define ZB_RADIO_TX_POWER_SET(level)					rf_set_power_level_index(level)
@@ -485,6 +518,8 @@
 
 /* set Rx mode, maxium receiver buffer size, enable Rx/Tx interrupt */
 #define ZB_RADIO_TRX_CFG(size)							do{ \
+															/* disable SRX timeout interrupt */\
+															write_reg8(0x140a03, read_reg8(0x140a03) & 0xfb);	\
 															rf_set_rx_maxlen(size);							\
 															rf_set_rx_dma_config();							\
 															rf_set_rx_dma_fifo_num(0);						\

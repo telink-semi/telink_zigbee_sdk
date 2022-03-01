@@ -418,8 +418,9 @@ typedef struct{
 	u8 inited:1;
 	u8 factoryNew:1;
 	u8 leaveDoing:1;
+    u8 forceJoin:1;
 	u8 securityDisable:1;
-	u8 resv:4;
+	u8 resv:3;
 	u8 initResult;
 }bdb_ctx_t;
 /** @} end of group zb_bdb_ctx */
@@ -463,6 +464,22 @@ extern bdb_ctx_t  g_bdbCtx;
  * @return      None
  */
 u8 bdb_init(af_simple_descriptor_t *simple_desc, bdb_commissionSetting_t *setting, bdb_appCb_t *cb, u8 repower);
+
+/*********************************************************************
+ * @fn      bdb_join_direct()
+ *
+ * @brief   join/establish a network directly
+ *
+ * @param   channel
+ * 			panId
+ * 			shortAddr
+ * 			extPanId
+ * 		    nwkKey
+ * 		    inited
+ *
+ * @return  None
+ */
+u8 bdb_join_direct(u8 channel, u16 panId, u16 shortAddr, u8 *extPanId, u8 *nwkKey, u8 type, u8 inited);
 
 /**
  * @brief      commissioning: form a network

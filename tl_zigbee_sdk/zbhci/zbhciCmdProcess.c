@@ -73,7 +73,6 @@ extern void zbhci_clusterSceneHandle(void *arg);
 extern void zbhci_clusterOTAHandle(void *arg);
 extern void zbhci_clusterBasicHandle(void *arg);
 extern void zbhci_clusterCommonCmdHandle(void *arg);
-extern void zbhci_clusterOTAHandle(void *arg);
 
 
 /**********************************************************************
@@ -401,45 +400,57 @@ void zbhciAfDataCnfPush(void *arg){
 void zbhciAppDataSendConfirmPush(void *arg){
 	apsdeDataConf_t *pApsDataCnf = (apsdeDataConf_t *)arg;
 
-	zbhci_app_data_confirm_t *conf = (zbhci_app_data_confirm_t *)ev_buf_allocate(sizeof(zbhci_app_data_confirm_t));
-	if(conf){
 #if ZB_COORDINATOR_ROLE
 #if 0
-		if(g_nodeTestTimer){
-			g_afTestReq.sendTotalCnt++;
-			if(pApsDataCnf->status == SUCCESS){
-				g_afTestReq.sendSuccessCnt++;
-			}
-			if(g_afTestReq.sendTotalCnt >= 100){
-				txrx_performce_test_rsp_t rsp;
-				COPY_BUFFERTOU16_BE(rsp.dstAddr, (u8 *)&g_afTestReq.dstAddr);
-				COPY_BUFFERTOU16_BE(rsp.sendCnt, (u8 *)&g_afTestReq.sendTotalCnt); //sendSuccessCnt);
-				COPY_BUFFERTOU16_BE(rsp.ackCnt, (u8 *)&g_afTestReq.sendSuccessCnt);
-
-				zbhciTx(ZBHCI_CMD_TXRX_PERFORMANCE_TEST_RSP, sizeof(txrx_performce_test_rsp_t), (u8 *)&rsp);
-				memset((u8 *)&g_afTestReq, 0, sizeof(zbhci_afTestReq_t));
-			}
-		}else
-#else
-		{
-			u16 dstNwkAddr = pApsDataCnf->dstAddr.addr_short;
-			if(pApsDataCnf->dstAddrMode == APS_LONG_DSTADDR_WITHEP){
-				u16 idx = 0;
-				tl_zbShortAddrByExtAddr(&dstNwkAddr, pApsDataCnf->dstAddr.addr_long, (u16*)&idx);
-			}
-			COPY_BUFFERTOU16_BE(conf->dstAddr, (u8*)&dstNwkAddr);
-			conf->dstEp = pApsDataCnf->dstEndpoint;
-			conf->srcEp = pApsDataCnf->srcEndpoint;
-			COPY_BUFFERTOU16_BE(conf->clusterId, (u8*)&pApsDataCnf->clusterId);
-			conf->status = pApsDataCnf->status;
-			conf->apsCnt = pApsDataCnf->apsCnt;
-
-			zbhciTx(ZBHCI_CMD_DATA_CONFIRM, sizeof(zbhci_app_data_confirm_t), (u8 *)conf);
+	if(g_nodeTestTimer){
+		g_afTestReq.sendTotalCnt++;
+		if(pApsDataCnf->status == SUCCESS){
+			g_afTestReq.sendSuccessCnt++;
 		}
-#endif
-#endif
-		ev_buf_free((u8 *)conf);
+		if(g_afTestReq.sendTotalCnt >= 100){
+			txrx_performce_test_rsp_t rsp;
+			COPY_BUFFERTOU16_BE(rsp.dstAddr, (u8 *)&g_afTestReq.dstAddr);
+			COPY_BUFFERTOU16_BE(rsp.sendCnt, (u8 *)&g_afTestReq.sendTotalCnt); //sendSuccessCnt);
+			COPY_BUFFERTOU16_BE(rsp.ackCnt, (u8 *)&g_afTestReq.sendSuccessCnt);
+
+			zbhciTx(ZBHCI_CMD_TXRX_PERFORMANCE_TEST_RSP, sizeof(txrx_performce_test_rsp_t), (u8 *)&rsp);
+			memset((u8 *)&g_afTestReq, 0, sizeof(zbhci_afTestReq_t));
+		}
 	}
+#else
+	u8* conf = ev_buf_allocate(sizeof(zbhci_app_data_confirm_t));	//src_addr
+	if(conf){
+		memset(conf, 0, sizeof(zbhci_app_data_confirm_t));
+		u8* pBuf = conf;
+		*pBuf++ = pApsDataCnf->dstAddrMode;
+		if(pApsDataCnf->dstAddrMode == APS_DSTADDR_EP_NOTPRESETNT){
+			*pBuf++ = pApsDataCnf->srcEndpoint;
+		}else if(pApsDataCnf->dstAddrMode == APS_SHORT_GROUPADDR_NOEP){
+			COPY_U16TOBUFFER_BE(pBuf, pApsDataCnf->dstAddr.addr_short);
+			pBuf += 2;
+			*pBuf++ = pApsDataCnf->srcEndpoint;
+		}else if(pApsDataCnf->dstAddrMode == APS_SHORT_DSTADDR_WITHEP){
+			COPY_U16TOBUFFER_BE(pBuf, pApsDataCnf->dstAddr.addr_short);
+			pBuf += 2;
+			*pBuf++ = pApsDataCnf->srcEndpoint;
+			*pBuf++ = pApsDataCnf->dstEndpoint;
+		}else if(pApsDataCnf->dstAddrMode == APS_LONG_DSTADDR_WITHEP){
+			ZB_IEEE_ADDR_REVERT(pBuf, pApsDataCnf->dstAddr.addr_long);
+			pBuf += 8;
+			*pBuf++ = pApsDataCnf->srcEndpoint;
+			*pBuf++ = pApsDataCnf->dstEndpoint;
+		}
+		COPY_U16TOBUFFER_BE(pBuf, pApsDataCnf->clusterId);
+		pBuf += 2;
+		*pBuf++ = pApsDataCnf->status;
+		*pBuf++ = pApsDataCnf->apsCnt;
+
+		zbhciTx(ZBHCI_CMD_DATA_CONFIRM, (u8)(pBuf - conf), conf);
+
+		ev_buf_free(conf);
+	}
+#endif
+#endif
 }
 
 bool zbhciMacAddrGetPush(addrExt_t devExtAddr){
@@ -826,19 +837,28 @@ s32 zbhci_nodeManageCmdHandler(void *arg){
 		zbhci_mgmt_nodesJoined_rsp_t *rsp = (zbhci_mgmt_nodesJoined_rsp_t*) ev_buf_allocate(sizeof(zbhci_mgmt_nodesJoined_rsp_t));
 		if(rsp){
 			u8 validcnt = 0;
-			u16 totalCnt = ss_nodeMacAddrFromdevKeyPair(startIdx, 6, &validcnt, rsp->macAddrList);
+			addrExt_t ieeeAddrList[5];
+			u16 totalCnt = ss_nodeMacAddrFromdevKeyPair(startIdx, 5, &validcnt, ieeeAddrList);
 
-			addrExt_t *pMacAddr = rsp->macAddrList;
+			addrExt_t *pMacAddr = ieeeAddrList;
+			zbhci_mgmt_nodesJoined_info_t* rspAddr = rsp->addrList;
 			for(s32 i = 0; i < validcnt; i++){
-				ZB_LEBESWAP(((u8 *)pMacAddr), 8);
+				u16 shortAddr = 0;
+				u16 idx = 0;
+				ZB_IEEE_ADDR_REVERT(rspAddr->macAddr, (u8*)pMacAddr);
+				if(tl_zbShortAddrByExtAddr(&shortAddr, (u8*)pMacAddr, &idx) == TL_RETURN_INVALID){
+					shortAddr = 0xfffe;
+				}
+				COPY_BUFFERTOU16_BE(rspAddr->nwkAddr, (u8 *)&shortAddr);
 				pMacAddr++;
+				rspAddr++;
 			}
 
 			rsp->hdr.status = ZBHCI_MSG_STATUS_SUCCESS;
 			COPY_BUFFERTOU16_BE(rsp->hdr.totalCnt, (u8 *)&totalCnt);
 			COPY_BUFFERTOU16_BE(rsp->hdr.startIndex, (u8 *)&startIdx);
 			rsp->hdr.listCnt = validcnt;
-			len = OFFSETOF(zbhci_mgmt_nodesJoined_rsp_t, macAddrList) + sizeof(addrExt_t) * validcnt;
+			len = OFFSETOF(zbhci_mgmt_nodesJoined_rsp_t, addrList) + sizeof(zbhci_mgmt_nodesJoined_info_t) * validcnt;
 			bufFree = 1;
 		}else{
 			hdr.listCnt = 0;

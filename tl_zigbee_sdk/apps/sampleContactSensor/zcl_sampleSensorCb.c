@@ -511,19 +511,14 @@ void sampleSensor_zclCheckInCmdSend(void)
 
 s32 sampleSensor_zclCheckInTimerCb(void *arg)
 {
-	static u32 cnt = 0;
 	zcl_pollCtrlAttr_t *pPollCtrlAttr = zcl_pollCtrlAttrGet();
 
 	if(!pPollCtrlAttr->chkInInterval){
-		cnt = 0;
 		zclCheckInTimerEvt = NULL;
 		return -1;
 	}
 
-	if(++cnt >= pPollCtrlAttr->chkInInterval){
-		cnt = 0;
-		sampleSensor_zclCheckInCmdSend();
-	}
+	sampleSensor_zclCheckInCmdSend();
 
 	return 0;
 }
@@ -534,7 +529,7 @@ void sampleSensor_zclCheckInStart(void)
 		zcl_pollCtrlAttr_t *pPollCtrlAttr = zcl_pollCtrlAttrGet();
 
 		if(!zclCheckInTimerEvt){
-			zclCheckInTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSensor_zclCheckInTimerCb, NULL, POLL_RATE_QUARTERSECONDS);
+			zclCheckInTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSensor_zclCheckInTimerCb, NULL, pPollCtrlAttr->chkInInterval * POLL_RATE_QUARTERSECONDS);
 
 			if(pPollCtrlAttr->chkInInterval){
 				sampleSensor_zclCheckInCmdSend();
@@ -550,24 +545,15 @@ void sampleSensor_zclSetFastPollMode(bool fastPollMode)
 	isFastPollMode = fastPollMode;
 	u32 pollRate = fastPollMode ? pPollCtrlAttr->shortPollInterval : pPollCtrlAttr->longPollInterval;
 
-	zb_setPollRate(pollRate * QUEUE_POLL_RATE);
+	zb_setPollRate(pollRate * POLL_RATE_QUARTERSECONDS);
 }
 
 s32 sampleSensor_zclFastPollTimeoutCb(void *arg)
 {
-	static u32 cnt = 0;
-	u32 fastPollTimeoutCnt = (u32)arg;
+	sampleSensor_zclSetFastPollMode(FALSE);
 
-	if(++cnt >= fastPollTimeoutCnt){
-		cnt = 0;
-
-		sampleSensor_zclSetFastPollMode(FALSE);
-
-		zclFastPollTimeoutTimerEvt = NULL;
-		return -1;
-	}else{
-		return 0;
-	}
+	zclFastPollTimeoutTimerEvt = NULL;
+	return -1;
 }
 
 static status_t sampleSensor_zclPollCtrlChkInRspCmdHandler(zcl_chkInRsp_t *pCmd)
@@ -596,7 +582,7 @@ static status_t sampleSensor_zclPollCtrlChkInRspCmdHandler(zcl_chkInRsp_t *pCmd)
 		if(!zclFastPollTimeoutTimerEvt && fastPollTimeoutCnt){
 			sampleSensor_zclSetFastPollMode(TRUE);
 
-			zclFastPollTimeoutTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSensor_zclFastPollTimeoutCb, (void *)fastPollTimeoutCnt, POLL_RATE_QUARTERSECONDS);
+			zclFastPollTimeoutTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSensor_zclFastPollTimeoutCb, NULL, fastPollTimeoutCnt * POLL_RATE_QUARTERSECONDS);
 		}
 	}else{
 		//continue in normal operation and not required to go into fast poll mode.
@@ -626,6 +612,7 @@ static status_t sampleSensor_zclPollCtrlSetLongPollIntervalCmdHandler(zcl_setLon
 	if((pCmd->newLongPollInterval >= 0x04) && (pCmd->newLongPollInterval <= 0x6E0000)
 		&& (pCmd->newLongPollInterval <= pPollCtrlAttr->chkInInterval) && (pCmd->newLongPollInterval >= pPollCtrlAttr->shortPollInterval)){
 		pPollCtrlAttr->longPollInterval = pCmd->newLongPollInterval;
+		zb_setPollRate(pCmd->newLongPollInterval * POLL_RATE_QUARTERSECONDS);
 	}else{
 		return ZCL_STA_INVALID_VALUE;
 	}
@@ -640,6 +627,7 @@ static status_t sampleSensor_zclPollCtrlSetShortPollIntervalCmdHandler(zcl_setSh
 	if((pCmd->newShortPollInterval >= 0x01) && (pCmd->newShortPollInterval <= 0xff)
 		&& (pCmd->newShortPollInterval <= pPollCtrlAttr->longPollInterval)){
 		pPollCtrlAttr->shortPollInterval = pCmd->newShortPollInterval;
+		zb_setPollRate(pCmd->newShortPollInterval * POLL_RATE_QUARTERSECONDS);
 	}else{
 		return ZCL_STA_INVALID_VALUE;
 	}

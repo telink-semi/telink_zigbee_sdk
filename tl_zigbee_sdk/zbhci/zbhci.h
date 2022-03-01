@@ -303,8 +303,13 @@ typedef struct{
 }zbhci_mgmt_nodesJoined_rsp_hdr_t;
 
 typedef struct{
+	addrExt_t macAddr;		// /*!	the mac address list */
+	u16 nwkAddr;
+}zbhci_mgmt_nodesJoined_info_t;
+
+typedef struct{
 	zbhci_mgmt_nodesJoined_rsp_hdr_t hdr;
-	addrExt_t macAddrList[6];		//[6];	/*!	the mac address list */
+	zbhci_mgmt_nodesJoined_info_t addrList[5];		//[5];	/*!	the mac address list */
 }zbhci_mgmt_nodesJoined_rsp_t;
 
 
@@ -356,9 +361,10 @@ typedef struct{
 }zbhci_nodeLeaveInd_t;
 
 typedef struct{
-	u16 dstAddr;
-	u8 srcEp;
-	u8 dstEp;
+	u8 dstMode;
+	tl_zb_addr_t dstAddr; //addrMode = APS_DSTADDR_EP_NOTPRESETNT
+	u8 srcEp;			//
+	u8 dstEp;			//addrMode = APS_DSTADDR_EP_NOTPRESETNT APS_SHORT_GROUPADDR_NOEP
 	u16 clusterId;
 	u8 status;
 	u8 apsCnt;
