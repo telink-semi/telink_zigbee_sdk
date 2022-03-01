@@ -1,3 +1,48 @@
+## V3.6.7.2(Public release)
+
+### Features
+* Provide SRX mode for PHY layer.([35442f95](http://192.168.48.36/src/zigbee/telink_zigbee_src/commit/35442f95978fe10eb17a2f9d4c55c34b4345c2ef))
+### Bug Fixes
+* Fix the issue that the parent does not save the end device timeout value.
+* Fix the poll control handler.
+### Code Refactoring
+* Clean HCI and APP layer code.
+### Performance
+* N/A
+### BREAKING CHANGES
+* N/A
+### CodeSize
+* Flash:
+  - ZC: 167kb
+  - ZR: 187kb
+  - ZED:127kb
+* RAM:
+  - ZC: 33kb
+  - ZR: 30kb
+  - ZED:25kb
+
+### Features
+* PHY层提供SRX模式。([35442f95](http://192.168.48.36/src/zigbee/telink_zigbee_src/commit/35442f95978fe10eb17a2f9d4c55c34b4345c2ef))
+### Bug Fixes
+* 修复父设备没有保存end device timeout的问题。
+* 修复poll control处理程序。
+### Code Refactoring
+* 清理HCI和APP层代码。
+### Performance
+* N/A
+### BREAKING CHANGES
+* N/A
+### CodeSize
+* Flash:
+  - ZC: 167kb
+  - ZR: 187kb
+  - ZED:127kb
+* RAM:
+  - ZC: 33kb
+  - ZR: 30kb
+  - ZED:25kb
+
+
 ## V3.6.7.0(Public release)
 
 ### Features
