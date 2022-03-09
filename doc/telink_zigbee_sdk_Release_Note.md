@@ -1,3 +1,46 @@
+## V3.6.7.3(Public release)
+
+### Features
+* N/A
+### Bug Fixes
+* Fix the zb_coordinator library issue.
+### Code Refactoring
+* BRC jitter can be configured by user.
+### Performance
+* N/A
+### BREAKING CHANGES
+* N/A
+### CodeSize
+* Flash:
+  - ZC: 167kb
+  - ZR: 187kb
+  - ZED:127kb
+* RAM:
+  - ZC: 33kb
+  - ZR: 30kb
+  - ZED:25kb
+
+### Features
+* N/A
+### Bug Fixes
+* 修复 zb_coordinator 库的问题。
+### Code Refactoring
+* 广播jitter参数用户可配。
+### Performance
+* N/A
+### BREAKING CHANGES
+* N/A
+### CodeSize
+* Flash:
+  - ZC: 167kb
+  - ZR: 187kb
+  - ZED:127kb
+* RAM:
+  - ZC: 33kb
+  - ZR: 30kb
+  - ZED:25kb
+
+
 ## V3.6.7.2(Public release)
 
 ### Features
