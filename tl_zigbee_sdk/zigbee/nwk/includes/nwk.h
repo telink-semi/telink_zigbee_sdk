@@ -1145,6 +1145,7 @@ extern u8 NWKC_RREQ_RETRIES;
 extern u16 ROUTING_TABLE_SIZE;
 extern u8 NWK_BRC_TRANSTBL_SIZE;
 extern bool NWK_BRC_PASSIVE_ACK_ENABLE;
+extern u32 NWK_BRC_JITTER;
 extern nwk_routingTabEntry_t g_routingTab[];
 extern nwk_brcTransRecordEntry_t g_brcTransTab[];
 #if ZB_COORDINATOR_ROLE

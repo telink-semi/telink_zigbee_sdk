@@ -363,6 +363,22 @@ u8 rf_getLqi(s8 rssi)
 }
 
 /*********************************************************************
+ * @fn      rf_lqi2cost
+ *
+ * @brief   Get calculated cost value
+ *
+ * @param   lqi
+ *
+ * @return  cost
+ */
+u8 rf_lqi2cost(u8 lqi)
+{
+	u8 cost = 0;
+	ZB_LQI_TO_PATH_COST(lqi, cost);
+	return cost;
+}
+
+/*********************************************************************
  * @fn      rf_startED
  *
  * @brief   Start ED detect

@@ -161,6 +161,20 @@
 															lqi = 255*(rssi - minEd)/(maxEd - minEd); 	\
 														}while(0)
 
+/* RSSI: [-106 ~ -58]
+ *
+ *  RSSI    LQI		COST
+ *  -70		190      1
+ *  -77		154		 3
+ *  -87		100		 5
+ *  -97		0		 7
+ */
+#define ZB_LQI_TO_PATH_COST(lqi, path_cost) 			do{ \
+															if(lqi > 190){path_cost = 1;}		\
+															else if(lqi > 154){path_cost = 3;}	\
+															else if(lqi > 100){path_cost = 5;}	\
+															else{path_cost = 7;}				\
+														}while(0)
 #elif defined(MCU_CORE_8258)
 /*******************************************************************************************************
  * 									Radio interface for 8258
@@ -302,6 +316,22 @@
 															lqi = 255*(rssi - minEd)/(maxEd - minEd); 	\
 														}while(0)
 
+/* RSSI: [-99 ~ -15]
+ *
+ *  RSSI    LQI		COST
+ *  -60		118      1		//excellent
+ *  -68		94		 2		//good
+ *  -76		69		 3		//ok
+ *  -84		45		 5		//weak
+ *  -99		0		 7
+ */
+#define ZB_LQI_TO_PATH_COST(lqi, path_cost) 			do{ \
+															if(lqi > 118){path_cost = 1;}		\
+															else if(lqi > 94){path_cost = 2;}	\
+															else if(lqi > 69){path_cost = 3;}	\
+															else if(lqi > 45){path_cost = 5;}	\
+															else{path_cost = 7;}				\
+														}while(0)
 #elif defined(MCU_CORE_8278)
 /*******************************************************************************************************
  * 									Radio interface for 8278
@@ -443,6 +473,22 @@
 															lqi = 255*(rssi - minEd)/(maxEd - minEd); 	\
 														}while(0)
 
+/* RSSI: [-99 ~ -15]
+ *
+ *  RSSI    LQI		COST
+ *  -60		118      1		//excellent
+ *  -68		94		 2		//good
+ *  -76		69		 3		//ok
+ *  -84		45		 5		//weak
+ *  -99		0		 7
+ */
+#define ZB_LQI_TO_PATH_COST(lqi, path_cost) 			do{ \
+															if(lqi > 118){path_cost = 1;}		\
+															else if(lqi > 94){path_cost = 2;}	\
+															else if(lqi > 69){path_cost = 3;}	\
+															else if(lqi > 45){path_cost = 5;}	\
+															else{path_cost = 7;}				\
+														}while(0)
 #elif defined(MCU_CORE_B91)
 /*******************************************************************************************************
  * 									Radio interface for B91
@@ -589,5 +635,22 @@
 															if(rssi > maxEd){rssi = maxEd;}				\
 															if(rssi < minEd){rssi = minEd;}				\
 															lqi = 255*(rssi - minEd)/(maxEd - minEd); 	\
+														}while(0)
+
+/* RSSI: [-99 ~ -15]
+ *
+ *  RSSI    LQI		COST
+ *  -60		118      1		//excellent
+ *  -68		94		 2		//good
+ *  -76		69		 3		//ok
+ *  -84		45		 5		//weak
+ *  -99		0		 7
+ */
+#define ZB_LQI_TO_PATH_COST(lqi, path_cost) 			do{ \
+															if(lqi > 118){path_cost = 1;}		\
+															else if(lqi > 94){path_cost = 2;}	\
+															else if(lqi > 69){path_cost = 3;}	\
+															else if(lqi > 45){path_cost = 5;}	\
+															else{path_cost = 7;}				\
 														}while(0)
 #endif
