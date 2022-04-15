@@ -169,9 +169,9 @@ u32 zb_apsChannelMaskGet(void);
  * @param       None
  *
  * @return      device type (nwk_deviceType_t)
- * 				0 - EndDevice
+ * 				0 - Coordinator
  * 				1 - Router
- * 				2 - Coordinator
+ * 				2 - EndDevice
  *
  **************************************************************************/
 device_type_t zb_getDeviceType(void);

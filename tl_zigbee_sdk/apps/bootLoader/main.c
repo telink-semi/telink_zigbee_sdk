@@ -34,6 +34,8 @@ int main(void){
 	}
 #endif
 
+	drv_gpio_write(LED_POWER, 1);
+
 	bootloader_init();
 
 #if VOLTAGE_DETECT_ENABLE

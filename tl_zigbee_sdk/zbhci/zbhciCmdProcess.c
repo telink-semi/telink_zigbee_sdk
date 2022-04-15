@@ -994,6 +994,8 @@ void uart_send_ota_end(u8 status){
 		for(u16 i = 0; i < sectorNumUsed; i++){
 			flash_erase(ota_info.ota_flash_addr_start + i * FLASH_SECTOR_SIZE);
 		}
+	}else{
+		ota_loadImageInfo(NULL);
 	}
 	memset(&ota_info, 0, sizeof(hci_ota_info_t));
 }

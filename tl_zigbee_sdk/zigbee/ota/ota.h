@@ -209,6 +209,7 @@ unsigned int xcrc32(const unsigned char *buf, int len, unsigned int init);
 
 void ota_wwah_useTrustCenter(u8 endpoint);
 
+u8 ota_loadImageInfo(ota_hdrFields_t *oh);
 void ota_init(ota_type_e type, af_simple_descriptor_t *simpleDesc, ota_preamble_t *otaPreamble, ota_callBack_t *cb);
 void ota_queryStart(u16 seconds);
 void ota_serverAddrPerprogrammed(addrExt_t ieeeAddr, u8 srvEndPoint);

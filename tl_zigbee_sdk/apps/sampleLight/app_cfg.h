@@ -56,11 +56,12 @@ extern "C" {
 #define BOARD_826x_EVK					0
 #define BOARD_826x_DONGLE				1
 #define BOARD_8258_EVK					2
-#define BOARD_8258_DONGLE				3
-#define BOARD_8278_EVK					4
-#define BOARD_8278_DONGLE				5
-#define BOARD_9518_EVK					6
-#define BOARD_9518_DONGLE				7
+#define BOARD_8258_EVK_V1P2				3//C1T139A30_V1.2
+#define BOARD_8258_DONGLE				4
+#define BOARD_8278_EVK					5
+#define BOARD_8278_DONGLE				6
+#define BOARD_9518_EVK					7
+#define BOARD_9518_DONGLE				8
 
 /* Board define */
 #if defined(MCU_CORE_826x)
@@ -93,6 +94,8 @@ extern "C" {
 	#include "board_8258_dongle.h"
 #elif(BOARD == BOARD_8258_EVK)
 	#include "board_8258_evk.h"
+#elif (BOARD == BOARD_8258_EVK_V1P2)
+	#include "board_8258_evk_v1p2.h"
 #elif(BOARD == BOARD_8278_EVK)
 	#include "board_8278_evk.h"
 #elif(BOARD == BOARD_8278_DONGLE)
