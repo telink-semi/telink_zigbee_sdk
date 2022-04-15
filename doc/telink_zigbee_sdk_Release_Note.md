@@ -1,3 +1,50 @@
+## V3.6.7.4(Public release)
+
+### Features
+* N/A
+### Bug Fixes
+* Fix the OTA recovery issue.
+* Fix the fragment message handling issue.
+* Fix the network status command back roll issue.
+### Code Refactoring
+* Add board_8258_evk_v1p2 file for light demo.
+### Performance
+* N/A
+### BREAKING CHANGES
+* N/A
+### CodeSize
+* Flash:
+  - ZC: 167kb
+  - ZR: 187kb
+  - ZED:127kb
+* RAM:
+  - ZC: 33kb
+  - ZR: 30kb
+  - ZED:25kb
+
+### Features
+* N/A
+### Bug Fixes
+* 修复OTA恢复问题。
+* 修复分帧消息处理问题。
+* 修复网络状态命令转圈的问题。
+### Code Refactoring
+* 灯示例中添加board_8258_evk_v1p2文件。
+### Performance
+* N/A
+### BREAKING CHANGES
+* N/A
+### CodeSize
+* Flash:
+  - ZC: 167kb
+  - ZR: 187kb
+  - ZED:127kb
+* RAM:
+  - ZC: 33kb
+  - ZR: 30kb
+  - ZED:25kb
+
+
 ## V3.6.7.3(Public release)
 
 ### Features
