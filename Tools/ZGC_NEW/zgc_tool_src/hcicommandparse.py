@@ -1039,6 +1039,7 @@ class ParseRecvCommand:
         bytes_data = bytearray(payload)
         file_offset, block_len = struct.unpack("!LB", bytes_data)
         self.description = 'file_offset:' + hex(file_offset) + ' block_len:' + hex(block_len)
+        block_rsp_len = block_len
 
         # print('file_offset:')
         # print(file_offset)
@@ -1053,17 +1054,17 @@ class ParseRecvCommand:
                 block_data = bin_data[file_offset: file_offset + block_len]
                 status = 0  # success
             except ValueError:
-                block_len = 0
+                block_rsp_len = 0
                 block_data = []
                 status = 0x03  # ZBHCI_OTA_INCORRECT_OFFSET
         else:
-            block_len = 0
+            block_rsp_len = 0
             block_data = []
             status = 0x05  # 'ZBHCI_OTA_NOT_IN_PROGRESS'
         self.payload_items = ['\tfile_offset:' + hex(file_offset),
                               '\tblock_len:' + hex(block_len)]
 
-        self.send_data = hci_ota_block_response_send(status, file_offset, block_len, block_data)
+        self.send_data = hci_ota_block_response_send(status, file_offset, block_rsp_len, block_data)
         # return description, send_data, payload_items
 
     def hci_ota_end_handle(self, ai_setting, payload):
