@@ -341,7 +341,7 @@ class ParseRecvCommand:
             self.payload_items.extend(['\tsimple_desc_len:' + hex(desc_len),
                                        '\tendpoint:' + hex(endpoint),
                                        '\tprofile_id:0x%04x' % profile_id,
-                                       '\tdev_id: 0c%04x' % dev_id,
+                                       '\tdev_id: 0x%04x' % dev_id,
                                        '\tdev_version:' + hex(dev_ver),
                                        '\tincluster_cnt:' + hex(inclu_cnt)])
 
@@ -473,20 +473,25 @@ class ParseRecvCommand:
                 ptr += 12
                 self.description += ' ieee source address:' + hex(src_ieee_addr) + ' src_endpoint:' + hex(
                     src_endpoint) + ' cluster_id: 0x%04x' % cluster_id + ' dest_addr_mode:' + hex(dest_addr_mode)
-                if dest_addr_mode == 3:
-                    dst_addr, dest_endpoint = struct.unpack("!QB", bytes_data[ptr:ptr + 9])
-                    ptr += 9
-                else:
-                    dst_addr, dest_endpoint = struct.unpack("!HB", bytes_data[ptr:ptr + 3])
-                    ptr += 3
-                self.description += ' dst_addr:' + hex(dst_addr) + ' dest_endpoint: 0x%02x' % dest_endpoint
+
+                dst_mode = ai_setting.get_dst_addr_mode(dest_addr_mode)
                 self.payload_items.extend(['    List Element:%d' % a,
                                            '\tieee source address:' + hex(src_ieee_addr),
                                            '\tsrc_endpoint: 0x%02x' % src_endpoint,
                                            '\tcluster_id: 0x%04x' % cluster_id,
-                                           '\tdest_addr_mode:' + hex(dest_addr_mode),
-                                           '\tdst_addr:' + hex(dst_addr),
-                                           '\tdest_endpoint: 0x%02x' % dest_endpoint])
+                                           '\tdest_addr_mode:' + hex(dest_addr_mode) + '(' + dst_mode + ')'])
+                if dest_addr_mode == 3:
+                    dst_addr, dest_endpoint = struct.unpack("!QB", bytes_data[ptr: ptr + 9])
+                    ptr += 9
+                    self.description += ' dst_addr: 0x%16x' % dst_addr + ' dest_endpoint: 0x%02x' % dest_endpoint
+                    self.payload_items.extend(['\tdst_addr: 0x%16x' % dst_addr,
+                                               '\tdest_endpoint: 0x%02x' % dest_endpoint])
+                else:
+                    dst_addr, = struct.unpack("!H", bytes_data[ptr: ptr + 2])
+                    ptr += 2
+                    self.description += ' dst_addr: 0x%04x' % dst_addr
+                    self.payload_items.extend(['\tdst_addr: 0x%04x' % dst_addr])
+
                 if dest_addr_mode == 3:
                     try:
                         nwk_addr = nodes_info[src_ieee_addr]['nwk_addr']
