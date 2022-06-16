@@ -32,6 +32,22 @@ def get_node_dev_type(dev_type_id):
     return node_type
 
 
+def get_relation_type(relationship_id):
+    if relationship_id == 0:
+        ship_type = 'Parent'
+    elif relationship_id == 1:
+        ship_type = 'Child'
+    elif relationship_id == 2:
+        ship_type = 'Sibling'
+    elif relationship_id == 3:
+        ship_type = 'None'
+    elif relationship_id == 4:
+        ship_type = 'Prevision child'
+    else:
+        ship_type = 'Invalid'
+    return ship_type
+
+
 def convert_str2int(input_s):
     # print(input_s)
     covert_result = True
@@ -154,8 +170,8 @@ class ParseRecvCommand:
                 pass
             elif command_id == 0x8034:  # MGMT_PERMIT_JOIN_RSP
                 self.hci_mgmt_mgmt_permitjoin_rsp_handle(ai_setting, payload)
-            elif command_id == 0x8035:  # MGMT_NWK_UPDATE_RSP
-                pass
+            elif command_id == 0x8035:  # MGMT_NWK_UPDATE_NOTIFY
+                self.hci_mgmt_update_notify_handle(ai_setting, payload)
             elif command_id == 0x8040:  # NODES_JOINED_GET_RSP
                 self.hci_nodes_joined_get_rsp_handle(ai_setting, payload, nodes_info)
             elif command_id == 0x8041:  # NODES_TOGLE_TEST_RSP
@@ -391,7 +407,7 @@ class ParseRecvCommand:
                 for a in range(endpoint_cnt):
                     endpoint, = struct.unpack("!B", bytes_data[ptr:ptr + 1])
                     self.description += '0x%02x,' % endpoint
-                    endpoint_list += '0x%02x,' % endpoint
+                    endpoint_list += '0x%02x ' % endpoint
                     ptr += 1
                 self.payload_items.append(endpoint_list)
         self.recv_nwk_addr = src_addr
@@ -431,16 +447,19 @@ class ParseRecvCommand:
             ext_pan_id, ieee_addr, nwk_addr, bit_field, depth, lqi = struct.unpack("!2Q2H2B", bytes_data[ptr:ptr + 22])
             ptr += 22
             self.description += ' ext_pan_id: 0x%016x' % ext_pan_id + ' ieee_addr:0x%16x' % ieee_addr + \
-                                ' nwk_addr: 0x%04x' % nwk_addr + ' bit_field:' + hex(bit_field) + ' depth:' + \
+                                ' nwk_addr: 0x%04x' % nwk_addr + ' bit_field:0x%04x' % bit_field + ' depth:' + \
                                 hex(depth) + ' lqi:' + hex(lqi)
             dev_type = get_node_dev_type((bit_field >> 8) & 0x03)
+            relationship = get_relation_type((bit_field >> 12) & 0x07)
             self.payload_items.extend(['    list element:%d' % a,
                                        '\text_pan_id:0x%16x' % ext_pan_id,
                                        '\tieee_addr:0x%16x' % ieee_addr,
                                        '\tnwk_addr: 0x%04x' % nwk_addr,
-                                       '\tbit_field:' + hex(bit_field),
-                                       '\t   dev_type:' + dev_type,
-                                       '\tdepth:' + hex(depth)])
+                                       '\tbit_field:0x%04x' % bit_field,
+                                       '\t    dev_type:' + dev_type,
+                                       '\t    relationship:' + relationship,
+                                       '\tdepth:' + hex(depth),
+                                       '\tlqi:0x%02x' % lqi])
             if ieee_addr not in nodes_info:
                 nodes_info[ieee_addr] = {}
                 nodes_info[ieee_addr]['used_nwk_addr'] = []
@@ -448,6 +467,10 @@ class ParseRecvCommand:
             nodes_info[ieee_addr]['dev_type'] = dev_type
             self.description += ' dev_type:' + dev_type
             self.nodes_info_change = True
+
+        if neighbor_entries > start_idx + neighbor_table_listcount:
+            self.send_data = hci_mgmt_lqi_req_send(src_addr, neighbor_table_listcount)
+
         self.recv_nwk_addr = src_addr
         self.addr_mode = 2
 
@@ -523,6 +546,39 @@ class ParseRecvCommand:
         self.payload_items = ['\tsrc_addr:0x%04x' % src_addr,
                               '\tseq_num:' + hex(seq_num),
                               '\tstatus:' + hex(status) + '(' + self.recv_status + ')']
+
+    def hci_mgmt_update_notify_handle(self, ai_setting, payload):
+        bytes_data = bytearray(payload)
+        src_addr, seq_num, status = struct.unpack("!H2B", bytes_data[:4])
+        # print('src_addr:0x%04x' % src_addr)
+        self.recv_status = ai_setting.get_zdp_msg_status_str(status)
+        self.description = 'seq_num:' + hex(seq_num) + ' status:' + hex(status) + '(' + self.recv_status + ')'
+        self.payload_items = ['\tsrc_addr:0x%04x' % src_addr,
+                              '\tseq_num:' + hex(seq_num),
+                              '\tstatus:' + hex(status) + '(' + self.recv_status + ')']
+
+        # print('\tstatus:' + hex(status))
+        if self.recv_status == 'ZDO_SUCCESS':
+            scan_channel, total_tran, fail_tran, scan_num = struct.unpack("!L2HB", bytes_data[4: 13])
+            self.description = 'scanChannel:' + hex(scan_channel) + ' totalTrans:' + hex(total_tran) + \
+                               ' failTrans:' + hex(fail_tran) + ' scanNum:' + hex(scan_num)
+            self.payload_items.extend(['\tscanChannel:0x%08x' % scan_channel,
+                                       '\ttotalTrans:0x%04x' % total_tran,
+                                       '\tfailTrans:0x%04x' % fail_tran,
+                                       '\tscanNum:0x%04x' % scan_num])
+            ptr = 13
+            if scan_num > 0:
+                self.description += ' ed scan list:'
+                scan_list = '\ted scan list:'
+                for a in range(scan_num):
+                    scan_ret, = struct.unpack("!B", bytes_data[ptr:ptr + 1])
+                    self.description += '0x%02x ' % scan_ret
+                    if a % 8 == 0:
+                        scan_list += '\n\t\t'
+                    scan_list += '0x%02x ' % scan_ret
+
+                    ptr += 1
+                self.payload_items.append(scan_list)
 
     def hci_mgmt_leave_rsp_handle(self, ai_setting, payload, nodes_info):
         bytes_data = bytearray(payload)
@@ -770,7 +826,7 @@ class ParseRecvCommand:
                 status_str = ai_setting.get_zcl_msg_status_str(status)
                 self.description += ' attr_id: 0x%04x' % attr_id + ' status:' + hex(status) + '(' + status_str + ')'
                 self.payload_items.extend(['\tattr_id: 0x%04x' % attr_id,
-                                           '\tstatus:' + hex(status) + '(' + status_str + ')'])
+                                           '\t    status:' + hex(status) + '(' + status_str + ')'])
                 ptr += 3
                 if status_str == 'ZCL_STA_SUCCESS':
                     data_type, = struct.unpack("!B", bytes_data[ptr:ptr + 1])
@@ -785,9 +841,9 @@ class ParseRecvCommand:
                         data_s += '%02x' % data
                     ptr += data_len
                     data_type_str = ai_setting.get_zcl_data_type(data_type)
-                    self.payload_items.extend(['\tdata_type: ' + hex(data_type) + '(' + data_type_str + ')',
-                                               '\tdata_len:' + hex(data_len),
-                                               '\tdata:' + data_s])
+                    self.payload_items.extend(['\t    data_type: ' + hex(data_type) + '(' + data_type_str + ')',
+                                               '\t    data_len:' + hex(data_len),
+                                               '\t    data:' + data_s])
                 self.recv_status += status_str
 
     def hci_zcl_attr_write_rsp_handle(self, ai_setting, payload, payload_len):
@@ -2113,6 +2169,12 @@ def hci_bind_req_send(src_ieee_addr, src_endpoint, cluster, dst_addr_mode, dst_i
     payload = struct.pack("!QBHBQB", src_ieee_addr, src_endpoint, cluster, dst_addr_mode, dst_ieee_addr, dst_endpoint)
     payload_len = len(payload)
     return hci_command_struct(0x0020, payload_len, payload)
+
+
+def hci_mgmt_lqi_req_send(dst_addr, start_idx):
+    payload = struct.pack("!HB", dst_addr, start_idx)
+    payload_len = len(payload)
+    return hci_command_struct(0x0030, payload_len, payload)
 
 
 def hci_mgmt_bind_req_send(dst_addr, start_idx):
