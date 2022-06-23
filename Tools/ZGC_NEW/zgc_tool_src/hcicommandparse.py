@@ -532,7 +532,7 @@ class ParseRecvCommand:
                         pass
 
         if bind_table_entries > start_idx + bind_table_listcount:
-            self.send_data = hci_mgmt_bind_req_send(src_addr, bind_table_listcount)
+            self.send_data = hci_mgmt_bind_req_send(src_addr, start_idx + bind_table_listcount)
         self.recv_nwk_addr = src_addr
         self.addr_mode = 2
 
