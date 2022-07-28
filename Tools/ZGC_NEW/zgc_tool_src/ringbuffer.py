@@ -56,7 +56,7 @@ class RingBuffer:
         if self.valid_data_length < self.ai_setting.command_length_min:
             return get_result, packet_length
 
-        get_buffer = [0] * 64
+        get_buffer = [0] * self.ai_setting.command_length_max
         while get_start is False and self.valid_data_length:
             read_ptr_start = self.read_ptr
             valid_len_start = self.valid_data_length
@@ -80,7 +80,7 @@ class RingBuffer:
                 payload_length = packet_buffer[self.ai_setting.packet_length_idx_low]
 
                 # print('payload_length:%d,valid data len:%d' % (payload_length, self.valid_data_length))
-                if payload_length + 7 <= self.ai_setting.command_length_max:  # 总包长不应大于64
+                if payload_length + 7 <= self.ai_setting.command_length_max:  # 总包长不应大于self.command_length_max
                     if self.ring_buffer_data_get(payload_length + 1, get_buffer) == payload_length + 1:
                         # print('ring_buffer_data_get,%d' % (payload_length + 1))
                         # print(get_buffer)
@@ -89,17 +89,25 @@ class RingBuffer:
                                 packet_buffer.append(get_buffer[a])
                                 packet_length += 1
                             get_result = True
-                    else:
+                        else:
+                            packet_length = 0
+                    else: #wait for the other data
+                        # print('read all data fail')
+                        packet_length = 0
                         self.read_ptr = read_ptr_start
                         self.valid_data_length = valid_len_start  # 恢复指针和长度
-            else:
+                else: #clear invalid length data
+                    print('not recv all data.')
+                    packet_length = 0
+            else: #wait for the other data
+                print('read head fail')
+                packet_length = 0
                 self.read_ptr = read_ptr_start
                 self.valid_data_length = valid_len_start  # 恢复指针和长度
         # print(packet_buffer)
         return get_result, packet_length
 
-    def ring_buffer_get_all_data(self, packet_buffer):
-        get_len = 0
-        if self.valid_data_length > 0:
-            get_len = self.ring_buffer_data_get(self.valid_data_length, packet_buffer)
-        return get_len
+    def ring_buffer_clear_all_data(self):
+        self.read_ptr = 0
+        self.write_ptr = 0
+        self.valid_data_length = 0

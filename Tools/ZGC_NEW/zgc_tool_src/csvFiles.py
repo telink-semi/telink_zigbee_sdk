@@ -21,9 +21,9 @@ def get_nodes_addr(process_folder, all_packets_filename):
             next(f)
             nodes_info = csv.reader(f, delimiter=',')
             for row in nodes_info:
-                addr_info[row[0]] = []
+                addr_info[row[0]] = []  #the address info in row 0
                 for cell_num in range(len(row)):
-                    if cell_num != 2:
+                    if cell_num != 2:   #the devtype in row2
                         addr_info[row[0]].append(row[cell_num])
 
         packets_info = pd.read_csv(all_packets_file_path)

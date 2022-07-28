@@ -16,7 +16,7 @@ class Settings:
         self.command_start = 0x55
         self.command_end = 0xaa
         self.command_length_min = 7
-        self.command_length_max = 64
+        self.command_length_max = 128
         self.packet_start_idx = 0
         self.packet_command_idx_high = 1
         self.packet_command_idx_low = 2

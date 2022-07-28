@@ -109,6 +109,7 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         self.auto_bind_fail_list = []
         self.recv_interval = 5
         self.recv_interval_pre = 5
+        self.clearRecvFlag = 0
         self.init()
 
     def init(self):
@@ -461,8 +462,17 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         while self.ring_buffer.valid_data_length >= self.ai_setting.command_length_min:
             recv_packet = []
             recv_result, recv_len = self.ring_buffer.ring_buffer_get_packet(recv_packet)
-            # print('recv_result:%d, recv_len:%d' % (recv_result, recv_len))
-            if recv_result:
+            if not recv_result:
+                self.clearRecvFlag = self.clearRecvFlag + 1
+                # print('no wait the other data.clearRecvFlag:%d,recv_interval:%d' % (self.clearRecvFlag ,self.recv_interval))
+                if self.clearRecvFlag * self.recv_interval > 500: #more than 500ms
+                    self.clearRecvFlag = 0
+                    self.ring_buffer.ring_buffer_clear_all_data()
+                else:
+                    return
+            else:
+            #   print(recv_packet)
+                self.clearRecvFlag = 0
                 recv_data_str = ''
                 for i in range(recv_len):
                     hvol = recv_packet[i]
