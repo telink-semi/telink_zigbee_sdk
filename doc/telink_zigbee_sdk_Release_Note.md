@@ -1,3 +1,48 @@
+## V3.6.8.0(Public release)
+
+### Features
+* Coordinator and router support green power combo basic feature.
+* Bootloader supports firmware upgrade via UART.
+* Provide PTA solutions.
+* Provides internal flash write protection.
+* Provides fast data polling setup for end devices.
+* Update b91 driver to support 2M/4M internal flash.
+### Bug Fixes
+* Fix the HCI_UART buffer overflow issue.
+* Fix the seconds timer event lost issue for sleep end device.
+* Fix the binding table, group table and scene table storage issue.
+* Fix the decryption failure caused by frame counter.
+### Code Refactoring
+* Provides two network rejoin APIs for end devices,
+  - zb_rejoinReq(), only do one network rejoin and call back the result to the upper layer, regardless of success.
+  - zb_rejoinReqWithBackOff(), which will trigger the rejoin backoff according to the zdoCfgAttrDefault settings until rejoin success.
+### Performance
+* Improve network join performance.
+### BREAKING CHANGES
+* Change platform 9518 to b91.
+
+### Features
+* 协调器和路由设备支持GPCB。
+* Bootloader支持通过UART固件升级。
+* 提供PTA接口。
+* 提供内部FLASH写保护接口。
+* 为终端设备提供快速数据查询的配置接口。
+* 更新b91驱动以支持2M/4M内部FLASH。
+### Bug Fixes
+* 修复HCI_UART内存溢出问题。
+* 修复休眠设备的秒定时器事件丢失的问题。
+* 修复绑定表、组表、场景表存储问题。
+* 修复帧计数器导致的解密失败。
+### Code Refactoring
+* 为终端设备提供两种rejoin接口，
+  - zb_rejoinReq()，只做一次rejoin并将结果回调给上层，不管成功与否。
+  - zb_rejoinReqWithBackOff()，将依据zdoCfgAttrDefault的配置进行rejoin和回退，直到rejoin成功。
+### Performance
+* 提高网络加入性能。
+### BREAKING CHANGES
+* 将平台9518更改为b91。
+
+
 ## V3.6.7.4(Public release)
 
 ### Features
