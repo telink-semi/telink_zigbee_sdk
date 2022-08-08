@@ -14,7 +14,7 @@
 * Fix the decryption failure caused by frame counter.
 ### Code Refactoring
 * Provides two network rejoin APIs for end devices,
-  - zb_rejoinReq(), only do one network rejoin and call back the result to the upper layer, regardless of success.
+  - zb_rejoinReq(), only do network rejoin once and call back the result to the upper layer, regardless of success.
   - zb_rejoinReqWithBackOff(), which will trigger the rejoin backoff according to the zdoCfgAttrDefault settings until rejoin success.
 ### Performance
 * Improve network join performance.
