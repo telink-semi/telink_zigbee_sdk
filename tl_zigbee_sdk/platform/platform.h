@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #pragma once
@@ -34,7 +36,7 @@
 #include "chip_8278/driver_8278.h"
 #include "chip_8278/gpio_default.h"
 #elif defined (MCU_CORE_B91)
-#include "chip_b91/driver_b91.h"
+#include "chip_b91/driver.h"
 #include "chip_b91/gpio_default.h"
 #endif
 

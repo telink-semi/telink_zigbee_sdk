@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #pragma once
@@ -48,7 +50,7 @@
 #define BUFFER_GROUP_1                   	60
 #define BUFFER_GROUP_2                   	150
 #define BUFFER_GROUP_3                   	1024
-#define MAX_BUFFER_SIZE                  	BUFFER_GROUP_3
+#define MAX_BUFFER_SIZE                  	(BUFFER_GROUP_3 - OFFSETOF(ev_bufItem_t, data))
 
 /** @} end of group ev_buffer_groups */
 

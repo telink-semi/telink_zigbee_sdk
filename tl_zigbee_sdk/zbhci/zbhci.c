@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #include "tl_common.h"
@@ -54,7 +56,7 @@
 	extern zbhciTx_e usb_hid_txMsg(u16 u16Type, u16 u16Length, u8 *pu8Data);
 #elif ZBHCI_UART
 	extern void hci_uart_init(void);
-	extern void uart_txMsg(u16 u16Type, u16 u16Length, u8 *pu8Data);
+	extern zbhciTx_e uart_txMsg(u16 u16Type, u16 u16Length, u8 *pu8Data);
 #endif
 
 
@@ -89,8 +91,7 @@ zbhciTx_e zbhciTx(u16 u16Type, u16 u16Length, u8 *pu8Data){
 #elif ZBHCI_USB_CDC
 	return usb_cdc_txMsg(u16Type, u16Length, pu8Data);
 #elif ZBHCI_UART
-    uart_txMsg(u16Type, u16Length, pu8Data);
-    return ZBHCI_TX_SUCCESS;
+	return uart_txMsg(u16Type, u16Length, pu8Data);
 #elif ZBHCI_USB_HID
     return usb_hid_txMsg(u16Type, u16Length, pu8Data);
 #elif ZBHCI_SPI

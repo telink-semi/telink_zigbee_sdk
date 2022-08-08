@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #ifndef NWK_H
@@ -472,7 +474,6 @@ typedef struct zb_nlme_network_descriptor_s
 */
 typedef struct
 {
-
 	nwk_descriptor_t	nwkDescriptor[PANID_TABLE_SIZE];
 	u8					status;
 	u8 					nwkCount;
@@ -575,9 +576,7 @@ typedef struct
 typedef struct
 {
 	extPANId_t 			extPANId;
-
   	u32  				scanChannels;
-
   	rejoinNwk_method_t 	rejoinNwk;
   	u8 					scanDuration;
   	capability_info_t 	capabilityInfo;
@@ -1153,13 +1152,15 @@ extern u16 NWK_ROUTE_RECORD_TABLE_SIZE;
 extern nwk_routeRecordTabEntry_t g_routeRecTab[];
 #endif
 extern bool AUTO_QUICK_DATA_POLL_ENABLE;
+extern u32 AUTO_QUICK_DATA_POLL_INTERVAL;
+extern u8 AUTO_QUICK_DATA_POLL_TIMES;
 
 extern u8 NWK_COST_THRESHOLD_ONEHOP;
 extern u8 NWK_NEIGHBOR_SEND_OUTGOING_THRESHOLD;
 extern u16 TL_ZB_ASSOCJOIN_FILTER_PANID;
 extern u16 TL_ZB_ASSOCJOIN_PERMIT_PANID;
 extern u32 LONG_UPTIME_THRESHOLD;
-
+extern bool NWK_HEADER_SRC_IEEE_INCLUDE;
 
 u16 tl_zbNwkStochasticAddrCal(void);
 void tl_zbNwkStatusAddrConflictInd(void *arg);
@@ -1210,7 +1211,6 @@ void tl_zbMacMlmeOrphanIndicationHandler(void *arg);
 void tl_zbMacMlmeSyncLossIndicationHandler(void *arg);
 void tl_zbMacMlmePollIndicationHandler(void *arg);
 
-void tl_nwkBuildJoinCnfPrimitive(void *p,u8 status);
 
 void tl_zbNwkNldeDataRequestHandler(void *arg);
 void tl_zbNwkNlmeNetworkFormationRequestHandler(void *arg);
@@ -1224,8 +1224,7 @@ void tl_zbNwkNlmeEDScanRequestHandler(void *arg);
 void tl_zbNwkNlmeLeaveRequestHandler(void *arg);
 void tl_zbNwkNlmeResetRequestHandler(void *arg);
 void tl_zbNwkNlmeSyncRequestHandler(void *arg);
-void tl_zbNwkNlmeGetRequestHandler(void *arg);
-void tl_zbNwkNlmeSetRequestHandler(void *arg);
+
 
 /*
  * high layer to NWK layer primitive
@@ -1243,58 +1242,23 @@ void tl_zbNwkNlmeSetRequestHandler(void *arg);
 #define tl_zbNwkNlmeLeaveRequest(p)			tl_zbPrimitivePost(TL_Q_HIGH2NWK, NWK_NLME_LEAVE_REQ, p)
 #define tl_zbNwkNlmeResetRequest(p)			tl_zbPrimitivePost(TL_Q_HIGH2NWK, NWK_NLME_RESET_REQ, p)
 #define tl_zbNwkNlmeSyncRequest(p)			tl_zbPrimitivePost(TL_Q_HIGH2NWK, NWK_NLME_SYNC_REQ, p)
-#define tl_zbNwkNlmeGetRequest(p)			tl_zbPrimitivePost(TL_Q_HIGH2NWK, NWK_NLME_GET_REQ, p)
-#define tl_zbNwkNlmeSetRequest(p)			tl_zbPrimitivePost(TL_Q_HIGH2NWK, NWK_NLME_SET_REQ, p)
-
-
-/*
- * NWK layer to high layer primitive
- * */
-#define tl_zbNwkNlmeNwkFormationConfirmPost(p)	tl_zbPrimitivePost(TL_Q_NWK2HIGH, NWK_NLME_NWK_FORMATION_CNF, p)
-#define tl_zbNwkNlmeNwkDiscConfirmPost(p)		tl_zbPrimitivePost(TL_Q_NWK2HIGH, NWK_NLME_NWK_DISCOVERY_CNF, p)
 
 
 
 typedef void (*nwkDataIndCb_t)(void *p);
 void tl_nwkDataIndRegister(nwkDataIndCb_t cb);
 
-typedef void (*nwkDiscoveryUserCb_t)(void);
-void tl_nwkDiscoveryCbRegister(nwkDiscoveryUserCb_t cb);
-
-typedef void (*nwkScanConfirmTouchlinkCb_t)(void *arg);
-typedef void (*nwkTouchlinkAttrClear_t)(void);
-
-typedef struct{
-	nwkScanConfirmTouchlinkCb_t scanConfCb;
-	nwkTouchlinkAttrClear_t     attrClrCb;
-}nwkForTouchlinkCb_t;
-
-void tl_nwkTouchLinkCbRegister(nwkForTouchlinkCb_t *cb);
-
-
-/*
- * upper layer callback function
- * */
-typedef struct{
-	nwkForTouchlinkCb_t   touchLinkCb;  /*!< callback for touch link */
-	nwkDiscoveryUserCb_t  nwkDiscConf;  /*!< callback for discovery  */
-}nwk_upLayerCb_t;
-
-extern nwk_upLayerCb_t g_nwkUpLayerCb;
 
 
 u8 is_device_factory_new(void);
 
 void tl_edBrcDataSkipParentSet(bool skip);
 
-
 #if ZB_TEST_ENABLE
 extern u8 nwkSecurityEn;
 #define NWK_SECURITY_EN_SET(v)   nwkSecurityEn = v
 #endif
 
-
-#define zb_isUnderRejoinMode()		(g_zbNwkCtx.state == NLME_STATE_REJOIN)
 
 
 #endif /* NWK_H */

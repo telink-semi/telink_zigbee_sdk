@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 /**********************************************************************
@@ -938,9 +940,10 @@ _CODE_BDB_ static void bdb_networkSteerNonFactoryNew(void)
 	bdb_mgmtPermitJoiningTrig(NULL);
 }
 
-#if 0
-void bdb_nwkDiscCnfCb(void)
+
+_CODE_BDB_ void bdb_nwkDiscCnfCb(void)
 {
+#if 0
 	u8 addNebNum = g_zb_neighborTbl.additionNeighborNum;
 
 	printf("discCnfCb: addNebNum = %d\n", addNebNum);
@@ -950,8 +953,11 @@ void bdb_nwkDiscCnfCb(void)
 		printf("addr = %x, panId = %x\n", g_zb_neighborTbl.additionNeighborTbl[i].shortAddr, g_zb_neighborTbl.additionNeighborTbl[i].panId);
 		printf("permit = %x, depth = %d\n", g_zb_neighborTbl.additionNeighborTbl[i].permitJoining, g_zb_neighborTbl.additionNeighborTbl[i].depth);
 	}
-}
 #endif
+
+	zb_assocJoinReq();
+}
+
 
 /*********************************************************************
  * @fn      bdb_networkSteerFactoryNew
@@ -966,13 +972,10 @@ _CODE_BDB_ static void bdb_networkSteerFactoryNew(void)
 {
 	//g_bdbAttrs.commissioningStatus = BDB_COMMISSION_STA_IN_PROGRESS;
 	u32 scanChannels = aps_ib.aps_channel_mask;
+	u8 scanDuration = g_bdbAttrs.scanDuration;
 
 	/* perform join work flow */
-	nlme_nwkDisc_req_t req;
-	req.scanChannels = scanChannels;
-	req.scanDuration = g_bdbAttrs.scanDuration;
-
-	zdo_nwk_discovery_Start(&req, NULL);
+	zb_nwkDiscovery(scanChannels, scanDuration, bdb_nwkDiscCnfCb);
 }
 
 /*********************************************************************
@@ -1247,10 +1250,10 @@ _CODE_BDB_ void bdb_zdoStartDevCnf(zdo_start_device_confirm_t *startDevCnf){
 #if ZB_ROUTER_ROLE
 				g_zbNwkCtx.joinAccept = 1;
 #endif
-				TL_ZB_TIMER_SCHEDULE(zcl_touchLinkDevStartIndicate, (void *)(startDevCnf->status), 400);
+				TL_ZB_TIMER_SCHEDULE(zcl_touchLinkDevStartIndicate, (void *)((u32)(startDevCnf->status)), 400);
 			}else{
 				//g_bdbAttrs.commissioningStatus = BDB_COMMISSION_STA_NO_NETWORK;
-				zcl_touchLinkDevStartIndicate((void *)(startDevCnf->status));
+				zcl_touchLinkDevStartIndicate((void *)((u32)(startDevCnf->status)));
 			}
 			break;
 #endif
@@ -1314,12 +1317,16 @@ _CODE_BDB_ void bdb_zdoStartDevCnf(zdo_start_device_confirm_t *startDevCnf){
  */
 _CODE_BDB_ static void bdb_touchLinkCallback(u8 status, void *arg)
 {
+	//printf("touchLinkCb: sta = %x\n", status);
+
 	u32 evt = BDB_EVT_IDLE;
 	if(status == ZCL_ZLL_TOUCH_LINK_STA_TARGET_START){
+		zb_nwkDiscoveryStop();
+
 		BDB_STATE_SET(BDB_STATE_COMMISSIONING_TOUCHLINK);
 		g_bdbAttrs.commissioningMode.touchlink = 1;
 		g_bdbCtx.role = BDB_COMMISSIONING_ROLE_TARGET;
-	}else if (status == ZCL_ZLL_TOUCH_LINK_STA_NO_SERVER){
+	}else if(status == ZCL_ZLL_TOUCH_LINK_STA_NO_SERVER){
 		/*
 		 * if no scan response received, start classic commissioning,
 		 * resume some information which is changed during touch link

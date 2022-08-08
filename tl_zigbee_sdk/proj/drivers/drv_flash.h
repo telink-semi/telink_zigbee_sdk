@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #pragma once
@@ -34,6 +36,17 @@ typedef struct{
 	drv_flash_erase erase;
 }drv_flash_t;
 
+
+typedef void (*flash_lockOp_cb)(void);
+typedef void (*flash_unlockOp_cb)(void);
+
+typedef struct{
+	int    mid;
+	flash_lockOp_cb lock;
+	flash_unlockOp_cb unlock;
+}flash_lock_t;
+
 void flash_write(u32 addr, u32 len, u8 *buf);
 void flash_read(u32 addr, u32 len, u8 *buf);
 void flash_erase(u32 addr);
+bool flash_load(void);

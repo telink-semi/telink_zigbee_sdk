@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #ifndef ZBHCI_H
@@ -100,7 +102,7 @@ typedef enum{
 	ZBHCI_CMD_MGMT_LEAVE_RSP				,//= 0x0032,
 	ZBHCI_CMD_MGMT_DIRECT_JOIN_RSP			,//= 0x0033,
 	ZBHCI_CMD_MGMT_PERMIT_JOIN_RSP			,//= 0x0034,
-	ZBHCI_CMD_MGMT_NWK_UPDATE_RSP			,//= 0x0035,
+	ZBHCI_CMD_MGMT_NWK_UPDATE_NOTIFY		,//= 0x0035,
 
 	ZBHCI_CMD_NODES_JOINED_GET_REQ			= 0x0040,
 	ZBHCI_CMD_NODES_TOGLE_TEST_REQ			= 0x0041,

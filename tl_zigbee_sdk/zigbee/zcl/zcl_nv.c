@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 /**********************************************************************
@@ -134,7 +136,8 @@ nv_sts_t zcl_sceneTable_restore(void)
 
 #ifdef ZCL_SCENE
 #if NV_ENABLE
-	st = nv_flashReadNew(1, NV_MODULE_ZCL,  NV_ITEM_ZCL_SCENE_TABLE, sizeof(zcl_sceneTable_t) * ZCL_SCENE_TABLE_NUM, (u8*)&g_zcl_sceneTab);
+	nv_itemLengthCheckAdd(NV_ITEM_ZCL_SCENE_TABLE, ZCL_SCENE_TABLE_NUM * sizeof(zcl_sceneTable_t));
+	st = nv_flashReadNew(1, NV_MODULE_ZCL,  NV_ITEM_ZCL_SCENE_TABLE, sizeof(zcl_sceneTable_t), (u8*)&g_zcl_sceneTab);
 #else
 	st = NV_ENABLE_PROTECT_ERROR;
 #endif

@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #ifndef ZCL_GREEN_POWER_H
@@ -27,11 +29,8 @@
 
 
 
-#define DEFAULT_TC_LINK_KEY             { 0x5a, 0x69, 0x67, 0x42, 0x65, 0x65, 0x41, 0x6c,\
-                                          0x6c, 0x69, 0x61, 0x6e, 0x63, 0x65, 0x30, 0x39 }
 
-#define GP_LINK_KEY												DEFAULT_TC_LINK_KEY
-#define GP_CLUSTER_REVISION										0x0001
+#define GP_CLUSTER_REVISION										0x0002
 
 /**
  *  @brief	List of GP infrastructure devices
@@ -95,80 +94,6 @@
 #define ZCL_CMD_GP_PROXY_TABLE_REQUEST							0x0b
 
 
-//GPD Command IDs, A.4.1
-#define GP_COMMISSIONING_COMMAND_ID                      		0xE0//Data frame
-#define GP_DECOMMISSIONING_COMMAND_ID                    		0xE1//Data frame
-#define GP_SUCCESS_COMMAND_ID                            		0xE2//Data frame
-#define GP_CHANNEL_REQ_COMMAND_ID                        		0xE3//Maintenance frame
-#define GP_COMMISSIONING_REPLY									0xF0
-#define GP_CHANNEL_CONFIGURATION_COMMAND_ID						0xF3
-
-
-#define ZCL_GP_MAX_SINK_TABLE_ATTR_LEN							45
-#define ZCL_GP_MAX_PROXY_TABLE_ATTR_LEN							75
-
-/**
- *  @brief	The GP Security options
- */
-typedef union
-{
-	u8	opts;
-	struct
-	{
-		u8	secLevel:2;
-		u8	secKeyType:3;//0x00 - 0x07
-		u8	reserved:3;
-	}bits;
-}gpSecOpt_t;
-
-typedef struct
-{
-	u16	groupId;
-	u16	alias;
-}gpSinkGroupListItem_t;
-
-
-#define SINK_GROUP_LIST_NUM						2
-
-typedef union
-{
-	u16	opts;
-	struct
-	{
-		u16	appId:3;
-		u16	commuicationMode:2;
-		u16	seqNumCapabilities:1;
-		u16	rxOnCapability:1;
-		u16	fixedLocation:1;
-		u16	assignedAlias:1;
-		u16	securityUse:1;
-		u16	reserved:6;
-	}bits;
-}gpSinkEntryOpt_t;
-
-/**
- *  @brief	Sink table entry
- */
-typedef struct
-{
-	gpdId_t	gpdId;						//8-bytes
-	u32	gpdSecFrameCnt;
-	gpSinkEntryOpt_t	options;
-	u16	gpdAssignedAlias;				//8-bytes
-	gpSinkGroupListItem_t	groupList[SINK_GROUP_LIST_NUM];	//8-bytes
-
-	u8	endpoint;
-	u8	deviceId;
-	u8	groupcastRadius;
-	gpSecOpt_t	secOptions;				//4-bytes
-
-	u8	gpdKey[16];						//16-bytes
-
-	u8	used:1;
-	u8	sinkGroupListCnt:2;
-	u8	reserved:5;
-}gpSinkTabEntry_t;	//45-bytes
-
 /**
  *  @brief	gpsCommunicationMode attribute
  */
@@ -183,118 +108,24 @@ typedef enum
 /**
  *  @brief	gpsCommunicationExitMode attribute
  */
-typedef union
+typedef enum
 {
-	u8	mode;
-	struct
-	{
-		u8	onCommWindowExpiration:1;
-		u8	onFirstPairingSuccess:1;
-		u8	onGpProxyCommMode_exit:1;
-		u8	reserved:5;
-	}bits;
+	GPS_EXIT_ON_COMM_WINDOW_EXPIRATION		= BIT(0),
+	GPS_EXIT_ON_FIRST_PAIRING_SUCCESS		= BIT(1),
+	GPS_EXIT_ON_GP_PROXY_COMM_MODE_EXIT 	= BIT(2),
 }gpsCommExitMode_t;
 
 /**
  *  @brief	gpsSecurityLevel attribute
  */
-typedef union
+typedef enum
 {
-	u8	level;
-	struct
-	{
-		u8	minimalGpdSecLevel:2;
-		u8	protectionWithGpLinkKey:1;
-		u8	involveTC:1;
-		u8	reserved:4;
-	}bits;
+	GPS_MINIMAL_GPD_SEC_LEVEL_NO_SEC,
+	GPS_MINIMAL_GPD_SEC_LEVEL_4B_FC_MIC 	= 2,
+	GPS_MINIMAL_GPD_SEC_LEVEL_4B_FC_MIC_ENC	= 3,
+	GPS_PROTECTION_WITH_GPLINKKEY 			= BIT(2),
+	GPS_INVOLVE_TC							= BIT(3),
 }gpsSecLevel_t;
-
-
-typedef union
-{
-	u16	opts;
-	struct
-	{
-		u16	appId:3;
-		u16	entryActive:1;
-		u16	entryValid:1;
-		u16	seqNumCap:1;
-		u16	lightWeightUnicastGPS:1;
-		u16	derivedGroupGPS:1;
-		u16	commGroupGPS:1;
-		u16	firstToForward:1;
-		u16	inRange:1;
-		u16	gpdFixed:1;
-		u16	hasAllUnicastRoutes:1;
-		u16	assignedAlias:1;
-		u16	secUse:1;
-		u16	optsExtension:1;
-	}bits;
-}gpProxyEntryOpt_t;
-
-typedef struct
-{
-	addrExt_t	sinkIeeeAddr;
-	u16			sinkNwkAddr;
-}gpLwSinkAddrListItem_t;
-
-typedef struct
-{
-	u16	fullUnicastGPS:1;
-	u16	reserved:15;
-}gpExtendedOpt_t;
-
-/**
- *  @brief	Proxy table entry
- */
-#define PROXY_LIGHTWEIGHT_SINK_ADDR_LIST_NUM		2
-#define PROXY_SINK_GROUP_LIST_NUM					2
-#define PROXY_FULL_UNICAST_SINK_ADDR_LIST_NUM		2
-
-typedef struct
-{
-	gpdId_t	gpdId;							//8-bytes
-
-	gpProxyEntryOpt_t	options;
-	u16					gpdAssignedAlias;
-	gpSecOpt_t			secOptions;
-	u8					endpoint;
-	u8					groupcastRadius;
-	u8					searchCnt;			//8-bytes
-
-	u8					gpdKey[16];			//16-bytes
-
-	u32					gpdSecFrameCnt;		//4-bytes
-
-	gpLwSinkAddrListItem_t	lightweightSinkAddrList[PROXY_LIGHTWEIGHT_SINK_ADDR_LIST_NUM];	//20-bytes
-	gpSinkGroupListItem_t	sinkGroupList[PROXY_SINK_GROUP_LIST_NUM];						//8-bytes
-
-	u8					used:1;
-	u8					lwSinkCnt:2;
-	u8					sinkGroupCnt:2;
-	u8					reserved:3;
-}gpProxyTabEntry_t;	//75-bytes
-
-/**
- *  @brief	gppBiockedGPDID attribute
- */
-typedef struct
-{
-	u8	appId:3;
-	u8	reserved:5;
-}gppBlockedGpdIdOpt_t;
-
-typedef struct
-{
-	gpdId_t	gpdId;
-	gppBlockedGpdIdOpt_t	options;
-	u8	endpoint;
-	u8	seqNum;
-	u8	searchCnt;
-}gppBlockedGpdId_t;
-
-
 
 
 /******************************************************************
@@ -424,8 +255,8 @@ typedef union
 	{
 		u16 appId:3;
 		u16	rxAfterTx:1;
-		u16	secLevel:2;
-		u16	secKeyType:3;
+		u16	secLevel:2;		//0x00,0x02,0x03
+		u16	secKeyType:3;	//0x00 - 0x07
 		u16 secPrcFailed:1;
 		u16	bidirectionalCap:1;
 		u16	proxyInfoPresent:1;
@@ -493,13 +324,15 @@ typedef union
 		u16	appId:3;
 		u16 action:2;
 		u16 numOfTrans:3;
-		u16	additionalInfoBlockPresent:1;
+		u16	addInfoPresent:1;
 		u16	reserved:7;
 	}bits;
-}gpTransTabUpdateOpt_t;
+}transUpdateOpt_t;
 
 typedef struct
 {
+	u8  *pZbCmdPayload;
+	u8	*pAdditionalInfo;
 	u16 profile;
 	u16 cluster;
 	u8	index;
@@ -507,7 +340,7 @@ typedef struct
 	u8	endpoint;
 	u8	zbCmdId;
 	u8	zbCmdPayloadLen;
-	u8	*pZbPayloadAndAdditionalInfo;
+	u8	addInfoLen;
 }gpTranslation_t;
 
 /**
@@ -517,7 +350,7 @@ typedef struct
 {
 	gpdId_t	gpdId;
 	u8  *pBuf;//buffer point of translation
-	gpTransTabUpdateOpt_t options;
+	transUpdateOpt_t options;
 	u8  endpoint;
 	u8  bufLen;//length of translation buffer
 }zcl_gp_transTabUpdateCmd_t;
@@ -538,10 +371,10 @@ typedef union
 	struct
 	{
 		u8	appId:3;
-		u8	additionalInfoBlockPresent:1;
+		u8	addInfoPresent:1;
 		u8	reserved:4;
 	}bits;
-}gpTransTabRspOpt_t;
+}transOpt_t;
 
 typedef struct
 {
@@ -561,10 +394,10 @@ typedef struct
  */
 typedef struct
 {
-	u8  *pBuf;//buffer point of translation table list
+	u8  *pBuf;//buffer point to the translation table list
 	u8	bufLen;//length of translation table list buffer
 	u8	status;
-	gpTransTabRspOpt_t options;
+	transOpt_t options;
 	u8	totalNumOfEntries;
 	u8	startIdx;
 	u8	entriesCnt;
@@ -627,6 +460,58 @@ typedef union
 	}bits;
 }gpAppInfo_t;
 
+typedef union
+{
+	u8	opts;
+	struct
+	{
+		u8	secLevel:2;		//0x00,0x02,0x03
+		u8	secKeyType:3;	//0x00 - 0x07
+		u8	reserved:3;
+	}bits;
+}gpSecOpt_t;
+
+typedef struct
+{
+	u16	groupId;
+	u16	alias;
+}gpSinkGroupListItem_t;
+
+typedef union
+{
+	u8	opts;
+	struct
+	{
+		u8	sClusterNum:4;
+		u8	cClusterNum:4;
+	}bits;
+}gpClusterId_t;
+
+typedef struct
+{
+	u8 *sClusterList;
+	u8 *cClusterList;
+	gpClusterId_t  clusterID;
+}gpCommCluster_t;
+
+typedef union
+{
+	u8	cfg;
+	struct
+	{
+		u8	contactNum:4;
+		u8	switchType:2;
+		u8	reserved:2;
+	}bits;
+}gpGenericSwCfg_t;
+
+typedef struct
+{
+	u8 switchInfoLen;
+	gpGenericSwCfg_t switchCfg;
+	u8 contactStatus;
+}gpSwitchInfo_t;
+
 /**
  *  @brief	Format of the GP Pairing Configuration command
  */
@@ -636,11 +521,9 @@ typedef struct
 	u8	*pPairedEndpoints;
 	u8	*pGpdCmdList;
 	u8	*pClusterList;
-	u8	*pSwitchInfo;
 	u8	*pReportDescriptor;
-
 	u32	gpdSecFrameCnt;
-	u8	gpdSecKey[16];
+	u8	gpdSecKey[SEC_KEY_LEN];
 	gpdId_t	gpdId;
 	gpPairingCfgOpt_t options;
 	u16 gpdAssignedAlias;
@@ -651,12 +534,12 @@ typedef struct
 	u8	endpoint;
 	u8	deviceId;
 	u8	groupcastRadius;
-	u8	secOptions;
+	gpSecOpt_t	secOptions;
 	u8	numOfPairedEndpoints;
+	gpSwitchInfo_t switchInfo;
 	u8	numOfGpdCmds;
-	u8	totalNumOfReports;
-	u8	numOfReports;
-}zcl_gp_pairingConfigurationCmd_t;//70 bytes
+	u8	reportDescLen;
+}zcl_gp_pairingConfigurationCmd_t;
 
 
 /**
@@ -824,10 +707,16 @@ status_t zcl_gp_responseCmd(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp
 status_t zcl_gp_sinkTableRspCmd(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, zcl_gp_sinkTabRspCmd_t *pCmd);
 #define zcl_gp_sinkTableRspCmdSend(a,b,c,d,e)		(zcl_gp_sinkTableRspCmd((a), (b), (c), (d), (e)))
 
+status_t zcl_gp_transTableRspCmd(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, zcl_gp_transTabRspCmd_t *pCmd);
+#define zcl_gp_transTableRspCmdSend(a,b,c,d,e)		(zcl_gp_transTableRspCmd((a), (b), (c), (d), (e)))
+
 status_t zcl_gp_proxyTableReqCmd(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, zcl_gp_proxyTabReqCmd_t *pCmd);
 #define zcl_gp_proxyTableReqCmdSend(a,b,c,d)	(zcl_gp_proxyTableReqCmd((a), (b), (c), ZCL_SEQ_NUM, (d)))
 
 status_t zcl_gp_sinkCommissioningModeCmd(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, zcl_gp_sinkCommissioningModeCmd_t *pCmd);
 #define zcl_gp_sinkCommissioningModeCmdSend(a,b,c,d)	(zcl_gp_sinkCommissioningModeCmd((a), (b), (c), ZCL_SEQ_NUM, (d)))
+
+status_t zcl_gp_pairingCfgCmd(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, zcl_gp_pairingConfigurationCmd_t *pCmd);
+#define zcl_gp_pairingCfgCmdSend(a,b,c,d)	(zcl_gp_pairingCfgCmd((a), (b), (c), ZCL_SEQ_NUM, (d)))
 
 #endif	/* ZCL_GREEN_POWER_H */

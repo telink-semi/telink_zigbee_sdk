@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #include "tl_common.h"
@@ -30,6 +32,22 @@ extern void rf_tx_irq_handler(void);
 
 volatile u8 T_DBG_testIrq[16] = {0};
 
+#if (__PROJECT_TL_BOOT_LOADER__)
+#if UART_ENABLE
+void uart0_irq_handler(void)
+{
+	if(uart_get_irq_status(UART0, UART_TXDONE)){
+		T_DBG_testIrq[8]++;
+		drv_uart_tx_irq_handler();
+	}
+
+	if(uart_get_irq_status(UART0, UART_RXDONE)){
+		T_DBG_testIrq[9]++;
+		drv_uart_rx_irq_handler();
+	}
+}
+#endif
+#else
 void rf_irq_handler(void)
 {
 	T_DBG_testIrq[0]++;
@@ -105,3 +123,5 @@ void uart0_irq_handler(void)
 		drv_uart_rx_irq_handler();
 	}
 }
+#endif
+

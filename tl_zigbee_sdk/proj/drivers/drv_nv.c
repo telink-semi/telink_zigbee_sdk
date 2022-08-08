@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #include "../tl_common.h"
@@ -29,12 +31,29 @@
 #if FLASH_CAP_SIZE_1M
 u32 g_u32MacFlashAddr = FLASH_ADDR_0F_MAC_ADDR_1M;
 u32 g_u32CfgFlashAddr = FLASH_ADDR_OF_F_CFG_INFO_1M;
+#elif FLASH_CAP_SIZE_2M
+u32 g_u32MacFlashAddr = FLASH_ADDR_0F_MAC_ADDR_2M;
+u32 g_u32CfgFlashAddr = FLASH_ADDR_OF_F_CFG_INFO_2M;
+#elif FLASH_CAP_SIZE_4M
+u32 g_u32MacFlashAddr = FLASH_ADDR_0F_MAC_ADDR_4M;
+u32 g_u32CfgFlashAddr = FLASH_ADDR_OF_F_CFG_INFO_4M;
 #else
 u32 g_u32MacFlashAddr = FLASH_ADDR_OF_MAC_ADDR_512K;
 u32 g_u32CfgFlashAddr = FLASH_ADDR_OF_F_CFG_INFO_512K;
 #endif
 
+#define  NV_ITEMLEN_MATCH(len, unitLen) ((len % unitLen) ? FALSE : TRUE)
 
+static u8 g_nvItemLengthCheckNum = 0;
+
+
+#define NV_ITEM_LEN_CHK_TABBLE_NUM	 16
+typedef struct{
+	u8   itemId;
+	u16  len;
+}nv_itemLenChk_t;
+
+nv_itemLenChk_t  g_nvItemLenCheckTbl[NV_ITEM_LEN_CHK_TABBLE_NUM];
 
 nv_sts_t nv_index_update(u16 id, u8 opSect, u16 opItemIdx, nv_info_idx_t *idx){
 	u32 idxStartAddr = MODULE_IDX_START(id, opSect);
@@ -42,7 +61,28 @@ nv_sts_t nv_index_update(u16 id, u8 opSect, u16 opItemIdx, nv_info_idx_t *idx){
 	return NV_SUCC;
 }
 
-nv_sts_t nv_index_read(u16 id, u8 itemId, u16 len, u8 opSect, u32 totalItemNum, u16 *idxNo){
+
+void nv_itemLengthCheckAdd(u8 itemId, u16 len){
+	if(g_nvItemLengthCheckNum >= NV_ITEM_LEN_CHK_TABBLE_NUM){
+		while(1);
+		return;
+	}
+	g_nvItemLenCheckTbl[g_nvItemLengthCheckNum].itemId = itemId;
+	g_nvItemLenCheckTbl[g_nvItemLengthCheckNum].len = len;
+	g_nvItemLengthCheckNum++;
+}
+
+u16 nv_itemLengthValidCheck(u8 itemId, u16 len){
+	for(s32 i= 0; i < NV_ITEM_LEN_CHK_TABBLE_NUM; i++){
+		if(g_nvItemLenCheckTbl[i].itemId == itemId){
+			return min2(g_nvItemLenCheckTbl[i].len , len);
+		}
+	}
+	return len;
+}
+
+
+static nv_sts_t nv_index_read_op(u16 id, u8 itemId, u16 *itemLen, u8 opSect, u32 totalItemNum, u16 *idxNo, bool lenCheck){
 	nv_sts_t ret = NV_SUCC;
 	u32 idxTotalNum = totalItemNum;
 	u32 idxStartAddr = MODULE_IDX_START(id, opSect) + (idxTotalNum) * sizeof(nv_info_idx_t);
@@ -51,6 +91,7 @@ nv_sts_t nv_index_read(u16 id, u8 itemId, u16 len, u8 opSect, u32 totalItemNum, 
 	nv_info_idx_t idxInfo[4];
 	u8 jump = 0;
 	u8 itemFlag = ITEM_FIELD_VALID;
+	u16 len = *itemLen;
 	u16 itemTotalSize = ITEM_TOTAL_LEN(len);
 
 	if(itemId == ITEM_FIELD_IDLE){
@@ -68,9 +109,17 @@ nv_sts_t nv_index_read(u16 id, u8 itemId, u16 len, u8 opSect, u32 totalItemNum, 
 		flash_read(idxStartAddr, readIdxNum * sizeof(nv_info_idx_t), (u8*)idxInfo);
 		for(i = readIdxNum - 1; i >= 0; i--){
 			if(itemId != ITEM_FIELD_IDLE){
-				if(idxInfo[i].usedState == itemFlag && idxInfo[i].size == itemTotalSize && idxInfo[i].itemId == itemId){
-					jump = 1;
-					break;
+				if(idxInfo[i].usedState == itemFlag &&
+					idxInfo[i].itemId == itemId){
+					if(lenCheck){
+						if(NV_ITEMLEN_MATCH((idxInfo[i].size - sizeof(itemHdr_t)), len)){
+							jump = 1;
+							break;
+						}
+					}else{
+						*itemLen = idxInfo[i].size - sizeof(itemHdr_t);
+						break;
+					}
 				}
 			}else{
 				if(idxInfo[i].usedState != itemFlag || idxInfo[i].size != itemTotalSize || idxInfo[i].itemId != itemId){
@@ -90,6 +139,9 @@ nv_sts_t nv_index_read(u16 id, u8 itemId, u16 len, u8 opSect, u32 totalItemNum, 
 	return ret;
 }
 
+nv_sts_t nv_index_read(u16 id, u8 itemId, u16 len, u8 opSect, u32 totalItemNum, u16 *idxNo){
+	return nv_index_read_op(id, itemId, &len, opSect, totalItemNum, idxNo, 1);
+}
 
 nv_sts_t nv_sector_read(u16 id, u8 sectTotalNum, nv_sect_info_t *sectInfo){
 	nv_sts_t ret = NV_SUCC;
@@ -209,8 +261,11 @@ nv_sts_t nv_flashReadByIndex(u8 id, u8 itemId, u8 opSect, u16 opIdx, u16 len, u8
 
 	itemHdr_t hdr;
 	flash_read(idx.offset, sizeof(itemHdr_t), (u8*)&hdr);
-	if(hdr.size == len && hdr.used == ITEM_FIELD_VALID && hdr.itemId == itemId){
-		flash_read(idx.offset + sizeof(itemHdr_t), len, buf);
+
+	bool lenMatch = NV_ITEMLEN_MATCH(hdr.size, len);
+	u16  realLen = nv_itemLengthValidCheck(itemId, hdr.size);
+	if(lenMatch && hdr.used == ITEM_FIELD_VALID && hdr.itemId == itemId){
+		flash_read(idx.offset + sizeof(itemHdr_t), realLen, buf);
 	}else{
 		ret = NV_ITEM_NOT_FOUND;
 	}
@@ -227,6 +282,49 @@ nv_sts_t nv_itemDeleteByIndex(u8 id, u8 itemId, u8 opSect, u16 opIdx){
 	return ret;
 }
 
+nv_sts_t nv_flashSingleItemRemove(u8 id, u8 itemId, u16 len){
+	nv_sts_t ret = NV_SUCC;
+	nv_sect_info_t sectInfo;
+	u8 opSect = 0;
+	s32 idxTotalNum = 0;
+	u16 opIdx = 0;
+
+	ret = nv_sector_read(id, MODULE_SECTOR_NUM, &sectInfo);
+	if(ret != NV_SUCC){
+		return ret;
+	}
+
+	opSect = sectInfo.opSect;
+	idxTotalNum = MODULE_IDX_NUM(id);
+
+	ret = NV_ITEM_NOT_FOUND;
+	ret = nv_index_read(id, itemId, len, opSect, idxTotalNum, &opIdx);
+	if(ret == NV_SUCC){
+		ret = nv_itemDeleteByIndex(id, itemId, opSect, opIdx);
+	}
+
+	return ret;
+}
+
+nv_sts_t nv_flashSingleItemSizeGet(u8 id, u8 itemId, u16 *len){
+	nv_sts_t ret = NV_SUCC;
+	nv_sect_info_t sectInfo;
+	u8 opSect = 0;
+	s32 idxTotalNum = 0;
+	u16 opIdx = 0;
+
+	ret = nv_sector_read(id, MODULE_SECTOR_NUM, &sectInfo);
+	if(ret != NV_SUCC){
+		return ret;
+	}
+
+	opSect = sectInfo.opSect;
+	idxTotalNum = MODULE_IDX_NUM(id);
+
+	ret = NV_ITEM_NOT_FOUND;
+	ret = nv_index_read_op(id, itemId, len, opSect, idxTotalNum, &opIdx, 0);
+	return ret;
+}
 
 nv_sts_t nv_flashWriteNew(u8 single, u16 id, u8 itemId, u16 len, u8 *buf){
 	nv_sts_t ret = NV_SUCC;

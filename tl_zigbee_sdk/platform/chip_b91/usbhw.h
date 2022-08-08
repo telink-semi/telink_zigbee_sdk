@@ -1,12 +1,13 @@
 /********************************************************************************************************
- * @file    usbhw.h
+ * @file	usbhw.h
  *
- * @brief   This is the header file for B91
+ * @brief	This is the header file for B91
  *
- * @author  Driver Group
- * @date    2021
+ * @author	Driver Group
+ * @date	2019
  *
- * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,8 +20,8 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
-
 /**	@page USBHW
  *
  *	Introduction
@@ -34,7 +35,7 @@
 
 #pragma once
 
-#include "reg_include/register_b91.h"
+#include <reg_include/register.h>
 #include "analog.h"
 #include "gpio.h"
 
@@ -317,8 +318,8 @@ enum {
 	USB_EDP_PRINTER_OUT = 5,	// default hw buf len = 64
 	USB_EDP_SPEAKER = 6,		// default hw buf len = 16
 	USB_EDP_MIC = 7,			// default hw buf len = 16
-	USB_EDP_MS_IN = USB_EDP_PRINTER_IN,		// mass storage
-	USB_EDP_MS_OUT = USB_EDP_PRINTER_OUT,
+	USB_EDP_MS_IN = 4,		// mass storage
+	USB_EDP_MS_OUT = 5,
 	USB_EDP_SOMATIC_IN = USB_EDP_AUDIO_IN,		//  when USB_SOMATIC_ENABLE, USB_EDP_PRINTER_OUT disable
 	USB_EDP_SOMATIC_OUT = USB_EDP_PRINTER_OUT,
     USB_EDP_CDC_IN = 4,
@@ -421,4 +422,5 @@ static inline void usb_set_pin_en(void)
 	gpio_function_dis(GPIO_PA6);
 	gpio_input_en(GPIO_PA5|GPIO_PA6);//DP/DM must set input enable
 	usb_dp_pullup_en (1);
+	write_reg8(0x100c01, (read_reg8(0x100c01) | BIT(7)));   //swire_usb_en
 }

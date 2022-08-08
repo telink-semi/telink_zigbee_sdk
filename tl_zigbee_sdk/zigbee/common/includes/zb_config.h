@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #ifndef ZB_CONFIG_H
@@ -72,7 +74,7 @@
 //Integer value representing the number of scan attempts to make before
 //the NWK layer decides which ZigBee coordinator or router to associate with.
 //This attribute has default value of 5 and valid values between 1 and 255.
-#define	ZDO_NWK_SCAN_ATTEMPTS						2
+#define	ZDO_NWK_SCAN_ATTEMPTS						1
 
 //Integer value representing the time duration between each NWK discovery attempt described by :Config_NWK_Scan_Attempts.
 //This attribute has a default value 0xc35 (100 milliseconds) and valid values between 1 and 65535 milliseconds.

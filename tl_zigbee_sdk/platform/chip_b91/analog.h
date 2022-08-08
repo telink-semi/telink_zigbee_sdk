@@ -1,12 +1,13 @@
 /********************************************************************************************************
- * @file    analog.h
+ * @file	analog.h
  *
- * @brief   This is the header file for B91
+ * @brief	This is the header file for B91
  *
- * @author  Driver Group
- * @date    2021
+ * @author	Driver Group
+ * @date	2019
  *
- * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,8 +20,8 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
-
 /*******************************      analog control registers: 0xb8      ******************************/
 /**	@page ANALOG
  *
@@ -35,9 +36,9 @@
 #pragma once
 
 
+#include <reg_include/register.h>
 #include "dma.h"
 #include "compiler.h"
-#include "reg_include/register_b91.h"
 
 /**********************************************************************************************************************
  *                                         global constants                                                           *

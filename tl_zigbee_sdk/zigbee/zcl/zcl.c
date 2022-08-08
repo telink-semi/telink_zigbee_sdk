@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 /**********************************************************************
@@ -829,7 +831,7 @@ _CODE_ZCL_ void zcl_cmdHandler(void *pCmd)
 				status = (inMsg.hdr.manufCode == MANUFACTURER_CODE_NONE) ? ZCL_STA_UNSUP_CLUSTER_COMMAND : ZCL_STA_UNSUP_MANU_CLUSTER_COMMAND;
 			}else{
 				/* Check if basic device enable support */
-				zcl_getAttrVal(pApsdeInd->indInfo.dst_ep, ZCL_CLUSTER_GEN_BASIC, ZCL_ATTRID_BASIC_DEV_ENABLED, &devEnableAttrLen, &devEnable);
+				zcl_getAttrVal(pApsdeInd->indInfo.dst_ep, ZCL_CLUSTER_GEN_BASIC, ZCL_ATTRID_BASIC_DEV_ENABLED, &devEnableAttrLen, (u8*)&devEnable);
 
 				if(devEnable || (pCluster->clusterID == ZCL_CLUSTER_GEN_IDENTIFY)){
 					inMsg.clusterAppCb = pCluster->clusterAppCb;

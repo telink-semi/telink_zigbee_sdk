@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *			All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #if (__PROJECT_TL_DIMMABLE_LIGHT__)
@@ -115,6 +117,8 @@ s32 sampleLight_bdbFindAndBindStart(void *arg){
  * @return  None
  */
 void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
+//	printf("bdbInitCb: sta = %x, joined = %x\n", status, joinedNetwork);
+
 	if(status == BDB_INIT_STATUS_SUCCESS){
 		/*
 		 * start bdb commissioning
@@ -160,55 +164,60 @@ void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
  * @return  None
  */
 void zbdemo_bdbCommissioningCb(u8 status, void *arg){
-	if(status == BDB_COMMISSION_STA_SUCCESS){
-		heartInterval = 1000;
+//	printf("bdbCommCb: sta = %x\n", status);
 
-#if FIND_AND_BIND_SUPPORT
-	    if(!gLightCtx.bdbFindBindFlg){
-	    	gLightCtx.bdbFindBindFlg = TRUE;
-#endif
+	switch(status){
+		case BDB_COMMISSION_STA_SUCCESS:
+			heartInterval = 1000;
 
-	    	light_blink_start(2, 200, 200);
+			light_blink_start(2, 200, 200);
 
 #ifdef ZCL_OTA
 	    	ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
 #endif
 
 #if FIND_AND_BIND_SUPPORT
-	    	//start Finding & Binding
-        	TL_ZB_TIMER_SCHEDULE(sampleLight_bdbFindAndBindStart, NULL, 1000);
-        }
+			if(!gLightCtx.bdbFindBindFlg){
+				gLightCtx.bdbFindBindFlg = TRUE;
+				TL_ZB_TIMER_SCHEDULE(sampleLight_bdbFindAndBindStart, NULL, 1000);
+			}
 #endif
-	}else if(status == BDB_COMMISSION_STA_IN_PROGRESS){
-
-	}else if(status == BDB_COMMISSION_STA_NOT_AA_CAPABLE){
-
-	}else if((status == BDB_COMMISSION_STA_NO_NETWORK)||(status == BDB_COMMISSION_STA_TCLK_EX_FAILURE)){
-		u16 jitter = 0;
-		do{
-			jitter = zb_random() % 0x0fff;
-		}while(jitter == 0);
-		TL_ZB_TIMER_SCHEDULE(sampleLight_bdbNetworkSteerStart, NULL, jitter);
-	}else if(status == BDB_COMMISSION_STA_TARGET_FAILURE){
-
-	}else if(status == BDB_COMMISSION_STA_FORMATION_FAILURE){
-
-	}else if(status == BDB_COMMISSION_STA_NO_IDENTIFY_QUERY_RESPONSE){
-
-	}else if(status == BDB_COMMISSION_STA_BINDING_TABLE_FULL){
-
-	}else if(status == BDB_COMMISSION_STA_NO_SCAN_RESPONSE){
-
-	}else if(status == BDB_COMMISSION_STA_NOT_PERMITTED){
-
-	}else if(status == BDB_COMMISSION_STA_REJOIN_FAILURE){
-		zb_rejoinReq(NLME_REJOIN_METHOD_REJOIN, zb_apsChannelMaskGet());
-	}else if(status == BDB_COMMISSION_STA_FORMATION_DONE){
-#if ZBHCI_EN
-
-#else
-		tl_zbMacChannelSet(DEFAULT_CHANNEL);  //set default channel
+			break;
+		case BDB_COMMISSION_STA_IN_PROGRESS:
+			break;
+		case BDB_COMMISSION_STA_NOT_AA_CAPABLE:
+			break;
+		case BDB_COMMISSION_STA_NO_NETWORK:
+		case BDB_COMMISSION_STA_TCLK_EX_FAILURE:
+		case BDB_COMMISSION_STA_TARGET_FAILURE:
+			{
+				u16 jitter = 0;
+				do{
+					jitter = zb_random() % 0x2710;
+				}while(jitter < 5000);
+				TL_ZB_TIMER_SCHEDULE(sampleLight_bdbNetworkSteerStart, NULL, jitter);
+			}
+			break;
+		case BDB_COMMISSION_STA_FORMATION_FAILURE:
+			break;
+		case BDB_COMMISSION_STA_NO_IDENTIFY_QUERY_RESPONSE:
+			break;
+		case BDB_COMMISSION_STA_BINDING_TABLE_FULL:
+			break;
+		case BDB_COMMISSION_STA_NO_SCAN_RESPONSE:
+			break;
+		case BDB_COMMISSION_STA_NOT_PERMITTED:
+			break;
+		case BDB_COMMISSION_STA_REJOIN_FAILURE:
+			zb_rejoinReq(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
+			break;
+		case BDB_COMMISSION_STA_FORMATION_DONE:
+#ifndef ZBHCI_EN
+			tl_zbMacChannelSet(DEFAULT_CHANNEL);  //set default channel
 #endif
+			break;
+		default:
+			break;
 	}
 }
 
@@ -280,7 +289,7 @@ void sampleLight_leaveIndHandler(nlme_leave_ind_t *pLeaveInd)
 
 }
 
-u8 sampleLight_nwkUpdateIndicateHandler(nwkCmd_nwkUpdate_t *pNwkUpdate){
+bool sampleLight_nwkUpdateIndicateHandler(nwkCmd_nwkUpdate_t *pNwkUpdate){
 	return FAILURE;
 }
 

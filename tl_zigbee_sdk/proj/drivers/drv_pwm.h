@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #pragma once
@@ -41,8 +43,8 @@
 	#define drv_pwm_invert(pwmId)		pwm_revert(pwmId)
 	#define drv_pwm_n_invert(pwmId)		pwm_n_revert(pwmId)
 #elif defined(MCU_CORE_B91)
-	#define drv_pwm_start(pwmId)		pwm_start(pwmId)
-	#define drv_pwm_stop(pwmId)			pwm_stop(pwmId)
+	#define drv_pwm_start(pwmId)		(pwmId == PWM0_ID) ? (pwm_start(FLD_PWM0_EN)) : (pwm_start(BIT(pwmId)))
+	#define drv_pwm_stop(pwmId)			(pwmId == PWM0_ID) ? (pwm_stop(FLD_PWM0_EN)) : (pwm_stop(BIT(pwmId)))
 	#define drv_pwm_invert(pwmId)		pwm_invert_en(pwmId)
 	#define drv_pwm_n_invert(pwmId)		pwm_n_invert_en(pwmId)
 #endif

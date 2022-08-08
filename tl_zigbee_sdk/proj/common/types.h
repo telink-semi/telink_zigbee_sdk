@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #pragma once
@@ -130,8 +132,6 @@ typedef struct {
 
 #ifndef __cplusplus
 
-typedef u8 bool;
-
 #ifndef FALSE
 #define FALSE 	0
 #endif
@@ -139,8 +139,18 @@ typedef u8 bool;
 #define TRUE 	(!FALSE)
 #endif
 
+#ifndef bool
+#define bool	u8
+#endif
+
+#ifndef false
 #define false	FALSE
+#endif
+
+#ifndef true
 #define true	TRUE
+#endif
+
 
 #elif defined WIN32
 

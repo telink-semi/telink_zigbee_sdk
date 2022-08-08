@@ -1,12 +1,13 @@
 /********************************************************************************************************
- * @file    spi.h
+ * @file	spi.h
  *
- * @brief   This is the header file for B91
+ * @brief	This is the header file for B91
  *
- * @author  Driver Group
- * @date    2021
+ * @author	Driver Group
+ * @date	2019
  *
- * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,12 +20,12 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
-
 #ifndef SPI_H
 #define SPI_H
 
-#include "reg_include/register_b91.h"
+#include <reg_include/register.h>
 #include "gpio.h"
 #include "dma.h"
 /**	@page SPI
@@ -341,6 +342,7 @@ static inline void hspi_reset(void)
 {
 	reg_rst0 &= (~FLD_RST0_HSPI);
 	reg_rst0 |= FLD_RST0_HSPI;
+	reg_spi_status(HSPI_MODULE)|=FLD_HSPI_SOFT_RESET;
 }
 /**
  * @brief  This function reset PSPI module.
@@ -350,6 +352,7 @@ static inline void pspi_reset(void)
 {
 	reg_rst1 &= (~FLD_RST1_PSPI);
 	reg_rst1 |= FLD_RST1_PSPI;
+	reg_spi_status(PSPI_MODULE)|=FLD_HSPI_SOFT_RESET;
 }
 
 /**
@@ -641,8 +644,7 @@ static inline void hspi_xip_addr_offset(unsigned int addr_offset)
  */
 static inline void hspi_xip_read_transmode(unsigned char rd_mode)
 {
-	reg_hspi_xip_trans_mode	&= (~FLD_HSPI_XIP_RD_TRANS_MODE);
-	reg_hspi_xip_trans_mode |= (rd_mode & 0xf) << 4;
+	reg_hspi_xip_trans_mode = ((reg_hspi_xip_trans_mode & (~FLD_HSPI_XIP_RD_TRANS_MODE)) | ((rd_mode & 0xf) << 4));
 }
 
 /**
@@ -652,8 +654,7 @@ static inline void hspi_xip_read_transmode(unsigned char rd_mode)
  */
 static inline void hspi_xip_write_transmode(unsigned char wr_mode)
 {
-	reg_hspi_xip_trans_mode	&= (~FLD_HSPI_XIP_WR_TRANS_MODE);
-	reg_hspi_xip_trans_mode |= wr_mode & FLD_HSPI_XIP_WR_TRANS_MODE;
+	reg_hspi_xip_trans_mode = ((reg_hspi_xip_trans_mode & (~FLD_HSPI_XIP_WR_TRANS_MODE)) | (wr_mode & FLD_HSPI_XIP_WR_TRANS_MODE));
 }
 
 /**
@@ -768,7 +769,9 @@ static inline void hspi_xip_page_size(unsigned char page_size_i)
 }
 
 /**
- * @brief 		This function servers to reply master slave is ready .When slave is ready,  slave ready reply a byte data:0x5a.   indicating that slave is ready for data transmission.
+ * @brief 		This function servers to reply master slave is ready .
+ * When slave_ready is set to 1, after the master sends a read status command to the slave,
+ * the slave will automatically return to 0x5a by the hardware.
  * @param[in] 	spi_sel 	- the spi module.
  * @return 		none
  */
@@ -778,7 +781,9 @@ static inline void spi_slave_ready_en(spi_sel_e spi_sel)
 }
 
 /**
- * @brief 		This function servers to reply master slave is not ready.slave reply a byte data: 0x00.indicating that slave is not ready for data transmission.
+ * @brief 		This function servers to reply master slave is not ready.
+ * When slave_ready is set to 0, after the master sends a read status command to the slave,
+ * the slave will automatically return to 0x00 by the hardware.
  * @param[in] 	spi_sel 	- the spi module.
  * @return 		none
  */
@@ -806,8 +811,7 @@ static inline unsigned char spi_slave_get_cmd(spi_sel_e spi_sel)
  */
 static inline void spi_rx_tx_irq_trig_cnt(spi_sel_e spi_sel, unsigned char cnt)
 {
-	BM_CLR(reg_spi_status(spi_sel), FLD_HSPI_FIFO_THRES);
-	reg_spi_status(spi_sel) |= ((cnt & 7) << 4);
+	reg_spi_status(spi_sel) = ((reg_spi_status(spi_sel) & (~FLD_HSPI_FIFO_THRES)) | ((cnt & 7) << 4));
 }
 
 /**
@@ -841,6 +845,16 @@ static inline void spi_clr_irq_status(spi_sel_e spi_sel, spi_irq_status_e status
 static inline void spi_set_irq_mask(spi_sel_e spi_sel, spi_irq_mask mask)
 {
    BM_SET(reg_spi_trans2(spi_sel), mask);
+}
+/**
+ * @brief 		This function servers to get irq mask.
+ * @param[in] 	spi_sel - the spi module.
+ * @param[in] 	mask 	- the irq mask.
+ * @return  	irq mask.
+ */
+static inline unsigned char spi_get_irq_mask(spi_sel_e spi_sel, spi_irq_mask mask)
+{
+	return reg_spi_trans2(spi_sel)&mask;
 }
 
 /**
@@ -896,8 +910,7 @@ static inline void hspi_set_3line_dcx_cmd(void)
  */
 static inline void hspi_set_panel_2data_lane_mode(hspi_panel_2data_lane_mode_e mode)
 {
-	reg_hspi_panel_ctrl &= (~FLD_HSPI_PANEL_2DATA_LANE);
-	reg_hspi_panel_ctrl |= (mode & 0xf) << 2;
+	reg_hspi_panel_ctrl = ((reg_hspi_panel_ctrl & (~FLD_HSPI_PANEL_2DATA_LANE)) | ((mode & 0xf) << 2));
 }
 
 /**
@@ -934,6 +947,13 @@ void hspi_cs_pin_en(hspi_csn_pin_def_e pin);
 void hspi_cs_pin_dis(hspi_csn_pin_def_e pin);
 
 /**
+ * @brief     	This function change hspi csn pin.
+ * @param[in] 	current_csn_pin - the current csn pin.
+ * @param[in] 	next_csn_pin - the next csn pin.
+ * @return 		none.
+ */
+void hspi_change_csn_pin(hspi_csn_pin_def_e current_csn_pin, hspi_csn_pin_def_e next_csn_pin);
+/**
  * @brief     	This function enable pspi csn pin.
  * @param[in] 	pin - the csn pin.
  * @return 		none
@@ -947,6 +967,13 @@ void pspi_cs_pin_en(pspi_csn_pin_def_e pin);
  */
 void pspi_cs_pin_dis(pspi_csn_pin_def_e pin);
 
+/**
+ * @brief     	This function change pspi csn pin.
+ * @param[in] 	current_csn_pin - the current csn pin.
+ * @param[in] 	next_csn_pin - the next csn pin.
+ * @return 		none.
+ */
+void pspi_change_csn_pin(pspi_csn_pin_def_e current_csn_pin, pspi_csn_pin_def_e next_csn_pin);
 /**
  * @brief     	This function configures the clock and working mode for SPI interface.
  * @param[in] 	spi_sel 	- the spi module.
@@ -1086,6 +1113,8 @@ void spi_master_write(spi_sel_e spi_sel, unsigned char *data, unsigned int len);
 
 /**
  * @brief     	This function serves to normal write and read data.
+ * This interface cannot be used for full duplex.
+ * rd_len shouldn't set to 0. Must write first, then read.
  * @param[in] 	spi_sel - the spi module.
  * @param[in] 	wr_data - the pointer to the data for write.
  * @param[in] 	wr_len 	- write length.
@@ -1121,6 +1150,7 @@ void spi_master_read_plus(spi_sel_e spi_sel, unsigned char cmd, unsigned int add
 
 /**
  * @brief      	This function serves to write address, then read data from the SPI slave.
+ * This interface cannot be used for full duplex.
  * @param[in]  	spi_sel	 	- the spi module.
  * @param[in]  	cmd 		- cmd one byte will first write.
  * @param[in]  	addrs 		- pointer to the address of slave.
@@ -1133,16 +1163,22 @@ void spi_master_read_plus(spi_sel_e spi_sel, unsigned char cmd, unsigned int add
 void spi_master_write_read_plus(spi_sel_e spi_sel, unsigned char cmd, unsigned char *addrs, unsigned int addr_len, unsigned char *data, unsigned int data_len, spi_rd_tans_mode_e wr_mode);
 
 /**
- * @brief     	This function serves to set tx_dam channel and config dma tx default.
+ * @brief     	This function serves to set tx_dma channel and config dma tx default.
  * @param[in] 	chn 	- dma channel.
  * @return  	none
+ * @note        In the case that the DMA transfer is not completed(bit 0 of reg_dma_ctr0(chn): 1-the transmission has not been completed,0-the transmission is completed), re-calling the DMA-related functions may cause problems.
+ *              If you must do this, you must perform the following sequence:
+ *              1.hspi_reset() 2.spi_tx_fifo_clr(HSPI_MODULE)/spi_rx_fifo_clr(HSPI_MODULE) 3. dma_chn_dis(s_hspi_tx_dma_chn) 4.spi_master_write_dma(HSPI_MODULE)/spi_master_write_read_dma(HSPI_MODULE)/spi_master_write_dma_plus(HSPI_MODULE)/spi_master_write_read_dma_plus(HSPI_MODULE)/spi_set_tx_dma(HSPI_MODULE).
  */
 void hspi_set_tx_dma_config(dma_chn_e chn);
 
 /**
- * @brief     	This function serves to set rx_dam channel and config dma rx default.
+ * @brief     	This function serves to set rx_dma channel and config dma rx default.
  * @param[in] 	chn 	- dma channel.
  * @return  	none
+ * @note        In the case that the DMA transfer is not completed(bit 0 of reg_dma_ctr0(chn): 1-the transmission has not been completed,0-the transmission is completed), re-calling the DMA-related functions may cause problems.
+ *              If you must do this, you must perform the following sequence:
+ *              1.hspi_reset() 2.spi_rx_fifo_clr(HSPI_MODULE)/spi_tx_fifo_clr(HSPI_MODULE) 3. dma_chn_dis(s_hspi_rx_dma_chn) 4.spi_master_write_read_dma(HSPI_MODULE)/spi_master_read_dma_plus(HSPI_MODULE)/spi_master_write_read_dma_plus(HSPI_MODULE)//spi_set_rx_dma(HSPI_MODULE).
  */
 void hspi_set_rx_dma_config(dma_chn_e chn);
 
@@ -1150,24 +1186,22 @@ void hspi_set_rx_dma_config(dma_chn_e chn);
  * @brief     	This function serves to set tx_dam channel and config dma tx default.
  * @param[in] 	chn 	- dma channel.
  * @return  	none
+ * @note        In the case that the DMA transfer is not completed(bit 0 of reg_dma_ctr0(chn): 1-the transmission has not been completed,0-the transmission is completed), re-calling the DMA-related functions may cause problems.
+ *              If you must do this, you must perform the following sequence:
+ *              1.pspi_reset() 2.spi_tx_fifo_clr(PSPI_MODULE)/spi_rx_fifo_clr(PSPI_MODULE) 3. dma_chn_dis(s_pspi_tx_dma_chn) 4.spi_master_write_dma(PSPI_MODULE)/spi_master_write_read_dma(PSPI_MODULE)/spi_master_write_dma_plus(PSPI_MODULE)/spi_master_write_read_dma_plus(PSPI_MODULE)/spi_set_tx_dma(PSPI_MODULE).
  */
 void pspi_set_tx_dma_config(dma_chn_e chn);
 
 /**
- * @brief     	This function serves to set rx_dam channel and config dma rx default.
+ * @brief     	This function serves to set rx_dma channel and config dma rx default.
  * @param[in] 	chn 	- dma channel.
  * @return  	none
+ * @note        In the case that the DMA transfer is not completed(bit 0 of reg_dma_ctr0(chn): 1-the transmission has not been completed,0-the transmission is completed), re-calling the DMA-related functions may cause problems.
+ *              If you must do this, you must perform the following sequence:
+ *              1.pspi_reset() 2.spi_rx_fifo_clr(PSPI_MODULE)/spi_tx_fifo_clr(PSPI_MODULE) 3. dma_chn_dis(s_pspi_rx_dma_chn) 4.spi_master_write_read_dma(PSPI_MODULE)/spi_master_read_dma_plus(PSPI_MODULE)/spi_master_write_read_dma_plus(PSPI_MODULE)/spi_set_rx_dma(PSPI_MODULE).
  */
 void pspi_set_rx_dma_config(dma_chn_e chn);
 
-/**
- * @brief   	this  function set spi dma channel.
- * @param[in]  	spi_dma_chn - dma channel.
- * @param[in]  	src_addr 	- the address of source.
- * @param[in]  	dst_addr 	- the address of destination.
- * @param[in]  	len 		- the length of data.
- * */
-void spi_set_dma(dma_chn_e spi_dma_chn, unsigned int src_addr, unsigned int dst_addr, unsigned int len);
 
 
 
@@ -1199,6 +1233,7 @@ void spi_master_write_dma(spi_sel_e spi_sel, unsigned char *src_addr, unsigned i
 
 /**
  * @brief     	This function serves to normal write cmd and address, then read data by dma.
+ * The interface does not support full-duplex communication.
  * @param[in] 	spi_sel 	- the spi module.
  * @param[in] 	addr 		- the pointer to the cmd and address for write.
  * @param[in] 	addr_len 	- write length.
@@ -1234,6 +1269,10 @@ void spi_master_read_dma_plus(spi_sel_e spi_sel, unsigned char cmd, unsigned int
 
 /**
  * @brief      	This function serves to single/dual/quad write address and read from the SPI slave by dma.
+ * This interface could be used for full duplex.
+ * When this interface is used for full-duplex communication, it can only be used on the master side.
+ * 1.the spi_master_config() interface must be called first to disable hardware cmd and hardware address
+ * 2.must cmd is 0,addr_len is equal to rd_len,rd_mode is SPI_MODE_WRITE_AND_READ.
  * @param[in]  	spi_sel 	- the spi module.
  * @param[in]  	cmd 		- cmd one byte will first write.
  * @param[in]  	addr 		- the address of slave.
@@ -1276,7 +1315,27 @@ void hspi_master_read_xip(unsigned char cmd, unsigned int addr_offset, unsigned 
  * @return   	none
  */
 void hspi_master_write_xip_cmd_data(unsigned char cmd, unsigned int addr_offset, unsigned char data_in, spi_wr_tans_mode_e wr_mode);
-
+/**
+ * @brief      	This function serves to write and read data simultaneously.
+ * This interface can only be used by the master.
+ * When initializing the master, call the spi_master_config() interface to disable the hardware cmd and hardware address,
+ * and then start sending and receiving data.
+ * The default chunk size sent and received by this interface is 8byte.
+ * @param[in]  	spi_sel 	- the spi module.
+ * @param[in]  	write_data  - write data pointer.
+ * @param[in]  	read_data 	- read data pointer.
+ * @param[in]  	len 	    - write/read length.
+ * @return   	none
+ */
+void spi_master_write_read_full_duplex(spi_sel_e spi_sel,unsigned char *write_data, unsigned char *read_data, unsigned int len);
+/**
+ * @brief      	This function serves to read data in normal.
+ * @param[in]  	spi_sel 	- the spi module.
+ * @param[in]  	data     	- read data pointer.
+ * @param[in]  	len 	    - read length.
+ * @return   	none
+ */
+void spi_master_read(spi_sel_e spi_sel, unsigned char *data, unsigned int len);
 #endif
 
 

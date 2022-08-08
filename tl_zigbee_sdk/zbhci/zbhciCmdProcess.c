@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #include "zcl_include.h"
@@ -251,8 +253,8 @@ static void zbhciUnbindRspPush(void* arg){
 static void zbhciMgmtLqiRspMsgPush(void* arg){
 	zdo_zdpDataInd_t *p = (zdo_zdpDataInd_t *)arg;
 	zdo_mgmt_lqi_resp_t *rsp = (zdo_mgmt_lqi_resp_t *)p->zpdu;
-	u8 num = rsp->neighbor_tbl_lst_cnt;
-	for(s32 i = 0; i < num; i++){
+
+	for(u8 i = 0; i < rsp->neighbor_tbl_lst_cnt; i++){
 		u8 *addr = rsp->neighbor_tbl_lst[i].ext_addr;
 		ZB_LEBESWAP(addr, 8);
 
@@ -278,18 +280,23 @@ static void zbhciMgmtBindRspMsgPush(void* arg){
 	zdo_zdpDataInd_t *p = (zdo_zdpDataInd_t *)arg;
 	zdo_mgmt_bind_resp_t *rsp = (zdo_mgmt_bind_resp_t *)p->zpdu;
 	u8 num = rsp->bind_tbl_lst_cnt;
+	u8 list_ptr = 5;
 
-	for(s32 n = 0; n < num; n++){
-		ZB_LEBESWAP((rsp->bind_tbl_lst[n].src_addr), 8);
-		u8 cidH = rsp->bind_tbl_lst[n].cid16_h;
-		u8 cidL = rsp->bind_tbl_lst[n].cid16_l;
-		rsp->bind_tbl_lst[n].cid16_l = cidH;
-		rsp->bind_tbl_lst[n].cid16_h = cidL;
+	for(u8 n = 0; n < num; n++){
+		zdo_bindTabListRec_t *rsp_list = (zdo_bindTabListRec_t *)(p->zpdu + list_ptr);
 
-		if(rsp->bind_tbl_lst[n].dst_addr_mode == 0x01){
-			ZB_LEBESWAP(((u8 *)&rsp->bind_tbl_lst[n].dst_group_addr), 2);
+		ZB_LEBESWAP((rsp_list->src_addr), 8);
+		u8 cidH = rsp_list->cid16_h;
+		u8 cidL = rsp_list->cid16_l;
+		rsp_list->cid16_l = cidH;
+		rsp_list->cid16_h = cidL;
+		list_ptr += 12;
+		if(rsp_list->dst_addr_mode == 0x01){
+			ZB_LEBESWAP(((u8 *)&rsp_list->dst_group_addr), 2);
+			list_ptr += 2;
 		}else{
-			ZB_LEBESWAP((rsp->bind_tbl_lst[n].dst_ext_addr), 8);
+			ZB_LEBESWAP((rsp_list->dst_ext_addr), 8);
+			list_ptr += 9;
 		}
 	}
 
@@ -326,6 +333,33 @@ static void zbhciMgmtLeaveRspMsgPush(void *arg){
 
 		zbhciTx(ZBHCI_CMD_MGMT_LEAVE_RSP, pBuf - array, array);
 	}
+}
+
+static void zbhciMgmtUpdateNotifyPush(void *arg){
+	zdo_zdpDataInd_t *p = (zdo_zdpDataInd_t *)arg;
+	zdo_mgmt_nwk_update_noti_t *rsp = (zdo_mgmt_nwk_update_noti_t *)p->zpdu;
+
+	u8 array[32] = {0};
+	u8* pBuf = array;
+
+	COPY_U16TOBUFFER_BE(pBuf, p->src_addr);
+	pBuf += 2;
+	*pBuf++ = rsp->seq_num;
+	*pBuf++ = rsp->status;
+	if(rsp->status == SUCCESS){
+		COPY_U32TOBUFFER_BE(pBuf, rsp->scan_result.scanned_channels);
+		pBuf += 4;
+		COPY_U16TOBUFFER_BE(pBuf, rsp->scan_result.total_transmissions);
+		pBuf += 2;
+		COPY_U16TOBUFFER_BE(pBuf, rsp->scan_result.transmissions_fail);
+		pBuf += 2;
+		*pBuf++ = rsp->scan_result.size;
+		if(rsp->scan_result.size <= 16){
+			memcpy(pBuf, rsp->scan_result.energyValues, rsp->scan_result.size);
+			pBuf += rsp->scan_result.size;
+		}
+	}
+	zbhciTx(ZBHCI_CMD_MGMT_NWK_UPDATE_NOTIFY, pBuf - array, array);
 }
 
 s32 rxtx_performance_result_start(void *arg){
@@ -650,7 +684,7 @@ static void zbhci_mgmtCmdHandler(void *arg){
 		COPY_BUFFERTOU32_BE(req.scan_ch, &p[4]);
 		req.scan_duration = p[8];
 		req.scan_cnt = p[9];
-		zb_mgmtNwkUpdateReq(dstAddr, &req, &sn);
+		zb_mgmtNwkUpdateReq(dstAddr, &req, &sn, zbhciMgmtUpdateNotifyPush);
 	}
 
 	ev_buf_free(arg);
@@ -842,7 +876,7 @@ s32 zbhci_nodeManageCmdHandler(void *arg){
 
 			addrExt_t *pMacAddr = ieeeAddrList;
 			zbhci_mgmt_nodesJoined_info_t* rspAddr = rsp->addrList;
-			for(s32 i = 0; i < validcnt; i++){
+			for(u8 i = 0; i < validcnt; i++){
 				u16 shortAddr = 0;
 				u16 idx = 0;
 				ZB_IEEE_ADDR_REVERT(rspAddr->macAddr, (u8*)pMacAddr);

@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #pragma once
@@ -493,6 +495,26 @@
 /*******************************************************************************************************
  * 									Radio interface for B91
  ******************************************************************************************************/
+/**
+ * @brief      This function to correct cap value
+ * @param[in]  addr - flash address, where is the correct cap value
+ * @return     none
+ */
+static inline void rf_drv_cap(unsigned long addr)
+{
+	unsigned char freqency_offset_value = 0xff;
+
+	flash_read_page(addr, 1, &freqency_offset_value);
+	if(0xff != freqency_offset_value)
+	{
+//		rf_update_internal_cap(freqency_offset_value);
+		unsigned char val;
+		val = (freqency_offset_value&0x3f);
+		analog_write_reg8(0x8a,analog_read_reg8(0x8a)&0x7f);
+		analog_write_reg8(0x8a,(analog_read_reg8(0x8a)&0xc0)|val);
+	}
+}
+
 /* radio module reset */
 #define ZB_RADIO_RESET()
 
@@ -623,6 +645,7 @@
 #define ZB_RADIO_INIT()									do{ \
 															rf_mode_init(); 			\
 															rf_set_zigbee_250K_mode();	\
+															rf_drv_cap(CFG_FREQUENCY_OFFSET);\
 														}while(0)
 
 /* sys timer initialization for mac-csma */

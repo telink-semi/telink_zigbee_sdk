@@ -1,12 +1,13 @@
 /********************************************************************************************************
- * @file    analog_reg.h
+ * @file	analog_reg.h
  *
- * @brief   This is the header file for B91
+ * @brief	This is the header file for B91
  *
- * @author  Driver Group
- * @date    2021
+ * @author	Driver Group
+ * @date	2019
  *
- * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,11 +20,11 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
-
 #ifndef ANALOG_REG_H
 #define ANALOG_REG_H
-#include "../sys.h"
+#include "soc.h"
 /*******************************      alg  registers: 140180      ******************************/
 #define ALG_BASE_ADDR			   0x140180
 #define reg_ana_addr			REG_ADDR8(ALG_BASE_ADDR)

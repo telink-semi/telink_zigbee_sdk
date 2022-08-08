@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 /**********************************************************************
@@ -37,10 +39,16 @@ _CODE_ZCL_ static void zcl_zllTouchLinNetworkStartRespCmdSend(void *arg);
  * @param 	arg
  *
  */
-_CODE_ZCL_ void tl_zbNwkZllCommissionScanConfirm(void *arg){
+_CODE_ZCL_ void tl_zbNwkZllCommissionScanConfirm(void){
 	u8 channel = 0xff;
 	u8 panNumOnChannel[16] = {0};
 	u8 nodesOnChannel = 0xff;
+
+	//printf("zllScanCnf: state = %x\n", g_zllTouchLink.state);
+
+	if(g_zllTouchLink.state != ZCL_ZLL_COMMISSION_STATE_TOUCHLINK_DISCOVERY){
+		return;
+	}
 
 	u32 i = 0;
 	u8  neighborNum = tl_zbAdditionNeighborTableNumGet();
@@ -131,17 +139,19 @@ _CODE_ZCL_ void tl_zbNwkZllCommissionScanConfirm(void *arg){
 
 /* NWK-discovery */
 static void touchlink_discovery_network(u32 chanMask){
-	nlme_nwkDisc_req_t req;
-	TL_SETSTRUCTCONTENT(req,0);
+	u32 scanChannels;
+	u8 scanDuration;
+
 	if(0 == chanMask){
-		req.scanChannels = BDB_ATTR().primaryChannelSet;
+		scanChannels = BDB_ATTR().primaryChannelSet;
 	}else{
-		req.scanChannels = chanMask;
+		scanChannels = chanMask;
 	}
-	req.scanDuration = BDB_ATTR().scanDuration;
+	scanDuration = BDB_ATTR().scanDuration;
 
 	g_zllTouchLink.scanChanMask = chanMask;
-	zb_nwkDiscReq(&req, NLME_STATE_ZLL_COMMISSION);
+
+	zb_nwkDiscovery(scanChannels, scanDuration, tl_zbNwkZllCommissionScanConfirm);
 }
 
 
@@ -205,10 +215,10 @@ _CODE_ZCL_ void zcl_zllTouchLinkNetworkStartDirectJoin(void *arg){
 			nlme_directJoin_req_t req;
 			req.nwkAddr = pInitiator->initiatorNwkAddr;
 			memcpy(req.deviceAddr, pInitiator->initiatorIeeeAddr , 8);
-			req.capabilityInfo.devType = (g_zllTouchLink.zbInfo.bf.logicDevType & 0x02) ? 0 : 1;;
+			req.capabilityInfo.devType = (g_zllTouchLink.zbInfo.bf.logicDevType & 0x02) ? 0 : 1;
 			req.capabilityInfo.rcvOnWhenIdle = g_zllTouchLink.zbInfo.bf.rxOnWihleIdle;
 
-			if(zb_nwkDirectJoin(req) != RET_OK){
+			if(zb_nwkDirectJoinAccept(&req) != RET_OK){
 				if(g_zllTouchLink.state != ZCL_ZLL_COMMISSION_STATE_IDLE){
 					zcl_zllTouchLinkFinish(ZCL_ZLL_TOUCH_LINK_FAIL);
 				}
@@ -308,8 +318,8 @@ _CODE_ZCL_ static void zcl_zllTouchLinkNetworkJoinRealjoin(void){
 	if(af_nodeDevTypeGet() == DEVICE_TYPE_END_DEVICE){
 		aps_ib.aps_authenticated = 1;
 		MAC_IB().rxOnWhenIdle = g_zllTouchLink.zbInfo.bf.rxOnWihleIdle;
-		zb_rejoin_mode_set(REJOIN_SECURITY);
-		zdo_nwk_rejoin_req(NLME_REJOIN_METHOD_REJOIN, (1 << MAC_IB().phyChannelCur));
+		zb_rejoinSecModeSet(REJOIN_SECURITY);
+		zb_rejoinReq(1 << g_zbMacPib.phyChannelCur, zdo_cfg_attributes.config_nwk_scan_duration);
 	}else if(af_nodeDevTypeGet() == DEVICE_TYPE_ROUTER){
 		/* router start */
 		zb_routerStart();
@@ -462,9 +472,9 @@ _CODE_ZCL_ s32 zcl_zllTouchLinkNetworkStartResponseHandler(void *arg){
 	zcl_zllTouchLinkNetworkStartResp_t *p = (zcl_zllTouchLinkNetworkStartResp_t *)arg;
 	if(p->status == SUCCESS){
 		/* security join */
-		MAC_IB().rxOnWhenIdle = g_zllTouchLink.zbInfo.bf.rxOnWihleIdle;
-		zb_rejoin_mode_set(REJOIN_SECURITY);
-		zdo_nwk_rejoin_req(NLME_REJOIN_METHOD_REJOIN, 1<<(p->logicalChannel));
+		g_zbMacPib.rxOnWhenIdle = g_zllTouchLink.zbInfo.bf.rxOnWihleIdle;
+		zb_rejoinSecModeSet(REJOIN_SECURITY);
+		zb_rejoinReq(1 << (p->logicalChannel), zdo_cfg_attributes.config_nwk_scan_duration);
 	}else{
 		zcl_zllTouchLinkFinish(ZCL_ZLL_TOUCH_LINK_STA_NO_SERVER);
 	}

@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #ifndef TL_ZB_MAC_H
@@ -273,50 +275,50 @@ typedef enum{
 	MAC_SUCCESS                 	= 0x00,/**< Operation successful */
     MAC_STA_PAN_AT_CAPACITY         = 0x01,
     MAC_STA_PAN_ACCESS_DENIED       = 0x02,
-	MAC_STA_AUTOACK_PENDING_ALL_ON  = 0xFE,
-    MAC_STA_AUTOACK_PENDING_ALL_OFF = 0xFF,
-    MAC_STA_BEACON_LOSS             = 0xE0,
-    MAC_STA_CHANNEL_ACCESS_FAILURE  = 0xE1,
+
+    MAC_STA_UNSUPPORTED             = 0x18,
+    MAC_STA_BAD_STATE               = 0x19,
+    MAC_STA_NO_RESOURCES            = 0x1A,
+    MAC_TX_ABORTED              	= 0x1D,/**< For internal use only */
+    MAC_STA_FRAME_PENDING			= 0x20,
+
     MAC_STA_COUNTER_ERROR           = 0xDB,
-    MAC_STA_DENIED                  = 0xE2,
-    MAC_STA_DISABLE_TRX_FAILURE     = 0xE3,
-    MAC_STA_FRAME_TOO_LONG          = 0xE5,
     MAC_STA_IMPROPER_KEY_TYPE       = 0xDC,
     MAC_STA_IMPROPER_SECURITY_LEVEL = 0xDD,
-    MAC_STA_INVALID_ADDRESS         = 0xF5,
+    MAC_STA_UNSUPPORTED_LEGACY      = 0xDE,
+    MAC_STA_UNSUPPORTED_SECURITY    = 0xDF,
+    MAC_STA_BEACON_LOSS             = 0xE0,
+    MAC_STA_CHANNEL_ACCESS_FAILURE  = 0xE1,
+    MAC_STA_DENIED                  = 0xE2,
+    MAC_STA_DISABLE_TRX_FAILURE     = 0xE3,
+    MAC_STA_SECURITY_ERROR          = 0xE4,
+    MAC_STA_FRAME_TOO_LONG          = 0xE5,
     MAC_STA_INVALID_GTS             = 0xE6,
     MAC_STA_INVALID_HANDLE          = 0xE7,
-    MAC_STA_INVALID_INDEX           = 0xF9,
     MAC_STA_INVALID_PARAMETER       = 0xE8,
-    MAC_STA_LIMIT_REACHED           = 0xFA,
     MAC_STA_NO_ACK                  = 0xE9,
     MAC_STA_NO_BEACON               = 0xEA,
     MAC_STA_NO_DATA                 = 0xEB,
     MAC_STA_NO_SHORT_ADDRESS        = 0xEC,
-    MAC_STA_ON_TIME_TOO_LONG        = 0xF6,
     MAC_STA_OUT_OF_CAP              = 0xED,
     MAC_STA_PAN_ID_CONFLICT         = 0xEE,
-    MAC_STA_PAST_TIME               = 0xF7,
-    MAC_STA_READ_ONLY               = 0xFB,
     MAC_STA_REALIGNMENT_GOT         = 0xEF,
-    MAC_STA_IN_SCAN_DOING		    = 0xFC,
-    MAC_STA_SECURITY_ERROR          = 0xE4,
-    MAC_STA_SUPERFRAME_OVERLAP      = 0xFD,
-    MAC_STA_TRACKING_OFF            = 0xF8,
     MAC_STA_TRANSACTION_EXPIRED     = 0xF0,
     MAC_STA_TRANSACTION_OVERFLOW    = 0xF1,
     MAC_STA_TX_ACTIVE               = 0xF2,
     MAC_STA_KEY_UNAVAILABLE         = 0xF3,
     MAC_STA_UNSUPPORTED_ATTRIBUTE   = 0xF4,
-    MAC_STA_UNSUPPORTED_LEGACY      = 0xDE,
-    MAC_STA_UNSUPPORTED_SECURITY    = 0xDF,
-    MAC_STA_UNSUPPORTED             = 0x18,
-    MAC_STA_BAD_STATE               = 0x19,
-    MAC_STA_NO_RESOURCES            = 0x1A,
-
-    MAC_STA_FRAME_PENDING			= 0x20,
-
-    MAC_TX_ABORTED              	= 0x1D,/**< For internal use only */
+    MAC_STA_INVALID_ADDRESS         = 0xF5,
+    MAC_STA_ON_TIME_TOO_LONG        = 0xF6,
+    MAC_STA_PAST_TIME               = 0xF7,
+    MAC_STA_TRACKING_OFF            = 0xF8,
+    MAC_STA_INVALID_INDEX           = 0xF9,
+    MAC_STA_LIMIT_REACHED           = 0xFA,
+    MAC_STA_READ_ONLY               = 0xFB,
+    MAC_STA_IN_SCAN_DOING		    = 0xFC,
+    MAC_STA_SUPERFRAME_OVERLAP      = 0xFD,
+	MAC_STA_AUTOACK_PENDING_ALL_ON  = 0xFE,
+    MAC_STA_AUTOACK_PENDING_ALL_OFF = 0xFF,
 }mac_sts_t;
 
 
@@ -534,6 +536,7 @@ typedef struct{
 	addr_t 	srcAddr;
 	addr_t 	dstAddr;
 	u8  	status;
+	bool	isAssoc;//TRUE is associate, FALSE is orphan
 	mac_sec_t sec;
 }zb_mlme_comm_status_ind_t;
 

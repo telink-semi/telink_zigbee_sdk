@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #ifndef DGP_STUB_H
@@ -30,8 +32,6 @@
 #define GP_TX_QUEUE_MAX_NUM					1
 #define GP_DATA_IND_SEC_REQ_TAB_NUM			4
 
-#define GP_NONCE_SEC_CTRL						0x05
-#define GP_NONCE_SEC_CTRL_OUTGOING_APP_ID_GP	0xc5
 
 //A.1.5.2.1.2
 #define GP_TX_OFFSET						20//ms
@@ -44,8 +44,9 @@
 //GP handle
 typedef enum{
 	GP_HANDLE_MIN = 0x70,
-	GP_HANDLE_MAX = 0xBE,
-	GP_HANDLE_CHANNEL_CONFIGURATION = 0xBF,
+	GP_HANDLE_MAX = 0xBD,
+	GP_HANDLE_CHANNEL_CONFIGURATION = 0xBE,
+	GP_HANDLE_TUNNELED_GPD_CMD		= 0xBF,
 	//NWK_INTERNAL_NSDU_HANDLE = 0xC0,
 }gp_handle_e;
 
@@ -99,7 +100,7 @@ typedef enum
 */
 typedef struct
 {
-	u8	*gpdAsdu;
+	u8	*gpdAsdu;	//gpdAsdu[0] is cmdId.
 	u32	srcId;
 	u32	gpdSecFrameCnt;
 	u32	mic;
@@ -117,7 +118,7 @@ typedef struct
 	u8	gpdfKeyType;//0x00 - 0x07
 	u8	endpoint;
 	u8	gpdCmdId;
-	u8	gpdAsduLen;
+	u8	gpdAsduLen;	//length of ZGP App Payload.
 	u8	frameType;
 }gp_data_ind_t;
 
@@ -205,7 +206,7 @@ typedef struct
 	u8	appId;
 	u8	endpoint;
 	u8	gpdKey[16];
-	u8	gpdfSecurityLevel;
+	u8	gpdfSecurityLevel;//0x00,0x02,0x03
 	u8	gpdfKeyType;//0x00 - 0x07
 }gp_sec_rsp_t;
 
@@ -234,21 +235,24 @@ typedef struct
 typedef struct
 {
 	gp_data_ind_t *buf;	//hold gpDataInd buffer
+	u32 frameCounter;
+	gpdId_t	gpdId;
 	u8	timeout;
 	u8	dGpStubHandle;
+	u8	appId:3;
 	u8	gpdfSecKey:1;
 	u8	gpdfSecLevel:2;
 	u8	used:1;
-	u8	reserved:4;
+	u8	reserved:1;
 }gp_data_ind_entry_t;
 
 
-typedef u8 (*gpDeviceAnnounceCheckCb_t)(u16 sinkNwkAddr, addrExt_t sinkIeeeAddr);
+typedef bool (*gpDeviceAnnounceCheckCb_t)(u16 sinkNwkAddr, addrExt_t sinkIeeeAddr);
 
 /***************************************************************************
 * @brief	Define for dStub notify GPEP
 */
-typedef void (*gpDataCnfCb_t)(gp_data_cnf_t gpDataCnf);
+typedef void (*gpDataCnfCb_t)(gp_data_cnf_t *pGpDataCnf);
 typedef void (*gpDataIndCb_t)(void *arg);
 typedef void (*gpSecReqCb_t)(void *arg);
 
@@ -257,15 +261,20 @@ typedef struct
 	gpDataCnfCb_t 	gpDataCnfCb;
 	gpDataIndCb_t 	gpDataIndCb;
 	gpSecReqCb_t	gpSecReqCb;
-}gp_epCb_t;
-
-
+}gp_stubCb_t;
 
 extern gp_data_ind_entry_t g_gpDataIndSecReqTab[];
 
 
-void gpStubCbInit(gp_epCb_t *cb);
+gp_nwkHdrFrameCtrl_t gpNwkHdrFrameCtrlBuild(u8 frameType, bool autoComm, u8 appId,
+											u8 secLevel, u8 secKey,
+											bool rxAfterTx, bool direction,
+											gp_extNwkFrameCtrl_t *pExtNwkFrameCtrl);
+
+void gpStubCbInit(gp_stubCb_t *cb);
 void gpTxQueueFree(void);
+void gpTxQueueMaintenceClear(void);
+gp_data_ind_entry_t *gpDataIndEntryFreeGet(void);
 void gpDataIndSecReqEntryClear(gp_data_ind_entry_t *pEntry);
 u8 dGpStubHandleGet(void);
 gp_data_ind_entry_t *gpDataIndGet(u8 handle);

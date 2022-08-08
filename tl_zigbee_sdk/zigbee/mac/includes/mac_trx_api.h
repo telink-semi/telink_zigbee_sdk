@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #ifndef MAC_TRX_API_H
@@ -92,8 +94,11 @@
 #define	MAC_CAP_GET_DEVICE_TYPE(c)		((c >> 1) & 1)
 #define	MAC_CAP_GET_RXON_WHEN_IDLE(c)	((c >> 3) & 1)
 
+#if ZB_ROUTER_ROLE
+#define	TX_QUEUE_BN						32
+#else
 #define	TX_QUEUE_BN						16
-
+#endif
 
 typedef enum{
 	RX_BUSY 		= BIT(0),

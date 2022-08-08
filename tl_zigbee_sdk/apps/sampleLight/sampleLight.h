@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *			All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #ifndef _SAMPLE_LIGHT_H_
@@ -216,7 +218,7 @@ status_t sampleLight_colorCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, voi
 void sampleLight_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf);
 void sampleLight_leaveIndHandler(nlme_leave_ind_t *pLeaveInd);
 void sampleLight_otaProcessMsgHandler(u8 evt, u8 status);
-u8 sampleLight_nwkUpdateIndicateHandler(nwkCmd_nwkUpdate_t *pNwkUpdate);
+bool sampleLight_nwkUpdateIndicateHandler(nwkCmd_nwkUpdate_t *pNwkUpdate);
 
 void sampleLight_onoff(u8 cmd);
 

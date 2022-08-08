@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 /**********************************************************************
@@ -70,9 +72,15 @@ volatile u8 rf_busyFlag = 0;
 volatile s8 soft_rssi;
 volatile s32 sum_rssi, cnt_rssi = 1;
 
-u8 fPaEn;
-u32 rf_pa_txen_pin;
-u32 rf_pa_rxen_pin;
+u8 fPaEn = 0;
+u32 rf_pa_txen_pin = 0;
+u32 rf_pa_rxen_pin = 0;
+
+u8 fPtaEn = 0;
+u32 rf_pta_priority_pin = 0;
+u32 rf_pta_active_pin = 0;
+
+static bool isWLANActive(void);
 
 /**********************************************************************
  * LOCAL FUNCTIONS
@@ -85,7 +93,10 @@ u32 rf_pa_rxen_pin;
 										if(fPaEn){	\
 											drv_gpio_write(rf_pa_txen_pin, 1); 		\
 											drv_gpio_write(rf_pa_rxen_pin, 0); 		\
-										}										\
+										}											\
+										if(fPtaEn){	\
+											drv_gpio_write(rf_pta_priority_pin, 1);	\
+										}											\
 										ZB_RADIO_TRX_OFF_AUTO_MODE();	\
 										ZB_RADIO_TRX_SWITCH(RF_MODE_TX, LOGICCHANNEL_TO_PHYSICAL(rf_getChannel()));	\
 									}	\
@@ -96,9 +107,12 @@ u32 rf_pa_rxen_pin;
 									if(rfMode != RF_STATE_RX || ZB_RADIO_TRX_STA_GET() != RF_MODE_AUTO){	\
 										rfMode = RF_STATE_RX;	\
 										if(fPaEn){	\
-											drv_gpio_write(rf_pa_txen_pin, 0); 	\
-											drv_gpio_write(rf_pa_rxen_pin, 1); 	\
-										}										\
+											drv_gpio_write(rf_pa_txen_pin, 0); 		\
+											drv_gpio_write(rf_pa_rxen_pin, 1); 		\
+										}											\
+										if(fPtaEn){	\
+											drv_gpio_write(rf_pta_priority_pin, 0);	\
+										}											\
 										ZB_RADIO_TRX_SWITCH(RF_MODE_AUTO, LOGICCHANNEL_TO_PHYSICAL(rf_getChannel())); \
 									}	\
 									ZB_RADIO_SRX_START(clock_time());	\
@@ -111,7 +125,10 @@ u32 rf_pa_rxen_pin;
 										if(fPaEn){	\
 											drv_gpio_write(rf_pa_txen_pin, 1); 		\
 											drv_gpio_write(rf_pa_rxen_pin, 0); 		\
-										}										\
+										}											\
+										if(fPtaEn){	\
+											drv_gpio_write(rf_pta_priority_pin, 1);	\
+										}											\
 										ZB_RADIO_TRX_SWITCH(RF_MODE_TX, LOGICCHANNEL_TO_PHYSICAL(rf_getChannel()));	\
 									}	\
 								}while(0)
@@ -121,9 +138,12 @@ u32 rf_pa_rxen_pin;
 									if(rfMode != RF_STATE_RX || ZB_RADIO_TRX_STA_GET() != RF_MODE_RX){	\
 										rfMode = RF_STATE_RX;	\
 										if(fPaEn){	\
-											drv_gpio_write(rf_pa_txen_pin, 0); 	\
-											drv_gpio_write(rf_pa_rxen_pin, 1); 	\
-										}										\
+											drv_gpio_write(rf_pa_txen_pin, 0); 		\
+											drv_gpio_write(rf_pa_rxen_pin, 1); 		\
+										}											\
+										if(fPtaEn){	\
+											drv_gpio_write(rf_pta_priority_pin, 0);	\
+										}											\
 										ZB_RADIO_TRX_SWITCH(RF_MODE_RX, LOGICCHANNEL_TO_PHYSICAL(rf_getChannel()));	\
 									}	\
 								}while(0)
@@ -133,9 +153,16 @@ u32 rf_pa_rxen_pin;
 									if(rfMode != RF_STATE_OFF || ZB_RADIO_TRX_STA_GET() != RF_MODE_OFF){	\
 										rfMode = RF_STATE_OFF;	\
 										rf_paShutDown();		\
+										if(fPtaEn){	\
+											drv_gpio_write(rf_pta_priority_pin, 0);	\
+										}											\
 										ZB_RADIO_TRX_SWITCH(RF_MODE_OFF, LOGICCHANNEL_TO_PHYSICAL(rf_getChannel())); \
 									}	\
 								}while(0)
+
+_attribute_ram_code_ u32 mac_currentTickGet(void){
+	 return clock_time();
+}
 
 /*********************************************************************
  * @fn      rf_reset
@@ -412,22 +439,13 @@ u8 rf_stopED(void)
 {
 #ifndef WIN32
     u8 ed;
-    u32 temp;
 
     if(cnt_rssi == 0) cnt_rssi = 1;
     soft_rssi = sum_rssi/cnt_rssi;
 
     ev_disable_poll(EV_POLL_ED_DETECT);/*WISE_FIX_ME*/
     /* Transfer the RSSI value to ED value */
-    if(soft_rssi <= -106){
-        ed = 0;
-    }else if(soft_rssi >= -6){
-        ed = 0xff;
-    }else{
-    	temp = (soft_rssi + 106) * 255;
-        ed = temp/100;
-    }
-
+    ed = rf_getLqi(soft_rssi);
     return ed;
 
 #else
@@ -437,6 +455,10 @@ u8 rf_stopED(void)
 
 _attribute_ram_code_ u8 rf_performCCA(void)
 {
+	if(isWLANActive()){
+		return PHY_CCA_BUSY;
+	}
+
 	u32 t1 = clock_time();
 	s8 rssi_peak = -110;
 	s8 rssi_cur = -110;
@@ -490,7 +512,7 @@ _attribute_ram_code_ void rf802154_tx(void)
 }
 
 
-
+#if PA_ENABLE
 /*********************************************************************
  * @fn      rf_paInit
  *
@@ -517,14 +539,54 @@ void rf_paInit(u32 TXEN_pin, u32 RXEN_pin)
 
     fPaEn = 1;
 }
+#endif
 
 _attribute_ram_code_ void rf_paShutDown(void)
 {
+#if PA_ENABLE
     if(fPaEn){
     	drv_gpio_write(rf_pa_txen_pin, 0); // PA TX_DIS
     	drv_gpio_write(rf_pa_rxen_pin, 0); // PA RX_DIS
     }
+#endif
 }
+
+
+#if PTA_ENABLE
+void rf_ptaInit(u32 ZB_priorityPin, u32 WLAN_activePin)
+{
+	rf_pta_priority_pin = ZB_priorityPin;
+	rf_pta_active_pin = WLAN_activePin;
+
+    drv_gpio_func_set(rf_pta_priority_pin);
+    drv_gpio_output_en(rf_pta_priority_pin, 1);
+    drv_gpio_input_en(rf_pta_priority_pin, 0);
+    drv_gpio_write(rf_pta_priority_pin, 0);
+
+    drv_gpio_func_set(rf_pta_active_pin);
+    drv_gpio_output_en(rf_pta_active_pin, 0);
+    drv_gpio_input_en(rf_pta_active_pin, 1);
+
+    fPtaEn = 1;
+}
+#endif
+
+_attribute_ram_code_ bool isWLANActive(void)
+{
+#if PTA_ENABLE
+	if(fPtaEn){
+		if(drv_gpio_read(rf_pta_active_pin)){
+			WaitUs(2);
+			if(drv_gpio_read(rf_pta_active_pin)){
+				return TRUE;
+			}
+		}
+	}
+#endif
+
+	return FALSE;
+}
+
 
 /*********************************************************************
  * @fn      rf_rx_irq_handler

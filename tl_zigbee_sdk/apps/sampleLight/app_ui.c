@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *			All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #if (__PROJECT_TL_DIMMABLE_LIGHT__)
@@ -31,7 +33,7 @@
 #include "zcl_include.h"
 #include "sampleLight.h"
 #include "app_ui.h"
-
+#include "gp.h"
 /**********************************************************************
  * LOCAL CONSTANTS
  */
@@ -96,9 +98,10 @@ void buttonShortPressed(u8 btNum){
 		}
 	}else if(btNum == VK_SW2){
 		/* toggle local permit Joining */
-		static u8 duration = 0;
-		duration = duration ? 0 : 0xff;
+		u8 duration = zb_getMacAssocPermit() ? 0 : 180;
 		zb_nlmePermitJoiningRequest(duration);
+
+		gpsCommissionModeInvork();
 	}
 }
 

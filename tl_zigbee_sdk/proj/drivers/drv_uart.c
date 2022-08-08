@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #include "../tl_common.h"
@@ -92,11 +94,9 @@ void drv_uart_init(u32 baudrate, u8 *rxBuf, u16 rxBufLen, uart_irq_callback uart
 	uart_reset(UART_IDX);
 
 	uart_cal_div_and_bwpc(baudrate, UART_CLOCK_SOURCE, &div, &bwpc);
-	uart_set_dma_rx_timeout(UART_IDX, bwpc, 12, UART_BW_MUL1);
+	uart_set_rx_timeout(UART_IDX, bwpc, 12, UART_BW_MUL2);
 	uart_init(UART_IDX, div, bwpc, UART_PARITY_NONE, UART_STOP_BIT_ONE);
 
-	dma_clr_irq_mask(UART_DMA_CHANNEL_TX, TC_MASK | ABT_MASK | ERR_MASK);
-	dma_clr_irq_mask(UART_DMA_CHANNEL_RX, TC_MASK | ABT_MASK | ERR_MASK);
 	uart_set_tx_dma_config(UART_IDX, UART_DMA_CHANNEL_TX);
 	uart_set_rx_dma_config(UART_IDX, UART_DMA_CHANNEL_RX);
 

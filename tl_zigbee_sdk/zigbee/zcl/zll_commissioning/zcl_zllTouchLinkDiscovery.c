@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 /**********************************************************************
@@ -322,6 +324,8 @@ _CODE_ZCL_  void zcl_zllTouchLinkScanRequestHandler(epInfo_t *srcEp, u8 seqNo){
 
 	MAC_IB().rxOnWhenIdle = 1;
 	g_zllTouchLink.touchLinkChan = MAC_IB().phyChannelCur;
+
+	//printf("zllScanRspSend: transId = %x, chn = %d\n", resp.transId, resp.logicalChannel);
 
 	/* Send Response to Originator ,should be Unicast */
 	zcl_sendInterPANCmd(g_zllTouchLink.devInfo.epId, srcEp, ZCL_CLUSTER_TOUCHLINK_COMMISSIONING, ZCL_CMD_ZLL_COMMISSIONING_SCAN_RSP, TRUE,

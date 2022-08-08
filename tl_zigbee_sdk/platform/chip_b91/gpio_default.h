@@ -1,12 +1,13 @@
 /********************************************************************************************************
- * @file    gpio_default.h
+ * @file	gpio_default.h
  *
- * @brief   This is the header file for B91
+ * @brief	This is the header file for B91
  *
- * @author  Driver Group
- * @date    2021
+ * @author	Driver Group
+ * @date	2019
  *
- * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,8 +20,8 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
-
 #ifndef DRIVERS_GPIO_DEFAULT_H_
 #define DRIVERS_GPIO_DEFAULT_H_
 
@@ -626,16 +627,16 @@
 #define PE3_INPUT_ENABLE	0
 #endif
 #ifndef PE4_INPUT_ENABLE
-#define PE4_INPUT_ENABLE	0
+#define PE4_INPUT_ENABLE	1 //JTAG 4-WIRE FUNCTION
 #endif
 #ifndef PE5_INPUT_ENABLE
-#define PE5_INPUT_ENABLE	0
+#define PE5_INPUT_ENABLE	1 //JTAG 4-WIRE FUNCTION
 #endif
 #ifndef PE6_INPUT_ENABLE
-#define PE6_INPUT_ENABLE	1
+#define PE6_INPUT_ENABLE	1 //JTAG 4-WIRE FUNCTION
 #endif
 #ifndef PE7_INPUT_ENABLE
-#define PE7_INPUT_ENABLE	1
+#define PE7_INPUT_ENABLE	1 //JTAG 4-WIRE FUNCTION
 #endif
 
 #ifndef PE0_OUTPUT_ENABLE
@@ -726,16 +727,16 @@
 #define PE3_FUNC	AS_GPIO
 #endif
 #ifndef PE4_FUNC
-#define PE4_FUNC	AS_GPIO
+#define PE4_FUNC	AS_TDI  //JTAG 4-WIRE FUNCTION
 #endif
 #ifndef PE5_FUNC
-#define PE5_FUNC	AS_GPIO
+#define PE5_FUNC	AS_TDO  //JTAG 4-WIRE FUNCTION
 #endif
 #ifndef PE6_FUNC
-#define PE6_FUNC	AS_TMS
+#define PE6_FUNC	AS_TMS  //JTAG 4-WIRE FUNCTION
 #endif
 #ifndef PE7_FUNC
-#define PE7_FUNC	AS_TCK
+#define PE7_FUNC	AS_TCK  //JTAG 4-WIRE FUNCTION
 #endif
 #ifndef PULL_WAKEUP_SRC_PE0
 #define PULL_WAKEUP_SRC_PE0	0
@@ -750,16 +751,16 @@
 #define PULL_WAKEUP_SRC_PE3	0
 #endif
 #ifndef PULL_WAKEUP_SRC_PE4
-#define PULL_WAKEUP_SRC_PE4	0
+#define PULL_WAKEUP_SRC_PE4	GPIO_PIN_PULLUP_10K //JTAG 4-WIRE FUNCTION
 #endif
 #ifndef PULL_WAKEUP_SRC_PE5
-#define PULL_WAKEUP_SRC_PE5	0
+#define PULL_WAKEUP_SRC_PE5	GPIO_PIN_PULLUP_10K //JTAG 4-WIRE FUNCTION
 #endif
 #ifndef PULL_WAKEUP_SRC_PE6
-#define PULL_WAKEUP_SRC_PE6	0
+#define PULL_WAKEUP_SRC_PE6	GPIO_PIN_PULLUP_10K //JTAG 4-WIRE FUNCTION
 #endif
 #ifndef PULL_WAKEUP_SRC_PE7
-#define PULL_WAKEUP_SRC_PE7	0
+#define PULL_WAKEUP_SRC_PE7	GPIO_PIN_PULLDOWN_100K //JTAG 4-WIRE FUNCTION
 #endif
 //////////////////////////////////////////////////
 #ifndef PF0_INPUT_ENABLE

@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #include "../tl_common.h"
@@ -234,7 +236,6 @@ void drv_gpio_irq_en(u32 pin)
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	gpio_en_interrupt(pin, 1);
 #elif defined(MCU_CORE_B91)
-	gpio_irq_en(pin);
 	plic_interrupt_enable(IRQ25_GPIO);
 #endif
 }
@@ -244,7 +245,6 @@ void drv_gpio_irq_risc0_en(u32 pin)
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	gpio_en_interrupt_risc0(pin, 1);
 #elif defined(MCU_CORE_B91)
-	gpio_gpio2risc0_irq_en(pin);
 	plic_interrupt_enable(IRQ26_GPIO2RISC0);
 #endif
 }
@@ -254,7 +254,6 @@ void drv_gpio_irq_risc1_en(u32 pin)
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	gpio_en_interrupt_risc1(pin, 1);
 #elif defined(MCU_CORE_B91)
-	gpio_gpio2risc1_irq_en(pin);
 	plic_interrupt_enable(IRQ27_GPIO2RISC1);
 #endif
 }
@@ -264,7 +263,6 @@ void drv_gpio_irq_dis(u32 pin)
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	gpio_en_interrupt(pin, 0);
 #elif defined(MCU_CORE_B91)
-	gpio_irq_dis(pin);
 	plic_interrupt_disable(IRQ25_GPIO);
 #endif
 }
@@ -274,7 +272,6 @@ void drv_gpio_irq_risc0_dis(u32 pin)
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	gpio_en_interrupt_risc0(pin, 0);
 #elif defined(MCU_CORE_B91)
-	gpio_gpio2risc0_irq_dis(pin);
 	plic_interrupt_disable(IRQ26_GPIO2RISC0);
 #endif
 }
@@ -284,7 +281,6 @@ void drv_gpio_irq_risc1_dis(u32 pin)
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	gpio_en_interrupt_risc1(pin, 0);
 #elif defined(MCU_CORE_B91)
-	gpio_gpio2risc1_irq_dis(pin);
 	plic_interrupt_disable(IRQ27_GPIO2RISC1);
 #endif
 }

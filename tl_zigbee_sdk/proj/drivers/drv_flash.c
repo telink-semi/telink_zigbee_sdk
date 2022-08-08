@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,9 +20,63 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #include "../tl_common.h"
+
+#if (FLASH_W_PROTECT)
+flash_lock_t *p_drv_flashLockOp = NULL;
+
+#if defined(MCU_CORE_8258)
+flash_lock_t  g_flashLockTable[] = {
+	{0x11460c8, flash_lock_all_mid011460c8, flash_unlock_mid011460c8},
+	{0x1060c8, flash_lock_all_mid1060c8,   flash_unlock_mid1060c8},
+	{0x13325e, flash_lock_all_mid13325e,   flash_unlock_mid13325e},
+	{0x134051, flash_lock_all_mid134051,   flash_unlock_mid134051},
+	{0x136085, flash_lock_all_mid136085,   flash_unlock_mid136085},
+	{0x1360c8, flash_lock_all_mid1360c8,   flash_unlock_mid1360c8},
+	{0x1360eb, flash_lock_all_mid1360eb,   flash_unlock_mid1360eb},
+	{0x14325e, flash_lock_all_mid14325e,   flash_unlock_mid14325e},
+	{0x1460c8, flash_lock_all_mid1460c8,   flash_unlock_mid1460c8}
+};
+#elif defined(MCU_CORE_B91)
+flash_lock_t  g_flashLockTable[] = {
+	{0x146085, flash_lock_all_mid146085, flash_unlock_mid146085},
+	{0x156085, flash_lock_all_mid156085, flash_unlock_mid156085},
+	{0x166085, flash_lock_all_mid166085, flash_unlock_mid166085}
+};
+#else
+flash_lock_t  g_flashLockTable[] = {
+	{0x0, NULL, NULL},
+};
+#endif
+
+
+bool flash_load(void){
+	unsigned int mid = flash_read_mid();
+	for(int i = 0; i < sizeof(g_flashLockTable)/sizeof(flash_lock_t); i++){
+		if(mid == g_flashLockTable[i].mid){
+			p_drv_flashLockOp = &g_flashLockTable[i];
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+static void flash_lock(void){
+	if(p_drv_flashLockOp && p_drv_flashLockOp->lock){
+		p_drv_flashLockOp->lock();
+	}
+}
+
+static void flash_unlock(void){
+	if(p_drv_flashLockOp && p_drv_flashLockOp->unlock){
+		p_drv_flashLockOp->unlock();
+	}
+}
+#endif
 
 
 void flash_write(u32 addr, u32 len, u8 *buf){
@@ -33,7 +88,15 @@ void flash_write(u32 addr, u32 len, u8 *buf){
 	if(drv_get_adc_data() < BATTERY_SAFETY_THRESHOLD){return;}
 #endif
 
+#if (FLASH_W_PROTECT)
+	flash_unlock();
+#endif
+
 	flash_write_page(addr, len, buf);
+
+#if (FLASH_W_PROTECT)
+	flash_lock();
+#endif
 }
 
 void flash_read(u32 addr, u32 len, u8 *buf){
@@ -49,7 +112,15 @@ void flash_erase(u32 addr){
 	if(drv_get_adc_data() < BATTERY_SAFETY_THRESHOLD){return;}
 #endif
 
+#if (FLASH_W_PROTECT)
+	flash_unlock();
+#endif
+
 	flash_erase_sector(addr);
+
+#if (FLASH_W_PROTECT)
+	flash_lock();
+#endif
 }
 
 #ifdef CFS_ENABLE

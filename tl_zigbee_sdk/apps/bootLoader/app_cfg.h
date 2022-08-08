@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *			All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #pragma once
@@ -40,6 +42,34 @@ extern "C" {
 #define	UART_PRINTF_MODE				0
 #define USB_PRINTF_MODE         		0
 
+/* Voltage detect module */
+/* If VOLTAGE_DETECT_ENABLE is set,
+ * 1) if MCU_CORE_826x is defined, the DRV_ADC_VBAT_MODE mode is used by default,
+ * and there is no need to configure the detection IO port;
+ * 2) if MCU_CORE_8258 or MCU_CORE_8278 is defined, the DRV_ADC_VBAT_MODE mode is used by default,
+ * we need to configure the detection IO port, and the IO must be in a floating state.
+ * 3) if MCU_CORE_B91 is defined, the DRV_ADC_BASE_MODE mode is used by default,
+ * we need to configure the detection IO port, and the IO must be connected to the target under test,
+ * such as VCC.
+ */
+#define VOLTAGE_DETECT_ENABLE			0
+
+#if defined(MCU_CORE_826x)
+	#define VOLTAGE_DETECT_ADC_PIN		0
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+	#define VOLTAGE_DETECT_ADC_PIN		GPIO_PC5
+#elif defined(MCU_CORE_B91)
+	#define VOLTAGE_DETECT_ADC_PIN		ADC_GPIO_PB0
+#endif
+
+/* Flash write protect */
+#define FLASH_W_PROTECT					0
+
+/*
+ * Enable UART to upgrade image.
+ */
+#define UART_ENABLE						1
+
 /* Board ID */
 #define BOARD_826x_EVK					0
 #define BOARD_826x_DONGLE				1
@@ -49,8 +79,8 @@ extern "C" {
 #define BOARD_8258_DONGLE				5
 #define BOARD_8278_EVK					6
 #define BOARD_8278_DONGLE				7
-#define BOARD_9518_EVK					8
-#define BOARD_9518_DONGLE				9
+#define BOARD_B91_EVK					8
+#define BOARD_B91_DONGLE				9
 
 /* Board define */
 #if defined(MCU_CORE_826x)
@@ -68,7 +98,7 @@ extern "C" {
 	#define CLOCK_SYS_CLOCK_HZ  		48000000
 #elif defined(MCU_CORE_B91)
 	#define FLASH_CAP_SIZE_1M		  	1
-	#define BOARD						BOARD_9518_DONGLE//BOARD_9518_EVK
+	#define BOARD						BOARD_B91_DONGLE//BOARD_B91_EVK
 	#define CLOCK_SYS_CLOCK_HZ  		48000000
 #else
 	#error "MCU is undefined!"
@@ -89,28 +119,18 @@ extern "C" {
 	#include "board_8278_evk.h"
 #elif (BOARD == BOARD_8278_DONGLE)
 	#include "board_8278_dongle.h"
-#elif (BOARD == BOARD_9518_EVK)
-	#include "board_9518_evk.h"
-#elif (BOARD == BOARD_9518_DONGLE)
-	#include "board_9518_dongle.h"
+#elif (BOARD == BOARD_B91_EVK)
+	#include "board_b91_evk.h"
+#elif (BOARD == BOARD_B91_DONGLE)
+	#include "board_b91_dongle.h"
 #endif
 
-
-/* Voltage detect module */
-/* If you want to define the VOLTAGE_DETECT_ENABLE to 1,
- * and the model of the development board is B91 evk or dongle,
- * be sure to connect GPIO_PB0 to VCC.
- */
-#define VOLTAGE_DETECT_ENABLE			0
 
 /**********************************************************************
  * EV configuration
  */
 typedef enum{
-	EV_POLL_ED_DETECT,
-	EV_POLL_FACTORY_RST,
-	EV_POLL_HCI,
-    EV_POLL_IDLE,
+	EV_POLL_UART_PROC,
 	EV_POLL_MAX,
 }ev_poll_e;
 

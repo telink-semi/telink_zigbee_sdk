@@ -1,12 +1,13 @@
 /********************************************************************************************************
- * @file    uart.h
+ * @file	uart.h
  *
- * @brief   This is the header file for B91
+ * @brief	This is the header file for B91
  *
- * @author  Driver Group
- * @date    2021
+ * @author	Driver Group
+ * @date	2019
  *
- * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,8 +20,8 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
-
 /**	@page UART
  *
  *	Introduction
@@ -34,10 +35,10 @@
 #ifndef     UART_H_
 #define     UART_H_
 
+#include <reg_include/register.h>
 #include "gpio.h"
 #include "dma.h"
 #include "timer.h"
-#include "reg_include/register_b91.h"
 
 extern unsigned char uart_rx_byte_index[2];
 extern unsigned char uart_tx_byte_index[2];
@@ -164,9 +165,6 @@ typedef enum{
 	UART_ERR_IRQ_MASK = BIT(4),//reg_uart_rx_timeout1(uart_num) BIT(7)
 }uart_irq_mask_e;
 
-
-
-
 /**
  *  @brief  Define UART IRQ BIT STATUS FOR GET
  */
@@ -220,9 +218,22 @@ static inline unsigned char uart_get_txfifo_num(uart_num_e uart_num)
  */
 static inline void uart_reset(uart_num_e uart_num)
 {
-
+	/*
+	  In B91, tx_done is 1 by default, after uart reset(write 0, then write 1) write 0,tx_done will be restored to its default value,
+	  if tx mask is turned on in advance, it will enter interrupt,in the interrupt, there is the action of clearing tx_done, but after the clear, immediately becomes 1,
+	  out of the interrupt, and immediately in the interrupt, and so on loop, resulting in the feeling that the program did not go down.
+	 */
+	unsigned char tx_mask_flag=0;
+	if(reg_uart_rx_timeout1(uart_num)|FLD_UART_MASK_TXDONE)
+	{
+		tx_mask_flag=1;
+		reg_uart_rx_timeout1(uart_num)&=~FLD_UART_MASK_TXDONE;
+	}
 	reg_rst0 &= (~((uart_num)?FLD_RST0_UART1:FLD_RST0_UART0));
 	reg_rst0 |= ((uart_num)?FLD_RST0_UART1:FLD_RST0_UART0);
+	if(tx_mask_flag==1){
+		reg_uart_rx_timeout1(uart_num)|=FLD_UART_MASK_TXDONE;
+	}
 }
 
 /**
@@ -286,7 +297,7 @@ void uart_cal_div_and_bwpc(unsigned int baudrate, unsigned int sysclk, unsigned 
  * @param[in]	mul	     - mul.
  * @return 		none
  */
-void uart_set_dma_rx_timeout(uart_num_e uart_num,unsigned char bwpc, unsigned char bit_cnt, uart_timeout_mul_e mul);
+void uart_set_rx_timeout(uart_num_e uart_num,unsigned char bwpc, unsigned char bit_cnt, uart_timeout_mul_e mul);
 
 /**
  * @brief     This function serves to config the number level setting the irq bit of status register.
@@ -332,7 +343,7 @@ unsigned char uart_read_byte(uart_num_e uart_num);
  */
 unsigned char uart_tx_is_busy(uart_num_e uart_num);
 /**
- * @brief     This function serves to send uart0 data by halfword with not DMA method.
+ * @brief     This function serves to send uart data by halfword with not DMA method.
  * @param[in] uart_num - UART0 or UART1.
  * @param[in] data  - the data to be send.
  * @return    none
@@ -340,7 +351,7 @@ unsigned char uart_tx_is_busy(uart_num_e uart_num);
 void uart_send_hword(uart_num_e uart_num, unsigned short data);
 
 /**
- * @brief     This function serves to send uart0 data by word with not DMA method.
+ * @brief     This function serves to send uart data by word with not DMA method.
  * @param[in] uart_num - UART0 or UART1.
  * @param[in] data - the data to be send.
  * @return    none
@@ -357,14 +368,14 @@ void uart_send_word(uart_num_e uart_num, unsigned int data);
 void uart_set_rts_level(uart_num_e uart_num, unsigned char polarity);
 
 /**
- *	@brief		This function serves to set pin for UART0 cts function .
+ *	@brief		This function serves to set pin for UART cts function .
  *	@param[in]  cts_pin -To set cts pin.
  *	@return		none
  */
 void uart_set_cts_pin(uart_cts_pin_e cts_pin);
 
 /**
- *	@brief		This function serves to set pin for UART0 rts function .
+ *	@brief		This function serves to set pin for UART rts function .
  *	@param[in]  rts_pin - To set rts pin.
  *	@return		none
  */
@@ -379,8 +390,9 @@ void uart_set_rts_pin(uart_rts_pin_e rts_pin);
 void uart_set_pin(uart_tx_pin_e tx_pin,uart_rx_pin_e rx_pin);
 
 /**
-* @brief      This function serves to select pin for UART module.
-* @param[in]  rx_pin  - the pin serves to send and receive data.
+* @brief      This function serves to set rx pin for UART module,
+*             this pin can be used as either tx or rx. this pin is only used as tx when there is a sending action, but it is used as an rx at all times.
+* @param[in]  rx_pin  - the rx pin need to set.
 * @return     none
 */
 void uart_set_rtx_pin(uart_rx_pin_e rx_pin);
@@ -419,25 +431,31 @@ extern void uart_receive_dma(uart_num_e uart_num, unsigned char * addr,unsigned 
 /**
  * @brief     This function serves to get the length of the data that dma received.
  * @param[in] uart_num - UART0 or UART1.
- * @param[in] chn - dma channel.
+ * @param[in] chn      - dma channel.
  * @return    data length.
  */
-extern unsigned int uart_get_dma_rev_data_len(uart_num_e uart_num, dma_chn_e chn);
+extern unsigned int uart_get_dma_rev_data_len(uart_num_e uart_num,dma_chn_e chn);
 
 /**
-  * @brief     This function serves to set uart tx_dam channel and config dma tx default.
+  * @brief     This function serves to set uart tx_dma channel and config dma tx default.
   * @param[in] uart_num - UART0 or UART1.
   * @param[in] chn      - dma channel.
   * @return    none
+  * @note      In the case that the DMA transfer is not completed(bit 0 of reg_dma_ctr0(chn): 1-the transmission has not been completed,0-the transmission is completed), re-calling the DMA-related functions may cause problems.
+  *            If you must do this, you must perform the following sequence:
+  *            1. dma_chn_dis(uart_dma_tx_chn[uart_num]) 2.uart_reset() 3.uart_send_dma()
   */
 extern void uart_set_tx_dma_config(uart_num_e uart_num, dma_chn_e chn);
 
 /**
-  * @brief     This function serves to set uart rx_dam channel and config dma rx default.
-  * @param[in] uart_num - UART0 or UART1.
-  * @param[in] chn      - dma channel.
-  * @return    none
-  */
+ * @brief     This function serves to set uart rx_dma channel and config dma rx default.
+ * @param[in] uart_num - UART0 or UART1.
+ * @param[in] chn      - dma channel.
+ * @return    none
+ * @note      In the case that the DMA transfer is not completed(bit 0 of reg_dma_ctr0(chn): 1-the transmission has not been completed,0-the transmission is completed), re-calling the DMA-related functions may cause problems.
+ *            If you must do this, you must perform the following sequence:
+ *            1. dma_chn_dis(uart_dma_rx_chn[uart_num]) 2.uart_reset() 3.uart_receive_dma()
+ */
 extern void uart_set_rx_dma_config(uart_num_e uart_num, dma_chn_e chn);
 
 /**
@@ -480,7 +498,7 @@ static inline void uart_clr_irq_mask(uart_num_e uart_num,uart_irq_mask_e mask)
 /**
  * @brief     This function serves to get the irq status of uart tx and rx.
  * @param[in] uart_num - UART0 or UART1.
- * @param[in] status   - uart irq mask.
+ * @param[in] status   - uart irq status.
  * @return    irq status
  */
 static inline unsigned int  uart_get_irq_status(uart_num_e uart_num,uart_irq_status_get_e status)
@@ -498,7 +516,7 @@ static inline unsigned int  uart_get_irq_status(uart_num_e uart_num,uart_irq_sta
 /**
  * @brief     This function serves to clear the irq status of uart tx and rx.
  * @param[in] uart_num - UART0 or UART1.
- * @param[in] status - uart irq mask.
+ * @param[in] status - uart irq status.
  * @return    none
  */
 static inline void uart_clr_irq_status(uart_num_e uart_num,uart_irq_status_clr_e status)

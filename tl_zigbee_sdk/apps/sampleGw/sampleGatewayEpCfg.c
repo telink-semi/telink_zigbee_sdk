@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *			All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #if (__PROJECT_TL_GW__)
@@ -87,6 +89,9 @@ const u16 sampleGW_outClusterList[] =
 #endif
 #ifdef ZCL_TEMPERATURE_MEASUREMENT
 	ZCL_CLUSTER_MS_TEMPERATURE_MEASUREMENT,
+#endif
+#ifdef ZCL_OCCUPANCY_SENSING
+	ZCL_CLUSTER_MS_OCCUPANCY_SENSING,
 #endif
 #ifdef ZCL_IAS_ZONE
 	ZCL_CLUSTER_SS_IAS_ZONE,
@@ -231,6 +236,9 @@ const zcl_specClusterInfo_t g_sampleGwClusterList[] =
 #endif
 #ifdef ZCL_TEMPERATURE_MEASUREMENT
 	{ZCL_CLUSTER_MS_TEMPERATURE_MEASUREMENT,	MANUFACTURER_CODE_NONE, 0, 						NULL, 				zcl_temperature_measurement_register, 	NULL},
+#endif
+#ifdef ZCL_OCCUPANCY_SENSING
+	{ZCL_CLUSTER_MS_OCCUPANCY_SENSING,			MANUFACTURER_CODE_NONE, 0, 						NULL, 				zcl_occupancySensing_register, 	NULL},
 #endif
 #ifdef ZCL_IAS_ZONE
 	{ZCL_CLUSTER_SS_IAS_ZONE,					MANUFACTURER_CODE_NONE, 0, 						NULL, 				zcl_iasZone_register, 	&sampleGW_iasZoneCb},

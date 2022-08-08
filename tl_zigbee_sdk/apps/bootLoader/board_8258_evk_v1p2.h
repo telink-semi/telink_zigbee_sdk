@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *			All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #pragma once
@@ -78,7 +80,7 @@ extern "C" {
 #define LED_PERMIT					LED_G
 
 // UART
-#if ZBHCI_UART
+#if UART_ENABLE
 	#define UART_TX_PIN         	UART_TX_PB1
 	#define UART_RX_PIN         	UART_RX_PB0
 

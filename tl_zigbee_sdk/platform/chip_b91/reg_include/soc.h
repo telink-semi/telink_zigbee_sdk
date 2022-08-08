@@ -1,12 +1,13 @@
 /********************************************************************************************************
- * @file    soc.h
+ * @file	soc.h
  *
- * @brief   This is the header file for B91
+ * @brief	This is the header file for B91
  *
- * @author  Driver Group
- * @date    2021
+ * @author	Driver Group
+ * @date	2019
  *
- * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,11 +20,66 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
-
 #pragma once
+#include "bit.h"
 
-#include "../sys.h"
+/*Operation register, the highest bit must be set to 1 (|0x80000000),marked by minghai,confirmed by jianzhi.20210610.*/
+#define FLASH_R_BASE_ADDR   		0x20000000
+#define REG_RW_BASE_ADDR  			0x80000000
+#define REG_ADDR8(a)				(*(volatile unsigned char*)(REG_RW_BASE_ADDR | (a)))
+#define REG_ADDR16(a)				(*(volatile unsigned short*)(REG_RW_BASE_ADDR | (a)))
+#define REG_ADDR32(a)				(*(volatile unsigned long*)(REG_RW_BASE_ADDR | (a)))
+
+#define write_reg8(addr,v)			(*(volatile unsigned char*)(REG_RW_BASE_ADDR | (addr)) = (unsigned char)(v))
+#define write_reg16(addr,v)			(*(volatile unsigned short*)(REG_RW_BASE_ADDR | (addr)) = (unsigned short)(v))
+#define write_reg32(addr,v)			(*(volatile unsigned long*)(REG_RW_BASE_ADDR | (addr)) = (unsigned long)(v))
+
+#define read_reg8(addr)				(*(volatile unsigned char*)(REG_RW_BASE_ADDR | (addr)))
+#define read_reg16(addr)            (*(volatile unsigned short*)(REG_RW_BASE_ADDR | (addr)))
+#define read_reg32(addr)            (*(volatile unsigned long*)(REG_RW_BASE_ADDR | (addr)))
+
+#define write_sram8(addr,v)			(*(volatile unsigned char*)( (addr)) = (unsigned char)(v))
+#define write_sram16(addr,v)		(*(volatile unsigned short*)( (addr)) = (unsigned short)(v))
+#define write_sram32(addr,v)		(*(volatile unsigned long*)( (addr)) = (unsigned long)(v))
+
+#define read_sram8(addr)			(*(volatile unsigned char*)((addr)))
+#define read_sram16(addr)           (*(volatile unsigned short*)((addr)))
+#define read_sram32(addr)           (*(volatile unsigned long*)((addr)))
+#define TCMD_UNDER_BOTH				0xc0
+#define TCMD_UNDER_RD				0x80
+#define TCMD_UNDER_WR				0x40
+
+#define TCMD_MASK					0x3f
+
+#define TCMD_WRITE					0x3
+#define TCMD_WAIT					0x7
+#define TCMD_WAREG					0x8
+//#if 1 //optimize
+/*
+ * IRAM area:0x00000~0x1FFFF BIT(19) is 0,BIT(16~0) 128K is address offset
+ * DRAM area:0x80000~0x9FFFF BIT(19) is 1,BIT(16~0) 128K is address offset
+ * ILM area:0xc0000000~0xc0020000 BIT(31~19) is 3,BIT(21) is 0, BIT(20~17) do not care  BIT(16~0) 128K is address offset 128K is address offset
+ * DLM area:0xc0200000~0xc0220000 BIT(31~19) is 3,BIT(21) is 1, BIT(20~17) do not care  BIT(16~0) 128K is address offset 128K is address offset
+ * BIT(19) is used to distinguish from IRAM to DRAM, BIT(21) is used to distinguish from ILM to DLM.
+ * so we can write it as follow
+ * #define  convert_ram_addr_cpu2bus  (((((addr))&0x80000)? ((addr)| 0xc0200000) : ((addr)|0xc0000000)))
+ * BIT(20~17) are invalid address line ,IRAM address is less than 0x80000, (address-0x80000)must borrow from BIT(21)
+ *   #define convert(addr) ((addr)-0x80000+0xc0200000)
+ *  to simplify
+ *  #define convert(addr) ((addr)+0xc0180000)
+ * */
+//#define convert_ram_addr_cpu2bus(addr)  ((unsigned int)(addr)+0xc0180000)
+//#else  //no optimize
+//#define  convert_ram_addr_cpu2bus  (((((unsigned int)(addr)) >=0x80000)?(((unsigned int)(addr))-0x80000+0xc0200000) : (((unsigned int)(addr)) + 0xc0000000)))
+//#endif
+
+// go further, if the source and destination  address is not in the sram(IRAM/DRAM)  interval, no address translation
+#define convert_ram_addr_cpu2bus(addr)  (unsigned int)(addr) < 0xa0000 ? ((unsigned int)(addr)+0xc0180000): (unsigned int)(addr)
+
+#define convert_ram_addr_bus2cpu(addr)  (((((unsigned int)(addr)) >=0xc0200000)?(((unsigned int)(addr)) + 0x80000-0xc0200000) : (((unsigned int)(addr)) - 0xc0000000)))
+
 
 #define LM_BASE                        0x80000000
 
@@ -163,6 +219,8 @@ enum{
 	FLD_USB_RESUME        	=	BIT(2),
 	FLD_STANDBY_EX        	=	BIT(3),
 };
+
+#define reg_pwdn_en					REG_ADDR8(SC_BASE_ADDR+0x2f)
 
 #define reg_dmic_clk_set			REG_ADDR8(SC_BASE_ADDR+0x33)
 

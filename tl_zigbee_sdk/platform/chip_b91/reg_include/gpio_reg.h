@@ -1,12 +1,13 @@
 /********************************************************************************************************
- * @file    gpio_reg.h
+ * @file	gpio_reg.h
  *
- * @brief   This is the header file for B91
+ * @brief	This is the header file for B91
  *
- * @author  Driver Group
- * @date    2021
+ * @author	Driver Group
+ * @date	2019
  *
- * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,11 +20,11 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
-
 #ifndef GPIO_REG_H_
 #define GPIO_REG_H_
-#include "../sys.h"
+#include "soc.h"
 /*******************************      gpio registers: 0x140300      ******************************/
 //PA
 #define reg_gpio_pa_setting1	REG_ADDR32(0x140300)
@@ -159,6 +160,20 @@ enum{
     FLD_GPIO_CORE_WAKEUP_EN  	= BIT(2),
     FLD_GPIO_CORE_INTERRUPT_EN 	= BIT(3),
 };
+
+#define reg_gpio_bb_mux_dbug0		REG_ADDR8(0x140354)
+enum
+{
+	FLD_GPIO_DBG_IN				=			BIT(0),
+	FLD_GPIO_SEL_BB_L			=			BIT(1),
+	FLD_GPIO_SEL_BB_H			=			BIT(2),
+	FLD_GPIO_DBG_SEL_BT			=			BIT(3),
+	FLD_GPIO_WIFI_SEL2W			=			BIT(4),
+	FLD_GPIO_DBG_AXON_BB_SEL	=			BIT(5),
+	FLD_GPIO_WIFI_CO_SEL		=			BIT(6),
+	FLD_GPIO_WIFI_CO_ACT_INV	=			BIT(7),
+};
+
 #define reg_gpio_pad_mul_sel		REG_ADDR8(0x140355)
 
 #define reg_gpio_irq_clr  	       REG_ADDR8(0x140358)

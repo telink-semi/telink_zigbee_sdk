@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #include "../common/includes/zb_common.h"
@@ -39,9 +41,30 @@ _CODE_APS_ void aps_groupTblSave2Flash(void *arg){
 _CODE_APS_ u8 aps_groupTblNvInit(void){
 	u8 ret = NV_ITEM_NOT_FOUND;
 #if NV_ENABLE
-	ret = nv_flashReadNew(1, NV_MODULE_APS, NV_ITEM_APS_GROUP_TABLE, APS_GROUP_TABLE_SIZE * sizeof(aps_group_tbl_ent_t), (u8*)aps_group_tbl);
+	nv_itemLengthCheckAdd(NV_ITEM_APS_GROUP_TABLE, APS_GROUP_TABLE_SIZE * sizeof(aps_group_tbl_ent_t));
+	ret = nv_flashReadNew(1, NV_MODULE_APS, NV_ITEM_APS_GROUP_TABLE, sizeof(aps_group_tbl_ent_t), (u8*)aps_group_tbl);
 #endif
 	return ret;
+}
+
+static void aps_groupEntryDel(aps_group_tbl_ent_t *p){
+	aps_group_tbl_ent_t *p0 = &aps_group_tbl[0];
+	u8 sn = p - p0;
+	u8 num = aps_group_entry_num;
+
+	if(p){
+		p->group_addr = APS_INVALID_GRP_ADDR;
+		aps_group_entry_num--;
+
+#if 1  //fill the invalid entry with the valid one
+		if(sn < (num - 1)){
+			memcpy((u8 *)p, (u8 *)(p+1), (num - 1 - sn) * sizeof(aps_group_tbl_ent_t));
+		}
+
+		p0 += (num - 1);
+		p0->group_addr = APS_INVALID_GRP_ADDR;
+#endif
+	}
 }
 
 _CODE_APS_ aps_group_tbl_ent_t *aps_group_search_by_addr(u16 group_addr)
@@ -213,11 +236,23 @@ _CODE_APS_ aps_status_t aps_me_group_delete_req(aps_delete_group_req_t *req){
 		return APS_STATUS_INVALID_GROUP;
 	}
 	*pEndpoint = APS_GROUP_EP_INVALID;
+
 	pEntry->n_endpoints--;
 	if (pEntry->n_endpoints == 0) {
 		//TODO: No endpoint in the group, delete the group
-		pEntry->group_addr = APS_INVALID_GRP_ADDR;
-		aps_group_entry_num--;
+		aps_groupEntryDel(pEntry);
+		//pEntry->group_addr = APS_INVALID_GRP_ADDR;
+	}else{
+		//move the valid data to the first positions
+		u8 validEp[APS_EP_NUM_IN_GROUP_TBL];
+		memset(validEp, APS_GROUP_EP_INVALID, APS_EP_NUM_IN_GROUP_TBL);
+		u8 validCnt = 0;
+		for(u8 m = 0; m < APS_EP_NUM_IN_GROUP_TBL; m++){
+			if(pEntry->endpoints[m] != APS_GROUP_EP_INVALID){
+				validEp[validCnt++] = pEntry->endpoints[m];
+			}
+		}
+		memcpy(pEntry->endpoints, validEp, APS_EP_NUM_IN_GROUP_TBL);
 	}
 
 	if(APS_STATUS_SUCCESS == status){
@@ -270,8 +305,19 @@ _CODE_APS_ aps_status_t aps_me_group_delete_all_req(u8 ep){
 		if(pEntry->n_endpoints == 0){
 			//todo Before deleting a group, remove all associated scene entries.
 			//zcl_scene_removeScenesWithGroup(pEntry->group_addr);
-			pEntry->group_addr = APS_INVALID_GRP_ADDR;
-			aps_group_entry_num--;
+			aps_groupEntryDel(pEntry);
+			//pEntry->group_addr = APS_INVALID_GRP_ADDR;
+		}else{
+			//move the valid data to the first positions
+			u8 validEp[APS_EP_NUM_IN_GROUP_TBL];
+			memset(validEp, APS_GROUP_EP_INVALID, APS_EP_NUM_IN_GROUP_TBL);
+			u8 validCnt = 0;
+			for(u8 m = 0; m < APS_EP_NUM_IN_GROUP_TBL; m++){
+				if(pEntry->endpoints[m] != APS_GROUP_EP_INVALID){
+					validEp[validCnt++] = pEntry->endpoints[m];
+				}
+			}
+			memcpy(pEntry->endpoints, validEp, APS_EP_NUM_IN_GROUP_TBL);
 		}
 
 		//search next group

@@ -1,12 +1,13 @@
 /********************************************************************************************************
- * @file    adc.h
+ * @file	adc.h
  *
- * @brief   This is the header file for B91
+ * @brief	This is the header file for B91
  *
- * @author  Driver Group
- * @date    2021
+ * @author	Driver Group
+ * @date	2019
  *
- * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,8 +20,8 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
-
 /**	@page ADC
  *
  *	Introduction
@@ -34,13 +35,14 @@
 #pragma once
 
 
+
 #include "dma.h"
 #include "compiler.h"
 #include "gpio.h"
-#include "reg_include/register_b91.h"
+#include <reg_include/register.h>
 
 typedef enum{
-	ADC_VREF_0P9V = 0x01,
+	ADC_VREF_0P9V = 0x01,//Only for internal testing,not recommended.
 	ADC_VREF_1P2V = 0x02,
 }adc_ref_vol_e;
 typedef enum{
@@ -132,6 +134,7 @@ typedef enum{
 	ADC_SAMPLE_FREQ_23K,
 	ADC_SAMPLE_FREQ_48K,
 	ADC_SAMPLE_FREQ_96K,
+	ADC_SAMPLE_FREQ_192K,
 }adc_sample_freq_e;
 
 typedef enum{
@@ -288,7 +291,7 @@ static inline void adc_set_state_length(unsigned short r_max_mc,unsigned char r_
 void adc_set_dma_config(dma_chn_e chn);
 /**
  * @brief     This function serves to start sample with adc DMA channel.
- * @param[in] adc_data_buf 	- the address of data buffer
+ * @param[out] adc_data_buf 	- the address of data buffer
  * @param[in] data_byte_len - the length of data size by byte
  * @return    none
  */
@@ -307,6 +310,14 @@ void adc_pin_config(adc_input_pin_mode_e mode ,adc_input_pin_def_e pin);
  * @return none
  */
 void adc_set_diff_pin(adc_input_pin_def_e p_pin, adc_input_pin_def_e n_pin);
+/**
+ * @brief     This function is serves to set the reference voltage for one-point calibration.
+ *            ADC calibration environment: GPIO sampling, the pre_scale is 1/4, and the sampling frequency is 48K.
+ * 		      Therefore, the voltage value measured using the calibration interface in this environment is the most accurate.
+ * @param[in] data - GPIO sampling one-point calibration value.
+ * @return none
+ */
+void adc_set_gpio_calib_vref(unsigned short data);
 /**
  * @brief This function serves to set the channel reference voltage.
  * @param[in]  v_ref - enum variable of ADC reference voltage.
@@ -342,6 +353,7 @@ void adc_temperature_sample_init(void);
  * @return none
  * @attention  gpio voltage sample suggested initial setting are Vref = 1.2V, pre_scale = 1/4. 
  *			changed by chaofan.20201230.
+ *			   In order to switch the pin of the ADC, it can be done by calling the interface 'adc_pin_config' and 'adc_set_diff_input'.
  */
 void adc_gpio_sample_init(adc_input_pin_def_e pin,adc_ref_vol_e v_ref,adc_pre_scale_e pre_scale,adc_sample_freq_e sample_freq);
 
@@ -379,7 +391,7 @@ void adc_set_vbat_divider(adc_vbat_div_e vbat_div);
 void adc_init(adc_ref_vol_e v_ref,adc_pre_scale_e pre_scale,adc_sample_freq_e sample_freq);
 /**
  * @brief This function serves to start adc sample and get raw adc sample code.
- * @param[in]   sample_buffer 		- pointer to the buffer adc sample code need to store.
+ * @param[out]   sample_buffer 		- pointer to the buffer adc sample code need to store.
  * @param[in]   sample_num 			- the number of adc sample code.
  * @return 		none
  */
@@ -390,7 +402,15 @@ void adc_get_code_dma(unsigned short *sample_buffer, unsigned short sample_num);
  */
 unsigned short adc_get_code(void);
 /**
+ * @brief This function is used to calib ADC 1.2V vref offset for GPIO two-point.
+ * @param[in] offset - GPIO sampling two-point calibration value offset.
+ * @return none
+ */
+void adc_set_gpio_two_point_calib_offset(signed char offset);
+/**
  * @brief This function serves to calculate voltage from adc sample code.
+ * 		  ADC calibration environment: GPIO sampling, the pre_scale is 1/4, and the sampling frequency is 48K.
+ * 		  Therefore, the voltage value measured using the calibration interface in this environment is the most accurate.
  * @param[in]   adc_code	- the adc sample code.
  * @return 		adc_vol_mv 	- the average value of adc voltage value.
  */

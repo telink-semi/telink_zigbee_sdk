@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *			All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #if (__PROJECT_TL_GW__)
@@ -31,6 +33,7 @@
 #include "zcl_include.h"
 #include "sampleGateway.h"
 #include "app_ui.h"
+#include "gp.h"
 
 
 /**********************************************************************
@@ -156,7 +159,7 @@ s32 brc_toggleCb(void *arg)
 	dstEpInfo.radius = 0;
 
 	//zcl_onOff_toggleCmd(SAMPLE_GW_ENDPOINT, &dstEpInfo, FALSE);
-	toggle = ~toggle;
+	toggle = !toggle;
 	if(toggle){
 		zcl_onOff_onCmd(SAMPLE_GW_ENDPOINT, &dstEpInfo, FALSE);
 	}else{
@@ -201,9 +204,10 @@ void buttonShortPressed(u8 btNum){
 	}else if(btNum == VK_SW2){
 		if(zb_isDeviceJoinedNwk()){
 			/* toggle local permit Joining */
-			static u8 duration = 0;
-			duration = duration ? 0 : 0xff;
+			u8 duration = zb_getMacAssocPermit() ? 0 : 180;
 			zb_nlmePermitJoiningRequest(duration);
+
+			gpsCommissionModeInvork();
 		}
 	}
 }

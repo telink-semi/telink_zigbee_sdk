@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #ifndef NWK_CTX_H
@@ -42,25 +44,19 @@ typedef enum
 typedef enum
 {
 	NLME_STATE_IDLE,
-	NLME_STATE_DISC,
-	NLME_STATE_FORMATION_ED_SCAN,
-	NLME_STATE_FORMATION_ACTIVE_SCAN,
-	NLME_STATE_FORMATION,
-	NLME_STATE_ROUTER,
-	NLME_STATE_ED_SCAN,
-	NLME_STATE_REJOIN,
-	NLME_STATE_ORPHAN_SCAN,
-	NLME_STATE_RESET,
-	NLME_STATE_PANID_CONFLICT_RESOLUTION,
-	NLME_STATE_ADDR_CONFLICT_RESOLUTION,
-	NLME_STATE_ZLL_COMMISSION
+	NLME_STATE_FORMATION,		//ed_scan, active_scan, mlme_start
+	NLME_STATE_ROUTER_START,	//start_router, mlme_start
+	NLME_STATE_DISC,			//active_scan
+	NLME_STATE_REJOIN,			//active_scan
+	NLME_STATE_DIRECT_JOIN,		//orphan_scan
+	NLME_STATE_PANID_CONFLICT,	//mlme_start
+	NLME_STATE_ED_SCAN,			//ed_scan
 }nlme_state_t;
 
 typedef enum
 {
 	NLME_IDLE,
-	NLME_PERMIT_JOIN_REQ,
-	NLME_SEND_DEV_ANN,
+	NLME_JOINING,
 	NLME_LEAVING,
 }user_state_t;
 
@@ -93,15 +89,10 @@ typedef struct
 
 	/* For router and end device  to store assocJoin/rejoin information */
 	union{
-		struct{
-			tl_zb_addition_neighbor_entry_t	*pParent;
-		}assocJoin;
-		struct{
-			tl_zb_addition_neighbor_entry_t	*pParent;
-		}rejoin;
+		tl_zb_addition_neighbor_entry_t	*pAssocJoinParent;
+		tl_zb_addition_neighbor_entry_t	*pRejoinParent;
 	}join;
-	u8 *joinCandidateList;
-	/* End [8 bytes]*/
+	/* End [4 bytes]*/
 
 	/* For coordinator or router store current joining device info */
 	ev_timer_event_t *curJoiningDevTimerEvt;//TODO: removed
@@ -111,7 +102,7 @@ typedef struct
     u8	scanDuration;
 	u8  is_factory_new:1;	/*!< Device is factory new */
 	u8  permit_join:1; 		/*!< True if permit join is in progress */
-	u8  joined:1;      		/*!< Non-zero if we are joined into the network *///10
+	u8  joined:1;      		/*!< Non-zero if we are joined into the network */
 	u8  router_started:1; 	/*!< not used */
 	u8  is_tc:1;            /*!< True if we are Trust Center */
 	u8  joined_pro:1;
@@ -125,7 +116,6 @@ typedef struct
 	u8 	user_state:4;		/*!< Current network user_state_t */
 	u8 	state:4; 			/*!< Current network subsystem state nlme_state_t */
 
-	u8 	parent; 			/*!< parent address (valid if we are not ZC and joined) */
 	u8 	leaveRejoin;		/*!< if we need rejoin after leave *///TODO: removed
 	u16 new_panid;
 

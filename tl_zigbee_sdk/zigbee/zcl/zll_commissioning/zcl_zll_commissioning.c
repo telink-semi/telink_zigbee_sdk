@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 /**********************************************************************
@@ -57,12 +59,8 @@ zcl_zllCommission_t g_zllCommission;
 
 touchlink_attr_t g_touchlinkAttrDft = { 0x0001, 0xfff7, 0x0001, 0xfeff };
 
-zdo_touchLinkCb_t touchLinkCb = {zcl_zllTouchLinkLeaveCnfCb};
+zdo_touchLinkCb_t touchLinkCb = {zcl_zllTouchLinkLeaveCnfCb, ll_zllAttrClr};
 
-nwkForTouchlinkCb_t g_nwkTouchlinkCb = {
-	.scanConfCb = tl_zbNwkZllCommissionScanConfirm,
-	.attrClrCb = ll_zllAttrClr,
-};
 
 #define TOUCHLIK_INITIATOR_SET(mode) 		g_zllTouchLink.zllInfo.bf.linkInitiator = mode
 #define TOUCHLIK_ADDR_ASSIGN_SET(mode) 		g_zllTouchLink.zllInfo.bf.addrAssign = mode
@@ -356,6 +354,8 @@ _CODE_ZCL_ static u8 zcl_touchLinkClientCmdHandler(zclIncoming_t *pInMsg){
 	srcEpInfo.radius = 0;
 	srcEpInfo.txOptions = 0;
 
+	//printf("zllClientCmdRcv: id = %x, lqi = %x\n", cmd, pApsdeInd->indInfo.lqi);
+
 	switch (cmd) {
 		case ZCL_CMD_ZLL_COMMISSIONING_SCAN:
 		{
@@ -391,6 +391,8 @@ _CODE_ZCL_ static u8 zcl_touchLinkClientCmdHandler(zclIncoming_t *pInMsg){
 			g_zllTouchLink.transId = scanReq.transId;
 			g_zllTouchLink.state = ZCL_ZLL_COMMISSION_STATE_TOUCHLINK_DISCOVERY;
 			scanReqProfileInterop = scanReq.zllInfo.bf.profileInterop;
+
+			//printf("transID = %x\n", scanReq.transId);
 
 			zcl_zllTouchLinkScanRequestHandler(&srcEpInfo, pInMsg->hdr.seqNum);
 			break;
@@ -896,7 +898,7 @@ _CODE_ZCL_ u8 zcl_touchLinkCmdHandler(zclIncoming_t *pInMsg){
 _CODE_ZCL_ status_t zcl_touchlink_register(u8 endpoint, const zcl_touchlinkAppCallbacks_t *cb){
 	g_zllCommission.appCb = cb;
 	zcl_touchLinkInit();
-	tl_nwkTouchLinkCbRegister(&g_nwkTouchlinkCb);
+
 	return zcl_registerCluster(endpoint, ZCL_CLUSTER_TOUCHLINK_COMMISSIONING, 0, 0, NULL, zcl_touchLinkCmdHandler, NULL);
 }
 

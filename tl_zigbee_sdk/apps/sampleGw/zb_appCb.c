@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *			All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #if (__PROJECT_TL_GW__)
@@ -100,6 +102,8 @@ static s32 heartTimerCb(void *arg){
  * @return  None
  */
 void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
+	//printf("bdbInitCb: sta = %x, joined = %x\n", status, joinedNetwork);
+
 	if(status == BDB_INIT_STATUS_SUCCESS){
 		/*
 		 * for a non-factory-new device:
@@ -142,6 +146,8 @@ void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
  * @return  None
  */
 void zbdemo_bdbCommissioningCb(u8 status, void *arg){
+	//printf("bdbCommCb: sta = %x\n", status);
+
 	if(status == BDB_COMMISSION_STA_SUCCESS){
 		heartInterval = 1000;
 	}else if(status == BDB_COMMISSION_STA_IN_PROGRESS){

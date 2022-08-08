@@ -1,12 +1,13 @@
 /********************************************************************************************************
- * @file    spi_reg.h
+ * @file	spi_reg.h
  *
- * @brief   This is the header file for B91
+ * @brief	This is the header file for B91
  *
- * @author  Driver Group
- * @date    2021
+ * @author	Driver Group
+ * @date	2019
  *
- * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,12 +20,12 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
-
 #ifndef SPI_REG_H
 #define SPI_REG_H
 
-#include "../sys.h"
+#include "soc.h"
 
 /*******************************      hspi registers: 0x1FFFFC0     ******************************/
 
@@ -36,7 +37,7 @@
 
 #define   reg_hspi_data_buf_adr               0x1FFFFC8
 #define   reg_hspi_xip_base_adr               0x1000000
-#define   reg_spi_data_buf_adr(i)             0x140048+(i)*BASE_ADDR_DIFF
+#define   reg_spi_data_buf_adr(i)             0x80140048+(i)*BASE_ADDR_DIFF
 /**
  * BIT[0:1] the minimum time between the edge of SPI_CS and  the edges of SPI_CLK.the actual duration is (SPI_CLK_OUT/2)*(cs2sclk+1).master only
  * BIT[2]  set 3line mode ,MOSI is bi-directional signal in regular mode.master only

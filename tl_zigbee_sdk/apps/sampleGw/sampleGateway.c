@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *			All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #if (__PROJECT_TL_GW__)
@@ -157,7 +159,7 @@ void user_app_init(void)
 	zcl_register(SAMPLE_GW_ENDPOINT, SAMPLE_GW_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_sampleGwClusterList);
 
 #if ZCL_GP_SUPPORT
-	gp_init();
+	gp_init(SAMPLE_GW_ENDPOINT);
 #endif
 
 #if ZCL_OTA_SUPPORT
@@ -191,12 +193,14 @@ void app_task(void)
 
 static void sampleGwSysException(void)
 {
+#if 1
 	SYSTEM_RESET();
-
-//	while(1){
-//		gpio_toggle(LED_POWER);
-//		WaitMs(100);
-//	}
+#else
+	while(1){
+		gpio_toggle(LED_POWER);
+		WaitMs(100);
+	}
+#endif
 }
 
 

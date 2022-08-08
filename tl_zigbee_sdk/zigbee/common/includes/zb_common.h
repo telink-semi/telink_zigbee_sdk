@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #ifndef ZB_COMMON_H
@@ -409,10 +411,9 @@ bool tl_stackBusy(void);
 u32 brcTransRecordTblSizeGet(void);
 nwk_brcTransRecordEntry_t *brcTransRecordEntryGet(u8 idx);
 #endif
-boundTblMapList_t *bindTblMapListGet(void);
 u32 zbBufferSizeGet(void);
-u32 bindTblSizeGet(void);
 u32 neighborTblSizeGet(void);
 u32 addrMapTblSizeGet(void);
+aps_binding_entry_t *bindTblEntryGet(void);
 
 #endif /* ZB_COMMON_H */

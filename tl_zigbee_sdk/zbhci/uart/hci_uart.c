@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #include "tl_common.h"
@@ -27,8 +29,8 @@
 #include "zb_task_queue.h"
 #include "../zbhci.h"
 
-#define UART_TX_BUF_SIZE    64
-#define UART_RX_BUF_SIZE    64
+#define UART_TX_BUF_SIZE    128
+#define UART_RX_BUF_SIZE    128
 
 
 //begin
@@ -120,8 +122,12 @@ void uartRcvHandler(void){
 	TL_SCHEDULE_TASK(uart_data_handler, uartRxBuf);
 }
 
-void uart_txMsg(u16 u16Type, u16 u16Length, u8 *pu8Data)
+zbhciTx_e uart_txMsg(u16 u16Type, u16 u16Length, u8 *pu8Data)
 {
+	if(u16Length + 7 > UART_TX_BUF_SIZE){
+		return ZBHCI_TX_TOO_LONG;
+	}
+
     int n;
     u8 crc8 = crc8Calculate(u16Type, u16Length, pu8Data);
 
@@ -139,6 +145,8 @@ void uart_txMsg(u16 u16Type, u16 u16Length, u8 *pu8Data)
     *p++ = 0xAA;
 
     drv_uart_tx_start(uartTxBuf, p - uartTxBuf);
+
+    return ZBHCI_TX_SUCCESS;
 }
 
 

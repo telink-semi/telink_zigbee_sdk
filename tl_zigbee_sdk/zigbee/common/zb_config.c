@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 /**********************************************************************
@@ -76,6 +78,9 @@ u8 NWK_COST_THRESHOLD_ONEHOP = 7;
 /* the cost threshold to choose next hop from neighbor table */
 u8 NWK_NEIGHBOR_SEND_OUTGOING_THRESHOLD = 5;
 
+/* whether add src ieee address in nwk header for the data from higher level */
+bool NWK_HEADER_SRC_IEEE_INCLUDE = FALSE;
+
 /* address mapping table */
 u16 TL_ZB_NWK_ADDR_MAP_SIZE = TL_ZB_NWK_ADDR_MAP_NUM;
 tl_zb_addr_map_t g_nwkAddrMap;
@@ -118,16 +123,22 @@ nwk_brcTransRecordEntry_t g_brcTransTab[NWK_BRC_TRANSTBL_NUM];
 
 #if ZB_ED_ROLE
 bool AUTO_QUICK_DATA_POLL_ENABLE = TRUE;
+u32 AUTO_QUICK_DATA_POLL_INTERVAL = POLL_RATE_QUARTERSECONDS;//ms
+u8 AUTO_QUICK_DATA_POLL_TIMES = 3;
 #endif
 
 /* binding table */
 u8 APS_BINDING_TABLE_SIZE = APS_BINDING_TABLE_NUM;
-aps_binding_table_t aps_binding_tbl;
+aps_binding_entry_t g_apsBindingTbl[APS_BINDING_TABLE_NUM];
 
 /* group table */
 u8 APS_GROUP_TABLE_SIZE = APS_GROUP_TABLE_NUM;
 aps_group_tbl_ent_t aps_group_tbl[APS_GROUP_TABLE_NUM];
 u16 GROUP_MESSAGE_SEND_ADDRESS = NWK_BROADCAST_RX_ON_WHEN_IDLE;
+
+/* APS layer TX cache size */
+u8 APS_TX_CACHE_TABLE_SIZE = APS_TX_CACHE_TABLE_NUM;
+aps_tx_cache_list_t aps_txCache_tbl[APS_TX_CACHE_TABLE_NUM];
 
 /* the offset of the rx buffer to the zb-buffer */
 u8 RX_ZBBUF_OFFSET = TL_RXPRIMITIVEHDR;
@@ -263,11 +274,9 @@ u32 brcTransRecordTblSizeGet(void){
 }
 #endif
 
-/*
- * @brief:		get the entry of the mapping table of the binding list
- */
-boundTblMapList_t *bindTblMapListGet(void){
-	return &aps_binding_tbl.BoudList[0];
+
+aps_binding_entry_t *bindTblEntryGet(void){
+	return &g_apsBindingTbl[0];
 }
 
 /*
@@ -277,12 +286,6 @@ u32 zbBufferSizeGet(void){
 	return (sizeof(g_mPool));
 }
 
-/*
- * @brief:		get the size of the binding table
- */
-u32 bindTblSizeGet(void){
-	return (sizeof(aps_binding_table_t));
-}
 
 /*
  * @brief:		get the size of the neighbor table

@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 /**********************************************************************
@@ -166,11 +168,9 @@ _CODE_ZCL_ status_t zcl_group_viewGroupRsp(u8 srcEp, epInfo_t *pDstEpInfo, u8 di
 
 _CODE_ZCL_ status_t zcl_group_getGroupMembershipRsp(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, u8 capacity, u8 groupCnt, u16 *groupList)
 {
-	u8 buf[30];
+	u8 *buf = (u8 *)groupList;
 	buf[0] = capacity;
 	buf[1] = groupCnt;
-	memcpy(&buf[2], groupList, groupCnt*2);
-
 	return zcl_sendCmd(srcEp, pDstEpInfo, ZCL_CLUSTER_GEN_GROUPS, ZCL_CMD_GROUP_GET_MEMBERSHIP_RSP, TRUE,
 					ZCL_FRAME_SERVER_CLIENT_DIR, disableDefaultRsp, 0, seqNo, groupCnt*2+2, buf);
 }
@@ -269,7 +269,8 @@ _CODE_ZCL_ static status_t zcl_getGroupMembershipPrc(zclIncoming_t *pInMsg)
 	if(UNICAST_MSG(pApsdeInd)){
 		u8 *pBuf = pInMsg->pData;
 		u8 groupCnt = *pBuf++;
-		u16 findGroupList[15];
+		u16 groupListBuf[1+APS_GROUP_TABLE_NUM];
+		u16 *findGroupList = groupListBuf+1;
 		u8 findCnt = 0;
 
 		if(groupCnt == 0){
@@ -281,6 +282,9 @@ _CODE_ZCL_ static status_t zcl_getGroupMembershipPrc(zclIncoming_t *pInMsg)
 				aps_group_tbl_ent_t *pEntry = aps_group_search(groupId, endpoint);
 				if(pEntry){
 					findGroupList[findCnt++] = groupId;
+					if(findCnt >= APS_GROUP_TABLE_SIZE){
+						break;
+					}
 				}
 				pBuf += 2;
 			}
@@ -295,7 +299,7 @@ _CODE_ZCL_ static status_t zcl_getGroupMembershipPrc(zclIncoming_t *pInMsg)
 		dstEp.profileId = pApsdeInd->indInfo.profile_id;
 
 		zcl_group_getGroupMembershipRsp(endpoint, &dstEp, TRUE, pInMsg->hdr.seqNum,
-										(APS_GROUP_TABLE_SIZE - aps_group_entry_num_get()), findCnt, findGroupList);
+										(APS_GROUP_TABLE_SIZE - aps_group_entry_num_get()), findCnt, groupListBuf);
 
 		status = ZCL_STA_CMD_HAS_RESP;
 	}
@@ -349,7 +353,7 @@ _CODE_ZCL_ static status_t zcl_removeAllGroupPrc(zclIncoming_t *pInMsg)
 
 #ifdef ZCL_SCENE
 	u8 groupCnt = 0;
-	u16 groupList[15] = {0};
+	u16 groupList[APS_GROUP_TABLE_NUM] = {0};
 
 	aps_group_list_get(&groupCnt, groupList);
 

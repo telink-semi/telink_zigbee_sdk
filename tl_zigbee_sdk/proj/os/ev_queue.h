@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #pragma once
@@ -48,6 +50,7 @@ typedef u32 (*ev_priFunc_t)(arg_t);
  */
 typedef struct queue_item {
     struct queue_item *next;        //!<  Pointer to the next element
+    u32 idx;
     u8 data[1];                     //!<  Pointer to the data
 } queue_item_t;
 

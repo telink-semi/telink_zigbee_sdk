@@ -1,12 +1,13 @@
 /********************************************************************************************************
- * @file    gpio.h
+ * @file	gpio.h
  *
- * @brief   This is the header file for B91
+ * @brief	This is the header file for B91
  *
- * @author  Driver Group
- * @date    2021
+ * @author	Driver Group
+ * @date	2019
  *
- * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,8 +20,8 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
-
 /**	@page GPIO
  *
  *	Introduction
@@ -35,8 +36,8 @@
 #define DRIVERS_GPIO_H_
 
 
+#include "lib/include/plic.h"
 #include "analog.h"
-#include "plic.h"
 #include "reg_include/gpio_reg.h"
 /**********************************************************************************************************************
  *                                         global constants                                                           *
@@ -113,7 +114,8 @@ typedef enum{
 		GPIO_PF1 = GPIO_GROUPF | BIT(1),
 		GPIO_PF2 = GPIO_GROUPF | BIT(2),
 		GPIO_PF3 = GPIO_GROUPF | BIT(3),
-
+		GPIO_PF4 = GPIO_GROUPF | BIT(4),
+		GPIO_PF5 = GPIO_GROUPF | BIT(5),
 }gpio_pin_e;
 
 /**
@@ -170,7 +172,11 @@ typedef enum {
 }gpio_pull_type_e;
 
 
-
+typedef enum{
+	GPIO_IRQ_MASK_GPIO       =          BIT(0),
+	GPIO_IRQ_MASK_GPIO2RISC0 = 			BIT(1),
+	GPIO_IRQ_MASK_GPIO2RISC1 = 			BIT(2),
+}gpio_irq_mask_e;
 
 /**
  * @brief      This function servers to enable gpio function.
@@ -407,6 +413,26 @@ static inline void gpio_gpio2risc1_irq_dis(gpio_pin_e pin)
 static inline void gpio_clr_irq_status(gpio_irq_status_e status)
 {
 	reg_gpio_irq_clr=status;
+}
+
+/**
+ * @brief      This function serves to enable gpio_irq/gpio_risc0_irq/gpio_risc1_irq mask function.
+ * @param[in]  mask  - to select interrupt type.
+ * @return     none.
+ */
+static inline void gpio_set_irq_mask(gpio_irq_mask_e mask)
+{
+	BM_SET(reg_gpio_irq_risc_mask, mask);
+}
+
+/**
+ * @brief      This function serves to disable gpio_irq/gpio_risc0_irq/gpio_risc1_irq mask function.
+ *             if disable gpio interrupt,choose disable gpio mask , use interface gpio_clr_irq_mask instead of gpio_irq_dis/gpio_gpio2risc0_irq_dis/gpio_gpio2risc1_irq_dis.
+ * @return     none.
+ */
+static inline void gpio_clr_irq_mask(gpio_irq_mask_e mask)
+{
+	BM_CLR(reg_gpio_irq_risc_mask, mask);
 }
 
 /**

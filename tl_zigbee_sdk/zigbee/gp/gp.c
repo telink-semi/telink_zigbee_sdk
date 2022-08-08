@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,16 +20,19 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 /**********************************************************************
  * INCLUDES
  */
-#include "../common/includes/zb_common.h"
 #include "../zcl/zcl_include.h"
 #include "gp.h"
-
-
+#include "gp_base.h"
+#include "gp_proxy.h"
+#if GP_BASIC_COMBO
+#include "gp_sink.h"
+#endif
 
 #if GP_SUPPORT_ENABLE
 /**********************************************************************
@@ -36,30 +40,33 @@
  */
 const u8 g_gpSharedKey[SEC_KEY_LEN] = GP_SHARED_KEY;
 
-
-
-
-
-
-
+gp_appCb_t *gpAppCb = NULL;
 
 /**********************************************************************
  * LOCAL VARIABLES
  */
 /**
- *  @brief Callback for user Application
+ *  @brief Callback for GP primitive process
  */
-gp_appCb_t *gpAppCb = NULL;
+const gp_stubCb_t gpStubCbList = {
+	gpDataCnfPrc,
+	gpDataIndPrc,
+	gpSecReqPrc,
+};
 
+const gp_appCb_t gpAppCbList = {
+	gpChangleChannelReqCb,
+	gpCommissioningModeCb,
+};
+
+/**
+ *  @brief Callback handler for GP received Device Announce Command.
+ */
+gpDeviceAnnounceCheckCb_t g_gpDeviceAnnounceCheckCb = gpDevAnnceCheckCb;
 
 /**********************************************************************
  * FUNCTIONS
  */
-/**
- *  @brief Local functions
- */
-
-static void gpCommissioningWindowTimeoutStop(void);
 
 /*********************************************************************
  * @fn      gp_init
@@ -70,10 +77,10 @@ static void gpCommissioningWindowTimeoutStop(void);
  *
  * @return  None
  */
-void gp_init(void)
+void gp_init(u8 endpoint)
 {
 	/* Initialize GP Stub */
-	gpStubInit();
+	gpStubCbInit((gp_stubCb_t *)&gpStubCbList);
 
 	/* Register GP EndPoint descriptor */
 	af_endpointRegister(GREEN_POWER_ENDPOINT, (af_simple_descriptor_t *)&gp_simpleDesc, zcl_rx_handler, NULL);
@@ -81,13 +88,13 @@ void gp_init(void)
 	/* Register GP ZCL command callBacks */
 	zcl_register(GREEN_POWER_ENDPOINT, GP_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_gpClusterList);
 
-	gp_ProxyTabInit();
+	gp_registerAppCb((gp_appCb_t *)&gpAppCbList);
 
-	COPY_U24TOBUFFER(zclGpAttr_gppFunc, GPP_FUNCTIONALITY);
-	COPY_U24TOBUFFER(zclGpAttr_gppActiveFunc, GPP_ACTIVE_FUNCTIONALITY);
+	gp_proxyInit();
 
-	//zclGpAttr_gpSharedSecKeyType = GP_SEC_KEY_TYPE_GPD_GROUP_KEY;
-	//memcpy(zclGpAttr_gpSharedSecKey, g_gpSharedKey, SEC_KEY_LEN);
+#if GP_BASIC_COMBO
+	gp_sinkInit(endpoint);
+#endif
 }
 
 /*********************************************************************
@@ -104,430 +111,247 @@ void gp_registerAppCb(gp_appCb_t *cb)
 	gpAppCb = cb;
 }
 
-
-
-
-
-
-
-
-
-u16 gpComWindowCnt = 0;
-static void gpCommissioningWindowTimeoutStop(void)
+bool gpChangleChannelReqCb(void)
 {
-	//printf("windowTimeoutStop\n");
+	//Allow change channel request.
 
-	if(g_gpCtx.commissioningWindowTimeoutEvt){
-		gpComWindowCnt = 0;
-		TL_ZB_TIMER_CANCEL(&g_gpCtx.commissioningWindowTimeoutEvt);
+	return TRUE;
+}
+
+void gpCommissioningModeCb(bool isInCommMode)
+{
+	//printf("gpIsInCommMode: %x\n", isInCommMode);
+
+	if(!isInCommMode){
+		zb_nlmePermitJoiningRequest(0);
 	}
 }
 
-static s32 gpCommissioningWindowTimeoutCb(void *arg)
+void gpsCommissionModeInvork(void)
 {
-	u16 timeout = (u16)((u32)arg);
+#if GP_BASIC_COMBO
+	bool action = g_gpsCtx.gpsInCommMode ? FALSE : TRUE;
 
-	if(++gpComWindowCnt >= timeout){
-		gpComWindowCnt = 0;
-
-		//printf("gpCommWindowTimeoutCb\n");
-
-		gpExitCommissioningMode();
-
-		//notify up layer the current commissioning mode
-		if(gpAppCb && gpAppCb->gpCommissioningModeCb){
-			gpAppCb->gpCommissioningModeCb(g_gpCtx.gpInCommMode);
-		}
-
-		g_gpCtx.commissioningWindowTimeoutEvt = NULL;
-		return -1;
-	}
-
-	return 0;
+	gpsCommissionModeSet(action, TRUE);
+#endif
 }
 
-static status_t gp_proxyTabEntryUpdate(gpProxyTabEntry_t *pEntry, zcl_gp_pairingCmd_t *pCmd)
+void gpCommissioningNotificationCmdFromLocalCb(zcl_gp_commissioningNotificationCmd_t *pCmd)
 {
-	if(pCmd->options.bits.addSink){
-		if(pCmd->options.bits.commMode == GPS_COMM_MODE_LIGHTWEIGHT_UNICAST){
-			if(lwSinkAddrListAdd(pEntry, pCmd->sinkIeeeAddr, pCmd->sinkNwkAddr) == FAILURE){
-				return ZCL_STA_INSUFFICIENT_SPACE;
-			}
-		}else if(pCmd->options.bits.commMode == GPS_COMM_MODE_GROUP_PRE_COMMISSIONED_GROUPID){
-			u16 alias = pCmd->options.bits.assignedAliasPresent ? pCmd->assignedAlias : gpAliasSrcAddrDerived(pCmd->options.bits.appId, pCmd->gpdId);
-			if(sinkGroupListAdd(pEntry, pCmd->sinkGroupID, alias) == FAILURE){
-				return ZCL_STA_INSUFFICIENT_SPACE;
-			}
-		}else if(pCmd->options.bits.commMode == GPS_COMM_MODE_GROUP_DGROUPID){
-			pEntry->options.bits.assignedAlias = pCmd->options.bits.assignedAliasPresent;
-			pEntry->gpdAssignedAlias = pCmd->assignedAlias;
-		}
+#if GP_BASIC_COMBO
+	gpCommissioningNotificationCmdProcess(pCmd);
+#endif
+}
 
-		if(!pEntry->used){
-			pEntry->used = 1;
-			g_gpProxyTab.gpProxyTabNum++;
-		}
+static s32 gpAliasConflictTimeoutCb(void *arg)
+{
+	gpDevAnnceAliasSend(g_gppCtx.gpAliasConflictAddr);
 
-		pEntry->options.bits.appId = pCmd->options.bits.appId;
-		pEntry->options.bits.entryActive = TRUE;
-		pEntry->options.bits.entryValid = TRUE;
-		pEntry->options.bits.seqNumCap |= pCmd->options.bits.gpdMacSeqNumCap;
-		pEntry->options.bits.lightWeightUnicastGPS |= (pCmd->options.bits.commMode == GPS_COMM_MODE_LIGHTWEIGHT_UNICAST) ? TRUE : FALSE;
-		pEntry->options.bits.derivedGroupGPS |= (pCmd->options.bits.commMode == GPS_COMM_MODE_GROUP_DGROUPID) ? TRUE : FALSE;
-		pEntry->options.bits.commGroupGPS |= (pCmd->options.bits.commMode == GPS_COMM_MODE_GROUP_PRE_COMMISSIONED_GROUPID) ? TRUE : FALSE;
-		pEntry->options.bits.firstToForward = FALSE;
-		pEntry->options.bits.inRange = FALSE;
-		pEntry->options.bits.gpdFixed |= pCmd->options.bits.gpdFixed ? TRUE : FALSE;
-		pEntry->options.bits.hasAllUnicastRoutes |= (pCmd->options.bits.commMode == GPS_COMM_MODE_FULL_UNICAST) ? TRUE : FALSE;
-		//pEntry->options.bits.assignedAlias = pCmd->options.bits.assignedAliasPresent;
-		pEntry->options.bits.secUse = (pCmd->options.bits.secLevel > 1) ? TRUE : FALSE;
-		pEntry->options.bits.optsExtension = FALSE;
-		if(pEntry->options.bits.appId == GP_APP_ID_SRC_ID){
-			pEntry->gpdId.srcId = pCmd->gpdId.srcId;
-		}else if(pEntry->options.bits.appId == GP_APP_ID_GPD){
-			ZB_64BIT_ADDR_COPY(pEntry->gpdId.gpdIeeeAddr, pCmd->gpdId.gpdIeeeAddr);
+	g_gppCtx.gpAliasConflictAddr = NWK_BROADCAST_RESERVED;
+
+	g_gppCtx.aliasConflictTimeoutEvt = NULL;
+	return -1;
+}
+
+static void gpAliansConflictTimeoutEvtStop(void)
+{
+	if(g_gppCtx.aliasConflictTimeoutEvt){
+		TL_ZB_TIMER_CANCEL(&g_gppCtx.aliasConflictTimeoutEvt);
+	}
+}
+
+bool gpDevAnnceCheckCb(u16 aliasNwkAddr, addrExt_t aliasIeeeAddr)
+{
+	//printf("gpDevAnnceChk: aliasNwkAddr = %x\n", aliasNwkAddr);
+
+	if(ZB_IEEE_ADDR_IS_INVALID(aliasIeeeAddr)){
+		if(g_gppCtx.aliasConflictTimeoutEvt){
+			if(g_gppCtx.gpAliasConflictAddr == aliasNwkAddr){
+				gpAliansConflictTimeoutEvtStop();
+			}
 		}
-		pEntry->endpoint = pCmd->endpoint;
-		//pEntry->gpdAssignedAlias = pCmd->assignedAlias;
-		pEntry->secOptions.bits.secLevel = pCmd->options.bits.secLevel;
-		pEntry->secOptions.bits.secKeyType = pCmd->options.bits.secKeyType;
-		pEntry->gpdSecFrameCnt = pCmd->gpdSecFrameCnt;
-		memcpy(pEntry->gpdKey, pCmd->gpdKey, SEC_KEY_LEN);
-		pEntry->groupcastRadius = pCmd->options.bits.groupcastRadiusPresent ? pCmd->groupcastRadius : pEntry->groupcastRadius;
-		pEntry->searchCnt = 0;
+		return TRUE;
 	}else{
-		if(pCmd->options.bits.commMode == GPS_COMM_MODE_LIGHTWEIGHT_UNICAST){
-			if(lwSinkAddrListRemove(pEntry, pCmd->sinkIeeeAddr, pCmd->sinkNwkAddr) == FAILURE){
-				return ZCL_STA_NOT_FOUND;
-			}
-		}else if(pCmd->options.bits.commMode == GPS_COMM_MODE_GROUP_PRE_COMMISSIONED_GROUPID){
-			if(sinkGroupListRemove(pEntry, pCmd->sinkGroupID) == FAILURE){
-				return ZCL_STA_NOT_FOUND;
-			}
+		if(g_gppCtx.aliasConflictTimeoutEvt){
+			return TRUE;
 		}
 
-		if((pEntry->lwSinkCnt == 0) && (pEntry->sinkGroupCnt == 0) && !pEntry->options.bits.derivedGroupGPS){
-			gp_proxyTabEntryClear(pEntry);
-		}
-	}
+		bool sendDevAnnce = FALSE;
 
-	return ZCL_STA_SUCCESS;
-}
+#if GP_BASIC_COMBO
+		if(!sendDevAnnce && gp_getSinkTabEntryTotalNum()){
+			for(u8 i = 0; i < zclGpAttr_gpsMaxSinkTabEntries; i++){
+				if(g_gpSinkTab.gpSinkTab[i].used){
+					u16 addr = 0xFFFF;
 
-static status_t gp_pairingUpdateProxyTab(zcl_gp_pairingCmd_t *pCmd)
-{
-	gpProxyTabEntry_t *pEntry = gp_getProxyTabByGpdId(pCmd->options.bits.appId, pCmd->gpdId);
-
-	if(pCmd->options.bits.removeGPD){
-		if(pEntry){
-			gp_proxyTabEntryClear(pEntry);
-			return ZCL_STA_SUCCESS;
-		}
-		return ZCL_STA_NOT_FOUND;
-	}
-
-	if(pCmd->options.bits.commMode == GPS_COMM_MODE_FULL_UNICAST){
-		//not support
-		return ZCL_STA_INVALID_FIELD;
-	}
-
-	if(pCmd->options.bits.secLevel == GP_SEC_LEVEL_RESERVED){
-		return ZCL_STA_INVALID_FIELD;
-	}
-
-	//not found the entry
-	if(!pEntry){
-		if(pCmd->options.bits.addSink){
-			pEntry = gp_proxyTabEntryFreeGet();
-			if(!pEntry){
-				return ZCL_STA_INSUFFICIENT_SPACE;
-			}
-		}else{
-			return ZCL_STA_NOT_FOUND;
-		}
-	}
-
-	return gp_proxyTabEntryUpdate(pEntry, pCmd);
-}
-
-/*********************************************************************
- * @fn      gpPairingCmdProcess
- *
- * @brief	Handler for ZCL GP Pairing command.
- *
- * @param   cmd
- *
- * @return  None
- */
-static status_t gpPairingCmdProcess(zcl_gp_pairingCmd_t *pCmd)
-{
-	status_t status = gp_pairingUpdateProxyTab(pCmd);
-
-	if(status == ZCL_STA_SUCCESS){
-		//update the proxy table
-		//printf("updated\n");
-		gpProxyTabUpdate();
-
-		if(g_gpCtx.gpCommissioningModeOpt.bits.exitMode & EXIT_ON_FIRST_PAIRING_SUCCESS){
-			gpCommissioningWindowTimeoutStop();
-			gpExitCommissioningMode();
-
-			//notify up layer the current commissioning mode
-			if(gpAppCb && gpAppCb->gpCommissioningModeCb){
-				gpAppCb->gpCommissioningModeCb(g_gpCtx.gpInCommMode);
-			}
-		}
-	}else{
-		//printf("failed\n");
-	}
-
-	if( (NIB_NETWORK_ADDRESS() == gpAliasSrcAddrDerived(pCmd->options.bits.appId, pCmd->gpdId)) ||
-		(NIB_NETWORK_ADDRESS() == pCmd->assignedAlias) ){
-		tl_zbNwkAddrConflictStatusSend(NWK_BROADCAST_RX_ON_WHEN_IDLE, NIB_NETWORK_ADDRESS(), TRUE);
-
-		NIB_NETWORK_ADDRESS() = g_zbMacPib.shortAddress = tl_zbNwkStochasticAddrCal();
-
-		zb_zdoSendDevAnnance();
-	}
-
-	return status;
-}
-
-/*********************************************************************
- * @fn      gpProxyTabReqCmdProcess
- *
- * @brief	Handler for ZCL GP Proxy Table Request command.
- *
- * @param   cmd
- *
- * @return  None
- */
-static void gpProxyTabReqCmdProcess(zclIncomingAddrInfo_t *pAddrInfo, zcl_gp_proxyTabReqCmd_t *pCmd)
-{
-	epInfo_t dstEpInfo;
-	TL_SETSTRUCTCONTENT(dstEpInfo, 0);
-
-	dstEpInfo.dstAddrMode = APS_SHORT_DSTADDR_WITHEP;
-	dstEpInfo.dstAddr.shortAddr = pAddrInfo->srcAddr;
-	dstEpInfo.dstEp = pAddrInfo->srcEp;
-	dstEpInfo.profileId = pAddrInfo->profileId;
-
-	zcl_gp_proxyTabRspCmd_t proxyTabRspCmd;
-	TL_SETSTRUCTCONTENT(proxyTabRspCmd, 0);
-
-	u8 *pBuf = NULL;
-
-	proxyTabRspCmd.totalTabEntries = gp_getProxyTabEntryTotalNum();
-
-	if(proxyTabRspCmd.totalTabEntries == 0){
-		proxyTabRspCmd.status = ZCL_STA_NOT_FOUND;
-		proxyTabRspCmd.startIdx = (pCmd->options.bits.reqType == REQUEST_TABLE_ENTRIES_BY_GPD_ID) ? 0xFF : pCmd->index;
-		proxyTabRspCmd.entriesCnt = 0;
-		proxyTabRspCmd.entriesLen = 0;
-
-		zcl_gp_proxyTableRspCmdSend(GREEN_POWER_ENDPOINT, &dstEpInfo, TRUE, pAddrInfo->seqNum, &proxyTabRspCmd);
-		return;
-	}
-
-	if(pCmd->options.bits.reqType == REQUEST_TABLE_ENTRIES_BY_GPD_ID){
-		gpProxyTabEntry_t *pEntry = gp_getProxyTabByGpdId(pCmd->options.bits.appId, pCmd->gpdId);
-		if(pEntry){
-			u8 len = gp_getProxyTabEntryLen(pEntry);
-			pBuf = (u8 *)ev_buf_allocate(len);
-			if(!pBuf){
-				return;
-			}
-
-			gp_buildProxyTabEntryFormat(pEntry, pBuf);
-
-			proxyTabRspCmd.status = ZCL_STA_SUCCESS;
-			proxyTabRspCmd.startIdx = 0xFF;
-			proxyTabRspCmd.entriesCnt = 1;
-			proxyTabRspCmd.entriesLen = len;
-			proxyTabRspCmd.proxyTabEntry = pBuf;
-		}else{
-			proxyTabRspCmd.status = ZCL_STA_NOT_FOUND;
-			proxyTabRspCmd.startIdx = 0xFF;
-			proxyTabRspCmd.entriesCnt = 0;
-			proxyTabRspCmd.entriesLen = 0;
-		}
-	}else if(pCmd->options.bits.reqType == REQUEST_TABLE_ENTRIES_BY_INDEX){
-		proxyTabRspCmd.status = ZCL_STA_SUCCESS;
-		proxyTabRspCmd.startIdx = pCmd->index;
-
-		u8 entryLen = 0;
-		u8 maxEntryLen = 0;
-		u8 activeEntryCnt = 0;
-
-		for(u8 i = 0; i < zclGpAttr_gppMaxProxyTabEntries; i++){
-			maxEntryLen = entryLen;
-
-			if(g_gpProxyTab.gpProxyTab[i].used){
-				activeEntryCnt++;
-
-				if(pCmd->index <= activeEntryCnt - 1){
-					entryLen += gp_getProxyTabEntryLen(&g_gpProxyTab.gpProxyTab[i]);
-
-					if(entryLen >= ZCL_GP_MAX_PROXY_TABLE_ATTR_LEN){
-						entryLen = maxEntryLen;
-						break;
+					if(!g_gpSinkTab.gpSinkTab[i].options.bits.assignedAlias){
+						addr = gpAliasSrcAddrDerived(g_gpSinkTab.gpSinkTab[i].options.bits.appId,
+													 g_gpSinkTab.gpSinkTab[i].gpdId);
 					}else{
-						proxyTabRspCmd.entriesCnt++;
+						addr = g_gpSinkTab.gpSinkTab[i].gpdAssignedAlias;
+					}
+
+					if((addr != 0xFFFF) && (addr == aliasNwkAddr)){
+						g_gppCtx.gpAliasConflictAddr = aliasNwkAddr;
+						sendDevAnnce = TRUE;
+						break;
 					}
 				}
 			}
 		}
-
-		activeEntryCnt = 0;
-		proxyTabRspCmd.entriesLen = entryLen;
-
-		u8 entriesCnt = proxyTabRspCmd.entriesCnt;
-
-		if(entryLen){
-			pBuf = (u8 *)ev_buf_allocate(entryLen);
-			if(!pBuf){
-				return;
-			}
-
-			u8 *ptr = pBuf;
-
+#endif
+		if(!sendDevAnnce && gp_getProxyTabEntryTotalNum()){
 			for(u8 i = 0; i < zclGpAttr_gppMaxProxyTabEntries; i++){
 				if(g_gpProxyTab.gpProxyTab[i].used){
-					activeEntryCnt++;
-
-					if(pCmd->index <= activeEntryCnt - 1){
-						if(entriesCnt){
-							ptr += gp_buildProxyTabEntryFormat(&g_gpProxyTab.gpProxyTab[i], ptr);
-							entriesCnt--;
-						}else{
-							break;
+					for(u8 j = 0; j < g_gpProxyTab.gpProxyTab[i].lwSinkCnt; j++){
+						if(ZB_IEEE_ADDR_CMP(g_gpProxyTab.gpProxyTab[i].lightweightSinkAddrList[j].sinkIeeeAddr, aliasIeeeAddr)){
+							g_gpProxyTab.gpProxyTab[i].lightweightSinkAddrList[j].sinkNwkAddr = aliasNwkAddr;
 						}
+					}
+
+					if((aliasNwkAddr == gpAliasSrcAddrDerived(g_gpProxyTab.gpProxyTab[i].options.bits.appId, g_gpProxyTab.gpProxyTab[i].gpdId)) ||
+					   (aliasNwkAddr == g_gpProxyTab.gpProxyTab[i].gpdAssignedAlias) ){
+						tl_zbNwkAddrConflictStatusSend(NWK_BROADCAST_RX_ON_WHEN_IDLE, aliasNwkAddr, TRUE);
+
+						g_gppCtx.gpAliasConflictAddr = aliasNwkAddr;
+						sendDevAnnce = TRUE;
+						break;
 					}
 				}
 			}
+		}
 
-			proxyTabRspCmd.proxyTabEntry = pBuf;
+		if(sendDevAnnce){
+			//A.3.6.3.1, between Dmin and Dmax ms
+			u16 devAnnceDelay = (zb_random() / 650) + 5;
+			g_gppCtx.aliasConflictTimeoutEvt = TL_ZB_TIMER_SCHEDULE(gpAliasConflictTimeoutCb, NULL, devAnnceDelay);
+			return TRUE;
 		}
 	}
 
-	zcl_gp_proxyTableRspCmdSend(GREEN_POWER_ENDPOINT, &dstEpInfo, TRUE, pAddrInfo->seqNum, &proxyTabRspCmd);
-
-	if(pBuf){
-		ev_buf_free(pBuf);
-	}
+	return FALSE;
 }
 
 /*********************************************************************
- * @fn      gpProxyCommissioningModeCmdProcess
+ * @fn      gpDataCnfPrc
  *
- * @brief	Handler for ZCL GP Proxy Commissioning Mode command.
+ * @brief   On receipt of GP-DATA.confirm primitive.
  *
- * @param   cmd
+ * @param   pGpDataCnf
  *
  * @return  None
  */
-static void gpProxyCommissioningModeCmdProcess(u16 srcAddr, zcl_gp_proxyCommissioningModeCmd_t *pCmd)
+void gpDataCnfPrc(gp_data_cnf_t *pGpDataCnf)
 {
-	if(g_gpCtx.gpInCommMode && (g_gpCtx.gpCommissionerAddr != srcAddr)){
-		//if we are in commissioning mode and the source address is not the device that set the
-		//proxy in commissioning mode, drop the request.
-		return;
-	}
+	//printf("gpDataCnf: sta = %x, handle = %x\n", pGpDataCnf->status, pGpDataCnf->gpepHandle);
 
-	//printf("gpProxyCommModeCmdCb\n");
-
-	if(pCmd->options.bits.action){
-		g_gpCtx.gpCommissioningModeOpt = pCmd->options;
-		g_gpCtx.gpCommissionerAddr = srcAddr;
-		g_gpCtx.gpInCommMode = TRUE;
-
-		if(pCmd->options.bits.commWindowPresent){
-			g_gpCtx.gpCommissioningWindow = pCmd->commissioningWindow;
-		}
-
-		if(pCmd->options.bits.channelPresent){
-			//in the current version of the GP spec, the channel present sub-field shall always be set to 0,
-			//and the channel field shall not be present. A.3.3.5.3
-		}
-
-		//start the commissioning window timeout
-		if(!g_gpCtx.commissioningWindowTimeoutEvt){
-			gpComWindowCnt = 0;
-			g_gpCtx.commissioningWindowTimeoutEvt = TL_ZB_TIMER_SCHEDULE(gpCommissioningWindowTimeoutCb, (void *)((u32)g_gpCtx.gpCommissioningWindow), 1000);
-		}else{
-			gpComWindowCnt = 0;
-		}
-	}else{
-		gpCommissioningWindowTimeoutStop();
-		gpExitCommissioningMode();
-	}
-
-	//notify up layer the current commissioning mode
-	if(gpAppCb && gpAppCb->gpCommissioningModeCb){
-		gpAppCb->gpCommissioningModeCb(g_gpCtx.gpInCommMode);
+	switch(pGpDataCnf->status){
+		case GP_DATA_CNF_STATUS_TX_QUEUE_FULL:
+			//printf("txQueueFull\n");
+			break;
+		case GP_DATA_CNF_STATUS_ENTRY_REPLACED:
+			//printf("entryReplaced\n");
+			break;
+		case GP_DATA_CNF_STATUS_ENTRY_ADDED:
+			//printf("entryAdded\n");
+			break;
+		case GP_DATA_CNF_STATUS_ENTRY_EXPIRED:
+			//printf("entryExpired\n");
+			break;
+		case GP_DATA_CNF_STATUS_ENTRY_REMOVED:
+			//printf("entryRemoved\n");
+			break;
+		case GP_DATA_CNF_STATUS_GPDF_SENDING_FINALIZED:
+			//printf("GPDF_sendingFinalized\n");
+			break;
+		default:
+			break;
 	}
 }
 
 /*********************************************************************
- * @fn      gpResponseCmdProcess
+ * @fn      gpDataIndPrc
  *
- * @brief	Handler for ZCL GP Response command.
+ * @brief   On receipt of GP-DATA.indication primitive.
  *
- * @param   cmd
+ * @param   arg
  *
  * @return  None
  */
-static void gpResponseCmdProcess(zcl_gp_responseCmd_t *pCmd)
+void gpDataIndPrc(void *arg)
 {
-	//printf("gpResponseCmdCb\n");
+	gp_data_ind_t *pGpDataInd = (gp_data_ind_t *)arg;
 
-	gp_data_req_t gpDataReq;
-	TL_SETSTRUCTCONTENT(gpDataReq, 0);
+	//printf("gpDataIndPrc: status = %x\n", pGpDataInd->status);
 
-	if(pCmd->tempMasterShortAddr == NWK_NIB().nwkAddr){
-		g_gpCtx.firstToForward = TRUE;//TODO: not sure
-		gpDataReq.action = TRUE;
-	}else{
-		g_gpCtx.firstToForward = FALSE;
-		gpDataReq.action = FALSE;
-	}
-
-	if(pCmd->gpdCmdID == GP_CHANNEL_CONFIGURATION_COMMAND_ID){
-		gpDataReq.gpepHandle = GP_HANDLE_CHANNEL_CONFIGURATION;
-	}else{
-		gpDataReq.gpepHandle = dGpStubHandleGet();
-	}
-	gpDataReq.txOptions.useGpTxQueue = 1;
-	gpDataReq.txOptions.txOnMatchingEndpoint = pCmd->options.bits.transmitOnEndpointMatch;
-	gpDataReq.appId = pCmd->options.bits.appId;
-	memcpy((u8 *)&gpDataReq.gpdId, (u8 *)&pCmd->gpdId, sizeof(gpdId_t));
-	gpDataReq.endpoint = pCmd->endpoint;
-	gpDataReq.gpdCmdId = pCmd->gpdCmdID;
-	gpDataReq.gpdAsduLen = pCmd->payloadLen;
-	gpDataReq.gpdAsdu = pCmd->pGpdCmdPayload;
-
-	if(gpDataReq.action){
-		if(pCmd->gpdCmdID == GP_CHANNEL_CONFIGURATION_COMMAND_ID){
-			gpd_channelConfigurationCmd_payload_t channel;
-			TL_SETSTRUCTCONTENT(channel, 0);
-
-			channel.channel = *(pCmd->pGpdCmdPayload);
-
-			gpSwitchToTransmitChannel(channel, pCmd->tempMasterTxChannel);
-		}
-	}
-
-	gpTranimitGPDF(&gpDataReq);
+#if GP_BASIC_COMBO
+	gpsGpDataIndProcess(pGpDataInd);
+#endif
+	gppGpDataIndProcess(pGpDataInd);
 }
 
 /*********************************************************************
- * @fn      gpResponseCmdProcess
+ * @fn      gpSecReqPrc
+ *
+ * @brief   On receipt of GP-SEC.request primitive.
+ *
+ * @param   arg
+ *
+ * @return  None
+ */
+void gpSecReqPrc(void *arg)
+{
+	gp_sec_req_t *pGpSecReq = (gp_sec_req_t *)arg;
+
+//	printf("gpSecReqPrc: type = %x, lvl = %x, num = %x, handle = %x\n",
+//		   pGpSecReq->gpdfKeyType, pGpSecReq->gpdfSecurityLevel,
+//		   pGpSecReq->gpdSecFrameCnt, pGpSecReq->dgpStubHandle);
+
+	gp_sec_req_t gpSecReq;
+	memcpy((u8 *)&gpSecReq, pGpSecReq, sizeof(*pGpSecReq));
+
+	gp_sec_rsp_t *pGpSecRsp = (gp_sec_rsp_t *)arg;
+	memset((u8 *)pGpSecRsp, 0, sizeof(gp_sec_rsp_t));
+
+	pGpSecRsp->appId = gpSecReq.appId;
+	pGpSecRsp->dgpStubHandle = gpSecReq.dgpStubHandle;
+	pGpSecRsp->endpoint = gpSecReq.endpoint;
+	memcpy((u8 *)&(pGpSecRsp->gpdId), (u8 *)&gpSecReq.gpdId, sizeof(gpdId_t));
+	pGpSecRsp->gpdfSecurityLevel = gpSecReq.gpdfSecurityLevel;
+	pGpSecRsp->gpdSecFrameCnt = gpSecReq.gpdSecFrameCnt;
+
+	//A.3.7.3.1.2
+#if GP_BASIC_COMBO
+		if(g_gpsCtx.gpsInCommMode || gp_getSinkTabByGpdId(gpSecReq.appId, gpSecReq.gpdId)){
+			pGpSecRsp->status = gpSinkSecOperation(gpSecReq.appId, gpSecReq.gpdId,
+												   gpSecReq.endpoint, gpSecReq.gpdSecFrameCnt,
+												   gpSecReq.gpdfSecurityLevel, gpSecReq.gpdfKeyType,
+												   &pGpSecRsp->gpdfKeyType, pGpSecRsp->gpdKey);
+
+			TL_SCHEDULE_TASK(gpSecRsp, arg);
+
+			return;
+		}
+#endif
+
+	pGpSecRsp->status = gpProxySecOperation(gpSecReq.appId, gpSecReq.gpdId,
+											gpSecReq.endpoint, gpSecReq.gpdSecFrameCnt,
+											gpSecReq.gpdfSecurityLevel, gpSecReq.gpdfKeyType,
+											&pGpSecRsp->gpdfKeyType, pGpSecRsp->gpdKey);
+
+	TL_SCHEDULE_TASK(gpSecRsp, arg);
+}
+
+/*********************************************************************
+ * @fn      zcl_gpCb
  *
  * @brief	Handler for ZCL Green Power command.
  *
- * @param   cmd
+ * @param   pAddrInfo
+ * @param   cmdId
+ * @param   cmdPayload
  *
- * @return  None
+ * @return  status_t
  */
 status_t zcl_gpCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
 {
@@ -535,25 +359,13 @@ status_t zcl_gpCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
 
 	if(pAddrInfo->dstEp == GREEN_POWER_ENDPOINT){
 		if(pAddrInfo->dirCluster == ZCL_FRAME_SERVER_CLIENT_DIR){
-			switch(cmdId){
-				case ZCL_CMD_GP_PAIRING:
-					status = gpPairingCmdProcess((zcl_gp_pairingCmd_t *)cmdPayload);
-					break;
-				case ZCL_CMD_GP_PROXY_COMMISSIONING_MODE:
-					gpProxyCommissioningModeCmdProcess(pAddrInfo->srcAddr, (zcl_gp_proxyCommissioningModeCmd_t *)cmdPayload);
-					break;
-				case ZCL_CMD_GP_RESPONSE:
-					gpResponseCmdProcess((zcl_gp_responseCmd_t *)cmdPayload);
-					break;
-				case ZCL_CMD_GP_PROXY_TABLE_REQUEST:
-					gpProxyTabReqCmdProcess(pAddrInfo, (zcl_gp_proxyTabReqCmd_t *)cmdPayload);
-					break;
-				default:
-					status = ZCL_STA_UNSUP_CLUSTER_COMMAND;
-					break;
-			}
+			status = zcl_gpServerCmdHandler(pAddrInfo, cmdId, cmdPayload);
 		}else{
+#if GP_BASIC_COMBO
+			status = zcl_gpClientCmdHandler(pAddrInfo, cmdId, cmdPayload);
+#else
 			status = ZCL_STA_UNSUP_CLUSTER_COMMAND;
+#endif
 		}
 	}
 

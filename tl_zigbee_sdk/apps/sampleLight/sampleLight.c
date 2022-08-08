@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *			All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #if (__PROJECT_TL_DIMMABLE_LIGHT__)
@@ -170,7 +172,7 @@ void user_app_init(void)
 
 #if ZCL_GP_SUPPORT
 	/* Initialize GP */
-	gp_init();
+	gp_init(SAMPLE_LIGHT_ENDPOINT);
 #endif
 
 #if ZCL_OTA_SUPPORT
@@ -252,9 +254,12 @@ static void sampleLightSysException(void)
 	zcl_levelAttr_save();
 	zcl_colorCtrlAttr_save();
 
+#if 1
 	SYSTEM_RESET();
-	//led_on(LED_POWER);
-	//while(1);
+#else
+	led_on(LED_POWER);
+	while(1);
+#endif
 }
 
 /*********************************************************************

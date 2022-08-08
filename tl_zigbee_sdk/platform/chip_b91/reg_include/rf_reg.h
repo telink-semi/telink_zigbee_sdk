@@ -1,12 +1,13 @@
 /********************************************************************************************************
- * @file    rf_reg.h
+ * @file	rf_reg.h
  *
- * @brief   This is the header file for B91
+ * @brief	This is the header file for B91
  *
- * @author  Driver Group
- * @date    2021
+ * @author	Driver Group
+ * @date	2019
  *
- * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,11 +20,11 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
-
 #ifndef  RF_REG_H
 #define  RF_REG_H
-#include "../sys.h"
+#include "soc.h"
 
 ///*******************************      RF      ******************************/
 #define                 APBADDR           0x140000
@@ -384,7 +385,7 @@ enum{
 };
 #endif
 
-#define	   reg_rf_rxdma_adr			 0x140880
+#define	   reg_rf_rxdma_adr			 0x80140880
 #define    reg_rf_rxdma_fifo0        REG_ADDR8(REG_BASEBAND_BASE_ADDR+0x80)
 enum{
 	FLD_RF_RXDMA_FIFO0           =	BIT_RNG(0,7),
@@ -408,7 +409,7 @@ enum{
 	FLD_RF_RXDMA_FIFO3           =	BIT_RNG(0,7),
 };
 
-#define	   reg_rf_txdma_adr			0x140884
+#define	   reg_rf_txdma_adr			0x80140884
 #define    reg_rf_txdma_fifo0        REG_ADDR8(REG_BASEBAND_BASE_ADDR+0x84)
 enum{
 	FLD_RF_TXDMA_FIFO0           =	BIT_RNG(0,7),
@@ -624,7 +625,7 @@ typedef enum{
 	FLD_RF_IRQ_WIFI_DENY         =	BIT(13),
 	FLD_RF_IRQ_SUPP_OF           =	BIT(14),
 	FLD_RF_IRQ_RXDMA_OF          =	BIT(15),
-	FLD_RF_IRQ_ALL 				 =  0X1FFF,
+	FLD_RF_IRQ_ALL 				 =  0XFFFF,
 }rf_irq_e;
 
 
@@ -720,6 +721,25 @@ enum
 	FLD_RF_BLE_MODEM_TX			  = BIT(0),
 };
 
+#define		reg_rf_modem_mode_cfg_txrx_0    REG_ADDR8(REG_TL_MODEM_BASE_ADDR+0x26)
+enum
+{
+	FLD_RF_X1_CQ_N					  = BIT(0),
+	FLD_RF_SYNC_RST_SEL				  = BIT(1),
+	FLD_RF_GF_BT					  = BIT(2),
+};
+
+#define     reg_rf_modem_rxc_mi_flex_ble_0    REG_ADDR8(REG_TL_MODEM_BASE_ADDR+0x48)
+enum
+{
+	FLD_RF_RXC_MI_FLEX_BLE_L      =  BIT_RNG(0,7),
+};
+#define     reg_rf_modem_rxc_mi_flex_ble_1    REG_ADDR8(REG_TL_MODEM_BASE_ADDR+0x49)
+enum
+{
+	FLD_RF_RXC_MI_FLEX_BLE_H     = BIT(0),
+};
+
 #define		reg_rf_modem_rx_ctrl_0		REG_ADDR8(REG_TL_MODEM_BASE_ADDR+0x4c)
 enum
 {
@@ -729,9 +749,12 @@ enum
 };
 
 #define		reg_rf_modem_sync_thre_ble		REG_ADDR8(REG_TL_MODEM_BASE_ADDR+0x4e)
-
+#define		reg_rf_modem_fdc_dbg_lat		REG_ADDR8(REG_TL_MODEM_BASE_ADDR+0x58)
+#define		reg_rf_modem_gain_lat0			REG_ADDR8(REG_TL_MODEM_BASE_ADDR+0x5c)
 #define		reg_rf_agc_rssi_lat		REG_ADDR8(REG_TL_MODEM_BASE_ADDR+0x5d)
 
+#define		ref_rf_tim_align_1			REG_ADDR8(REG_TL_MODEM_BASE_ADDR+0x79)
+#define		reg_rf_bypass_filt_1		REG_ADDR8(REG_TL_MODEM_BASE_ADDR+0x7b)
 #define 	reg_rf_tx_tl_ctrl			REG_ADDR8(REG_TL_MODEM_BASE_ADDR+0x9a)
 enum
 {
@@ -779,7 +802,7 @@ enum
 {
 	FLD_RF_DIS_CLK_DIG_O			= BIT(0),
 	FLD_RF_VANT_PULLDN				= BIT(1),
-	FLD_RF_GF_BT					= BIT(2),
+	FLD_RF_TX_IQ_MODE_EN_BT			= BIT(2),
 	FLD_RF_LDO_ANT_TRIM				= BIT_RNG(3,5),
 	FLD_RF_CBPF_TYPE				= BIT(6),
 	FLD_RF_TX_PA_PWR_L				= BIT(7),
@@ -830,6 +853,16 @@ enum
 
 };
 
+#define   reg_rf_mode_cfg_rx2_0        REG_ADDR8(REG_TL_RADIO_BASE_ADDR+0x3e)
+enum
+{
+   FLD_RF_TXC_MI_FLEX_L     = BIT_RNG(0,7),
+};
+#define   reg_rf_mode_cfg_rx2_1        REG_ADDR8(REG_TL_RADIO_BASE_ADDR+0x3f)
+enum
+{
+  FLD_RF_TXC_MI_FLEX_H   = BIT(0),
+};
 #define		reg_rf_txrx_dbg3_0		    REG_ADDR8(REG_TL_RADIO_BASE_ADDR+0x44)
 enum
 {
@@ -843,6 +876,26 @@ enum
 	FLD_RF_CHNL_FREQ_H					= BIT_RNG(0,5),
 	FLD_RF_DSN_DITHER_DISABLE			= BIT(6),
 	FLD_RF_DSM_INT_MODE				= BIT(7),
+};
+
+#define		reg_rf_lnm_pa_ow_ctrl_val	REG_ADDR8(REG_TL_RADIO_BASE_ADDR+0x178)
+enum
+{
+	FLD_RF_RX_LNA_PUP_OW			= BIT(0),
+	FLD_RF_RX_LNA_HGAIN_OW			= BIT(1),
+	FLD_RF_RX_LNA_LGAIN_OW			= BIT(2),
+	FLD_RF_RX_LNA_ATTN_OW			= BIT(3),
+	FLD_RF_RX_MIX_PUP_OW			= BIT(4),
+	FLD_RF_TX_PA_PUP_OW				= BIT(5),
+	FLD_RF_TX_PA_PWR_OW				= BIT(6),
+	FLD_RF_PA_RAMP_TSEQ_OR_TX_ON	= BIT(7),
+};
+
+#define		reg_rf_pa_ow_val			  REG_ADDR8(REG_TL_RADIO_BASE_ADDR+0x17c)
+enum
+{
+	FLD_RF_TX_PA_PUP				= BIT(0),
+	FLD_RF_TX_PA_PWR				= BIT_RNG(1,6),
 };
 
 #endif

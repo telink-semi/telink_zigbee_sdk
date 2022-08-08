@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #ifndef APS_API_H
@@ -35,6 +37,12 @@
 #ifndef APS_GROUP_TABLE_NUM
 #define APS_GROUP_TABLE_NUM				4		//APS_GROUP_TABLE_NUM_DFT
 #endif
+
+#define	APS_BINDING_TABLE_NUM_V1        8       //old struct, mustn't change it
+
+#define APS_TX_CACHE_TABLE_NUM			16
+
+
 
 #define APS_PARENT_ANNOUNCE_BASE_TIMER	10//s
 #define APS_PARENT_ANNOUNCE_JITTER_MAX	10//s
@@ -379,9 +387,55 @@ typedef struct{
 	u8 dst_n_elements;
 	u8 bound_cnt;
 	u8 resv;
-	aps_bind_tbl_t	  table[APS_BINDING_TABLE_NUM];
-	boundTblMapList_t BoudList[APS_BINDING_TABLE_NUM * APS_BINDING_TABLE_NUM];
+	aps_bind_tbl_t	  table[APS_BINDING_TABLE_NUM_V1];
+	boundTblMapList_t BoudList[APS_BINDING_TABLE_NUM_V1 * APS_BINDING_TABLE_NUM_V1];
 }aps_binding_table_t _attribute_aligned_(4);
+
+typedef struct{
+	addrExt_t extAddr;
+	u8        dstEp;
+}aps_binding_extaddr_t;
+
+typedef struct{
+	u16 clusterId;     /*! cluster ID */
+	u8  srcEp;         /*! source endpoint */
+	u8  dstAddrMode;   /*! destination address mode */
+	union{
+		u16 groupAddr;  //group address
+		aps_binding_extaddr_t dstExtAddrInfo; //zb_asp_long_dst_addr_t
+	};
+	u8 used;
+}aps_binding_entry_t _attribute_aligned_(4);
+
+typedef struct{
+    union{
+    	u16		  addr_short;
+		addrExt_t addr_long;
+	}dstAddr;
+
+	u8	*payload;
+
+    u8  dstAddrMode;
+    u8  dstEndpoint;
+	u8	ep;					//srcEp
+	u8	handler;      		//real data handler
+
+	u8	apsCount;     		//real data aps count
+	u8	zdpSeqnoAddrReq;  	//the aps count for nwk address req
+	u8	used:1;
+	u8	addrReqNeed:1;
+	u8	ackNeed:1;
+	u8	interPAN:1;
+	u8	state:4;
+	u8	retries;
+
+	s8	apsAckWaitTimeOut;
+	s8	apsAddrWaitTimeout;
+	u8  extFrameCtrl;
+	u8	blockNum;
+	u16 clusterId;
+	u8 resv[2];
+}aps_tx_cache_list_t;
 
 typedef struct{
 	u32			aps_channel_mask; //The mask of allowable channels for this device to use for network operations.
@@ -409,10 +463,12 @@ extern u8 APS_MAX_WINDOW_SIZE;
 extern u8 APS_FRAGMEMT_PAYLOAD_SIZE;
 extern u8 APS_BINDING_TABLE_SIZE;
 extern u8 APS_GROUP_TABLE_SIZE;
+extern u8 APS_TX_CACHE_TABLE_SIZE;
 extern u8 APS_MAX_FRAME_RETRIES;
 extern u8 APS_ACK_EXPIRY;
-extern aps_binding_table_t aps_binding_tbl;
+extern aps_binding_entry_t g_apsBindingTbl[];
 extern aps_group_tbl_ent_t aps_group_tbl[];
+extern aps_tx_cache_list_t aps_txCache_tbl[];
 extern aps_pib_attributes_t aps_ib;
 
 #define APS_IB() aps_ib
@@ -475,6 +531,8 @@ aps_status_t aps_search_dst_from_bind_tbl(aps_data_req_t *apsreq, bind_dst_list_
  *
  **************************************************************************/
 aps_binding_table_t *aps_bindingTblGet(void);
+aps_binding_entry_t *aps_bindingTblEntryGet(void);
+u8 aps_bindingTblEntryNum(void);
 
 /***********************************************************************//**
  * @brief   get binding table number
@@ -495,6 +553,7 @@ u8 aps_bindingTblNum(void);
  *
  **************************************************************************/
 void aps_delete_bind_by_dst(u16 dst_addr_ref);
+void aps_bindingTblEntryDelByDstExtAddr(addrExt_t extAddr);
 
 /***********************************************************************//**
  * @brief   clear all binding table information
@@ -623,6 +682,9 @@ aps_group_tbl_ent_t *aps_group_search_by_addr(u16 group_addr);
  **************************************************************************/
 u8 *aps_group_ep_info_get(u16 group_addr, u8 *epNum);
 
+u8 aps_duplicate_check(u16 src_addr, u8 aps_counter);
+
+void apsCleanToStopSecondClock(void);
 
 void tl_apsDataIndRegister(apsDataIndCb_t cb);
 

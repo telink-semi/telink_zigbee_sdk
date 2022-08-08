@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *			All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #pragma once
@@ -28,6 +30,16 @@
 #include "bit.h"
 #include "gpio.h"
 
+/*
+//ADC IO PINS
+GPIO_PinTypeDef ADC_GPIO_tab[] = {
+		GPIO_PB0,GPIO_PB1,
+		GPIO_PB2,GPIO_PB3,
+		GPIO_PB4,GPIO_PB5,
+		GPIO_PB6,GPIO_PB7,
+		GPIO_PC4,GPIO_PC5
+};
+*/
 
 /**
  *  ADC sample rate

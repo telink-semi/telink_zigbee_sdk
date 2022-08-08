@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #ifdef MCU_CORE_B91
@@ -60,12 +62,12 @@ _RESET_ENTRY:
     .word ('T'<<24 | 'L'<<16 | 'N'<<8 | 'K')
 
     .org 0x26
-    //.short (0x0003)           //READ:    cmd:1x, addr:1x, data:1x, dummy:0
-    //.short (0x070B)           //FREAD:   cmd:1x, addr:1x, data:1x, dummy:8
-    .short (0x173B)           //DREAD:   cmd:1x, addr:1x, data:2x, dummy:8
-    //.short (0x53BB)           //X2READ:  cmd:1x, addr:2x, data:2x, dummy:4
-    //.short (0x276B)           //QREAD:   cmd:1x, addr:1x, data:4x, dummy:8
-    //.short (0x65EB)             //X4READ:  cmd:1x, addr:4x, data:4x, dummy:6
+    //.short (0x0003)           //READ:    cmd:1x, addr:1x, data:1x, dummy cycle:0
+    //.short (0x070B)           //FREAD:   cmd:1x, addr:1x, data:1x, dummy cycle:8
+    .short (0x173B)           //DREAD:   cmd:1x, addr:1x, data:2x, dummy cycle:8
+    //.short (0x53BB)           //X2READ:  cmd:1x, addr:2x, data:2x, dummy cycle:4
+    //.short (0x276B)           //QREAD:   cmd:1x, addr:1x, data:4x, dummy cycle:8
+    //.short (0x65EB)             //X4READ:  cmd:1x, addr:4x, data:4x, dummy cycle:6
     .option pop
     .align 2
 
@@ -84,6 +86,16 @@ _START:
     .option norelax
     la     gp, __global_pointer$
     .option pop
+
+/*
+* swire usb enable default.when dp and dm use as GPIO, it has a risk to trigger the swire through usb function
+* to do something unexcept when toggle dp pin
+*/
+_SWS_USB_DIS:
+	lui		t0, 0x80100
+	addi	t0 , t0 , 0x700
+	li		t1, 0x40
+	sb		t1, 0x501(t0)  //0x80100c01 -> 0x40  <7>: 0 swire_usb_dis
 
 	/* Initialize stack pointer */
     la     t0, _STACK_TOP
@@ -255,6 +267,16 @@ _ISTART:
 
     la     gp, __global_pointer$
     .option pop
+
+/*
+* swire usb enable default.when dp and dm use as GPIO, it has a risk to trigger the swire through usb function
+* to do something unexcept when toggle dp pin
+*/
+_ISWS_USB_DIS:
+	lui		t0, 0x80100
+	addi	t0 , t0 , 0x700
+	li		t1, 0x40
+	sb		t1, 0x501(t0)  //0x80100c01 -> 0x40  <7>: 0 swire_usb_dis
 
 	/* Initialize stack pointer */
     la     t0, _STACK_TOP

@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #pragma once
@@ -32,8 +34,9 @@
 #endif
 
 typedef enum{
-	SYSTEM_RETENTION_NONE,
-	SYSTEM_RETENTION_EN,
+	SYSTEM_BOOT,			//power on or boot
+	SYSTEM_DEEP_RETENTION,	//deep with retention back
+	SYSTEM_DEEP,			//deep back
 }startup_state_e;
 
 extern u32 sysTimerPerUs;
@@ -51,5 +54,5 @@ void drv_wd_clear(void);
 u32 drv_u32Rand(void);
 void drv_generateRandomData(u8 *pData, u8 len);
 
-void voltage_detect(void);
+void voltage_detect(bool powerOn);
 

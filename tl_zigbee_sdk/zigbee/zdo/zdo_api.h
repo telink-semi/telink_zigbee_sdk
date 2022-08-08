@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #ifndef ZDO_API_H
@@ -92,24 +94,31 @@ typedef struct{
 	u8	config_permit_join_duration;//Permit join duration, 0x00 - disable join, 0xff - join is allowed forever
 	u8	config_parent_link_retry_threshold;//Number of retry parent sync before judged as connection lost and the default value is ZDO_MAX_PARENT_THRESHOLD_RETRY
 
-	/* Addition rejoin backoff for devices.
-	 * If the config_rejoin_times is ZERO, it will not start Fast Rejoin and Rejoin Backoff behavior.
+	/* Addition rejoin with backoff timer for rejoin device.
+	 * |-------------------------------------------------|
+	 * |<---- rejoin times = 2 ----->|<- first backoff ->|
+	 * |<- duration ->|<- duration ->|<- backoff time  ->|
+	 * |---------------------------------------------------------------------|
+	 * |<----- rejoin times = 2 ---->|<----------- second backoff ---------->|
+	 * |<- duration ->|<- duration ->|<- backoff time  ->|<- backoff time  ->|
+	 * |-----------------------------------------------------------------------------------------|
+	 * |<----- rejoin times = 2 ---->|<---------------------- third backoff -------------------->|
+	 * |<- duration ->|<- duration ->|<- backoff time  ->|<- backoff time  ->|<- backoff time  ->|
 	 */
 	u8	config_rejoin_times;//The number of rejoin attempts during the fast rejoin.
-							//If 0 means disable Fast Rejoin and Rejoin Backoff;
-							//if 1, the config_rejoin_duration setting is not useful.
 	u16	config_rejoin_duration;//The amount of time between each rejoin attempt while the device is in Fast Rejoin mode, in seconds.
 							   //If 0, config_rejoin_times will be ignored and only one Fast Rejoin will be performed.
 	u16	config_rejoin_backoff_time;//The amount of time to sleep after the Fast Rejoin attempts before performing the next attempt, in seconds.
 								   //If 0 means no Rejoin backoff/retry.
 	u16	config_max_rejoin_backoff_time;//Upper limit of the config_rejoin_backoff_time.
-	u16 config_rejoin_backoff_iteration;//The number of iterations of the Fast Rejoin backoff, in seconds.
+	u16 config_rejoin_backoff_iteration;//The number of iterations of the Fast Rejoin backoff, in times.
 										//If 0 means do not reset the backoff duration.
 
 	u16 config_accept_nwk_update_pan_id;
 	u8	config_accept_nwk_update_channel;
 	bool config_mgmt_leave_use_aps_sec;
 	bool config_use_tc_sec_on_nwk_key_rotation;
+	u8	config_nwk_scan_duration;
 }zdo_attrCfg_t;
 
 
@@ -118,8 +127,8 @@ typedef struct{
  *  @brief Structure for parameter of startDev callback function
  */
 typedef struct{
-    zdo_status_t status;
-    u8	channel_num;
+    u8 status;
+    u8 channel_num;
     u16	pan_id;
     u16	short_addr;
 }zdo_start_device_confirm_t;
@@ -155,14 +164,18 @@ typedef struct{
 	zdo_tcFrameCntReachedCb_t		ssTcFrameCntReachedCb;	//only for ZC
 }zdo_appIndCb_t;
 
-
+typedef void (*nwkDiscoveryUserCb_t)(void);
 typedef bool (*zdo_touchLinkleaveCnfCb_t)(nlme_leave_cnf_t *p);
+typedef void (*nwk_touchLinkAttrClearCb_t)(void);
 
 typedef struct{
-	zdo_touchLinkleaveCnfCb_t	zdpLeaveCnfCb;
+	zdo_touchLinkleaveCnfCb_t	leaveCnfCb;
+	nwk_touchLinkAttrClearCb_t	attrClearCb;
 }zdo_touchLinkCb_t;
 
 
+extern zdo_appIndCb_t *zdoAppIndCbLst;
+extern zdo_touchLinkCb_t *zdoTouchLinkCb;
 extern zdo_attrCfg_t zdo_cfg_attributes;
 extern u32 TRANSPORT_NETWORK_KEY_WAIT_TIME;
 
@@ -171,7 +184,7 @@ extern u32 TRANSPORT_NETWORK_KEY_WAIT_TIME;
 
 void zdo_zdpCbTblRegister(zdo_appIndCb_t *cbTbl);
 
-void zdo_touchLinkCbRegister(zdo_touchLinkCb_t *cb);
+void zdo_touchLinkCbRegister(zdo_touchLinkCb_t *cbTbl);
 
 /****************************************************************************************************
  * @brief	Theb:Config_Parent_Link_Retry_Thres hold is either created when the  application is first loaded or
@@ -236,7 +249,7 @@ void zdo_af_set_scan_attempts(u8 attempts);
  *
  * @param	none
  *
- * @return	value in superframe
+ * @return	value in ms
  */
 u16 zdo_af_get_nwk_time_btwn_scans(void);
 
@@ -263,6 +276,7 @@ bool zdo_af_get_mgmtLeave_use_aps_sec(void);
 void zdo_af_set_use_tc_sec_on_nwk_key_rotation(bool enable);
 bool zdo_af_get_use_tc_sec_on_nwk_key_rotation(void);
 
+bool zb_isUnderRejoinMode();
 
 /************************************************************************************
  * @brief	Internal used interface to translate the channel map to the logic channel num
@@ -283,24 +297,109 @@ u8 zdo_channel_page2num(u32 chp);
 void zdo_init(void);
 
 /******************************************************************************************
- * @brief	Start network discovery
+ * @brief	Start network formation.
+ * 			Only for Coordinator and Router device.
  *
- * @param	pReq: the NWK-Discovery.req primitive
- *
- * @return	none
- */
-void zdo_nwk_discovery_Start(nlme_nwkDisc_req_t *pReq, nwkDiscoveryUserCb_t cb);
-
-/******************************************************************************************
- * @brief	Interface called when need to join or rejoin a network. This interface would construct
- * 			a nlme_join_req_t info to call nwk_nlme_join_req function to start the join procedure.
- *
- * @param	method:
- * @param	chm: 	channel map used to rejoin
+ * @param	scanChannels
+ * 			scanDuration
  *
  * @return	zdo_status_t
  */
-zdo_status_t zdo_nwk_rejoin_req(rejoinNwk_method_t method, u32 chm);
+zdo_status_t zdo_nwkFormationStart(u32 scanChannels, u8 scanDuration);
+
+/******************************************************************************************
+ * @brief	Start router request.
+ * 			Only for Coordinator and Router device network recovery.
+ *
+ * @param
+ *
+ * @return	zdo_status_t
+ */
+zdo_status_t zdo_nwkRouterStart(void);
+
+/******************************************************************************************
+ * @brief	Start network discovery.
+ * 			Only for Router and End Device.
+ *
+ * @param	pReq: the NWK-Discovery.req primitive
+ * @param	cb
+ *
+ * @return	zdo_status_t
+ */
+zdo_status_t zdo_nwkDiscoveryStart(nlme_nwkDisc_req_t *pReq, nwkDiscoveryUserCb_t cb);
+
+/******************************************************************************************
+ * @brief	Stop network discovery.
+ * 			Only for Router and End Device.
+ *
+ * @param
+ *
+ * @return	none
+ */
+void zdo_nwkDiscoveryStop(void);
+
+/******************************************************************************************
+ * @brief	Start associate join.
+ * 			Only for Router and End Device.
+ *
+ * @param
+ *
+ * @return	zdo_status_t
+ */
+zdo_status_t zdo_nwkAssocJoinStart(void);
+
+/******************************************************************************************
+ * @brief	Start network rejoin.
+ * 			Only for Router and End Device.
+ *
+ * @param	scanChannels
+ * @param	scanDuration
+ *
+ * @return	zdo_status_t
+ */
+zdo_status_t zdo_nwkRejoinStart(u32 scanChannels, u8 scanDuration);
+
+/******************************************************************************************
+ * @brief	Start network rejoin with back off timer.
+ * 			Only for Router and End Device.
+ *
+ * @param	scanChannels
+ * @param	scanDuration
+ *
+ * @return	zdo_status_t
+ */
+zdo_status_t zdo_nwkRejoinWithBackOff(u32 scanChannels, u8 scanDuration);
+
+/******************************************************************************************
+ * @brief	Stop network rejoin with back off timer.
+ * 			Only for Router and End Device.
+ *
+ * @param	none
+ *
+ * @return	none
+ */
+void zdo_nwkRejoinWithBackOffStop(void);
+
+/******************************************************************************************
+ * @brief	Start direct join.
+ * 			Only for Router and End Device.
+ *
+ * @param	scanChannels
+ * @param	scanDuration
+ *
+ * @return	zdo_status_t
+ */
+zdo_status_t zdo_nwkDirectJoinStart(u32 scanChannels, u8 scanDuration);
+
+/******************************************************************************************
+ * @brief	Direct join accept.
+ * 			Only for Coordinator and Router.
+ *
+ * @param	pReq - the device information which will join network through direct join mode.
+ *
+ * @return	zdo_status_t
+ */
+zdo_status_t zdo_nwkDirectJoinAccept(nlme_directJoin_req_t *pReq);
 
 /******************************************************************************************
  * @brief	Interface for forgetting all information about the specified device.
@@ -312,22 +411,6 @@ zdo_status_t zdo_nwk_rejoin_req(rejoinNwk_method_t method, u32 chm);
  */
 void zdo_nlmeForgetDev(addrExt_t nodeIeeeAddr, bool rejoin);
 
-/******************************************************************************************
- * @brief	Start rejoin backoff timer.
- *
- * @param	none
- *
- * @return	none
- */
-void zdo_rejoin_backoff_timer_start(void);
 
-/******************************************************************************************
- * @brief	Stop rejoin backoff timer.
- *
- * @param	none
- *
- * @return	none
- */
-void zdo_rejoin_backoff_timer_stop(void);
 
 #endif	/* ZDO_API_H */

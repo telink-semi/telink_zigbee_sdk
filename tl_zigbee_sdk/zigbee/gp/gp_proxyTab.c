@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,19 +20,18 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #include "../common/includes/zb_common.h"
 #include "../zcl/zcl_include.h"
 #include "gp.h"
+#include "gp_proxy.h"
 
 
 #if GP_SUPPORT_ENABLE
 
 gp_proxyTab_t g_gpProxyTab;
-
-
-void zclGpProxyTabAttrUpdate(void);
 
 
 void gp_proxyTabSave2Flash(void *arg)
@@ -58,15 +58,6 @@ void gp_proxyTabEntryClear(gpProxyTabEntry_t *pEntry)
 	if(pEntry->used){
 		memset((u8 *)pEntry, 0, sizeof(*pEntry));
 		g_gpProxyTab.gpProxyTabNum--;
-	}
-}
-
-void gp_ProxyTabInit(void)
-{
-	if(gp_proxyTabRestoreFromFlash() == NV_SUCC){
-		zclGpProxyTabAttrUpdate();
-	}else{
-		memset((u8 *)&g_gpProxyTab, 0, sizeof(gp_proxyTab_t));
 	}
 }
 
@@ -356,7 +347,7 @@ u8 sinkGroupListRemove(gpProxyTabEntry_t *pEntry, u16 sinkGroupID)
 	return FAILURE;
 }
 
-void zclGpProxyTabAttrUpdate(void)
+static void zclGpProxyTabAttrUpdate(void)
 {
 	u8 *pBuf = zclGpAttr_proxyTabEntry;
 
@@ -404,5 +395,13 @@ void gpProxyTabUpdate(void)
 	TL_SCHEDULE_TASK(gp_proxyTabSave2Flash, NULL);
 }
 
+void gpProxyTabInit(void)
+{
+	if(gp_proxyTabRestoreFromFlash() == NV_SUCC){
+		zclGpProxyTabAttrUpdate();
+	}else{
+		memset((u8 *)&g_gpProxyTab, 0, sizeof(gp_proxyTab_t));
+	}
+}
 
 #endif

@@ -7,6 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *			All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
 
 #if (__PROJECT_TL_GW__)
@@ -336,39 +338,52 @@ static void sampleGW_zclReportCmd(zclIncoming_t *pInMsg)
 //    printf("sampleGW_zclReportCmd\n");
 #if ZBHCI_EN
 	zclReportCmd_t *pReportCmd = (zclReportCmd_t *)pInMsg->attrCmd;
-
-	u8 array[64];
-	memset(array, 0, 64);
-
 	u16 dataLen = 0;
-	u8 *pBuf = array;
 
-	*pBuf++ = HI_UINT16(pInMsg->msg->indInfo.src_short_addr);
-	*pBuf++ = LO_UINT16(pInMsg->msg->indInfo.src_short_addr);
-	*pBuf++ = pInMsg->msg->indInfo.src_ep;
-	*pBuf++ = pInMsg->msg->indInfo.dst_ep;
-
-	*pBuf++ = pInMsg->hdr.seqNum;
-
-	*pBuf++ = HI_UINT16(pInMsg->msg->indInfo.cluster_id);
-	*pBuf++ = LO_UINT16(pInMsg->msg->indInfo.cluster_id);
-
-	*pBuf++ = pReportCmd->numAttr;
+	u8 bufLen = 8;//srcAddr + srcEp + dstEp + seqNum + clusterId + numAttr
 	for(u8 i = 0; i < pReportCmd->numAttr; i++){
-		*pBuf++ = HI_UINT16(pReportCmd->attrList[i].attrID);
-		*pBuf++ = LO_UINT16(pReportCmd->attrList[i].attrID);
-		*pBuf++ = pReportCmd->attrList[i].dataType;
+		bufLen += 3;//attrID + dataType
+
 		dataLen = zcl_getAttrSize(pReportCmd->attrList[i].dataType, pReportCmd->attrList[i].attrData);
-		memcpy(pBuf, pReportCmd->attrList[i].attrData, dataLen);
+		bufLen += dataLen;
+	}
+
+	u8 *pBuf = ev_buf_allocate(bufLen);
+	if(!pBuf){
+		return;
+	}
+
+	memset(pBuf, 0, bufLen);
+
+	u8 *pData = pBuf;
+	*pData++ = HI_UINT16(pInMsg->msg->indInfo.src_short_addr);
+	*pData++ = LO_UINT16(pInMsg->msg->indInfo.src_short_addr);
+	*pData++ = pInMsg->msg->indInfo.src_ep;
+	*pData++ = pInMsg->msg->indInfo.dst_ep;
+
+	*pData++ = pInMsg->hdr.seqNum;
+
+	*pData++ = HI_UINT16(pInMsg->msg->indInfo.cluster_id);
+	*pData++ = LO_UINT16(pInMsg->msg->indInfo.cluster_id);
+
+	*pData++ = pReportCmd->numAttr;
+	for(u8 i = 0; i < pReportCmd->numAttr; i++){
+		*pData++ = HI_UINT16(pReportCmd->attrList[i].attrID);
+		*pData++ = LO_UINT16(pReportCmd->attrList[i].attrID);
+		*pData++ = pReportCmd->attrList[i].dataType;
+		dataLen = zcl_getAttrSize(pReportCmd->attrList[i].dataType, pReportCmd->attrList[i].attrData);
+		memcpy(pData, pReportCmd->attrList[i].attrData, dataLen);
 		if( (pReportCmd->attrList[i].dataType != ZCL_DATA_TYPE_LONG_CHAR_STR) && (pReportCmd->attrList[i].dataType != ZCL_DATA_TYPE_LONG_OCTET_STR) &&
 			(pReportCmd->attrList[i].dataType != ZCL_DATA_TYPE_CHAR_STR) && (pReportCmd->attrList[i].dataType != ZCL_DATA_TYPE_OCTET_STR) &&
 			(pReportCmd->attrList[i].dataType != ZCL_DATA_TYPE_STRUCT) ){
-				ZB_LEBESWAP(pBuf, dataLen);
+				ZB_LEBESWAP(pData, dataLen);
 		}
-		pBuf += dataLen;
+		pData += dataLen;
 	}
 
-	zbhciTx(ZBHCI_CMD_ZCL_REPORT_MSG_RCV, pBuf - array, array);
+	zbhciTx(ZBHCI_CMD_ZCL_REPORT_MSG_RCV, pData - pBuf, pBuf);
+
+	ev_buf_free(pBuf);
 #endif
 }
 
