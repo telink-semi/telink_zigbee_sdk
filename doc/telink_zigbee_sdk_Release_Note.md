@@ -7,6 +7,8 @@
 * Provides internal flash write protection.
 * Provides fast data polling setup for end devices.
 * Update b91 driver to support 2M/4M internal flash.
+* Update b91 to support protection code.
+
 ### Bug Fixes
 * Fix the HCI_UART buffer overflow issue.
 * Fix the seconds timer event lost issue for sleep end device.
@@ -28,6 +30,8 @@
 * 提供内部FLASH写保护接口。
 * 为终端设备提供快速数据查询的配置接口。
 * 更新b91驱动以支持2M/4M内部FLASH。
+* 更新b91以支持保护码。
+
 ### Bug Fixes
 * 修复HCI_UART内存溢出问题。
 * 修复休眠设备的秒定时器事件丢失的问题。
