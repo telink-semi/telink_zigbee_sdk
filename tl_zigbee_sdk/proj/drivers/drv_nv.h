@@ -110,13 +110,13 @@
 #define FLASH_ADDR_OF_MAC_ADDR_512K		0x76000
 #define FLASH_ADDR_OF_F_CFG_INFO_512K	0x77000
 //1M flash
-#define FLASH_ADDR_0F_MAC_ADDR_1M		0xFF000
+#define FLASH_ADDR_OF_MAC_ADDR_1M		0xFF000
 #define FLASH_ADDR_OF_F_CFG_INFO_1M		0xFE000
 //2M flash
-#define FLASH_ADDR_0F_MAC_ADDR_2M		0x1FF000
+#define FLASH_ADDR_OF_MAC_ADDR_2M		0x1FF000
 #define FLASH_ADDR_OF_F_CFG_INFO_2M		0x1FE000
 //4M flash
-#define FLASH_ADDR_0F_MAC_ADDR_4M		0x3FF000
+#define FLASH_ADDR_OF_MAC_ADDR_4M		0x3FF000
 #define FLASH_ADDR_OF_F_CFG_INFO_4M		0x3FE000
 
 /************************************************************************/

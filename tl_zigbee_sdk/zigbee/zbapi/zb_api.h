@@ -751,11 +751,13 @@ void zb_zdoCbRegister(zdo_appIndCb_t *cb);
  * @param[in]   shortAddr	- network address allocated by itself
  * @param[in]   extPanId	- external panID of the network
  * @param[in]   nwkKey		- the network key of the network
+ * @param[in]   tcAddr		- the trust center's address of the network, only for central network, normally it's same with extPanId
+ *                            NULL for distribute network
  *
  * @return      None
  *
  **************************************************************************/
-void zb_joinAFixedNetwork(u8 channel, u16 panId, u16 shortAddr, u8 *extPanId, u8 *nwkKey);
+void zb_joinAFixedNetwork(u8 channel, u16 panId, u16 shortAddr, u8 *extPanId, u8 *nwkKey, u8 *tcAddr);
 
 /***********************************************************************//**
  * @brief       Extend PAN ID rejoin. Only for the factory new device.

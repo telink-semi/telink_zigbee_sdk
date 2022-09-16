@@ -135,9 +135,6 @@ extern "C" {
 	#define VOLTAGE_DETECT_ADC_PIN					ADC_GPIO_PB0
 #endif
 
-/* Flash write protect */
-#define FLASH_W_PROTECT								0
-
 /* Watch dog module */
 #define MODULE_WATCHDOG_ENABLE						0
 

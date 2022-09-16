@@ -981,6 +981,28 @@ s32 zbhci_nodeManageCmdHandler(void *arg){
 		pBuf += 8;
 
 		zbhciTx(ZBHCI_CMD_GET_LOCAL_NWK_INFO_RSP, (u8)(pBuf-temp), temp);
+	}else if(cmdID == ZBHCI_CMD_GET_CHILD_NODES_REQ){
+		zbhci_childNodeGetReq_t *ng = (zbhci_childNodeGetReq_t *)p;
+		nwk_childTableInfo_t *rsp = (nwk_childTableInfo_t*) ev_buf_allocate(sizeof(nwk_childTableInfo_t));
+		if(rsp){
+			tl_childNodesListGet(ng->startIdx, rsp);
+			addrExt_t tExtAddr;
+			u16 tNwkAddr;
+			for(s32 m = 0; m < rsp->info.childNodesNum; m++){
+				ZB_IEEE_ADDR_REVERT((u8 *)tExtAddr, (u8 *)(rsp->list[m].extAddr));
+				memcpy((u8 *)(rsp->list[m].extAddr), tExtAddr, 8);
+				ZB_16BIT_REVERT((u8 *)&tNwkAddr, (u8 *)&rsp->list[m].nwkAddr);
+				memcpy(&rsp->list[m].nwkAddr, &tNwkAddr, 2);
+			}
+			zbhciTx(ZBHCI_CMD_GET_CHILD_NODES_RSP, sizeof(nwk_childNodesInfo_t)+rsp->info.childNodesNum*sizeof(nwk_childNodesList_t), (u8 *)rsp);
+			ev_buf_free((u8 *)rsp);
+		}else{
+			nwk_childNodesInfo_t trsp = {0};
+			trsp.status = MSG_BUFFER_NOT_AVAIL;                  /*! status, 0: success, 1: failure */
+			zbhciTx(ZBHCI_CMD_GET_CHILD_NODES_RSP, sizeof(nwk_childNodesInfo_t), (u8 *)&trsp);
+		}
+	}else if(cmdID == ZBHCI_CMD_REMOVE_ALL_CHILD_NODES_REQ){
+		tl_allChildNodesRemove();
 	}
 
 	ev_buf_free(arg);
@@ -1159,6 +1181,8 @@ void zbhciCmdHandler(u16 msgType, u16 msgLen, u8 *p){
 			case ZBHCI_CMD_TXRX_PERFORMANCE_TEST_REQ:
 			case ZBHCI_CMD_AF_DATA_SEND_TEST_REQ:
 			case ZBHCI_CMD_GET_LOCAL_NWK_INFO_REQ:
+			case ZBHCI_CMD_GET_CHILD_NODES_REQ:
+			case ZBHCI_CMD_REMOVE_ALL_CHILD_NODES_REQ:
 				TL_ZB_TIMER_SCHEDULE(zbhci_nodeManageCmdHandler, cmdInfo, 100);
 				break;
 

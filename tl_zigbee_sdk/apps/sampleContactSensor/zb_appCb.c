@@ -124,7 +124,6 @@ void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
 		if(joinedNetwork){
 			zb_rejoinReqWithBackOff(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
 		}
-
 	}
 }
 

@@ -75,7 +75,8 @@ typedef struct{
 	u8 leaveRejoin:1;
 	u8 active:1;			//only for mac command buffer
 	u8 pending:1;			//only for endDev, if parent has pending data for me
-	u8 resvHdr:3;
+	u8 rejoinStartAgain:1;
+	u8 resvHdr:2;
 }zb_buf_hdr_t;//4
 
 typedef struct{

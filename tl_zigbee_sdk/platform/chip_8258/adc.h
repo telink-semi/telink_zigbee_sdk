@@ -46,20 +46,13 @@ GPIO_PinTypeDef ADC_GPIO_tab[] = {
  */
 typedef enum{
 	ADC_SAMPLE_RATE_23K,
-	ADC_SAMPLE_RATE_96K
+	ADC_SAMPLE_RATE_96K,
+	ADC_SAMPLE_RATE_192K
 }ADC_SampleRateTypeDef;
 
 #define ADC_SAMPLE_RATE_SELECT        ADC_SAMPLE_RATE_23K
 
 
-
-//ADC reference voltage cfg
-typedef struct {
-	unsigned short adc_vref; //default: 1175 mV
-	unsigned short adc_calib_en;
-}adc_vref_ctr_t;
-
-extern adc_vref_ctr_t adc_vref_cfg;
 
 
 /**
@@ -228,16 +221,6 @@ typedef enum {
 	READ_UPDATA        = BIT(3),
 	CLOCLK_UPDATA      = BIT(4),
 }RNG_UpdataTypeDef;
-
-/**
- * @brief       This function enable adc reference voltage calibration
- * @param[in] en - 1 enable  0 disable
- * @return     none.
- */
-static inline void adc_calib_vref_enable(unsigned char en)
-{
-	adc_vref_cfg.adc_calib_en = en;
-}
 
 /**
  * @brief      This function reset adc module
@@ -1123,14 +1106,30 @@ void adc_set_ain_pre_scaler(ADC_PreScalingTypeDef v_scl);
 void adc_init(void);
 
 /**
+ * @brief This function is used to calib ADC 1.2V vref for GPIO.
+ * @param[in] data - GPIO sampling calibration value.
+ * @return none
+ */
+void adc_set_gpio_calib_vref(unsigned short data);
+
+/**
+ * @brief This function is used to calib ADC 1.2V vref offset for GPIO two-point.
+ * @param[in] offset - GPIO sampling two-point calibration value offset.
+ * @return none
+ */
+void adc_set_gpio_two_point_calib_offset(signed char offset);
+
+/**
  * @brief This function is used for IO port configuration of ADC IO port voltage sampling.
+ *        This interface can be used to switch sampling IO without reinitializing the ADC.
  * @param[in]  pin - GPIO_PinTypeDef
  * @return none
  */
 void adc_base_pin_init(GPIO_PinTypeDef pin);
 
 /**
- * @brief This function is used for IO port configuration of ADC supply voltage sampling.
+ * @brief This function is used for IO port configuration of ADC IO port voltage sampling.
+ *        This interface can be used to switch sampling IO without reinitializing the ADC.
  * @param[in]  pin - GPIO_PinTypeDef
  * @return none
  */

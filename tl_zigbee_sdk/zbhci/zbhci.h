@@ -109,6 +109,8 @@ typedef enum{
 	ZBHCI_CMD_TXRX_PERFORMANCE_TEST_REQ		= 0x0042,
 	ZBHCI_CMD_AF_DATA_SEND_TEST_REQ			= 0x0044,
 	ZBHCI_CMD_GET_LOCAL_NWK_INFO_REQ		= 0x0045,
+	ZBHCI_CMD_GET_CHILD_NODES_REQ           = 0x0046,
+	ZBHCI_CMD_REMOVE_ALL_CHILD_NODES_REQ    = 0x0047,
 
 	ZBHCI_CMD_NODES_JOINED_GET_RSP			= 0x8040,
 	ZBHCI_CMD_NODES_TOGLE_TEST_RSP			= 0x8041,
@@ -116,6 +118,7 @@ typedef enum{
 	ZBHCI_CMD_NODES_DEV_ANNCE_IND			= 0x8043,
 	ZBHCI_CMD_AF_DATA_SEND_TEST_RSP			= 0x8044,
 	ZBHCI_CMD_GET_LOCAL_NWK_INFO_RSP		= 0x8045,
+	ZBHCI_CMD_GET_CHILD_NODES_RSP           = 0x8046,
 
 	ZBHCI_CMD_ZCL_ATTR_READ					= 0x0100,
 	ZBHCI_CMD_ZCL_ATTR_WRITE				,//= 0x0101,
@@ -390,6 +393,10 @@ typedef struct{
 	u8  ota_process_start;
 	u8  block_send_cnt;
 }hci_ota_info_t;
+
+typedef struct{
+	u8 startIdx;             /*! start of the child table index */
+}zbhci_childNodeGetReq_t;
 
 extern zbhci_afTestReq_t g_afTestReq;
 

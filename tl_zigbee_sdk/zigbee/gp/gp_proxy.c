@@ -321,6 +321,10 @@ static status_t gpPairingCmdProcess(zcl_gp_pairingCmd_t *pCmd)
 
 		NIB_NETWORK_ADDRESS() = g_zbMacPib.shortAddress = tl_zbNwkStochasticAddrCal();
 
+		u16 ref = 0;
+		tl_zbNwkAddrMapAdd(g_zbMacPib.shortAddress, g_zbMacPib.extAddress, &ref);
+		zb_info_save(NULL);
+
 		zb_zdoSendDevAnnance();
 	}
 

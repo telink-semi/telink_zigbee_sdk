@@ -446,8 +446,15 @@ s32 ota_periodicQueryServerCb(void *arg)
 			//Match descriptor request cmd
 			ota_clusterMatchReq(NWK_BROADCAST_RX_ON_WHEN_IDLE);
 		}else{
-			//Short address request
-			ota_nwkAddrReq(zcl_attr_upgradeServerID);
+			u16 dstAddr = NWK_BROADCAST_RESERVED;
+			u8 ret = zb_getNwkAddrByExtAddr(zcl_attr_upgradeServerID, &dstAddr);
+
+			if((ret == SUCCESS) && (dstAddr == g_otaCtx.otaServerEpInfo.dstAddr.shortAddr)){
+				ota_queryNextImageReq(g_otaCtx.otaServerEpInfo.dstEp, g_otaCtx.otaServerEpInfo.dstAddr.shortAddr, g_otaCtx.otaServerEpInfo.profileId);
+			}else{
+				//Short address request
+				ota_nwkAddrReq(zcl_attr_upgradeServerID);
+			}
 		}
 	}else{
 		/*

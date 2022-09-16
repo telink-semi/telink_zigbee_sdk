@@ -1635,17 +1635,17 @@ _CODE_BDB_ u8 bdb_init(af_simple_descriptor_t *simple_desc, bdb_commissionSettin
  *
  * @return  None
  */
-_CODE_BDB_ u8 bdb_join_direct(u8 channel, u16 panId, u16 shortAddr, u8 *extPanId, u8 *nwkKey, u8 type, u8 inited){
+_CODE_BDB_ u8 bdb_join_direct(u8 channel, u16 panId, u16 shortAddr, u8 *extPanId, u8 *nwkKey, u8 type, u8 inited, u8 *tcAddr){
 	u8 ret = FAILURE;
 
 	if(BDB_STATE_GET() == BDB_STATE_IDLE){
 		g_bdbCtx.forceJoin = 1;
-		zb_joinAFixedNetwork(channel,  panId, shortAddr, extPanId, nwkKey);
+        ss_securityModeSet(type);
+		zb_joinAFixedNetwork(channel,  panId, shortAddr, extPanId, nwkKey, tcAddr);
 
-		if(inited){
+		if(inited){			
 			aps_ib.aps_authenticated = 1;
 			aps_ib.aps_use_insecure_join = FALSE; /* AIB */
-			ss_securityModeSet(type);
 
 #if ZB_COORDINATOR_ROLE
 			bdb_coordinatorStart();

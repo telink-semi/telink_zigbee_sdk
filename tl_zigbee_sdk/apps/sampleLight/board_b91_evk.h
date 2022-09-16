@@ -67,8 +67,8 @@ extern "C" {
 	#error "To do!"
 #else
 //PWM configuration, LED_R as warm light, LED_B as cool light.
-#define LED_R						GPIO_PB7	//PWM_PWM2_PB7
-#define LED_B						GPIO_PB4  //PWM_PWM0_PB4
+#define LED_R						GPIO_PB7
+#define LED_B						GPIO_PB4
 
 #define PWM_R_CHANNEL				2	//PWM2
 #define PWM_R_CHANNEL_SET()			do{\

@@ -205,9 +205,15 @@ _CODE_APS_ aps_status_t aps_me_group_add_req(aps_add_group_req_t *req)
 		if (pEntry == NULL) {
 			return APS_STATUS_TABLE_FULL;
 		}
+		//clear previous info
+		for(u8 j=0;j<APS_EP_NUM_IN_GROUP_TBL;j++){
+			pEntry->endpoints[j] = APS_GROUP_EP_INVALID;
+		}
+		memset(pEntry->group_name, 0, APS_GROUP_NAME_LEN);
+
 		pEntry->group_addr = req->group_addr;
 		pEntry->endpoints[0] = req->ep;
-		pEntry->n_endpoints++;
+		pEntry->n_endpoints = 1;
 		aps_group_entry_num++;
 	}//end if(pEntry)
 

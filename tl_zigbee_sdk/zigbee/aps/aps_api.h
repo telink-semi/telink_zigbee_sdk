@@ -405,7 +405,7 @@ typedef struct{
 		aps_binding_extaddr_t dstExtAddrInfo; //zb_asp_long_dst_addr_t
 	};
 	u8 used;
-}aps_binding_entry_t _attribute_aligned_(4);
+}aps_binding_entry_t;
 
 typedef struct{
     union{
@@ -530,7 +530,6 @@ aps_status_t aps_search_dst_from_bind_tbl(aps_data_req_t *apsreq, bind_dst_list_
  * @return	the point to the binding table
  *
  **************************************************************************/
-aps_binding_table_t *aps_bindingTblGet(void);
 aps_binding_entry_t *aps_bindingTblEntryGet(void);
 u8 aps_bindingTblEntryNum(void);
 

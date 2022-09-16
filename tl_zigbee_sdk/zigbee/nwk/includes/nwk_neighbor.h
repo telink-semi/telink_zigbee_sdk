@@ -117,6 +117,26 @@ typedef struct{
 	tl_zb_normal_neighbor_entry_t  neighborTbl[TL_ZB_NEIGHBOR_TABLE_NUM]; //shall be allocated at the last field in the structure of the tl_zb_neighbor_entry_t
 }tl_zb_neighbor_entry_t _attribute_aligned_(4);
 
+
+#define ZBHCI_CHILD_LIST_NUM_MAX      5
+
+typedef struct{
+	addrExt_t extAddr;
+	u16       nwkAddr;
+}nwk_childNodesList_t;
+
+typedef struct{
+	u8  status;                  /*! status, 0: success, 1: failure */
+	u8  totalChildNodesNum;      /*! total number of the child nodes */
+	u8  startIdx;                /*! start of the child table index */
+	u8  childNodesNum;           /*! number of the child nodes in this response packet */
+}nwk_childNodesInfo_t;
+
+typedef struct{
+	nwk_childNodesInfo_t     info;                                   /*! child table info */
+	nwk_childNodesList_t     list[ZBHCI_CHILD_LIST_NUM_MAX];         /*! child list */
+}nwk_childTableInfo_t;
+
 extern u8 NWK_NEIGHBORTBL_ADD_LQITHRESHOLD;
 extern u32 NWK_UNAUTH_CHILD_TABLE_LIFE_TIME;
 
@@ -159,6 +179,31 @@ u8 tl_zbNeighborTableRouterValidNumGet(void);
 u8 tl_zbNeighborTableChildEDNumGet(void);
 
 tl_zb_normal_neighbor_entry_t *nwk_neTblGetByExtAddr(addrExt_t extAddr);
+
+
+/*********************************************************************
+ * @fn      tl_allChildNodesRemove
+ *
+ * @brief   remove all the child nodes
+ *
+ * @param   None
+ *
+ * @return  None
+ */
+void tl_allChildNodesRemove(void);
+
+/*********************************************************************
+ * @fn      tl_childNodesListGet
+ *
+ * @brief   get the child nodes list
+ *
+ * @param   startIdx - the start index
+ *
+ * @param   t - the pointer to the child nodes list
+ *
+ * @return  None
+ */
+void tl_childNodesListGet(u8 startIdx, nwk_childTableInfo_t *t);
 
 
 #endif /* NWK_NEIGHBOR_H */

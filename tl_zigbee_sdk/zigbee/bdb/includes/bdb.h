@@ -481,7 +481,7 @@ u8 bdb_init(af_simple_descriptor_t *simple_desc, bdb_commissionSetting_t *settin
  *
  * @return  None
  */
-u8 bdb_join_direct(u8 channel, u16 panId, u16 shortAddr, u8 *extPanId, u8 *nwkKey, u8 type, u8 inited);
+u8 bdb_join_direct(u8 channel, u16 panId, u16 shortAddr, u8 *extPanId, u8 *nwkKey, u8 type, u8 inited, u8 *tcAddr);
 
 /**
  * @brief      commissioning: form a network

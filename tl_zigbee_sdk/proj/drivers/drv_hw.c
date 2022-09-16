@@ -85,24 +85,24 @@ static void internalFlashSizeCheck(void){
 	u8 *pMid = (u8 *)&mid;
 
 	if( (pMid[2] < FLASH_SIZE_512K) || \
-		((g_u32MacFlashAddr == FLASH_ADDR_0F_MAC_ADDR_1M) && (pMid[2] < FLASH_SIZE_1M)) || \
-		((g_u32MacFlashAddr == FLASH_ADDR_0F_MAC_ADDR_2M) && (pMid[2] < FLASH_SIZE_2M)) || \
-		((g_u32MacFlashAddr == FLASH_ADDR_0F_MAC_ADDR_4M) && (pMid[2] < FLASH_SIZE_4M))){
+		((g_u32MacFlashAddr == FLASH_ADDR_OF_MAC_ADDR_1M) && (pMid[2] < FLASH_SIZE_1M)) || \
+		((g_u32MacFlashAddr == FLASH_ADDR_OF_MAC_ADDR_2M) && (pMid[2] < FLASH_SIZE_2M)) || \
+		((g_u32MacFlashAddr == FLASH_ADDR_OF_MAC_ADDR_4M) && (pMid[2] < FLASH_SIZE_4M))){
 		/* Flash space not matched. */
 		while(1);
 	}
 
 	switch(pMid[2]){
 		case FLASH_SIZE_1M:
-			g_u32MacFlashAddr = FLASH_ADDR_0F_MAC_ADDR_1M;
+			g_u32MacFlashAddr = FLASH_ADDR_OF_MAC_ADDR_1M;
 			g_u32CfgFlashAddr = FLASH_ADDR_OF_F_CFG_INFO_1M;
 			break;
 		case FLASH_SIZE_2M:
-			g_u32MacFlashAddr = FLASH_ADDR_0F_MAC_ADDR_2M;
+			g_u32MacFlashAddr = FLASH_ADDR_OF_MAC_ADDR_2M;
 			g_u32CfgFlashAddr = FLASH_ADDR_OF_F_CFG_INFO_2M;
 			break;
 		case FLASH_SIZE_4M:
-			g_u32MacFlashAddr = FLASH_ADDR_0F_MAC_ADDR_4M;
+			g_u32MacFlashAddr = FLASH_ADDR_OF_MAC_ADDR_4M;
 			g_u32CfgFlashAddr = FLASH_ADDR_OF_F_CFG_INFO_4M;
 			break;
 		default:
@@ -231,17 +231,17 @@ startup_state_e drv_platform_init(void)
 #endif
 	}
 
-#if FLASH_W_PROTECT
-	flash_load();
-#endif
-
+	/* ADC */
 #if VOLTAGE_DETECT_ENABLE
 	voltage_detect_init(VOLTAGE_DETECT_ADC_PIN);
 #endif
 
+	/* RF */
 	ZB_RADIO_INIT();
-
 	ZB_TIMER_INIT();
+
+	/* Get calibration info to improve performance */
+	drv_calibration();
 
 	return state;
 }
