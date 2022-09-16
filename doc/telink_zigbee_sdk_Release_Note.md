@@ -1,3 +1,40 @@
+## V3.6.8.1(Public release)
+
+### Features
+* N/A
+### Bug Fixes
+* Fix address mapping table update issue after address conflict.
+* Fix APS group table management issue.
+* Fix BRC passive ack issue.
+* Fix MgmtBindResp handler issue.
+* Fix APS counter issue when transferring data via bond mode.
+### Code Refactoring
+* Remove FLASH_W_PROTECT related code.
+* Add new parameter "tcAddr" in bdb_join_direct().
+### Performance
+* Optimize OTA query.
+* Update ADC driver to support two-point calibration.
+### BREAKING CHANGES
+* N/A
+
+### Features
+* N/A
+### Bug Fixes
+* 修复地址冲突后地址映射表更新的问题。
+* 修复APS层分组表管理的问题。
+* 修复广播被动应答的问题。
+* 修复MgmtBindResp处理的问题。
+* 修复绑定模式传输数据时的APS计数器问题。
+### Code Refactoring
+* 删除了FLASH_W_PROTECT相关代码。
+* 在bdb_join_direct()中添加了新参数tcAddr。
+### Performance
+* 优化OTA查询。
+* 更新ADC驱动程序以支持两点校准。
+### BREAKING CHANGES
+* N/A
+
+
 ## V3.6.8.0(Public release)
 
 ### Features
@@ -8,7 +45,6 @@
 * Provides fast data polling setup for end devices.
 * Update b91 driver to support 2M/4M internal flash.
 * Update b91 to support protection code.
-
 ### Bug Fixes
 * Fix the HCI_UART buffer overflow issue.
 * Fix the seconds timer event lost issue for sleep end device.
@@ -31,7 +67,6 @@
 * 为终端设备提供快速数据查询的配置接口。
 * 更新b91驱动以支持2M/4M内部FLASH。
 * 更新b91以支持保护码。
-
 ### Bug Fixes
 * 修复HCI_UART内存溢出问题。
 * 修复休眠设备的秒定时器事件丢失的问题。
