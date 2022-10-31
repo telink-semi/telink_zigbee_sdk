@@ -49,14 +49,13 @@
 
 #define FW_START_UP_FLAG				0x4B
 #define FW_RAMCODE_SIZE_MAX				RESV_FOR_APP_RAM_CODE_SIZE
-
-
+#define FW_START_UP_FLAG_WHOLE			    0x544c4e4b
 
 static bool is_valid_fw_bootloader(u32 addr_fw){
-	u8 startup_flag = 0;
-    flash_read(addr_fw + FLASH_TLNK_FLAG_OFFSET, 1, &startup_flag);
+	u32 startup_flag = 0;
+    flash_read(addr_fw + FLASH_TLNK_FLAG_OFFSET, 4, (u8 *)&startup_flag);
 
-    return ((startup_flag == FW_START_UP_FLAG) ? TRUE : FALSE);
+    return ((startup_flag == FW_START_UP_FLAG_WHOLE) ? TRUE : FALSE);
 }
 
 void bootloader_with_ota_check(u32 addr_load, u32 new_image_addr){
@@ -66,7 +65,8 @@ void bootloader_with_ota_check(u32 addr_load, u32 new_image_addr){
 		if(is_valid_fw_bootloader(new_image_addr)){
 			bool isNewImageVaild = FALSE;
 
-			u8 buf[256];
+			u32 bufCache[256/4];  //align-4
+			u8 *buf = (u8 *)bufCache;
 
 			flash_read(new_image_addr, 256, buf);
 			u32 fw_size = *(u32 *)(buf + 0x18);
