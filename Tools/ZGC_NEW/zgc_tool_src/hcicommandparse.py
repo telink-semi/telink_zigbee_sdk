@@ -469,7 +469,7 @@ class ParseRecvCommand:
             self.nodes_info_change = True
 
         if neighbor_entries > start_idx + neighbor_table_listcount:
-            self.send_data = hci_mgmt_lqi_req_send(src_addr, neighbor_table_listcount)
+            self.send_data = hci_mgmt_lqi_req_send(src_addr, start_idx + neighbor_table_listcount)
 
         self.recv_nwk_addr = src_addr
         self.addr_mode = 2
