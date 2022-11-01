@@ -49,6 +49,7 @@
 
 #define FW_START_UP_FLAG					0x4B
 #define FW_RAMCODE_SIZE_MAX					RESV_FOR_APP_RAM_CODE_SIZE
+#define FW_START_UP_FLAG_WHOLE			    0x544c4e4b
 
 /* UART */
 #if UART_ENABLE
@@ -119,10 +120,10 @@ static ev_timer_event_t *otaChkTimerEvt = NULL;
 static bool noAppFlg = FALSE;
 
 static bool is_valid_fw_bootloader(u32 addr_fw){
-	u8 startup_flag = 0;
-    flash_read(addr_fw + FLASH_TLNK_FLAG_OFFSET, 1, &startup_flag);
+	u32 startup_flag = 0;
+    flash_read(addr_fw + FLASH_TLNK_FLAG_OFFSET, 4, (u8 *)&startup_flag);
 
-    return ((startup_flag == FW_START_UP_FLAG) ? TRUE : FALSE);
+    return ((startup_flag == FW_START_UP_FLAG_WHOLE) ? TRUE : FALSE);
 }
 
 void bootloader_with_ota_check(u32 addr_load, u32 new_image_addr){
@@ -130,12 +131,41 @@ void bootloader_with_ota_check(u32 addr_load, u32 new_image_addr){
 
 	if(new_image_addr != addr_load){
 		if(is_valid_fw_bootloader(new_image_addr)){
-			u8 buf[256];
+			bool isNewImageVaild = FALSE;
+
+			u32 bufCache[256/4];  //align-4
+			u8 *buf = (u8 *)bufCache;
 
 			flash_read(new_image_addr, 256, buf);
 			u32 fw_size = *(u32 *)(buf + 0x18);
 
 			if(fw_size <= FLASH_OTA_IMAGE_MAX_SIZE){
+				s32 totalLen = fw_size - 4;
+				u32 wLen = 0;
+				u32 sAddr = new_image_addr;
+
+				u32 crcVal = 0;
+				flash_read(new_image_addr + fw_size - 4, 4, (u8 *)&crcVal);
+
+				u32 curCRC = 0xffffffff;
+
+				while(totalLen > 0){
+					wLen = (totalLen > 256) ? 256 : totalLen;
+					flash_read(sAddr, wLen, buf);
+					curCRC = xcrc32(buf, wLen, curCRC);
+
+					totalLen -= wLen;
+					sAddr += wLen;
+				}
+
+				if(curCRC == crcVal){
+					isNewImageVaild = TRUE;
+				}
+			}
+
+			if(isNewImageVaild){
+				u8 readBuf[256];
+
 				for(int i = 0; i < fw_size; i += 256){
 					if((i & 0xfff) == 0){
 						flash_erase(addr_load + i);
@@ -143,6 +173,11 @@ void bootloader_with_ota_check(u32 addr_load, u32 new_image_addr){
 
 					flash_read(new_image_addr + i, 256, buf);
 					flash_write(addr_load + i, 256, buf);
+
+					flash_read(addr_load + i, 256, readBuf);
+					if(memcmp(readBuf, buf, 256)){
+						SYSTEM_RESET();
+					}
 
 					gpio_toggle(LED_PERMIT);
 				}

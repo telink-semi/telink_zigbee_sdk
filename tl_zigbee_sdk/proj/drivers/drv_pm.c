@@ -308,6 +308,22 @@ u8 drv_pm_wakeupPinValid(drv_pm_pinCfg_t *pinCfg, u32 pinNum)
 	return FAILURE;
 }
 
+void drv_pm_wakeupPinLevelChange(drv_pm_pinCfg_t *pinCfg, u32 pinNum)
+{
+	drv_pm_pinCfg_t *p = pinCfg;
+	for(u32 i = 0; i < pinNum; i++){
+		if((p->wakeupLevel == PM_WAKEUP_LEVEL_HIGH) && drv_gpio_read(p->wakeupPin)){
+			p->wakeupLevel = PM_WAKEUP_LEVEL_LOW;
+		}
+
+		if((p->wakeupLevel == PM_WAKEUP_LEVEL_LOW) && !drv_gpio_read(p->wakeupPin)){
+			p->wakeupLevel = PM_WAKEUP_LEVEL_HIGH;
+		}
+		pm_wakeup_pad_cfg(p->wakeupPin, p->wakeupLevel, 1);
+		p++;
+	}
+}
+
 void drv_pm_wakeupPinConfig(drv_pm_pinCfg_t *pinCfg, u32 pinNum)
 {
 	drv_pm_pinCfg_t *p = pinCfg;

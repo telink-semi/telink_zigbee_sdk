@@ -404,6 +404,10 @@ _CODE_ZCL_ static u8 zcl_touchLinkClientCmdHandler(zclIncoming_t *pInMsg){
 			/*
 			 * store some info for sending network response command and joining network
 			 * */
+			if(g_zllTouchLink.networkStartInfo){
+				break;
+			}
+
 			g_zllTouchLink.networkStartInfo = (zcl_zllTouckLinkNetworkStartParams *)ev_buf_allocate(sizeof(zcl_zllTouckLinkNetworkStartParams));
 			if(g_zllTouchLink.networkStartInfo){
 				memset((u8 *)g_zllTouchLink.networkStartInfo, 0, sizeof(zcl_zllTouckLinkNetworkStartParams));
@@ -442,6 +446,10 @@ _CODE_ZCL_ static u8 zcl_touchLinkClientCmdHandler(zclIncoming_t *pInMsg){
 			/*
 			 * store some info for sending network response command and joining network
 			 * */
+			if(g_zllTouchLink.networkStartInfo){
+				break;
+			}
+
 			g_zllTouchLink.networkStartInfo = (zcl_zllTouckLinkNetworkStartParams *)ev_buf_allocate(sizeof(zcl_zllTouckLinkNetworkStartParams));
 			if(g_zllTouchLink.networkStartInfo){
 				zcl_zllTouchLinkNetworkJoinReq_t *pReq = &g_zllTouchLink.networkStartInfo->params.networkJoinCmd;

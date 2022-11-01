@@ -33,12 +33,6 @@ int main(void){
 	u8 isRetention = (state == SYSTEM_DEEP_RETENTION) ? 1 : 0;
 	u8 isBoot = (state == SYSTEM_BOOT) ? 1 : 0;
 
-#if VOLTAGE_DETECT_ENABLE
-	if(!isRetention){
-		voltage_detect(1);
-	}
-#endif
-
 	if(!isRetention){
 		ev_buf_init();
 		ev_timer_init();

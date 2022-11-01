@@ -1,7 +1,7 @@
 /********************************************************************************************************
- * @file    drv_flash.h
+ * @file    zb_version.h
  *
- * @brief   This is the header file for drv_flash
+ * @brief   This is the header file for zb_version
  *
  * @author  Zigbee Group
  * @date    2021
@@ -23,20 +23,12 @@
  *
  *******************************************************************************************************/
 
-#pragma once
+#ifndef ZB_VERSION_H
+#define ZB_VERSION_H
 
+#define SDK_VERSION_ID				v3.6.8.2
 
-typedef void (*drv_flash_write)(unsigned long addr, unsigned long len, unsigned char *buf);
-typedef void (*drv_flash_read)(unsigned long addr, unsigned long len, unsigned char *buf);
-typedef void (*drv_flash_erase)(unsigned long addr);
+#define	SDK_VERSION_(sdk_version)	"$$$zb_sdk_"#sdk_version"$$$"
+#define	SDK_VERSION(sdk_version)	SDK_VERSION_(sdk_version)
 
-typedef struct{
-	drv_flash_write write;
-	drv_flash_read read;
-	drv_flash_erase erase;
-}drv_flash_t;
-
-void flash_write(u32 addr, u32 len, u8 *buf);
-bool flash_writeWithCheck(u32 addr, u32 len, u8 *buf);
-void flash_read(u32 addr, u32 len, u8 *buf);
-void flash_erase(u32 addr);
+#endif	/* ZB_VERSION_H */

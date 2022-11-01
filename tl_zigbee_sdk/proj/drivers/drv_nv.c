@@ -25,9 +25,6 @@
 
 #include "../tl_common.h"
 
-
-
-
 #if FLASH_CAP_SIZE_1M
 u32 g_u32MacFlashAddr = FLASH_ADDR_OF_MAC_ADDR_1M;
 u32 g_u32CfgFlashAddr = FLASH_ADDR_OF_F_CFG_INFO_1M;
@@ -42,29 +39,62 @@ u32 g_u32MacFlashAddr = FLASH_ADDR_OF_MAC_ADDR_512K;
 u32 g_u32CfgFlashAddr = FLASH_ADDR_OF_F_CFG_INFO_512K;
 #endif
 
-#define  NV_ITEMLEN_MATCH(len, unitLen) ((len % unitLen) ? FALSE : TRUE)
-
-static u8 g_nvItemLengthCheckNum = 0;
-
 
 #define NV_ITEM_LEN_CHK_TABBLE_NUM	 16
+
+#define UPDATE_FRAMECOUNT_THRES		 1024
+
 typedef struct{
 	u8   itemId;
 	u16  len;
 }nv_itemLenChk_t;
 
+enum{
+	NV_ERASE_NONE = 0x00,
+	NV_ERASE_ALL = 0x55,
+	NV_ERASE_FOR_FN = 0x33,
+}nv_erase_mode_e;
+
+
+
+#define SECT_VALID_CHECK(s)                 (s.usedFlag == NV_SECTOR_VALID || \
+		                                     s.usedFlag == NV_SECTOR_VALID_CHECKCRC)
+
+#define ITEM_VALID_FLAG_CHECK(v)  			(v == ITEM_FIELD_VALID ||   \
+		                           	   	   	 v == ITEM_FIELD_VALID_SINGLE)
+
+#define ITEM_FLAG_CHECK(v)  				(v == ITEM_FIELD_VALID ||   \
+		                     	 	 	 	 v == ITEM_FIELD_VALID_SINGLE || \
+		                     	 	 	 	 v == ITEM_FIELD_INVALID || \
+		                     	 	 	 	 v == ITEM_FIELD_OPERATION)
+
+
+#define ITEM_OFT_CHECK(oft, size, id, sec)  (((oft >= MODULE_CONTEXT_START(id, sec, 0)) &&   \
+	                                         (oft < MODULE_SECT_END(id, sec))) && \
+		                                    ((MODULE_SECT_END(id, sec) - oft) >= size))
+
+#define ITEM_HDR_VALID_CHECK(v)             (v == ITEM_HDR_FIELD_VALID_CHECKSUM ||   \
+                                             v == ITEM_HDR_FIELD_VALID_CHECKCRC)
+
+#define  NV_ITEMLEN_MATCH(len, unitLen) ((len % unitLen) ? FALSE : TRUE)
+
+static u8 g_nvItemLengthCheckNum = 0;
+
+
+
 nv_itemLenChk_t  g_nvItemLenCheckTbl[NV_ITEM_LEN_CHK_TABBLE_NUM];
 
-nv_sts_t nv_index_update(u16 id, u8 opSect, u16 opItemIdx, nv_info_idx_t *idx){
-	u32 idxStartAddr = MODULE_IDX_START(id, opSect);
-	flash_write(idxStartAddr+opItemIdx*sizeof(nv_info_idx_t), sizeof(nv_info_idx_t), (u8 *)idx);
-	return NV_SUCC;
-}
 
 
 void nv_itemLengthCheckAdd(u8 itemId, u16 len){
+	for(s32 i = 0; i < g_nvItemLengthCheckNum; i++){
+		if(itemId == g_nvItemLenCheckTbl[i].itemId){
+			g_nvItemLenCheckTbl[i].len = len;
+			return;
+		}
+	}
 	if(g_nvItemLengthCheckNum >= NV_ITEM_LEN_CHK_TABBLE_NUM){
-		while(1);
+		ZB_EXCEPTION_POST(SYS_EXCEPTTION_NV_CHECK_TABLE_FULL);
 		return;
 	}
 	g_nvItemLenCheckTbl[g_nvItemLengthCheckNum].itemId = itemId;
@@ -79,6 +109,18 @@ u16 nv_itemLengthValidCheck(u8 itemId, u16 len){
 		}
 	}
 	return len;
+}
+
+static nv_sts_t nv_sect_info_check(u8 sect, u16 id){
+	u32 sectStartAddr = MODULE_SECT_START(id, sect);
+	nv_sect_info_t s;
+
+	flash_read(sectStartAddr, sizeof(nv_sect_info_t), (u8*)&s);
+
+	if(!SECT_VALID_CHECK(s)){
+		return NV_MODULE_NOT_FOUND;
+	}
+	return NV_SUCC;
 }
 
 
@@ -109,7 +151,7 @@ static nv_sts_t nv_index_read_op(u16 id, u8 itemId, u16 *itemLen, u8 opSect, u32
 		flash_read(idxStartAddr, readIdxNum * sizeof(nv_info_idx_t), (u8*)idxInfo);
 		for(i = readIdxNum - 1; i >= 0; i--){
 			if(itemId != ITEM_FIELD_IDLE){
-				if(idxInfo[i].usedState == itemFlag &&
+				if(ITEM_VALID_FLAG_CHECK(idxInfo[i].usedState) &&
 					idxInfo[i].itemId == itemId){
 					if(lenCheck){
 						if(NV_ITEMLEN_MATCH((idxInfo[i].size - sizeof(itemHdr_t)), len)){
@@ -118,6 +160,7 @@ static nv_sts_t nv_index_read_op(u16 id, u8 itemId, u16 *itemLen, u8 opSect, u32
 						}
 					}else{
 						*itemLen = idxInfo[i].size - sizeof(itemHdr_t);
+						ret = NV_SUCC;
 						break;
 					}
 				}
@@ -143,18 +186,67 @@ nv_sts_t nv_index_read(u16 id, u8 itemId, u16 len, u8 opSect, u32 totalItemNum, 
 	return nv_index_read_op(id, itemId, &len, opSect, totalItemNum, idxNo, 1);
 }
 
+
+static inline bool nv_sectInfoCrcCheck(nv_sect_info_t s){
+	u32 sectCrc = 0xffffffff;
+	u8 crcR = 0;
+
+	crcR = (s.opSect >> NV_SECT_INFO_SECTNO_BITS) & NV_SECT_INFO_CHECK_BITMASK;
+	s.opSect &= NV_SECT_INFO_SECTNO_BITMASK;
+	sectCrc = xcrc32(&s.idName, 2, sectCrc);
+	if((sectCrc & NV_SECT_INFO_CHECK_BITMASK) == crcR){
+		return TRUE;
+	}else{
+		return FALSE;
+	}
+}
+
 nv_sts_t nv_sector_read(u16 id, u8 sectTotalNum, nv_sect_info_t *sectInfo){
 	nv_sts_t ret = NV_SUCC;
 	nv_sect_info_t s;
 	u32 moduleStartAddr = MODULES_START_ADDR(id);
 	s32 i = 0;
+	u8 sectNo = 0;
+	u8 bitValid = 0;
+	for(s32 i = 0; i < NV_SECT_INFO_SECTNO_BITS; i++){
+		bitValid |= (1 << i);
+	}
 
 	for(i = 0; i < sectTotalNum; i++){
 		flash_read(moduleStartAddr, sizeof(nv_sect_info_t), (u8 *)&s);
-		if(s.usedFlag == NV_SECTOR_VALID && s.idName == id){
-			memcpy(sectInfo, &s, sizeof(nv_sect_info_t));
-			break;
+		sectNo = (s.opSect & bitValid);
+
+		if(s.usedFlag == NV_SECTOR_VALID_READY_CHECKCRC){
+			if(nv_sectInfoCrcCheck(s)){
+				/* if another sector is valid, set it as invalid */
+				u8 sectDel = (sectNo + 1) & (MODULE_SECTOR_NUM - 1);
+				s.usedFlag = NV_SECTOR_INVALID;
+				if(flash_writeWithCheck(MODULE_SECT_START(id, sectDel), sizeof(s.usedFlag), (u8 *)&s.usedFlag) == TRUE){
+					/* set itself as valid */
+					s.usedFlag = NV_SECTOR_VALID_CHECKCRC;
+					flash_writeWithCheck(moduleStartAddr, sizeof(s.usedFlag), (u8 *)&s.usedFlag);
+				}
+
+				s.opSect = sectNo;
+				memcpy(sectInfo, &s, sizeof(nv_sect_info_t));
+				break;
+			}
+		}else{
+			if((SECT_VALID_CHECK(s)) && s.idName == id){
+				if(s.usedFlag == NV_SECTOR_VALID_CHECKCRC){
+					if(nv_sectInfoCrcCheck(s)){
+						s.opSect = sectNo;
+						memcpy(sectInfo, &s, sizeof(nv_sect_info_t));
+						break;
+					}
+				}else{
+					s.opSect = sectNo;
+					memcpy(sectInfo, &s, sizeof(nv_sect_info_t));
+					break;
+				}
+			}
 		}
+
 		moduleStartAddr += NV_SECTOR_SIZE(id);
 	}
 	if( i == sectTotalNum){
@@ -163,88 +255,145 @@ nv_sts_t nv_sector_read(u16 id, u8 sectTotalNum, nv_sect_info_t *sectInfo){
 	return ret;
 }
 
-nv_sts_t nv_write_item(u16 id, u8 itemId, u8 opSect, u16 opItemIdx, u16 len, u8 *buf, bool isFlashCopy){
+
+nv_sts_t nv_write_item(u8 single, u16 id, u8 itemId, u8 opSect, u16 opItemIdx, u16 len, u8 *buf, bool isFlashCopy){
 	/* write index to flash */
 	nv_info_idx_t idxInfo;
 	memset((u8 *)&idxInfo, 0, sizeof(nv_info_idx_t));
 	u32 idxStartAddr = MODULE_IDX_START(id, opSect);
 	u32 offset = 0;
+	u32 crcOri = 0xffffffff;
+	u32 crcDst = 0xffffffff;
+	itemHdr_t hdr;
 
 	if(opItemIdx == 0){
 		offset = MODULE_CONTEXT_START(id, opSect, len);
 	}else{
 		flash_read(idxStartAddr + (opItemIdx - 1)*sizeof(nv_info_idx_t), sizeof(nv_info_idx_t), (u8*)&idxInfo);
-		offset = ((idxInfo.offset + idxInfo.size + 3) & (~0x03));
+
+		/* check item idex */
+		flash_read(idxInfo.offset, sizeof(itemHdr_t), (u8 *)&hdr);
+		if(hdr.used == ITEM_HDR_FIELD_VALID_CHECKCRC){
+			crcOri = 0xffffffff;
+			crcOri = xcrc32((u8 *)&idxInfo, sizeof(nv_info_idx_t)-1, crcOri);
+			if((crcOri & 0xffff) != ((hdr.checkSum >> 16)&0xffff)){
+				return NV_ITEM_CHECK_ERROR;
+			}
+		}
+		if(ITEM_FLAG_CHECK(idxInfo.usedState) && ITEM_OFT_CHECK(idxInfo.offset, idxInfo.size, id, opSect)){
+			offset = ((idxInfo.offset + idxInfo.size + 3) & (~0x03));
+		}else{
+			return NV_ITEM_CHECK_ERROR;
+		}
 	}
 	idxInfo.usedState = ITEM_FIELD_OPERATION;
 	idxInfo.size = len + sizeof(itemHdr_t);
 	idxInfo.offset = offset;
 	idxInfo.itemId = itemId;
 
-	flash_write(idxStartAddr+opItemIdx*sizeof(nv_info_idx_t), sizeof(nv_info_idx_t), (u8 *)&idxInfo);
+	if(!ITEM_OFT_CHECK(idxInfo.offset, idxInfo.size, id, opSect)){
+		return NV_ITEM_CHECK_ERROR;
+	}
+	if(flash_writeWithCheck(idxStartAddr+opItemIdx*sizeof(nv_info_idx_t), sizeof(nv_info_idx_t), (u8 *)&idxInfo) != TRUE){
+		return NV_ITEM_CHECK_ERROR;
+	}
 
 	/* write context to flash */
 	if(isFlashCopy){
 		/* if need copy th data from flash, read it into ram, and then write it to flash */
 		u8 copyLen = 48;
-		u8 *pTemp = (u8 *)ev_buf_allocate(copyLen);
-		if(pTemp){
-			u8 wLen = 0;
-			u16 toalLen = idxInfo.size; //len;
-			u32 sAddr = (u32)buf;
-			u32 dAddr = idxInfo.offset;
-			while(toalLen > 0){
-				wLen = (toalLen > copyLen) ? copyLen : toalLen;
-				flash_read(sAddr, wLen, pTemp);
-				flash_write(dAddr, wLen, pTemp);
-				toalLen -= wLen;
-				sAddr += wLen;
-				dAddr += wLen;
+		u8 pTemp[48];
+
+		u8 wLen = 0;
+		s32 toalLen = idxInfo.size - sizeof(itemHdr_t); //len;
+		u32 sAddr = (u32)buf;
+		u32 dAddr = idxInfo.offset + sizeof(itemHdr_t);
+		u32 checkSum = 0;
+		crcOri = 0xffffffff;
+		u32 crcOld = 0xffffffff;
+		flash_read(sAddr, sizeof(itemHdr_t), (u8 *)&hdr);
+		sAddr += sizeof(itemHdr_t);
+
+		while(toalLen > 0){
+			wLen = (toalLen > copyLen) ? copyLen : toalLen;
+			flash_read(sAddr, wLen, pTemp);
+			if(hdr.used == ITEM_HDR_FIELD_VALID_CHECKSUM){
+				for(s32 i = 0; i < wLen; i++){
+					checkSum += pTemp[i];
+				}
+				crcOld = xcrc32(pTemp, wLen, crcOld);
+			}else{
+				crcOri = xcrc32(pTemp, wLen, crcOri);
 			}
-			ev_buf_free(pTemp);
+			if(flash_writeWithCheck(dAddr, wLen, pTemp) != TRUE){
+				return NV_CHECK_SUM_ERROR;
+			}
+
+			toalLen -= wLen;
+			sAddr += wLen;
+			dAddr += wLen;
+		}
+
+		if(hdr.used == ITEM_HDR_FIELD_VALID_CHECKSUM){
+			if(hdr.checkSum != checkSum){
+				return NV_DATA_CHECK_ERROR;
+			}
+			crcOri = crcOld;
+			hdr.used = ITEM_HDR_FIELD_VALID_CHECKCRC;
+			crcOri = xcrc32((u8 *)(&(hdr.size)), 4, crcOri);
 		}else{
-			return NV_NOT_ENOUGH_SAPCE;
+			crcOri = xcrc32((u8 *)(&(hdr.size)), 4, crcOri);
+			if((crcOri & 0xffff) != (hdr.checkSum&0xffff)){
+				return NV_DATA_CHECK_ERROR;
+			}
 		}
 	}else{
-		u32 checkSum = 0;
-		itemHdr_t hdr;
 		u32 payloadAddr = idxInfo.offset+sizeof(itemHdr_t);
+		crcOri = 0xffffffff;
+		crcDst = 0xffffffff;
 
-		for(s32 i = 0; i < len; i++){
-			checkSum += buf[i];
-		}
+		crcOri = xcrc32(buf, len, crcOri);
 		flash_write(payloadAddr, len, buf);
 
 		/* check the checksum */
 		u8 vCheck[16];
-		u16 tLen = len;
+		s32 tLen = len;
 		u16 unitLen;
-		u32 checkSumRead = 0;
+
 		while(tLen > 0){
 			unitLen = (tLen > 16) ? 16 : tLen;
 			flash_read(payloadAddr, unitLen, vCheck);
-			for(s32 i = 0; i < unitLen; i++){
-				checkSumRead += vCheck[i];
-			}
+			crcDst = xcrc32(vCheck, unitLen, crcDst);
 			tLen -= unitLen;
 			payloadAddr += unitLen;
 		}
 
-		if(checkSum == checkSumRead){
+		if(crcDst == crcOri){
 			hdr.itemId = itemId;
 			hdr.size = len;
-			hdr.used = ITEM_FIELD_VALID;
-			hdr.checkSum = checkSum;
-			flash_write(idxInfo.offset, sizeof(itemHdr_t), (u8*)&hdr);
+			hdr.used = ITEM_HDR_FIELD_VALID_CHECKCRC;
+			crcOri = xcrc32((u8 *)(&(hdr.size)), 4, crcOri);
 		}else{
 			return NV_CHECK_SUM_ERROR;
 		}
 	}
 
 	/* check the correct, if correct, change the state in the index */
-	u8 staOffset = OFFSETOF(nv_info_idx_t, usedState);
 	idxInfo.usedState = ITEM_FIELD_VALID;
-	flash_write(idxStartAddr+opItemIdx*sizeof(nv_info_idx_t)+staOffset, 1, (u8 *)&idxInfo.usedState);
+	if(single){
+		idxInfo.usedState = ITEM_FIELD_VALID_SINGLE;
+	}
+
+	u32 crcIdx = 0xffffffff;
+	crcIdx = xcrc32((u8 *)&idxInfo, sizeof(nv_info_idx_t)-1, crcIdx);
+	hdr.checkSum = ((crcIdx & 0xffff ) << 16) | (crcOri & 0xffff);  //checkSum;
+
+	if(flash_writeWithCheck(idxInfo.offset, sizeof(itemHdr_t), (u8*)&hdr) != TRUE){
+		return NV_CHECK_SUM_ERROR;
+	}
+
+	u8 staOffset = OFFSETOF(nv_info_idx_t, usedState);
+	flash_writeWithCheck(idxStartAddr+opItemIdx*sizeof(nv_info_idx_t)+staOffset, 1, (u8 *)&idxInfo.usedState);
 
 	return NV_SUCC;
 }
@@ -254,8 +403,9 @@ nv_sts_t nv_flashReadByIndex(u8 id, u8 itemId, u8 opSect, u16 opIdx, u16 len, u8
 	nv_sts_t ret = NV_SUCC;
 	u32 idxStartAddr = MODULE_IDX_START(id, opSect);
 	nv_info_idx_t idx;
+
 	flash_read(idxStartAddr + opIdx * sizeof(nv_info_idx_t), sizeof(nv_info_idx_t), (u8 *)&idx);
-	if(idx.usedState != ITEM_FIELD_VALID){
+	if(!ITEM_VALID_FLAG_CHECK(idx.usedState)){
 		return NV_ITEM_NOT_FOUND;
 	}
 
@@ -264,8 +414,59 @@ nv_sts_t nv_flashReadByIndex(u8 id, u8 itemId, u8 opSect, u16 opIdx, u16 len, u8
 
 	bool lenMatch = NV_ITEMLEN_MATCH(hdr.size, len);
 	u16  realLen = nv_itemLengthValidCheck(itemId, hdr.size);
-	if(lenMatch && hdr.used == ITEM_FIELD_VALID && hdr.itemId == itemId){
+	u32 readOft = 0;
+
+	if(lenMatch && (ITEM_HDR_VALID_CHECK(hdr.used)) && hdr.itemId == itemId){
 		flash_read(idx.offset + sizeof(itemHdr_t), realLen, buf);
+		readOft = idx.offset + sizeof(itemHdr_t) + realLen;
+
+		u8 pTemp[32] = {0};
+		u32 opLen = 0;
+		s32 leftSize = 0;
+
+		// check check_sum
+		if(hdr.used == ITEM_HDR_FIELD_VALID_CHECKSUM){
+			u32 checkSum = 0;
+
+			for(s32 i = 0; i < realLen; i++){
+				checkSum += buf[i];
+			}
+
+			if(realLen < hdr.size){
+				leftSize = hdr.size - realLen;
+				while(leftSize > 0){
+					opLen = (leftSize < 32) ? leftSize : 32;
+					flash_read(readOft, opLen, pTemp);
+					for(s32 i = 0; i < opLen; i++){
+						checkSum += pTemp[i];
+					}
+					leftSize -= opLen;
+					readOft += opLen;
+				}
+			}
+			if(checkSum != hdr.checkSum){
+				ret = NV_CHECK_SUM_ERROR;
+			}
+		}else{
+			u32 crcRead = 0xffffffff;
+			crcRead = xcrc32(buf, realLen, crcRead);
+
+			if(realLen < hdr.size){
+				leftSize = hdr.size - realLen;
+				while(leftSize > 0){
+					opLen = (leftSize < 32) ? leftSize : 32;
+					flash_read(readOft, opLen, pTemp);
+					crcRead = xcrc32(pTemp, opLen, crcRead);
+					leftSize -= opLen;
+					readOft += opLen;
+				}
+			}
+
+			crcRead = xcrc32((u8 *)(&(hdr.size)), 4, crcRead);
+			if((crcRead & 0xffff) != (hdr.checkSum & 0xffff)){
+				ret = NV_CHECK_SUM_ERROR;
+			}
+		}
 	}else{
 		ret = NV_ITEM_NOT_FOUND;
 	}
@@ -326,7 +527,45 @@ nv_sts_t nv_flashSingleItemSizeGet(u8 id, u8 itemId, u16 *len){
 	return ret;
 }
 
-nv_sts_t nv_flashWriteNew(u8 single, u16 id, u8 itemId, u16 len, u8 *buf){
+static void nv_exceptionDataHandler(bool single, u8 opSect, u16 id, u8 itemId, u16 len){
+	s16 idxTotalNum = MODULE_IDX_NUM(id);
+	s16 validNum = 0;
+	s16 opIdx = 0;
+	nv_info_idx_t idx;
+	u8 *idxTbl = ev_buf_allocate(idxTotalNum);
+	opIdx = idxTotalNum - 1;
+	bool add = 0;
+	u32 idxStartAddr = MODULE_IDX_START(id, opSect);
+
+	if(idxTbl){
+		//T_nv_exceptionDataHandler[0]++;
+		memset(idxTbl, 0, idxTotalNum);
+		for(; opIdx >= 0; opIdx--){
+			flash_read(idxStartAddr + opIdx * sizeof(nv_info_idx_t), sizeof(nv_info_idx_t), (u8 *)&idx);
+			if(!ITEM_VALID_FLAG_CHECK(idx.usedState)){
+				continue;
+			}
+
+			add = 1;
+			if(idx.usedState == ITEM_FIELD_VALID_SINGLE || (idx.itemId == id && single)){
+				for(s32 i = 0; i < validNum; i++){
+					if(idx.itemId == idxTbl[i]){
+						nv_itemDeleteByIndex(id, itemId, opSect, opIdx);
+						add =0;
+						//T_nv_exceptionDataHandler[1]++;
+					}
+				}
+				if(add){
+					idxTbl[validNum++] = idx.itemId;
+				}
+			}
+		}
+		ev_buf_free(idxTbl);
+	}
+}
+
+
+static nv_sts_t nv_flashWriteNewHandler(bool forceChgSec, u8 single, u16 id, u8 itemId, u16 len, u8 *buf){
 	nv_sts_t ret = NV_SUCC;
 	nv_sect_info_t sectInfo;
 	u8 opSect = 0;
@@ -342,12 +581,10 @@ nv_sts_t nv_flashWriteNew(u8 single, u16 id, u8 itemId, u16 len, u8 *buf){
 	/* search valid operation sub-sector */
 	ret = nv_sector_read(id, MODULE_SECTOR_NUM, &sectInfo);
 	if(ret != NV_SUCC){
-#if 0
-		for(s32 j = 0; j < MODULE_SECTOR_NUM; j++){
+		opSect = 0;
+		for(s32 j = 0; j < NV_SECTOR_SIZE(id)/FLASH_SECTOR_SIZE; j++){
 			flash_erase(moduleStartAddr + j * FLASH_SECTOR_SIZE);
 		}
-#endif
-		opSect = 0;
 	}else{
 		opSect = sectInfo.opSect;
 	}
@@ -361,14 +598,25 @@ nv_sts_t nv_flashWriteNew(u8 single, u16 id, u8 itemId, u16 len, u8 *buf){
 	nv_info_idx_t idxInfo[4];
 	u8 sectorUpdate = 0;
 	s32 idxTotalNum = MODULE_IDX_NUM(id);
-	ret = nv_index_read(id, ITEM_FIELD_IDLE, len, opSect, idxTotalNum, &wItemIdx);
-	if(ret == NV_SUCC){
-		flash_read(idxStartAddr + wItemIdx * sizeof(nv_info_idx_t), sizeof(nv_info_idx_t), (u8 *)idxInfo );
-		if((wItemIdx == idxTotalNum - 1) ||
-				(idxInfo[0].offset + idxInfo[0].size + ITEM_TOTAL_LEN(len)) > MODULE_SECT_END(id, opSect)){
-			sectorUpdate = 1;
-		}else{
-			wItemIdx += 1;
+	itemHdr_t hdr;
+
+	if(forceChgSec){
+		sectorUpdate = 1;
+	}else{
+		ret = nv_index_read(id, ITEM_FIELD_IDLE, len, opSect, idxTotalNum, &wItemIdx);
+		if(ret == NV_SUCC){
+			flash_read(idxStartAddr + wItemIdx * sizeof(nv_info_idx_t), sizeof(nv_info_idx_t), (u8 *)idxInfo );
+
+			if((wItemIdx == idxTotalNum - 1) ||
+					(idxInfo[0].offset + idxInfo[0].size + ITEM_TOTAL_LEN(len)) > MODULE_SECT_END(id, opSect)){
+				sectorUpdate = 1;
+			}else{
+				if(ITEM_FLAG_CHECK(idxInfo[0].usedState) && ITEM_OFT_CHECK(idxInfo[0].offset, idxInfo[0].size, id, opSect)){
+					wItemIdx += 1;
+				}else{
+					sectorUpdate = 1;
+				}
+			}
 		}
 	}
 
@@ -387,27 +635,75 @@ nv_sts_t nv_flashWriteNew(u8 single, u16 id, u8 itemId, u16 len, u8 *buf){
 
 		u32 sizeusedAddr = 0;
 		u8 readIdxNum = 0;
+		bool startChk = 1;
+		bool search = 1;
+		u32 offsetPrev = 0;
+		u32 sizePrev = 0;
 		sizeusedAddr = MODULE_CONTEXT_START(id, opSect, len);
 		idxStartAddr = MODULE_IDX_START(id, oldSect);
 		idxTotalNum = MODULE_IDX_NUM(id);
 		/* copy valid items to new sector */
-		while(idxTotalNum > 0){
-			readIdxNum = (idxTotalNum > 4) ? 4 : idxTotalNum;
-			flash_read(idxStartAddr, readIdxNum * sizeof(nv_info_idx_t), (u8*)idxInfo);
-			for( i = 0; i < readIdxNum; i++){
-				if(idxInfo[i].usedState == ITEM_FIELD_VALID &&
-					(idxInfo[i].itemId != itemId || ((idxInfo[i].itemId == itemId) && !single))){
-					ret = nv_write_item(id, idxInfo[i].itemId, opSect, wItemIdx, idxInfo[i].size-sizeof(itemHdr_t), (u8*)idxInfo[i].offset, TRUE);
-					if(ret != NV_SUCC){
-						return ret;
+		nv_exceptionDataHandler(single, oldSect, id, itemId, len);
+
+		ret = nv_sect_info_check(oldSect, id);
+		if(ret == NV_SUCC){
+			while(idxTotalNum > 0 && search){
+				readIdxNum = (idxTotalNum > 4) ? 4 : idxTotalNum;
+				flash_read(idxStartAddr, readIdxNum * sizeof(nv_info_idx_t), (u8*)idxInfo);
+				for( i = 0; i < readIdxNum; i++){
+					if(startChk){
+						if(idxInfo[i].offset != MODULE_CONTEXT_START(id, oldSect, len) ||
+						  (MODULE_SECT_END(id, oldSect)-idxInfo[i].offset) < idxInfo[i].size){
+							search = 0;
+							break;
+						}
+
+						startChk = 0;
+						offsetPrev = idxInfo[i].offset;
+						sizePrev = idxInfo[i].size;
+					}else{
+						if(idxInfo[i].offset != (((offsetPrev + sizePrev)+0x03)&(~0x03)) ||
+						  (MODULE_SECT_END(id, oldSect)-idxInfo[i].offset) < idxInfo[i].size){
+							search = 0;
+							break;
+						}
+						offsetPrev = idxInfo[i].offset;
+						sizePrev = idxInfo[i].size;
 					}
-					sizeusedAddr += idxInfo[i].size;
-					sizeusedAddr = ((sizeusedAddr + 0x03) & (~0x03));
-					wItemIdx += 1;
+
+					if(ITEM_VALID_FLAG_CHECK(idxInfo[i].usedState) &&
+						(idxInfo[i].itemId != itemId || ((idxInfo[i].itemId == itemId) && !single))){
+						u8 sgl = (idxInfo[i].usedState == ITEM_FIELD_VALID_SINGLE);
+
+						/* read item header, valid it */
+						flash_read(idxInfo[i].offset, sizeof(itemHdr_t), (u8 *)&hdr);
+						if(hdr.used == ITEM_HDR_FIELD_VALID_CHECKCRC){
+							u32 crcIdx = 0xffffffff;
+							crcIdx = xcrc32((u8 *)&idxInfo[i], sizeof(nv_info_idx_t)-1, crcIdx);
+							if((crcIdx & 0xffff) != ((hdr.checkSum >> 16)&0xffff)){
+								continue;
+							}
+						}
+
+						ret = nv_write_item(sgl, id, idxInfo[i].itemId, opSect, wItemIdx, idxInfo[i].size-sizeof(itemHdr_t), (u8*)idxInfo[i].offset, TRUE);
+						if(ret != NV_SUCC){
+							if(ret == NV_ITEM_CHECK_ERROR){
+								search = 0;
+								break;
+							}else if(ret == NV_NOT_ENOUGH_SAPCE || ret == NV_CHECK_SUM_ERROR){
+								return ret;
+							}else{
+								continue;
+							}
+						}
+						sizeusedAddr += idxInfo[i].size;
+						sizeusedAddr = ((sizeusedAddr + 0x03) & (~0x03));
+						wItemIdx += 1;
+					}
 				}
+				idxTotalNum -= readIdxNum;
+				idxStartAddr += readIdxNum * sizeof(nv_info_idx_t);
 			}
-			idxTotalNum -= readIdxNum;
-			idxStartAddr += readIdxNum * sizeof(nv_info_idx_t);
 		}
 
 		idxTotalNum = MODULE_IDX_NUM(id);
@@ -428,35 +724,68 @@ nv_sts_t nv_flashWriteNew(u8 single, u16 id, u8 itemId, u16 len, u8 *buf){
 	}
 
 	/* sector is full, and then need write in the another sector */
-	ret = nv_write_item(id, itemId, opSect, wItemIdx, len, buf, FALSE);
+	ret = nv_write_item(single, id, itemId, opSect, wItemIdx, len, buf, FALSE);
+	if(ret != NV_SUCC){
+		return ret;
+	}
 
 	/* the last item set as invalid */
 	idxStartAddr = MODULE_IDX_START(id, opSect);
 	if(deleteItemEn){
 		u8 staOffset = OFFSETOF(nv_info_idx_t, usedState);
 		idxInfo[0].usedState = ITEM_FIELD_INVALID;
-		flash_write(idxStartAddr+deleteIdx*sizeof(nv_info_idx_t)+staOffset, 1, &(idxInfo[0].usedState));
+		if(flash_writeWithCheck(idxStartAddr+deleteIdx*sizeof(nv_info_idx_t)+staOffset, 1, &(idxInfo[0].usedState)) != TRUE){
+			return NV_CHECK_SUM_ERROR;
+		}
 	}
 
 
 	if(ret == NV_SUCC){
 		if(sectorUpdate){
 			sectInfo.idName = id;
-			sectInfo.opSect = opSect;
-			sectInfo.usedFlag = NV_SECTOR_INVALID;
-			flash_write(MODULE_SECT_START(id, oldSect), sizeof(nv_sect_info_t), (u8*)&sectInfo);
 
-			sectInfo.usedFlag = NV_SECTOR_VALID;
+			sectInfo.usedFlag = NV_SECTOR_VALID_READY_CHECKCRC;
 			sectInfo.opSect = opSect;
-			flash_write(MODULE_SECT_START(id, opSect), sizeof(nv_sect_info_t), (u8*)&sectInfo);
+
+			u32 sectCrc = 0xffffffff;
+			sectCrc = xcrc32(&(sectInfo.idName), 2, sectCrc);   //add (idName, opsect) to crc validation
+			sectCrc = sectCrc & 0x3f;
+			sectInfo.opSect = (sectCrc << NV_SECT_INFO_SECTNO_BITS) | sectInfo.opSect;
+			if(flash_writeWithCheck(MODULE_SECT_START(id, opSect), sizeof(nv_sect_info_t), (u8*)&sectInfo) != TRUE){
+				return NV_CHECK_SUM_ERROR;
+			}
+
+			sectInfo.usedFlag = NV_SECTOR_INVALID;
+			if(flash_writeWithCheck(MODULE_SECT_START(id, oldSect), sizeof(sectInfo.usedFlag), (u8*)&sectInfo.usedFlag) == TRUE){
+				sectInfo.usedFlag = NV_SECTOR_VALID_CHECKCRC;
+				flash_writeWithCheck(MODULE_SECT_START(id, opSect), sizeof(sectInfo.usedFlag), (u8*)&sectInfo.usedFlag);
+			}
 		}else{
 			 if(wItemIdx == 0){
 				sectInfo.idName = id;
-				sectInfo.usedFlag = NV_SECTOR_VALID;
+				sectInfo.usedFlag = NV_SECTOR_VALID_CHECKCRC;
 				sectInfo.opSect = opSect;
-				flash_write(MODULE_SECT_START(id, opSect), sizeof(nv_sect_info_t), (u8*)&sectInfo);
+
+				u32 sectCrc = 0xffffffff;
+				sectCrc = xcrc32(&(sectInfo.idName), 2, sectCrc);  //add (idName, opsect) to crc validation
+				sectInfo.opSect = (sectCrc << NV_SECT_INFO_SECTNO_BITS) | sectInfo.opSect;
+				flash_writeWithCheck(MODULE_SECT_START(id, opSect), sizeof(nv_sect_info_t), (u8*)&sectInfo);
 			 }
 		}
+	}
+
+	return ret;
+}
+
+nv_sts_t nv_flashWriteNew(u8 single, u16 id, u8 itemId, u16 len, u8 *buf){
+	if(id == NV_MODULE_NWK_FRAME_COUNT){
+		return NV_INVALID_MODULS;
+	}
+
+	nv_sts_t ret = nv_flashWriteNewHandler(0, single, id, itemId, len, buf);
+
+	if(ret == NV_ITEM_CHECK_ERROR){
+		ret = nv_flashWriteNewHandler(1, single, id, itemId, len, buf);
 	}
 
 	return ret;
@@ -469,6 +798,10 @@ nv_sts_t nv_flashReadNew(u8 single, u8 id, u8 itemId, u16 len, u8 *buf){
 	u8 opSect = 0;
 	s32 idxTotalNum = 0;
 	u16 opIdx = 0;
+
+	if(id == NV_MODULE_NWK_FRAME_COUNT){
+		return NV_INVALID_MODULS;
+	}
 
 	ret = nv_sector_read(id, MODULE_SECTOR_NUM, &sectInfo);
 	if(ret != NV_SUCC){
@@ -483,6 +816,9 @@ nv_sts_t nv_flashReadNew(u8 single, u8 id, u8 itemId, u16 len, u8 *buf){
 	if(single){
 		if(ret == NV_SUCC){
 			ret = nv_flashReadByIndex(id, itemId, opSect, opIdx, len, buf);
+			if(ret == NV_CHECK_SUM_ERROR){
+				nv_itemDeleteByIndex(id, itemId, opSect, opIdx);
+			}
 		}
 	}else{
 		itemIfno_t *pInfo = (itemIfno_t*)buf;
@@ -552,7 +888,7 @@ nv_sts_t nv_nwkFrameCountSearch(u8 id, u8 opSect, u32 *frameCount, u32 *validAdd
 }
 
 
-nv_sts_t nv_nwkFrameCountSaveToFlash(u32 frameCount){
+nv_sts_t nv_nwkFrameCountSaveToFlashHandler(bool forceChgSec, u8 *errSect, u32 frameCount){
 	nv_sts_t ret = NV_SUCC;
 	nv_sect_info_t sectInfo;
 	u8 opSect = 0;
@@ -560,14 +896,26 @@ nv_sts_t nv_nwkFrameCountSaveToFlash(u32 frameCount){
 	u32 moduleStartAddr = MODULES_START_ADDR(id);
 
 	/* search valid operation sub-sector */
-	ret = nv_sector_read(id, MODULE_SECTOR_NUM, &sectInfo);
-	if(ret != NV_SUCC){
-		for(s32 j = 0; j < MODULE_SECTOR_NUM; j++){
-			flash_erase(moduleStartAddr + j * FLASH_SECTOR_SIZE);
+	if(forceChgSec){
+		opSect = (*errSect + 1) & (MODULE_SECTOR_NUM - 1);
+		u8 nv_realSectNum = NV_SECTOR_SIZE(id)/FLASH_SECTOR_SIZE;
+		u32 eraseAddr = moduleStartAddr + opSect * NV_SECTOR_SIZE(id);
+		for(s32 k = 0; k < nv_realSectNum; k++){
+			//flash_erase(moduleStartAddr + opSect * FLASH_SECTOR_SIZE);
+			flash_erase(eraseAddr);
+			eraseAddr += FLASH_SECTOR_SIZE;
 		}
-		opSect = 0;
+
 	}else{
-		opSect = sectInfo.opSect;
+		ret = nv_sector_read(id, MODULE_SECTOR_NUM, &sectInfo);
+		if(ret != NV_SUCC){
+			for(s32 j = 0; j < MODULE_SECTOR_NUM; j++){
+				flash_erase(moduleStartAddr + j * FLASH_SECTOR_SIZE);
+			}
+			opSect = 0;
+		}else{
+			opSect = sectInfo.opSect;
+		}
 	}
 
 	u32 lastFrmCnt;
@@ -578,27 +926,56 @@ nv_sts_t nv_nwkFrameCountSaveToFlash(u32 frameCount){
 		if(wAddr == (MODULE_SECT_END(id, opSect))){
 			opSect = (opSect + 1) & (MODULE_SECTOR_NUM - 1);
 			flash_erase(moduleStartAddr + opSect * FLASH_SECTOR_SIZE);
-			flash_write(FRAMECOUNT_PAYLOAD_START(opSect), 4, (u8*)&lastFrmCnt);
+
+			if(flash_writeWithCheck(FRAMECOUNT_PAYLOAD_START(opSect), 4, (u8*)&lastFrmCnt) != TRUE){
+				return NV_CHECK_SUM_ERROR;
+			}
+
 			wAddr = FRAMECOUNT_PAYLOAD_START(opSect) + 4;
 			sectorUpdate = 1;
 		}
 	}
 
-	flash_write(wAddr, 4, (u8*)&frameCount);
+	if(flash_writeWithCheck(wAddr, 4, (u8*)&frameCount) != TRUE){
+		return NV_CHECK_SUM_ERROR;
+	}
 
 	if(sectorUpdate || (wAddr == FRAMECOUNT_PAYLOAD_START(opSect))){
-		sectInfo.usedFlag = NV_SECTOR_VALID;
-		sectInfo.opSect = opSect;
 		sectInfo.idName = id;
-		flash_write((u32)MODULE_SECT_START(id, opSect), sizeof(nv_sect_info_t), (u8 *)&sectInfo);
+		sectInfo.usedFlag = NV_SECTOR_VALID_READY_CHECKCRC;
+		sectInfo.opSect = opSect;
+		u32 sectCrc = 0xffffffff;
+		sectCrc = xcrc32(&(sectInfo.idName), 2, sectCrc);   //add (idName, opsect) to crc validation
+		sectCrc = sectCrc & 0x3f;
+		sectInfo.opSect = (sectCrc << NV_SECT_INFO_SECTNO_BITS) | sectInfo.opSect;
+		if(flash_writeWithCheck(MODULE_SECT_START(id, opSect), sizeof(nv_sect_info_t), (u8*)&sectInfo) != TRUE){
+			return NV_CHECK_SUM_ERROR;
+		}
 
-		if(sectorUpdate){
+		if(sectorUpdate || forceChgSec){
+			if(forceChgSec){
+				oldSect = *errSect;
+			}
 			sectInfo.usedFlag = NV_SECTOR_INVALID;
-			flash_write((u32)MODULE_SECT_START(id, oldSect), sizeof(nv_sect_info_t), (u8 *)&sectInfo);
+			if(flash_writeWithCheck((u32)MODULE_SECT_START(id, oldSect), sizeof(sectInfo.usedFlag), (u8 *)&sectInfo.usedFlag) != TRUE){
+				return NV_CHECK_SUM_ERROR;
+			}
+
+			sectInfo.usedFlag = NV_SECTOR_VALID_CHECKCRC;
+			flash_writeWithCheck((u32)MODULE_SECT_START(id, opSect), sizeof(sectInfo.usedFlag), (u8 *)&sectInfo.usedFlag);
 		}
 	}
 
 	return ret;
+}
+
+nv_sts_t nv_nwkFrameCountSaveToFlash(u32 frameCount){
+	u8 sect = 0xff;
+	nv_sts_t ret = nv_nwkFrameCountSaveToFlashHandler(0, &sect, frameCount);
+	if(ret == NV_CHECK_SUM_ERROR){
+		nv_nwkFrameCountSaveToFlashHandler(1, &sect, frameCount);
+	}
+	return NV_SUCC;
 }
 
 
@@ -620,6 +997,17 @@ nv_sts_t nv_nwkFrameCountFromFlash(u32 *frameCount){
 	ret = nv_nwkFrameCountSearch(id, opSect, &lastFrmCnt, &wAddr);
 	if(ret == NV_SUCC){
 		*frameCount = lastFrmCnt;
+
+		if(wAddr > FRAMECOUNT_PAYLOAD_START(opSect) + 8){
+			u32 pCnt[2];
+			flash_read(wAddr-8, 8, (u8 *)pCnt);
+
+			if((pCnt[1] - pCnt[0]) > UPDATE_FRAMECOUNT_THRES){
+				/* backoff valid framecount to another sector */
+				*frameCount = pCnt[0]+UPDATE_FRAMECOUNT_THRES;
+				nv_nwkFrameCountSaveToFlashHandler(1, &opSect, pCnt[0]+UPDATE_FRAMECOUNT_THRES);
+			}
+		}
 	}
 
 	return ret;
@@ -681,7 +1069,7 @@ bool nv_facrotyNewRstFlagCheck(void){
 
 void nv_facrotyNewRstFlagSet(void){
 	u8 flag = ITEM_FIELD_VALID;
-	flash_write(CFG_FACTORY_RST_CNT, 1, &flag);
+	flash_writeWithCheck(CFG_FACTORY_RST_CNT, 1, &flag);
 }
 
 void nv_facrotyNewRstFlagClear(void){

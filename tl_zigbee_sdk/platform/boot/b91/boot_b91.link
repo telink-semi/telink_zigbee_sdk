@@ -82,13 +82,17 @@ SECTIONS
     PROVIDE (_DATA_VMA_END = .);
     PROVIDE (_DATA_VMA_START = ADDR(.data));
 	PROVIDE (_DATA_LMA_START = LOADADDR(.data));
-	PROVIDE (BIN_SIZE = LOADADDR(.data) + SIZEOF(.data) - BIN_BEGIN);
 	
 	. = ALIGN(8);
 	PROVIDE (_BSS_VMA_START = .);
 	.sbss 	(NOLOAD)	: { *(.dynsbss ) *(.sbss .sbss.* .gnu.linkonce.sb.* ) *(.scommon .scommon.* ) }
 	.bss 	(NOLOAD)	: { *(.dynbss ) *(.bss .bss.* .gnu.linkonce.b.* ) *(COMMON ) . = ALIGN(8); }
 	PROVIDE (_BSS_VMA_END = .);
+	
+	.sdk_version  	: AT(LOADADDR (.data) + SIZEOF (.data))
+		{ KEEP(*(.sdk_version )) }
+	
+	PROVIDE (BIN_SIZE = LOADADDR(.sdk_version) + SIZEOF(.sdk_version) - BIN_BEGIN);
 	
 	. = ALIGN(8);
 	/* end is the starting address of the heap, the heap grows upward */

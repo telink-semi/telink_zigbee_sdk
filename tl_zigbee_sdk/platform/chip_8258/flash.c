@@ -29,7 +29,12 @@
 #include "timer.h"
 #include "string.h"
 #include "analog.h"
+#include "adc.h"
 
+#define FLASH_ZBIT_SAFE_VOL			2200  //mv
+#define FLASH_ZBIT_SAFE_VOLFLUCT    500   //mv
+static char g_flashIsZbit = 0;
+static unsigned short g_flashWorkVol = FLASH_ZBIT_SAFE_VOL;
 
 /*******************************************************************************************************************
  *												Primary interface
@@ -144,7 +149,17 @@ _attribute_ram_code_sec_noinline_ void flash_mspi_write_ram(unsigned char cmd, u
 	flash_send_cmd(cmd);
 	if(addr_en)
 	{
-		flash_send_addr(addr);
+		if(g_flashIsZbit){
+			unsigned int volF;
+			unsigned int vol = adc_get_result_with_fluct(&volF);
+			if(vol > g_flashWorkVol && volF < FLASH_ZBIT_SAFE_VOLFLUCT){
+				flash_send_addr(addr);
+			}else{
+				data_len = 0;
+			}
+		}else{
+			flash_send_addr(addr);
+		}
 	}
 	for(int i = 0; i < data_len; ++i)
 	{
@@ -511,9 +526,22 @@ unsigned char flash_is_zb(void)
 	unsigned int flash_mid  = flash_read_mid();
 	if((flash_mid == 0x13325E)||(flash_mid == 0x14325E))
 	{
+		g_flashIsZbit = 1;
 		return 1;
 	}
+
+	g_flashIsZbit = 0;
 	return 0;
+}
+
+/**
+ * @brief		This function is to config the flash operation voltage threshold
+ * @param[in]	vol.
+ * @return		none.
+ */
+void flash_safe_voltage_set(unsigned short vol)
+{
+	g_flashWorkVol = vol;
 }
 
 /**

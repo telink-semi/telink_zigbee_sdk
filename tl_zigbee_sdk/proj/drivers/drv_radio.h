@@ -32,6 +32,9 @@
 /* radio module reset */
 #define ZB_RADIO_RESET()					 			RF_reset()
 
+/* RF is busy */
+#define RF_DMA_BUSY()									0
+
 /* trx switch */
 #define ZB_RADIO_TRX_SWITCH(mode, chn) 					RF_TrxStateSet(mode, chn)
 
@@ -183,6 +186,9 @@
  ******************************************************************************************************/
 /* radio module reset */
 #define ZB_RADIO_RESET()
+
+/* RF is busy */
+#define RF_DMA_BUSY()									is_rf_receiving_pkt()
 
 /* trx switch */
 #define ZB_RADIO_TRX_SWITCH(mode, chn) 					rf_trx_state_set(mode, chn)
@@ -341,6 +347,9 @@
 /* radio module reset */
 #define ZB_RADIO_RESET()
 
+/* RF is busy */
+#define RF_DMA_BUSY()									is_rf_receiving_pkt()
+
 /* trx switch */
 #define ZB_RADIO_TRX_SWITCH(mode, chn) 					rf_trx_state_set(mode, chn)
 
@@ -497,6 +506,9 @@
  ******************************************************************************************************/
 /* radio module reset */
 #define ZB_RADIO_RESET()
+
+/* RF is busy */
+#define RF_DMA_BUSY()									rf_receiving_flag()
 
 /* trx switch */
 #define ZB_RADIO_TRX_SWITCH(mode, chn) 					rf_set_trx_state(mode, chn)

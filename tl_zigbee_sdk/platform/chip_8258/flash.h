@@ -247,6 +247,13 @@ int flash_read_mid_uid_with_check( unsigned int *flash_mid, unsigned char *flash
 unsigned char flash_is_zb(void);
 
 /**
+ * @brief		This function is to config the flash operation voltage threshold, it's just for zbit flash
+ * @param[in]	vol.
+ * @return		none.
+ */
+void flash_safe_voltage_set(unsigned short vol);
+
+/**
  * @brief		This function serves to calibration the flash voltage(VDD_F),if the flash has the calib_value,we will use it,either will
  * 				trim vdd_f to 1.95V(2b'111 the max) if the flash is zb.
  * @param[in]	vol - the voltage which you want to set.

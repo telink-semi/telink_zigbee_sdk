@@ -152,9 +152,15 @@ _CODE_MAC_ void generateIEEEAddr(void){
 		while(!clock_time_exceed(t0, jitter));
 
 		drv_generateRandomData(addr, 5);
-		memcpy(addr+5, startIEEEAddr, 3);
+		memcpy(addr + 5, startIEEEAddr, 3);
 		flash_write(CFG_MAC_ADDRESS, 6, addr + 2);
 		flash_write(CFG_MAC_ADDRESS + 6, 2, addr);
+
+		u8 buf[8];
+		flash_read(CFG_MAC_ADDRESS, 8, buf);
+		if(ZB_IS_64BIT_ADDR_INVALID(buf)){
+			ZB_EXCEPTION_POST(SYS_EXCEPTTION_COMMON_PARAM_ERROR);
+		}
 	}else{
 		/* MAC address format in TLSR serial chips:
 		 * xx xx xx 38 C1 A4 xx xx

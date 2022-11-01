@@ -111,8 +111,6 @@ static void internalFlashSizeCheck(void){
 #endif
 }
 
-#if VOLTAGE_DETECT_ENABLE
-#define VOLTAGE_DEBOUNCE_NUM 	5
 
 static void voltage_detect_init(u32 detectPin)
 {
@@ -130,6 +128,9 @@ static void voltage_detect_init(u32 detectPin)
 	drv_adc_enable(1);
 }
 
+
+#if VOLTAGE_DETECT_ENABLE
+#define VOLTAGE_DEBOUNCE_NUM 	5
 void voltage_detect(bool powerOn)
 {
 	u16 voltage = drv_get_adc_data();
@@ -234,6 +235,8 @@ startup_state_e drv_platform_init(void)
 	/* ADC */
 #if VOLTAGE_DETECT_ENABLE
 	voltage_detect_init(VOLTAGE_DETECT_ADC_PIN);
+
+	voltage_detect((state == SYSTEM_BOOT) ? 1 : 0);
 #endif
 
 	/* RF */
@@ -242,6 +245,17 @@ startup_state_e drv_platform_init(void)
 
 	/* Get calibration info to improve performance */
 	drv_calibration();
+
+#if defined(MCU_CORE_8258)
+	if(flash_is_zb()){
+
+#if (!VOLTAGE_DETECT_ENABLE) || !defined(VOLTAGE_DETECT_ENABLE)
+		voltage_detect_init(VOLTAGE_DETECT_ADC_PIN);
+		flash_safe_voltage_set(BATTERY_SAFETY_THRESHOLD);
+#endif
+		flash_unlock_mid13325e();  //add it for the flash which sr is expired
+	}
+#endif
 
 	return state;
 }

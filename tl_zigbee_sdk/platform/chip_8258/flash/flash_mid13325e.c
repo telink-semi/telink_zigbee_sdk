@@ -61,8 +61,10 @@ unsigned char flash_read_status_mid13325e(void)
 void flash_write_status_mid13325e(unsigned char data, mid13325e_write_status_bit_e bit)
 {
 	unsigned char status = flash_read_status(FLASH_READ_STATUS_CMD_LOWBYTE);
-	data |= (status & ~(bit));
-	flash_write_status(FLASH_TYPE_8BIT_STATUS, data);
+	if(data != (status & bit)){
+		data |= (status & ~(bit));
+		flash_write_status(FLASH_TYPE_8BIT_STATUS, data);
+	}
 }
 
 /**

@@ -43,6 +43,11 @@ _CODE_SS_ u8 zdo_ssInfoInit(void){
 	u8 ret = NV_ITEM_NOT_FOUND;
 #if NV_ENABLE
 	ret = nv_flashReadNew(1, NV_MODULE_APS, NV_ITEM_APS_SSIB, sizeof(ss_ib), (u8*)&ss_ib);
+#if ZB_COORDINATOR_ROLE
+	ss_ib.keyPairSetNew = (u8 *)g_ssTcKeyPair;
+#else
+	ss_ib.keyPairSetNew = (u8 *)&g_ssDevKeyPair;
+#endif
 
 	/*
 	 * user can process network key(Decrypt) here :

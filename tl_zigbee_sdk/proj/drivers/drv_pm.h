@@ -94,4 +94,6 @@ void drv_pm_longSleep(drv_pm_sleep_mode_e mode, drv_pm_wakeup_src_e src, u32 dur
 void drv_pm_lowPowerEnter(void);
 void drv_pm_wakeupTimeUpdate(void);
 
+void drv_pm_wakeupPinLevelChange(drv_pm_pinCfg_t *pinCfg, u32 pinNum);
+
 

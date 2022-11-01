@@ -166,49 +166,146 @@ void moduleTest_forUart(void){
 #define MODULE_TEST_NV		0
 
 #if MODULE_TEST_NV
-volatile u8 T_nwkFrmCntError = 0;
-volatile u8 T_nwkFrmCntReadErr = 0;
-volatile u32 T_frameCnt = 0;
-volatile u32 T_readFrm = 0;
-volatile u8 T_bufCheck[256] = {0};
+enum{
+	TEST_ITEM1 = 0x30,
+	TEST_ITEM2,
+	TEST_ITEM3,
+	TEST_ITEM4,
+	TEST_ITEM5,
+};
+
+#define TEST_NV_ID1		  2
+#define TEST_NV_ID2		  3
+#define TEST_ITEM1_LEN    47
+#define TEST_ITEM2_LEN    5
+#define TEST_ITEM3_LEN    110
+#define TEST_ITEM4_LEN    200
+#define TEST_ITEM5_LEN    70
+
+u8 test_item1[TEST_ITEM1_LEN];
+u8 test_item2[TEST_ITEM2_LEN];
+u8 test_item3[TEST_ITEM3_LEN];
+u8 test_item4[TEST_ITEM4_LEN];
+u8 test_item5[TEST_ITEM5_LEN];
+
+#define NV_TEST_FLAG_ADDR    0x78000
+
+u8 test_chk_buf[256];
+
+u8 nv_test_except[8] = {0};
+u32 T_frmCnt1 = 0;
+u32 T_frmCnt2 = 0;
+bool onToggle = 0;
+bool T_nvTestBufChg = 0;
+
+static void nv_data_exception(u16 itemId){
+	flash_write(0x78000, 2, (u8 *)&itemId);
+}
+
+
+static void nv_dataStoreSet(void){
+	u16 flag = 0x5a5a;
+	flash_write(NV_TEST_FLAG_ADDR+0x1000, 2, (u8 *)&flag);
+}
+
+static bool nv_dataStoreCheck(void){
+	u16 flag = 0xffff;
+	flash_read(NV_TEST_FLAG_ADDR+0x1000, 2, (u8 *)&flag);
+	if(flag != 0xffff){
+		return TRUE;
+	}else{
+		return FALSE;
+	}
+}
+
 void moduleTest_NV(void){
-	u8 *pData = (u8*)&g_zbInfo;
+	nv_sts_t ret = NV_SUCC;
 
-	while(0){
-		T_readFrm = 0;
-		nv_nwkFrameCountSaveToFlash(T_frameCnt);
-		T_nwkFrmCntReadErr = nv_nwkFrameCountFromFlash((u32*)&T_readFrm);
-
-		if(T_readFrm != T_frameCnt){
-			T_nwkFrmCntError = 1;
-			while(1);
-		}
-		T_frameCnt += 1;
+	drv_generateRandomData(test_item1, 16);
+	for(u32 i = 0; i < TEST_ITEM1_LEN; i++){
+		test_item1[i] = i*4 + 0;
 	}
 
+	drv_generateRandomData(test_item2, 16);
+	for(u32 i = 0; i < TEST_ITEM2_LEN; i++){
+		test_item2[i] = i*4 + 1;
+	}
+
+	drv_generateRandomData(test_item3, 16);
+	for(u32 i = 0; i < TEST_ITEM3_LEN; i++){
+		test_item3[i] = i*4 + 2;
+	}
+
+	drv_generateRandomData(test_item4, 16);
+	for(u32 i = 0; i < TEST_ITEM4_LEN; i++){
+		test_item4[i] = i*4 + 3;
+	}
+
+#if 1
+	if(!nv_dataStoreCheck()){
+		nv_flashWriteNew(1, TEST_NV_ID1, TEST_ITEM1, TEST_ITEM1_LEN, test_item1);
+		nv_flashWriteNew(1, TEST_NV_ID1, TEST_ITEM2, TEST_ITEM2_LEN, test_item2);
+		nv_flashWriteNew(1, TEST_NV_ID1, TEST_ITEM3, TEST_ITEM3_LEN, test_item3);
+		nv_dataStoreSet();
+	}
+	//nv_flashWriteNew(1, TEST_NV_ID, TEST_ITEM4, TEST_ITEM4_LEN, TEST_ITEM4_LEN);
+#endif
+
 	while(1){
-		pData = (u8*)&g_zbInfo;
-		for(s32 i = 0; i < sizeof(zb_info_t); i++){
-			pData[i] = (i + T_frameCnt);
+		if(onToggle){
+			led_on(LED_POWER);
+		}else{
+			led_off(LED_POWER);
+		}
+		onToggle ^= 1;
+
+#if 1
+		/* check framecount */
+		nv_nwkFrameCountFromFlash(&T_frmCnt1);
+		nv_nwkFrameCountSaveToFlash(T_frmCnt1+1024);
+		nv_nwkFrameCountFromFlash(&T_frmCnt2);
+		if(T_frmCnt2-T_frmCnt1 > 1024){
+			nv_test_except[0]++;
+			nv_data_exception(NV_ITEM_NWK_FRAME_COUNT);
+			while(1);
+		}
+#endif
+
+		/* ID1 data operation */
+		if(nv_flashWriteNew(1, TEST_NV_ID1, TEST_ITEM4, TEST_ITEM4_LEN, test_item4) != NV_SUCC){
+			nv_test_except[1]++;
+			nv_data_exception(0x30);
+			while(1);
+		}
+		ret = nv_flashReadNew(1, TEST_NV_ID1, TEST_ITEM4, TEST_ITEM4_LEN, test_chk_buf);
+		if(ret != NV_SUCC){
+			nv_test_except[2]++;
+			nv_data_exception(0x31);
+			while(1);
+		}
+		if(memcmp(test_item4, test_chk_buf, TEST_ITEM4_LEN)){
+			nv_test_except[3]++;
+			nv_data_exception(0x32);
+			while(1);
 		}
 
-		nv_flashWriteNew(1, NV_MODULE_ZB_INFO, NV_ITEM_ZB_INFO, sizeof(zb_info_t), (u8*)&g_zbInfo);
-		nv_flashReadNew(1, NV_MODULE_ZB_INFO, NV_ITEM_ZB_INFO, sizeof(zb_info_t), (u8*)&T_bufCheck);
-		for(s32 i = 0; i < sizeof(zb_info_t); i++){
-			if(pData[i] != T_bufCheck[i]){
-				while(1);
-			}
+		/* ID2 data operation */
+		if(nv_flashWriteNew(1, TEST_NV_ID2, TEST_ITEM5, TEST_ITEM5_LEN, test_item5) != NV_SUCC){
+			nv_test_except[4]++;
+			nv_data_exception(0x33);
+			while(1);
 		}
-
-		nv_flashWriteNew(1, NV_MODULE_ZB_INFO, 2, sizeof(nwk_nib_t), (u8*)&g_zbInfo.nwkNib);
-		nv_flashReadNew(1, NV_MODULE_ZB_INFO, 2, sizeof(nwk_nib_t), (u8*)&T_bufCheck);
-		pData = (u8*)&g_zbInfo.nwkNib;
-		for(s32 i = 0; i < sizeof(nwk_nib_t); i++){
-			if(pData[i] != T_bufCheck[i]){
-				while(1);
-			}
+		ret = nv_flashReadNew(1, TEST_NV_ID2, TEST_ITEM5, TEST_ITEM5_LEN, test_chk_buf);
+		if(ret != NV_SUCC){
+			nv_test_except[5]++;
+			nv_data_exception(0x34);
+			while(1);
 		}
-		T_frameCnt += 1;
+		if(memcmp(test_item5, test_chk_buf, TEST_ITEM5_LEN)){
+			nv_test_except[6]++;
+			nv_data_exception(0x35);
+			while(1);
+		}
 	}
 }
 #endif

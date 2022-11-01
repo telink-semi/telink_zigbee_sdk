@@ -605,6 +605,10 @@ _attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_rx_irq_handler(voi
     s32 txTime = 0;
     s32 txDelayUs = 0;
 
+    if(RF_DMA_BUSY()){
+    	return;
+    }
+
     ZB_RADIO_RX_DISABLE;
 
     g_sysDiags.macRxIrqCnt++;

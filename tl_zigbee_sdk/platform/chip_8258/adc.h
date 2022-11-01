@@ -29,7 +29,7 @@
 #include "analog.h"
 #include "bit.h"
 #include "gpio.h"
-
+#include "compiler.h"
 /*
 //ADC IO PINS
 GPIO_PinTypeDef ADC_GPIO_tab[] = {
@@ -1158,3 +1158,10 @@ void adc_vbat_init(GPIO_PinTypeDef pin);
  * @return the result of sampling.
  */
 unsigned int adc_sample_and_get_result(void);
+
+/**
+ * @brief This function serves to set adc sampling, get results and the voltage fluctuation.
+ * @param[in]  none.
+ * @return the result of sampling.
+ */
+_attribute_ram_code_ unsigned int adc_get_result_with_fluct(unsigned int *v);

@@ -207,8 +207,6 @@ extern bool g_otaEncryptionNeeded;
 
 status_t zcl_otaCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
 
-unsigned int xcrc32(const unsigned char *buf, int len, unsigned int init);
-
 void ota_wwah_useTrustCenter(u8 endpoint);
 
 u8 ota_loadImageInfo(ota_hdrFields_t *oh);

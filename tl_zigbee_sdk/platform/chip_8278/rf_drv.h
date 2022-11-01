@@ -404,6 +404,18 @@ static inline void rf_set_tx_pipe(unsigned char pipe)
 
 
 /**
+ * @brief   This function serves to judge the statue of  RF receive.
+ * @param   none.
+ * @return  none.
+ */
+static inline unsigned char is_rf_receiving_pkt(void)
+{
+	//if the value of [5:4] of the reg_0x448 is 0b10 or 0b11, it means that the RF is in the receiving packet phase.(confirmed by junwen)
+	return (((read_reg8(0x448)>>5)& 1) == 1);
+}
+
+
+/**
 *	@brief     This function serves to initiate the mode of RF
 *	@param[in] rf_mode  -  mode of RF
 *	@return	   none.

@@ -136,3 +136,4 @@
 #define FOUR_INT_HASH_FUNC(v1, v2, v3, v4) 	(HASH_FUNC_STEP(HASH_FUNC_STEP( HASH_FUNC_STEP( HASH_FUNC_STEP(HASH_MAGIC_VAL, (v1)), (v2)), (v3)), (v4)) & INT_MASK)
 #define TWO_INT_HASH_FUNC(v1, v2)      		(HASH_FUNC_STEP(HASH_FUNC_STEP(HASH_MAGIC_VAL, (v1)), (v2)) & INT_MASK)
 
+extern unsigned int xcrc32(const unsigned char *buf, int len, unsigned int init);

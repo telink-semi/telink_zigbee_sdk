@@ -258,13 +258,16 @@ typedef enum{
 
 
 
-
+#define NV_SECT_INFO_CHECK_BITS			6
+#define NV_SECT_INFO_CHECK_BITMASK		0x3f
+#define NV_SECT_INFO_SECTNO_BITS		(8-NV_SECT_INFO_CHECK_BITS)
+#define NV_SECT_INFO_SECTNO_BITMASK		0x3
 
 /* sector info(4Bytes) + index info(8Bytes) + index info(8Bytes) + ... */
 typedef struct{
 	u16 usedFlag;
 	u8  idName;
-	u8  opSect;
+	u8  opSect;    //crcCheckBit(6bits) + opSect(2bits)
 }nv_sect_info_t;
 
 typedef struct{
@@ -307,11 +310,11 @@ typedef struct{
  * NV_MAX_MODULS
  */
 typedef enum{
-	NV_MODULE_ZB_INFO 				= 0,
-	NV_MODULE_ADDRESS_TABLE 		= 1,
-    NV_MODULE_APS 					= 2,
-    NV_MODULE_ZCL 					= 3,
-	NV_MODULE_NWK_FRAME_COUNT 		= 4,
+	NV_MODULE_ZB_INFO 				= 0,      /* mustn't modify it */
+	NV_MODULE_ADDRESS_TABLE 		= 1,      /* mustn't modify it */
+    NV_MODULE_APS 					= 2,      /* mustn't modify it */
+    NV_MODULE_ZCL 					= 3,      /* mustn't modify it */
+	NV_MODULE_NWK_FRAME_COUNT 		= 4,      /* mustn't modify it */
 	NV_MODULE_OTA 					= 5,
 	NV_MODULE_APP 					= 6,
 	NV_MODULE_KEYPAIR 				= 7,
@@ -321,16 +324,16 @@ typedef enum{
 typedef enum{
 	NV_ITEM_ID_INVALID				= 0,/* Item id 0 should not be used. */
 
-	NV_ITEM_ZB_INFO 				= 1,
-	NV_ITEM_ADDRESS_FOR_NEIGHBOR,
-	NV_ITEM_ADDRESS_FOR_BIND,
-	NV_ITEM_APS_SSIB,
-	NV_ITEM_APS_GROUP_TABLE,
-	NV_ITEM_APS_BINDING_TABLE,
+	NV_ITEM_ZB_INFO 				= 1, /* mustn't modify it */
+	NV_ITEM_ADDRESS_FOR_NEIGHBOR,        /* mustn't modify it */
+	NV_ITEM_ADDRESS_FOR_BIND,            /* mustn't modify it */
+	NV_ITEM_APS_SSIB,                    /* mustn't modify it */
+	NV_ITEM_APS_GROUP_TABLE,             /* mustn't modify it */
+	NV_ITEM_APS_BINDING_TABLE,           /* mustn't modify it */
 
-	NV_ITEM_NWK_FRAME_COUNT,
+	NV_ITEM_NWK_FRAME_COUNT,             /* mustn't modify it */
 
-	NV_ITEM_SS_KEY_PAIR,
+	NV_ITEM_SS_KEY_PAIR,                 /* mustn't modify it */
 
 	NV_ITEM_OTA_HDR_SERVERINFO,
 	NV_ITEM_OTA_CODE,
@@ -352,7 +355,7 @@ typedef enum{
 	NV_ITEM_APP_POWER_CNT,
 	NV_ITEM_APP_GP_TRANS_TABLE,
 
-	NV_ITEM_APS_BINDING_TABLE_V2    = 0x80,
+	NV_ITEM_APS_BINDING_TABLE_V2    = 0x80,  /* mustn't modify it */
 
 	NV_ITEM_ID_MAX					= 0xFF,/* Item id 0xFF should not be used. */
 }nv_item_t;
@@ -366,7 +369,11 @@ typedef enum{
     NV_ITEM_LEN_NOT_MATCH,
     NV_CHECK_SUM_ERROR,
     NV_ENABLE_PROTECT_ERROR,
-    NV_NO_MEDIA
+    NV_NO_MEDIA,
+    NV_DATA_CHECK_ERROR,
+	NV_ITEM_CHECK_ERROR,
+	NV_MODULE_NOT_FOUND,
+	NV_MODULE_ERASE_NEED
 } nv_sts_t;
 
 
@@ -374,13 +381,19 @@ typedef enum{
 #define	FLASH_SECTOR_SIZE						4096//4K
 
 #define NV_SECTOR_VALID							0x5A5A
+#define NV_SECTOR_VALID_CHECKCRC				0x7A7A
+#define NV_SECTOR_VALID_READY_CHECKCRC			0xFAFA
 #define NV_SECTOR_INVALID						0x5050
 #define NV_SECTOR_IDLE							0xFFFF
 
 #define ITEM_FIELD_VALID						0x5A
+#define ITEM_FIELD_VALID_SINGLE					0x7A
 #define ITEM_FIELD_INVALID						0x50
 #define ITEM_FIELD_OPERATION					0xFA
 #define ITEM_FIELD_IDLE							0xFF
+
+#define ITEM_HDR_FIELD_VALID_CHECKSUM			0x5A
+#define ITEM_HDR_FIELD_VALID_CHECKCRC			0x7A
 
 
 #if(FLASH_CAP_SIZE_1M || FLASH_CAP_SIZE_2M || FLASH_CAP_SIZE_4M)
