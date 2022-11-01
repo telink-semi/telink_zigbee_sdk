@@ -184,11 +184,10 @@ void ota_mcuReboot(void)
 	u8 flashInfo = TL_IMAGE_START_FLAG;
 	u32 newAddr = FLASH_ADDR_OF_OTA_IMAGE;
 
+#if (BOOT_LOADER_MODE)
 	if(!ota_newImageValid(newAddr)){
 		return;
 	}
-
-#if (BOOT_LOADER_MODE)
 	if(flash_writeWithCheck((newAddr + FLASH_TLNK_FLAG_OFFSET), 1, &flashInfo) != TRUE){
 		return;
 	}
@@ -198,6 +197,9 @@ void ota_mcuReboot(void)
 	if(mcuBootAddr){
 		baseAddr = FLASH_ADDR_OF_OTA_IMAGE;
 		newAddr = 0;
+	}
+	if(!ota_newImageValid(newAddr)){
+		return;
 	}
 
 	if(flash_writeWithCheck((newAddr + FLASH_TLNK_FLAG_OFFSET), 1, &flashInfo) != TRUE){
