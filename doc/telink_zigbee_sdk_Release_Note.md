@@ -1,3 +1,38 @@
+## V3.6.8.2(Public release)
+
+### Features
+* Add SDK version information in the bin firmware.
+* Add CRC check to ensure the integrity of new firmware upgraded by OTA and bootstrap.
+* Update ADC and flash driver for 8258 with embedded zbit flash.
+* Add patches folder for other version to fix the flash writing issue(nv, ota...).
+### Bug Fixes
+* Fix NV storage issues and ensure the correctness of NV data.
+* Fix buffer free issue under specific conditions in touch link process.
+* Fix the issue that the paired link key may fail to recover after OTA.
+### Code Refactoring
+* N/A
+### Performance
+* Add RF busy check to avoid the error raw data.
+### BREAKING CHANGES
+* N/A
+
+### Features
+* 在bin固件中添加SDK版本信息。
+* 添加CRC检查以确保OTA和引导升级的新固件的完整性。
+* 为内嵌zbit Flash的8258芯片更新ADC和Flash驱动。
+* 添加pacthes目录，针对其他版本修复flash相关问题。
+### Bug Fixes
+* 修复NV存储问题并确保NV数据的正确性。
+* 修复Touch Link过程中在特定条件下buffer释放异常的问题。
+* 修复OTA后配对链接密钥可能恢复失败的问题。
+### Code Refactoring
+* N/A
+### Performance
+* 添加RF忙标志检查避免错误的原始数据。
+### BREAKING CHANGES
+* N/A
+
+
 ## V3.6.8.1(Public release)
 
 ### Features
