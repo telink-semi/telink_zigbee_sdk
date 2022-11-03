@@ -262,11 +262,11 @@ class ParseRecvCommand:
         src_addr, seq_num, status, ieee_addr, nwk_adds_interest = struct.unpack("!H2BQH", bytes_data[:14])
         self.recv_status = ai_setting.get_zdp_msg_status_str(status)
         self.description = 'seq_num:' + hex(seq_num) + ' status:' + hex(status) + '(' + self.recv_status + ')' + \
-                           ' ieee_addr:' + hex(ieee_addr) + ' nwk_adds_interest:0x%04x' % nwk_adds_interest
+                           ' ieee_addr: 0x%016x' % ieee_addr + ' nwk_adds_interest:0x%04x' % nwk_adds_interest
         self.payload_items = ['\tsrc_addr:0x%04x' % src_addr,
                               '\tseq_num:' + hex(seq_num),
                               '\tstatus:' + hex(status) + '(' + self.recv_status + ')',
-                              '\tieee_addr: 0x%08x' % ieee_addr,
+                              '\tieee_addr: 0x%016x' % ieee_addr,
                               '\tnwk_adds_interest: 0x%04x' % nwk_adds_interest]
 
         ptr = 14
@@ -446,14 +446,14 @@ class ParseRecvCommand:
         for a in range(neighbor_table_listcount):
             ext_pan_id, ieee_addr, nwk_addr, bit_field, depth, lqi = struct.unpack("!2Q2H2B", bytes_data[ptr:ptr + 22])
             ptr += 22
-            self.description += ' ext_pan_id: 0x%016x' % ext_pan_id + ' ieee_addr:0x%16x' % ieee_addr + \
+            self.description += ' ext_pan_id: 0x%016x' % ext_pan_id + ' ieee_addr:0x%016x' % ieee_addr + \
                                 ' nwk_addr: 0x%04x' % nwk_addr + ' bit_field:0x%04x' % bit_field + ' depth:' + \
                                 hex(depth) + ' lqi:' + hex(lqi)
             dev_type = get_node_dev_type((bit_field >> 8) & 0x03)
             relationship = get_relation_type((bit_field >> 12) & 0x07)
             self.payload_items.extend(['    list element:%d' % a,
-                                       '\text_pan_id:0x%16x' % ext_pan_id,
-                                       '\tieee_addr:0x%16x' % ieee_addr,
+                                       '\text_pan_id:0x%016x' % ext_pan_id,
+                                       '\tieee_addr:0x%016x' % ieee_addr,
                                        '\tnwk_addr: 0x%04x' % nwk_addr,
                                        '\tbit_field:0x%04x' % bit_field,
                                        '\t    dev_type:' + dev_type,
@@ -499,15 +499,15 @@ class ParseRecvCommand:
 
                 dst_mode = ai_setting.get_dst_addr_mode(dest_addr_mode)
                 self.payload_items.extend(['    List Element:%d' % a,
-                                           '\tieee source address:' + hex(src_ieee_addr),
+                                           '\tieee source address: 0x%016x' % src_ieee_addr,
                                            '\tsrc_endpoint: 0x%02x' % src_endpoint,
                                            '\tcluster_id: 0x%04x' % cluster_id,
                                            '\tdest_addr_mode:' + hex(dest_addr_mode) + '(' + dst_mode + ')'])
                 if dest_addr_mode == 3:
                     dst_addr, dest_endpoint = struct.unpack("!QB", bytes_data[ptr: ptr + 9])
                     ptr += 9
-                    self.description += ' dst_addr: 0x%16x' % dst_addr + ' dest_endpoint: 0x%02x' % dest_endpoint
-                    self.payload_items.extend(['\tdst_addr: 0x%16x' % dst_addr,
+                    self.description += ' dst_addr: 0x%016x' % dst_addr + ' dest_endpoint: 0x%02x' % dest_endpoint
+                    self.payload_items.extend(['\tdst_addr: 0x%016x' % dst_addr,
                                                '\tdest_endpoint: 0x%02x' % dest_endpoint])
                 else:
                     dst_addr, = struct.unpack("!H", bytes_data[ptr: ptr + 2])
@@ -585,11 +585,11 @@ class ParseRecvCommand:
         src_addr, seq_num, status, ieee_addr, rejoin = struct.unpack("!H2BQB", bytes_data)
         self.recv_status = ai_setting.get_zdp_msg_status_str(status)
         self.description = 'seq_num:' + hex(seq_num) + ' status:' + hex(status) + '(' + self.recv_status + ')' + \
-                           ' ieee_addr:0x%16x' % ieee_addr + ' rejoin:' + hex(rejoin)
+                           ' ieee_addr:0x%016x' % ieee_addr + ' rejoin:' + hex(rejoin)
         self.payload_items = ['\tsrc_addr:0x%04x' % src_addr,
                               '\tseq_num:' + hex(seq_num),
                               '\tstatus:' + hex(status) + '(' + self.recv_status + ')',
-                              '\tieee_addr:0x%16x' % ieee_addr,
+                              '\tieee_addr:0x%016x' % ieee_addr,
                               '\trejoin:' + hex(rejoin)]
         if ieee_addr in nodes_info and not rejoin:
             self.nodes_info_change = True
@@ -619,8 +619,8 @@ class ParseRecvCommand:
             for a in range(list_count):
                 ext_addr, short_addr = struct.unpack("!QH", bytes_data[ptr:ptr + 10])
                 ptr += 10
-                self.description += ' ieee_addr:0x%16x' % ext_addr + ' short_addr:0x%04x' % short_addr
-                self.payload_items.append('\tieee_addr:' + hex(ext_addr) + ' short_addr:0x%04x' % short_addr)
+                self.description += ' ieee_addr:0x%016x' % ext_addr + ' short_addr:0x%04x' % short_addr
+                self.payload_items.append('\tieee_addr:0x%016x' % ext_addr + ' short_addr:0x%04x' % short_addr)
                 self.nodes_info_change = True
                 self.get_joined_nodes.append(ext_addr)
                 if ext_addr not in nodes_info:
@@ -672,10 +672,10 @@ class ParseRecvCommand:
         nodes_info[ieee_addr]['nwk_addr'] = nwk_addr
         nodes_info[ieee_addr]['dev_type'] = node_type
 
-        self.description = 'nwk_addr: 0x%04x' % nwk_addr + ' ieee_addr:0x%16x' % ieee_addr + \
+        self.description = 'nwk_addr: 0x%04x' % nwk_addr + ' ieee_addr:0x%016x' % ieee_addr + \
                            ' capability:' + hex(node_cap) + ' dev_type:' + node_type
         self.payload_items = ['\tnwk_addr: 0x%04x' % nwk_addr,
-                              '\tieee_addr:0x%16x' % ieee_addr,
+                              '\tieee_addr:0x%016x' % ieee_addr,
                               '\tcapability:' + hex(node_cap),
                               '\tdev_type:' + node_type]
         self.recv_nwk_addr = nwk_addr
@@ -728,7 +728,7 @@ class ParseRecvCommand:
         dev_type_str = get_node_dev_type(dev_type)
         self.description = 'dev_type:' + dev_type_str + ' capability' + hex(capability) + \
                            ' node_onnetwork:%x' % onnetwork + ' panid:' + hex(panid) + ' ext_panid:' + hex(ext_panid) \
-                           + ' network_addr:' + hex(nwk_addr) + ' ieee_addr:0x%16x' % ieee_addr
+                           + ' network_addr:' + hex(nwk_addr) + ' ieee_addr:0x%016x' % ieee_addr
 
         self.payload_items = ['\tdev_type:' + dev_type_str,
                               '\tcapability:' + hex(capability),
@@ -736,7 +736,7 @@ class ParseRecvCommand:
                               '\tpanid: 0x%04x' % panid,
                               '\text_panid: 0x%016x' % ext_panid,
                               '\tnetwork_addr: 0x%04x' % nwk_addr,
-                              '\tieee_addr:0x%16x' % ieee_addr]
+                              '\tieee_addr:0x%016x' % ieee_addr]
 
         # print('onnetwork' + str(onnetwork))
         if onnetwork:
@@ -1173,9 +1173,9 @@ class ParseRecvCommand:
         elif dst_mode == 3:  # APS_LONG_DSTADDR_WITHEP
             dst_addr, src_endpoint, dst_endpoint = struct.unpack("!QBB", bytes_data[ptr:ptr + 10])
             ptr += 10
-            self.description += ' dst_addr: 0x%16x' % dst_addr + ' src_endpoint: 0x%02x' % src_endpoint + \
+            self.description += ' dst_addr: 0x%016x' % dst_addr + ' src_endpoint: 0x%02x' % src_endpoint + \
                                 ' dst_endpoint: 0x%02x' % dst_endpoint
-            self.payload_items.extend(['\tdst_addr: 0x%16x' % dst_addr,
+            self.payload_items.extend(['\tdst_addr: 0x%016x' % dst_addr,
                                        '\tsrc_endpoint: 0x%02x' % src_endpoint,
                                        '\tdst_endpoint: 0x%02x' % dst_endpoint])
         self.addr_mode = dst_mode
@@ -1199,15 +1199,15 @@ class ParseRecvCommand:
     def hci_mac_addr_ind_handle(self, payload):
         bytes_data = bytearray(payload)
         ieee_addr, = struct.unpack("!Q", bytes_data)
-        self.description = 'ieee_addr:0x%16x' % ieee_addr
-        self.payload_items = ['\tieee_addr:0x%16x' % ieee_addr]
+        self.description = 'ieee_addr:0x%016x' % ieee_addr
+        self.payload_items = ['\tieee_addr:0x%016x' % ieee_addr]
 
     def hci_node_leave_ind_handle(self, payload, nodes_info):
         bytes_data = bytearray(payload)
         total_cnt, ieee_addr = struct.unpack("!HQ", bytes_data)
-        self.description = 'total_cnt:' + hex(total_cnt) + ' ieee_addr:0x%16x' % ieee_addr
+        self.description = 'total_cnt:' + hex(total_cnt) + ' ieee_addr:0x%016x' % ieee_addr
         self.payload_items = ['\ttotal_cnt:' + hex(total_cnt),
-                              '\tieee_addr:0x%16x' % ieee_addr]
+                              '\tieee_addr:0x%016x' % ieee_addr]
         if ieee_addr in nodes_info:
             self.nodes_info_change = True
             nodes_info[ieee_addr]['used_nwk_addr'].append(nodes_info[ieee_addr]['nwk_addr'])
@@ -1407,8 +1407,8 @@ class ParseSendCommand:
     def hci_bdb_bdb_preinstall_code_parse(self, payload):
         bytes_data = bytearray(payload)
         ieee_addr, = struct.unpack("!Q", bytes_data[:8])
-        self.description += 'ieee_addr: ' + hex(ieee_addr)
-        self.parse_items.append('\tieee_addr: ' + hex(ieee_addr))
+        self.description += 'ieee_addr: 0x%016x'% ieee_addr
+        self.parse_items.append('\tieee_addr: 0x%016x' % ieee_addr)
         install_code, = struct.unpack("!16s", bytes_data[8:])
         install_code_str = '0x'
         for a in range(16):
@@ -1433,8 +1433,8 @@ class ParseSendCommand:
     def hci_bdb_bdb_node_delete_parse(self, payload):
         bytes_data = bytearray(payload)
         ieee_addr, = struct.unpack("!Q", bytes_data)
-        self.description += 'ieee_addr: ' + hex(ieee_addr)
-        self.parse_items.append('\tieee_addr: ' + hex(ieee_addr))
+        self.description += 'ieee_addr: 0x%016x' % ieee_addr
+        self.parse_items.append('\tieee_addr: 0x%016x' % ieee_addr)
 
     def hci_bdb_bdb_txpower_set_parse(self, payload):
         bytes_data = bytearray(payload)
@@ -1580,10 +1580,10 @@ class ParseSendCommand:
         bytes_data = bytearray(payload)
         dst_addr, ieee_addr, rejoin, children_leave = struct.unpack("!HQ2B", bytes_data)
         self.parse_items.append('\tdst_addr: 0x%04x' % dst_addr)
-        self.parse_items.append('\tieee_addr: ' + hex(ieee_addr))
+        self.parse_items.append('\tieee_addr: 0x%016x' % ieee_addr)
         self.parse_items.append('\trejoin: ' + hex(rejoin))
         self.parse_items.append('\tchildren_leave: ' + hex(children_leave))
-        self.description += 'ieee_addr: ' + hex(ieee_addr) + 'rejoin: ' + hex(rejoin) + 'children_leave: ' + \
+        self.description += 'ieee_addr: 0x%016x' % ieee_addr + 'rejoin: ' + hex(rejoin) + 'children_leave: ' + \
                             hex(children_leave)
         self.send_dst_addr = dst_addr
         self.addr_mode = 2

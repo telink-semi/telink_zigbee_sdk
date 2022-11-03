@@ -159,6 +159,7 @@ class Settings:
             0xE1: 'MAC_STA_CHANNEL_ACCESS_FAILURE',
             0xE9: 'MAC_STA_NO_ACK',
             0xE5: 'MAC_STA_FRAME_TOO_LONG',
+            0xF0: 'MAC_STA_TRANSACTION_EXPIRED',
             0xF1: 'MAC_STA_TRANSACTION_OVERFLOW',
         }
 
@@ -327,6 +328,7 @@ class Settings:
             0x0020: 'GEN_POLL_CONTROL',
             0x0021: 'GEN_GREEN_POWER',
             0x0025: 'GEN_KEEP_ALIVE',
+            0x003d: 'GEN_ZBD',
             0x0B05: 'GEN_DIAGNOSTICS',
 
             0x0100: 'CLOSURES_SHADE_CONFIG',

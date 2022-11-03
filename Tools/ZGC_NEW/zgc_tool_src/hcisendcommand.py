@@ -49,19 +49,27 @@ def line_edit_str2int(input_len, input_s):
     convert_cnt = 0
     if input_s != '' and input_s[0:2] == '0x':
         input_s = input_s[2:].strip()  # 把前后的空格去掉
-        while input_s != '':
-            try:
-                if len(input_s) < 2:
-                    num = int(input_s[0:1], 16)
-                else:
-                    num = int(input_s[0:2], 16)
-            except ValueError:
-                covert_result = False
-                break
-            input_s = input_s[2:].strip()  # 把前后的空格去掉
-            # print(input_s)
-            send_list.append(num)
-            convert_cnt += 1
+        if len(input_s) <= 2 * input_len :
+            addStr = ''
+            for n in range(2*input_len - len(input_s)):
+                addStr += '0'
+            input_s = addStr + input_s
+
+            while input_s != '':
+                try:
+                    if len(input_s) < 2:
+                        num = int(input_s[0:1], 16)
+                    else:
+                        num = int(input_s[0:2], 16)
+                except ValueError:
+                    covert_result = False
+                    break
+                input_s = input_s[2:].strip()  # 把前后的空格去掉
+                # print(input_s)
+                send_list.append(num)
+                convert_cnt += 1
+        else:
+            covert_result = False
     else:
         covert_result = False
 
@@ -498,7 +506,7 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
                             # print("self.CsvFiles.joined_nodes_info:" + str(len(self.CsvFiles.joined_nodes_info)))
                             for node in self.CsvFiles.joined_nodes_info:
                                 index += 1
-                                self.getJoindNodeListWidget.addItem('%04d:' % index + '  ' + hex(node) +
+                                self.getJoindNodeListWidget.addItem('%04d:' % index + '  ' + '0x%016x' % node +
                                                                     ' (0x%04x)' % self.CsvFiles.joined_nodes_info[node])
                                 if self.CsvFiles.joined_nodes_info[node] == 0xfffe:
                                     has_no_nwkaddr = True
@@ -950,6 +958,8 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
 
         attr_id_s = self.lineEdit_readAttrAttrId.text()
         attr_id_cnt = int((len(attr_id_s) - 2) / 4)
+        if (len(attr_id_s) - 2) > 0 and attr_id_cnt == 0:
+            attr_id_cnt = 1
         attr_id = line_edit_str2int(attr_id_cnt * 2, attr_id_s)
         payload += struct.pack("!B%dB" % len(attr_id), attr_id_cnt, *attr_id)
         self.send_hci_command(0x0100, len(payload), payload)
@@ -967,6 +977,8 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
 
         attr_id_s = self.lineEdit_writeAttrAttrId.text()
         attr_id_cnt = int((len(attr_id_s) - 2) / 4)
+        if (len(attr_id_s) - 2) > 0 and attr_id_cnt == 0:
+            attr_id_cnt = 1
         attr_id = line_edit_str2int(attr_id_cnt * 2, attr_id_s)
         payload += struct.pack("!B%dB" % len(attr_id), attr_id_cnt, *attr_id)
 
@@ -1041,6 +1053,8 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
 
         attr_id_s = self.lineEdit_readReportCfgAttrId.text()
         attr_id_cnt = int((len(attr_id_s) - 2) / 4)
+        if (len(attr_id_s) - 2) > 0 and attr_id_cnt == 0:
+            attr_id_cnt = 1
         attr_id = line_edit_str2int(attr_id_cnt * 2, attr_id_s)
         payload += struct.pack("!2B%dB" % len(attr_id), attr_id_cnt, report_dir, *attr_id)
         self.send_hci_command(0x0103, len(payload), payload)

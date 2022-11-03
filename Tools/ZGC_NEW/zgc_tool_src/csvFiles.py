@@ -80,19 +80,23 @@ def choose_different_node(process_folder, nodes_addr, all_packets_filename):
     # ai_setting = Settings()
     open_flag = 1
 
-    packets_info = pd.read_csv(all_packets_file_path, encoding='utf-8')
-    for address in nodes_addr:
-        str_name = address[0]
-        for cell in address[1:]:
-            str_name += '-' + cell
-        write_node_file_path = process_folder + '/' + str_name + '.csv'
-        if os.path.exists(write_node_file_path):
-            # print(write_node_file_path)
+    file_list = os.listdir(process_folder)
+    for fileName in file_list:
+        if 'all_packets' not in fileName and 'nodes_info' not in fileName:
             try:
-                os.remove(write_node_file_path)
+                file_path_remove = process_folder + '/' + fileName
+                os.remove(file_path_remove)
             except PermissionError:
                 open_flag = 3
                 return open_flag
+
+    packets_info = pd.read_csv(all_packets_file_path, encoding='utf-8')
+    for address in nodes_addr:
+        str_name = address[0]
+        # print(address[0])
+        for cell in address[1:]:
+            str_name += '-' + cell
+        write_node_file_path = process_folder + '/' + str_name + '.csv'
 
         # print(all_packets_file_path)
         try:
@@ -373,7 +377,7 @@ class CsvFiles:
                     addr_str = ''
                     addrmode = ''
                     if command_info.addr_mode == 3:
-                        addr_str = "0x%16x" % command_addr
+                        addr_str = "0x%016x" % command_addr
                         addrmode = "0x%02x" % command_info.addr_mode
                     elif command_info.addr_mode == 0 or command_info.addr_mode == 1 or command_info.addr_mode == 2:
                         addr_str = "0x%04x" % command_addr
@@ -399,12 +403,16 @@ class CsvFiles:
         return write_result
 
     def save_node_info(self, process_folder):
-        nodes_info_file_path = process_folder + '/' + 'nodes_info' + '.csv'
+        nodes_info_file_path = process_folder + '/' + 'nodes_info.csv'
         with open(nodes_info_file_path, 'w', encoding='utf-8', newline='') as write_file:
             writer = csv.writer(write_file)
             writer.writerow(['ieee_addr', 'nwk_addr', 'dev_type'])
+            # print(self.nodes_info)
             for info in self.nodes_info:
-                load_list = [hex(info)]
+                # print('hex(info):::')
+                # print('0x%016x' % info)
+                # load_list = [hex(info)]
+                load_list = ['0x%016x' % info]
                 if 'nwk_addr' in self.nodes_info[info]:
                     load_list.append('0x%04x' % (self.nodes_info[info]['nwk_addr']))
                 else:
