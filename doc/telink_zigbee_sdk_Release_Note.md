@@ -20,7 +20,7 @@
 * 在bin固件中添加SDK版本信息。
 * 添加CRC检查以确保OTA和引导升级的新固件的完整性。
 * 为内嵌zbit Flash的8258芯片更新ADC和Flash驱动。
-* 添加pacthes目录，针对其他版本修复flash相关问题。
+* 添加patches目录，针对其他版本修复flash相关问题。
 ### Bug Fixes
 * 修复NV存储问题并确保NV数据的正确性。
 * 修复Touch Link过程中在特定条件下buffer释放异常的问题。
