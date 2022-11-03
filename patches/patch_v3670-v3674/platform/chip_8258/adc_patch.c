@@ -115,7 +115,7 @@ _attribute_ram_code_ unsigned int adc_get_result_with_fluct(unsigned int *v){
 
 	adc_vol_mv  = (adc_result * adc_pre_scale*adc_vref_cfg.adc_vref)>>13;
 
-	*v = (((adc_sample[ADC_PATCH_SAMPLE_NUM] - adc_sample[0]) * adc_pre_scale*adc_vref_cfg.adc_vref)>>13);
+	*v = (((adc_sample[ADC_PATCH_SAMPLE_NUM-1] - adc_sample[0]) * adc_pre_scale*adc_vref_cfg.adc_vref)>>13);
 
 	return adc_vol_mv;
 }
