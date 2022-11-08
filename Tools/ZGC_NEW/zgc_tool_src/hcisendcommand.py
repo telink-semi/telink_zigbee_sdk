@@ -419,7 +419,7 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
             for node in self.CsvFiles.joined_nodes_info:
                 index += 1
                 if node in self.CsvFiles.nodes_info:
-                    self.getJoindNodeListWidget.addItem('%04d:' % index + '  ' + hex(node) +
+                    self.getJoindNodeListWidget.addItem('%04d:' % index + '  ' + '0x%016x' % node +
                                                         ' (0x%04x)' % self.CsvFiles.nodes_info[node]['nwk_addr'])
             self.CsvFiles.joined_nodes_info = {}
             self.getNwkAddrTimer.stop()

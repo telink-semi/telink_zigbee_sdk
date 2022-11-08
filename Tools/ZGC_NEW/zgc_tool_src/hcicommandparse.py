@@ -1697,7 +1697,7 @@ class ParseSendCommand:
             self.description += ' dst_addr:0x%016x' % dst_addr
             self.send_dst_addr = dst_addr
             self.addr_mode = 3
-        if dst_mode == 'group' or dst_mode == 'short' or dst_mode == 'broadcast' or dst_addr_mode == 'short_no_ack':
+        elif dst_mode == 'group' or dst_mode == 'short' or dst_mode == 'broadcast' or dst_addr_mode == 'short_no_ack':
             dst_addr, = struct.unpack("!H", bytes_data[ptr: ptr + 2])
             ptr += 2
             self.parse_items.append('\tdst_addr: 0x%04x' % dst_addr)
