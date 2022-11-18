@@ -132,6 +132,7 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         self.zcl_color_init()
         self.zcl_identify_init()
         self.zcl_scene_init()
+        self.zcl_zbd_init()
         self.ota_init()
         self.af_test_init()
         self.hci_ota_init()
@@ -1387,6 +1388,10 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         self.pushButton_recallScene.clicked.connect(self.zcl_scene_recall_scene)
         self.pushButton_sceneGetMembership.clicked.connect(self.zcl_scene_get_membership)
 
+    def zcl_zbd_init(self):
+        self.pushButton_if_state_set.clicked.connect(self.zcl_zbd_set_interface_state)
+        self.pushButton_anj_timeout.clicked.connect(self.zcl_zbd_set_anj_timeout)
+
     def zcl_scene_add_scene(self):
         dst_mode_s = self.comboBox_addSceneDstMode.currentText()
         dst_addr_s = self.lineEdit_addSceneDstAddr.text()
@@ -1523,6 +1528,30 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         group_id = line_edit_str2int(2, group_id_s)
         payload += struct.pack("!%dB" % len(group_id), *group_id)
         self.send_hci_command(0x0166, len(payload), payload)
+
+    def zcl_zbd_set_interface_state(self):
+        dst_mode_s = self.comboBox_ifSetDstMode.currentText()
+        dst_addr_s = self.lineEdit_ifStateSetDstAddr.text()
+        src_ep_s = self.lineEdit_ifStateSrcEp.text()
+        dst_ep_s = self.lineEdit_ifStateDstEp.text()
+        payload = self.zcl_cluster_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s)
+
+        if_state_s = self.lineEdit_ifState.text()
+        if_state = line_edit_str2int(1, if_state_s)
+        payload += struct.pack("!%dB" % len(if_state), *if_state)
+        self.send_hci_command(0x0220, len(payload), payload)
+
+    def zcl_zbd_set_anj_timeout(self):
+        dst_mode_s = self.comboBox_anjTimeDstMode.currentText()
+        dst_addr_s = self.lineEdit_anjTimeDstAddr.text()
+        src_ep_s = self.lineEdit_anjTimeSrcEp.text()
+        dst_ep_s = self.lineEdit_anjTimeDstEp.text()
+        payload = self.zcl_cluster_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s)
+
+        anj_timeout_s = self.lineEdit_anjTime.text()
+        anj_timeout = line_edit_str2int(3, anj_timeout_s)
+        payload += struct.pack("!%dB" % len(anj_timeout), *anj_timeout)
+        self.send_hci_command(0x0221, len(payload), payload)
 
     def ota_init(self):
         self.pushButton_imageNotify.clicked.connect(self.ota_image_notify_send)

@@ -230,6 +230,8 @@ class ParseRecvCommand:
                 self.hci_ota_block_request_handle(payload)
             elif command_id == 0x8212:  # ZBHCI_CMD_OTA_END_STATUS
                 self.hci_ota_end_handle(ai_setting, payload)
+            elif command_id == 0x8220:  # 'ZBHCI_CMD_ZCL_ZDD_SET_STATE_RESPONSE',
+                self.hci_zcl_zbd_ifstate_response_handle(ai_setting, payload)
             else:
                 self.description = 'command not support!'
                 self.payload_items = ['command not support!']
@@ -1022,6 +1024,15 @@ class ParseRecvCommand:
         self.description += ' timeout:' + hex(timeout)
         self.payload_items.extend(['\ttimeout:' + hex(timeout) + '(s)'])
 
+    def hci_zcl_zbd_ifstate_response_handle(self, payload):
+        bytes_data = bytearray(payload)
+        ptr = self.parse_zcl_rsp_cmd_header(bytes_data)
+
+        preState, currState = struct.unpack("!2B", bytes_data[ptr: ptr + 2])
+        self.description += ' preState:' + hex(preState)
+        self.description += ' currState:' + hex(currState)
+        self.payload_items.extend(['\tpreState:' + hex(preState) + ',' + 'currState:' + hex(currState)])
+
     def hci_zcl_scene_add_rsp_handle(self, ai_setting, payload):
         bytes_data = bytearray(payload)
         ptr = self.parse_zcl_rsp_cmd_header(bytes_data)
@@ -1371,6 +1382,10 @@ class ParseSendCommand:
                 self.hci_ota_start_req_parse(payload)
             elif command_id == 0x0211:  # 'ZBHCI_CMD_OTA_BLOCK_RESPONSE',
                 self.hci_ota_block_response_parse(ai_setting, payload)
+            elif command_id == 0x0220:  # 'ZBHCI_CMD_ZCL_ZDD_SET_STATE',
+                self.hci_zcl_zbd_ifstate_set_parse(ai_setting, payload)
+            elif command_id == 0x0221:  # 'ZBHCI_CMD_ZCL_ZDD_SET_ANJ_TIME',
+                self.hci_zcl_zbd_anj_timeout_set_parse(ai_setting, payload)
             else:
                 self.parse_items.append('command not support!')
                 self.description = 'command not support!'
@@ -2116,6 +2131,21 @@ class ParseSendCommand:
             self.parse_items.append('\tsend_offset:' + hex(send_offset))
             self.parse_items.append('\tblock_len:' + hex(block_len))
             self.description += ' send_offset:' + hex(send_offset) + ' block_len:' + hex(block_len)
+
+    def hci_zcl_zbd_ifstate_set_parse(self, ai_setting, payload):
+        bytes_data = bytearray(payload)
+        ptr = self.hci_zcl_addr_resolve(ai_setting, bytes_data)
+        if_state, = struct.unpack("!B", bytes_data[ptr: ptr + 1])
+        self.parse_items.append('\tif_state: ' + hex(if_state))
+        self.description += ' if_state: ' + hex(if_state)
+
+    def hci_zcl_zbd_anj_timeout_set_parse(self, ai_setting, payload):
+        bytes_data = bytearray(payload)
+        ptr = self.hci_zcl_addr_resolve(ai_setting, bytes_data)
+        anj_timeout0, anj_timeout1, anj_timeout2 = struct.unpack("!3B", bytes_data[ptr: ptr + 3])
+        anj_timeout = (anj_timeout0 << 16) + (anj_timeout1 << 8) + anj_timeout2
+        self.parse_items.append('\tanj_timeout: ' + hex(anj_timeout))
+        self.description += ' anj_timeout: ' + hex(anj_timeout)
 
 
 def crc8_calculate(datatype, length, data):
