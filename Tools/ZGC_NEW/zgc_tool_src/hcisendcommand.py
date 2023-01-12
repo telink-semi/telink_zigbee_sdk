@@ -3,9 +3,9 @@ import os
 import copy
 import serial
 import serial.tools.list_ports
-from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QMessageBox, QFileDialog
-from PyQt5.QtCore import QTimer, QThread, pyqtSignal
+from PySide6 import QtWidgets
+from PySide6.QtWidgets import QMessageBox, QFileDialog
+from PySide6.QtCore import QTimer, QThread, Signal
 from mainwindow import Ui_MainWindow
 
 from datetime import datetime
@@ -97,9 +97,9 @@ def line_edit_str2hex_result(input_s):
     return covert_result, convert_data
 
 
-class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
+class Pyside6Serial(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self):
-        super(Pyqt5Serial, self).__init__()
+        super(Pyside6Serial, self).__init__()
         self.setupUi(self)  # 初始化UI到主窗口，主要是建立代码到UI之间的signal和slot
         self.setWindowTitle("ZGC TOOL")
         self.ser = serial.Serial()
@@ -189,6 +189,8 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         port_name_current = self.comboBox_portName.currentText()
         self.comboBox_portName.clear()
         for port in port_list:
+            if 'USB' not in port.description:
+                continue
             com_dict["%s" % port[0]] = "%s" % port[1]
             self.comboBox_portName.addItem(port[0])
 
@@ -1780,7 +1782,7 @@ class Pyqt5Serial(QtWidgets.QMainWindow, Ui_MainWindow):
 
 # 继承QThread，重写run方法
 class AnalizeWorkThread(QThread):
-    nodes_signals = pyqtSignal(int, str)  # 定义信号对象,传递值为str类型，使用int，可以为int类型
+    nodes_signals = Signal(int, str)  # 定义信号对象,传递值为str类型，使用int，可以为int类型
 
     def __init__(self, folder_path, csv):  # 向线程中传递参数，以便在run方法中使用
         super(AnalizeWorkThread, self).__init__()
@@ -1796,7 +1798,7 @@ class AnalizeWorkThread(QThread):
 
 # 继承QThread，重写run方法
 class ProcessWorkThread(QThread):
-    process_result = pyqtSignal(int, int)  # 定义信号对象,传递值为str类型，使用int，可以为int类型
+    process_result = Signal(int, int)  # 定义信号对象,传递值为str类型，使用int，可以为int类型
 
     def __init__(self, csv, folder_path, analyze_addr, analyze_interval, analyze_command):  # 向线程中传递参数，以便在run方法中使用
         super(ProcessWorkThread, self).__init__()

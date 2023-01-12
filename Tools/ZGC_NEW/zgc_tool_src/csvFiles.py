@@ -603,7 +603,7 @@ class CsvFiles:
         # print('self.create_folder_path:{}'.format(self.create_folder_path))
         file_read_result, nodes_addrs = get_nodes_addr(process_folder, self.all_packets_file_name)
         if len(nodes_addrs):
-            # print(nodes_addrs)
+            # print(f'get_nodes_addr,nodes_addrs:{nodes_addrs}')
             file_read_result = choose_different_node(process_folder, nodes_addrs, self.all_packets_file_name)
             # print('choose_different_node file_read_result:{}'.format(file_read_result))
             if file_read_result == 1:
