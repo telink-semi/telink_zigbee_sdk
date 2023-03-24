@@ -59,6 +59,10 @@ u8 APS_ACK_EXPIRY = 2;//seconds
 u8 ZB_BUF_POOL_SIZE = ZB_BUF_POOL_NUM;
 zb_buf_pool_t g_mPool;
 
+/* taskQ size */
+u8 ZB_TASKQ_USERUSE_SIZE = TL_ZBTASKQ_USERUSE_SIZE;
+tl_zbtaskq_user_t taskQ_user;
+
 /* for indirect pending queue */
 u8 ZB_MAC_PENDING_TRANS_QUEUE_SIZE = ZB_MAC_PENDING_TRANS_QUEUE_NUM;
 u8 ZB_MAC_EXT_EXPEIRY_CNT = ZB_MAC_INTERNAL_EXPIRY_CNT;
@@ -80,6 +84,11 @@ u8 NWK_NEIGHBOR_SEND_OUTGOING_THRESHOLD = 5;
 
 /* whether add src ieee address in nwk header for the data from higher level */
 bool NWK_HEADER_SRC_IEEE_INCLUDE = FALSE;
+
+/* whether a node on the nwk that transmits a Mgmt_permit_join is allowed */
+#if ZB_COORDINATOR_ROLE
+bool SS_ALLOW_REMOTE_TC_POLICY_CHANGE = TRUE;//FALSE;
+#endif
 
 /* address mapping table */
 u16 TL_ZB_NWK_ADDR_MAP_SIZE = TL_ZB_NWK_ADDR_MAP_NUM;
@@ -285,7 +294,6 @@ aps_binding_entry_t *bindTblEntryGet(void){
 u32 zbBufferSizeGet(void){
 	return (sizeof(g_mPool));
 }
-
 
 /*
  * @brief:		get the size of the neighbor table

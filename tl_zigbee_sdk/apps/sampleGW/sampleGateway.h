@@ -107,6 +107,7 @@ void sampleGW_devAnnHandler(zdo_device_annce_req_t *pDevAnnceReq);
 void sampleGW_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf);
 void sampleGW_leaveIndHandler(nlme_leave_ind_t *pLeaveInd);
 bool sampleGW_nwkUpdateIndicateHandler(nwkCmd_nwkUpdate_t *pNwkUpdateCmd);
+void sampleGW_permitJoinIndHandler(nlme_permitJoining_req_t *pPermitJoinReq);
 bool sampleGW_tcJoinIndHandler(zdo_tc_join_ind_t *pTcJoinInd);
 void sampleGW_tcFrameCntReachedHandler(void);
 

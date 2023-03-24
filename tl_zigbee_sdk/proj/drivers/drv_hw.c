@@ -232,6 +232,9 @@ startup_state_e drv_platform_init(void)
 #endif
 	}
 
+	/* Get calibration info to improve performance */
+	drv_calibration();
+
 	/* ADC */
 #if VOLTAGE_DETECT_ENABLE
 	voltage_detect_init(VOLTAGE_DETECT_ADC_PIN);
@@ -242,9 +245,6 @@ startup_state_e drv_platform_init(void)
 	/* RF */
 	ZB_RADIO_INIT();
 	ZB_TIMER_INIT();
-
-	/* Get calibration info to improve performance */
-	drv_calibration();
 
 #if defined(MCU_CORE_8258)
 	if(flash_is_zb()){

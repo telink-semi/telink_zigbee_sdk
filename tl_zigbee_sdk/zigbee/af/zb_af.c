@@ -232,14 +232,17 @@ _CODE_AF_ u8 af_simpleDescriptorCopy(u8 *dst, af_simple_descriptor_t *sd){
 	*ptr++ = sd->app_dev_ver & 0x0f;
 	*ptr++ = sd->app_in_cluster_count;
 
-	u8 copyLen = sd->app_in_cluster_count * 2;
-	memcpy(ptr, sd->app_in_cluster_lst, copyLen);
-	ptr += copyLen;
+	for(u8 i = 0; i < sd->app_in_cluster_count; i++){
+		*ptr++ = LO_UINT16(sd->app_in_cluster_lst[i]);
+		*ptr++ = HI_UINT16(sd->app_in_cluster_lst[i]);
+	}
 
 	*ptr++ = sd->app_out_cluster_count;
-	copyLen = sd->app_out_cluster_count * 2;
-	memcpy(ptr, sd->app_out_cluster_lst, copyLen);
-	ptr += copyLen;
+
+	for(u8 j = 0; j < sd->app_out_cluster_count; j++){
+		*ptr++ = LO_UINT16(sd->app_out_cluster_lst[j]);
+		*ptr++ = HI_UINT16(sd->app_out_cluster_lst[j]);
+	}
 
 	return (u8)(ptr - dst);
 }

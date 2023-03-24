@@ -56,7 +56,7 @@
 
 /* Pre-compiled link configuration. */
 #define IS_BOOT_LOADER_IMAGE				1
-#define RESV_FOR_APP_RAM_CODE_SIZE			0x4000
+#define RESV_FOR_APP_RAM_CODE_SIZE			0x2000
 #define IMAGE_OFFSET						BOOT_LOADER_IMAGE_ADDR
 
 #if !defined(BOOT_LOADER_MODE) || (BOOT_LOADER_MODE == 0)

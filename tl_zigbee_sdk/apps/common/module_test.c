@@ -166,51 +166,58 @@ void moduleTest_forUart(void){
 #define MODULE_TEST_NV		0
 
 #if MODULE_TEST_NV
+
+#define TEST_826x		0
+#define TEST_8258		1
+#define TEST_8278		2
+#define TEST_B91		3
+
+#define TEST_MODULE		TEST_8258//TEST_B91
+
+#if (TEST_MODULE == TEST_826x)
+	#define TEST_GPIO		GPIO_PB6
+#elif (TEST_MODULE == TEST_8258)
+	#define TEST_GPIO		GPIO_PA3
+#elif (TEST_MODULE == TEST_8278)
+	#define TEST_GPIO		GPIO_PA3
+#elif (TEST_MODULE == TEST_B91)
+	#define TEST_GPIO		GPIO_PB7
+#else
+	#error	"undefined TEST_MODULE"
+#endif
+
 enum{
-	TEST_ITEM1 = 0x30,
+	TEST_ITEM0 = 0x30,
+	TEST_ITEM1,
 	TEST_ITEM2,
-	TEST_ITEM3,
-	TEST_ITEM4,
-	TEST_ITEM5,
 };
 
-#define TEST_NV_ID1		  2
-#define TEST_NV_ID2		  3
-#define TEST_ITEM1_LEN    47
-#define TEST_ITEM2_LEN    5
-#define TEST_ITEM3_LEN    110
-#define TEST_ITEM4_LEN    200
-#define TEST_ITEM5_LEN    70
+typedef struct{
+	u32 cnt;
+	u8 data[16];
+}nv_test_buf_t;
 
-u8 test_item1[TEST_ITEM1_LEN];
-u8 test_item2[TEST_ITEM2_LEN];
-u8 test_item3[TEST_ITEM3_LEN];
-u8 test_item4[TEST_ITEM4_LEN];
-u8 test_item5[TEST_ITEM5_LEN];
+nv_test_buf_t nv_test_buf =
+{
+	.cnt = 0,
+	.data = {0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xaa,0xbb,0xcc,0xdd,0xee,0xff},
+};
 
-#define NV_TEST_FLAG_ADDR    0x78000
-
+u8 nv_test_buf_0[32] = {
+	0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xaa,0xbb,0xcc,0xdd,0xee,0xff,
+	0x01,0x12,0x23,0x34,0x45,0x56,0x67,0x78,0x89,0x9a,0xab,0xbc,0xcd,0xde,0xef,0xf0,
+};
+u8 nv_test_buf_1[200];
 u8 test_chk_buf[256];
-
-u8 nv_test_except[8] = {0};
-u32 T_frmCnt1 = 0;
-u32 T_frmCnt2 = 0;
-bool onToggle = 0;
-bool T_nvTestBufChg = 0;
-
-static void nv_data_exception(u16 itemId){
-	flash_write(0x78000, 2, (u8 *)&itemId);
-}
-
 
 static void nv_dataStoreSet(void){
 	u16 flag = 0x5a5a;
-	flash_write(NV_TEST_FLAG_ADDR+0x1000, 2, (u8 *)&flag);
+	flash_write(CFG_FACTORY_RST_CNT + 4, 2, (u8 *)&flag);
 }
 
 static bool nv_dataStoreCheck(void){
 	u16 flag = 0xffff;
-	flash_read(NV_TEST_FLAG_ADDR+0x1000, 2, (u8 *)&flag);
+	flash_read(CFG_FACTORY_RST_CNT + 4, 2, (u8 *)&flag);
 	if(flag != 0xffff){
 		return TRUE;
 	}else{
@@ -219,93 +226,54 @@ static bool nv_dataStoreCheck(void){
 }
 
 void moduleTest_NV(void){
-	nv_sts_t ret = NV_SUCC;
+	drv_gpio_func_set(TEST_GPIO);
+	drv_gpio_output_en(TEST_GPIO, 1); 		//enable output
+	drv_gpio_input_en(TEST_GPIO, 0);		//disable input
+	drv_gpio_write(TEST_GPIO, 1);           //LED On
 
-	drv_generateRandomData(test_item1, 16);
-	for(u32 i = 0; i < TEST_ITEM1_LEN; i++){
-		test_item1[i] = i*4 + 0;
-	}
-
-	drv_generateRandomData(test_item2, 16);
-	for(u32 i = 0; i < TEST_ITEM2_LEN; i++){
-		test_item2[i] = i*4 + 1;
-	}
-
-	drv_generateRandomData(test_item3, 16);
-	for(u32 i = 0; i < TEST_ITEM3_LEN; i++){
-		test_item3[i] = i*4 + 2;
-	}
-
-	drv_generateRandomData(test_item4, 16);
-	for(u32 i = 0; i < TEST_ITEM4_LEN; i++){
-		test_item4[i] = i*4 + 3;
-	}
-
-#if 1
-	if(!nv_dataStoreCheck()){
-		nv_flashWriteNew(1, TEST_NV_ID1, TEST_ITEM1, TEST_ITEM1_LEN, test_item1);
-		nv_flashWriteNew(1, TEST_NV_ID1, TEST_ITEM2, TEST_ITEM2_LEN, test_item2);
-		nv_flashWriteNew(1, TEST_NV_ID1, TEST_ITEM3, TEST_ITEM3_LEN, test_item3);
+	nv_sts_t ret = nv_flashReadNew(1, NV_MODULE_APP, TEST_ITEM0, sizeof(nv_test_buf_0), test_chk_buf);
+	if(ret != NV_SUCC){
+		if(nv_dataStoreCheck()){
+			while(1);
+		}
+		if(nv_flashWriteNew(1, NV_MODULE_APP, TEST_ITEM0, sizeof(nv_test_buf_0), nv_test_buf_0) != NV_SUCC){
+			while(1);
+		}
 		nv_dataStoreSet();
+	}else{
+		if(memcmp(nv_test_buf_0, test_chk_buf, sizeof(nv_test_buf_0))){
+			while(1);
+		}
 	}
-	//nv_flashWriteNew(1, TEST_NV_ID, TEST_ITEM4, TEST_ITEM4_LEN, TEST_ITEM4_LEN);
-#endif
 
 	while(1){
-		if(onToggle){
-			led_on(LED_POWER);
-		}else{
-			led_off(LED_POWER);
-		}
-		onToggle ^= 1;
-
-#if 1
-		/* check framecount */
-		nv_nwkFrameCountFromFlash(&T_frmCnt1);
-		nv_nwkFrameCountSaveToFlash(T_frmCnt1+1024);
-		nv_nwkFrameCountFromFlash(&T_frmCnt2);
-		if(T_frmCnt2-T_frmCnt1 > 1024){
-			nv_test_except[0]++;
-			nv_data_exception(NV_ITEM_NWK_FRAME_COUNT);
-			while(1);
-		}
-#endif
-
-		/* ID1 data operation */
-		if(nv_flashWriteNew(1, TEST_NV_ID1, TEST_ITEM4, TEST_ITEM4_LEN, test_item4) != NV_SUCC){
-			nv_test_except[1]++;
-			nv_data_exception(0x30);
-			while(1);
-		}
-		ret = nv_flashReadNew(1, TEST_NV_ID1, TEST_ITEM4, TEST_ITEM4_LEN, test_chk_buf);
-		if(ret != NV_SUCC){
-			nv_test_except[2]++;
-			nv_data_exception(0x31);
-			while(1);
-		}
-		if(memcmp(test_item4, test_chk_buf, TEST_ITEM4_LEN)){
-			nv_test_except[3]++;
-			nv_data_exception(0x32);
+		nv_test_buf.cnt++;
+		if(nv_flashWriteNew(1, NV_MODULE_APP, TEST_ITEM1, sizeof(nv_test_buf_t), (u8 *)&nv_test_buf) != NV_SUCC){
 			while(1);
 		}
 
-		/* ID2 data operation */
-		if(nv_flashWriteNew(1, TEST_NV_ID2, TEST_ITEM5, TEST_ITEM5_LEN, test_item5) != NV_SUCC){
-			nv_test_except[4]++;
-			nv_data_exception(0x33);
+		if(nv_flashReadNew(1, NV_MODULE_APP, TEST_ITEM1, sizeof(nv_test_buf_t), test_chk_buf) != NV_SUCC){
 			while(1);
 		}
-		ret = nv_flashReadNew(1, TEST_NV_ID2, TEST_ITEM5, TEST_ITEM5_LEN, test_chk_buf);
-		if(ret != NV_SUCC){
-			nv_test_except[5]++;
-			nv_data_exception(0x34);
+
+		if(memcmp((u8 *)&nv_test_buf, test_chk_buf, sizeof(nv_test_buf_t))){
 			while(1);
 		}
-		if(memcmp(test_item5, test_chk_buf, TEST_ITEM5_LEN)){
-			nv_test_except[6]++;
-			nv_data_exception(0x35);
+
+		drv_generateRandomData(nv_test_buf_1, sizeof(nv_test_buf_1));
+		if(nv_flashWriteNew(1, NV_MODULE_APP, TEST_ITEM2, sizeof(nv_test_buf_1), nv_test_buf_1) != NV_SUCC){
 			while(1);
 		}
+
+		if(nv_flashReadNew(1, NV_MODULE_APP, TEST_ITEM2, sizeof(nv_test_buf_1), test_chk_buf) != NV_SUCC){
+			while(1);
+		}
+
+		if(memcmp(nv_test_buf_1, test_chk_buf, sizeof(nv_test_buf_1))){
+			while(1);
+		}
+
+		gpio_toggle(TEST_GPIO);
 	}
 }
 #endif

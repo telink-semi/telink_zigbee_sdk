@@ -346,6 +346,10 @@ typedef struct{
 
 extern ss_info_base_t ss_ib;
 
+#if ZB_COORDINATOR_ROLE
+extern bool SS_ALLOW_REMOTE_TC_POLICY_CHANGE;
+#endif
+
 #define SS_IB()	ss_ib
 
 #if ZB_COORDINATOR_ROLE

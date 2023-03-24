@@ -79,7 +79,7 @@ const zdo_appIndCb_t appCbLst = {
 	sampleGW_leaveIndHandler,			//leave ind cb
 	sampleGW_leaveCnfHandler,			//leave cnf cb
 	sampleGW_nwkUpdateIndicateHandler,	//nwk update ind cb
-	NULL,								//permit join ind cb
+	sampleGW_permitJoinIndHandler,		//permit join ind cb
 	NULL,								//nlme sync cnf cb
 	sampleGW_tcJoinIndHandler,			//tc join ind cb
 	sampleGW_tcFrameCntReachedHandler,	//tc detects that the frame counter is near limit

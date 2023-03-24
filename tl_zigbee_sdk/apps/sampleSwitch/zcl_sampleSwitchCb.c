@@ -720,19 +720,16 @@ static status_t sampleSwitch_zclPollCtrlChkInRspCmdHandler(zcl_chkInRsp_t *pCmd)
 			}
 
 			fastPollTimeoutCnt = pCmd->fastPollTimeout;
+		}else{
+			fastPollTimeoutCnt = pPollCtrlAttr->fastPollTimeout;
+		}
 
+		if(fastPollTimeoutCnt){
+			sampleSwitch_zclSetFastPollMode(TRUE);
+			
 			if(zclFastPollTimeoutTimerEvt){
 				TL_ZB_TIMER_CANCEL(&zclFastPollTimeoutTimerEvt);
 			}
-		}else{
-			if(!zclFastPollTimeoutTimerEvt){
-				fastPollTimeoutCnt = pPollCtrlAttr->fastPollTimeout;
-			}
-		}
-
-		if(!zclFastPollTimeoutTimerEvt && fastPollTimeoutCnt){
-			sampleSwitch_zclSetFastPollMode(TRUE);
-			
 			zclFastPollTimeoutTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSwitch_zclFastPollTimeoutCb, NULL, fastPollTimeoutCnt * POLL_RATE_QUARTERSECONDS);
 		}
 	}else{

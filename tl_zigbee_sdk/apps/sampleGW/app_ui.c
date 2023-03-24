@@ -203,10 +203,15 @@ void buttonShortPressed(u8 btNum){
 		}
 	}else if(btNum == VK_SW2){
 		if(zb_isDeviceJoinedNwk()){
-			/* toggle local permit Joining */
 			u8 duration = zb_getMacAssocPermit() ? 0 : 180;
+#if 0
+			/* toggle local permit Joining */
 			zb_nlmePermitJoiningRequest(duration);
-
+#else
+			/* broadcast a Mgmt_permit_join_req is batter */
+			u8 sn = 0;
+			zb_mgmtPermitJoinReq(0xfffc, duration, 0x01, &sn, NULL);
+#endif
 			gpsCommissionModeInvork();
 		}
 	}

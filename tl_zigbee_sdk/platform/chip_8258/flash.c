@@ -141,9 +141,10 @@ _attribute_ram_code_sec_noinline_ void flash_mspi_read_ram(unsigned char cmd, un
  * @return 		none.
  * @note		important:  "data" must not reside at flash, such as constant string.If that case, pls copy to memory first before write.
  */
-_attribute_ram_code_sec_noinline_ void flash_mspi_write_ram(unsigned char cmd, unsigned long addr, unsigned char addr_en, unsigned char *data, unsigned long data_len)
+_attribute_ram_code_sec_noinline_ unsigned char flash_mspi_write_ram(unsigned char cmd, unsigned long addr, unsigned char addr_en, unsigned char *data, unsigned long data_len)
 {
 	unsigned char r = irq_disable();
+	unsigned char ret = 1;
 
 	flash_send_cmd(FLASH_WRITE_ENABLE_CMD);
 	flash_send_cmd(cmd);
@@ -156,6 +157,7 @@ _attribute_ram_code_sec_noinline_ void flash_mspi_write_ram(unsigned char cmd, u
 				flash_send_addr(addr);
 			}else{
 				data_len = 0;
+				ret = 0;
 			}
 		}else{
 			flash_send_addr(addr);
@@ -170,6 +172,8 @@ _attribute_ram_code_sec_noinline_ void flash_mspi_write_ram(unsigned char cmd, u
 	flash_wait_done();
 
 	irq_restore(r);
+
+	return ret;
 }
 
 /**
@@ -237,7 +241,9 @@ void flash_write_page(unsigned long addr, unsigned long len, unsigned char *buf)
 
 	do{
 		nw = len > ns ? ns :len;
-		flash_mspi_write_ram(FLASH_WRITE_CMD, addr, 1, buf, nw);
+		if(flash_mspi_write_ram(FLASH_WRITE_CMD, addr, 1, buf, nw) == 0){
+			break;
+		}
 		ns = PAGE_SIZE;
 		addr += nw;
 		buf += nw;

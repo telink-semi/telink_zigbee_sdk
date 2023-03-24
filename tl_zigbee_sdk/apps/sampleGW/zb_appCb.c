@@ -323,4 +323,25 @@ void sampleGW_tcFrameCntReachedHandler(void){
 	zb_tcUpdateNwkKey(&updateNwkKey);
 }
 
+/*********************************************************************
+ *
+ * @brief   Notification of permit join request.
+ *
+ * @param   pPermitJoinReq - permit join duration
+ *
+ * @return  None
+ */
+void sampleGW_permitJoinIndHandler(nlme_permitJoining_req_t *pPermitJoinReq){
+	/* When received a permit join request by TC, check the allowRemoteTcPolicyChange and
+	 * local status of permit join. If the allowRemoteTcPolicyChange is FALSE, and the
+	 * local status of permit join is FALSE too, the TC may broadcast a Mgmt_permit_join_req
+	 * with permitDuration = 0 to close the network. */
+	if(SS_ALLOW_REMOTE_TC_POLICY_CHANGE == FALSE){
+		if(zb_getMacAssocPermit() == FALSE){
+			u8 sn = 0;
+			zb_mgmtPermitJoinReq(0xfffc, 0, 0x01, &sn, NULL);
+		}
+	}
+}
+
 #endif  /* __PROJECT_TL_GW__ */

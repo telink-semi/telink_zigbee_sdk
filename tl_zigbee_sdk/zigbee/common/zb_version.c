@@ -1,7 +1,7 @@
 /********************************************************************************************************
- * @file    zb_version.h
+ * @file    zb_version.c
  *
- * @brief   This is the header file for zb_version
+ * @brief   This is the source file for zb_version
  *
  * @author  Zigbee Group
  * @date    2021
@@ -23,12 +23,6 @@
  *
  *******************************************************************************************************/
 
-#ifndef ZB_VERSION_H
-#define ZB_VERSION_H
+#include "includes/zb_version.h"
 
-#define SDK_VERSION_ID				v3.6.8.3
-
-#define	SDK_VERSION_(sdk_version)	"$$$zb_sdk_"#sdk_version"$$$"
-#define	SDK_VERSION(sdk_version)	SDK_VERSION_(sdk_version)
-
-#endif	/* ZB_VERSION_H */
+volatile __attribute__((section(".sdk_version"))) unsigned char sdk_version[] = {SDK_VERSION(SDK_VERSION_ID)};

@@ -63,9 +63,10 @@ typedef struct tl_zb_task_s{
 }tl_zb_task_t;
 
 typedef struct{
-	tl_zb_task_t evt[TL_ZBTASKQ_USERUSE_SIZE];
 	u8 wptr;
 	u8 rptr;
+	u8 rsv[2];
+	tl_zb_task_t evt[TL_ZBTASKQ_USERUSE_SIZE];
 }tl_zbtaskq_user_t;
 
 typedef struct{
@@ -77,6 +78,9 @@ typedef struct{
 }tl_zbtaskq_stack_t;
 
 #define	TL_QUEUE_HAS_SPACE(wptr, rptr, size)		((wptr - rptr) < (size))
+
+extern u8 ZB_TASKQ_USERUSE_SIZE;
+extern tl_zbtaskq_user_t taskQ_user;
 
 /**
    Initialize scheduler subsystem.

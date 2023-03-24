@@ -1459,13 +1459,13 @@ _CODE_BDB_ u8 bdb_networkFormationStart(void)
 	g_bdbAttrs.commissioningMode.findOrBind = 0;
 	g_bdbAttrs.commissioningMode.networkFormation = 1;
 
-#if ZB_COORDINATOR_ROLE
-	ss_securityModeSet(SS_SEMODE_CENTRALIZED);
-#else
 	if((!g_bdbAttrs.nodeIsOnANetwork)||(ZB_IEEE_ADDR_IS_INVALID(ss_ib.trust_center_address))){
+#if ZB_COORDINATOR_ROLE
+		ss_securityModeSet(SS_SEMODE_CENTRALIZED);
+#else
 		ss_securityModeSet(SS_SEMODE_DISTRIBUTED);
-	}
 #endif
+	}
 
 	return bdb_topLevelCommissioning(BDB_COMMISSIONING_ROLE_TARGET);
 }
