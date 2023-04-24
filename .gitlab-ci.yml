@@ -7,8 +7,8 @@ stages:
   - cov
   - fossid
   - plainPW_check
-  - misspellChecking
   - oss
+  - misspellChecking
 
 scc:
   stage: scc
@@ -145,6 +145,17 @@ plainPW_check:
     - result.txt
   when: manual
 
+oss:
+  tags:
+    - OSS
+  stage: oss
+  script:
+    - oss_checking .
+  artifacts:
+    paths:
+    - scan_result
+  when: manual
+
 misspellChecking:
   stage: misspellChecking
   tags:
@@ -157,13 +168,3 @@ misspellChecking:
     paths:
     - misspell_result.txt
     
-oss:
-  tags:
-    - OSS
-  stage: oss
-  script:
-    - oss_checking .
-  artifacts:
-    paths:
-    - scan_result
-  when: manual
