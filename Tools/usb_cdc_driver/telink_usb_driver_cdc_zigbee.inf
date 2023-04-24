@@ -3,7 +3,7 @@
 ;
 ; based on Windows USB CDC ACM Setup file
 ; Copyright (c) 2000 Microsoft Corporation
-; Copyright (C) 2009 Texas Instruments Inc
+
 
 [Version]
 Signature="$Windows NT$"
