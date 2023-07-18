@@ -1,3 +1,40 @@
+## V3.6.8.4(Public release)
+
+### Features
+* Update boot loader and application code.
+* Update drivers(drv_nv.c, drv_radio.h and .link files).
+### Bug Fixes
+* Fix associate join failure for a few devices in a large network.
+* Fix touch link issue.
+* Fix aps fragment data issue.
+* Fix the GP pairing issue.
+* Fix the global link key issue.
+* Fix misspell and this may cause naming changes to certain APIs and Structures.
+### Code Refactoring
+* N/A
+### Performance
+* N/A
+### BREAKING CHANGES
+* N/A
+
+### Features
+* 更新引导加载程序和应用程序代码。
+* 更新驱动程序（drv_nv.c、drv_radio.h和.link文件）。
+### Bug Fixes
+* 修复大型网络中少数设备关联入网失败的问题。
+* 修复touch link问题。
+* 修复aps数据分包的问题。
+* 修复GP配对的问题。
+* 修复global link key问题。
+* 修复拼写错误，这可能会导致某些API和数据结构的命名更改。
+### Code Refactoring
+* N/A
+### Performance
+* N/A
+### BREAKING CHANGES
+* N/A
+
+
 ## V3.6.8.3(Public release)
 
 ### Features
