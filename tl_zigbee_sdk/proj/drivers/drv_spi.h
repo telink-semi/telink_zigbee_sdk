@@ -112,7 +112,7 @@ void drv_spi_write(u8 *cmd, int cmdLen, u8 *data, int dataLen, u32 csPin);
  * @param[in]  cmdLen - length in byte of the command bytes
  * @param[out] data - pointer to the buffer that will cache the reading out data
  * @param[in]  dataLen - length in byte of the data need to read
- * @param[in]  csPin - the CS pin specifing the slave device
+ * @param[in]  csPin - the CS pin specifying the slave device
  * @return     none
  */
 void drv_spi_read(u8 *cmd, int cmdLen, u8 *data, int dataLen, u32 csPin);

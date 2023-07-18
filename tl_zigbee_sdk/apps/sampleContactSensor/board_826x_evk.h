@@ -64,6 +64,8 @@ extern "C" {
 #define PD5_OUTPUT_ENABLE			1
 #define PD5_INPUT_ENABLE			0
 
+#define LED_POWER					LED3
+
 #define	PM_WAKEUP_LEVEL		  		PM_WAKEUP_LEVEL_LOW
 
 //UART

@@ -48,17 +48,17 @@ const zdp_funcList_t g_zdpClientFunc[] = {
 	{DEVICE_ANNCE_CLID,					FALSE,	zdo_deviceAnnounceIndicate},
 	{PARENT_ANNCE_CLID,					FALSE,	zdo_parentAnnounceIndicate},
 #endif
-	{SYSTEM_SERVER_DISCOVERY_REQ_CLID,	FALSE,	zdo_SysServerDiscoveryIndiate},
+	{SYSTEM_SERVER_DISCOVERY_REQ_CLID,	FALSE,	zdo_SysServerDiscoveryIndicate},
 	{END_DEVICE_BIND_REQ_CLID,			FALSE,	zdo_endDeviceBindIndicate},
 	{BIND_REQ_CLID,						TRUE,	zdo_bindOrUnbindIndicate},
 	{UNBIND_REQ_CLID,                   TRUE,	zdo_bindOrUnbindIndicate},
-	{MGMT_LQI_REQ_CLID,					FALSE,	zdo_mgmtLqiIndictate},
+	{MGMT_LQI_REQ_CLID,					FALSE,	zdo_mgmtLqiIndicate},
 	{MGMT_BIND_REQ_CLID,               	FALSE,	zdo_mgmtBindIndicate},
 	{MGMT_LEAVE_REQ_CLID,               TRUE,	zdo_mgmtLeaveIndicate},
 #ifdef ZB_ROUTER_ROLE
 	{MGMT_PERMIT_JOINING_REQ_CLID,		FALSE,	zdo_mgmtPermitJoinIndicate},
 #endif
-	{MGMT_NWK_UPDATE_REQ_CLID,	    	FALSE,	zdo_mgmNwkUpdateIndicate}
+	{MGMT_NWK_UPDATE_REQ_CLID,	    	FALSE,	zdo_mgmtNwkUpdateIndicate}
 };
 
 

@@ -83,9 +83,9 @@ void usb_print_task(void){
 		u16 pLen = (msg->msgLen16H<<8) + msg->msgLen16L;
 		u16 msgType = (msg->msgType16H<<8) + msg->msgType16L;
 #if ZB_TEST_ENABLE
-		zbhciProcessIncommingSerialCmd(msgType, pLen, msg->pData);
+		zbhciProcessIncomingSerialCmd(msgType, pLen, msg->pData);
 #else
-		zbhciCmdHandler(msgType, pktLen, msg->pData);
+		zbhciCmdHandler(msgType, pLen, msg->pData);
 #endif
 		msg->startFlag = 0;
 	}

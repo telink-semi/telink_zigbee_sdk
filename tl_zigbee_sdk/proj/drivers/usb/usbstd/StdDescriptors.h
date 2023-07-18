@@ -62,7 +62,7 @@
 /** \name USB Configuration Descriptor Attribute Masks */
 //@{
 /** Mask for the reserved bit in the Configuration Descriptor's \c ConfigAttributes field, which must be set on all
- *  devices for historial purposes.
+ *  devices for historical purposes.
  */
 #define USB_CONFIG_ATTR_RESERVED          0x80
 /** Can be masked with other configuration descriptor attributes for a \ref USB_Descriptor_Configuration_Header_t

@@ -179,14 +179,14 @@ static bool uart_tx_done(void)
 	return ((myUartDriver.status == UART_STA_TX_DONE) ? TRUE : FALSE);
 }
 
-static bool uart_is_idel(void)
+static bool uart_is_idle(void)
 {
 	return ((myUartDriver.status == UART_STA_IDLE) ? TRUE : FALSE);
 }
 
 u8 drv_uart_tx_start(u8 *data, u32 len)
 {
-	if(!uart_is_idel()){
+	if(!uart_is_idle()){
 		while(!uart_tx_done());
 	}
 

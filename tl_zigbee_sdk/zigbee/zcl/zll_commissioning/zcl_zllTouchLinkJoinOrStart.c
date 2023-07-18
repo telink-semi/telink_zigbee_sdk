@@ -226,6 +226,7 @@ _CODE_ZCL_ void zcl_zllTouchLinkNetworkStartDirectJoin(void *arg){
 			}
 #endif
 		}
+
 		zcl_zllTouchLinkFinish(ZCL_ZLL_TOUCH_LINK_STA_SUCC);
 		return ;
 	}else{
@@ -391,18 +392,12 @@ _CODE_ZCL_ static void zcl_zllTouchLinNetworkStartRespCmdSend(void *arg){
 #ifdef ZB_ROUTER_ROLE
 	u32 status = (u32)arg;
 	zcl_zllTouchLinkNetworkStartReq_t *startParams = &g_zllTouchLink.networkStartInfo->params.networkStartCmd;
-	u8 tcAddr[8] = { 0 };
 	zcl_zllTouchLinkNetworkStartResp_t startResp = { 0 };
 
 	epInfo_t dstEp;
 	TL_SETSTRUCTCONTENT(dstEp, 0);
 
 	memcpy(&dstEp, &g_zllTouchLink.networkStartInfo->initiatorEpInfo, sizeof(epInfo_t));
-
-#ifdef ZB_SECURITY
-	memset(tcAddr, 0xff, 8);
-	ZB_IEEE_ADDR_COPY(ss_ib.trust_center_address, tcAddr);
-#endif
 
 	startResp.transId = g_zllTouchLink.transId;
 	startResp.status = (u8)status;
@@ -433,14 +428,14 @@ _CODE_ZCL_ static void zcl_zllTouchLinNetworkStartRespCmdSend(void *arg){
 
 
 /*
- * @fn      zcl_zllTouchLinkNetworkStartRequstProc
+ * @fn      zcl_zllTouchLinkNetworkStartRequestProc
  *
  * @brief	start active scan for touch link network start
  *
  * @param 	arg
  *
  */
-_CODE_ZCL_ void zcl_zllTouchLinkNetworkStartRequstHandler(u8 logicChannel){
+_CODE_ZCL_ void zcl_zllTouchLinkNetworkStartRequestHandler(u8 logicChannel){
 	/* if disable by application */
 	if(!g_zllTouchLink.startNetworkAllowed){
 		TL_SCHEDULE_TASK(zcl_zllTouchLinNetworkStartRespCmdSend, (void *)FAILURE);
@@ -458,7 +453,14 @@ _CODE_ZCL_ void zcl_zllTouchLinkNetworkStartRequstHandler(u8 logicChannel){
 	}
 }
 
+_CODE_ZCL_ static s32 zcl_zllRejoinStart(void *arg){
+	u8 chn = (u8)((u32)arg);
+	/* security join */
+	zb_rejoinSecModeSet(REJOIN_SECURITY);
+	zb_rejoinReq(1 << chn, zdo_cfg_attributes.config_nwk_scan_duration);
 
+	return -1;
+}
 
 /*
  * @fn      zcl_zllTouchLinkNetworkStartResponseProc
@@ -471,10 +473,9 @@ _CODE_ZCL_ void zcl_zllTouchLinkNetworkStartRequstHandler(u8 logicChannel){
 _CODE_ZCL_ s32 zcl_zllTouchLinkNetworkStartResponseHandler(void *arg){
 	zcl_zllTouchLinkNetworkStartResp_t *p = (zcl_zllTouchLinkNetworkStartResp_t *)arg;
 	if(p->status == SUCCESS){
-		/* security join */
 		g_zbMacPib.rxOnWhenIdle = g_zllTouchLink.zbInfo.bf.rxOnWihleIdle;
-		zb_rejoinSecModeSet(REJOIN_SECURITY);
-		zb_rejoinReq(1 << (p->logicalChannel), zdo_cfg_attributes.config_nwk_scan_duration);
+		//wait for target's network is formed
+		TL_ZB_TIMER_SCHEDULE(zcl_zllRejoinStart, (void *)((u32)p->logicalChannel), 3 * 1000);
 	}else{
 		zcl_zllTouchLinkFinish(ZCL_ZLL_TOUCH_LINK_STA_NO_SERVER);
 	}
@@ -598,12 +599,13 @@ _CODE_ZCL_ void zcl_zllTouchLinkNetworkStartOrJoin(void *arg){
 		u8 selfForm = 0;
 		if(g_zllTouchLink.zbInfo.bf.logicDevType == DEVICE_TYPE_ROUTER){
 			/* start new network */
+			g_zllTouchLink.state = ZCL_ZLL_COMMISSION_STATE_TOUCHLINK_DISCOVERY;
 			touchlink_discovery_network(ZB_ZLL_PRIMARY_CHANNELS_MASK);
-			//zcl_zllTouchLinkNetworkStartRequstHandler();
+			//zcl_zllTouchLinkNetworkStartRequestHandler();
 			selfForm = 1;
 		}else{
 			/*
-			 * return error if the target is end devicec for factory new device.
+			 * return error if the target is end device for factory new device.
 			 *
 			 * */
 			if( peerInfo->zbInfo.bf.logicDevType == DEVICE_TYPE_END_DEVICE){

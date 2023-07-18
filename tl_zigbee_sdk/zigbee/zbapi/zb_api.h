@@ -685,7 +685,7 @@ u8 zb_apsmeSwitchKeyReq(ss_apsmeSwitchKeyReq_t *pSwitchKeyReq);
  * @brief		API for Trust center to update NWK key.
  *
  * @param[in]	pTcUpdateNwkKey
- * 				dstAddr all zero means boradcast.
+ * 				dstAddr all zero means broadcast.
  *
  * @return		Status
  *

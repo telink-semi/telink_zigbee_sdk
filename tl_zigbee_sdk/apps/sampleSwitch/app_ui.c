@@ -59,18 +59,17 @@ void led_off(u32 pin)
 
 void light_on(void)
 {
-	led_on(LED1);
+	led_on(LED_POWER);
 }
 
 void light_off(void)
 {
-	led_off(LED1);
+	led_off(LED_POWER);
 }
 
 void light_init(void)
 {
-	led_off(LED1);
-
+	led_off(LED_POWER);
 }
 
 s32 zclLightTimerCb(void *arg)
@@ -137,7 +136,6 @@ void light_blink_stop(void)
  * @brief	Button click detect:
  * 			SW1. keep press button1 5s === factory reset
  * 			SW1. short press button1   === send level step with OnOff command (Up)
- * 			SW2. keep press button2 5s === invoke EZ-Mode
  * 			SW2. short press button2   === send level step with OnOff command (Down)
  *
  */

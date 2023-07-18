@@ -49,7 +49,7 @@
 
 /*** Foundation Command IDs ***/
 /** @addtogroup zcl_foundationCmd_id ZCL Foundation Command Ids
- * Idenitfy of ZCL Foundation Commands
+ * Identify of ZCL Foundation Commands
  * @{
  */
 #define ZCL_CMD_READ                                    0x00  
@@ -163,7 +163,7 @@ typedef struct zclHdr
 } zclHdr_t;
 
 /**
- *  @brief  Definition for ZCL Read Attribute comamnd format
+ *  @brief  Definition for ZCL Read Attribute command format
  */
 typedef struct
 {
@@ -281,7 +281,7 @@ typedef struct
 } zclReadReportCfgRec_t;
 
 /**
- *  @brief  Definition for ZCL read report configuration comand format
+ *  @brief  Definition for ZCL read report configuration command format
  */
 typedef struct
 {
@@ -318,7 +318,7 @@ typedef struct
  */
 typedef struct
 {
-	u16 attrID;                //!< atrribute ID
+	u16 attrID;                //!< attribute ID
 	u8  dataType;              //!< attribute data type
 	u8  *attrData;             //!< this structure is allocated, so the data is HERE
 } zclReport_t;
@@ -496,7 +496,7 @@ typedef status_t (*cluster_cmdHdlr_t)(zclIncoming_t *pInHdlrMsg);
 
 
 /**
- *  @brief  Definition for function pointer type to register a clutser.
+ *  @brief  Definition for function pointer type to register a cluster.
  */
 typedef status_t (*cluster_registerFunc_t)(u8 endpoint, u16 manuCode, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
 

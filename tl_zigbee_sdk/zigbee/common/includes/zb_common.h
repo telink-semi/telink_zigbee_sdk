@@ -285,7 +285,7 @@ enum{
 
 #define ZB_SEC_KEY_IS_NULL						ZB_IS_16BYTE_SECURITY_KEY_ZERO
 
-#define ZB_MAC_FRAME_HEADER						9
+#define ZB_MAC_FRAME_HEADER						(9 + 2)
 #define ZB_NWK_FRAME_HEADER						(8 + NWK_MAX_SOURCE_ROUTE * 2 + 14 + 4)
 #define ZB_APS_FRAME_HEADER						10
 

@@ -373,22 +373,22 @@ s32 rxtx_performance_result_start(void *arg){
 
 	memset((u8 *)&g_afTestReq, 0, sizeof(zbhci_afTestReq_t));
 
-	g_afTestReq.performaceTestTmrEvt = NULL;
+	g_afTestReq.performanceTestTmrEvt = NULL;
 	return -1;
 }
 
 void zbhciAfDataPerformanceResultPush(void){
 #if AF_TEST_ENABLE
-	if(!g_afTestReq.performaceTest){
+	if(!g_afTestReq.performanceTest){
 		return;
 	}
 
 	g_afTestReq.rcvTotalCnt++;
 
-	if(g_afTestReq.performaceTestTmrEvt){
-		TL_ZB_TIMER_CANCEL(&g_afTestReq.performaceTestTmrEvt);
+	if(g_afTestReq.performanceTestTmrEvt){
+		TL_ZB_TIMER_CANCEL(&g_afTestReq.performanceTestTmrEvt);
 	}
-	g_afTestReq.performaceTestTmrEvt = TL_ZB_TIMER_SCHEDULE(rxtx_performance_result_start, NULL, 1000);
+	g_afTestReq.performanceTestTmrEvt = TL_ZB_TIMER_SCHEDULE(rxtx_performance_result_start, NULL, 1000);
 #endif
 }
 
@@ -396,7 +396,7 @@ void zbhciAfDataRcvIndPush(void *arg){
 #if AF_TEST_ENABLE
 	apsdeDataInd_t *pApsdeInd = (apsdeDataInd_t *)arg;
 
-	if(g_afTestReq.performaceTest){
+	if(g_afTestReq.performanceTest){
 		return;
 	}
 
@@ -770,7 +770,7 @@ s32 node_toggle_unicast_test(void *arg){
 	}
 
 	if(i >= itemInfo.opIndex){
-		zbhciTx(ZBHCI_CMD_NODES_TOGLE_TEST_RSP, 0, NULL);
+		zbhciTx(ZBHCI_CMD_NODES_TOGGLE_TEST_RSP, 0, NULL);
 
 		startIdx = 0;
 		onOff ^= 1;
@@ -908,7 +908,7 @@ s32 zbhci_nodeManageCmdHandler(void *arg){
 			ev_buf_free((u8 *)rsp);
 		}
 #endif
-	}else if(cmdID == ZBHCI_CMD_NODES_TOGLE_TEST_REQ){
+	}else if(cmdID == ZBHCI_CMD_NODES_TOGGLE_TEST_REQ){
 #if ZB_COORDINATOR_ROLE
 		u32 mode = *p;
 		u8 interval = *(p+1);
@@ -926,9 +926,9 @@ s32 zbhci_nodeManageCmdHandler(void *arg){
 #endif
 	}else if(cmdID == ZBHCI_CMD_TXRX_PERFORMANCE_TEST_REQ){
 #if AF_TEST_ENABLE
-		if(!g_afTestReq.performaceTest){
+		if(!g_afTestReq.performanceTest){
 			memset((u8 *)&g_afTestReq, 0, sizeof(zbhci_afTestReq_t));
-			g_afTestReq.performaceTest = 1;
+			g_afTestReq.performanceTest = 1;
 			txrx_performce_test_req_t *txrxTest = (txrx_performce_test_req_t *)ev_buf_allocate(sizeof(txrx_performce_test_req_t));
 			if(txrxTest){
 				memcpy(txrxTest, p, sizeof(txrx_performce_test_req_t));
@@ -1177,7 +1177,7 @@ void zbhciCmdHandler(u16 msgType, u16 msgLen, u8 *p){
 				break;
 
 			case ZBHCI_CMD_NODES_JOINED_GET_REQ:
-			case ZBHCI_CMD_NODES_TOGLE_TEST_REQ:
+			case ZBHCI_CMD_NODES_TOGGLE_TEST_REQ:
 			case ZBHCI_CMD_TXRX_PERFORMANCE_TEST_REQ:
 			case ZBHCI_CMD_AF_DATA_SEND_TEST_REQ:
 			case ZBHCI_CMD_GET_LOCAL_NWK_INFO_REQ:

@@ -516,7 +516,7 @@ typedef struct{
 typedef struct{
 	mac_panDesc_t   panDesc;             //!< The PAN Descriptor for the received beacon
 	u8              *pAddrList;          //!< The list of device addresses for which the sender of the beacon has data
-	u8              *psdu;             //!< The beacon payload
+	u8              *psdu;				 //!< The beacon payload
 	u8              bsn;                 //!< Beacon Sequence Number
 	u8              pendAddrSpec;        //!< The beacon pending address specification
 	u8              psduLength;          //!< Number of octets contained in the beacon payload of the beacon frame
@@ -793,12 +793,12 @@ typedef struct{
  * status for processing the indirect data
  */
 enum{
-	ZB_INDRECT_IDLE,
-	ZB_INDRECT_ASSOCIATE,
-	ZB_INDRECT_POLL,
-	ZB_INDRECT_ASSOCIATE_RESPONSE,
-	ZB_INDRECT_MCPS_DATA,
-	ZB_INDRECT_DISASSOCIATE_NOTIFY
+	ZB_INDIRECT_IDLE,
+	ZB_INDIRECT_ASSOCIATE,
+	ZB_INDIRECT_POLL,
+	ZB_INDIRECT_ASSOCIATE_RESPONSE,
+	ZB_INDIRECT_MCPS_DATA,
+	ZB_INDIRECT_DISASSOCIATE_NOTIFY
 };
 
 
@@ -851,11 +851,9 @@ typedef struct{
 	u8 curChannel;					/*!< The selected channel of the MAC layer. */
 	u8 beaconTriesNum;
 
-	struct{
-		ev_timer_event_t *timer; 	/* for original */;
-	}indirectData;
-
 	u8 *txRawDataBuf;
+
+	u8 indirectData;
 }tl_zb_mac_ctx_t;
 
 /**
@@ -1000,7 +998,7 @@ void tl_zbMacMcpsDataRequestProc(void *arg);
  * @return ZB_RET_OVERFLOW if failure, ZB_RET_OK else
  *
  * */
-#define tl_zbMacMcpsDataRequst(p)		tl_zbMacMcpsDataRequestProc(p)
+#define tl_zbMacMcpsDataRequest(p)		tl_zbMacMcpsDataRequestProc(p)
 
 /*
  * MLME-RESET.request primitive from upper layer to MAC layer
@@ -1010,7 +1008,7 @@ void tl_zbMacMcpsDataRequestProc(void *arg);
  * @return ZB_RET_OVERFLOW if failure, ZB_RET_OK else
  *
  * */
-#define tl_zbMacResetRequst(p)			tl_zbPrimitivePost(TL_Q_NWK2MAC, MAC_MLME_RESET_REQ, p)
+#define tl_zbMacResetRequest(p)			tl_zbPrimitivePost(TL_Q_NWK2MAC, MAC_MLME_RESET_REQ, p)
 
 /*
  * MLME-POLL.request primitive from upper layer to MAC layer
@@ -1020,7 +1018,7 @@ void tl_zbMacMcpsDataRequestProc(void *arg);
  * @return ZB_RET_OVERFLOW if failure, ZB_RET_OK else
  *
  * */
-#define tl_zbMacPollRequst(p)			tl_zbPrimitivePost(TL_Q_NWK2MAC, MAC_MLME_POLL_REQ, p)
+#define tl_zbMacPollRequest(p)			tl_zbPrimitivePost(TL_Q_NWK2MAC, MAC_MLME_POLL_REQ, p)
 
 /*
  * MLME-ASSOCIATE.request primitive from upper layer to MAC layer

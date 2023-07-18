@@ -63,6 +63,7 @@ extern "C" {
 #define PA4_OUTPUT_ENABLE			1
 #define PA4_INPUT_ENABLE			0
 
+#define LED_POWER					LED3
 
 #define	PM_WAKEUP_LEVEL		  		PM_WAKEUP_LEVEL_LOW
 

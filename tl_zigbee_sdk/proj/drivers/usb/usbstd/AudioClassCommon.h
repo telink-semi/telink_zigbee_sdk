@@ -418,7 +418,7 @@ typedef struct
 	u8                 InterfaceNumber; /**< Interface number of the associated Audio Streaming interface. */
 }USB_Audio_Descriptor_Interface_AC_t;
 
-/*surport mic && speaker*/
+/*support mic && speaker*/
 typedef struct
 {
 	USB_Descriptor_Header_t Header; /**< Regular descriptor header containing the descriptor's type and length. */

@@ -740,7 +740,7 @@ _attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_rx_irq_handler(voi
 #endif
 
 	/* zb_mac_receive_data handler */
-	zb_macDataRecvHander(p, macPld, len, fAck, ZB_RADIO_TIMESTAMP_GET(p), ZB_RADION_PKT_RSSI_GET(p) - 110);
+	zb_macDataRecvHandler(p, macPld, len, fAck, ZB_RADIO_TIMESTAMP_GET(p), ZB_RADION_PKT_RSSI_GET(p) - 110);
 }
 
 
@@ -761,6 +761,6 @@ _attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_tx_irq_handler(voi
 
     ZB_SWITCH_TO_RXMODE();
 
-    zb_macDataSendHander();
+    zb_macDataSendHandler();
 }
 

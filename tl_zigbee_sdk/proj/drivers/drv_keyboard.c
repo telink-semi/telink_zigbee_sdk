@@ -312,7 +312,7 @@ u32 kb_scan_key(int numlock_status, int read_key){
 		kb_remap_key_code(pd, 2, &kb_event, numlock_status);
 		int multikey_pressed = 0;
 		// multi-key is invalid, that is assuming not press, that is last status
-		// do not set kb_event.cnt to zero, which may occur an bug, press A --> press AB --> Releae B
+		// do not set kb_event.cnt to zero, which may occur an bug, press A --> press AB --> Release B
 		if(kb_event.cnt > 1){
 			kb_event.cnt = 0;
 			multikey_pressed = 1;

@@ -128,6 +128,7 @@ extern "C" {
  */
 typedef enum{
 	EV_POLL_UART_PROC,
+	EV_POLL_KEY_PRESS,
 	EV_POLL_MAX,
 }ev_poll_e;
 

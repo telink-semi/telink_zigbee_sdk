@@ -169,8 +169,8 @@ bool gpDevAnnceCheckCb(u16 aliasNwkAddr, addrExt_t aliasIeeeAddr)
 			if(g_gppCtx.gpAliasConflictAddr == aliasNwkAddr){
 				gpAliansConflictTimeoutEvtStop();
 			}
+			return TRUE;
 		}
-		return TRUE;
 	}else{
 		if(g_gppCtx.aliasConflictTimeoutEvt){
 			return TRUE;

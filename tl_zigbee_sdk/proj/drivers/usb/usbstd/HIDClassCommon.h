@@ -363,7 +363,7 @@ extern "C" {
  *  \code
  *  struct
  *  {
- *      u8 Modifier; // Keyboard modifier byte indicating pressed modifier keys (\c HID_KEYBOARD_MODIFER_* masks)
+ *      u8 Modifier; // Keyboard modifier byte indicating pressed modifier keys (\c HID_KEYBOARD_MODIFIER_* masks)
  *      u8 Reserved; // Reserved for OEM use, always set to 0.
  *      u8 KeyCode[MaxKeys]; // Length determined by the number of keys that can be reported
  *  } Keyboard_Report;
@@ -612,7 +612,7 @@ typedef struct
 typedef struct
 {
 	u8 Modifier; /**< Keyboard modifier byte, indicating pressed modifier keys (a combination of
-	                   *   \c HID_KEYBOARD_MODIFER_* masks).
+	                   *   \c HID_KEYBOARD_MODIFIER_* masks).
 	                   */
 	u8 Reserved; /**< Reserved for OEM use, always set to 0. */
 	u8 KeyCode[6]; /**< Key codes of the currently pressed keys. */

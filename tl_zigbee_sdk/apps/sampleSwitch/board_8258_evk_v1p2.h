@@ -65,6 +65,8 @@ extern "C" {
 #define PD3_OUTPUT_ENABLE			1
 #define PD3_INPUT_ENABLE			0
 
+#define LED_POWER					LED1
+
 #define	PM_WAKEUP_LEVEL		  		PM_WAKEUP_LEVEL_HIGH
 
 // UART

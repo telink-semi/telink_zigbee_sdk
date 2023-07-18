@@ -245,7 +245,7 @@ u8 zdo_af_get_scan_attempts(void);
 void zdo_af_set_scan_attempts(u8 attempts);
 
 /**********************************************************************************************************
- * @brief	Interface to get scan duration attribute
+ * @brief	Interface to get time between scans attribute
  *
  * @param	none
  *

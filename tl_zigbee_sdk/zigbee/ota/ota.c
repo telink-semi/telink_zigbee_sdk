@@ -565,7 +565,7 @@ void ota_upgradeComplete(u8 status)
 		}
 	}else{
 		/*
-		 * if the image is invalid, all the informations shall be reset,
+		 * if the image is invalid, all the information shall be reset,
 		 * so that the OTA will restart from address of 0
 		 * 
         */

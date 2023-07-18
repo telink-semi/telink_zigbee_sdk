@@ -54,7 +54,7 @@
 #define NWK_MAX_DEPTH    						5
 #endif
 
-#define ZB_NWK_LINK_STATUS_PEROID_DEFAULT       15
+#define ZB_NWK_LINK_STATUS_PERIOD_DEFAULT       15
 
 
 /***************************************************************************

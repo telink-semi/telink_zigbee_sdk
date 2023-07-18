@@ -174,9 +174,9 @@ void zbdemo_bdbCommissioningCb(u8 status, void *arg){
 #if ZBHCI_EN
 
 #else
-		/* If you comment out the channel setting,
-		 * this demo will automatically select a channel,
-		 * which is the result of the energy scan.
+		/* If comment out the channel setting,
+		 * it will automatically select a channel,
+		 * which is from the result of the energy scan.
 		 */
 	    tl_zbMacChannelSet(DEFAULT_CHANNEL);  //set default channel
 #endif

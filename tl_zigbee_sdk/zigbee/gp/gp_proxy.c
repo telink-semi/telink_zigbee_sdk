@@ -235,13 +235,25 @@ static status_t gp_proxyTabEntryUpdate(gpProxyTabEntry_t *pEntry, zcl_gp_pairing
 			if(lwSinkAddrListRemove(pEntry, pCmd->sinkIeeeAddr, pCmd->sinkNwkAddr) == FAILURE){
 				return ZCL_STA_NOT_FOUND;
 			}
+
+			if(pEntry->lwSinkCnt == 0){
+				pEntry->options.bits.lightWeightUnicastGPS = 0;
+			}
 		}else if(pCmd->options.bits.commMode == GPS_COMM_MODE_GROUP_PRE_COMMISSIONED_GROUPID){
 			if(sinkGroupListRemove(pEntry, pCmd->sinkGroupID) == FAILURE){
 				return ZCL_STA_NOT_FOUND;
 			}
+
+			if(pEntry->sinkGroupCnt == 0){
+				pEntry->options.bits.commGroupGPS = 0;
+			}
+		}else if(pCmd->options.bits.commMode == GPS_COMM_MODE_GROUP_DGROUPID){
+			pEntry->options.bits.derivedGroupGPS = 0;
 		}
 
-		if((pEntry->lwSinkCnt == 0) && (pEntry->sinkGroupCnt == 0) && !pEntry->options.bits.derivedGroupGPS){
+		if(!pEntry->options.bits.lightWeightUnicastGPS &&
+		   !pEntry->options.bits.commGroupGPS &&
+		   !pEntry->options.bits.derivedGroupGPS){
 			gp_proxyTabEntryClear(pEntry);
 		}
 	}
@@ -316,7 +328,7 @@ static status_t gpPairingCmdProcess(zcl_gp_pairingCmd_t *pCmd)
 	}
 
 	if( (NIB_NETWORK_ADDRESS() == gpAliasSrcAddrDerived(pCmd->options.bits.appId, pCmd->gpdId)) ||
-		(NIB_NETWORK_ADDRESS() == pCmd->assignedAlias) ){
+		((NIB_NETWORK_ADDRESS() == pCmd->assignedAlias) && pCmd->options.bits.assignedAliasPresent) ){
 		tl_zbNwkAddrConflictStatusSend(NWK_BROADCAST_RX_ON_WHEN_IDLE, NIB_NETWORK_ADDRESS(), TRUE);
 
 		NIB_NETWORK_ADDRESS() = g_zbMacPib.shortAddress = tl_zbNwkStochasticAddrCal();

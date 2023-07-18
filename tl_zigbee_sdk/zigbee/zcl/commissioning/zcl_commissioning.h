@@ -124,7 +124,7 @@ typedef struct {
 	zcl_restartDeviceCb_t    restartDeviceCbFunc;
 	zcl_saveStartupParamsCb_t    saveStartupParamsCbFunc;
 	zcl_restoreStartupParamsCb_t    restoreStartupParamsCbFunc;
-	zcl_resetStartupParamsCb_t    ressetStartupParamsCbFunc;
+	zcl_resetStartupParamsCb_t    resetStartupParamsCbFunc;
 } zcl_commissioning_AppCallbacks_t;
 
 /** @} end of group ZCL_COMMISSIONING_Callbacks */
@@ -202,7 +202,7 @@ typedef struct {
  *              commissioning attributes could be used.
  *
  * @param[in]   attrNum  - used attribute number
- * @param[in]   pAttrTbl - pointer to server side attribute table. It is implented in zcl_commissioning_attr.c
+ * @param[in]   pAttrTbl - pointer to server side attribute table. It is implemented in zcl_commissioning_attr.c
  * @param[in]   cb       - pointer to the App layer command callbacks
  *
  * @return      Status

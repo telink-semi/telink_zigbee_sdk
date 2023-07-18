@@ -34,8 +34,8 @@
 #define ZB_PRIMARY_CHANNEL_3	20
 #define ZB_PRIMARY_CHANNEL_4	25
 
-_CODE_ZCL_  void zcl_zllTouchLinkDiscoveyStop(void);
-_CODE_ZCL_  void zcl_zllTouchLinkDiscoveyStart(void);
+_CODE_ZCL_  void zcl_zllTouchLinkDiscoveryStop(void);
+_CODE_ZCL_  void zcl_zllTouchLinkDiscoveryStart(void);
 extern zcl_zllCommission_t g_zllCommission;
 extern bool scanReqProfileInterop;
 u8 reset2FactoryFlag = 0;
@@ -247,7 +247,7 @@ _CODE_ZCL_  void zcl_zllTouchLinkScanRequestHandler(epInfo_t *srcEp, u8 seqNo){
 	 *  maybe the initiator receive the scan request, if it's a factory new device, firstly stop the scan operation
 	 *
 	 *  */
-	zcl_zllTouchLinkDiscoveyStop();
+	zcl_zllTouchLinkDiscoveryStop();
 
 	zcl_zllTouchLinkScanResp_t resp;
 	TL_SETSTRUCTCONTENT(resp,0);
@@ -541,14 +541,14 @@ _CODE_ZCL_ static s32 zcl_touchLinkScanStart(void *arg){
 }
 
 /*
- * @fn      zcl_zllTouchLinkDiscoveyStart
+ * @fn      zcl_zllTouchLinkDiscoveryStart
  *
  * @brief	start a timer to process touch link discovery
  *
  * @param 	arg
  *
  */
-_CODE_ZCL_ void zcl_zllTouchLinkDiscoveyStart(void){
+_CODE_ZCL_ void zcl_zllTouchLinkDiscoveryStart(void){
 	/* start a timer which is used during touch link discovery */
 	if(g_zllTouchLink.runTimer){
 		TL_ZB_TIMER_CANCEL(&g_zllTouchLink.runTimer);
@@ -564,14 +564,14 @@ _CODE_ZCL_ void zcl_zllTouchLinkDiscoveyStart(void){
 
 
 /*
- * @fn      zcl_zllTouchLinkDiscoveyStop
+ * @fn      zcl_zllTouchLinkDiscoveryStop
  *
  * @brief	stop the timer that is to process touch link discovery
  *
  * @param 	arg
  *
  */
-_CODE_ZCL_  void zcl_zllTouchLinkDiscoveyStop(void){
+_CODE_ZCL_  void zcl_zllTouchLinkDiscoveryStop(void){
 	if(g_zllTouchLink.runTimer){
 		TL_ZB_TIMER_CANCEL(&g_zllTouchLink.runTimer);
 	}

@@ -44,7 +44,7 @@ typedef union
 	struct
 	{
 		u16	appId:3;
-		u16	commuicationMode:2;
+		u16	communicationMode:2;
 		u16	seqNumCapabilities:1;
 		u16	rxOnCapability:1;
 		u16	fixedLocation:1;

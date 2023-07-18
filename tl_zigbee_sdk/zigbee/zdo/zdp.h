@@ -767,7 +767,7 @@ void zdo_parentAnnounceIndicate(void *buf);
  *
  * @return	none
  */
-void zdo_SysServerDiscoveryIndiate(void *buf);
+void zdo_SysServerDiscoveryIndicate(void *buf);
 
 /***************************************************************************************
  * @brief	Interface to process end device bind request CMD.
@@ -794,7 +794,7 @@ void zdo_bindOrUnbindIndicate(void *buf);
  *
  * @return	none
  */
-void zdo_mgmtLqiIndictate(void *buf);
+void zdo_mgmtLqiIndicate(void *buf);
 
 /***************************************************************************************
  * @brief	Interface to process MGMT bind request CMD.
@@ -834,7 +834,7 @@ void zdo_mgmtPermitJoinIndicate(void *buf);
  *
  * @return	none
  */
-void zdo_mgmNwkUpdateIndicate(void *buf);
+void zdo_mgmtNwkUpdateIndicate(void *buf);
 
 /***************************************************************************************
  * @brief	Interface to process parent announce response.

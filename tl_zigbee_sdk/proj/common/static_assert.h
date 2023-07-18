@@ -29,7 +29,7 @@
 
 // #define STATIC_ASSERT(expr)   			{ char static_assertion[(expr) ? 1 : -1]; ((void) static_assertion); }	// (void) array;  to remove compiler unused variable warning
 
-// more complicated version canbe used anywhere in the source
+// more complicated version can be used anywhere in the source
 #define STATIC_ASSERT_M(COND,MSG) typedef char static_assertion_##MSG[(!!(COND))*2-1] 
 // token pasting madness: 
 #define STATIC_ASSERT3(X,L) 	STATIC_ASSERT_M(X,static_assertion_at_line_##L) 

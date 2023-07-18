@@ -74,6 +74,7 @@ u32 heartInterval = 0;
 #if DEBUG_HEART
 ev_timer_event_t *heartTimerEvt = NULL;
 #endif
+ev_timer_event_t *steerTimerEvt = NULL;
 
 /**********************************************************************
  * FUNCTIONS
@@ -94,6 +95,7 @@ static s32 heartTimerCb(void *arg){
 s32 sampleLight_bdbNetworkSteerStart(void *arg){
 	bdb_networkSteerStart();
 
+	steerTimerEvt = NULL;
 	return -1;
 }
 
@@ -137,7 +139,11 @@ void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
 			do{
 				jitter = zb_random() % 0x0fff;
 			}while(jitter == 0);
-			TL_ZB_TIMER_SCHEDULE(sampleLight_bdbNetworkSteerStart, NULL, jitter);
+
+			if(steerTimerEvt){
+				TL_ZB_TIMER_CANCEL(&steerTimerEvt);
+			}
+			steerTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_bdbNetworkSteerStart, NULL, jitter);
 #endif
 		}
 	}else{
@@ -172,6 +178,10 @@ void zbdemo_bdbCommissioningCb(u8 status, void *arg){
 
 			light_blink_start(2, 200, 200);
 
+			if(steerTimerEvt){
+				TL_ZB_TIMER_CANCEL(&steerTimerEvt);
+			}
+
 #ifdef ZCL_OTA
 	    	ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
 #endif
@@ -195,7 +205,11 @@ void zbdemo_bdbCommissioningCb(u8 status, void *arg){
 				do{
 					jitter = zb_random() % 0x2710;
 				}while(jitter < 5000);
-				TL_ZB_TIMER_SCHEDULE(sampleLight_bdbNetworkSteerStart, NULL, jitter);
+
+				if(steerTimerEvt){
+					TL_ZB_TIMER_CANCEL(&steerTimerEvt);
+				}
+				steerTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_bdbNetworkSteerStart, NULL, jitter);
 			}
 			break;
 		case BDB_COMMISSION_STA_FORMATION_FAILURE:

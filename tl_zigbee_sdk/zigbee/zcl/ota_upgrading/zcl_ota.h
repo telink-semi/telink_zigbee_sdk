@@ -51,7 +51,7 @@
 #define ZCL_ATTRID_OTA_CURRENT_ZIGBEE_STACK_VER			0x0003
 #define ZCL_ATTRID_OTA_DOWNLOAD_FILE_VER				0x0004
 #define ZCL_ATTRID_OTA_DOWNLOAD_ZIGBEE_STACK_VER		0x0005
-#define ZCL_ATTRID_OTA_IMAGE_UPGRADE_STAUS				0x0006
+#define ZCL_ATTRID_OTA_IMAGE_UPGRADE_STATUS				0x0006
 #define ZCL_ATTRID_OTA_MANUFACTURER_ID					0x0007
 #define ZCL_ATTRID_OTA_IMAGE_TYPE_ID					0x0008
 #define ZCL_ATTRID_OTA_MINIMUM_BLOCK_PERIOD				0x0009
@@ -171,17 +171,17 @@ typedef struct{
 	u32	fileOffset;
 	u8	dataSize;
 	u8	*data;
-}ota_imageBlcokRspSuccess_t;
+}ota_imageBlockRspSuccess_t;
 
 typedef struct{
 	u32	currTime;
 	u32	reqTime;
 	u16	blockReqDelay;
-}ota_imageBlcokRspWait_t;
+}ota_imageBlockRspWait_t;
 
 typedef union{
-	ota_imageBlcokRspSuccess_t  success;
-	ota_imageBlcokRspWait_t 	wait;
+	ota_imageBlockRspSuccess_t  success;
+	ota_imageBlockRspWait_t 	wait;
 }imageBlockRsp_t;
 
 typedef struct{

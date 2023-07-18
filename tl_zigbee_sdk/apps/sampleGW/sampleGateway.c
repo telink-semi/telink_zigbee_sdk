@@ -196,10 +196,8 @@ static void sampleGwSysException(void)
 #if 1
 	SYSTEM_RESET();
 #else
-	while(1){
-		gpio_toggle(LED_POWER);
-		WaitMs(100);
-	}
+	gpio_toggle(LED_POWER);
+	while(1);
 #endif
 }
 

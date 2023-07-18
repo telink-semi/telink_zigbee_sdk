@@ -751,7 +751,7 @@ static void sampleGW_zclGetGroupMembershipRspCmdHandler(zclIncomingAddrInfo_t *p
 	*pBuf++ = pGetGroupMembershipRsp->capacity;
 	*pBuf++ = pGetGroupMembershipRsp->groupCnt;
 	for(u8 i = 0; i < pGetGroupMembershipRsp->groupCnt; i++){
-		u16 groupId = BUILD_U16(pGetGroupMembershipRsp->pGroupLsit[i*2], pGetGroupMembershipRsp->pGroupLsit[(i*2)+1]);
+		u16 groupId = BUILD_U16(pGetGroupMembershipRsp->pGroupList[i*2], pGetGroupMembershipRsp->pGroupList[(i*2)+1]);
 
 		*pBuf++ = HI_UINT16(groupId);
 		*pBuf++ = LO_UINT16(groupId);

@@ -54,6 +54,8 @@ extern "C" {
 #define PB1_OUTPUT_ENABLE			1
 #define PB1_INPUT_ENABLE			0
 
+#define LED_POWER					LED3
+
 /****************NOT USED*************************/
 #define LED2						GPIO_PE0
 #define PE0_FUNC					AS_GPIO

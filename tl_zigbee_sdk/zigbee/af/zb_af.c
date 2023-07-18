@@ -57,8 +57,8 @@ static node_descriptor_t ndt = {
 	.aps_flag = 					0,
 	.freq_band = 					NODE_FREQ_2400,
 	.max_buff_size = 				AF_NSDU_MAX_LEN,
-	.max_in_tr_size = 				AF_NSDU_MAX_LEN,
-	.max_out_tr_size = 				AF_NSDU_MAX_LEN,
+	.max_in_tr_size = 				AF_ASDU_MAX_LEN,
+	.max_out_tr_size = 				AF_ASDU_MAX_LEN,
 	.mcL8 =   						(MANUFACTURER_CODE_TELINK & 0xff),
 	.mcH8 =   						((MANUFACTURER_CODE_TELINK >> 8) & 0xff),
 };
@@ -66,7 +66,7 @@ static node_descriptor_t ndt = {
 //power descriptor strut
 static power_descriptor_t pdt = {
 #if defined (ZB_ROUTER_ROLE) && (ZB_ROUTER_ROLE == TRUE)
-	.current_power_mode = 			POWER_MODE_RECEIVER_SYNCRONIZED_WHEN_ON_IDLE,
+	.current_power_mode = 			POWER_MODE_RECEIVER_SYNCHRONIZED_WHEN_ON_IDLE,
 	.available_power_sources = 		POWER_SRC_MAINS_POWER,
 	.current_power_source = 		POWER_SRC_MAINS_POWER,
 	.current_power_source_level = 	POWER_LEVEL_PERCENT_100,

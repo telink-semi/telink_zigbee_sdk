@@ -100,6 +100,13 @@ typedef enum{
 	SS_PRECONFIGURED_NWKKEY			= BIT(2),
 }ss_preconfiguredKey_e;
 
+typedef enum{
+	SS_GLB_LK_PRECONF        = 0,
+	SS_GLB_LK_TC_DEFAULT     = 1,
+	SS_GLB_LK_MASTER         = 2,
+	SS_GLB_LK_CERTIFICATION  = 3,
+}ss_glbLKId_e;
+
 typedef struct{
 	//This value set to TRUE will only allow devices know to TC join or rejoin
 	bool	useWhiteList;
@@ -132,7 +139,7 @@ typedef enum{
 
 typedef enum{
 	SS_DEVKEYPAIR_SYNID_KEYATTR,
-	SS_DEVKEYPAIR_SYNID_INCOMMINGFRAMECNT,
+	SS_DEVKEYPAIR_SYNID_INCOMINGFRAMECNT,
 	SS_DEVKEYPAIR_SYNID_ALL
 }ss_devKeyPairSyn_id;
 
@@ -161,12 +168,12 @@ typedef struct{
 	u8						securityLevel:3;
 	u8						secureAllFresh:1;
 	u8						activeSecureMaterialIndex:2;
-	u8						reserved:2;
+	u8						reserved:2;//flag
 	u8						activeKeySeqNum;
 	ss_preconfiguredKey_e	preConfiguredKeyType;//pre-configured type, should be set during init state which used for ZDO auth
 	ss_tcPolicy_t			tcPolicy;									//10
 	u8						*touchLinkKey;
-	u8						*distibuteLinkKey;
+	u8						*distributeLinkKey;
 	u8						tcLinkKeyType;
 	u8						*tcLinkKey;									//13
 }ss_info_base_t;
@@ -182,7 +189,7 @@ typedef struct{
 	u8			relayByParent;
 	u8			keySeqNum;
 	addrExt_t	partnerAddr;  //for application key
-	u8			initatorFlag;
+	u8			initiatorFlag;
 	u8 			nwkSecurity;
 }ss_apsmeTransportKeyReq_t;
 
@@ -351,6 +358,9 @@ extern bool SS_ALLOW_REMOTE_TC_POLICY_CHANGE;
 #endif
 
 #define SS_IB()	ss_ib
+
+#define SSIB_GLK_FLAG_SET(v)   ss_ib.reserved = v
+#define SSIB_GLK_FLAG_GET()    ss_ib.reserved
 
 #if ZB_COORDINATOR_ROLE
 #define SS_TC_KEY_PAIR_CACHE_NUM	10

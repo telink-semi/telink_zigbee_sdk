@@ -82,7 +82,7 @@ extern "C" {
 
 /**If Isochronous endpoint,
 Bits 3..2 = Synchronisation Type (Iso Mode)
-00 = No Synchonisation
+00 = No Synchronisation
 01 = Asynchronous
 10 = Adaptive
 11 = Synchronous

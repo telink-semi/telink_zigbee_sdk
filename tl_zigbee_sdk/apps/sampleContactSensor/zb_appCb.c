@@ -72,6 +72,7 @@ ota_callBack_t sampleSensor_otaCb =
 };
 #endif
 
+ev_timer_event_t *steerTimerEvt = NULL;
 
 /**********************************************************************
  * FUNCTIONS
@@ -79,6 +80,7 @@ ota_callBack_t sampleSensor_otaCb =
 s32 sampleSensor_bdbNetworkSteerStart(void *arg){
 	bdb_networkSteerStart();
 
+	steerTimerEvt = NULL;
 	return -1;
 }
 
@@ -118,7 +120,11 @@ void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
 			do{
 				jitter = zb_random() % 0x0fff;
 			}while(jitter == 0);
-			TL_ZB_TIMER_SCHEDULE(sampleSensor_bdbNetworkSteerStart, NULL, jitter);
+
+			if(steerTimerEvt){
+				TL_ZB_TIMER_CANCEL(&steerTimerEvt);
+			}
+			steerTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSensor_bdbNetworkSteerStart, NULL, jitter);
 		}
 	}else{
 		if(joinedNetwork){
@@ -145,6 +151,10 @@ void zbdemo_bdbCommissioningCb(u8 status, void *arg){
 
 			zb_setPollRate(POLL_RATE);
 
+			if(steerTimerEvt){
+				TL_ZB_TIMER_CANCEL(&steerTimerEvt);
+			}
+
 #ifdef ZCL_POLL_CTRL
 			sampleSensor_zclCheckInStart();
 #endif
@@ -164,7 +174,11 @@ void zbdemo_bdbCommissioningCb(u8 status, void *arg){
 				do{
 					jitter = zb_random() % 0x0fff;
 				}while(jitter == 0);
-				TL_ZB_TIMER_SCHEDULE(sampleSensor_bdbNetworkSteerStart, NULL, jitter);
+
+				if(steerTimerEvt){
+					TL_ZB_TIMER_CANCEL(&steerTimerEvt);
+				}
+				steerTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSensor_bdbNetworkSteerStart, NULL, jitter);
 			}
 			break;
 		case BDB_COMMISSION_STA_FORMATION_FAILURE:
@@ -213,6 +227,8 @@ void sampleSensor_otaProcessMsgHandler(u8 evt, u8 status)
 		}else{
 			ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
 		}
+	}else if(evt == OTA_EVT_IMAGE_DONE){
+		zb_setPollRate(POLL_RATE);
 	}
 }
 #endif

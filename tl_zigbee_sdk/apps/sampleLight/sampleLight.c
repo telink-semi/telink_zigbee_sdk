@@ -238,7 +238,7 @@ void app_task(void)
 	app_key_handler();
 	localPermitJoinState();
 	if(BDB_STATE_GET() == BDB_STATE_IDLE){
-		//factroyRst_handler();
+		//factoryRst_handler();
 
 		report_handler();
 
@@ -279,7 +279,7 @@ void user_init(bool isRetention)
 	led_init();
 	hwLight_init();
 
-	//factroyRst_init();
+	//factoryRst_init();
 
 	/* Initialize Stack */
 	stack_init();

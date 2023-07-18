@@ -27,7 +27,7 @@
 
 #include "version_cfg.h"
 
-#define MCU_RUN_SRAM_EN			  			0 /*caution: update the configuation in boot.link */
+#define MCU_RUN_SRAM_EN			  			0 /*caution: update the configuration in boot.link */
 
 #if MCU_RUN_SRAM_EN
 	#define  FLL_STK_EN           			0

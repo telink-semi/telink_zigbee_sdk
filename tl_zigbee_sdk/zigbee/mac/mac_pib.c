@@ -76,11 +76,11 @@ const mac_pibTbl_t g_zbMacPibTbl[] = {
 /*
  * MLME-SET.request to set MAC pib attribute
  *
- * @param attribute MAC PIB attribut MAC PIB attributee id(Table 86  MAC PIB attributes)
+ * @param attribute MAC PIB attribute MAC PIB attribute id(Table 86  MAC PIB attributes)
  *
  * @param value the pointer value of the attribute
  *
- * @param len the length of the attribute vlaue
+ * @param len the length of the attribute value
  *
  * @return MAC_SUCCESS if it's successful, or MAC_INVALID_PARAMETER
  *
@@ -114,11 +114,11 @@ _CODE_MAC_ u8 tl_zbMacAttrSet(u8 attribute, u8 *value, u8 len){
 /*
  * MLME-GET.request to get MAC pib attribute
  *
- * @param attribute MAC PIB attribut MAC PIB attributee id(Table 86  MAC PIB attributes)
+ * @param attribute MAC PIB attribute MAC PIB attribute id(Table 86  MAC PIB attributes)
  *
  * @param value the pointer to the value of the attribute
  *
- * @param len the length of the attribute vlaue
+ * @param len the length of the attribute value
  *
  * @return MAC_SUCCESS if it's successful, or MAC_INVALID_PARAMETER
  *

@@ -463,7 +463,7 @@ _CODE_ZCL_ static status_t zcl_getGroupMembershipRspPrc(zclIncoming_t *pInMsg)
 		zcl_getGroupMembershipRsp_t getGroupMembershipRsp;
 		getGroupMembershipRsp.capacity = *pData++;
 		getGroupMembershipRsp.groupCnt = *pData++;
-		getGroupMembershipRsp.pGroupLsit = pData;
+		getGroupMembershipRsp.pGroupList = pData;
 
 		pInMsg->clusterAppCb(&(pInMsg->addrInfo), pInMsg->hdr.cmd, &getGroupMembershipRsp);
 	}

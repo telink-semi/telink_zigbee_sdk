@@ -53,9 +53,9 @@
 #define ZCL_ATTRID_DEV_TEMP_OVER_TEMP_TOTAL               0x0003
 #define ZCL_ATTRID_DEV_TEMP_ALARM_MASK                    0x0010
 #define ZCL_ATTRID_DEV_TEMP_LOW_THRE                      0x0011
-#define ZCL_ATTRID_DEV_TEMP_HIGHT_THRE                    0x0012
+#define ZCL_ATTRID_DEV_TEMP_HIGH_THRE					  0x0012
 #define ZCL_ATTRID_DEV_TEMP_LOW_TRIP                      0x0013
-#define ZCL_ATTRID_DEV_TEMP_HIGHT_TRIP                    0x0014
+#define ZCL_ATTRID_DEV_TEMP_HIGH_TRIP                     0x0014
 
 /** @} end of group zcl_dev_temp_cfg_attrId */
 
@@ -63,7 +63,7 @@
 /** @} end of group ZCL_DEVICE_TEMPERATURE_Constant */
 
 #if 0
-/** @addtogroup  ZCL_DEVICE_TEMPERATUR_Variables DEVICE TEMPERATUR Cluster Variables
+/** @addtogroup  ZCL_DEVICE_TEMPERATURE_Variables DEVICE TEMPERATURE Cluster Variables
  *  @{
  */
 
@@ -87,7 +87,7 @@ extern const zclAttrInfo_t dev_temp_cfg_attrTbl[];
 
 extern const u8 zcl_dev_temp_cfg_attrNum;
 
-/** @} end of group ZCL_DEVICE_TEMPERATUR_Variables */
+/** @} end of group ZCL_DEVICE_TEMPERATURE_Variables */
 #endif
 
 /** @addtogroup  ZCL_DEVICE_TEMPERATURE_Fountions DEVICE_TEMPERATURE Cluster APIs
@@ -99,7 +99,7 @@ extern const u8 zcl_dev_temp_cfg_attrNum;
  *              dev_temp_cfg attributes could be used.
  *
  * @param[in]   attrNum  - used attribute number
- * @param[in]   pAttrTbl - pointer to server side attribute table. It is implented in zcl_device_temperature_attr.c
+ * @param[in]   pAttrTbl - pointer to server side attribute table. It is implemented in zcl_device_temperature_attr.c
  * @param[in]   cb       - pointer to the App layer command callbacks
  *
  * @return      Status

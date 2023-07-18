@@ -64,6 +64,8 @@ extern "C" {
 #define PB4_OUTPUT_ENABLE			1
 #define PB4_INPUT_ENABLE			0
 
+#define LED_POWER					LED4
+
 #define	PM_WAKEUP_LEVEL		  		PM_WAKEUP_LEVEL_LOW
 
 //UART

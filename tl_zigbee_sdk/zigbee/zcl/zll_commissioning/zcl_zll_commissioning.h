@@ -429,7 +429,7 @@ typedef void (*zcl_zllTouchLinkAppCallbacks_t)(u8 status, void *arg);
  */
 
 /*
- * @brief  endpiont information
+ * @brief  endpoint information
  *
  * */
 typedef struct {
@@ -441,12 +441,12 @@ typedef struct {
 } zcl_zllEndpointInfo_t;
 
 /*
- * @brief  endpiont information (for zll commission utility) command format
+ * @brief  endpoint information (for zll commission utility) command format
  *
  * */
 typedef struct {
 	addrExt_t 	ieeeAddr;		/*!< IEEE address */
-	zcl_zllEndpointInfo_t info;	/*!< endpiont information */
+	zcl_zllEndpointInfo_t info;	/*!< endpoint information */
 } zcl_zllUtilityEndpointInfo_t;
 
 
@@ -478,7 +478,7 @@ typedef struct {
 
 
 /*
- * @brief  get endpiont list (for zll commission utility ) request command format
+ * @brief  get endpoint list (for zll commission utility ) request command format
  *
  * */
 typedef struct {
@@ -487,7 +487,7 @@ typedef struct {
 
 
 /*
- * @brief  get endpiont list (for zll commission utility ) response command format
+ * @brief  get endpoint list (for zll commission utility ) response command format
  *
  * */
 typedef struct {
@@ -550,19 +550,19 @@ status_t zcl_touchlink_register(u8 endpoint, const zcl_touchlinkAppCallbacks_t *
 s32 zcl_touchLinkDevStartIndicate(void *arg);
 
 /**
- * @brief       start touck link.
+ * @brief       start touch link.
  *
  * @param[in]
  *
  * @return
  */
-void zcl_zllTouchLinkDiscoveyStart(void);
+void zcl_zllTouchLinkDiscoveryStart(void);
 
 
 /*
  * @brief	send command of "Get Group Identifiers request"
  *
- * @param[in] 	pDstEpInfo 	- destination end point inforamtion
+ * @param[in] 	pDstEpInfo 	- destination end point information
  *
  * @param[in] 	startIdx	- start index
  *
@@ -574,7 +574,7 @@ void zcl_zllGetGroupIdentifiersRequest(epInfo_t* pDstEpInfo, u8 startIdx);
 /*
  * @brief	send command of "Get endpoint list request"
  *
- * @param[in] 	pDstEpInfo 	- destination end point inforamtion
+ * @param[in] 	pDstEpInfo 	- destination end point information
  *
  * @param[in] 	startIdx	- start index
  *
@@ -586,7 +586,7 @@ void zcl_zllGetEndpointListRequest(epInfo_t* pDstEpInfo, u8 startIdx);
 /*
  * @brief	send the command of " end point Information"
  *
- * @param 	dstEp destination end point inforamtion
+ * @param 	dstEp destination end point information
  *
  * @return
  */

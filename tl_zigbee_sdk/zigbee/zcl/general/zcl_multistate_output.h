@@ -62,34 +62,34 @@ typedef struct {
 
 
 #if 0
-#ifdef ZCL_MULTISTATE_OUTPUT_ATTR_STATE_TEXT_ENBLE
+#ifdef ZCL_MULTISTATE_OUTPUT_ATTR_STATE_TEXT_ENABLE
 extern u8 zcl_attr_mulOutput_stateText[];
 #endif
-#ifdef ZCL_MULTISTATE_OUTPUT_ATTR_DESCRIPTION_ENBLE
+#ifdef ZCL_MULTISTATE_OUTPUT_ATTR_DESCRIPTION_ENABLE
 extern u8 zcl_attr_mulOutput_description[];
 #endif
-#ifdef ZCL_MULTISTATE_OUTPUT_ATTR_NUM_OF_STATES_ENBLE
+#ifdef ZCL_MULTISTATE_OUTPUT_ATTR_NUM_OF_STATES_ENABLE
 extern u16 zcl_attr_mulOutput_numOfStates;
 #endif
-#ifdef ZCL_MULTISTATE_OUTPUT_ATTR_OUT_OF_SERVICE_ENBLE
+#ifdef ZCL_MULTISTATE_OUTPUT_ATTR_OUT_OF_SERVICE_ENABLE
 extern bool zcl_attr_mulOutput_outOfService;
 #endif
-#ifdef ZCL_MULTISTATE_OUTPUT_ATTR_PRESENT_VALUE_ENBLE
+#ifdef ZCL_MULTISTATE_OUTPUT_ATTR_PRESENT_VALUE_ENABLE
 extern u16 zcl_attr_mulOutput_presentValue;
 #endif
-#ifdef ZCL_MULTISTATE_OUTPUT_ATTR_PRIORITY_ARRAY_ENBLE
+#ifdef ZCL_MULTISTATE_OUTPUT_ATTR_PRIORITY_ARRAY_ENABLE
 extern zcl_mulOutput_priorityArray_t zcl_attr_mulOutput_priorityArray[];
 #endif
-#ifdef ZCL_MULTISTATE_OUTPUT_ATTR_RELIABLILITY_ENBLE
+#ifdef ZCL_MULTISTATE_OUTPUT_ATTR_RELIABLILITY_ENABLE
 extern u8 zcl_attr_mulOutput_reliability;
 #endif
-#ifdef ZCL_MULTISTATE_OUTPUT_ATTR_RELINQUISH_DEFAULT_ENBLE
+#ifdef ZCL_MULTISTATE_OUTPUT_ATTR_RELINQUISH_DEFAULT_ENABLE
 extern u16 zcl_attr_mulOutput_relinquishdDfault;
 #endif
-#ifdef ZCL_MULTISTATE_OUTPUT_ATTR_STATUS_FLAGS_ENBLE
+#ifdef ZCL_MULTISTATE_OUTPUT_ATTR_STATUS_FLAGS_ENABLE
 extern u8 zcl_attr_mulOutput_statusFlags;
 #endif
-#ifdef ZCL_MULTISTATE_OUTPUT_ATTR_APP_TYPE_ENBLE
+#ifdef ZCL_MULTISTATE_OUTPUT_ATTR_APP_TYPE_ENABLE
 extern u32 zcl_attr_mulOutput_appType;
 #endif
 

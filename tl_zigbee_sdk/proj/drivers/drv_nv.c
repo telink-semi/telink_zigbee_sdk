@@ -686,6 +686,11 @@ static nv_sts_t nv_flashWriteNewHandler(bool forceChgSec, u8 single, u16 id, u8 
 						}
 
 						ret = nv_write_item(sgl, id, idxInfo[i].itemId, opSect, wItemIdx, idxInfo[i].size-sizeof(itemHdr_t), (u8*)idxInfo[i].offset, TRUE);
+						
+						sizeusedAddr += idxInfo[i].size;
+						sizeusedAddr = ((sizeusedAddr + 0x03) & (~0x03));
+						wItemIdx += 1;
+							
 						if(ret != NV_SUCC){
 							if(ret == NV_ITEM_CHECK_ERROR){
 								search = 0;
@@ -696,9 +701,6 @@ static nv_sts_t nv_flashWriteNewHandler(bool forceChgSec, u8 single, u16 id, u8 
 								continue;
 							}
 						}
-						sizeusedAddr += idxInfo[i].size;
-						sizeusedAddr = ((sizeusedAddr + 0x03) & (~0x03));
-						wItemIdx += 1;
 					}
 				}
 				idxTotalNum -= readIdxNum;

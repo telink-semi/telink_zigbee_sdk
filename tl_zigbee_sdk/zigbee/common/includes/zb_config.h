@@ -56,7 +56,7 @@
 //If defined, use distributed address assign for tree and for mesh routing (ZigBee 2007).
 #ifndef ZB_NWK_DISTRIBUTED_ADDRESS_ASSIGN
 //If defined, use stochastic address assign (ZigBee PRO).
-  #define ZB_NWK_STOCHASTIC_ADDRESS_ASSING
+  #define ZB_NWK_STOCHASTIC_ADDRESS_ASSIGN
 #endif
 
 /* Some defaults for ZDO startup */

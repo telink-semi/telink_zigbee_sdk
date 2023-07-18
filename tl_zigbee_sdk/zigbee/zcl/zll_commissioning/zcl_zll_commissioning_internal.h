@@ -75,7 +75,7 @@ void zcl_zllTouchLinkNetworkStartOrJoin(void *arg);
 
 void zcl_zllTouchLinkResetFactoryReq(void *arg);
 
-void zcl_zllTouchLinkNetworkStartRequstHandler(u8 logicChannel);
+void zcl_zllTouchLinkNetworkStartRequestHandler(u8 logicChannel);
 
 s32 zcl_zllTouchLinkNetworkStartResponseHandler(void *arg);
 

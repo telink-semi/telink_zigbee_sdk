@@ -110,7 +110,7 @@ typedef struct {
 typedef struct {
 	u8 capacity;
 	u8 groupCnt;
-	u8 *pGroupLsit;
+	u8 *pGroupList;
 } zcl_getGroupMembershipRsp_t;
 
 #if 0

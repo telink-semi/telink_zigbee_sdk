@@ -148,7 +148,7 @@ extern const u8 zcl_basic_attrNum;
  *              basic attributes could be used.
  *
  * @param[in]   attrNum  - used attribute number
- * @param[in]   pAttrTbl - pointer to server side attribute table. It is implented in zcl_basic_attr.c
+ * @param[in]   pAttrTbl - pointer to server side attribute table. It is implemented in zcl_basic_attr.c
  * @param[in]   cb       - pointer to the App layer command callbacks
  *
  * @return      Status

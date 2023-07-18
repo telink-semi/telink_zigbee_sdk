@@ -114,7 +114,7 @@ void gp_sinkRemoveEntries(u8 appId, gpdId_t gpdId, u8 endpoint)
 					req.ep = GREEN_POWER_ENDPOINT;
 					aps_me_group_delete_req(&req);
 				}
-				if(pEntry->options.bits.commuicationMode == GPS_COMM_MODE_GROUP_DGROUPID){
+				if(pEntry->options.bits.communicationMode == GPS_COMM_MODE_GROUP_DGROUPID){
 					req.ep = GREEN_POWER_ENDPOINT;
 					req.group_addr = gpAliasSrcAddrDerived(pEntry->options.bits.appId, pEntry->gpdId);
 
@@ -203,7 +203,7 @@ u8 gp_getSinkTabEntryLen(gpSinkTabEntry_t *pEntry)
 
 	entryLen += sizeof(u8);//DeviceID
 
-	if(pEntry->options.bits.commuicationMode == GPS_COMM_MODE_GROUP_PRE_COMMISSIONED_GROUPID){
+	if(pEntry->options.bits.communicationMode == GPS_COMM_MODE_GROUP_PRE_COMMISSIONED_GROUPID){
 		entryLen += 1;
 		if(pEntry->sinkGroupListCnt){
 			entryLen += pEntry->sinkGroupListCnt * sizeof(gpSinkGroupListItem_t);
@@ -253,7 +253,7 @@ u8 gp_buildSinkTabEntryFormat(gpSinkTabEntry_t *pEntry, u8 *pBuf)
 
 	*ptr++ = pEntry->deviceId;
 
-	if(pEntry->options.bits.commuicationMode == GPS_COMM_MODE_GROUP_PRE_COMMISSIONED_GROUPID){
+	if(pEntry->options.bits.communicationMode == GPS_COMM_MODE_GROUP_PRE_COMMISSIONED_GROUPID){
 		*ptr++ = pEntry->sinkGroupListCnt;
 		for(u8 i = 0; i < pEntry->sinkGroupListCnt; i++){
 			*ptr++ = LO_UINT16(pEntry->groupList[i].groupId);

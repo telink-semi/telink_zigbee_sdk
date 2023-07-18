@@ -128,6 +128,45 @@ const zcl_touchlinkAppCallbacks_t bdb_touchlinkCb = {bdb_touchLinkCallback, bdb_
 /**********************************************************************
  * FUNCTIONS
  */
+/**
+ * @brief      set flag for global link key
+ *
+ * @param[in]   lk, link key
+ *
+ * @return      None
+ */
+void bdb_globalLinkKeySet(u8 *lk){
+	SSIB_GLK_FLAG_SET(SS_GLB_LK_PRECONF);
+	if(lk == tcLinkKeyCentralDefault){
+		SSIB_GLK_FLAG_SET(SS_GLB_LK_TC_DEFAULT);
+	}
+	if(lk == linkKeyDistributedMaster){
+		SSIB_GLK_FLAG_SET(SS_GLB_LK_MASTER);
+	}
+	if(lk == linkKeyDistributedCertification){
+		SSIB_GLK_FLAG_SET(SS_GLB_LK_CERTIFICATION);
+	}
+}
+
+
+/**
+ * @brief      set the correct link key
+ *
+ * @return      None
+ */
+void bdb_globalLinkKeyFix(bool isFactoryNew){
+	if(isFactoryNew){
+		return;
+	}
+	u8 flag = SSIB_GLK_FLAG_GET();
+	if(flag == SS_GLB_LK_TC_DEFAULT){
+		ss_ib.tcLinkKey = (u8 *)tcLinkKeyCentralDefault;
+	}else if(flag == SS_GLB_LK_MASTER){
+		ss_ib.distributeLinkKey = (u8 *)linkKeyDistributedMaster;
+	}else if(flag == SS_GLB_LK_CERTIFICATION){
+		ss_ib.distributeLinkKey = (u8 *)linkKeyDistributedCertification;
+	}
+}
 
 /*********************************************************************
  * @fn      bdb_commissioningInfoSave
@@ -707,6 +746,12 @@ _CODE_BDB_ static u8 bdb_commissioningNetworkFormation(void)
 			return bdb_commissioningFindBind();
 		}else{
 #if ZB_ROUTER_ROLE
+#if ZB_COORDINATOR_ROLE
+			ss_securityModeSet(SS_SEMODE_CENTRALIZED);
+#else
+			ss_securityModeSet(SS_SEMODE_DISTRIBUTED);
+#endif
+
 			u32 scanChannels = aps_ib.aps_channel_mask;
 
 			/* network formation */
@@ -803,14 +848,18 @@ _CODE_BDB_ void bdb_retrieveTcLinkKeyDone(u8 status)
 	u32 evt = BDB_EVT_IDLE;
 	bdb_retrieveTcLinkKeyTimerStop();
 	if(status == BDB_COMMISSION_STA_SUCCESS){
+		BDB_STATUS_SET(BDB_COMMISSION_STA_SUCCESS);
+
 		g_bdbAttrs.nodeIsOnANetwork = 1;
 		evt = BDB_EVT_COMMISSIONING_NETWORK_STEER_PERMITJOIN;
 	}else{
+		aps_ib.aps_authenticated = 0;
+		BDB_STATUS_SET(BDB_COMMISSION_STA_TCLK_EX_FAILURE);
+
 		g_bdbAttrs.nodeIsOnANetwork = 0;
 		evt = BDB_EVT_COMMISSIONING_NETWORK_STEER_FINISH;
 	}
-	//g_bdbAttrs.commissioningStatus = status;
-	BDB_STATUS_SET(status);
+
 	TL_SCHEDULE_TASK(bdb_task, (void *)evt);
 }
 
@@ -908,9 +957,9 @@ _CODE_BDB_ static s32 bdb_retrieveTcLinkKeyStart(void *arg)
 		u8 sn = 0;
 		zdo_node_descriptor_req_t req;
 		req.nwk_addr_interest = 0x0000;
+
 		zb_zdoNodeDescReq(0x0000, &req, &sn, bdb_nodeDescRespHandler);
 
-		//zb_setPollRate(POLL_RATE);
 		g_bdbCtx.leaveDoing = 0;
 		g_bdbAttrs.tcLinkKeyExchangeAttempts = 0;
 		g_bdbAttrs.tcLinkKeyExchangeAttemptsMax = 3;
@@ -923,7 +972,6 @@ _CODE_BDB_ static s32 bdb_retrieveTcLinkKeyStart(void *arg)
 
 	return -1;
 }
-
 
 /*********************************************************************
  * @fn      bdb_networkSteerNonFactoryNew
@@ -1070,9 +1118,6 @@ static void bdb_task(void *arg)
 					 * perform touch link for initiator
 					 *
 					 * */
-					if(!g_bdbAttrs.nodeIsOnANetwork){
-						ss_securityModeSet(SS_SEMODE_DISTRIBUTED);
-					}
 #if ((ROUTER || END_DEVICE) && TOUCHLINK_SUPPORT)
 					if(g_bdbCtx.role == BDB_COMMISSIONING_ROLE_INITIATOR){
 						zcl_touchLinkStart();
@@ -1109,12 +1154,6 @@ static void bdb_task(void *arg)
 				bdb_topLevelCommissioning(BDB_COMMISSIONING_ROLE_TARGET);
 #endif
 			}else if(evt == BDB_EVT_COMMISSIONING_TOUCHLINK_FINISH){
-//				if(BDB_STATUS_GET() == BDB_COMMISSION_STA_SUCCESS){
-//					bdb_commissioningInfoSave(NULL);
-//				}
-				if(!zb_isDeviceFactoryNew()){
-					bdb_commissioningInfoSave(NULL);
-				}
 				/* confirm to application */
 				bdb_topLevelCommissiongConfirm();
 				BDB_STATE_SET(BDB_STATE_IDLE);
@@ -1131,13 +1170,6 @@ static void bdb_task(void *arg)
 				zb_mgmtPermitJoinReq(0xfffc, BDBC_MIN_COMMISSIONING_TIME, 0x01, &sn, NULL);
 				TL_SCHEDULE_TASK(bdb_mgmtPermitJoiningConfirm,NULL);
 			}else if(evt == BDB_EVT_COMMISSIONING_NETWORK_STEER_FINISH){
-#if ZB_COORDINATOR_ROLE
-				ss_securityModeSet(SS_SEMODE_CENTRALIZED);
-#else
-				if((!g_bdbAttrs.nodeIsOnANetwork)||(ZB_IEEE_ADDR_IS_INVALID(ss_ib.trust_center_address))){
-					ss_securityModeSet(SS_SEMODE_DISTRIBUTED);
-				}
-#endif
 				status = bdb_commissioningNetworkFormation();
 				if(status == BDB_STATE_IDLE){
 					/* confirm to application */
@@ -1148,7 +1180,7 @@ static void bdb_task(void *arg)
 			break;
 
 		case BDB_STATE_COMMISSIONING_NETWORK_FORMATION:
-			if( evt == BDB_EVT_COMMISSIONING_NETWORK_FORMATION_PERMITJOIN){
+			if(evt == BDB_EVT_COMMISSIONING_NETWORK_FORMATION_PERMITJOIN){
 				g_bdbAttrs.commissioningMode.networkSteer = 1;
 				zb_mgmtPermitJoinReq(0xfffc, BDBC_MIN_COMMISSIONING_TIME, 0x01, &sn, NULL);
 				TL_SCHEDULE_TASK(bdb_mgmtPermitJoiningConfirm,NULL);
@@ -1250,11 +1282,10 @@ _CODE_BDB_ void bdb_zdoStartDevCnf(zdo_start_device_confirm_t *startDevCnf){
 #if ZB_ROUTER_ROLE
 				g_zbNwkCtx.joinAccept = 1;
 #endif
-				TL_ZB_TIMER_SCHEDULE(zcl_touchLinkDevStartIndicate, (void *)((u32)(startDevCnf->status)), 400);
-			}else{
-				//g_bdbAttrs.commissioningStatus = BDB_COMMISSION_STA_NO_NETWORK;
-				zcl_touchLinkDevStartIndicate((void *)((u32)(startDevCnf->status)));
+				TL_SCHEDULE_TASK(bdb_commissioningInfoSave, NULL);
 			}
+
+			zcl_touchLinkDevStartIndicate((void *)((u32)(startDevCnf->status)));
 			break;
 #endif
 
@@ -1265,9 +1296,15 @@ _CODE_BDB_ void bdb_zdoStartDevCnf(zdo_start_device_confirm_t *startDevCnf){
 				BDB_STATUS_SET(BDB_COMMISSION_STA_SUCCESS);
 				if(!ZB_IEEE_ADDR_IS_INVALID(ss_ib.trust_center_address) && ss_ib.securityLevel){
 					evt = BDB_EVT_COMMISSIONING_NETWORK_STEER_RETRIEVE_TCLINK_KEY;
+					/* add bdb_globalLinkKeySet() for the sdk later than 3.6.8.0,
+						because the global link maybe be changed to default key but not the pre-config key
+					*/
+					bdb_globalLinkKeySet(ss_ib.tcLinkKey);
 				}else{
 					evt = BDB_EVT_COMMISSIONING_NETWORK_STEER_PERMITJOIN;
+					bdb_globalLinkKeySet(ss_ib.distributeLinkKey);
 				}
+
 				TL_ZB_TIMER_SCHEDULE(bdb_task_delay, (void *)evt, 200);
 			}else{
 				//g_bdbAttrs.commissioningStatus = BDB_COMMISSION_STA_NO_NETWORK;
@@ -1346,13 +1383,15 @@ _CODE_BDB_ static void bdb_touchLinkCallback(u8 status, void *arg)
     }else{
     	evt = BDB_EVT_COMMISSIONING_TOUCHLINK_FINISH;
     	if(status == ZCL_ZLL_TOUCH_LINK_STA_SUCC || status == ZCL_ZLL_TOUCH_LINK_STA_EXIST){
-    		ss_securityModeSet(SS_SEMODE_DISTRIBUTED);/* AIB */
-
 			//g_bdbAttrs.commissioningStatus = BDB_COMMISSION_STA_SUCCESS;
     		BDB_STATUS_SET(BDB_COMMISSION_STA_SUCCESS);
 		}else{
 			//g_bdbAttrs.commissioningStatus = BDB_COMMISSION_STA_TARGET_FAILURE;
-			BDB_STATUS_SET(BDB_COMMISSION_STA_TARGET_FAILURE);
+			if(is_device_factory_new()){
+				BDB_STATUS_SET(BDB_COMMISSION_STA_TARGET_FAILURE);
+			}else{
+				BDB_STATUS_SET(BDB_COMMISSION_STA_SUCCESS);
+			}
 		}
     }
 
@@ -1458,14 +1497,6 @@ _CODE_BDB_ u8 bdb_networkFormationStart(void)
 	g_bdbAttrs.commissioningMode.touchlink = 0;
 	g_bdbAttrs.commissioningMode.findOrBind = 0;
 	g_bdbAttrs.commissioningMode.networkFormation = 1;
-
-	if((!g_bdbAttrs.nodeIsOnANetwork)||(ZB_IEEE_ADDR_IS_INVALID(ss_ib.trust_center_address))){
-#if ZB_COORDINATOR_ROLE
-		ss_securityModeSet(SS_SEMODE_CENTRALIZED);
-#else
-		ss_securityModeSet(SS_SEMODE_DISTRIBUTED);
-#endif
-	}
 
 	return bdb_topLevelCommissioning(BDB_COMMISSIONING_ROLE_TARGET);
 }
@@ -1577,6 +1608,10 @@ _CODE_BDB_ u8 bdb_init(af_simple_descriptor_t *simple_desc, bdb_commissionSettin
 
 	/* pre-configure the link key here. */
 	bdb_linkKeyCfg(setting, g_bdbCtx.factoryNew);
+
+	/* add it for the sdk later than 3.6.8.0,
+		because the global link maybe be changed to default key but not the pre-config key*/
+	bdb_globalLinkKeyFix(g_bdbCtx.factoryNew);
 
 	/* pre-configure the nwk key here. */
 	if(g_bdbCtx.factoryNew){

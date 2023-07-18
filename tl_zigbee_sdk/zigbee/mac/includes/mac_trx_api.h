@@ -209,17 +209,17 @@ u8 *zb_macDataFilter(u8 *macPld, u8 len, u8 *needDrop, u8 *ackPkt);
  * @return      NONE
  *
  **************************************************************************/
-void zb_macDataRecvHander(u8 *rxBuf, u8 *data, u8 len, u8 ackPkt, u32 timestamp, s8 rssi);
+void zb_macDataRecvHandler(u8 *rxBuf, u8 *data, u8 len, u8 ackPkt, u32 timestamp, s8 rssi);
 
 /***********************************************************************//**
- * @brief       tx done calllback
+ * @brief       tx done callback
  *
  * @param[in]   None
  *
  * @return      None
  *
  **************************************************************************/
-void zb_macDataSendHander(void);
+void zb_macDataSendHandler(void);
 
 u8 tl_zbMacHdrSize(u16 frameCtrl);
 bool tl_zbMacStateBusy(void);

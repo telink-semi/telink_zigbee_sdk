@@ -77,7 +77,7 @@ u8 ev_buf_isExisted(u8 index, mem_block_t *block)
     return FALSE;
 }
 
-u8 *ev_buf_retriveMempoolHeader(u8 *pd)
+u8 *ev_buf_retrieveMempoolHeader(u8 *pd)
 {
     return pd - (OFFSETOF(ev_bufItem_t, data) - OFFSETOF(mem_block_t, data));
 }
@@ -226,7 +226,7 @@ buf_sts_t ev_buf_free(u8 *pBuf)
         return BUFFER_DUPLICATE_FREE;
     }
 
-    mempool_free(ev_buf_v->bufGroups[pDelBuf->groupIndex].qHead, ev_buf_retriveMempoolHeader(pBuf));
+    mempool_free(ev_buf_v->bufGroups[pDelBuf->groupIndex].qHead, ev_buf_retrieveMempoolHeader(pBuf));
     ev_buf_v->bufGroups[pDelBuf->groupIndex].availBufNum++;    
 
 #if EV_BUFFER_DEBUG

@@ -345,7 +345,7 @@ void moduleTest_PM(void){
 	}
 }
 #else
-	#error please compile the project of "sampleSwith"
+	#error please compile the project of "sampleSwitch"
 #endif
 #endif
 
@@ -407,7 +407,7 @@ u16 T_DBG_insCodeCRC;
  */
 u8 T_DBG_hashOut[16] = {0};
 
-void moudleTest_hash(void){
+void moduleTest_hash(void){
 	T_DBG_insCodeCRC = tl_bdbInstallCodeCRC16(T_DBG_installCode, 16);
 	T_DBG_installCode[16] = (u8)(T_DBG_insCodeCRC & 0xff);
 	T_DBG_installCode[17] = (u8)(T_DBG_insCodeCRC >> 8);
@@ -950,7 +950,7 @@ void moduleTest_gpioIrq(void)		//comment out user_init
 
 void moduleTest_start(void){
 #if MODULE_TEST_MMOHASH
-	moudleTest_hash();
+	moduleTest_hash();
 #endif
 
 #if MODULE_TEST_CCM

@@ -131,7 +131,7 @@ void bootloader_with_ota_check(u32 addr_load, u32 new_image_addr){
 
 	if(new_image_addr != addr_load){
 		if(is_valid_fw_bootloader(new_image_addr)){
-			bool isNewImageVaild = FALSE;
+			bool isNewImageValid = FALSE;
 
 			u32 bufCache[256/4];  //align-4
 			u8 *buf = (u8 *)bufCache;
@@ -159,11 +159,11 @@ void bootloader_with_ota_check(u32 addr_load, u32 new_image_addr){
 				}
 
 				if(curCRC == crcVal){
-					isNewImageVaild = TRUE;
+					isNewImageValid = TRUE;
 				}
 			}
 
-			if(isNewImageVaild){
+			if(isNewImageValid){
 				u8 readBuf[256];
 
 				for(int i = 0; i < fw_size; i += 256){
@@ -524,6 +524,23 @@ void bootloader_uartRxHandler(void){
 		}
 	}
 }
+
+void bootloader_keyPressedCb(kb_data_t *kbEvt){
+	u8 keyCode = kbEvt->keycode[0];
+
+	if(keyCode == VK_SW1){
+		//cancel the timeout timer, wait for UART upgrade message.
+		bootloader_ota_check_Stop();
+	}
+}
+
+void bootloader_keyPressProc(void){
+	if(kb_scan_key(0 , 1)){
+		if(kb_event.cnt){
+			bootloader_keyPressedCb(&kb_event);
+		}
+	}
+}
 #endif
 
 
@@ -541,9 +558,11 @@ void bootloader_init(bool isBoot){
 		ev_queue_init(&msgQ, NULL);
 		ev_on_poll(EV_POLL_UART_PROC, bootloader_uartRxDataProc);
 
+		ev_on_poll(EV_POLL_KEY_PRESS, bootloader_keyPressProc);
+
 		memset((u8 *)&upgradeInfo, 0, sizeof(upgradeInfo_t));
 
-		//start a timer delay for waiting uart messages.
+		//start a timer delay for waiting for uart messages.
 		bootloader_ota_check_delay(2000);
 #else
 		bootloader_ota_check_delay(0);

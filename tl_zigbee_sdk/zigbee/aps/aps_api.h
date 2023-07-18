@@ -113,7 +113,7 @@ typedef enum{
 }aps_dst_addr_mode;
 
 typedef enum{
-	APS_SHORT_SRCADDR_WITHEP = 0x02,			/* for unicasting with nwk address, with Endpoint */
+	APS_SHORT_SRCADDR_WITHEP = 0x02,	/* for unicasting with nwk address, with Endpoint */
 	APS_LONG_SRCADDR_WITHEP,			/* for unicasting with ieee address, with Endpoint */
 	APS_LONG_SRCADDR_NOEP				/* for unicasting with ieee address, without Endpoint */
 }aps_src_addr_mode;

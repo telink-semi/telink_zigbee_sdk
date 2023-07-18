@@ -50,7 +50,8 @@
 //Intended for specifying device role.
 
 /* max nsdulength = aMaxPHYFrameSize -(nwkcMACFrameOverhead + nwkcMinHeaderOverhead) (D.4 aMaxMACFrameSize) */
-#define	AF_NSDU_MAX_LEN							(MAX_PHY_FRM_SIZE - (ZB_MAC_FRAME_HEADER + ZB_NWK_FRAME_HEADER + ZB_APS_FRAME_HEADER))
+#define	AF_NSDU_MAX_LEN							(MAX_PHY_FRM_SIZE - (ZB_MAC_FRAME_HEADER + ZB_NWK_FRAME_HEADER))
+#define AF_ASDU_MAX_LEN							(MAX_BUFFER_SIZE - (ZB_MAC_FRAME_HEADER + ZB_NWK_FRAME_HEADER + ZB_APS_FRAME_HEADER) - OFFSETOF(apsdeDataInd_t, asdu))
 
 //node frequency band bit map
 #define NODE_FREQ_800							0x01//868 - 868.8 MHz
@@ -169,7 +170,7 @@ typedef struct{
 
 //power mode enum
 typedef enum{
-	POWER_MODE_RECEIVER_SYNCRONIZED_WHEN_ON_IDLE	= 0,
+	POWER_MODE_RECEIVER_SYNCHRONIZED_WHEN_ON_IDLE	= 0,
 	POWER_MODE_RECEIVER_COMES_PERIODICALLY		 	= 1,
 	POWER_MODE_RECEIVER_COMES_WHEN_STIMULATED 	 	= 2
 }power_mode_t;
@@ -240,7 +241,7 @@ typedef void (*af_endpoint_cb_t)(void *p);
 typedef void (*af_dataCnf_cb_t)(void *p);
 
 typedef struct{
-	af_endpoint_cb_t cb_rx;		/* data indication callback for this endoint */
+	af_endpoint_cb_t cb_rx;		/* data indication callback for this endpoint */
 	af_dataCnf_cb_t	cb_cnf;		/* data transmission confirm callback for this endpoint */
 	af_simple_descriptor_t *correspond_simple_desc; /* the pointer to the simple descriptor for this endpoint */
 	u8 ep;						/* the endpoint */
@@ -423,7 +424,7 @@ bool af_profileMatchedLocal(u16 profileID, u8 ep);
  *
  * @param	ep 			- end point to compare
  *
- * @return	TURE or FALSE
+ * @return	TRUE or FALSE
  */
 bool af_clusterMatchedLocal(u16 clusterID, u8 ep);
 

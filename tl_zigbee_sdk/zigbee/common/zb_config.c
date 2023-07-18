@@ -226,7 +226,7 @@ const nwk_nib_t nwkNibDefault = {
 	.maxBroadcastRetries = NWK_MAX_BROADCAST_RETRIES,
 	.passiveAckTimeout = NWK_PASSIVE_ACK_TIMEOUT,
 	.nwkBroadcastDeliveryTime = NWK_BROADCAST_DELIVERY_TIME,
- 	.linkStatusPeriod = ZB_NWK_LINK_STATUS_PEROID_DEFAULT,//45
+ 	.linkStatusPeriod = ZB_NWK_LINK_STATUS_PERIOD_DEFAULT,//45
 	.routerAgeLimit = 3,
 	.maxSourceRoute = NWK_MAX_SOURCE_ROUTE,
 	.concentratorRadius = 0,
@@ -283,7 +283,9 @@ u32 brcTransRecordTblSizeGet(void){
 }
 #endif
 
-
+/*
+ * @brief:		get the entry of the mapping table of the binding list
+ */
 aps_binding_entry_t *bindTblEntryGet(void){
 	return &g_apsBindingTbl[0];
 }

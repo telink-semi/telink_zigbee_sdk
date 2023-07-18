@@ -49,7 +49,7 @@
 #define BUFFER_GROUP_0                   	24
 #define BUFFER_GROUP_1                   	60
 #define BUFFER_GROUP_2                   	150
-#define BUFFER_GROUP_3                   	1024
+#define BUFFER_GROUP_3                   	512
 #define MAX_BUFFER_SIZE                  	(BUFFER_GROUP_3 - OFFSETOF(ev_bufItem_t, data))
 
 /** @} end of group ev_buffer_groups */
@@ -60,7 +60,7 @@
 #define BUFFER_NUM_IN_GROUP0             	8
 #define BUFFER_NUM_IN_GROUP1             	8
 #define BUFFER_NUM_IN_GROUP2             	8
-#define BUFFER_NUM_IN_GROUP3             	1
+#define BUFFER_NUM_IN_GROUP3             	2
 
 /** @addtogroup ev_buffer_typical_size EV Buffer Typical Application Size
  * Definition default buffer size for different typical usage
@@ -173,7 +173,7 @@ ev_bufItem_t *ev_buf_getHead(u8 *pd);
 /**
  * @brief       judge if the buffer is ev buffer
  *
- * @param       the buffer adrress
+ * @param       the buffer address
  *
  * @return      1: if ev buffer; 0: others
  */

@@ -393,7 +393,7 @@ static void gpDecommissioningHandler(u8 appId, gpdId_t gpdId, u8 endpoint)
 	ev_buf_free((u8 *)pPairingCmd);
 
 	if(g_gpsCtx.gpsInCommMode &&
-	   pSinkEntry->options.bits.commuicationMode == GPS_COMM_MODE_GROUP_PRE_COMMISSIONED_GROUPID){
+	   pSinkEntry->options.bits.communicationMode == GPS_COMM_MODE_GROUP_PRE_COMMISSIONED_GROUPID){
 		zcl_gp_pairingConfigurationCmd_t *pCfgCmd = (zcl_gp_pairingConfigurationCmd_t *)ev_buf_allocate(sizeof(zcl_gp_pairingConfigurationCmd_t));
 		if(!pCfgCmd){
 			return;
@@ -712,7 +712,7 @@ static gpSinkTabEntry_t *gpSinkTableEntryCommUpdate(u8 appId, gpdId_t gpdId, u8 
 	}
 
 	pSinkEntry->options.bits.appId = appId;
-	pSinkEntry->options.bits.commuicationMode = zclGpAttr_gpsCommMode & 0x03;
+	pSinkEntry->options.bits.communicationMode = zclGpAttr_gpsCommMode & 0x03;
 	pSinkEntry->options.bits.seqNumCapabilities = pCommissioning->options.bits.macSeqNumCap;
 	pSinkEntry->options.bits.rxOnCapability = pCommissioning->options.bits.rxOnCap;
 	pSinkEntry->options.bits.fixedLocation = pCommissioning->options.bits.fixedLocation;
@@ -902,7 +902,7 @@ static void gpPairingAddSink(gpSinkTabEntry_t *pSinkEntry)
 
 	pCmd->options.bits.appId = pSinkEntry->options.bits.appId;
 	pCmd->options.bits.addSink = 1;
-	pCmd->options.bits.commMode = pSinkEntry->options.bits.commuicationMode;
+	pCmd->options.bits.commMode = pSinkEntry->options.bits.communicationMode;
 	pCmd->options.bits.gpdFixed = pSinkEntry->options.bits.fixedLocation;
 	pCmd->options.bits.gpdMacSeqNumCap = pSinkEntry->options.bits.seqNumCapabilities;
 	pCmd->options.bits.secLevel = pSinkEntry->secOptions.bits.secLevel;
@@ -1107,14 +1107,14 @@ static void gpCommissioningFinalization(u8 appId, gpdId_t gpdId, u8 endpoint)
 	aps_add_group_req_t addGroupReq;
 	TL_SETSTRUCTCONTENT(addGroupReq, 0);
 
-	if(pSinkEntry->options.bits.commuicationMode == GPS_COMM_MODE_GROUP_DGROUPID){
+	if(pSinkEntry->options.bits.communicationMode == GPS_COMM_MODE_GROUP_DGROUPID){
 		addGroupReq.ep = GREEN_POWER_ENDPOINT;
 		addGroupReq.group_addr = gpAliasSrcAddrDerived(appId, gpdId);
 
 		//printf("addGrp: ep = %x, grpId = %x\n", addGroupReq.ep, addGroupReq.group_addr);
 
 		aps_me_group_add_req(&addGroupReq);
-	}else if(pSinkEntry->options.bits.commuicationMode == GPS_COMM_MODE_GROUP_PRE_COMMISSIONED_GROUPID){
+	}else if(pSinkEntry->options.bits.communicationMode == GPS_COMM_MODE_GROUP_PRE_COMMISSIONED_GROUPID){
 		gp_sinkGroupListAdd(pSinkEntry, g_gpsCtx.gpsAppEndpoint);
 
 		//TODO: add group?
@@ -1142,7 +1142,7 @@ static void gpCommissioningFinalization(u8 appId, gpdId_t gpdId, u8 endpoint)
 	 * the subsequent commissioning procedure immediately follows the first commissioning exchange or the subsequent
 	 * commissioning is independently triggered.
 	 */
-	if(pSinkEntry->options.bits.commuicationMode != GPS_COMM_MODE_LIGHTWEIGHT_UNICAST){
+	if(pSinkEntry->options.bits.communicationMode != GPS_COMM_MODE_LIGHTWEIGHT_UNICAST){
 		u16 addrAlias = gpAliasSrcAddrDerived(appId, gpdId);
 		gpDevAnnceAliasSend(addrAlias);
 	}
@@ -1150,7 +1150,7 @@ static void gpCommissioningFinalization(u8 appId, gpdId_t gpdId, u8 endpoint)
 	//send pairing command.
 	gpPairingAddSink(pSinkEntry);
 
-	if(pSinkEntry->options.bits.commuicationMode == GPS_COMM_MODE_GROUP_PRE_COMMISSIONED_GROUPID){
+	if(pSinkEntry->options.bits.communicationMode == GPS_COMM_MODE_GROUP_PRE_COMMISSIONED_GROUPID){
 		gpPairingCfgAddSink(pSinkEntry);
 		gpPairingCfgAppDesc(pSinkEntry);
 	}
@@ -1558,7 +1558,7 @@ void gpCommissioningNotificationCmdProcess(zcl_gp_commissioningNotificationCmd_t
 static void gpSinkPairingSend(zcl_gp_pairingConfigurationCmd_t *pCmd, gpSinkTabEntry_t *pSinkEntry)
 {
 	if(pCmd->actions.bits.action <= REPLACE_SINK_TABLE_ENTRY){
-		if(pSinkEntry->options.bits.commuicationMode != GPS_COMM_MODE_LIGHTWEIGHT_UNICAST){
+		if(pSinkEntry->options.bits.communicationMode != GPS_COMM_MODE_LIGHTWEIGHT_UNICAST){
 			u16 addrAlias = gpAliasSrcAddrDerived(pCmd->options.bits.appId, pCmd->gpdId);
 			gpDevAnnceAliasSend(addrAlias);
 		}
@@ -1582,7 +1582,7 @@ static void gpSinkPairingSend(zcl_gp_pairingConfigurationCmd_t *pCmd, gpSinkTabE
 	if(pCmd->actions.bits.action <= REPLACE_SINK_TABLE_ENTRY){
 		pPairingCmd->options.bits.addSink = 1;
 		pPairingCmd->options.bits.removeGPD = 0;
-		pPairingCmd->options.bits.commMode = pSinkEntry->options.bits.commuicationMode;
+		pPairingCmd->options.bits.commMode = pSinkEntry->options.bits.communicationMode;
 		pPairingCmd->options.bits.gpdFixed = pSinkEntry->options.bits.fixedLocation;
 		pPairingCmd->options.bits.gpdMacSeqNumCap = pSinkEntry->options.bits.seqNumCapabilities;
 		pPairingCmd->options.bits.secLevel = pSinkEntry->secOptions.bits.secLevel;
@@ -1687,7 +1687,7 @@ static status_t gpSinkTabEntryCfgHandler(zcl_gp_pairingConfigurationCmd_t *pCmd)
 		}
 
 		if(pCmd->actions.bits.action == EXTEND_SINK_TABLE_ENTRY){
-			if(pSinkEntry && (pSinkEntry->options.bits.commuicationMode != pCmd->options.bits.commMode)){
+			if(pSinkEntry && (pSinkEntry->options.bits.communicationMode != pCmd->options.bits.commMode)){
 				pSinkEntry = NULL;
 			}
 		}
@@ -1711,7 +1711,7 @@ static status_t gpSinkTabEntryCfgHandler(zcl_gp_pairingConfigurationCmd_t *pCmd)
 
 	//fill entry parameters.
 	pSinkEntry->options.bits.appId = pCmd->options.bits.appId;
-	pSinkEntry->options.bits.commuicationMode = pCmd->options.bits.commMode;
+	pSinkEntry->options.bits.communicationMode = pCmd->options.bits.commMode;
 	pSinkEntry->options.bits.seqNumCapabilities = pCmd->options.bits.seqNumCap;
 	pSinkEntry->options.bits.rxOnCapability = pCmd->options.bits.rxOnCap;
 	pSinkEntry->options.bits.fixedLocation = pCmd->options.bits.fixedLocation;
@@ -1800,7 +1800,7 @@ static void gpSinkPairingRemoveHandler(zcl_gp_pairingConfigurationCmd_t *pCmd)
 	gpSinkTabEntry_t *pSinkEntry = gp_getSinkTabByGpdId(pCmd->options.bits.appId, pCmd->gpdId);
 	if(pSinkEntry){
 		if(pCmd->actions.bits.action == REMOVE_A_PAIRING){
-			if(pCmd->options.bits.commMode != pSinkEntry->options.bits.commuicationMode){
+			if(pCmd->options.bits.commMode != pSinkEntry->options.bits.communicationMode){
 				return;
 			}
 		}

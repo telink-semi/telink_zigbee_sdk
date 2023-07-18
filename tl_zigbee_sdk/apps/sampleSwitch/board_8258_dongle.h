@@ -62,6 +62,8 @@ extern "C" {
 #define PD4_OUTPUT_ENABLE			1
 #define PD4_INPUT_ENABLE			0
 
+#define LED_POWER					LED3
+
 #define	PM_WAKEUP_LEVEL		  		PM_WAKEUP_LEVEL_LOW
 
 // UART
@@ -103,6 +105,8 @@ extern "C" {
 #define PA3_FUNC					AS_GPIO
 #define PA3_OUTPUT_ENABLE			1
 #define PA3_INPUT_ENABLE			0
+
+#define LED_POWER					LED3
 
 #define	PM_WAKEUP_LEVEL		  		PM_WAKEUP_LEVEL_LOW
 
