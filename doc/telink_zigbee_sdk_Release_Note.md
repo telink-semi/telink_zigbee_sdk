@@ -1,3 +1,28 @@
+## V3.6.8.5(Public release)
+
+### Features
+* Provide a method to enable/disable whether the previous parent is preferred when rejoin.
+### Bug Fixes
+* Fix OTA Image Block Response sending failure.
+### Code Refactoring
+* N/A
+### Performance
+* N/A
+### BREAKING CHANGES
+* N/A
+
+### Features
+* 提供一个方法来使能/关闭在Rejoin时是否优先选择之前的父节点。
+### Bug Fixes
+* 修复OTA Image Block Response发送失败的问题。
+### Code Refactoring
+* N/A
+### Performance
+* N/A
+### BREAKING CHANGES
+* N/A
+
+
 ## V3.6.8.4(Public release)
 
 ### Features
