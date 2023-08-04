@@ -136,6 +136,9 @@ u32 AUTO_QUICK_DATA_POLL_INTERVAL = POLL_RATE_QUARTERSECONDS;//ms
 u8 AUTO_QUICK_DATA_POLL_TIMES = 3;
 #endif
 
+/* choose the previous parent first when rejoin. */
+bool PRE_PARENT_FIRST_WHEN_REJOIN = TRUE;
+
 /* binding table */
 u8 APS_BINDING_TABLE_SIZE = APS_BINDING_TABLE_NUM;
 aps_binding_entry_t g_apsBindingTbl[APS_BINDING_TABLE_NUM];
