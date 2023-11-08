@@ -1674,7 +1674,7 @@ class Pyside6Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         self.textEdit_nwkAddrShow.clear()
         self.textEdit_nwkAddrShow.setText('Getting。。。')
         file_path = self.lineEdit_analyzePath.text()
-        self.analyzenodeswork = AnalizeWorkThread(file_path, self.CsvFiles)
+        self.analyzenodeswork = AnalyzeWorkThread(file_path, self.CsvFiles)
         self.analyzenodeswork.nodes_signals.connect(self.get_nodes_result_show)  # 信号连接槽函数
         self.analyzenodeswork.start()  # 开启线程
 
