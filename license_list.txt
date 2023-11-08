@@ -407,7 +407,6 @@
 ./tl_zigbee_sdk/zigbee/wwah/wwah.c			TELINK_APACHE  
 ./tl_zigbee_sdk/zigbee/wwah/wwah.h			TELINK_APACHE  
 ./tl_zigbee_sdk/zigbee/wwah/wwahEpCfg.c			TELINK_APACHE  
-./tl_zigbee_sdk/zigbee/zbapi/zb_api.c			TELINK_APACHE  
 ./tl_zigbee_sdk/zigbee/zbapi/zb_api.h			TELINK_APACHE  
 ./tl_zigbee_sdk/zigbee/zcl/closures/zcl_door_lock.c			TELINK_APACHE  
 ./tl_zigbee_sdk/zigbee/zcl/closures/zcl_door_lock.h			TELINK_APACHE  
