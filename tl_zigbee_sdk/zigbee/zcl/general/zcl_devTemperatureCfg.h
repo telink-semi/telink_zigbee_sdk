@@ -52,8 +52,8 @@
 #define ZCL_ATTRID_DEV_TEMP_MAX_TEMP_EXP                  0x0002
 #define ZCL_ATTRID_DEV_TEMP_OVER_TEMP_TOTAL               0x0003
 #define ZCL_ATTRID_DEV_TEMP_ALARM_MASK                    0x0010
-#define ZCL_ATTRID_DEV_TEMP_LOW_THRE                      0x0011
-#define ZCL_ATTRID_DEV_TEMP_HIGH_THRE					  0x0012
+#define ZCL_ATTRID_DEV_TEMP_LOW_THRES                     0x0011
+#define ZCL_ATTRID_DEV_TEMP_HIGH_THRES					  0x0012
 #define ZCL_ATTRID_DEV_TEMP_LOW_TRIP                      0x0013
 #define ZCL_ATTRID_DEV_TEMP_HIGH_TRIP                     0x0014
 

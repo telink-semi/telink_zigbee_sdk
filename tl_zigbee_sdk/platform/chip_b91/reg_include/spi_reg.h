@@ -1,13 +1,12 @@
 /********************************************************************************************************
- * @file	spi_reg.h
+ * @file    spi_reg.h
  *
- * @brief	This is the header file for B91
+ * @brief   This is the header file for B91
  *
- * @author	Driver Group
- * @date	2019
+ * @author  Driver Group
+ * @date    2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -71,7 +70,7 @@ enum{
 /**
  * BIT[0]  set cmd format 0: single mode  1: the format of the cmd phase is the same as the data phase(Dual/Quad).master only
  * BIT[1]  set spi quad I/O mode. master only
- * BIT[2]  set the spi commnd phase enable.master only
+ * BIT[2]  set the spi command phase enable.master only
  * BIT[4:7]   the minimum time that SPI CS should stay HIGH.the actual duration is (SPI_CLK period_out / 2)*(csht+1).default=2,master only
  */
 #define reg_spi_mode2(i) 			REG_ADDR8(PSPI_BASE_ADDR+0x02+(i)*BASE_ADDR_DIFF)
@@ -124,14 +123,14 @@ enum{
  * BIT[0:3]  dummy data cnt, dummy is always single wire mode, dummy number = dummy_cnt + 1.master only
  * BIT[4:7]  the transfer mode.master only
  * the transfer sequence could be:
- * 0x0:write and read at the same time(must enbale CmdEn)
+ * 0x0:write and read at the same time(must enable CmdEn)
  * 0x1:write only
- * 0x2:read only(must enbale CmdEn)
+ * 0x2:read only(must enable CmdEn)
  * 0x3:write,read
  * 0x4:read,write
  * 0x5:write,dummy,read
- * 0x6:read,dummy,write(must enbale CmdEn)
- * 0x7:None Data(must enbale CmdEn)
+ * 0x6:read,dummy,write(must enable CmdEn)
+ * 0x7:None Data(must enable CmdEn)
  * 0x8:Dummy,write
  * 0x9:Dummy,read
  * 0xa~0xf:reserved

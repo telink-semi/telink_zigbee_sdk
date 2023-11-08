@@ -1,13 +1,12 @@
 /********************************************************************************************************
- * @file	pke.h
+ * @file    pke.h
  *
- * @brief	This is the header file for B91
+ * @brief   This is the header file for B91
  *
- * @author	Driver Group
- * @date	2019
+ * @author  Driver Group
+ * @date    2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -67,7 +66,7 @@ extern "C" {
 #define PKE_EXE_CFG_ALL_MONT          PKE_EXE_CFG_DEFAULT
 
 
-/********* oprand length *********/
+/********* operand length *********/
 #define PKE_OPERAND_MAX_WORD_LEN      (0x08)
 #define PKE_OPERAND_MAX_BIT_LEN       (0x100)
 #define ECC_MAX_WORD_LEN              PKE_OPERAND_MAX_WORD_LEN
@@ -119,10 +118,10 @@ unsigned char rand_get(unsigned char *rand, unsigned int byteLen);
 unsigned int valid_bits_get(const unsigned int *a, unsigned int wordLen);
 
 /**
- * @brief		get real word lenth of big number a of max_words words.
+ * @brief		get real word length of big number a of max_words words.
  * @param[in]   a			- the buffer a.
  * @param[in]   max_words	- the length of a.
- * @return		get real word lenth of big number a.
+ * @return		get real word length of big number a.
  */
 unsigned int valid_words_get(unsigned int *a, unsigned int max_words);
 
@@ -181,7 +180,7 @@ unsigned char pke_mod_sub(const unsigned int *modulus, const unsigned int *a, co
  * @brief		load the pre-calculated mont parameters H(R^2 mod modulus) and
  * 				n1( - modulus ^(-1) mod 2^w ).
  * @param[in] 	H 	  	- R^2 mod modulus.
- * @param[in] 	n1 	  	- modulus ^(-1) mod 2^w, here w is 32 acutally.
+ * @param[in] 	n1 	  	- modulus ^(-1) mod 2^w, here w is 32 actually.
  * @param[in] 	wordLen - word length of modulus or H.
  * @return: 	none.
  */

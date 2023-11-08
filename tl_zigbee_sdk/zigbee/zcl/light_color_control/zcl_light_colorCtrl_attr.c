@@ -59,10 +59,10 @@ zcl_lightColorCtrlAttr_t zcl_attr_lightColorCtrl = {
 		.zcl_attr_remainingTime						=	0,
 #endif
 #ifdef ZCL_ATTRID_CURRENT_X_ENABLE
-		.zcl_attr_currentX							=	0x616B,//0.381
+		.zcl_attr_currX								=	0x616B,//0.381
 #endif
 #ifdef ZCL_ATTRID_CURRENT_Y_ENABLE
-		.zcl_attr_currentY							=	0x607D,//0.377
+		.zcl_attr_currY								=	0x607D,//0.377
 #endif
 #ifdef ZCL_ATTRID_DRIFT_COMPENSATION_ENABLE
 		.zcl_attr_driftComensation					=	0,
@@ -131,10 +131,10 @@ const zclAttrInfo_t lightColorCtrl_attrTbl[] =
     { ZCL_ATTRID_REMAINING_TIME,          ZCL_DATA_TYPE_UINT16,  ACCESS_CONTROL_READ,     (u8*)&zcl_attr_lightColorCtrl.zcl_attr_remainingTime },
 #endif
 #ifdef ZCL_ATTRID_CURRENT_X_ENABLE
-    { ZCL_ATTRID_CURRENT_X,               ZCL_DATA_TYPE_UINT16,  ACCESS_CONTROL_READ,     (u8*)&zcl_attr_lightColorCtrl.zcl_attr_currentX },
+    { ZCL_ATTRID_CURRENT_X,               ZCL_DATA_TYPE_UINT16,  ACCESS_CONTROL_READ,     (u8*)&zcl_attr_lightColorCtrl.zcl_attr_currX },
 #endif
 #ifdef ZCL_ATTRID_CURRENT_Y_ENABLE
-    { ZCL_ATTRID_CURRENT_Y,               ZCL_DATA_TYPE_UINT16,  ACCESS_CONTROL_READ,     (u8*)&zcl_attr_lightColorCtrl.zcl_attr_currentY },
+    { ZCL_ATTRID_CURRENT_Y,               ZCL_DATA_TYPE_UINT16,  ACCESS_CONTROL_READ,     (u8*)&zcl_attr_lightColorCtrl.zcl_attr_currY },
 #endif
 #ifdef ZCL_ATTRID_DRIFT_COMPENSATION_ENABLE
     { ZCL_ATTRID_DRIFT_COMPENSATION,      ZCL_DATA_TYPE_ENUM8,   ACCESS_CONTROL_READ,     (u8*)&zcl_attr_lightColorCtrl.zcl_attr_driftComensation },

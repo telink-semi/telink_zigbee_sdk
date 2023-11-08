@@ -1,13 +1,12 @@
 /********************************************************************************************************
- * @file	flash.h
+ * @file    flash.h
  *
- * @brief	This is the header file for B91
+ * @brief   This is the header file for B91
  *
- * @author	Driver Group
- * @date	2019
+ * @author  Driver Group
+ * @date    2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -22,6 +21,24 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
+/**	@page FLASH
+ *
+ *	Introduction
+ *	===============
+ *	supports basic flash functions
+ *
+ *	API Reference
+ *	===============
+ *	Header File: flash.h
+ *
+ *	Attention
+ *	==============
+ *  -# the description of parameters addr contained on the interface:
+ *      - It is not necessary to add the base address 0x20000000, which ranges from 0 to the size of the flash storage space.
+ *  -# by default,the flash functions that call sub-functions(flash_mspi_read_ram/flash_mspi_write_ram) cannot be interrupted by interrupts,
+ *     if the function needs to be interrupted by a high priority interrupt during execution refer to flash_plic_preempt_config().
+ * 
+ */
 #pragma once
 
 #include "compiler.h"
@@ -51,9 +68,9 @@ typedef enum{
 	FLASH_WRITE_SECURITY_REGISTERS_CMD	=	0x42,
 	FLASH_ERASE_SECURITY_REGISTERS_CMD	=	0x44,
 	FLASH_WRITE_STATUS_CMD_LOWBYTE		=	0x01,
-	FLASH_WRITE_STATUS_CMD_HIGHBYTE		=	0x31,    // Flash Type = P25Q16SU/P25Q32SH for write status register-1;
+	FLASH_WRITE_STATUS_CMD_HIGHBYTE		=	0x31,    // Flash Type = P25Q16SU/P25Q32SU for write status register-1;
 	FLASH_WRITE_CONFIGURE_CMD_1         =   0x31,    // Flash Type = P25Q80U  for write configure register;
-	FLASH_WRITE_CONFIGURE_CMD_2         =   0x11,    // Flash Type = P25Q16SU/P25Q32SH  for write configure register;
+	FLASH_WRITE_CONFIGURE_CMD_2         =   0x11,    // Flash Type = P25Q16SU/P25Q32SU  for write configure register;
 	//other command
 	FLASH_WRITE_DISABLE_CMD 			= 	0x04,
 	FLASH_WRITE_ENABLE_CMD 				= 	0x06,
@@ -97,6 +114,16 @@ typedef enum {
     FLASH_SIZE_8M      = 0x17,
 }flash_capacity_e;
 
+/**
+ * @brief     flash mid definition
+ */
+typedef enum{
+	MID146085   =   0x146085,//P25Q80U
+    MID156085   =   0x156085,//P25Q16SU
+	MID166085   =   0x166085,//P25Q32SU
+}flash_mid_e;
+
+
 typedef struct{
 	unsigned char  flash_read_cmd;			/**< xip read command */
 	unsigned char  flash_read_dummy:4;		/**< dummy cycle = flash_read_dummy + 1 */
@@ -105,9 +132,9 @@ typedef struct{
 	unsigned char  flash_read_cmd_line:1; 	/**< 0:single line;  1:the same to dat_line_h */
 }flash_xip_config_t;
 
-typedef void (*flash_hander_t)(unsigned long, unsigned long, unsigned char*);
-extern _attribute_data_retention_sec_ flash_hander_t flash_read_page;
-extern _attribute_data_retention_sec_ flash_hander_t flash_write_page;
+typedef void (*flash_handler_t)(unsigned long, unsigned long, unsigned char*);
+extern _attribute_data_retention_sec_ flash_handler_t flash_read_page;
+extern _attribute_data_retention_sec_ flash_handler_t flash_write_page;
 
 /*******************************************************************************************************************
  *												Primary interface
@@ -119,7 +146,7 @@ extern _attribute_data_retention_sec_ flash_hander_t flash_write_page;
  * @param[in]   write	- the write function.
  * @none
  */
-static inline void flash_change_rw_func(flash_hander_t read, flash_hander_t write)
+static inline void flash_change_rw_func(flash_handler_t read, flash_handler_t write)
 {
 	flash_read_page = read;
 	flash_write_page = write;
@@ -148,7 +175,7 @@ _attribute_text_sec_ void flash_erase_sector(unsigned long addr);
  * @brief 		This function reads the content from a page to the buf with single mode.
  * @param[in]   addr	- the start address of the page.
  * @param[in]   len		- the length(in byte) of content needs to read out from the page.
- * @param[out]  buf		- the start address of the buffer.
+ * @param[out]  buf		- the start address of the buffer(ram address).
  * @return 		none.
  * @note        cmd:1x, addr:1x, data:1x, dummy:0
  * 				Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
@@ -167,7 +194,7 @@ _attribute_text_sec_ void flash_read_data(unsigned long addr, unsigned long len,
  * @brief 		This function reads the content from a page to the buf with dual read mode.
  * @param[in]   addr	- the start address of the page.
  * @param[in]   len		- the length(in byte) of content needs to read out from the page.
- * @param[out]  buf		- the start address of the buffer.
+ * @param[out]  buf		- the start address of the buffer(ram address).
  * @return 		none.
  * @note        cmd:1x, addr:1x, data:2x, dummy:8
  * 				Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
@@ -186,7 +213,7 @@ _attribute_text_sec_ void flash_dread(unsigned long addr, unsigned long len, uns
  * @brief 		This function reads the content from a page to the buf with 4*IO read mode.
  * @param[in]   addr	- the start address of the page.
  * @param[in]   len		- the length(in byte) of content needs to read out from the page.
- * @param[out]  buf		- the start address of the buffer.
+ * @param[out]  buf		- the start address of the buffer(ram address).
  * @return 		none.
  * @note        cmd:1x, addr:4x, data:4x, dummy:6
  * 				Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
@@ -208,10 +235,10 @@ _attribute_text_sec_ void flash_4read(unsigned long addr, unsigned long len, uns
  * 				Do not erase the useful information in other locations of the sector during erasing.
  * @param[in]   addr	- the start address of the area.
  * @param[in]   len		- the length(in byte) of content needs to write into the flash.
- * @param[in]   buf		- the start address of the content needs to write into.
+ * @param[in]   buf		- the start address of the content needs to write into(ram address).
  * @return 		none.
  * @note        cmd:1x, addr:1x, data:1x
- * 				the funciton support cross-page writing,which means the len of buf can bigger than 256.
+ * 				the function support cross-page writing,which means the len of buf can bigger than 256.
  *
  *              Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
  *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.
@@ -232,10 +259,10 @@ _attribute_text_sec_ void flash_page_program(unsigned long addr, unsigned long l
  * 				Do not erase the useful information in other locations of the sector during erasing.
  * @param[in]   addr	- the start address of the area.
  * @param[in]   len		- the length(in byte) of content needs to write into the flash.
- * @param[in]   buf		- the start address of the content needs to write into.
+ * @param[in]   buf		- the start address of the content needs to write into(ram address).
  * @return 		none.
  * @note        cmd:1x, addr:1x, data:4x
- * 				the funciton support cross-page writing,which means the len of buf can bigger than 256.
+ * 				the function support cross-page writing,which means the len of buf can bigger than 256.
  *
  *              Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
  *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.
@@ -289,6 +316,14 @@ _attribute_text_sec_ void flash_read_uid(unsigned char idcmd, unsigned char *buf
  * @param[in]   preempt_en	- 1 can disturb by interrupt, 0 can disturb by interrupt.
  * @param[in]	threshold	- priority Threshold.
  * @return    	none.
+ *              -# The correlation between flash_plic_preempt_config() and the flash functions that call sub-functions(flash_mspi_read_ram/flash_mspi_write_ram) is as follows:
+ *                  - When preempt_en = 1 and interrupt nesting is enabled (plic_preempt_feature_en):
+ *                      - The initialized interrupt threshold can only be 0, because the PLIC threshold will be set to 0 when the flash functions returns.
+ *                      - During the flash functions execution, it can be interrupted by external interrupts with priority greater than given threshold
+ *                      - machine timer and software interrupt will definitely interrupt the flash functions execution, they are not controlled by the plic interrupt threshold
+ *                  - In other cases(preempt_en = 0 or plic_preempt_feature_en = 0), global interrupts (including machine timer and software interrupt) will be turned off during the execution of the flash functions and will be restored when the flash functions exits.
+ *              -# If the flash operation may be interrupted by an interrupt, it is necessary to ensure that the interrupt handling function and the function it calls must be in the RAM code. 
+ * 
  */
 _attribute_text_sec_ void flash_plic_preempt_config(unsigned char preempt_en, unsigned char threshold);
 /**

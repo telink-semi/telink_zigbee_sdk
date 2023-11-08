@@ -527,6 +527,9 @@ _CODE_BDB_ static void bdb_SimpleDescResp(void *arg)
 					bdb_findingAndBinding(&g_bdbCtx.bindDstInfo);
 					return;
 				}
+				ev_buf_free((u8 *)g_bdbCtx.matchClusterList);
+				g_bdbCtx.matchClusterNum = 0;
+				g_bdbCtx.matchClusterList = NULL;
 			}
 		}
 	}
@@ -1282,6 +1285,7 @@ _CODE_BDB_ void bdb_zdoStartDevCnf(zdo_start_device_confirm_t *startDevCnf){
 #if ZB_ROUTER_ROLE
 				g_zbNwkCtx.joinAccept = 1;
 #endif
+				ss_securityModeSet(SS_SEMODE_DISTRIBUTED);
 				TL_SCHEDULE_TASK(bdb_commissioningInfoSave, NULL);
 			}
 
@@ -1389,6 +1393,7 @@ _CODE_BDB_ static void bdb_touchLinkCallback(u8 status, void *arg)
 			//g_bdbAttrs.commissioningStatus = BDB_COMMISSION_STA_TARGET_FAILURE;
 			if(is_device_factory_new()){
 				BDB_STATUS_SET(BDB_COMMISSION_STA_TARGET_FAILURE);
+				aps_ib.aps_authenticated = 0;
 			}else{
 				BDB_STATUS_SET(BDB_COMMISSION_STA_SUCCESS);
 			}

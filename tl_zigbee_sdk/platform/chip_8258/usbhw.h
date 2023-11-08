@@ -31,7 +31,7 @@
 #include "gpio.h"
 
 enum {
-	USB_EDP_PRINTER_IN 		= 8, 	// endpoint 8 is alias of enpoint 0,  becareful.  // default hw buf len = 64
+	USB_EDP_PRINTER_IN 		= 8, 	// endpoint 8 is alias of endpoint 0,  becareful.  // default hw buf len = 64
 	USB_EDP_MOUSE 			= 2,	// default hw buf len = 8
 	USB_EDP_KEYBOARD_IN 	= 1,	// default hw buf len = 8
 	USB_EDP_KEYBOARD_OUT 	= 3,	// default hw buf len = 16
@@ -114,7 +114,7 @@ static inline void usb_set_pin_en(void)
 
 /**
  * @brief      This function disables the manual interrupt
- *             (Endpont8 is the alias of endpoint0)
+ *             (Endpoint8 is the alias of endpoint0)
  * @param[in]  m - the irq mode needs to set
  * @return     none
  */

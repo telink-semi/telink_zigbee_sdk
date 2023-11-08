@@ -51,18 +51,25 @@ typedef struct{
 	drv_pm_wakeup_level_e wakeupLevel;
 }drv_pm_pinCfg_t;
 
+/* Initialize 32K for timer wakeup. */
 #if defined(MCU_CORE_826x)
 	#define PM_CLOCK_INIT()					do{ rc_32k_cal(); }while(0)
 
 	#define PM_NORMAL_SLEEP_MAX				(100 * 1000)//100s, (0xC0000000 / 32)
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+#if CLOCK_32K_EXT_CRYSTAL
 	#define PM_CLOCK_INIT()					do{ \
-												/* Initialize 32K for timer wakeup. */	\
+												clock_32k_init(CLK_32K_XTAL);			\
+												pwm_kick_32k_pad_times(10);				\
+												pm_select_external_32k_crystal();		\
+											}while(0)
+#else
+	#define PM_CLOCK_INIT()					do{ \
 												clock_32k_init(CLK_32K_RC);				\
 												rc_32k_cal();							\
 												pm_select_internal_32k_rc();			\
 											}while(0)
-
+#endif
 	#define PM_NORMAL_SLEEP_MAX				(230 * 1000)//230s, (0xE0000000 / 16)
 #elif defined(MCU_CORE_B91)
 	/* 24M RC is inaccurate, and it is greatly affected by temperature, so real-time calibration is required
@@ -70,13 +77,19 @@ typedef struct{
 	 * because this clock will be used to kick 24m xtal start after wake up.
 	 * The more accurate this time, the faster the crystal will start. Calibration cycle depends on usage
 	 */
+#if CLOCK_32K_EXT_CRYSTAL
 	#define PM_CLOCK_INIT()					do{ \
 												clock_cal_24m_rc();						\
-												/* Initialize 32K for timer wakeup. */	\
+												clock_32k_init(CLK_32K_XTAL);			\
+												clock_kick_32k_xtal(10);				\
+											}while(0)
+#else
+	#define PM_CLOCK_INIT()					do{ \
+												clock_cal_24m_rc();						\
 												clock_32k_init(CLK_32K_RC);				\
 												clock_cal_32k_rc();/*6.68ms*/			\
 											}while(0)
-
+#endif
 	#define PM_NORMAL_SLEEP_MAX				(230 * 1000)//230s, (0xE0000000 / 16)
 #endif
 

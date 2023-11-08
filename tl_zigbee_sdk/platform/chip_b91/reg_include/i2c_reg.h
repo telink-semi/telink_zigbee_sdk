@@ -1,13 +1,12 @@
 /********************************************************************************************************
- * @file	i2c_reg.h
+ * @file    i2c_reg.h
  *
- * @brief	This is the header file for B91
+ * @brief   This is the header file for B91
  *
- * @author	Driver Group
- * @date	2019
+ * @author  Driver Group
+ * @date    2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -35,10 +34,7 @@
 
 
 /**
- * this register to configure I2C master clock speed,eagle i2c has default clock speed.
- * for eagle i2c,its default clock resource is 24M, its default speed is 200K.
- * user can configure this register to get other speed: i2c clock = i2c_system_clock/(4*DivClock)
- * DivClock=0x80140280[7:0].max_value=0xff.
+ *  i2c clock = pclk/(4*DivClock)
  */
 #define reg_i2c_sp				    REG_ADDR8(REG_I2C_BASE)
 
@@ -59,8 +55,8 @@ enum{
  * this register is to configure i2c master
  * BIT[0] means i2c bus whether busy.
  * BIT[1] means that a start signal is coming, it is 1, and an end signal is coming it will be 0.
- * BIT[2] Indicates the status of master send and receive,bit[2]=1,means have not ability to send or receivebit[2]=0,means have ability to send or receive.
- * BIT_RNG[3:5] Indicate what state the i2c is in when it acts as master, BIT_RNG[3:5] defaule value is 0x06 it means master's state is IDLE.
+ * BIT[2] master received status: 1 for nak; 0 for ack.
+ * BIT_RNG[3:5] Indicate what state the i2c is in when it acts as master, BIT_RNG[3:5] default value is 0x06 it means master's state is IDLE.
  * BIT_RNG[6:7] Indicate what state the i2c is in when it acts as slave.
  */
 #define reg_i2c_mst				    REG_ADDR8(REG_I2C_BASE+0x02)
@@ -76,11 +72,9 @@ enum{
 /**
  * This shows the status control register of i2c
  * BIT[0] i2c master enable.
- * BIT[1] clk stretch enable: suspend transimission by pulling SCL down to low level,and continue transmission after SCL is pelesed to hign level.
- * BIT[2] rx interrupt enable.RX is related to rx_irq_trig_lev function (this function is always present and does not need any setting to enable).
- *        fifo_data_cnt> = rx_irq_trig_lev generates an interrupt.
- * BIT[3] tx interrupt enable.Related to tx_irq_trig_lev function,(This function is always present and does not require any setting to enable).
- *        fifo_data_cnt <= tx_irq_trig_lev, generate interrupt.
+ * BIT[1] master clk stretch enable.
+ * BIT[2] rx interrupt enable.RX is related to rx_irq_trig_lev function,fifo_data_cnt> = rx_irq_trig_lev generates an interrupt.
+ * BIT[3] tx interrupt enable.Related to tx_irq_trig_lev function,fifo_data_cnt <= tx_irq_trig_lev, generate interrupt.
  * BIT[4] tx_done.An interrupt is generated when one frame of data is sent.
  * BIT[5] rx_done.An interrupt is generated when one frame of data is received.
  * BIT[6] If the bit is set to 1, when the master reads, the hardware will automatically return ack / nak, no software processing is required.
@@ -145,13 +139,13 @@ enum{
 
 /**
  * This register is to configure the slave stretch function.
- * BIT[0] slave auto stretch clk eanble,open this function, use slave to receive data,when data buffer is full, scl bus will be low to stop receive data.
- * BIT[1] slave manul stretch clk enable,open this function, use slave to receive data,when data buffer is full, scl bus will be low to stop receive data.
- * BIT[2] clear slave stretch.
+ * BIT[0] slave auto stretch clk enable,open this function, use slave to receive data,when data buffer is full, scl bus will be low to stop receive data.
+ * BIT[1] slave manual stretch clk: suspend transmission by pulling SCL down to low level,and continue transmission after SCL is pulsed to high level.
+ * BIT[2] clear the slave manual stretch.
  * BIT[6] in high speed mode,when open slave auto stretch clk function,Suddenly data came over, to meet the requirements of time setting.
  * BIT[7] in fast speed mode,when open slave auto stretch clk function,Suddenly data came over, to meet the requirements of time setting.
  */
-#define reg_i2c_slave_strech_en	    REG_ADDR8(REG_I2C_BASE+0x07)
+#define reg_i2c_slave_stretch_en	    REG_ADDR8(REG_I2C_BASE+0x07)
 enum{
 	FLD_I2C_R_CLK_STRETCH_SEN       = BIT(0),
 	FLD_I2C_R_MANUAL_STRETCH        = BIT(1),
@@ -237,7 +231,7 @@ enum{
  * BIT[1] If there is data in tx_buffer, an interrupt will be generated.
  * BIT[2] means Generate an interrupt after the receive is completed.
  * BIT[3] If there is data in rx_buffer, an interrupt will be generated.
- * BIT[4] Enable transmission function.
+ * BIT[4] tx_done manual clear.
  */
 #define reg_i2c_irq_status		    REG_ADDR8(REG_I2C_BASE+0x0e)
 enum{

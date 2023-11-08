@@ -173,14 +173,14 @@ void timer_set_mode(TIMER_TypeDef type, TIMER_ModeTypeDef mode);
 void timer_gpio_init(TIMER_TypeDef type, GPIO_PinTypeDef pin, GPIO_PolTypeDef pol);
 
 /**
- * @brief     the specifed timer start working.
+ * @brief     the specified timer start working.
  * @param[in] type - select the timer to start.
  * @return    none
  */
 void timer_start(TIMER_TypeDef type);
 
 /**
- * @brief     the specifed timer stop working.
+ * @brief     the specified timer stop working.
  * @param[in] type - select the timer to stop.
  * @return    none
  */

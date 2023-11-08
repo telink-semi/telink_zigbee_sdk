@@ -76,7 +76,7 @@ _attribute_ram_code_sec_noinline_ static void flash_send_addr(unsigned int addr)
 }
 
 /**
- * @brief     This function serves to wait flash done.(make this a asynchorous version).
+ * @brief     This function serves to wait flash done.(make this a asynchronous version).
  * @return    none.
  */
 _attribute_ram_code_sec_noinline_ static void flash_wait_done(void)
@@ -222,7 +222,7 @@ void flash_read_page(unsigned long addr, unsigned long len, unsigned char *buf)
  * @param[in]   len		- the length(in byte) of content needs to write into the flash.
  * @param[in]   buf		- the start address of the content needs to write into.
  * @return 		none.
- * @note        the funciton support cross-page writing,which means the len of buf can bigger than 256.
+ * @note        the function support cross-page writing,which means the len of buf can bigger than 256.
  *
  *              Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
  *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.

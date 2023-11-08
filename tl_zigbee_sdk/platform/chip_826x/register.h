@@ -635,7 +635,7 @@ enum{
 #define reg_usb_irq				REG_ADDR8(0x139)
 #define reg_usb_mask			REG_ADDR8(0x13a)
 #define reg_usb_ep8_send_max	REG_ADDR8(0x13b)
-#define reg_usb_ep8_send_thre	REG_ADDR8(0x13c)
+#define reg_usb_ep8_send_thres	REG_ADDR8(0x13c)
 #define reg_usb_ep8_fifo_mode	REG_ADDR8(0x13d)
 #define reg_usb_ep_max_size		REG_ADDR8(0x13e)
 
@@ -1142,7 +1142,7 @@ enum{
 	FLD_GP7_RXADC_CLK	=	BIT(3),
 	FLD_RP_T0			=	BIT(4),
 	FLD_RN_T1			=	BIT(5),
-	FLD_GP6_TE			=	BIT(6),
+	FLD_GP6_T_E			=	BIT(6),
 	FLD_GP7_MDC			=	BIT(7),
 };
 #define reg_gpio_config_func2 REG_ADDR8(0x5b2)
@@ -1419,10 +1419,10 @@ enum {
 	FLDA_LDO_SETTING2_RSV =		BIT_RNG(6,7),
 };
 
-#define rega_32k_tm_thre0		0x10
-#define rega_32k_tm_thre1		0x11
-#define rega_32k_tm_thre2		0x12
-#define rega_32k_tm_thre3		0x13
+#define rega_32k_tm_thres0		0x10
+#define rega_32k_tm_thres1		0x11
+#define rega_32k_tm_thres2		0x12
+#define rega_32k_tm_thres3		0x13
 enum {
 	FLDA_32K_THR3_H = 			BIT_RNG(0,1),		// conflict with rega_32k_tm_val3 in document !!!
 	FLDA_32K_CONTINUE_MODE =	BIT(2),				// 0: one shot,  1: continuing

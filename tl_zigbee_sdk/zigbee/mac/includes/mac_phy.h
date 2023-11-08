@@ -255,7 +255,7 @@ u8 rf_getLqi(s8 rssi);
 u8 rf_lqi2cost(u8 lqi);
 
 /*********************************************************************
- * @fn      rf_startED
+ * @fn      rf_startEDScan
  *
  * @brief   Start ED detect
  *
@@ -263,10 +263,10 @@ u8 rf_lqi2cost(u8 lqi);
  *
  * @return  none
  */
-void rf_startED(void);
+void rf_startEDScan(void);
 
 /*********************************************************************
- * @fn      rf_stopED
+ * @fn      rf_stopEDScan
  *
  * @brief   Stop Energy Detect
  *
@@ -274,7 +274,7 @@ void rf_startED(void);
  *
  * @return  ED result
  */
-u8 rf_stopED(void);
+u8 rf_stopEDScan(void);
 
 /*********************************************************************
  * @fn      rf_performCCA

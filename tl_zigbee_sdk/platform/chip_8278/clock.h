@@ -66,7 +66,7 @@ extern unsigned char system_clk_mHz;
 typedef enum{
 	LDO_MODE 		=0x40,	//LDO mode
 	DCDC_LDO_MODE	=0x41,	//DCDC_LDO mode
-	DCDC_MODE		=0x43,	//DCDC mode (16pin is not suported this mode.)
+	DCDC_MODE		=0x43,	//DCDC mode (16pin is not supported this mode.)
 }POWER_MODE_TypeDef;
 /**
  * @brief 	crystal for different application

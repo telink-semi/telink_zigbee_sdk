@@ -1,13 +1,12 @@
 /********************************************************************************************************
- * @file	usbhw.h
+ * @file    usbhw.h
  *
- * @brief	This is the header file for B91
+ * @brief   This is the header file for B91
  *
- * @author	Driver Group
- * @date	2019
+ * @author  Driver Group
+ * @date    2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -35,7 +34,7 @@
 
 #pragma once
 
-#include <reg_include/register.h>
+#include "reg_include/register.h"
 #include "analog.h"
 #include "gpio.h"
 
@@ -306,7 +305,7 @@ static inline void usbhw_data_ep_stall(unsigned int ep) {
  * @return    none.
  */
 static inline void usbhw_set_printer_threshold(unsigned char th) {
-	reg_usb_ep8_send_thre = th;
+	reg_usb_ep8_send_thres = th;
 }
 
 enum {
@@ -338,7 +337,7 @@ enum {
 
 /**
  * @brief      This function disables the manual interrupt
- *             (Endpont8 is the alias of endpoint0)
+ *             (Endpoint8 is the alias of endpoint0)
  * @param[in]  m - the irq mode needs to set
  * @return     none
  */

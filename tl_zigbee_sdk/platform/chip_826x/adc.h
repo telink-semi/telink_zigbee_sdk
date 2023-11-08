@@ -96,8 +96,8 @@ typedef enum {
 	B7,
 	PGAVOM,
 	PGAVOP,
-	TEMSENSORN,
-	TEMSENSORP,
+	TEMPERATURE_SENSOR_N,
+	TEMPERATURE_SENSOR_P,
 	AVSS,
 	OTVDD,//1/3 voltage division detection
 }ADC_InputPTypeDef;
@@ -314,7 +314,7 @@ extern void ADC_ResSet(ADC_ResTypeDef adcRes);
 extern void ADC_AnaChSet( ADC_InputPTypeDef adcInCha);
 
 /**
- * @brief      This function sets ADC input channel mode - signle-end or differential mode
+ * @brief      This function sets ADC input channel mode - single-end or differential mode
  * @param[in]  inM - enum variable of ADCINPUTMODE.
  * @return     none
  */
@@ -336,7 +336,7 @@ extern void ADC_RefVoltageSet(ADC_RefVolTypeDef adcRF);
 
 /**
  * @brief	   ADC initiate function, set the ADC clock details (4MHz) and start the ADC clock.
- *			   ADC clock relys on PLL.
+ *			   ADC clock relies on PLL.
  * @param[in]  none
  * @return	   1: set success ;
  *             0: set error

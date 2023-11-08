@@ -1,13 +1,12 @@
 /********************************************************************************************************
- * @file	swire.h
+ * @file    swire.h
  *
- * @brief	This is the header file for B91
+ * @brief   This is the header file for B91
  *
- * @author	Driver Group
- * @date	2019
+ * @author  Driver Group
+ * @date    2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -24,7 +23,7 @@
  *******************************************************************************************************/
 #ifndef _SWIRE_H_
 #define _SWIRE_H_
-#include <reg_include/register.h>
+#include "reg_include/register.h"
 #include "compiler.h"
 #include "gpio.h"
 typedef enum{
@@ -46,6 +45,9 @@ static inline void swire_reset(void)
  */
 static inline void swire_wait_wr_done(void)
 {
+/*
+ * FLD_SWIRE_WR clearing mechanism:the write operation is controlled by the clk issued by the master side,when the master finishes writing, FLD_SWIRE_WR will clear 0 and not be affected by the slave.
+ */
 	while (reg_swire_ctl & FLD_SWIRE_WR);
 }
 /**
@@ -167,4 +169,25 @@ void swire_master_write(unsigned char slave_id,unsigned char *addr, unsigned cha
  */
 unsigned char  swire_master_read (unsigned char slave_id,unsigned char *addr, unsigned char addr_len,unsigned char *data,unsigned int data_len);
 
+/*
+ * @brief      This function is used to set swire read timeout tick.
+ *             the swire read timing protocol is as follows: when it is a read operation, the master sends 1 unit of low level to the slave and then releases the bus.
+ *             when the slave finds that the high level lasts longer than the previous low level time, it starts sending data. After sending 8 bits,
+ *             it sends another unit of low level. The read operation time is the master sends one Bit and the slave sends nine bits.
+ *             a bit allowance is added to the master and slave respectively. The final calculation formula is as follows:
+ *             s_read_timeout_tick =   1000000*(1/master_clk*5*2 + 1/slave_clk*5*10)/(1/stimer_clk)
+ *                                 =   stimer_clk*1000000*(10/master_clk+50/slave_clk)
+ *             then two additional allowances have been added to prevent division problems:
+ *             s_read_timeout_tick=s_stimer_tick+2;
+ * @param[in]  master_clk_hz  - swire master clock,unit is HZ.
+ * @param[in]  slave_clk_hz   - swire slave  clock,unit is HZ.
+ * @return	   none.
+ */
+void swire_read_set_timeout_tick(unsigned int master_clk_hz,unsigned int slave_clk_hz);
+
+/*
+ * @brief      This function is used to get swire read timeout tick.
+ * @return	   timeout tick.
+*/
+unsigned int swire_read_get_timeout_tick();
 #endif

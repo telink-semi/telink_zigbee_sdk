@@ -49,6 +49,9 @@ extern "C" {
 /* PA */
 #define PA_ENABLE						0
 
+/* 32K RC or External 32K crystal */
+#define CLOCK_32K_EXT_CRYSTAL			0
+
 /* BDB */
 #define TOUCHLINK_SUPPORT				1
 #define FIND_AND_BIND_SUPPORT			0

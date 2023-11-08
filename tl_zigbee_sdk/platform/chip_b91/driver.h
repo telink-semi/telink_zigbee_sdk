@@ -1,13 +1,12 @@
 /********************************************************************************************************
- * @file	driver.h
+ * @file    driver.h
  *
- * @brief	This is the header file for B91
+ * @brief   This is the header file for B91
  *
- * @author	Driver Group
- * @date	2019
+ * @author  Driver Group
+ * @date    2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -27,16 +26,18 @@
 #include "lib/include/axon/axon_api.h"
 #include "lib/include/axon/axon_dep.h"
 #include "lib/include/pke/pke.h"
-#include "lib/include/emi.h"
+
 #include "lib/include/plic.h"
 #include "lib/include/pm.h"
 #include "lib/include/rf.h"
 #include "lib/include/swire.h"
 #include "lib/include/sys.h"
 #include "lib/include/trng.h"
+#include "lib/include/aoa.h"
 
 #include "lib/include/pke/pke_algorithm.h"
 
+#include "emi.h"
 #include "audio.h"
 #include "analog.h"
 #include "dma.h"
@@ -62,3 +63,4 @@
 #include "mspi.h"
 #include "adc.h"
 #include "flash/flash_type.h"
+#include "charger.h"

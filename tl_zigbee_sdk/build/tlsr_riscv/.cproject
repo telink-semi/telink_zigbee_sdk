@@ -529,7 +529,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="platform/services/irq_handler.c|zigbee|zbhci|apps/sampleLight|apps/common/module_test.c|apps/common/main.c|apps/common/factory_reset.c|apps/sampleSwitch|apps/sampleContactSensor|apps/sampleGW" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="zigbee|zbhci|apps/sampleLight|apps/common/module_test.c|apps/common/main.c|apps/common/factory_reset.c|apps/sampleSwitch|apps/sampleContactSensor|apps/sampleGW" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

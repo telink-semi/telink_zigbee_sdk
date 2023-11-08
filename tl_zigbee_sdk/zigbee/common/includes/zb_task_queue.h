@@ -34,7 +34,7 @@
 enum{
 	ZB_RET_OK,			/*!< status: success */
 	ZB_RET_OVERFLOW,	/*!< status: array or buffer overflow */
-}zb_sta_e;
+};
 
 enum{
 	TL_Q_EV_TASK = 0,

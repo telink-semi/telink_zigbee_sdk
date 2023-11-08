@@ -1,13 +1,12 @@
 /********************************************************************************************************
- * @file	axon_dep.h
+ * @file    axon_dep.h
  *
- * @brief	This is the header file for B91
+ * @brief   This is the header file for B91
  *
- * @author	Driver Group
- * @date	2019
+ * @author  Driver Group
+ * @date    2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -166,7 +165,7 @@ uint32_t AxonHostGetTime();
  * Axon driver will occasionally invoke AxonHostDisableInterrupts() in order to inspect a state variable
  * that is set in the ISR, but the duration will be very short before calling AxonHostEnableInterrupts().
  *
- * Axon driver will not nest calls to AxonHostDisableInterrutps (ie, call it multiple times before calling
+ * Axon driver will not nest calls to AxonHostDisableInterrupts (ie, call it multiple times before calling
  * AxonHostEnableInterrupts), so the host need not worry if the state upon entry was with interrupts already
  * disabled.
  */

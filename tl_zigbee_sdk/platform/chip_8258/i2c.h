@@ -78,7 +78,7 @@ typedef enum{
  * @param[in] none
  * @return none
  */
-static inline void reset_i2c_moudle(void)
+static inline void reset_i2c_module(void)
 {
 	reg_rst0 |= FLD_RST0_I2C;
 	reg_rst0 &= (~FLD_RST0_I2C);
@@ -172,7 +172,7 @@ void i2c_write_series(unsigned int Addr, unsigned int AddrLen, unsigned char * d
 void i2c_read_series(unsigned int Addr, unsigned int AddrLen, unsigned char * dataBuf, int dataLen);
 
 /**
- * @brief     This fuction servers to clear the i2c slave interrupt status.
+ * @brief     This function servers to clear the i2c slave interrupt status.
  * @param[in] irq_status  - i2c slave all interrupt status.
  * @return	  none.
  */
@@ -183,7 +183,7 @@ static inline void i2c_clear_interrupt_status(i2c_irq_e irq_status)
 
 
 /**
- * @brief     This fuction servers to get the i2c slave interrupt status.
+ * @brief     This function servers to get the i2c slave interrupt status.
  * @param[in] irq_status  - i2c slave all interrupt status.
  * @return	  i2c slave interrupt status.
  */

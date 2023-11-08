@@ -29,7 +29,7 @@
 #include "bit.h"
 
 
-// enalbe interrupt
+// enable interrupt
 static inline unsigned char irq_enable(void){
 	unsigned char r = reg_irq_en;		// don't worry,  the compiler will optimize the return value if not used
 	reg_irq_en = 1;

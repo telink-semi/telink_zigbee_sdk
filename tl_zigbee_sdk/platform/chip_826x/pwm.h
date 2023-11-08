@@ -202,7 +202,7 @@ enum PWMIRQSOURCE{
 
 
 /************************************************************
-*	@brief	Initiate the PWM function include seting and enabling the PWM clock. 
+*	@brief	Initiate the PWM function include setting and enabling the PWM clock.
 *			For test pin number 22 - 27 is the PWM output pin.
 *
 *	@param	None
@@ -218,7 +218,7 @@ extern void pwm_Init(unsigned char pwmCLKdiv);
 *			pwmWorkM - enum variable of pwm work mode
 *			phaseTime - delay time of the pwm channel before enter into the count status
 *			cscValue - count status value
-*			cycVlaue - cycle value
+*			cycValue - cycle value
 *			sfValue - signal frame value for the COUNT and IR mode
 *	
 *	@return	'1' set success; '0' set error, if you set pwm2 - pwm5 to work on the other not normal mode, the function will return error.
@@ -265,7 +265,7 @@ extern void pwm_Stop(enum PWMN pwmNumber);
 *	
 *	@param	pwmNumber - enum variable of pwm channel number
 *			cscValue - count status value
-*			cycVlaue - cycle value
+*			cycValue - cycle value
 
 *
 *	@return	'1' set success; '0' set error, if csValue>cycValue

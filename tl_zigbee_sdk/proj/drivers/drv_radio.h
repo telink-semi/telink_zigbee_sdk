@@ -92,6 +92,9 @@
 /* rx buffer configure */
 #define ZB_RADIO_RX_BUF_SET(addr)						RF_rx_buffer_reconfig(addr)
 
+/* rx max length limit */
+#define ZB_RADIO_RX_MAX_LEN_SET(len)
+
 /* rx buffer clear */
 #define ZB_RADIO_RX_BUF_CLEAR(p)						do{ \
 															p[12] = 0;		\
@@ -250,6 +253,9 @@
 /* rx buffer configure */
 #define ZB_RADIO_RX_BUF_SET(addr)						rf_rx_buffer_reconfig(addr)
 
+/* rx max length limit */
+#define ZB_RADIO_RX_MAX_LEN_SET(len)
+
 /* rx buffer clear */
 #define ZB_RADIO_RX_BUF_CLEAR(p)						do{ \
 															p[0] = 0;		\
@@ -315,6 +321,7 @@
 /* sys timer initialization for mac-csma */
 #define ZB_TIMER_INIT()									drv_hwTmr_init(TIMER_IDX_3, TIMER_MODE_SCLK)
 
+#if 1
 #define ZB_RADIO_RSSI_TO_LQI(mode, rssi, lqi)			do{ \
 															(void)mode;									\
 															s16 minEd = -99;							\
@@ -340,6 +347,22 @@
 															else if(lqi > 45){path_cost = 5;}	\
 															else{path_cost = 7;}				\
 														}while(0)
+#else
+#define ZB_RADIO_RSSI_TO_LQI(mode, rssi, lqi)			do{ \
+															(void)mode;							\
+															if(rssi >= -36){lqi = 255;}			\
+															else if(rssi < -99){lqi = 0;}		\
+															else{lqi = (rssi + 100) << 2;}		\
+														}while(0)
+
+#define ZB_LQI_TO_PATH_COST(lqi, path_cost) 			do{ \
+															if(lqi > 76){path_cost = 1;}		\
+															else if(lqi > 56){path_cost = 3;}	\
+															else if(lqi > 32){path_cost = 5;}	\
+															else if(lqi){path_cost = 7;}		\
+														}while(0)
+#endif
+
 #elif defined(MCU_CORE_8278)
 /*******************************************************************************************************
  * 									Radio interface for 8278
@@ -410,6 +433,9 @@
 /* rx buffer configure */
 #define ZB_RADIO_RX_BUF_SET(addr)						rf_rx_buffer_reconfig(addr)
 
+/* rx max length limit */
+#define ZB_RADIO_RX_MAX_LEN_SET(len)
+
 /* rx buffer clear */
 #define ZB_RADIO_RX_BUF_CLEAR(p)						do{ \
 															p[0] = 0;		\
@@ -475,6 +501,7 @@
 /* sys timer initialization for mac-csma */
 #define ZB_TIMER_INIT()									drv_hwTmr_init(TIMER_IDX_3, TIMER_MODE_SCLK)
 
+#if 1
 #define ZB_RADIO_RSSI_TO_LQI(mode, rssi, lqi)			do{ \
 															(void)mode;									\
 															s16 minEd = -99;							\
@@ -500,6 +527,22 @@
 															else if(lqi > 45){path_cost = 5;}	\
 															else{path_cost = 7;}				\
 														}while(0)
+#else
+#define ZB_RADIO_RSSI_TO_LQI(mode, rssi, lqi)			do{ \
+															(void)mode;							\
+															if(rssi >= -36){lqi = 255;}			\
+															else if(rssi < -99){lqi = 0;}		\
+															else{lqi = (rssi + 100) << 2;}		\
+														}while(0)
+
+#define ZB_LQI_TO_PATH_COST(lqi, path_cost) 			do{ \
+															if(lqi > 76){path_cost = 1;}		\
+															else if(lqi > 56){path_cost = 3;}	\
+															else if(lqi > 32){path_cost = 5;}	\
+															else if(lqi){path_cost = 7;}		\
+														}while(0)
+#endif
+
 #elif defined(MCU_CORE_B91)
 /*******************************************************************************************************
  * 									Radio interface for B91
@@ -569,6 +612,9 @@
 
 /* rx buffer configure */
 #define ZB_RADIO_RX_BUF_SET(addr)						rf_set_rx_buffer(addr)
+
+/* rx max length limit */
+#define ZB_RADIO_RX_MAX_LEN_SET(len)					rf_set_rx_maxlen(len)
 
 /* rx buffer clear */
 #define ZB_RADIO_RX_BUF_CLEAR(p)						do{ \
@@ -642,6 +688,7 @@
 /* sys timer initialization for mac-csma */
 #define ZB_TIMER_INIT()									drv_hwTmr_init(TIMER_IDX_3, TIMER_MODE_SCLK)
 
+#if 1
 #define ZB_RADIO_RSSI_TO_LQI(mode, rssi, lqi)			do{ \
 															(void)mode;									\
 															s16 minEd = -99;							\
@@ -667,4 +714,20 @@
 															else if(lqi > 45){path_cost = 5;}	\
 															else{path_cost = 7;}				\
 														}while(0)
+#else
+#define ZB_RADIO_RSSI_TO_LQI(mode, rssi, lqi)			do{ \
+															(void)mode;							\
+															if(rssi >= -36){lqi = 255;}			\
+															else if(rssi < -99){lqi = 0;}		\
+															else{lqi = (rssi + 100) << 2;}		\
+														}while(0)
+
+#define ZB_LQI_TO_PATH_COST(lqi, path_cost) 			do{ \
+															if(lqi > 76){path_cost = 1;}		\
+															else if(lqi > 56){path_cost = 3;}	\
+															else if(lqi > 32){path_cost = 5;}	\
+															else if(lqi){path_cost = 7;}		\
+														}while(0)
+#endif
+
 #endif

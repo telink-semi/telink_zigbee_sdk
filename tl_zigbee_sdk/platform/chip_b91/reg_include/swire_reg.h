@@ -1,13 +1,12 @@
 /********************************************************************************************************
- * @file	swire_reg.h
+ * @file    swire_reg.h
  *
- * @brief	This is the header file for B91
+ * @brief   This is the header file for B91
  *
- * @author	Driver Group
- * @date	2019
+ * @author  Driver Group
+ * @date    2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -36,6 +35,11 @@
 
 #define   reg_swire_ctl				    REG_ADDR8(SWIRE_BASE_ADDR+1)
 enum{
+/*
+ * FLD_SWIRE_WR clearing mechanism: the write operation is controlled by the clk issued by the master side,when the master finishes writing, FLD_SWIRE_WR will clear 0 and not be affected by the slave.
+ * FLD_SWIRE_RD clearing mechanism: the clk of the slave responds to the master read operation. FLD_SWIRE_RD does not clear 0 until the slave sends the read operation.
+ */
+
 	FLD_SWIRE_WR	        	= BIT(0),
 	FLD_SWIRE_RD 	     	    = BIT(1),
 	FLD_SWIRE_CMD 		        = BIT(2),

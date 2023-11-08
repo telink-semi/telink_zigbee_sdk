@@ -26,7 +26,7 @@
 #ifndef ZB_VERSION_H
 #define ZB_VERSION_H
 
-#define SDK_VERSION_ID				v3.6.8.5
+#define SDK_VERSION_ID				v3.6.8.6
 
 #define	SDK_VERSION_(sdk_version)	"$$$zb_sdk_"#sdk_version"$$$"
 #define	SDK_VERSION(sdk_version)	SDK_VERSION_(sdk_version)

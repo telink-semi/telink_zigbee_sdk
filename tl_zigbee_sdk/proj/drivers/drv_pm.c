@@ -37,6 +37,7 @@
 												u8 value;			\
 												u8 len;				\
 												ZB_RADIO_INIT();	\
+												ZB_RADIO_RX_MAX_LEN_SET(RF_PKT_BUFF_LEN);					 \
 												tl_zbMacAttrGet(MAC_PHY_ATTR_CURRENT_CHANNEL, &value, &len); \
 												ZB_TRANSCEIVER_SET_CHANNEL(value);							 \
 											}while(0)
@@ -58,16 +59,31 @@
 
 static u32 prevSleepTick = 0;
 
-
-u32 drv_pm_sleepTime_get(void)
+//The frequency of internal 32K RC is 32000. The frequency of 32K crystal is 32768.
+void drv_pm_sleepTime_get(u32 *sleepMs, u32 *sleepUsTick)
 {
-	u32 sleepTime = 0;
+	u32 sleepTick32k = 0;
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-	sleepTime = (pm_get_32k_tick() - prevSleepTick) / 32;
+	sleepTick32k = pm_get_32k_tick() - prevSleepTick;
 #elif defined(MCU_CORE_B91)
-	sleepTime = (clock_get_32k_tick() - prevSleepTick) / 32;
+	sleepTick32k = clock_get_32k_tick() - prevSleepTick;
 #endif
-	return sleepTime;
+
+#if CLOCK_32K_EXT_CRYSTAL
+	u32 sleepUs = 0;
+	u32 sleepMsRem = 0;
+
+	*sleepMs = ((sleepTick32k / 4096) * 125);
+	sleepMsRem = sleepTick32k % 4096;
+	sleepUs = ((sleepMsRem * 125) % 4096);
+	sleepMsRem = ((sleepMsRem * 125) / 4096);
+	*sleepMs += sleepMsRem;
+	sleepUs = ((sleepUs * 125) / 512);
+	*sleepUsTick  = sleepUs * 16;
+#else
+	*sleepMs = sleepTick32k / 32;
+	*sleepUsTick = (sleepTick32k % 32) * 500;
+#endif
 }
 
 void drv_pm_deepSleep_frameCnt_set(u32 frameCounter)
@@ -388,9 +404,13 @@ void drv_pm_lowPowerEnter(void)
 
 void drv_pm_wakeupTimeUpdate(void)
 {
-	u32 sleepTime = drv_pm_sleepTime_get();
-	if(sleepTime){
+	u32 sleepTime = 0;
+	u32 sleepRemTick = 0;
+
+	drv_pm_sleepTime_get(&sleepTime, &sleepRemTick);
+
+	if(sleepTime || sleepRemTick){
 		ev_timer_update(sleepTime);
-		ev_timer_setPrevSysTick(clock_time());
+		ev_timer_setPrevSysTick(clock_time() - sleepRemTick);
 	}
 }

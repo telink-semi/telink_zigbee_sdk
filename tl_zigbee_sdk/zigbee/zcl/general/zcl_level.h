@@ -137,7 +137,7 @@ typedef struct {
 typedef struct {
 	u8  stepMode;          //!< step mode
 	u8  stepSize;          //!< number of levels to step
-	u16 transitionTime;    //!< time, in 1/10ths of a second, to take to perform the step
+	u16 transitionTime;    //!< time, in 1/10th of a second, to take to perform the step
 	u8  optPresent;        //!< options field present
 	u8	optionsMask;
 	u8	optionsOverride;

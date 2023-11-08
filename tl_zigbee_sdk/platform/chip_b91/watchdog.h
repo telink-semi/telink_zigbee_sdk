@@ -1,13 +1,12 @@
 /********************************************************************************************************
- * @file	watchdog.h
+ * @file    watchdog.h
  *
- * @brief	This is the header file for B91
+ * @brief   This is the header file for B91
  *
- * @author	Driver Group
- * @date	2019
+ * @author  Driver Group
+ * @date    2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -26,6 +25,9 @@
 #define WATCHDOG_H_
 #include "analog.h"
 #include "gpio.h"
+#include "clock.h"
+
+#define wd_clear_cnt		wd_clear
 
 /**
  * @brief     start watchdog.
@@ -45,25 +47,31 @@ static inline void wd_stop(void){
 	BM_CLR(reg_tmr_ctrl2, FLD_TMR_WD_EN);
 }
 
-
 /**
- * @brief     clear watchdog.
- * @return    none
+ * @brief     get watchdog overflow status.
+ * @return    watchdog overflow status.
  */
-static inline void wd_clear(void)
+static inline unsigned char wd_get_status(void)
 {
-	reg_tmr_sta = FLD_TMR_STA_WD|FLD_TMR_WD_CNT_CLR;
-
+	return (reg_tmr_sta & FLD_TMR_STA_WD);
 }
 
 /**
- * @brief     clear watchdog timer tick cnt.
- * @return    none
+ * @brief     Clear the reset state caused by the watchdog overflow.
+ * @return    none.
  */
-static inline void wd_clear_cnt(void)
+static inline void wd_clear_status(void)
+{
+	reg_tmr_sta = FLD_TMR_STA_WD;
+}
+
+/**
+ * @brief     Feed the dog. Clear watchdog timer tick count.
+ * @return    none.
+ */
+static inline void wd_clear(void)
 {
 	reg_tmr_sta = FLD_TMR_WD_CNT_CLR;
-
 }
 
 /**
@@ -72,7 +80,7 @@ static inline void wd_clear_cnt(void)
 			  The time error = (0x00~0xff)/(APB clock frequency)
  * @param[in] period_ms - The watchdog trigger time. Unit is  millisecond
  * @return    none
- * @attention  The clock source of watchdog comes from pclk, when pclk changes it needs to be reconfigured.
+ * @attention The clock source of watchdog comes from pclk, when pclk changes it needs to be reconfigured.
  */
 static inline void wd_set_interval_ms(unsigned int period_ms)
 {

@@ -75,7 +75,7 @@ extern volatile unsigned char uart_status;
 *	
 *	@brief	clear error state of uart rx, maybe used when application detected UART not work
 *
-*	@parm	none
+*	@param	none
 *
 *	@return	'1' RX error flag rise and cleared success; '0' RX error flag not rise
 *

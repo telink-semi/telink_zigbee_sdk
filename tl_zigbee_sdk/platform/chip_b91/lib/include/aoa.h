@@ -1,12 +1,12 @@
 /********************************************************************************************************
- * @file    pke_algorithm.h
+ * @file    aoa.h
  *
  * @brief   This is the header file for B91
  *
  * @author  Driver Group
- * @date    2019
+ * @date    2022
  *
- * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2022, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -21,12 +21,29 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-#pragma once
+#ifndef AOA_H_
+#define AOA_H_
 
-#include "pke_common.h"
-#include "eccp_curve.h"
-#include "ecdh.h"
-#include "ecdsa.h"
-#include "x25519.h"
+typedef enum{
+	BYTE_NUM_2P5	 = 0,
+	BYTE_NUM_4		 = 1,
+}TypeDefByteNum;
 
+/**
+ * @brief		This function servers to find the average of a set of numbers
+ * @param[in]  	data - the  data.
+ * @param[in] 	bytenum   - the type of data.
+ * @return     	abs.
+ */
+unsigned int abs_value(unsigned int data, TypeDefByteNum bytenum);
 
+/**
+ * @brief		This function is used to convert 20bit to 8bit data
+ * @param[in]  	*data_src 				- the ddr of data.
+ * @param[in] 	*data_has_amplitude  	- the data with amplitude.
+ * @param[in]	*data_no_amplitude		- the data without amplitude.
+ * @return     	none.
+ */
+void frond_end(unsigned char *data_src, unsigned char *data_has_amplitude, unsigned char *data_no_amplitude);
+
+#endif /* DRIVERS_LIB_INCLUDE_AOA_H_ */

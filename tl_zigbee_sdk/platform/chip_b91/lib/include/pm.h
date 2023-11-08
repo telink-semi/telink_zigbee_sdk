@@ -1,13 +1,12 @@
 /********************************************************************************************************
- * @file	pm.h
+ * @file    pm.h
  *
- * @brief	This is the header file for B91
+ * @brief   This is the header file for B91
  *
- * @author	Driver Group
- * @date	2019
+ * @author  Driver Group
+ * @date    2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -24,7 +23,7 @@
  *******************************************************************************************************/
 #pragma once
 
-#include <reg_include/register.h>
+#include "reg_include/register.h"
 #include "compiler.h"
 #include "gpio.h"
 #include "clock.h"
@@ -48,13 +47,13 @@
 
 
 /**
- * @brief these analog register can store data in deepsleep mode or deepsleep with SRAM retention mode.
+ * @brief these analog register can store data in deep sleep mode or deep sleep with SRAM retention mode.
  * 	      Reset these analog registers by watchdog, chip reset, RESET Pin, power cycle
  */
 #define PM_ANA_REG_WD_CLR_BUF0 			0x38 // initial value 0xff. [Bit0] is already occupied. The customer cannot change!
 
 /**
- * @brief analog register below can store information when MCU in deepsleep mode or deepsleep with SRAM retention mode.
+ * @brief analog register below can store information when MCU in deep sleep mode or deep sleep with SRAM retention mode.
  * 	      Reset these analog registers only by power cycle
  */
 #define PM_ANA_REG_POWER_ON_CLR_BUF0 	0x39 // initial value 0x00. [Bit0][Bit1] is already occupied. The customer cannot change!
@@ -164,7 +163,7 @@ typedef struct {
 }pm_r_delay_cycle_s;
 
 /**
- * @brief   deepsleep wakeup status
+ * @brief   deep sleep wakeup status
  */
 typedef struct{
 	unsigned char is_pad_wakeup;
@@ -222,7 +221,7 @@ static inline unsigned char pm_get_deep_retention_flag(void)
  */
 static inline pm_wakeup_status_e pm_get_wakeup_src(void)
 {
-	return analog_read_reg8(0x64);
+	return (pm_wakeup_status_e)analog_read_reg8(0x64);
 }
 
 /**
@@ -255,7 +254,7 @@ _attribute_ram_code_sec_noinline_ void pm_wait_bbpll_done(void);
 _attribute_ram_code_sec_noinline_ void pm_stimer_recover(void);
 
 /**
- * @brief		This function serves to set the working mode of MCU based on 32k crystal,e.g. suspend mode, deepsleep mode, deepsleep with SRAM retention mode and shutdown mode.
+ * @brief		This function serves to set the working mode of MCU based on 32k crystal,e.g. suspend mode, deep sleep mode, deep sleep with SRAM retention mode and shutdown mode.
  * @param[in]	sleep_mode 			- sleep mode type select.
  * @param[in]	wakeup_src 			- wake up source select.
  * 		A0	   	note: The reference current values under different configurations are as followsUnit (uA):
@@ -285,7 +284,7 @@ _attribute_ram_code_sec_noinline_ void pm_32k_rc_offset_init(void);
 
 /**
  * @brief		This function serves to set baseband/usb/npe power on/off before suspend sleep,If power
- * 				on this module,the suspend curent will increase;power down this module will save current,
+ * 				on this module,the suspend current will increase;power down this module will save current,
  * 				but you need to re-init this module after suspend wakeup.All module is power down default
  * 				to save current.
  * @param[in]	value - weather to power on/off the baseband/usb/npe.

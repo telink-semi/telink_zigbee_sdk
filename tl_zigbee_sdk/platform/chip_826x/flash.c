@@ -83,7 +83,7 @@ _attribute_ram_code_sec_noinline_ static void flash_send_addr(unsigned long addr
 	mspi_wait();
 }
 
-//  make this a asynchorous version
+//  make this a asynchronous version
 _attribute_ram_code_sec_noinline_ static void flash_wait_done(void)
 {
 	sleep_us(100);

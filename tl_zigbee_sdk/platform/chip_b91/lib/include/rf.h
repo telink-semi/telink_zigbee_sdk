@@ -1,13 +1,12 @@
 /********************************************************************************************************
- * @file	rf.h
+ * @file    rf.h
  *
- * @brief	This is the header file for B91
+ * @brief   This is the header file for B91
  *
- * @author	Driver Group
- * @date	2019
+ * @author  Driver Group
+ * @date    2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -72,9 +71,9 @@
  *  @brief According to the packet format find the information of packet through offset.
  */
 
-#define 	rf_pri_tpll_dma_rx_offset_crc(p)				(p[RF_PRI_TPLL_DMA_RFRX_OFFSET_RFLEN]+5)  //data len:2
+#define 	rf_pri_tpll_dma_rx_offset_crc(p)					(p[RF_PRI_TPLL_DMA_RFRX_OFFSET_RFLEN]+5)  //data len:2
 #define 	rf_pri_tpll_dma_rx_offset_time_stamp(p)			(p[RF_PRI_TPLL_DMA_RFRX_OFFSET_RFLEN]+7)  //data len:4
-#define 	rf_pri_tpll_dma_rx_offset_freq_offset(p)		(p[RF_PRI_TPLL_DMA_RFRX_OFFSET_RFLEN]+11) //data len:2
+#define 	rf_pri_tpll_dma_rx_offset_freq_offset(p)			(p[RF_PRI_TPLL_DMA_RFRX_OFFSET_RFLEN]+11) //data len:2
 #define 	rf_pri_tpll_dma_rx_offset_rssi(p)				(p[RF_PRI_TPLL_DMA_RFRX_OFFSET_RFLEN]+13) //data len:1, signed
 #define     rf_pri_tpll_packet_crc_ok(p)            		((p[((p[4] & 0x3f) + 11+3)] & 0x01) == 0x00)
 
@@ -107,9 +106,134 @@
 
 #define     rf_ant_packet_crc_ok(p)              	((p[(reg_rf_sblen & 0x3f)+4+9] & 0x01) == 0x00)
 
+#define    rf_aoa_aod_iq_data_offset(p)					(p[5]+10)
+
 /**********************************************************************************************************************
  *                                       RF global data type                                                          *
  *********************************************************************************************************************/
+/**
+ * @brief	Take 4 antennas as an example to illustrate the antenna switching sequence.
+ * 			SWITCH_SEQ_MODE0	- antenna index switch sequence 01230123
+ * 			SWITCH_SEQ_MODE1	- antenna index switch sequence 0123210
+ * 			SWITCH_SEQ_MODE2	- antenna index switch sequence 001000200030
+ */
+typedef enum{
+	SWITCH_SEQ_MODE0		 = 0,
+	SWITCH_SEQ_MODE1		 = BIT(6),
+	SWITCH_SEQ_MODE2		 = BIT(7)
+}rf_ant_pattern_e;
+
+/**
+ * @brief	It can be defined as Antennae select pin.
+ * @note	B87 found in AOA/AOD verification that PC5, 6, 7 will cause interference to the RF module
+ * 			when used as Antennae select, so this group of pins should be commented out in the driver.
+ */
+typedef enum
+{
+	RF_ANT_SEL0_PB5 = GPIO_PB5,
+	RF_ANT_SEL0_PC1 = GPIO_PC1,
+	RF_ANT_SEL0_NONE = 0,
+}rf_antsel0_pin_e;
+
+/**
+ * @brief	It can be defined as atsel1 pin.
+ * @note	B87 found in AOA/AOD verification that PC5, 6, 7 will cause interference to the RF module
+ * 			when used as Antennae select, so this group of pins should be commented out in the driver.
+ */
+typedef enum
+{
+	RF_ANT_SEL1_PC2 = GPIO_PC2,
+	RF_ANT_SEL1_NONE = 0,
+}rf_antsel1_pin_e;
+
+/**
+ * @brief	It can be defined as atsel2 pin.
+ * @note	B87 found in AOA/AOD verification that PC5, 6, 7 will cause interference to the RF module
+ * 			when used as Antennae select, so this group of pins should be commented out in the driver.
+ */
+typedef enum
+{
+	RF_ANT_SEL2_PC3 = GPIO_PC3,
+	RF_ANT_SEL2_NONE = 0,
+}rf_antsel2_pin_e;
+
+/**
+ * @brief	Initialize the structure used to control the antenna IO.
+ */
+typedef struct{
+	rf_antsel0_pin_e	antsel0_pin;
+	rf_antsel1_pin_e	antsel1_pin;
+	rf_antsel2_pin_e 	antsel2_pin;
+}rf_ant_pin_sel_t;
+
+/*
+ * @brief  Data length type of AOA/AOD sampling.
+ * |                 |                         |
+ * | :-------------- | :---------------------- |
+ * |   	 <15:8>      |          <7:0>          |
+ * |   IQ byte len   |   iq data bit num mode  |
+ */
+typedef enum{
+	IQ_8_BIT_MODE   		= 0x0200,
+	IQ_16_BIT_MODE  		= 0x0401,
+	IQ_16_BIT_LOW_MODE		= 0x0402,
+	IQ_16_BIT_HIGH_MODE		= 0x0403,
+	IQ_20_BIT_MODE			= 0x0504/**< Due to hardware reasons,this mode cannot be used with the SAMPLE_0P25US_INTERVAL
+										 interval mode,which will cause the sampling data to overflow.*/
+}rf_aoa_aod_iq_data_mode_e;
+
+
+/*
+ * @brief   The chip can receive AOA/AOD packets in ADV or ACL format.
+ * @note	Only one of the modes can be enabled.In the AOA/AOD mode, the packet format is different from the normal mode,
+ * 			so use rf_is_rx_right and rf_aoa_aod_is_rx_pkt_len_ok for crc and length verification.
+ */
+typedef enum{
+	RF_RX_ACL_AOA_AOD_EN  = BIT(0),
+	RF_RX_ADV_AOA_AOD_EN  = BIT(1),
+	RF_AOA_AOD_RX_OFF     = 0
+}rf_aoa_aod_rx_mode_e;
+
+/*
+ * @brief   The chip can send AOA/AOD packets in ADV or ACL format.
+ * @note	Only one of the modes can be enabled.
+ */
+typedef enum{
+	RF_TX_ACL_AOA_AOD_EN  = BIT(2),
+	RF_TX_ADV_AOA_AOD_EN  = BIT(3),
+	RF_AOA_AOD_TX_OFF     = 0
+}rf_aoa_aod_tx_mode_e;
+
+/*
+ * @brief  AOA/AOD sample interval time type enumeration.bit<15:8>:4 times the interval value (to facilitate
+ * subsequent data processing),bit<7:0>:Set the register value of the corresponding interval mode.
+ * |                 |                         |
+ * | :-------------- | :---------------------- |
+ * |   	 <15:8>      |          <7:0>          |
+ * |(interval time)*4|   sample interval mode  |
+ */
+typedef enum{
+	SAMPLE_AOA_4US_AOD_CTEINFO_INTERVAL  = 0x1000,/**< In this case sample interval of aoa is 4us, and aod will
+														judge sample interval is 4us or 2us according to CTE info.*/
+	SAMPLE_2US_INTERVAL   		= 0x0803,
+	SAMPLE_1US_INTERVAL  		= 0x0404,
+	SAMPLE_0P5US_INTERVAL 		= 0x0205,
+	SAMPLE_0P25US_INTERVAL 		= 0x0106         /**< Due to hardware reasons, this mode cannot be used together with
+													  IQ_20_BIT_MODE, otherwise the sampled data will overflow.*/
+}rf_aoa_aod_sample_interval_time_e;
+
+/*
+ * @brief	Time enumeration of iq sampling slots supported by the chip
+ * @note	Attention:In addition to supporting the two sampling slots specified in the protocol, vulture also adds three other modes
+ */
+typedef enum{
+	SAMPLE_NORMAL_SLOT	= 0,
+	SAMPLE_1US_SLOT	    = 3,
+	SAMPLE_0P5_SLOT	  	= 4,
+	SAMPLE_0P25_SLOT  	= 5,
+	SAMPLE_0P125_SLOT 	= 6
+}sample_slot_time_e;
+
 
 /**
  *  @brief  Define the mode of 3-wire PTA.
@@ -163,7 +287,7 @@ typedef enum {
     RF_MODE_TX = 0,		/**<  Tx mode */
     RF_MODE_RX = 1,		/**<  Rx mode */
     RF_MODE_AUTO=2,		/**<  Auto mode */
-	RF_MODE_OFF =3		/**<  TXRX OFF mode */
+	RF_MODE_OFF =3		/**<  TX RX OFF mode */
 } rf_status_e;
 
 /**
@@ -310,12 +434,60 @@ typedef enum {
 /**********************************************************************************************************************
  *                                         RF global constants                                                        *
  *********************************************************************************************************************/
-extern const rf_power_level_e rf_power_Level_list[30];
+extern rf_power_level_e rf_power_Level_list[30];
 
 
 /**********************************************************************************************************************
  *                                         RF function declaration                                                    *
  *********************************************************************************************************************/
+
+/**
+ * @brief	    This function is used to enable the ldo rxtxlf bypass function, and the calibration value
+ * 				written by the software will take effect after enabling.
+ * @param[in]	none.
+ * @return	 	none.
+ */
+static inline void rf_ldot_ldo_rxtxlf_bypass_en(void)
+{
+	write_reg8(0x140ee4,read_reg8(0x140ee4)|BIT(1));
+}
+
+/**
+ * @brief	    This function is used to close the ldo rxtxlf bypass function, and the hardware will
+ * 				automatically perform the calibration function after closing.
+ * @param[in]	none.
+ * @return	 	none.
+ */
+static inline void rf_ldot_ldo_rxtxlf_bypass_dis(void)
+{
+	write_reg8(0x140ee4,read_reg8(0x140ee4)&(~BIT(1)));
+}
+
+/**
+ * @brief      This function serves to optimize RF performance
+ * 			   This function must be called every time rx is turned on,
+ * 			   and is called by an internal function.
+ * 			   If there are other requirements that need to be called,
+ * 			   turn off rx first, then call it again to make sure the Settings take effect
+ * @param[in]  none
+ * @return     none
+ * @note	   1.Call this function after turning on rx 30us, and the calibration value set by the function
+ * 			      will take effect after calling rf_ldot_ldo_rxtxlf_bypass_en;if automatic calibration is
+ * 			      required, you can use rf_ldot_ldo_rxtxlf_bypass_dis to turn off the bypass function; how to
+ * 			      use it can refer to bqb.c file or rf_emi_rx in emi.c
+ *			   2. After using rf_ldot_ldo_rxtxlf_bypass_dis to turn off the bypass function and enter tx/rx
+ *			      automatic calibration, to use this function again, you need to call the rf_set_rxpara function
+ *			      again after entering rx 30us.
+ *
+ */
+
+static inline void rf_set_rxpara(void)
+{
+	unsigned char reg_calibration=0;
+	reg_calibration = ((read_reg8(0x140eed)&0xf)<<2)|((read_reg8(0x140eec)&0xc0)>>6);
+	if(reg_calibration>9)	reg_calibration -= 9;
+	write_reg8(0x140ee5,(read_reg8(0x140ee5)&0xc0)|reg_calibration);
+}
 
 
 /**
@@ -325,7 +497,7 @@ extern const rf_power_level_e rf_power_Level_list[30];
  */
 static inline unsigned char rf_receiving_flag(void)
 {
-	//if the value of [2:0] of the reg_0x140840 isn't 0 , it means that the RF is in the receiving packet phase.(confirmed by junwen).
+	//if the value of [2:0] of the reg_0x140840 isn't 0 , it means that the RF is in the receiving packet phase.(confirmed by jun wen).
 	return ((read_reg8(0x140840)&0x07) > 1);
 }
 
@@ -503,7 +675,7 @@ static inline void rf_set_rx_maxlen(unsigned int byte_len)
 
 /**
  * @brief		This function serve to rx dma fifo size.
- * @param[in]	fifo_byte_size - the size of each fifo.
+ * @param[in]	fifo_byte_size - The length of one dma fifo,the range is 0x10~0xff0(the corresponding number of fifo bytes is fifo_byte_size;and must be a multiple of 16).
  * @return		none
  */
 static inline void rf_set_rx_dma_fifo_size(unsigned short fifo_byte_size)
@@ -512,12 +684,13 @@ static inline void rf_set_rx_dma_fifo_size(unsigned short fifo_byte_size)
 }
 /**
  * @brief		This function serve to set rx dma wptr.
- * @param[in]	wptr	-rx_wptr_real=rx_wptr & mask:After receiving 4 packets,the address returns to original address.mask value must in (0x01,0x03,0x07,0x0f).
+ * @param[in]	fifo_num	-This parameter is used to set the mask value for the number of enabled FIFOs. The value of the mask must (0x00,0x01,0x03,0x07,0x0f,0x1f).
+ * 							 The number of FIFOs enabled is the value of wptr_mask plus 1.(0x01,0x02,0x04,0x08,0x10,0x20)
  * @return 		none
  */
 static inline void rf_set_rx_dma_fifo_num(unsigned char fifo_num)
 {
-	reg_rf_rx_wptr_mask = fifo_num; //rx_wptr_real=rx_wptr & mask:After receiving 4 packets,the address returns to original address.mask value must in (0x01,0x03,0x07,0x0f).
+	reg_rf_rx_wptr_mask = fifo_num; //rx_wptr_real=rx_wptr & mask:After receiving 4 packets,the address returns to original address.mask value must in (0x01,0x03,0x07,0x0f,0x1f).
 }
 
 
@@ -527,7 +700,8 @@ static inline void rf_set_rx_dma_fifo_num(unsigned char fifo_num)
  *	            In this case,the rxFiFo address can be changed every time a packet is received
  *	            Before setting, call the function "rf_set_rx_dma" to clear DMA fifo mask value(set 0)
  * @param[in]	rx_addr   - The address store receive packet.
- * @return	 	none
+ * @return	 	none.
+ * @note		rx_addr:must be aligned by word (4 bytes), otherwise the program will enter an exception.
  */
 static inline void rf_set_rx_buffer(unsigned char *rx_addr)
 {
@@ -563,7 +737,7 @@ static inline void rf_set_tx_dma_fifo_size(unsigned short fifo_byte_size)
 static inline void rf_set_tx_settle_time(unsigned short tx_stl_us )
 {
 	tx_stl_us &= 0x0fff;
-	write_reg16(0x140a04, (read_reg8(0x140a04)& 0xf000) |(tx_stl_us - 1));
+	write_reg16(0x140a04, (read_reg16(0x140a04)& 0xf000) |(tx_stl_us - 1));
 }
 /**
  * @brief   This function serves to set RF tx settle time and rx settle time.
@@ -575,7 +749,7 @@ static inline void rf_set_tx_settle_time(unsigned short tx_stl_us )
 static inline void rf_set_rx_settle_time( unsigned short rx_stl_us )
 {
 	 rx_stl_us &= 0x0fff;
-	 write_reg16(0x140a0c, (read_reg8(0x140a0c)& 0xf000) |(rx_stl_us - 1));
+	 write_reg16(0x140a0c, (read_reg16(0x140a0c)& 0xf000) |(rx_stl_us - 1));
 }
 
 /**
@@ -803,19 +977,24 @@ void rf_set_ant_mode(void);
 void rf_set_tx_dma_config(void);
 /**
  * @brief     This function serves to set RF tx DMA setting.
- * @param[in] fifo_depth  		- tx chn deep.
- * @param[in] fifo_byte_size    - tx_idx_addr = {tx_chn_adr*bb_tx_size,4'b0}.
+ * @param[in] fifo_depth 		- tx chn deep,fifo_depth range: 0~5,Number of fifo=2^fifo_depth.
+ * @param[in] fifo_byte_size 	- The length of one dma fifo,the range is 0x10~0xff0(the corresponding number of fifo bytes is fifo_byte_size;and must be a multiple of 16).
  * @return	  none.
  */
 void rf_set_tx_dma(unsigned char fifo_depth,unsigned short fifo_byte_size);
 
 
 /**
- * @brief     This function serves to rx dma setting.
- * @param[in] buff 		 	  - The buffer that store received packet.
- * @param[in] wptr_mask  	  - DMA fifo mask value (0~fif0_num-1).
- * @param[in] fifo_byte_size  - The length of one dma fifo.
- * @return	  none.
+ * @brief      This function serves to rx dma setting.
+ * @param[in]  buff - This parameter is the first address of the received data buffer, which must be 4 bytes aligned, otherwise the program will enter an exception.
+ * @attention  The first four bytes in the buffer of the received data are the length of the received data.
+ *             The actual buffer size that the user needs to set needs to be noted on two points:
+ *			   -# you need to leave 4bytes of space,the dma transfers start from the fourth byte of the Buff.
+ *			   -# dma is transmitted in accordance with 4bytes, so the length of the buffer needs to be a multiple of 4. Otherwise, there may be an out-of-bounds problem.
+ * @param[in]  wptr_mask  	   - This parameter is used to set the mask value for the number of enabled FIFOs. The value of the mask must (0x00,0x01,0x03,0x07,0x0f,0x1f).
+ * 								 The number of FIFOs enabled is the value of wptr_mask plus 1.(0x01,0x02,0x04,0x08,0x10,0x20)
+ * @param[in]  fifo_byte_size  - The length of one dma fifo,the range is 0x10~0xff0(the corresponding number of fifo bytes is fifo_byte_size;and must be a multiple of 16).
+ * @return     none.
  */
 void rf_set_rx_dma(unsigned char *buff,unsigned char wptr_mask,unsigned short fifo_byte_size);
 
@@ -862,6 +1041,7 @@ void rf_set_txmode(void);
  * @brief	  	This function serves to set RF Tx packet address to DMA src_addr.
  * @param[in]	addr   - The packet address which to send.
  * @return	 	none.
+ * @note		addr:must be aligned by word (4 bytes), otherwise the program will enter an exception..
  */
 _attribute_ram_code_sec_ void rf_tx_pkt(void* addr);
 
@@ -880,7 +1060,7 @@ int rf_set_trx_state(rf_status_e rf_status, signed char rf_channel);
  * @param[in]   chn   - That you want to set the channel as 2400+chn.
  * @return  	none.
  */
-void rf_set_chn(signed char chn);
+_attribute_ram_code_sec_noinline_ void rf_set_chn(signed char chn);
 
 
 /**
@@ -911,6 +1091,7 @@ void rf_pn_disable(void);
  * @param[in]   fifo_dep   - deepth of each fifo set in dma.
  * @param[in]   addr       - address of rx packet.
  * @return  	the next rx_packet address.
+ * @note		addr:must be aligned by word (4 bytes), otherwise the program will enter an exception.
  */
 unsigned char* rf_get_rx_packet_addr(int fifo_num,int fifo_dep,void* addr);
 
@@ -928,7 +1109,7 @@ void rf_set_power_level (rf_power_level_e level);
  * @param[in]   idx 	 - The index of power level which you want to set.
  * @return  	none.
  */
-void rf_set_power_level_index(rf_power_level_index_e idx);
+_attribute_ram_code_sec_ void rf_set_power_level_index(rf_power_level_index_e idx);
 
 
 /**
@@ -996,13 +1177,13 @@ static inline void rf_set_rx_timeout(unsigned short timeout_us)
 
 
 /**
- * @brief	This function serve to initial the ptx seeting.
+ * @brief	This function serve to initial the ptx setting.
  * @return	none.
  */
 void rf_ptx_config(void);
 
 /**
- * @brief	This function serve to initial the prx seeting.
+ * @brief	This function serve to initial the prx setting.
  * @return	none.
  */
 void rf_prx_config(void);
@@ -1012,6 +1193,7 @@ void rf_prx_config(void);
  * @param[in]	addr	-	The address of tx_packet.
  * @param[in]	tick	-	Trigger ptx after (tick-current tick),If the difference is less than 0, trigger immediately.
  * @return  none.
+ * @note		addr:must be aligned by word (4 bytes), otherwise the program will enter an exception.
  */
 void rf_start_ptx  (void* addr,  unsigned int tick);
 
@@ -1047,6 +1229,7 @@ unsigned char rf_is_rx_fifo_empty(unsigned char pipe_id);
  * @param[in] 	addr  	- DMA tx buffer.
  * @param[in] 	tick  	- Send after tick delay.
  * @return	   	none.
+ * @note		addr:must be aligned by word (4 bytes), otherwise the program will enter an exception.
  */
 _attribute_ram_code_sec_noinline_ void rf_start_stx(void* addr, unsigned int tick);
 
@@ -1056,6 +1239,7 @@ _attribute_ram_code_sec_noinline_ void rf_start_stx(void* addr, unsigned int tic
  * @param[in] 	addr  	- DMA tx buffer.
  * @param[in] 	tick  	- Send after tick delay.
  * @return	    none.
+ * @note		addr:must be aligned by word (4 bytes), otherwise the program will enter an exception.
  */
 _attribute_ram_code_sec_noinline_ void rf_start_stx2rx  (void* addr, unsigned int tick);
 
@@ -1084,6 +1268,7 @@ _attribute_ram_code_sec_noinline_ void rf_set_rxmode(void);
  * @param[in]	addr   - The address to store received data.
  * @param[in]	tick   - It indicates timeout duration in Rx status.Max value: 0xffffff (16777215)
  * @return	 	none
+ * @note		addr:must be aligned by word (4 bytes), otherwise the program will enter an exception.
  */
 _attribute_ram_code_sec_noinline_ void rf_start_brx  (void* addr, unsigned int tick);
 
@@ -1096,6 +1281,7 @@ _attribute_ram_code_sec_noinline_ void rf_start_brx  (void* addr, unsigned int t
  * @param[in]	addr   - The address to store send data.
  * @param[in]	tick   - It indicates timeout duration in Rx status.Max value: 0xffffff (16777215)
  * @return	 	none
+ * @note		addr:must be aligned by word (4 bytes), otherwise the program will enter an exception.
  */
 _attribute_ram_code_sec_noinline_ void rf_start_btx (void* addr, unsigned int tick);
 
@@ -1104,6 +1290,7 @@ _attribute_ram_code_sec_noinline_ void rf_start_btx (void* addr, unsigned int ti
  * @param[in] 	addr  - DMA tx buffer.
  * @param[in] 	tick  - Trigger rx receive packet after tick delay.
  * @return	    none.
+ * @note		addr:must be aligned by word (4 bytes), otherwise the program will enter an exception.
  */
 _attribute_ram_code_sec_noinline_ void rf_start_srx2tx  (void* addr, unsigned int tick);
 
@@ -1153,5 +1340,198 @@ void  rf_2wire_pta_init(pta_bleprio_pin_e ble_priority_pin,gpio_pin_e wlan_activ
  * 			   by function rf_set_pta_t1_time and function rf_set_pta_t2_time respectively.
  */
 void  rf_3wire_pta_init(pta_bleactive_pin_e ble_active_pin,pta_blestatus_pin_e ble_status_pin,pta_wlandeny_pin_e wlan_deny_pin,pta_3wire_mode_e ble_status_mode);
+
+/**
+ * @brief		This function is mainly used to set the antenna switching mode. Vulture support three different
+ * 				table lookup sequences.The setting here is just the order of the table lookup, and the content
+ * 				in the table is the number of the antenna to be switched to.The switching sequence of the antenna
+ * 				needs to be determined by the combination of the table look-up sequence and the antenna number in
+ * 				the table,so this function is usually used together with the rf_aoa_aod_ant_lut function.
+ * @param[in]	pattern 	- Enumeration of several different look-up table order modes.Refer to the corresponding
+ * 							  enumeration annotation for the meaning of the mode.
+ * @return		none.
+ */
+void rf_aoa_aod_ant_pattern(rf_ant_pattern_e pattern);
+
+/**
+ * @brief		This function is mainly used to set the number of antennas enabled by the multi-antenna board in the
+ * 				AOA/AOD function;the vulture series chips currently support up to 8 antennas for switching.By default,
+ * 				it is set to 8 antennas. After configuring the RF-related settings, you can set the number of enabled
+ * 				antennas, and this setting needs to be completed before sending and receiving packets.
+ * @param[in]	ant_num 	- The number of antennas, the value ranges from 1 to 8.
+ * @return		none.
+ */
+void rf_aoa_aod_set_ant_num(unsigned char ant_num);
+
+/**
+ * @brief		This function is used to set the antenna switching sequence table. The content in the table is the
+ * 				antenna sequence number that needs to be switched to when the position is found by the look-up table.
+ * 				Since determining the antenna switching sequence needs to determine the order of the table lookup and
+ * 				the setting of the table content, this function is usually used in conjunction with the function
+ * 				rf_aoa_aod_ant_pattern.
+ * @param[in]	dat      - Antenna serial number written into the antenna switching sequence table.The value in the table
+ * 						 corresponds to the antenna number that needs to be switched to when it is found in the table.The
+ * 						 value range is 0 to 7.
+ * @return	  	none.
+ */
+void rf_aoa_aod_ant_lut(unsigned char *dat);
+
+/**
+ * @brief		This function is mainly used to set the type of AOA/AOD iq data. The default data type is 8bit.This
+ * 				configuration can be done before starting to receive the package.
+ * @param[in]	mode	- The length of each I or Q data.
+ * @return		none.
+ * @note		Attention :When the iq data is 20bit, it cannot be used with the 0.25us mode, which will cause the
+ * 						   sampling data to overflow.
+ */
+void rf_aoa_aod_iq_data_mode(rf_aoa_aod_iq_data_mode_e mode);
+
+/**
+ * @brief		This function enables the receiving functions of AOA/AOD in ordinary format packets or ADV format
+ * 				packets.After configuring the RF function, if you want to receive a packet with AOA/AOD information,
+ * 				you can call this function to make the chip enter the corresponding mode to receive the packet. The
+ * 				default state is a normal package without AOA/AOD information.
+ * @param[in]	mode - AOA/AOD broadcast package or normal package rx mode.When the parameter is RF_AOA_AOD_RX_OFF,
+ * 				the normal packet without AOA/D is received.
+ * @return		none.
+ */
+static inline void rf_aoa_aod_set_rx_mode(rf_aoa_aod_rx_mode_e mode)
+{
+	reg_rf_rxsupp = ((reg_rf_rxsupp & 0xfc)|mode);
+}
+
+/**
+ * @brief		This function enables the sending functions of AOA/AOD in ordinary format packets or ADV format
+ * 				packets.After configuring the RF function, if you want to send  a packet with AOA/AOD information,
+ * 				you can call this function to make the chip enter the corresponding mode to send the packet. The
+ * 				default state is a normal package without AOA/AOD information.
+ * @param[in]	mode - AOA/AOD broadcast package or normal package tx mode.When the parameter is RF_AOA_AOD_RX_OFF,
+ * 				the normal packet without AOA/D is sending.
+ * @return		none.
+ */
+static inline void rf_aoa_aod_set_tx_mode(rf_aoa_aod_tx_mode_e mode)
+{
+	reg_rf_rxsupp = ((reg_rf_rxsupp & 0xf3)|mode);
+}
+
+/**
+ * @brief		This function is used to set the position of the first sample after the reference.The default is in
+ * 				the middle of the first sample_slot; The starting position of sampling can be fine-tuned through
+ * 				parameter setting to select the best sampling point.
+ * @param[in]	sample_point_offset - sample_point_offset:The parameter range is -45 to 210.If the parameter is negative,
+ * 				the position of the sampling point moves forward. The absolute value of the parameter is multiplied by
+ * 				0.125us.If the parameter is positive, the position of the sampling point moves backward. The parameter
+ * 				is multiplied by 0.125us.
+ * @return		none.
+ */
+static inline void rf_aoa_aod_sample_point_adjust(char sample_point_offset)
+{
+	reg_rf_samp_offset = 0x65 + sample_point_offset;
+}
+
+/**
+ * @brief		This function is mainly used to set the sampling interval time in the AOA/AOD function.After
+ * 				configuring RF, you can call this function to configure sample interval time.
+ * @param[in]	sample_time		- AOA or AOD sampling interval time.
+ * @return		none.
+ * @note	 	When the time is 0.25us, it cannot be used with the 20bit iq data type, which will cause the sampling
+ * 				data to overflow.
+ */
+void rf_aoa_aod_sample_interval_time(rf_aoa_aod_sample_interval_time_e sample_time);
+
+/**
+ * @brief		This function is mainly used to initialize the parameters related to AOA/AOD antennas, including the
+ * 				number of antennas, the pins for controlling the antennas,the look-up mode of antenna switching, and
+ * 				the content of the antenna switching sequence table.
+ * @param[in]	ant_num			- The number of antennas, the value ranges from 1 to 8.
+ * @param[in]	ant_pin_config:	- Control antenna pin selection and configuration.The parameter setting needs to be
+ * 								  set according to the number and position of the control antenna.For example,if you
+ * 								  need to control four antennas, it is best to use Antsel0 and Antsel2.
+ * @param[in]	pattern			- Enumeration of several different look-up table order modes.
+ * @param[in]	dat 			- The antenna value written into the antenna switching sequence table ranges from 0 to 7.
+ * @return		none.
+ */
+void rf_aoa_aod_ant_init(unsigned char num,rf_ant_pin_sel_t * ant_pin_config,rf_ant_pattern_e pattern,unsigned char *dat);
+
+/**
+ * @brief		This function is mainly used to set the parameters related to AOA/AOD sampling, including the length
+ * 				of IQ data, sampling interval, and sampling offset.
+ * @param[in]	iq_data			    - The length of each I or Q data.
+ * @param[in]	sample_interval	    - AOA or AOD sampling interval time.
+ * @param[in]	sample_point_offset	- The parameter range is -45 to 210.If the parameter is negative,the position of
+ * 									  the sampling point moves forward.The absolute value of the parameter is multiplied
+ * 									  by 0.125us.If the parameter is positive, the position of the sampling point moves
+ * 									  backward. The parameter is multiplied by 0.125us.
+ * @return		none.
+ */
+
+void rf_aoa_aod_sample_init(rf_aoa_aod_iq_data_mode_e iq_data,rf_aoa_aod_sample_interval_time_e sample_interval,char sample_point_offset);
+
+/**
+ * @brief		This function is used to calculate the number of IQ groups in the received AOA/AOD packet.
+ * @param[in]	p				- Received packet address pointer.
+ * @return		Returns the number of groups of iq in the package.
+ */
+unsigned int rf_aoa_aod_iq_group_number(unsigned char *p);
+
+/**
+ * @brief		This function is mainly used to obtain the offset of header information in the packet data received
+ * 				in AOA/AOD mode.
+ * @param[in]	p				- Received packet address pointer.
+ * @return		The return value is the offset of header information in the packet.
+ */
+unsigned int rf_aoa_aod_hdinfo_offset(unsigned char *p);
+
+/**
+ * @brief		This function is mainly used to detect whether the DMA length of the received packet is correct in
+ * 				the AOA/AOD mode.
+ * @param[in]	p				- Received packet address pointer.
+ * @return		Return length to judge whether it is correct, 1: ok, 0: false
+ */
+unsigned char rf_aoa_aod_is_rx_pkt_len_ok(unsigned char *p);
+
+/**
+ * @brief		This function is mainly used to obtain the CRC value in the AOA/AOD packet.
+ * @param[in]	p				- Received packet address pointer.
+ * @return		The return value is the rssi value in headerinformation.
+ */
+signed char rf_aoa_aod_get_pkt_rssi(unsigned char *p);
+
+/**
+ * @brief		This function is used to obtain the timestamp information in the AOA/AOD package.
+ * @param[in]	p				- Received packet address pointer.
+ * @return		Returns the timestamp value in the packet.
+ */
+unsigned int rf_aoa_aod_get_pkt_timestamp(unsigned char *p);
+
+/**
+ * @brief		This function is used to set the position of the first switch after the reference in aoa mode.The default
+ * 				is in the middle of the first sample_slot; The starting position of sampling can be fine-tuned through
+ * 				parameter setting to select the best sampling point.
+ * @param[in]	switch_point_offset - sample_point_offset:The parameter range is -45 to 210.If the parameter is negative,
+ * 				the position of the sampling point moves forward. The absolute value of the parameter is multiplied by
+ * 				0.125us.If the parameter is positive, the position of the sampling point moves backward. The parameter
+ * 				is multiplied by 0.125us.
+ * @return		none.
+ */
+static inline void rf_aoa_ant_switch_point_adjust(char switch_point_offset)
+{
+	reg_rf_rx_antoffset = 0x86 + switch_point_offset;
+}
+
+/**
+ * @brief		This function is used to set the position of the first switch after the reference in aod mode.The default
+ * 				is in the middle of the first sample_slot; The starting position of sampling can be fine-tuned through
+ * 				parameter setting to select the best sampling point.
+ * @param[in]	switch_point_offset - sample_point_offset:The parameter range is -116 to 139.If the parameter is negative,
+ * 				the position of the sampling point moves forward. The absolute value of the parameter is multiplied by
+ * 				0.125us.If the parameter is positive, the position of the sampling point moves backward. The parameter
+ * 				is multiplied by 0.125us.
+ * @return		none.
+ */
+static inline void rf_aod_ant_switch_point_adjust(char switch_point_offset)
+{
+	reg_rf_tx_antoffset = 0x74 + switch_point_offset;
+}
 
 #endif

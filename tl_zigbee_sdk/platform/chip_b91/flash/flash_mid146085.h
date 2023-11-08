@@ -1,13 +1,12 @@
 /********************************************************************************************************
- * @file	flash_mid146085.h
+ * @file    flash_mid146085.h
  *
- * @brief	This is the header file for B91
+ * @brief   This is the header file for B91
  *
- * @author	Driver Group
- * @date	2019
+ * @author  Driver Group
+ * @date    2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -26,12 +25,14 @@
 #define __MID146085_H__
 
 /*
- * @brief     MID = 0x1460c8 Flash include P25Q80U.
+ * @brief     MID = 0x146085 Flash include P25Q80U.
  */
 
 
 /**
- * @brief     define the section of the protected memory area which is read-only and unalterable.
+ * @brief   define the section of the protected memory area which is read-only and unalterable.
+ * @note    when data protection, only enumeration items in mid146085_lock_block_e can be selected,
+ *          to ensure that the values returned by the interface flash_get_lock_block_mid146085 are in the mid146085_lock_block_e.
  */
 typedef enum{
 	//---------------- CMP bit = 0---------------//
@@ -151,8 +152,6 @@ void flash_write_status_mid146085(unsigned short data, mid146085_write_status_bi
  */
 void flash_lock_mid146085(mid146085_lock_block_e data);
 
-void flash_lock_all_mid146085(void);
-
 /**
  * @brief 		This function serves to flash release protection.
  * @return 		none.
@@ -167,6 +166,21 @@ void flash_lock_all_mid146085(void);
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
 void flash_unlock_mid146085(void);
+
+/**
+ * @brief 		This function serves to get the protection area of the flash.
+ * @return 		the protection area of the flash.
+ * @note        Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
+ *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.
+ *              Taking into account the factors such as power supply fluctuations, the safe voltage value needs to be greater
+ *              than the minimum chip operating voltage. For the specific value, please make a reasonable setting according
+ *              to the specific application and hardware circuit.
+ *
+ *              Risk description: When the chip power supply voltage is relatively low, due to the unstable power supply,
+ *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
+ *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
+ */
+mid146085_lock_block_e flash_get_lock_block_mid146085(void);
 
 /**
  * @brief 		This function serves to read data from the Security Registers of the flash.

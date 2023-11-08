@@ -1,13 +1,12 @@
 /********************************************************************************************************
- * @file	axon_api.h
+ * @file    axon_api.h
  *
- * @brief	This is the header file for B91
+ * @brief   This is the header file for B91
  *
- * @author	Driver Group
- * @date	2019
+ * @author  Driver Group
+ * @date    2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -354,7 +353,7 @@ AxonResultEnum AxonApiLogn(void *axon_handle, const AxonInputStruct *axon_input,
 AxonResultEnum AxonApiDefineOpLogn(void *axon_handle, const AxonInputStruct *axon_input, AxonOpHandle *axon_op_handle);
 
 /**
- * Raises "e" to the power of vector X, q_out=e^(x_in). Values must be positive. Negative values will have unpredicatable results.
+ * Raises "e" to the power of vector X, q_out=e^(x_in). Values must be positive. Negative values will have unpredictable results.
  *
  * @param axon_handle
  *   Handle to a physical axon instance instantiated via AxonInitInstance().
@@ -1198,8 +1197,8 @@ AxonResultEnum AxonApiQueueOpsList(void *axon_handle, AxonMgrQueuedOpsStruct *op
 
 /**
  * Does nothing except force the library to be included in the final elf in case the there
- * are no direct dependencies on the driver by the application (ie, dependendencies are indirect 
- * via librarries).
+ * are no direct dependencies on the driver by the application (ie, dependencies are indirect
+ * via libraries).
  * Invoking this function will simply return true.
  */
 AxonResultEnum AxonNop();

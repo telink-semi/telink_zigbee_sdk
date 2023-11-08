@@ -1,13 +1,12 @@
 /********************************************************************************************************
- * @file	flash_type.h
+ * @file    flash_type.h
  *
- * @brief	This is the header file for B91
+ * @brief   This is the header file for B91
  *
- * @author	Driver Group
- * @date	2019
+ * @author  Driver Group
+ * @date    2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -28,7 +27,7 @@
 #include "flash.h"
 #include "flash_mid146085.h"	// P25Q80U
 #include "flash_mid156085.h"    // P25Q16SU
-#include "flash_mid166085.h"    // P25Q32SH
+#include "flash_mid166085.h"    // P25Q32SU
 
 
 /**
@@ -118,7 +117,7 @@ void flash_write_otp(unsigned long addr, unsigned long len, unsigned char *buf);
 void flash_erase_otp(unsigned long addr);
 
 /**
- * @brief 		This function is used to write the configure of the flash,P25Q16SU/P25Q32SH uses this function.
+ * @brief 		This function is used to write the configure of the flash,P25Q16SU/P25Q32SU uses this function.
  * @param[in]   cmd			- the write command.
  * @param[out]  data		- the start address of the data buffer.
  * @return 		none.
@@ -136,7 +135,7 @@ void flash_erase_otp(unsigned long addr);
 _attribute_text_sec_ void flash_write_config(flash_command_e cmd,unsigned char data);
 
 /**
- * @brief 		This function is used to read the configure of the flash,P25Q16SU/P25Q32SH uses this function.
+ * @brief 		This function is used to read the configure of the flash,P25Q16SU/P25Q32SU uses this function.
  * @return 		the value of configure.
  * @note        Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
  *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.

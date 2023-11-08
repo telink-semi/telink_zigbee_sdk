@@ -58,7 +58,7 @@ typedef enum{
 	DMA5_AES_CODE,
 	DMA6,
 	DMA7_PWM,
-}DMA_chn_Typdef; 
+}DMA_chn_Typedef;
 
 /**
  * @brief     This function resets the DMA module.
@@ -91,7 +91,7 @@ static inline void dma_irq_disable(unsigned int msk)
 }
 
 /**
- * @brief     This function performs to enable DMA chnnel.
+ * @brief     This function performs to enable DMA channel.
  * @param[in] en - en: 1 enable. 0 disable.
  * @return    none.
  */
@@ -153,7 +153,7 @@ static inline unsigned char dma_chn_irq_status_get(void)
  * @param[in]  size - select tx or rx irq. caution: max size = 2048
  * @return     none
  */
-static inline void dma_set_buff_size(DMA_chn_Typdef chn,unsigned int size)
+static inline void dma_set_buff_size(DMA_chn_Typedef chn,unsigned int size)
 {
 	reg_dma_size(chn) = (unsigned char)(size/16);
 }

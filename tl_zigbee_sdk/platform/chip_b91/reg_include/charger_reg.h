@@ -1,12 +1,12 @@
 /********************************************************************************************************
- * @file    pke_algorithm.h
+ * @file    charger_reg.h
  *
  * @brief   This is the header file for B91
  *
  * @author  Driver Group
- * @date    2019
+ * @date    2022
  *
- * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2022, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -21,12 +21,37 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-#pragma once
+#ifndef CHARGER_REG_H_
+#define CHARGER_REG_H_
 
-#include "pke_common.h"
-#include "eccp_curve.h"
-#include "ecdh.h"
-#include "ecdsa.h"
-#include "x25519.h"
+/*
+ * analog:0x19
+ */
+#define  reg_charger_vchg      0x19
+enum{
+   VCHG_TRIM =BIT_RNG(4,7),
+};
+/*
+ * analog:0x1c
+ */
+#define  reg_charger_mode     0x1c
+enum{
+  	AUTO_MANUAL_SEL = BIT(7),
+	MANUAL_MODE = BIT_RNG(4,6),
+};
+/*
+ * analog:0x1a
+ */
+#define  reg_charger_ichg     0x1a
+enum{
+   ICHG_TRIM =BIT_RNG(0,3),
+};
+/*
+ * analog:0x22
+ */
+#define  reg_charger_status    0x22
+enum{
+   CHG_USB_ON_OFF            = BIT(6),
+};
 
-
+#endif /* DRIVERS_REG_INCLUDE_CHARGER_REG_H_ */

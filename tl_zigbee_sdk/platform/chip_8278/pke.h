@@ -37,7 +37,7 @@
 #define reg_pke_a_ram(a)		 ((volatile unsigned long *)(PKE_BASE+0x0400+(a)*(0x24)))
 #define reg_pke_b_ram(b)		 ((volatile unsigned long *)(PKE_BASE+0x1000+(b)*(0x24)))
 
-/********* oprand length *********/
+/********* operand length *********/
 #define PKE_OPERAND_MAX_WORD_LEN      (0x08)
 #define PKE_OPERAND_MAX_BIT_LEN       (0x100)
 #define ECC_MAX_WORD_LEN              PKE_OPERAND_MAX_WORD_LEN
@@ -253,7 +253,7 @@ static inline void pke_set_operand_width(unsigned int bitLen)
  * @brief		load the pre-calculated mont parameters H(R^2 mod modulus) and
  * 				n1( - modulus ^(-1) mod 2^w )
  * @param[in] 	H 	  	- R^2 mod modulus
- * @param[in] 	n1 	  	-  modulus ^(-1) mod 2^w, here w is 32 acutally
+ * @param[in] 	n1 	  	-  modulus ^(-1) mod 2^w, here w is 32 actually
  * @param[in] 	wordLen - word length of modulus or H
  * @return: 	none
  */
@@ -264,7 +264,7 @@ void pke_load_pre_calc_mont(unsigned int *H, unsigned int *n1, unsigned int word
  * @param[in]   modulus - input, modulus
  * @param[in]   wordLen - input, word length of modulus or H
  * @param[out]  PKE_A3 	-  R^2 mod modulus
- * @param[out]  PKE_B4	-  modulus ^(-1) mod 2^w, here w is 32 acutally
+ * @param[out]  PKE_B4	-  modulus ^(-1) mod 2^w, here w is 32 actually
  * @return      PKE_SUCCESS(success), other(error)
  */
 unsigned char pke_calc_pre_mont(const unsigned int *modulus, unsigned int wordLen);

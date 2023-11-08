@@ -220,7 +220,7 @@ buf_sts_t ev_buf_free(u8 *pBuf)
     	T_DBG_evFreeBufLine = line;
 #endif
 
-    	ZB_EXCEPTION_POST(SYS_EXCEPTTION_EV_BUFFER_EXCEPTION_FREE_MULIT);
+    	ZB_EXCEPTION_POST(SYS_EXCEPTTION_EV_BUFFER_EXCEPTION_FREE_MULTI);
 
     	drv_restore_irq(r);
         return BUFFER_DUPLICATE_FREE;

@@ -185,7 +185,7 @@ static inline void usbhw_data_ep_stall(unsigned int ep) {
  * @return    none.
  */
 static inline void usbhw_set_printer_threshold(unsigned char th) {
-	reg_usb_ep8_send_thre = th;
+	reg_usb_ep8_send_thres = th;
 }
 
 /**

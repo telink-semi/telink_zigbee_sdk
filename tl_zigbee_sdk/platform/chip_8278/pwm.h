@@ -76,7 +76,7 @@ typedef enum{
 
 
 /**
- * @brief     This fuction servers to set pwm mode.
+ * @brief     This function servers to set pwm mode.
  * @param[in] pwm_id - variable of enum to select the pwm number.
  * @param[in] mode - variable of enum to indicates the pwm mode.
  * @return	  none.
@@ -89,7 +89,7 @@ static inline void pwm_set_mode(pwm_id id, pwm_mode mode){
 
 
 /**
- * @brief     This fuction servers to set pwm clock frequency
+ * @brief     This function servers to set pwm clock frequency
  * @param[in] system_clock_hz - variable to set system clock hz.
  * @param[in] pwm_clk - variable of the pwm clock.
  * @return	  none.
@@ -99,7 +99,7 @@ static inline void pwm_set_clk(int system_clock_hz, int pwm_clk){
 }
 
 /**
- * @brief     This fuction servers to set pwm count status(CMP) time.
+ * @brief     This function servers to set pwm count status(CMP) time.
  * @param[in] pwm_id  - variable of enum to select the pwm number.
  * @param[in] cmp_tick - variable of the CMP.
  * @return	  none.
@@ -110,7 +110,7 @@ static inline void pwm_set_cmp(pwm_id id, unsigned short cmp_tick)
 }
 
 /**
- * @brief     This fuction servers to set pwm cycle time.
+ * @brief     This function servers to set pwm cycle time.
  * @param[in] pwm_id - variable of enum to select the pwm number.
  * @param[in] cycle_tick - variable of the cycle time.
  * @return	  none.
@@ -120,7 +120,7 @@ static inline void pwm_set_cycle(pwm_id id, unsigned short cycle_tick){
 }
 
 /**
- * @brief     This fuction servers to set pwm cycle time & count status.
+ * @brief     This function servers to set pwm cycle time & count status.
  * @param[in] pwm_id - variable of enum to select the pwm number.
  * @param[in] cycle_tick - variable of the cycle time.
  * @param[in] cmp_tick - variable of the CMP.
@@ -131,7 +131,7 @@ static inline void pwm_set_cycle_and_duty(pwm_id id, unsigned short cycle_tick, 
 }
 
 /**
- * @brief     This fuction servers to set pwm cycle time & count status.
+ * @brief     This function servers to set pwm cycle time & count status.
  * @param[in] cycle_tick - variable of the cycle time.
  * @param[in] cmp_tick - variable of the CMP.
  * @return	  none.
@@ -143,7 +143,7 @@ static inline void pwm_set_pwm0_shadow_cycle_and_duty(unsigned short cycle_tick,
 }
 
 /**
- * @brief     This fuction servers to set the pwm phase.
+ * @brief     This function servers to set the pwm phase.
  * @param[in] pwm_id - variable of enum to select the pwm number.
  * @param[in] phase - variable of the pwm phase.
  * @return	  none.
@@ -153,7 +153,7 @@ static inline void pwm_set_phase(pwm_id id, unsigned short phase){
 }
 
 /**
- * @brief     This fuction servers to set the pwm pulse number.
+ * @brief     This function servers to set the pwm pulse number.
  * @param[in] pwm_id - variable of enum to select the pwm number.
  * @param[in] pulse_num - variable of the pwm pulse number.
  * @return	  none.
@@ -165,7 +165,7 @@ static inline void pwm_set_pulse_num(pwm_id id, unsigned short pulse_num){
 }
 
 /**
- * @brief     This fuction servers to start the pwm.
+ * @brief     This function servers to start the pwm.
  * @param[in] pwm_id - variable of enum to select the pwm number.
  * @return	  none.
  */
@@ -181,7 +181,7 @@ static inline void pwm_start(pwm_id id)
 }
 
 /**
- * @brief     This fuction servers to stop the pwm.
+ * @brief     This function servers to stop the pwm.
  * @param[in] pwm_id - variable of enum to select the pwm number.
  * @return	  none.
  */
@@ -197,7 +197,7 @@ static inline void pwm_stop(pwm_id id)
 }
 
 /**
- * @brief     This fuction servers to revert the PWMx.
+ * @brief     This function servers to revert the PWMx.
  * @param[in] pwm_id - variable of enum to select the pwm number.
  * @return	  none.
  */
@@ -207,7 +207,7 @@ static inline void pwm_revert(pwm_id id)
 }
 
 /**
- * @brief     This fuction servers to revert the PWMx_N.
+ * @brief     This function servers to revert the PWMx_N.
  * @param[in] pwm_id - variable of enum to select the pwm number.
  * @return	  none.
  */
@@ -217,7 +217,7 @@ static inline void pwm_n_revert(pwm_id id)
 }
 
 /**
- * @brief     This fuction servers to enable the pwm polarity.
+ * @brief     This function servers to enable the pwm polarity.
  * @param[in] pwm_id - variable of enum to select the pwm number.
  * @param[in] en: 1 enable. 0 disable.
  * @return	  none.
@@ -232,7 +232,7 @@ static inline void pwm_polo_enable(pwm_id id, int en)
 }
 
 /**
- * @brief     This fuction servers to mask the pwm interrupt.
+ * @brief     This function servers to mask the pwm interrupt.
  * @param[in] irq - variable of enum to select the pwm interrupt source.
  * @return	  none.
  */
@@ -245,7 +245,7 @@ static inline void pwm_set_interrupt_enable(PWM_IRQ irq){
 }
 
 /**
- * @brief     This fuction servers to clear the pwm mask.
+ * @brief     This function servers to clear the pwm mask.
  * @param[in] irq  - variable of enum to select the pwm interrupt source.
  * @return	  none.
  */
@@ -258,7 +258,7 @@ static inline void pwm_set_interrupt_disable(PWM_IRQ irq){
  }
 
 /**
- * @brief     This fuction servers to clear the pwm interrupt status.
+ * @brief     This function servers to clear the pwm interrupt status.
  * @param[in] irq  - variable of enum to select the pwm interrupt source.
  * @return	  none.
  */
@@ -272,7 +272,7 @@ static inline void pwm_clear_interrupt_status(PWM_IRQ status)
 }
 
 /**
- * @brief     This fuction serves to set trigger level of interrupt for IR FiFo mode
+ * @brief     This function serves to set trigger level of interrupt for IR FIFO mode
  * @param[in] trig_level - FIFO  num int trigger level
  * @return	  none
  */
@@ -282,7 +282,7 @@ static inline void pwm_ir_fifo_set_irq_trig_level(unsigned char trig_level)
 }
 
 /**
- * @brief     This fuction serves to clear data in fifo. Only when pwm is in not active mode,
+ * @brief     This function serves to clear data in fifo. Only when pwm is in not active mode,
  * 			  it is possible to clear data in fifo.
  * @param[in] none
  * @return	  none
@@ -293,7 +293,7 @@ static inline void pwm_ir_fifo_clr_data(void)
 }
 
 /**
- * @brief     This fuction serves to get the number of data in fifo.
+ * @brief     This function serves to get the number of data in fifo.
  * @param[in] none
  * @return	  the number of data in fifo
  */
@@ -303,7 +303,7 @@ static inline unsigned char pwm_ir_fifo_get_data_num(void)
 }
 
 /**
- * @brief     This fuction serves to determine whether data in fifo is empty.
+ * @brief     This function serves to determine whether data in fifo is empty.
  * @param[in] none
  * @return	  yes: 1 ,no: 0;
  */
@@ -313,7 +313,7 @@ static inline unsigned char pwm_ir_fifo_is_empty(void)
 }
 
 /**
- * @brief     This fuction serves to determine whether data in fifo is full.
+ * @brief     This function serves to determine whether data in fifo is full.
  * @param[in] none
  * @return	  yes: 1 ,no: 0;
  */
@@ -323,7 +323,7 @@ static inline unsigned char pwm_ir_fifo_is_full(void)
 }
 
 /**
- * @brief     This fuction serves to write data into FiFo
+ * @brief     This function serves to write data into FIFO
  * @param[in] pulse_num  - the number of pulse
  * @param[in] use_shadow - determine whether the configuration of shadow cmp and shadow max is used
  * 						   1: use shadow, 0: not use
@@ -341,7 +341,7 @@ static inline void pwm_ir_fifo_set_data_entry(unsigned short pulse_num, unsigned
 }
 
 /**
- * @brief     This fuction serves to config the pwm's dma wave form.
+ * @brief     This function serves to config the pwm's dma wave form.
  * @param[in] carrier_en - must 1 or 0.
  * @param[in] pulse_type - type of pwm0's pulse.
  * @param[in] pulse_num - the number of pulse.
@@ -353,7 +353,7 @@ static inline unsigned short pwm_config_dma_fifo_waveform(int carrier_en, Pwm0Pu
 }
 
 /**
- * @brief     This fuction servers to set the pwm's dma address.
+ * @brief     This function servers to set the pwm's dma address.
  * @param[in] pdat - variable of pointer to indicate the address.
  * @return	  none.
  * @note	  The maximum length that the PWM can send is 511bytes
@@ -373,7 +373,7 @@ static inline void pwm_set_dma_address(void * pdat)
 }
 
 /**
- * @brief     This fuction servers to start the pwm's IRQ sending.
+ * @brief     This function servers to start the pwm's IRQ sending.
  * @param[in] none.
  * @return	  none.
  */
@@ -384,7 +384,7 @@ static inline void pwm_start_dma_ir_sending(void)
 }
 
 /**
- * @brief     This fuction servers to stop the pwm's IRQ sending.
+ * @brief     This function servers to stop the pwm's IRQ sending.
  * @param[in] none.
  * @return	  none.
  */
@@ -396,7 +396,7 @@ static inline void pwm_stop_dma_ir_sending(void)
 }
 
 /**
- * @brief     This fuction servers to get the pwm interrupt status.
+ * @brief     This function servers to get the pwm interrupt status.
  * @param[in] status - variable of enum to select the pwm interrupt source.
  * @return	  none.
  */

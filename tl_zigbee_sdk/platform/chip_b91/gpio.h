@@ -1,13 +1,12 @@
 /********************************************************************************************************
- * @file	gpio.h
+ * @file    gpio.h
  *
- * @brief	This is the header file for B91
+ * @brief   This is the header file for B91
  *
- * @author	Driver Group
- * @date	2019
+ * @author  Driver Group
+ * @date    2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -53,6 +52,12 @@
  *********************************************************************************************************************/
 /**
  *  @brief  Define GPIO types
+ *  @note	the following two points need to noticed when using PE5 port:
+ *  		1. This pin is not recommend to use as wake-up source;
+ *  		2. Since this pin is output function by default, even if it is configured with pull-up/pull-down retention,
+ *  		when deep/deep Retention is invoked, it can't maintain high/low level and an abnormal level will occur.
+ *  		Therefore, this pin can't be used in applications where a certain level state needs to be maintained all the time.
+ *  		The PF group can only be used as an mspi pin and cannot be used as a wake-up source.
  */
 typedef enum{
 		GPIO_GROUPA    = 0x000,
@@ -509,8 +514,8 @@ void gpio_shutdown(gpio_pin_e pin);
 void gpio_set_up_down_res(gpio_pin_e pin, gpio_pull_type_e up_down_res);
 
 /**
- * @brief     This function set pin's 30k pull-up registor.
- * @param[in] pin - the pin needs to set its pull-up registor.
+ * @brief     This function set pin's 30k pull-up register.
+ * @param[in] pin - the pin needs to set its pull-up register.
  * @return    none.
  */
 void gpio_set_pullup_res_30k(gpio_pin_e pin);

@@ -1,13 +1,12 @@
 /********************************************************************************************************
- * @file	sys.h
+ * @file    sys.h
  *
- * @brief	This is the header file for B91
+ * @brief   This is the header file for B91
  *
- * @author	Driver Group
- * @date	2019
+ * @author  Driver Group
+ * @date    2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -36,6 +35,7 @@
 #ifndef SYS_H_
 #define SYS_H_
 #include "reg_include/stimer_reg.h"
+#include "compiler.h"
 
 
 /**********************************************************************************************************************
@@ -77,19 +77,19 @@ typedef enum{
 }power_mode_e;
 
 /**
- * @brief 	The maximum voltage that the chip can withstand is 3.6V.
- * 			When the vbat power supply voltage is lower than 3.6V, it is configured as VBAT_MAX_VALUE_LESS_THAN_3V6 mode,
- * 			bypass is turned on, and the vbat voltage directly supplies power to the chip.
- * 			The voltage of the GPIO pin is the voltage of vbat.
- * 			When the vbat power supply voltage may be higher than 3.6V, it is configured as VBAT_MAX_VALUE_GREATER_THAN_3V6 mode,
- * 			the bypass is closed, and the vbat voltage passes through an LDO to supply power to the chip.
- * 			The voltage of the GPIO pin (V_ioh) is the voltage after Vbat passes through the LDO (V_ldo),
- * 			and the maximum value is about 3.3V floating 10% (V_ldoh).
- * 			When Vbat > V_ldoh, V_ioh = V_ldo = V_ldoh. When Vbat < V_ldoh, V_ioh = V_ldo = Vbat.
+ * @brief 	This enumeration is used to select whether VBAT can be greater than 3.6V.
  */
 typedef enum{
-	VBAT_MAX_VALUE_GREATER_THAN_3V6	= 0x00,		/*VBAT may be greater than 3.6V. */
-	VBAT_MAX_VALUE_LESS_THAN_3V6	= BIT(3),	/*VBAT must be below 3.6V. */
+	VBAT_MAX_VALUE_GREATER_THAN_3V6	= 0x00,		/**  VBAT may be greater than 3.6V.
+												<p>  In this configuration the bypass is closed
+												<p>	 and the VBAT voltage passes through an LDO to supply power to the chip.
+												<p>	 The voltage of the GPIO pin (V_ioh) is the voltage after VBAT passes through the LDO (V_ldo),
+												<p>  and the maximum value is about 3.3V floating 10% (V_ldoh).
+												<p>  When VBAT > V_ldoh, <p>V_ioh = V_ldo = V_ldoh.
+												<p>  When VBAT < V_ldoh, <p>V_ioh = V_ldo = VBAT */
+	VBAT_MAX_VALUE_LESS_THAN_3V6	= BIT(3),	/**  VBAT must be below 3.6V.
+												<p>  In this configuration bypass is turned on.vbat is directly supplying power to the chip
+												<p>  V_ioh(the output voltage of GPIO)= VBAT */
 }vbat_type_e;
 
 /**
@@ -115,14 +115,12 @@ extern unsigned int g_chip_version;
  * @brief      This function reboot mcu.
  * @return     none
  */
-static inline void sys_reboot(void)
-{
-	reg_pwdn_en = 0x20;
-}
+_attribute_text_sec_ void sys_reboot(void);
+
 /**
  * @brief   	This function serves to initialize system.
  * @param[in]	power_mode - power mode(LDO/DCDC/LDO_DCDC)
- * @param[in]	vbat_v		- vbat voltage type: 0 vbat may be greater than 3.6V,  1 vbat must be below 3.6V.
+ * @param[in]	vbat_v		- This parameter is used to determine whether the VBAT voltage can be greater than 3.6V.
  * @return  	none
  */
 void sys_init(power_mode_e power_mode, vbat_type_e vbat_v);
@@ -138,10 +136,10 @@ void sys_init(power_mode_e power_mode, vbat_type_e vbat_v);
 int write_reg_table(const tbl_cmd_set_t * pt, int size);
 /**
  * @brief     this function servers to get calibration value from EFUSE.
- * 			  Only the two-point calibration gain and offset of GPIO sampling are saved in the efuse of B91.
+ * 			  Only the two-point calibration gain and offset of GPIO sampling are saved in the EFUSE of B91.
  * @param[out]gain - gpio_calib_value.
  * @param[out]offset - gpio_calib_value_offset.
- * @return    1 means there is a calibration value in efuse, and 0 means there is no calibration value in efuse.
+ * @return    1 means there is a calibration value in EFUSE, and 0 means there is no calibration value in EFUSE.
  */
 unsigned char efuse_get_adc_calib_value(unsigned short* gain, signed char* offset);
 

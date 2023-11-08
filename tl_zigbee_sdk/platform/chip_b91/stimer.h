@@ -1,13 +1,12 @@
 /********************************************************************************************************
- * @file	stimer.h
+ * @file    stimer.h
  *
- * @brief	This is the header file for B91
+ * @brief   This is the header file for B91
  *
- * @author	Driver Group
- * @date	2019
+ * @author  Driver Group
+ * @date    2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -26,7 +25,7 @@
  *
  *	Introduction
  *	===============
- *	TLSRB91 stimer use 16M clock count, have stimer irq.
+ *	B91 stimer use 16M clock count, have stimer irq.
  *
  *	API Reference
  *	===============
@@ -34,6 +33,7 @@
  */
 #ifndef STIMER_H_
 #define STIMER_H_
+
 #include "compiler.h"
 #include "reg_include/stimer_reg.h"
 

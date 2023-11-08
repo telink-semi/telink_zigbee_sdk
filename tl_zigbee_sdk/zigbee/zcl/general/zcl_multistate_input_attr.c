@@ -45,7 +45,7 @@
  * LOCAL VARIABLES
  */
 
-#ifdef ZCL_MULITSTATE_INPUT
+#ifdef ZCL_MULTISTATE_INPUT
 
 #ifdef ZCL_MULTISTATE_INPUT_ATTR_STATE_TEXT_ENABLE
 u8 zcl_attr_mulInput_stateText[ZCL_MULTISTATE_INPUT_MAX_LENGTH] = {0};
@@ -105,6 +105,6 @@ const zclAttrInfo_t multistate_input_attrTbl[] =
 
 const u8 zcl_multistate_input_attrNum = ( sizeof(multistate_input_attrTbl) / sizeof(zclAttrInfo_t) );
 
-#endif	/* ZCL_MULISTATE_INPUT */
+#endif	/* ZCL_MULTISTATE_INPUT */
 
 #endif

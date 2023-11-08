@@ -1,13 +1,12 @@
 /********************************************************************************************************
- * @file	mspi.h
+ * @file    mspi.h
  *
- * @brief	This is the header file for B91
+ * @brief   This is the header file for B91
  *
- * @author	Driver Group
- * @date	2019
+ * @author  Driver Group
+ * @date    2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -48,7 +47,7 @@ _attribute_ram_code_sec_ static inline void mspi_wait(void){
 }
 
 /**
- * @brief     This function servers to enable read triggle spi.
+ * @brief     This function servers to enable read trigger spi.
  * @return    none.
  */
 _attribute_ram_code_sec_ static inline void mspi_fm_rd_trig_en(void){
@@ -56,7 +55,7 @@ _attribute_ram_code_sec_ static inline void mspi_fm_rd_trig_en(void){
 }
 
 /**
- * @brief     This function servers to disable read triggle spi.
+ * @brief     This function servers to disable read trigger spi.
  * @return    none.
  */
 _attribute_ram_code_sec_ static inline void mspi_fm_rd_trig_dis(void){

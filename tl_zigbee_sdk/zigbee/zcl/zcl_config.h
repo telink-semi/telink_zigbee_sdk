@@ -119,13 +119,13 @@
 #endif
 
 /******************** Multistate Input Configuration *******************/
-#if ZCL_MULITSTATE_INPUT_SUPPORT
-#define ZCL_MULITSTATE_INPUT
+#if ZCL_MULTISTATE_INPUT_SUPPORT
+#define ZCL_MULTISTATE_INPUT
 #endif
 
 /******************** Multistate Output Configuration ******************/
-#if ZCL_MULITSTATE_OUTPUT_SUPPORT
-#define ZCL_MULITSTATE_OUTPUT
+#if ZCL_MULTISTATE_OUTPUT_SUPPORT
+#define ZCL_MULTISTATE_OUTPUT
 #endif
 
 /********************************************* Measurement and Sensing ********************************************/

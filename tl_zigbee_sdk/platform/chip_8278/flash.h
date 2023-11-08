@@ -150,7 +150,7 @@ void flash_read_page(unsigned long addr, unsigned long len, unsigned char *buf);
  * @param[in]   len		- the length(in byte) of content needs to write into the flash.
  * @param[in]   buf		- the start address of the content needs to write into.
  * @return 		none.
- * @note        the funciton support cross-page writing,which means the len of buf can bigger than 256.
+ * @note        the function support cross-page writing,which means the len of buf can bigger than 256.
  *
  *              Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
  *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.
@@ -244,28 +244,28 @@ void flash_vdd_f_calib(void);
 static inline unsigned short flash_get_vdd_f_calib_value(void)
 {
 	unsigned int mid = flash_read_mid();
-	unsigned short flash_volatage = 0;
+	unsigned short flash_voltage = 0;
 	switch((mid & 0xff0000) >> 16)
 	{
 	case(FLASH_SIZE_64K):
-		flash_read_page(0xe1c0, 2, (unsigned char*)&flash_volatage);
+		flash_read_page(0xe1c0, 2, (unsigned char*)&flash_voltage);
 		break;
 	case(FLASH_SIZE_128K):
-		flash_read_page(0x1e1c0, 2, (unsigned char*)&flash_volatage);
+		flash_read_page(0x1e1c0, 2, (unsigned char*)&flash_voltage);
 		break;
 	case(FLASH_SIZE_512K):
-		flash_read_page(0x771c0, 2, (unsigned char*)&flash_volatage);
+		flash_read_page(0x771c0, 2, (unsigned char*)&flash_voltage);
 		break;
 	case(FLASH_SIZE_1M):
-		flash_read_page(0xfe1c0, 2, (unsigned char*)&flash_volatage);
+		flash_read_page(0xfe1c0, 2, (unsigned char*)&flash_voltage);
 		break;
 	case(FLASH_SIZE_2M):
-		flash_read_page(0x1fe1c0, 2, (unsigned char*)&flash_volatage);
+		flash_read_page(0x1fe1c0, 2, (unsigned char*)&flash_voltage);
 		break;
 	default:
-		flash_volatage = 0xff;
+		flash_voltage = 0xff;
 		break;
 	}
-	return flash_volatage;
+	return flash_voltage;
 }
 

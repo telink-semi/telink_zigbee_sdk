@@ -1516,7 +1516,7 @@ _CODE_ZCL_ status_t zcl_configReport(u8 srcEp, epInfo_t *pDstEpInfo, u16 cluster
 
 _CODE_ZCL_ status_t zcl_configReportRsp(u8 srcEp, epInfo_t *pDstEpInfo, u16 clusterId, u16 manuCode, u8 disableDefaultRsp, u8 direction, u8 seqNo, zclCfgReportRspCmd_t *cfgReportRspCmd)
 {
-	u16 len = cfgReportRspCmd->numAttr * (1 + 1 + 2);	//status + direction + attrID
+	u16 len = (cfgReportRspCmd->numAttr == 0) ? 1 : (cfgReportRspCmd->numAttr * (1 + 1 + 2));//status + direction + attrID
 
 	u8 *buf = (u8 *)ev_buf_allocate(len);
 	if(!buf){
@@ -1525,11 +1525,15 @@ _CODE_ZCL_ status_t zcl_configReportRsp(u8 srcEp, epInfo_t *pDstEpInfo, u16 clus
 
 	u8 *pBuf = buf;
 
-	for(u8 i = 0; i < cfgReportRspCmd->numAttr; i++){
-		*pBuf++ = cfgReportRspCmd->attrList[i].status;
-		*pBuf++ = cfgReportRspCmd->attrList[i].direction;
-		*pBuf++ = LO_UINT16(cfgReportRspCmd->attrList[i].attrID);
-		*pBuf++ = HI_UINT16(cfgReportRspCmd->attrList[i].attrID);
+	if(cfgReportRspCmd->numAttr == 0){
+		*pBuf++ = ZCL_STA_SUCCESS;
+	}else{
+		for(u8 i = 0; i < cfgReportRspCmd->numAttr; i++){
+			*pBuf++ = cfgReportRspCmd->attrList[i].status;
+			*pBuf++ = cfgReportRspCmd->attrList[i].direction;
+			*pBuf++ = LO_UINT16(cfgReportRspCmd->attrList[i].attrID);
+			*pBuf++ = HI_UINT16(cfgReportRspCmd->attrList[i].attrID);
+		}
 	}
 
 	u8 status = zcl_sendCmd(srcEp, pDstEpInfo, clusterId, ZCL_CMD_CONFIG_REPORT_RSP, FALSE, direction, disableDefaultRsp, manuCode, seqNo, len, buf);
@@ -1806,7 +1810,7 @@ _CODE_ZCL_ status_t zcl_configReportHandler(zclIncoming_t *pCmd)
 		return ZCL_STA_INSUFFICIENT_SPACE;
 	}
 
-	pCfgReportRspCmd->numAttr = pCfgReportCmd->numAttr;
+	pCfgReportRspCmd->numAttr = 0;
 
 	for(u8 i = 0; i < pCfgReportCmd->numAttr; i++){
 		zclCfgReportRec_t *pCfgReportRec = &(pCfgReportCmd->attrList[i]);
@@ -1814,11 +1818,12 @@ _CODE_ZCL_ status_t zcl_configReportHandler(zclIncoming_t *pCmd)
 		status = zcl_configureReporting(endpoint, profileId, clusterId, pCfgReportRec);
 		if(status == ZCL_STA_SUCCESS){
 			cfgReportChange = 1;
+		}else{
+			pCfgReportRspCmd->attrList[pCfgReportRspCmd->numAttr].status = status;
+			pCfgReportRspCmd->attrList[pCfgReportRspCmd->numAttr].attrID = pCfgReportRec->attrID;
+			pCfgReportRspCmd->attrList[pCfgReportRspCmd->numAttr].direction = pCfgReportRec->direction;
+			pCfgReportRspCmd->numAttr++;
 		}
-
-		pCfgReportRspCmd->attrList[i].status = status;
-		pCfgReportRspCmd->attrList[i].attrID = pCfgReportRec->attrID;
-		pCfgReportRspCmd->attrList[i].direction = pCfgReportRec->direction;
 	}
 
 	if(cfgReportChange){
@@ -1850,17 +1855,23 @@ _CODE_ZCL_ status_t zcl_configReportHandler(zclIncoming_t *pCmd)
 _CODE_ZCL_ zclCfgReportRspCmd_t *zcl_parseInCfgReportRspCmd(zclIncoming_t *pCmd)
 {
 	u8 *pBuf = pCmd->pData;
-	u8 numAttr = pCmd->dataLen / (1 + 1 + 2);	//status + direction + attrID
+	u8 numAttr = (pCmd->dataLen == 1) ? 1 : (pCmd->dataLen / (1 + 1 + 2));//status + direction + attrID
 
 	u16 len = sizeof(zclCfgReportRspCmd_t) + numAttr * sizeof(zclCfgReportStatus_t);
 	zclCfgReportRspCmd_t *p = (zclCfgReportRspCmd_t *)ev_buf_allocate(len);
 	if(p != NULL){
 		p->numAttr = numAttr;
-		for(u8 i = 0; i < p->numAttr; i++){
-			p->attrList[i].status = *pBuf++;
-			p->attrList[i].direction = *pBuf++;
-			p->attrList[i].attrID = BUILD_U16(pBuf[0], pBuf[1]);
-			pBuf += 2;
+		if(pCmd->dataLen == 1){
+			p->attrList[0].status = *pBuf++;
+			p->attrList[0].direction = 0xFF;
+			p->attrList[0].attrID = 0xFFFF;
+		}else{
+			for(u8 i = 0; i < p->numAttr; i++){
+				p->attrList[i].status = *pBuf++;
+				p->attrList[i].direction = *pBuf++;
+				p->attrList[i].attrID = BUILD_U16(pBuf[0], pBuf[1]);
+				pBuf += 2;
+			}
 		}
 	}
 

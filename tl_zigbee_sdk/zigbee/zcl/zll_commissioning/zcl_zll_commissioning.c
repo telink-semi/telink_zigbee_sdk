@@ -255,10 +255,6 @@ _CODE_ZCL_ void	zcl_zllTouchLinkFinish(u8 status){
 	g_zllTouchLink.state = ZCL_ZLL_COMMISSION_STATE_IDLE;
 	g_zllTouchLink.status = status;
 
-	if(status == ZCL_ZLL_TOUCH_LINK_STA_SUCC){
-		ss_securityModeSet(SS_SEMODE_DISTRIBUTED);
-	}
-
 	ZB_TRANSCEIVER_SET_CHANNEL(g_zllTouchLink.workingChannelBackUp);
 	MAC_IB().rxOnWhenIdle = g_zllTouchLink.zbInfo.bf.rxOnWihleIdle;  //must restore the rxOnWhenIdle for ED
 

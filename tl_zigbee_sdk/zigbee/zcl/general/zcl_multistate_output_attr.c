@@ -117,6 +117,6 @@ const zclAttrInfo_t multistate_output_attrTbl[] =
 
 const u8 zcl_multistate_output_attrNum = ( sizeof(multistate_output_attrTbl) / sizeof(zclAttrInfo_t) );
 
-#endif	/* ZCL_MULISTATE_OUTPUT */
+#endif	/* ZCL_MULTISTATE_OUTPUT */
 
 #endif

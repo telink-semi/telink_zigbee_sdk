@@ -1,13 +1,12 @@
 /********************************************************************************************************
- * @file	spi.h
+ * @file    spi.h
  *
- * @brief	This is the header file for B91
+ * @brief   This is the header file for B91
  *
- * @author	Driver Group
- * @date	2019
+ * @author  Driver Group
+ * @date    2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -25,7 +24,7 @@
 #ifndef SPI_H
 #define SPI_H
 
-#include <reg_include/register.h>
+#include "reg_include/register.h"
 #include "gpio.h"
 #include "dma.h"
 /**	@page SPI
@@ -88,9 +87,9 @@ typedef enum{
 } spi_io_mode_e;
 
 typedef enum{
-	SPI_NOMAL = 0,
+	SPI_NORMAL = 0,
     SPI_3LINE = 3,
-} spi_nomal_3line_mode_e;
+} spi_normal_3line_mode_e;
 
 typedef enum{
 	PSPI_SINGLE = 0,
@@ -110,14 +109,14 @@ typedef enum{
  * @brief  Define the SPI command & translate mode.
  */
 typedef enum{
-	SPI_MODE_WRITE_AND_READ = 0,//write and read at the same.must enbale CmdEn
+	SPI_MODE_WRITE_AND_READ = 0,//write and read at the same.must enable CmdEn
 	SPI_MODE_WRITE_ONLY,//write
-	SPI_MODE_READ_ONLY,// read must enbale CmdEn
+	SPI_MODE_READ_ONLY,// read must enable CmdEn
 	SPI_MODE_WRITE_READ,//write_ read
 	SPI_MODE_READ_WRITE,//read_write
 	SPI_MODE_WRITE_DUMMY_READ,//write_dummy_read
-	SPI_MODE_READ_DUMMY_WRITE,//read_ dummy_write must enbale CmdEn
-	SPI_MODE_NONE_DATA,//must enbale CmdEn
+	SPI_MODE_READ_DUMMY_WRITE,//read_ dummy_write must enable CmdEn
+	SPI_MODE_NONE_DATA,//must enable CmdEn
 	SPI_MODE_DUMMY_WRITE,//dummy_write
 	SPI_MODE_DUMMY_READ,//dummy_read
 	SPI_MODE_RESERVED,
@@ -129,12 +128,12 @@ typedef enum{
 }spi_wr_tans_mode_e;
 
 typedef enum{
-	SPI_MODE_RD_READ_ONLY  = 2,//must enbale CmdEn
+	SPI_MODE_RD_READ_ONLY  = 2,//must enable CmdEn
 	SPI_MODE_RD_DUMMY_READ = 9,//dummy_read
 }spi_rd_tans_mode_e;
 
 typedef enum{
-	SPI_MODE_WR_RD 		 = 3,//must enbale CmdEn
+	SPI_MODE_WR_RD 		 = 3,//must enable CmdEn
 	SPI_MODE_WR_DUMMY_RD = 5,//write_dummy_read
 }spi_wr_rd_tans_mode_e;
 
@@ -731,7 +730,7 @@ static inline void hspi_xip_stop(void)
 }
 
 /**
- * @brief 	This function servers to enable xip timeout that set hight level.
+ * @brief 	This function servers to enable xip timeout that set high level.
  * @return 	none
  */
 static inline void hspi_xip_timeout_mode_en(void)
@@ -795,7 +794,7 @@ static inline void spi_slave_ready_dis(spi_sel_e spi_sel)
 /**
  * @brief 		This function servers to read cmd from master for slave.
  * @param[in] 	spi_sel 	- the spi module.
- * @return  	cmd transferd by master.
+ * @return  	cmd transferred by master.
  */
 static inline unsigned char spi_slave_get_cmd(spi_sel_e spi_sel)
 {
@@ -840,7 +839,7 @@ static inline void spi_clr_irq_status(spi_sel_e spi_sel, spi_irq_status_e status
  * @brief 		This function servers to set irq mask.
  * @param[in] 	spi_sel - the spi module.
  * @param[in] 	mask 	- the irq mask.
- * @return  	cmd 	- transferd by master.
+ * @return  	cmd 	- transferred by master.
  */
 static inline void spi_set_irq_mask(spi_sel_e spi_sel, spi_irq_mask mask)
 {
@@ -861,7 +860,7 @@ static inline unsigned char spi_get_irq_mask(spi_sel_e spi_sel, spi_irq_mask mas
  * @brief 		This function servers to clear irq mask.
  * @param[in] 	spi_sel - the spi module.
  * @param[in] 	mask 	- the irq mask.
- * @return  	cmd 	- transferd by master.
+ * @return  	cmd 	- transferred by master.
  */
 static inline void spi_clr_irq_mask(spi_sel_e spi_sel, spi_irq_mask mask)
 {
@@ -1065,10 +1064,10 @@ void spi_set_io_mode(spi_sel_e spi_sel, spi_io_mode_e mode);
 /**
  * @brief     	This function servers to config normal mode.
  * @param[in] 	spi_sel - the spi module.
- * @param[in] 	mode 	- nomal ,mode 3line.
+ * @param[in] 	mode 	- normal ,mode 3line.
  * @return  	none
  */
-void spi_master_config(spi_sel_e spi_sel, spi_nomal_3line_mode_e mode);
+void spi_master_config(spi_sel_e spi_sel, spi_normal_3line_mode_e mode);
 
 /**
  * @brief     	This function servers to config hspi special mode.
@@ -1211,16 +1210,20 @@ void pspi_set_rx_dma_config(dma_chn_e chn);
  * @param[in]  	spi_sel     - the spi module.
  * @param[in]  	src_addr 	- the address of source.
  * @param[in]  	len 		- the length of data.
+ * @return 		none
+ * @note	  	src_addr : must be aligned by word (4 bytes), otherwise the program will enter an exception.
  * */
 _attribute_ram_code_sec_  void spi_set_tx_dma(spi_sel_e spi_sel, unsigned char* src_addr,unsigned int len);
 
 
 /**
- * @brief   	this  function set spi rx dma channel.
- * @param[in]  	spi_sel     - the spi module.
- * @param[in]  	dst_addr 	- the address of destination.
- * @param[in]  	len 		- the length of data.
- * */
+ * @brief      this  function set spi rx dma channel.
+ * @param[in]  spi_sel  - the spi module.
+ * @param[in]  dst_addr - This parameter is the first address of the received data buffer, which must be 4 bytes aligned, otherwise the program will enter an exception.
+ *                        and the actual buffer size defined by the user needs to be not smaller than the len, otherwise there may be an out-of-bounds problem.
+ * @param[in]  len      - This parameter is used to set the size of the received dma and must be set to a multiple of 4. The maximum value that can be set is 0xFFFFFC.
+ * @return 	   none
+ */
 _attribute_ram_code_sec_ void spi_set_rx_dma(spi_sel_e spi_sel, unsigned char* dst_addr,unsigned int len);
 /**
  * @brief     	This function serves to normal write data by dma.
@@ -1228,6 +1231,7 @@ _attribute_ram_code_sec_ void spi_set_rx_dma(spi_sel_e spi_sel, unsigned char* d
  * @param[in] 	src_addr 	- the pointer to the data for write.
  * @param[in] 	len 		- write length.
  * @return  	none
+ * @note	  	src_addr : must be aligned by word (4 bytes), otherwise the program will enter an exception.
  */
 void spi_master_write_dma(spi_sel_e spi_sel, unsigned char *src_addr, unsigned int len);
 
@@ -1240,6 +1244,7 @@ void spi_master_write_dma(spi_sel_e spi_sel, unsigned char *src_addr, unsigned i
  * @param[in] 	data 		- the pointer to the data for read.
  * @param[in] 	data_len 	- read length.
  * @return  	none
+ * @note	  	addr/data : must be aligned by word (4 bytes), otherwise the program will enter an exception.
  */
 void spi_master_write_read_dma(spi_sel_e spi_sel, unsigned char *addr, unsigned int addr_len, unsigned char *data, unsigned int data_len);
 
@@ -1252,6 +1257,7 @@ void spi_master_write_read_dma(spi_sel_e spi_sel, unsigned char *addr, unsigned 
  * @param[in]  	data_len 	- length in byte of the data need to write.
  * @param[in]  	wr_mode 	- write mode.dummy or not dummy.
  * @return   	none
+ * @note	  	data : must be aligned by word (4 bytes), otherwise the program will enter an exception.
  */
 void spi_master_write_dma_plus(spi_sel_e spi_sel, unsigned char cmd, unsigned int addr, unsigned char *data, unsigned int data_len, spi_wr_tans_mode_e wr_mode);
 
@@ -1264,6 +1270,7 @@ void spi_master_write_dma_plus(spi_sel_e spi_sel, unsigned char cmd, unsigned in
  * @param[in]  	data_len 	- length in byte of the data need to read.
  * @param[in]  	rd_mode 	- read mode.dummy or not dummy.
  * @return   	none
+ * @note	  	dst_addr : must be aligned by word (4 bytes), otherwise the program will enter an exception.
  */
 void spi_master_read_dma_plus(spi_sel_e spi_sel, unsigned char cmd, unsigned int addr, unsigned char *dst_addr, unsigned int data_len, spi_rd_tans_mode_e rd_mode);
 
@@ -1275,12 +1282,13 @@ void spi_master_read_dma_plus(spi_sel_e spi_sel, unsigned char cmd, unsigned int
  * 2.must cmd is 0,addr_len is equal to rd_len,rd_mode is SPI_MODE_WRITE_AND_READ.
  * @param[in]  	spi_sel 	- the spi module.
  * @param[in]  	cmd 		- cmd one byte will first write.
- * @param[in]  	addr 		- the address of slave.
+ * @param[in]  	addr 		- the pointer to the cmd and address for write.
  * @param[in]  	addr_len 	- the length of address.
  * @param[in]  	rd_data 	- pointer to the buffer that will cache the reading out data.
  * @param[in]  	rd_len	 	- length in byte of the data need to read.
  * @param[in]  	rd_mode 	- read mode.dummy or not dummy.
  * @return   	none
+ * @note	  	addr/rd_data : must be aligned by word (4 bytes), otherwise the program will enter an exception.
  */
 void spi_master_write_read_dma_plus(spi_sel_e spi_sel, unsigned char cmd, unsigned char *addr, unsigned int addr_len, unsigned char *rd_data, unsigned int rd_len, spi_rd_tans_mode_e rd_mode);
 

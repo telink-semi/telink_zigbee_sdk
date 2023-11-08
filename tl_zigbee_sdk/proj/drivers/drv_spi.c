@@ -49,7 +49,7 @@ void drv_spi_master_init(u32 spiClock, drv_spi_mode_type_def mode)
 	 * here we use the commonly used normal mode.
 	 */
 	spi_master_init(PSPI_MODULE, divClock, mode);
-	spi_master_config(PSPI_MODULE, SPI_NOMAL);
+	spi_master_config(PSPI_MODULE, SPI_NORMAL);
 #endif
 }
 

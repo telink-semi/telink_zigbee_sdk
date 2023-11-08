@@ -1,13 +1,12 @@
 /********************************************************************************************************
- * @file	soc.h
+ * @file    soc.h
  *
- * @brief	This is the header file for B91
+ * @brief   This is the header file for B91
  *
- * @author	Driver Group
- * @date	2019
+ * @author  Driver Group
+ * @date    2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -60,8 +59,8 @@
 /*
  * IRAM area:0x00000~0x1FFFF BIT(19) is 0,BIT(16~0) 128K is address offset
  * DRAM area:0x80000~0x9FFFF BIT(19) is 1,BIT(16~0) 128K is address offset
- * ILM area:0xc0000000~0xc0020000 BIT(31~19) is 3,BIT(21) is 0, BIT(20~17) do not care  BIT(16~0) 128K is address offset 128K is address offset
- * DLM area:0xc0200000~0xc0220000 BIT(31~19) is 3,BIT(21) is 1, BIT(20~17) do not care  BIT(16~0) 128K is address offset 128K is address offset
+ * ILM area:0xc0000000~0xc0020000 BIT(31~30) is 3,BIT(21) is 0, BIT(20~17) do not care  BIT(16~0) 128K is address offset 128K is address offset
+ * DLM area:0xc0200000~0xc0220000 BIT(31~30) is 3,BIT(21) is 1, BIT(20~17) do not care  BIT(16~0) 128K is address offset 128K is address offset
  * BIT(19) is used to distinguish from IRAM to DRAM, BIT(21) is used to distinguish from ILM to DLM.
  * so we can write it as follow
  * #define  convert_ram_addr_cpu2bus  (((((addr))&0x80000)? ((addr)| 0xc0200000) : ((addr)|0xc0000000)))
@@ -77,9 +76,8 @@
 
 // go further, if the source and destination  address is not in the sram(IRAM/DRAM)  interval, no address translation
 #define convert_ram_addr_cpu2bus(addr)  (unsigned int)(addr) < 0xa0000 ? ((unsigned int)(addr)+0xc0180000): (unsigned int)(addr)
-
-#define convert_ram_addr_bus2cpu(addr)  (((((unsigned int)(addr)) >=0xc0200000)?(((unsigned int)(addr)) + 0x80000-0xc0200000) : (((unsigned int)(addr)) - 0xc0000000)))
-
+//When using convert_ram_addr_cpu2bus(addr) formula to write to the register, BIT(20~17) may not be zero,  need to clear the corresponding bit to zero
+#define convert_ram_addr_bus2cpu(addr)  (((((unsigned int)(addr)) >=0xc0200000)?(((unsigned int)(addr)) + 0x80000-0xc0200000) : (((unsigned int)(addr)&(~0x1e0000))-0xc0000000)))
 
 #define LM_BASE                        0x80000000
 

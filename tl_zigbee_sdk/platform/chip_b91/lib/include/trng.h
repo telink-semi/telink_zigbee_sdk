@@ -1,13 +1,12 @@
 /********************************************************************************************************
- * @file	trng.h
+ * @file    trng.h
  *
- * @brief	This is the header file for B91
+ * @brief   This is the header file for B91
  *
- * @author	Driver Group
- * @date	2019
+ * @author  Driver Group
+ * @date    2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -26,7 +25,7 @@
  *
  *	Introduction
  *	===============
- *	TLSRB91 supports hardware trng.
+ *	B91 supports hardware trng.
  *
  *	API Reference
  *	===============
@@ -36,7 +35,7 @@
 #define TRNG_H_
 
 #include "lib/include/sys.h"
-#include <reg_include/register.h>
+#include "reg_include/register.h"
 #include "stimer.h"
 
 /**********************************************************************************************************************

@@ -1,13 +1,12 @@
 /********************************************************************************************************
- * @file	clock.h
+ * @file    clock.h
  *
- * @brief	This is the header file for B91
+ * @brief   This is the header file for B91
  *
- * @author	Driver Group
- * @date	2019
+ * @author  Driver Group
+ * @date    2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -26,7 +25,7 @@
  *
  *	Introduction
  *	===============
- *	TLSRB91 clock setting.
+ *	B91 clock setting.
  *
  *	API Reference
  *	===============
@@ -36,7 +35,7 @@
 #ifndef CLOCK_H_
 #define CLOCK_H_
 
-#include <reg_include/register.h>
+#include "reg_include/register.h"
 #include "compiler.h"
 
 /**********************************************************************************************************************
@@ -46,10 +45,17 @@
 /**********************************************************************************************************************
  *                                           global macro                                                             *
  *********************************************************************************************************************/
-#define  	CCLK_16M_HCLK_16M_PCLK_16M		clock_init(PLL_CLK_192M, PAD_PLL_DIV, PLL_DIV12_TO_CCLK, CCLK_DIV1_TO_HCLK, HCLK_DIV1_TO_PCLK, PLL_DIV4_TO_MSPI_CLK)
-#define		CCLK_24M_HCLK_24M_PCLK_24M		clock_init(PLL_CLK_192M, PAD_PLL_DIV, PLL_DIV8_TO_CCLK, CCLK_DIV1_TO_HCLK, HCLK_DIV1_TO_PCLK, PLL_DIV4_TO_MSPI_CLK)
-#define		CCLK_32M_HCLK_32M_PCLK_16M		clock_init(PLL_CLK_192M, PAD_PLL_DIV, PLL_DIV6_TO_CCLK, CCLK_DIV1_TO_HCLK, HCLK_DIV2_TO_PCLK, PLL_DIV4_TO_MSPI_CLK)
-#define		CCLK_48M_HCLK_48M_PCLK_24M		clock_init(PLL_CLK_192M, PAD_PLL_DIV, PLL_DIV4_TO_CCLK, CCLK_DIV1_TO_HCLK, HCLK_DIV2_TO_PCLK, PLL_DIV4_TO_MSPI_CLK)
+/**
+ *  @note	If it is an external flash, the maximum speed of mspi needs to be based on the board test.
+ *  		Because the maximum speed is related to the wiring of the board, and is also affected by temperature and GPIO voltage,
+ *  		the maximum speed needs to be tested at the highest and lowest voltage of the board,
+ *  		and the high and low temperature long-term stability test speed is no problem.
+ */
+#define CCLK_16M_HCLK_16M_PCLK_16M			clock_init(PLL_CLK_192M, PAD_PLL_DIV, PLL_DIV12_TO_CCLK, CCLK_DIV1_TO_HCLK, HCLK_DIV1_TO_PCLK, PLL_DIV4_TO_MSPI_CLK)
+#define CCLK_24M_HCLK_24M_PCLK_24M			clock_init(PLL_CLK_192M, PAD_PLL_DIV, PLL_DIV8_TO_CCLK, CCLK_DIV1_TO_HCLK, HCLK_DIV1_TO_PCLK, PLL_DIV4_TO_MSPI_CLK)
+#define CCLK_32M_HCLK_32M_PCLK_16M			clock_init(PLL_CLK_192M, PAD_PLL_DIV, PLL_DIV6_TO_CCLK, CCLK_DIV1_TO_HCLK, HCLK_DIV2_TO_PCLK, PLL_DIV4_TO_MSPI_CLK)
+#define CCLK_48M_HCLK_48M_PCLK_24M			clock_init(PLL_CLK_192M, PAD_PLL_DIV, PLL_DIV4_TO_CCLK, CCLK_DIV1_TO_HCLK, HCLK_DIV2_TO_PCLK, PLL_DIV4_TO_MSPI_CLK)
+#define CCLK_96M_HCLK_48M_PCLK_24M			clock_init(PLL_CLK_192M, PAD_PLL_DIV, PLL_DIV2_TO_CCLK, CCLK_DIV2_TO_HCLK, HCLK_DIV2_TO_PCLK, PLL_DIV4_TO_MSPI_CLK)
 
 /**********************************************************************************************************************
  *                                         global data type                                                           *
@@ -192,8 +198,15 @@ extern clk_32k_type_e g_clk_32k_src;
  * @param[in]	cclk_div - the cclk divide from pll.it is useless if src is not PAD_PLL_DIV. cclk max is 96M
  * @param[in]	hclk_div - the hclk divide from cclk.hclk max is 48M.
  * @param[in]	pclk_div - the pclk divide from hclk.pclk max is 24M.
- * @param[in]	mspi_clk_div - mspi_clk has two source. pll div and hclk.mspi max is 64M.
+ * @param[in]	mspi_clk_div - mspi_clk has two source - pll div and cclk. If it is built-in flash, the maximum speed of mspi is 64M.
+							   If it is an external flash, the maximum speed of mspi needs to be based on the board test.
+							   Because the maximum speed is related to the wiring of the board, and is also affected by temperature and GPIO voltage,
+							   the maximum speed needs to be tested at the highest and lowest voltage of the board,
+							   and the high and low temperature long-term stability test speed is no problem.
  * @return      none
+ * @note		Do not switch the clock during the DMA sending and receiving process;
+ * 			    because during the clock switching process, the system clock will be
+ * 			    suspended for a period of time, which may cause data loss
  */
 _attribute_ram_code_sec_noinline_ void clock_init(sys_pll_clk_e pll,
 		sys_clock_src_e src,

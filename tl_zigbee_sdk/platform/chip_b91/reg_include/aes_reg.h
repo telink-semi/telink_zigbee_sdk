@@ -1,13 +1,12 @@
 /********************************************************************************************************
- * @file	aes_reg.h
+ * @file    aes_reg.h
  *
- * @brief	This is the header file for B91
+ * @brief   This is the header file for B91
  *
- * @author	Driver Group
- * @date	2019
+ * @author  Driver Group
+ * @date    2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -28,12 +27,6 @@
 #include "soc.h"
 
 
-#define reg_aes_mode     			REG_ADDR32(0x1600b0)
-enum{
-	FLD_AES_START	=	BIT(0),
-	FLD_AES_MODE	=	BIT(1),   /**< 0-ciher  1-deciher */
-};
-
 #define reg_embase_addr     		REG_ADDR32(0x140b04)
 
 #define	reg_aes_irq_mask			REG_ADDR32(0x16000c)
@@ -49,8 +42,14 @@ typedef enum{
 }aes_irq_e;
 
 
-#define reg_aes_key(v)     			REG_ADDR32(0x1600b4+(v*4))
+#define reg_aes_mode     			REG_ADDR32(0x1600b0)
+enum{
+	FLD_AES_START	=	BIT(0),
+	FLD_AES_MODE	=	BIT(1),   /**< 0-cipher  1-decipher */
+};
 
-#define reg_aes_ptr     			REG_ADDR32(0x1600c4)
+#define reg_aes_key(v)     			REG_ADDR32(0x1600b4+(v*4))	// v = 0 1 2 3
+
+#define reg_aes_ptr     			REG_ADDR32(0x1600c4)	//only the lower 16 bits are used.
 
 #endif /* _AES_REG_H_ */

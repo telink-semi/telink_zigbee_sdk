@@ -86,7 +86,7 @@
    are negative.
    Error can be "generic" or some additional error code.
 */
-enum zb_ret_e{
+enum{
 	/* Most common return types: ok, generic error, BLOCKED, thread exit indication. */
 	RET_OK              				 = 0,
 	RET_ERROR           					,
@@ -146,7 +146,7 @@ enum zb_ret_e{
 	RET_ACK_OK                              ,
 	RET_NO_BOUND_DEVICE                     ,   //0x38
 	RET_BUF_FULL
-}zb_ret_t;
+};
 
 enum{
     START_VAR_ID = 0,

@@ -437,10 +437,10 @@ typedef struct {
     u16 zcl_attr_remainingTime;
 #endif
 #ifdef ZCL_ATTRID_CURRENT_X_ENABLE
-    u16 zcl_attr_currentX;
+    u16 zcl_attr_currX;
 #endif
 #ifdef ZCL_ATTRID_CURRENT_Y_ENABLE
-    u16 zcl_attr_currentY;
+    u16 zcl_attr_currY;
 #endif
 #ifdef ZCL_ATTRID_DRIFT_COMPENSATION_ENABLE
     u8  zcl_attr_driftComensation;

@@ -1,13 +1,12 @@
 /********************************************************************************************************
- * @file	register.h
+ * @file    register.h
  *
- * @brief	This is the header file for B91
+ * @brief   This is the header file for B91
  *
- * @author	Driver Group
- * @date	2019
+ * @author  Driver Group
+ * @date    2019
  *
  * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -47,4 +46,5 @@
 #include "adc_reg.h"
 #include "mdec_reg.h"
 #include "swire_reg.h"
+#include "charger_reg.h"
 #endif
