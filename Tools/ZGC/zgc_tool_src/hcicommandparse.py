@@ -174,7 +174,7 @@ class ParseRecvCommand:
                 self.hci_mgmt_update_notify_handle(ai_setting, payload)
             elif command_id == 0x8040:  # NODES_JOINED_GET_RSP
                 self.hci_nodes_joined_get_rsp_handle(ai_setting, payload, nodes_info)
-            elif command_id == 0x8041:  # NODES_TOGLE_TEST_RSP
+            elif command_id == 0x8041:  # NODES_TOGGLE_TEST_RSP
                 pass
             elif command_id == 0x8042:  # TXRX_PERFORMANCE_TEST_RSP
                 self.hci_txrx_performance_test_rsp_handle(payload)
@@ -897,16 +897,16 @@ class ParseRecvCommand:
         self.payload_items.append('\tnum_attr:' + hex(num_attr))
         for a in range(num_attr):
             status, direction, attribute_id = struct.unpack("!BBH", bytes_data[ptr:ptr + 4])
-            item_recv_satus = ai_setting.get_zcl_msg_status_str(status)
-            self.recv_status += item_recv_satus
-            self.description += ' status:' + hex(status) + '(' + item_recv_satus + ')' + ' direction:' + hex(
+            item_recv_status = ai_setting.get_zcl_msg_status_str(status)
+            self.recv_status += item_recv_status
+            self.description += ' status:' + hex(status) + '(' + item_recv_status + ')' + ' direction:' + hex(
                 direction) + ' attribute_id: 0x%04x' % attribute_id
 
             if direction == 0:
                 dir_str = 'reported'
             else:
                 dir_str = 'received'
-            self.payload_items.extend(['\tstatus:' + hex(status) + '(' + item_recv_satus + ')',
+            self.payload_items.extend(['\tstatus:' + hex(status) + '(' + item_recv_status + ')',
                                        '\tdirection:' + hex(direction) + '(' + dir_str + ')',
                                        '\tattribute_id: 0x%04x' % attribute_id])
             ptr += 4
@@ -1296,7 +1296,7 @@ class ParseSendCommand:
                 self.hci_mgmt_nwkupdate_req_parse(payload)
             elif command_id == 0x0040:  # 'NODES_JOINED_GET_REQ',
                 self.hci_nodes_joined_get_parse(payload)
-            elif command_id == 0x0041:  # 'NODES_TOGLE_TEST_REQ',
+            elif command_id == 0x0041:  # 'NODES_TOGGLE_TEST_REQ',
                 self.hci_nodes_toggle_test_req_parse(payload)
             elif command_id == 0x0042:  # 'TXRX_PERFORMANCE_TEST_REQ',
                 self.hci_txrx_performance_test_req_parse(payload)

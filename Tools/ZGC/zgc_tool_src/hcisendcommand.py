@@ -102,7 +102,7 @@ class Pyside6Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         super(Pyside6Serial, self).__init__()
         self.setupUi(self)  # 初始化UI到主窗口，主要是建立代码到UI之间的signal和slot
         self.setWindowTitle("ZGC TOOL")
-        self.ser = serial.Serial()
+        self.serial = serial.Serial()
         self.portisopen = 0
         self.port_com = ''
         self.ai_setting = Settings()
@@ -219,12 +219,12 @@ class Pyside6Serial(QtWidgets.QMainWindow, Ui_MainWindow):
             self.showTimer.start(self.recv_interval)
 
     def port_open(self):
-        self.ser.port = self.comboBox_portName.currentText()
-        self.ser.baudrate = int(self.comboBox_baudrate.currentText())
-        self.ser.bytesize = int(self.comboBox_databits.currentText())
-        self.ser.stopbits = int(self.comboBox_stopbits.currentText())
-        self.ser.parity = self.comboBox_parity.currentText()[0:1]
-        self.ser.timeout = 5
+        self.serial.port = self.comboBox_portName.currentText()
+        self.serial.baudrate = int(self.comboBox_baudrate.currentText())
+        self.serial.bytesize = int(self.comboBox_databits.currentText())
+        self.serial.stopbits = int(self.comboBox_stopbits.currentText())
+        self.serial.parity = self.comboBox_parity.currentText()[0:1]
+        self.serial.timeout = 5
         try:
             self.recv_interval = int(self.lineEdit_recvInterval.text())
         except ValueError:
@@ -232,13 +232,13 @@ class Pyside6Serial(QtWidgets.QMainWindow, Ui_MainWindow):
             self.lineEdit_recvInterval.setText('%d' % self.recv_interval)
         # print("self.recv_interval:%d\n" % self.recv_interval)
         try:
-            self.ser.open()
+            self.serial.open()
         except serial.SerialException:
             QMessageBox.critical(self, 'port error', "Can not open！")
         else:
             self.portisopen = 1
-            self.port_com = self.ser.port
-            self.label_portState.setText(self.ser.port + ' Opened')
+            self.port_com = self.serial.port
+            self.label_portState.setText(self.serial.port + ' Opened')
             self.recvTimer.start(self.recv_interval)  # 5ms
             self.showTimer.start(self.recv_interval)
             self.pushButton_openPort.setEnabled(False)
@@ -282,7 +282,7 @@ class Pyside6Serial(QtWidgets.QMainWindow, Ui_MainWindow):
             self.recvTimer.stop()
             self.showTimer.stop()
             self.getNwkAddrTimer.stop()
-            self.ser.close()
+            self.serial.close()
             self.label_portState.setText(' Closed')
             self.pushButton_openPort.setEnabled(True)
             self.pushButton_closePort.setEnabled(False)
@@ -324,14 +324,14 @@ class Pyside6Serial(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def serial_data_receive(self):
         try:
-            num = self.ser.inWaiting()
+            num = self.serial.inWaiting()
         except:
             # print('data receive error!!')
             self.port_close()
             return None
         if num > 0:
             # print('recv num:%d' % num)
-            recv_data = self.ser.read(num)
+            recv_data = self.serial.read(num)
             if not self.checkBox_thread.isChecked():  # hex发送
                 self.ring_buffer.ring_buffer_write(recv_data)
             else:
@@ -1104,7 +1104,7 @@ class Pyside6Serial(QtWidgets.QMainWindow, Ui_MainWindow):
     def zcl_view_group(self):
         dst_mode_s = self.comboBox_viewGroupDstMode.currentText()
         dst_addr_s = self.lineEdit_viewGroupDstAddr.text()
-        src_ep_s = self.lineEdit_viewGoupSrcEp.text()
+        src_ep_s = self.lineEdit_viewGroupSrcEp.text()
         dst_ep_s = self.lineEdit_viewGroupDstEp.text()
         payload = self.zcl_cluster_addr_handle(dst_mode_s, dst_addr_s, src_ep_s, dst_ep_s)
 
@@ -1750,7 +1750,7 @@ class Pyside6Serial(QtWidgets.QMainWindow, Ui_MainWindow):
                                     "Out of the max length:(%d)" % self.ai_setting.command_length_max)
                 return
         try:
-            self.ser.write(send_data)
+            self.serial.write(send_data)
             self.parsing_send_command(send_data)
         except serial.serialutil.PortNotOpenError:
             QMessageBox.warning(self, 'port warning', "Port not open！")
@@ -1781,11 +1781,11 @@ class Pyside6Serial(QtWidgets.QMainWindow, Ui_MainWindow):
 
 
 # 继承QThread，重写run方法
-class AnalizeWorkThread(QThread):
+class AnalyzeWorkThread(QThread):
     nodes_signals = Signal(int, str)  # 定义信号对象,传递值为str类型，使用int，可以为int类型
 
     def __init__(self, folder_path, csv):  # 向线程中传递参数，以便在run方法中使用
-        super(AnalizeWorkThread, self).__init__()
+        super(AnalyzeWorkThread, self).__init__()
         self.folder_path = folder_path
         self.csvFile = csv
 

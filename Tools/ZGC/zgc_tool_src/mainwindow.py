@@ -1997,11 +1997,11 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_viewGroup.addWidget(self.lineEdit_viewGroupDstAddr)
 
-        self.lineEdit_viewGoupSrcEp = QLineEdit(self.scrollAreaWidgetContents_7)
-        self.lineEdit_viewGoupSrcEp.setObjectName(u"lineEdit_viewGoupSrcEp")
-        self.lineEdit_viewGoupSrcEp.setMaximumSize(QSize(60, 16777215))
+        self.lineEdit_viewGroupSrcEp = QLineEdit(self.scrollAreaWidgetContents_7)
+        self.lineEdit_viewGroupSrcEp.setObjectName(u"lineEdit_viewGroupSrcEp")
+        self.lineEdit_viewGroupSrcEp.setMaximumSize(QSize(60, 16777215))
 
-        self.horizontalLayout_viewGroup.addWidget(self.lineEdit_viewGoupSrcEp)
+        self.horizontalLayout_viewGroup.addWidget(self.lineEdit_viewGroupSrcEp)
 
         self.lineEdit_viewGroupDstEp = QLineEdit(self.scrollAreaWidgetContents_7)
         self.lineEdit_viewGroupDstEp.setObjectName(u"lineEdit_viewGroupDstEp")
@@ -4868,9 +4868,9 @@ class Ui_MainWindow(object):
         self.lineEdit_viewGroupDstAddr.setInputMask("")
         self.lineEdit_viewGroupDstAddr.setText("")
         self.lineEdit_viewGroupDstAddr.setPlaceholderText(QCoreApplication.translate("MainWindow", u"DstAddr", None))
-        self.lineEdit_viewGoupSrcEp.setInputMask("")
-        self.lineEdit_viewGoupSrcEp.setText("")
-        self.lineEdit_viewGoupSrcEp.setPlaceholderText(QCoreApplication.translate("MainWindow", u"SrcEp", None))
+        self.lineEdit_viewGroupSrcEp.setInputMask("")
+        self.lineEdit_viewGroupSrcEp.setText("")
+        self.lineEdit_viewGroupSrcEp.setPlaceholderText(QCoreApplication.translate("MainWindow", u"SrcEp", None))
         self.lineEdit_viewGroupDstEp.setPlaceholderText(QCoreApplication.translate("MainWindow", u"DstEp", None))
         self.lineEdit_viewGroupGroupId.setText("")
         self.lineEdit_viewGroupGroupId.setPlaceholderText(QCoreApplication.translate("MainWindow", u"groupID", None))
