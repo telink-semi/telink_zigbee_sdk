@@ -1,3 +1,50 @@
+## V3.6.8.6(Public release)
+
+### Dependency Updates
+* telink_b91m_driver_sdk V2.2.0
+### Features
+* Support for TELINK IoT Studio IDE.
+* Provide CLOCK_32K_EXT_CRYSTAL macro to choose whether to use external 32K crystal oscillator.
+### Bug Fixes
+* Fix misspell and this may cause naming changes to certain APIs and Structures.
+* Fix TC Rejoin issue.
+* Fix buffer free issue during Find & Bind process.
+* Fix configure reporting issues in ZCL.
+* Fix the issue of reg_rf_rxtmaxlen data loss caused by enter sleep failure in B91.
+### Code Refactoring
+* N/A
+### Performance
+* Improve link algorithm.
+### BREAKING CHANGES
+* N/A
+### CodeSize
+* Typical reference values from 8258.
+  + Flash:
+    - ZC: 173kb
+    - ZR: 192kb
+    - ZED:135kb
+  + RAM:
+    - ZC: 34kb
+    - ZR: 34kb
+    - ZED:22kb
+
+### Features
+* 支持TELINK IoT Studio IDE。
+* 提供CLOCK_32K_EXT_CRYSTAL宏选择是否使用外部32K晶振。
+### Bug Fixes
+* 修复拼写错误，这可能会导致某些API和数据结构的命名更改。
+* 修复TC Rejoin。
+* 修复查找和绑定过程中的buffer释放问题。
+* 修复ZCL中配置属性上报的问题。
+* 修复B91因休眠失败导致reg_rf_rxtmaxlen寄存器配置参数丢失的问题。
+### Code Refactoring
+* N/A
+### Performance
+* 提升链路算法。
+### BREAKING CHANGES
+* N/A
+
+
 ## V3.6.8.5(Public release)
 
 ### Features
