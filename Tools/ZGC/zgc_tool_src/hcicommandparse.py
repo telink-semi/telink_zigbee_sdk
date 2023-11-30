@@ -2115,8 +2115,10 @@ class ParseSendCommand:
 
     def hci_ota_start_req_parse(self, payload):
         bytes_data = bytearray(payload)
-        ota_file_total_size, = struct.unpack("!L", bytes_data)
+        local_bin, ota_file_total_size, = struct.unpack("!BL", bytes_data)
+        self.parse_items.append('\tota_file_whether_local_bin: ' + hex(local_bin))
         self.parse_items.append('\tota_file_total_size: ' + hex(ota_file_total_size))
+        self.description += 'ota_file_whether_local_bin: ' + hex(local_bin)
         self.description += 'ota_file_total_size: ' + hex(ota_file_total_size)
 
     def hci_ota_block_response_parse(self, ai_setting, payload):

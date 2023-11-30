@@ -337,7 +337,7 @@ class Pyside6Serial(QtWidgets.QMainWindow, Ui_MainWindow):
             else:
                 # self.listWidget_commandData.addItem(recv_data.decode('utf-8')) #ascii
                 if self.checkBox_autoClear.isChecked():
-                    if self.listWidget_commandData.count() > 1000:
+                    if self.listWidget_commandData.count() > 500:
                         self.listWidget_commandData.clear()
                 dt = datetime.now()
                 timestr = dt.strftime('%y-%m-%d %H:%M:%S.%f')
@@ -1645,8 +1645,7 @@ class Pyside6Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         self.pushButton_hciOtaStart.clicked.connect(self.start_hci_ota)
 
     def choose_hci_ota_file(self):
-        get_path, file_type = QFileDialog.getOpenFileName(self, 'choose file', os.path.expanduser(os.getcwd()),
-                                                          "OTA(*.ota);; BIN(*.bin)")
+        get_path, file_type = QFileDialog.getOpenFileName(self, 'choose file', '', "BIN(*.bin);; OTA(*.ota);; Zigbee(*.zigbee)")
         self.lineEdit_hciOtaFilePath.setText(get_path)
 
     def start_hci_ota(self):
@@ -1655,9 +1654,11 @@ class Pyside6Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         hci_ota_path = self.lineEdit_hciOtaFilePath.text()
         if hci_ota_path:
             self.CsvFiles.hci_ota_file_path = hci_ota_path
+            self.CsvFiles.hci_ota_local = self.checkBox_hciOta.isChecked()
             self.CsvFiles.hci_ota_file_size = os.path.getsize(hci_ota_path)
+            # print('hci_ota_local:%d' % self.CsvFiles.hci_ota_local)
             # print('ota_file_size:%d' % self.CsvFiles.hci_ota_file_size)
-            payload = struct.pack("!L", self.CsvFiles.hci_ota_file_size)
+            payload = struct.pack("!BL", self.CsvFiles.hci_ota_local, self.CsvFiles.hci_ota_file_size)
             payload_len = len(payload)
             self.send_hci_command(0x0210, payload_len, payload)
             self.progressBar_hciOta.setValue(0)

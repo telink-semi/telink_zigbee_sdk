@@ -291,6 +291,7 @@ class CsvFiles:
         self.hci_ota_offset = 0
         self.hci_ota_file_size = 0
         self.hci_ota_file_path = ''
+        self.hci_ota_local = False
         self.auto_bind_list = []
 
     def create_folder(self):

@@ -51,7 +51,9 @@ class Settings:
             0x02: 'ZBHCI_OTA_IN_PROGRESS',
             0x03: 'ZBHCI_OTA_INCORRECT_OFFSET',
             0x04: 'ZBHCI_OTA_FILE_OVERSIZE',
-            0x05: 'ZBHCI_OTA_NOT_IN_PROGRESS',
+            0x05: 'ZBHCI_OTA_INCORRECT_DATA',
+            0x06: 'ZBHCI_OTA_MATCH_BOOT_FLAG',
+            0x07: 'ZBHCI_OTA_NOT_IN_PROGRESS',
         }
 
         self.zcl_msg_status = {
