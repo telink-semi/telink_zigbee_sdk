@@ -101,7 +101,7 @@ class Pyside6Serial(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self):
         super(Pyside6Serial, self).__init__()
         self.setupUi(self)  # 初始化UI到主窗口，主要是建立代码到UI之间的signal和slot
-        self.setWindowTitle("ZGC TOOL")
+        self.setWindowTitle("ZGC TOOL V1.3")
         self.serial = serial.Serial()
         self.portisopen = 0
         self.port_com = ''
@@ -1658,7 +1658,7 @@ class Pyside6Serial(QtWidgets.QMainWindow, Ui_MainWindow):
             self.CsvFiles.hci_ota_file_size = os.path.getsize(hci_ota_path)
             # print('hci_ota_local:%d' % self.CsvFiles.hci_ota_local)
             # print('ota_file_size:%d' % self.CsvFiles.hci_ota_file_size)
-            payload = struct.pack("!BL", self.CsvFiles.hci_ota_local, self.CsvFiles.hci_ota_file_size)
+            payload = struct.pack("!LB", self.CsvFiles.hci_ota_file_size, self.CsvFiles.hci_ota_local)
             payload_len = len(payload)
             self.send_hci_command(0x0210, payload_len, payload)
             self.progressBar_hciOta.setValue(0)
