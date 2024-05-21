@@ -39,6 +39,8 @@
 		#define CHIP_TYPE					TLSR_8278
 #elif defined(MCU_CORE_B91)
 		#define CHIP_TYPE					TLSR_B91
+#elif defined(MCU_CORE_B92)
+		#define CHIP_TYPE					TLSR_B92
 #endif
 
 #define APP_RELEASE							0x10//app release 1.0

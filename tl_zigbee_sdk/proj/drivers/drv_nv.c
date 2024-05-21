@@ -1024,7 +1024,7 @@ nv_sts_t nv_resetModule(u8 modules){
 			eraseAddr += FLASH_SECTOR_SIZE;
 		}
 	}
-	return SUCCESS;
+	return NV_SUCC;
 }
 
 
@@ -1034,7 +1034,7 @@ nv_sts_t nv_resetAll(void){
 		nv_resetModule(i);
 	}
 #endif
-	return SUCCESS;
+	return NV_SUCC;
 }
 
 nv_sts_t nv_init(u8 rst){
@@ -1059,7 +1059,7 @@ nv_sts_t nv_resetToFactoryNew(void){
 
 	nv_facrotyNewRstFlagClear();
 #endif
-	return SUCCESS;
+	return NV_SUCC;
 }
 
 bool nv_facrotyNewRstFlagCheck(void){

@@ -61,6 +61,101 @@ __attribute__((section(".ram_code"))) void default_irq_handler(void)
 	
 }
 
+
+/**********************************************************************************
+ * The interrupt sources used in the SDK.
+ * If you want to use other interrupts, you'll need to find the corresponding registered 
+ * function in the commented code below and put it here.
+ **********************************************************************************/
+void stimer_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
+void uart0_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
+void rf_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
+void timer1_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
+void timer0_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
+void gpio_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
+void gpio_risc0_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
+void gpio_risc1_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
+/**
+ * @brief system timer interrupt handler.
+ * @return none
+ */
+_attribute_ram_code_sec_noinline_ void entry_irq1(void) __attribute__ ((interrupt ("machine") , aligned(4)));
+void entry_irq1(void)
+{
+	plic_isr(stimer_irq_handler,IRQ1_SYSTIMER);
+}
+
+/**
+ * @brief uart0 interrupt handler.
+ * @return none
+ */
+_attribute_ram_code_sec_noinline_ void entry_irq19(void) __attribute__ ((interrupt ("machine") , aligned(4)));
+void entry_irq19(void)
+{
+	plic_isr(uart0_irq_handler,IRQ19_UART0);
+}
+
+/**
+ * @brief telink rf interrupt handler.
+ * @return none
+ */
+_attribute_ram_code_sec_noinline_ void entry_irq15(void) __attribute__ ((interrupt ("machine") , aligned(4)));
+void entry_irq15(void)
+{
+	plic_isr(rf_irq_handler,IRQ15_ZB_RT);
+}
+
+/**
+ * @brief timer1 interrupt handler.
+ * @return none
+ */
+_attribute_ram_code_sec_noinline_ void entry_irq3(void) __attribute__ ((interrupt ("machine") , aligned(4)));
+void entry_irq3(void)
+{
+	plic_isr(timer1_irq_handler,IRQ3_TIMER1);
+}
+
+/**
+ * @brief timer0 interrupt handler.
+ * @return none
+ */
+_attribute_ram_code_sec_noinline_ void entry_irq4(void) __attribute__ ((interrupt ("machine") , aligned(4)));
+void entry_irq4(void)
+{
+	plic_isr(timer0_irq_handler,IRQ4_TIMER0);
+}
+
+/**
+ * @brief gpio interrupt handler.
+ * @return none
+ */
+_attribute_ram_code_sec_noinline_ void entry_irq25(void) __attribute__ ((interrupt ("machine") , aligned(4)));
+void entry_irq25(void)
+{
+	plic_isr(gpio_irq_handler,IRQ25_GPIO);
+}
+
+/**
+ * @brief gpio_risc0 interrupt handler.
+ * @return none
+ */
+_attribute_ram_code_sec_noinline_ void entry_irq26(void) __attribute__ ((interrupt ("machine") , aligned(4)));
+void entry_irq26(void)
+{
+	plic_isr(gpio_risc0_irq_handler,IRQ26_GPIO2RISC0);
+}
+
+/**
+ * @brief gpio_risc1 interrupt handler.
+ * @return none
+ */
+_attribute_ram_code_sec_noinline_ void entry_irq27(void) __attribute__ ((interrupt ("machine") , aligned(4)));
+void entry_irq27(void)
+{
+	plic_isr(gpio_risc1_irq_handler,IRQ27_GPIO2RISC1);
+}
+
+#if 0
 void stimer_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
 void analog_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
 void timer1_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
@@ -724,3 +819,6 @@ void entry_irq63(void)
 {
 	plic_isr(eoc_irq_handler,IRQ63_EOC);
 }
+#endif
+
+

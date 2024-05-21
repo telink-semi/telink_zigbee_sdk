@@ -37,13 +37,13 @@
 	#define MCU_RAM_START_ADDR				0x808000
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	#define MCU_RAM_START_ADDR				0x840000
-#elif defined(MCU_CORE_B91)
-	#define MCU_RAM_START_ADDR				0x0000
+#else
+	//do not care
 #endif
 
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	#define REBOOT()						WRITE_REG8(0x602, 0x88)
-#elif defined(MCU_CORE_B91)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 	#define REBOOT()						((void(*)(void))(FLASH_R_BASE_ADDR + APP_IMAGE_ADDR))()
 #endif
 
@@ -163,6 +163,10 @@ void bootloader_with_ota_check(u32 addr_load, u32 new_image_addr){
 				}
 			}
 
+#if FLASH_PROTECT_ENABLE
+			flash_unlock();
+#endif
+
 			if(isNewImageValid){
 				u8 readBuf[256];
 
@@ -176,6 +180,10 @@ void bootloader_with_ota_check(u32 addr_load, u32 new_image_addr){
 
 					flash_read(addr_load + i, 256, readBuf);
 					if(memcmp(readBuf, buf, 256)){
+#if FLASH_PROTECT_ENABLE
+						flash_lock();
+#endif
+
 						SYSTEM_RESET();
 					}
 
@@ -190,11 +198,15 @@ void bootloader_with_ota_check(u32 addr_load, u32 new_image_addr){
 			for(int i = 0; i < ((fw_size + 4095)/4096); i++) {
 				flash_erase(new_image_addr + i*4096);
 			}
+
+#if FLASH_PROTECT_ENABLE
+			flash_lock();
+#endif
 		}
 	}
 
     if(is_valid_fw_bootloader(addr_load)){
-#if !defined(MCU_CORE_B91)
+#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     	u32 ramcode_size = 0;
         flash_read(addr_load + 0x0c, 2, (u8 *)&ramcode_size);
         ramcode_size *= 16;
@@ -209,7 +221,6 @@ void bootloader_with_ota_check(u32 addr_load, u32 new_image_addr){
     	noAppFlg = TRUE;
     }
 }
-
 
 
 s32 otaChkDelayCb(void *arg){
@@ -356,6 +367,10 @@ s32 upgradeBlockReqTimerCb(void *arg){
 
 		return MSG_BLOCK_REQUEST_RETRY_INTERVAL;
 	}else{
+#if FLASH_PROTECT_ENABLE
+		flash_lock();
+#endif
+
 		//upgrade fail.
 		bootloader_uartOtaEnd(MSG_STA_OTA_GET_BLOCK_TIMEOUT);
 
@@ -381,6 +396,10 @@ void bootloader_upgrade(u16 type, u16 len, u8 *data){
 				if(totalImageSize <= FLASH_OTA_IMAGE_MAX_SIZE){
 					//received upgrade start message, stop the timer.
 					bootloader_ota_check_Stop();
+
+#if FLASH_PROTECT_ENABLE
+					flash_unlock();
+#endif
 
 					upgradeInfo.retryCnt = 0;
 					upgradeInfo.offset = 0;
@@ -416,6 +435,9 @@ void bootloader_upgrade(u16 type, u16 len, u8 *data){
 				u8 rspStatus = *pData++;
 
 				if((rspStatus != MSG_STA_SUCCESS) || (upgradeInfo.totalImageSize == 0)){
+#if FLASH_PROTECT_ENABLE
+					flash_lock();
+#endif
 					bootloader_uartOtaComplete(MSG_STA_OTA_ERR_BLOCK_RSP);
 					return;
 				}else{
@@ -447,6 +469,9 @@ void bootloader_upgrade(u16 type, u16 len, u8 *data){
 							bootloader_uartOtaComplete(MSG_STA_SUCCESS);
 							return;
 						}else if(upgradeInfo.offset > upgradeInfo.totalImageSize){
+#if FLASH_PROTECT_ENABLE
+							flash_lock();
+#endif
 							bootloader_uartOtaComplete(MSG_STA_OTA_INCORRECT_OFFSET);
 							return;
 						}else if(upgradeInfo.offset < upgradeInfo.totalImageSize){
@@ -550,8 +575,6 @@ void bootloader_init(bool isBoot){
 		drv_gpio_write(LED_PERMIT, 1);
 
 #if UART_ENABLE
-		drv_enable_irq();
-
 		UART_PIN_CFG();
 		drv_uart_init(115200, uartRxBuf, UART_RX_BUF_SIZE, bootloader_uartRxHandler);
 
@@ -561,6 +584,8 @@ void bootloader_init(bool isBoot){
 		ev_on_poll(EV_POLL_KEY_PRESS, bootloader_keyPressProc);
 
 		memset((u8 *)&upgradeInfo, 0, sizeof(upgradeInfo_t));
+
+		drv_enable_irq();
 
 		//start a timer delay for waiting for uart messages.
 		bootloader_ota_check_delay(2000);

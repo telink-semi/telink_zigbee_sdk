@@ -132,7 +132,7 @@ unsigned int valid_words_get(unsigned int *a, unsigned int max_words);
  * @param[in]   byteLen		- the length of array.
  * @return		none.
  */
-void reverse_byte_array(unsigned char *in, unsigned char *out, unsigned int byteLen);
+void reverse_byte_array(const unsigned char *in, unsigned char *out, unsigned int byteLen);
 
 /**
  * @brief		compare big integer a and b.

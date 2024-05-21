@@ -45,7 +45,7 @@ const zbhciTxMode_e zbhciConvertSet[] = {
 
 
 void zbhciTxClusterCmdAddrResolve(epInfo_t *dstEpInfo, u8 *srcEp, u8 **payload){
-	memset((u8 *)dstEpInfo,0,sizeof(*dstEpInfo));
+	memset((u8 *)dstEpInfo, 0, sizeof(*dstEpInfo));
 
 	zbhciTxMode_e apsTxMode = **payload;
 	(*payload)++;
@@ -90,15 +90,14 @@ void zbhci_zclIdentifyCmdHandle(void *arg){ //u16 cmdId, u8 *pCmd){
 
 	zbhciTxClusterCmdAddrResolve(&dstEpInfo,&srcEp,&pCmd);
 
-	status_t sta = ZCL_STA_FAILURE;
 	if(cmdId == ZBHCI_CMD_ZCL_IDENTIFY){
 		u16 identifyTime;
 //		u32 manuCode = 0x54555657;
 		COPY_BUFFERTOU16_BE(identifyTime, pCmd);
 		u32 manuCode = 0;
-		sta = zcl_identify_identifyCmd(srcEp, &dstEpInfo, FALSE, identifyTime, manuCode);
+		zcl_identify_identifyCmd(srcEp, &dstEpInfo, FALSE, identifyTime, manuCode);
 	}else if(cmdId == ZBHCI_CMD_ZCL_IDENTIFY_QUERY){
-		sta = zcl_identify_identifyQueryCmd(srcEp, &dstEpInfo, FALSE);
+		zcl_identify_identifyQueryCmd(srcEp, &dstEpInfo, FALSE);
 	}
 
 	ev_buf_free(arg);
@@ -123,13 +122,12 @@ void zbhci_zclOnoffCmdHandle(void *arg){ //(u8 *p, u8 *seqNum){
 
 	zbhciTxClusterCmdAddrResolve(&dstEpInfo,&srcEp,&ptr);
 
-	status_t sta = ZCL_STA_FAILURE;
 	if(cmdId == ZBHCI_CMD_ZCL_ONOFF_ON){
-		sta = zcl_onOff_onCmd(srcEp, &dstEpInfo, 0);
+		zcl_onOff_onCmd(srcEp, &dstEpInfo, 0);
 	}else if(cmdId == ZBHCI_CMD_ZCL_ONOFF_OFF){
-		sta = zcl_onOff_offCmd(srcEp, &dstEpInfo, 0);
+		zcl_onOff_offCmd(srcEp, &dstEpInfo, 0);
 	}else if(cmdId == ZBHCI_CMD_ZCL_ONOFF_TOGGLE){
-		sta = zcl_onOff_toggleCmd(srcEp, &dstEpInfo, 0);
+		zcl_onOff_toggleCmd(srcEp, &dstEpInfo, 0);
 	}
 
 	ev_buf_free(arg);
@@ -154,7 +152,6 @@ void zbhci_zclLevelCtrlCmdHandle(void *arg){ //(u8 *p, u8 *seqNum){
 
 	zbhciTxClusterCmdAddrResolve(&dstEpInfo,&srcEp,&ptr);
 
-	status_t sta = ZCL_STA_FAILURE;
 	switch(cmdId){
 		case ZBHCI_CMD_ZCL_LEVEL_MOVE2LEVEL:
 		case ZBHCI_CMD_ZCL_LEVEL_MOVE2LEVEL_WITHONOFF:
@@ -169,9 +166,9 @@ void zbhci_zclLevelCtrlCmdHandle(void *arg){ //(u8 *p, u8 *seqNum){
 			move2Level.optPresent = 0;
 
 			if(cmdId == ZBHCI_CMD_ZCL_LEVEL_MOVE2LEVEL){
-				sta = zcl_level_move2levelCmd(srcEp, &dstEpInfo, FALSE, &move2Level);
+				zcl_level_move2levelCmd(srcEp, &dstEpInfo, FALSE, &move2Level);
 			}else{
-				sta = zcl_level_move2levelWithOnOffCmd(srcEp, &dstEpInfo, FALSE, &move2Level);
+				zcl_level_move2levelWithOnOffCmd(srcEp, &dstEpInfo, FALSE, &move2Level);
 			}
 		}
 		break;
@@ -185,9 +182,9 @@ void zbhci_zclLevelCtrlCmdHandle(void *arg){ //(u8 *p, u8 *seqNum){
 			move.optPresent = 0;
 
 			if(cmdId == ZBHCI_CMD_ZCL_LEVEL_MOVE){
-				sta = zcl_level_moveCmd(srcEp, &dstEpInfo, FALSE, &move);
+				zcl_level_moveCmd(srcEp, &dstEpInfo, FALSE, &move);
 			}else{
-				sta = zcl_level_moveWithOnOffCmd(srcEp, &dstEpInfo, FALSE, &move);
+				zcl_level_moveWithOnOffCmd(srcEp, &dstEpInfo, FALSE, &move);
 			}
 		}
 			break;
@@ -207,9 +204,9 @@ void zbhci_zclLevelCtrlCmdHandle(void *arg){ //(u8 *p, u8 *seqNum){
 			step.optPresent = 0;
 
 			if(cmdId == ZBHCI_CMD_ZCL_LEVEL_STEP){
-				sta = zcl_level_stepCmd(srcEp, &dstEpInfo, FALSE, &step);
+				zcl_level_stepCmd(srcEp, &dstEpInfo, FALSE, &step);
 			}else{
-				sta = zcl_level_stepWithOnOffCmd(srcEp, &dstEpInfo, FALSE, &step);
+				zcl_level_stepWithOnOffCmd(srcEp, &dstEpInfo, FALSE, &step);
 			}
 		}
 			break;
@@ -221,9 +218,9 @@ void zbhci_zclLevelCtrlCmdHandle(void *arg){ //(u8 *p, u8 *seqNum){
 			stop.optPresent = 0;
 
 			if(cmdId == ZBHCI_CMD_ZCL_LEVEL_STOP){
-				sta = zcl_level_stopCmd(srcEp, &dstEpInfo, FALSE, &stop);
+				zcl_level_stopCmd(srcEp, &dstEpInfo, FALSE, &stop);
 			}else{
-				sta = zcl_level_stopWithOnOffCmd(srcEp, &dstEpInfo, FALSE, &stop);
+				zcl_level_stopWithOnOffCmd(srcEp, &dstEpInfo, FALSE, &stop);
 			}
 		}
 			break;
@@ -342,19 +339,17 @@ void zbhci_clusterGroupHandle(void *arg){ //u16 cmdId, u8 *pCmd){
 
 	zbhciTxClusterCmdAddrResolve(&dstEpInfo,&srcEp,&pCmd);
 
-	status_t sta = ZCL_STA_FAILURE;
 	if(cmdId == ZBHCI_CMD_ZCL_GROUP_ADD){
 		u16 groupID;
 		COPY_BUFFERTOU16_BE(groupID, pCmd);
 		pCmd += 2;
 		u8 groupName[8];
 		memcpy(groupName, pCmd, 8);
-		sta = zcl_group_addCmd(srcEp, &dstEpInfo, FALSE, groupID, groupName);
-//		ev_buf_free(groupName);
+		zcl_group_addCmd(srcEp, &dstEpInfo, FALSE, groupID, groupName);
 	}else if(cmdId == ZBHCI_CMD_ZCL_GROUP_VIEW){
 		u16 groupID;
 		COPY_BUFFERTOU16_BE(groupID, pCmd);
-		sta = zcl_group_viewCmd(srcEp, &dstEpInfo, FALSE, groupID);
+		zcl_group_viewCmd(srcEp, &dstEpInfo, FALSE, groupID);
 	}else if(cmdId == ZBHCI_CMD_ZCL_GROUP_GET_MEMBERSHIP){
 		u8 groupCnt = *pCmd;
 		pCmd++;
@@ -365,13 +360,13 @@ void zbhci_clusterGroupHandle(void *arg){ //u16 cmdId, u8 *pCmd){
 			pCmd += 2;
 		}
 		groupCnt = i;
-		sta = zcl_group_getMembershipCmd(srcEp, &dstEpInfo, FALSE, groupCnt, groupList);
+		zcl_group_getMembershipCmd(srcEp, &dstEpInfo, FALSE, groupCnt, groupList);
 	}else if(cmdId == ZBHCI_CMD_ZCL_GROUP_REMOVE){
 		u16 groupID;
 		COPY_BUFFERTOU16_BE(groupID, pCmd);
-		sta = zcl_group_removeCmd(srcEp, &dstEpInfo, FALSE, groupID);
+		zcl_group_removeCmd(srcEp, &dstEpInfo, FALSE, groupID);
 	}else if(cmdId == ZBHCI_CMD_ZCL_GROUP_REMOVE_ALL){
-		sta = zcl_group_removeAllCmd(srcEp, &dstEpInfo, FALSE);
+		zcl_group_removeAllCmd(srcEp, &dstEpInfo, FALSE);
 	}else if(cmdId == ZBHCI_CMD_ZCL_GROUP_ADD_IF_IDENTIFY){
 		u16 groupID;
 		COPY_BUFFERTOU16_BE(groupID, pCmd);
@@ -379,7 +374,7 @@ void zbhci_clusterGroupHandle(void *arg){ //u16 cmdId, u8 *pCmd){
 
 		u8 groupName[8];
 		memcpy(groupName, pCmd, 8);
-		sta = zcl_group_addIfIdentifyCmd(srcEp, &dstEpInfo, FALSE, groupID, groupName);
+		zcl_group_addIfIdentifyCmd(srcEp, &dstEpInfo, FALSE, groupID, groupName);
 	}
 
 	ev_buf_free(arg);
@@ -403,13 +398,11 @@ void zbhci_clusterSceneHandle(void *arg){ //u16 cmdId, u8 *pCmd){
 
 	zbhciTxClusterCmdAddrResolve(&dstEpInfo,&srcEp,&pCmd);
 
-	status_t sta = ZCL_STA_FAILURE;
 	switch (cmdId){
 		case ZBHCI_CMD_ZCL_SCENE_ADD:
 		{
 			addScene_t *pAddScene = (addScene_t *)ev_buf_allocate(sizeof(addScene_t));
 			if(!pAddScene){
-				sta = RET_NO_MEMORY;
 				break;
 			}
 
@@ -429,7 +422,7 @@ void zbhci_clusterSceneHandle(void *arg){ //u16 cmdId, u8 *pCmd){
 				memcpy(pAddScene->scene.extField, pCmd, pAddScene->scene.extFieldLen);
 			}
 
-			sta = zcl_scene_addSceneCmd(srcEp, &dstEpInfo, FALSE, pAddScene);
+			zcl_scene_addSceneCmd(srcEp, &dstEpInfo, FALSE, pAddScene);
 
 			ev_buf_free((u8 *)pAddScene);
 		}
@@ -442,7 +435,7 @@ void zbhci_clusterSceneHandle(void *arg){ //u16 cmdId, u8 *pCmd){
 			pCmd += 2;
 			viewScene.sceneId = *pCmd++;
 
-			sta = zcl_scene_viewSceneCmd(srcEp, &dstEpInfo, FALSE, &viewScene);
+			zcl_scene_viewSceneCmd(srcEp, &dstEpInfo, FALSE, &viewScene);
 		}
 			break;
 		case ZBHCI_CMD_ZCL_SCENE_REMOVE:
@@ -453,7 +446,7 @@ void zbhci_clusterSceneHandle(void *arg){ //u16 cmdId, u8 *pCmd){
 			pCmd += 2;
 			removeScene.sceneId = *pCmd++;
 
-			sta = zcl_scene_removeSceneCmd(srcEp, &dstEpInfo, FALSE, &removeScene);
+			zcl_scene_removeSceneCmd(srcEp, &dstEpInfo, FALSE, &removeScene);
 		}
 			break;
 		case ZBHCI_CMD_ZCL_SCENE_REMOVE_ALL:
@@ -463,7 +456,7 @@ void zbhci_clusterSceneHandle(void *arg){ //u16 cmdId, u8 *pCmd){
 			COPY_BUFFERTOU16_BE(removeAllScene.groupId, pCmd);
 			pCmd += 2;
 
-			sta = zcl_scene_removeAllSceneCmd(srcEp, &dstEpInfo, FALSE, &removeAllScene);
+			zcl_scene_removeAllSceneCmd(srcEp, &dstEpInfo, FALSE, &removeAllScene);
 		}
 			break;
 		case ZBHCI_CMD_ZCL_SCENE_STORE :
@@ -474,7 +467,7 @@ void zbhci_clusterSceneHandle(void *arg){ //u16 cmdId, u8 *pCmd){
 			pCmd += 2;
 			storeScene.sceneId = *pCmd++;
 
-			sta = zcl_scene_storeSceneCmd(srcEp, &dstEpInfo, FALSE, &storeScene);
+			zcl_scene_storeSceneCmd(srcEp, &dstEpInfo, FALSE, &storeScene);
 		}
 			break;
 		case ZBHCI_CMD_ZCL_SCENE_RECALL:
@@ -486,7 +479,7 @@ void zbhci_clusterSceneHandle(void *arg){ //u16 cmdId, u8 *pCmd){
 			recallScene.sceneId = *pCmd++;
 			recallScene.transTime = 0;
 
-			sta = zcl_scene_recallSceneCmd(srcEp, &dstEpInfo, FALSE, &recallScene);
+			zcl_scene_recallSceneCmd(srcEp, &dstEpInfo, FALSE, &recallScene);
 		}
 			break;
 		case ZBHCI_CMD_ZCL_SCENE_GET_MEMBERSHIP:
@@ -496,7 +489,7 @@ void zbhci_clusterSceneHandle(void *arg){ //u16 cmdId, u8 *pCmd){
 			COPY_BUFFERTOU16_BE(getSceneMemship.groupId, pCmd);
 			pCmd += 2;
 
-			sta = zcl_scene_getSceneMemshipCmd(srcEp, &dstEpInfo, FALSE, &getSceneMemship);
+			zcl_scene_getSceneMemshipCmd(srcEp, &dstEpInfo, FALSE, &getSceneMemship);
 		}
 			break;
 		default:

@@ -160,7 +160,7 @@ typedef enum{
 typedef enum{
 	HCLK_DIV1_TO_PCLK    =    1,
 	HCLK_DIV2_TO_PCLK    =    2,
-	HCLK_DIV4_TO_PCLK    =    4,
+	HCLK_DIV4_TO_PCLK    =    4,	//if hclk = 1/2 * cclk, the pclk can not be 1/4 of hclk.
 }sys_hclk_div_to_pclk_e;
 
 /**
@@ -245,7 +245,7 @@ void clock_cal_32k_rc (void);
  * @brief  This function serves to get the 32k tick.
  * @return none.
  */
-_attribute_ram_code_sec_noinline_  unsigned int clock_get_32k_tick (void);
+_attribute_ram_code_sec_noinline_ unsigned int clock_get_32k_tick (void);
 
 /**
  * @brief  This function serves to set the 32k tick.

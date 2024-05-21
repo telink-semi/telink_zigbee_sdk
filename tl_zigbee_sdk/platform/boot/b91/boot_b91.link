@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
  
 ENTRY(_RESET_ENTRY)
 SECTIONS
@@ -38,7 +37,8 @@ SECTIONS
 	PROVIDE (_RETENTION_RESET_LMA_START = LOADADDR(.retention_reset));
 	PROVIDE (_RETENTION_RESET_VMA_END = .); 
 	/* By default,the aes_data section can only be used in the first 64K of IRAM, */
-	/* please do not change the position of this section,unless you know the correct way to use */ 
+	/* please do not change the position of this section,unless you know the correct way to use */
+	/* For more details, see the aes_set_em_base_addr() function*/	
 	. = ALIGN(8);
 	PROVIDE (_AES_VMA_START = .);
 	.aes_data 	(NOLOAD)	: { KEEP(*(.aes_data )) }
@@ -79,7 +79,7 @@ SECTIONS
 		{ *(.data .data.* .gnu.linkonce.d.* ) KEEP(*(.gnu.linkonce.d.*personality* )) SORT(CONSTRUCTORS) 
 		  *(.srodata.cst16 ) *(.srodata.cst8 ) *(.srodata.cst4 ) *(.srodata.cst2 ) *(.srodata .srodata.* ) *(.sdata .sdata.* .gnu.linkonce.s.* ) *(.sdata2 .sdata2.* .gnu.linkonce.s.* )
 		}
-    PROVIDE (_DATA_VMA_END = .);
+    PROVIDE (_DATA_VMA_END = .);	
     PROVIDE (_DATA_VMA_START = ADDR(.data));
 	PROVIDE (_DATA_LMA_START = LOADADDR(.data));
 	
@@ -87,11 +87,15 @@ SECTIONS
 	PROVIDE (_BSS_VMA_START = .);
 	.sbss 	(NOLOAD)	: { *(.dynsbss ) *(.sbss .sbss.* .gnu.linkonce.sb.* ) *(.scommon .scommon.* ) }
 	.bss 	(NOLOAD)	: { *(.dynbss ) *(.bss .bss.* .gnu.linkonce.b.* ) *(COMMON ) . = ALIGN(8); }
-	PROVIDE (_BSS_VMA_END = .);
+	/* When using the S file _FILL_STK function (which clears all the values in the stack space to 0x55), 
+	 * if _BSS_VMA_END does not have four-byte alignment, there may be an out-of-bounds access beyond _STACK_TOP,
+	 * resulting in a store access fault.
+	 */
+	PROVIDE (_BSS_VMA_END = ((. + 3) / 4)*4);
 	
 	.sdk_version  	: AT(LOADADDR (.data) + SIZEOF (.data))
 		{ KEEP(*(.sdk_version )) }
-	
+		
 	PROVIDE (BIN_SIZE = LOADADDR(.sdk_version) + SIZEOF(.sdk_version) - BIN_BEGIN);
 	
 	. = ALIGN(8);

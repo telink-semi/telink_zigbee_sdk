@@ -58,13 +58,25 @@ unsigned char flash_read_status_mid13325e(void)
  *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
-void flash_write_status_mid13325e(unsigned char data, mid13325e_write_status_bit_e bit)
+unsigned char flash_write_status_mid13325e(unsigned char data, mid13325e_write_status_mask_e mask)
 {
-	unsigned char status = flash_read_status(FLASH_READ_STATUS_CMD_LOWBYTE);
-	if(data != (status & bit)){
-		data |= (status & ~(bit));
-		flash_write_status(FLASH_TYPE_8BIT_STATUS, data);
+	if (0 != (data & ~mask))
+	{
+		return 2;
 	}
+
+	unsigned char status = flash_read_status_mid13325e();
+	if(data != (status & mask))	//To reduce the operation of the status register.
+	{
+		status = data | (status & ~(mask));
+		flash_write_status(FLASH_TYPE_8BIT_STATUS, status);
+		status = flash_read_status_mid13325e();
+	}
+	if(data == (status & mask))
+	{
+		return 1;
+	}
+	return 0;
 }
 
 /**
@@ -81,14 +93,9 @@ void flash_write_status_mid13325e(unsigned char data, mid13325e_write_status_bit
  *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
-void flash_lock_mid13325e(mid13325e_lock_block_e data)
+unsigned char flash_lock_mid13325e(unsigned int data)
 {
-	flash_write_status_mid13325e(data, FLASH_WRITE_STATUS_BP_MID13325E);
-}
-
-void flash_lock_all_mid13325e(void)
-{
-	flash_write_status_mid13325e(FLASH_LOCK_ALL_512K_MID13325E, FLASH_WRITE_STATUS_BP_MID13325E);
+	return flash_write_status_mid13325e(data, FLASH_WRITE_STATUS_BP_MID13325E);
 }
 
 /**
@@ -104,8 +111,8 @@ void flash_lock_all_mid13325e(void)
  *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
-void flash_unlock_mid13325e(void)
+unsigned char flash_unlock_mid13325e(void)
 {
-	flash_write_status_mid13325e(FLASH_LOCK_NONE_MID13325E, FLASH_WRITE_STATUS_BP_MID13325E);
+	return flash_write_status_mid13325e(FLASH_LOCK_NONE_MID13325E, FLASH_WRITE_STATUS_BP_MID13325E);
 }
 

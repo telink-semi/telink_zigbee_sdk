@@ -40,7 +40,8 @@ static inline void mdec_reset(void)
 /**
  * @brief		After all packet data are received, it can check whether packet transmission is finished.
  * @param[in]	status	- the interrupt status to be obtained.
- * @return		irq status.
+ * @retval	  non-zero   -  the interrupt occurred.
+ * @retval	  zero  -  the interrupt did not occur.
  */
 static inline unsigned char mdec_get_irq_status(wakeup_status_e status)
 {
@@ -56,7 +57,7 @@ static inline unsigned char mdec_get_irq_status(wakeup_status_e status)
  */
 static inline void mdec_clr_irq_status(wakeup_status_e status)
 {
-	analog_write_reg8(reg_wakeup_status, (analog_read_reg8(reg_wakeup_status) | status));
+	analog_write_reg8(reg_wakeup_status,status);/*added by wei.wu, confirmed by jianzhi 20231016*/
 }
 
 /**

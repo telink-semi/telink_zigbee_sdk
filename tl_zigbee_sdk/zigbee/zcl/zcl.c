@@ -1332,6 +1332,9 @@ _CODE_ZCL_ status_t zcl_writeHandler(zclIncoming_t *pCmd)
 		}
 
 		rspSend = TRUE;
+	}else if(pCmd->hdr.cmd == ZCL_CMD_WRITE_NO_RSP){
+		//shall not any response to this command
+		//rspSend = FALSE;
 	}
 
 	for(u8 i = 0; i < pWriteCmd->numAttr; i++){
@@ -1375,6 +1378,8 @@ _CODE_ZCL_ status_t zcl_writeHandler(zclIncoming_t *pCmd)
 			status = ZCL_STA_CMD_HAS_RESP;
 
 		ev_buf_free((void *)pWriteRspCmd);
+	}else{
+		status = ZCL_STA_CMD_HAS_RESP;
 	}
 
 	return status;

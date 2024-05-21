@@ -29,7 +29,7 @@
 
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	#define SYSTEM_RESET()			mcu_reset()
-#elif defined(MCU_CORE_B91)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 	#define SYSTEM_RESET()			sys_reboot()
 #endif
 
@@ -47,6 +47,8 @@ void drv_enable_irq(void);
 u32 drv_disable_irq(void);
 u32 drv_restore_irq(u32 en);
 
+void drv_irqMask_clear(void);
+
 void drv_wd_setInterval(u32 ms);
 void drv_wd_start(void);
 void drv_wd_clear(void);
@@ -55,4 +57,4 @@ u32 drv_u32Rand(void);
 void drv_generateRandomData(u8 *pData, u8 len);
 
 void voltage_detect(bool powerOn);
-
+void drv_vbusWatchdogClose(void);

@@ -63,7 +63,7 @@ static void hwTimerInit(u8 tmrIdx, u8 mode)
 	}else{
 		stimer_irq_enable();
 	}
-#elif defined(MCU_CORE_B91)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 	if(tmrIdx < TIMER_IDX_3){
 		timer_set_mode(tmrIdx, mode);
 		if(tmrIdx == TIMER_IDX_0){
@@ -95,7 +95,7 @@ static void hwTimerStart(u8 tmrIdx)
 	}else{
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 		stimer_set_irq_mask();
-#elif defined(MCU_CORE_B91)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 		stimer_set_irq_mask(FLD_SYSTEM_IRQ);
 #endif
 	}
@@ -108,7 +108,7 @@ static void hwTimerStop(u8 tmrIdx)
 	}else{
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 		stimer_clr_irq_mask();
-#elif defined(MCU_CORE_B91)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 		stimer_clr_irq_mask(FLD_SYSTEM_IRQ);
 #endif
 	}

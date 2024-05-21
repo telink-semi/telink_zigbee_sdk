@@ -38,6 +38,11 @@
 		#define BAUDRATE					1000000//1M
 	#endif
 		#define	BIT_INTERVAL	 			((16*1000*1000) / BAUDRATE)
+#elif defined(MCU_CORE_B92)
+	#ifndef	BAUDRATE
+		#define BAUDRATE					1000000//1M
+	#endif
+		#define	BIT_INTERVAL	 			((24*1000*1000) / BAUDRATE)
 #endif
 
 #if UART_PRINTF_MODE
@@ -51,7 +56,7 @@
 												gpio_setup_up_down_resistor(DEBUG_INFO_TX_PIN, PM_PIN_PULLUP_1M); 	\
 												gpio_write(DEBUG_INFO_TX_PIN, 1);									\
 											}while(0)
-		#elif defined(MCU_CORE_B91)
+		#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 			#define DEBUG_TX_PIN_INIT()		do{	\
 												gpio_function_en(DEBUG_INFO_TX_PIN);								\
 												gpio_set_output(DEBUG_INFO_TX_PIN, 1);								\

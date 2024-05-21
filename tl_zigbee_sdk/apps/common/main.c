@@ -25,8 +25,6 @@
 
 #include "zb_common.h"
 
-extern void user_init(bool isRetention);
-
 
 /*
  * main:
@@ -41,8 +39,9 @@ int main(void){
 #if 0
 	extern void moduleTest_start(void);
 	moduleTest_start();
-#endif
+#else
 
+	extern void user_init(bool isRetention);
 	user_init(isRetention);
 
 	drv_enable_irq();
@@ -64,6 +63,10 @@ int main(void){
 		}
 #endif
 
+#if defined(MCU_CORE_B92)
+		drv_vbusWatchdogClose();
+#endif
+
     	ev_main();
 
 #if (MODULE_WATCHDOG_ENABLE)
@@ -76,6 +79,8 @@ int main(void){
 		drv_wd_clear();
 #endif
 	}
+
+#endif
 
 	return 0;
 }

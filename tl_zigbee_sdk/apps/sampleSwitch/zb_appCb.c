@@ -187,6 +187,9 @@ void zbdemo_bdbCommissioningCb(u8 status, void *arg){
 			if(switchRejoinBackoffTimerEvt){
 				TL_ZB_TIMER_CANCEL(&switchRejoinBackoffTimerEvt);
 			}
+			if(!g_zbNwkCtx.joined){
+				zb_rejoinReq(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
+			}
 
 #ifdef ZCL_POLL_CTRL
 			sampleSwitch_zclCheckInStart();

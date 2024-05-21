@@ -26,17 +26,21 @@
 #pragma once
 
 
-typedef void (*drv_flash_write)(unsigned long addr, unsigned long len, unsigned char *buf);
-typedef void (*drv_flash_read)(unsigned long addr, unsigned long len, unsigned char *buf);
-typedef void (*drv_flash_erase)(unsigned long addr);
+typedef u8 (*drv_flash_lock)(u32 blockSize);
+typedef u8 (*drv_flash_unlock)(void);
 
 typedef struct{
-	drv_flash_write write;
-	drv_flash_read read;
-	drv_flash_erase erase;
-}drv_flash_t;
+	u32 mid;
+	drv_flash_unlock unlock;
+	drv_flash_lock lock;
+	u32 blockSize;
+}drv_flash_opt_t;
+
 
 void flash_write(u32 addr, u32 len, u8 *buf);
 bool flash_writeWithCheck(u32 addr, u32 len, u8 *buf);
 void flash_read(u32 addr, u32 len, u8 *buf);
 void flash_erase(u32 addr);
+void flash_loadOpt(void);
+void flash_lock(void);
+void flash_unlock(void);

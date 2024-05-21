@@ -28,12 +28,12 @@
 #if	defined(MCU_CORE_826x)
 	#define ADC_VALUE_GET_WITH_BASE_MODE(v)		(3300 * (v - 128)/(16384 - 256))//Vref(mV) * (v - 128)/(2^14 - 2^8)
 	#define ADC_VALUE_GET_WITH_VBAT_MODE(v)		(3*(1428*(v - 128)/(16384 - 256)))
-#elif defined(MCU_CORE_B91)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 	#define ADC_DMA_CHN							DMA7
 	#define ADC_SAMPLE_NUM						8
 #endif
 
-#if defined(MCU_CORE_B91)
+#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 /**
  * @brief This function serves to get adc sample code by dma and convert to voltage value.
  * @return 		adc_vol_mv_average 	- the average value of adc voltage value.
@@ -83,6 +83,9 @@ bool drv_adc_init(void)
 	adc_init();
 #elif defined(MCU_CORE_B91)
 	adc_set_dma_config(ADC_DMA_CHN);
+#elif defined(MCU_CORE_B92)
+	//audio and adc share the audio fifo, and the same fifo cannot be configured for audio and adc at the same time.
+	adc_set_dma_config(ADC_DMA_CHN, FIFO1);
 #endif
 	return TRUE;
 }
@@ -106,7 +109,7 @@ u16 drv_get_adc_data(void)
 	return (u16)ADC_VALUE_GET_WITH_VBAT_MODE(tmpSum);
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	return (u16)adc_sample_and_get_result();
-#elif defined(MCU_CORE_B91)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 	return adc_get_voltage_dma();
 #endif
 }
@@ -135,7 +138,7 @@ void drv_adc_mode_pin_set(drv_adc_mode_t mode, GPIO_PinTypeDef pin)
 		adc_vbat_init(pin);
 	}
 }
-#elif defined(MCU_CORE_B91)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 void drv_adc_mode_pin_set(drv_adc_mode_t mode, adc_input_pin_def_e pin)
 {
 	if(mode == DRV_ADC_BASE_MODE){
@@ -166,7 +169,7 @@ void drv_adc_enable(bool enable)
 	}
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	adc_power_on_sar_adc((unsigned char)enable);
-#elif defined(MCU_CORE_B91)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 	if(enable){
 		adc_power_on();
 	}else{

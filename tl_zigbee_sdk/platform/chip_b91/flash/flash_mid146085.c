@@ -46,9 +46,9 @@ unsigned short flash_read_status_mid146085(void)
 
 /**
  * @brief 		This function write the status of flash.
- * @param[in]  	data	- the value of status.
- * @param[in]  	bit		- the range of bits to be modified when writing status.
- * @return 		none.
+ * @param[in]  	data	- the status value of the flash after the mask.
+ * @param[in]  	mask		- the range of masks to be modified when writing status.
+ * @return 		1: success, 0: error, 2: parameter error.
  * @note        Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
  *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.
  *              Taking into account the factors such as power supply fluctuations, the safe voltage value needs to be greater
@@ -59,17 +59,31 @@ unsigned short flash_read_status_mid146085(void)
  *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
-void flash_write_status_mid146085(unsigned short data, mid146085_write_status_bit_e bit)
+unsigned char flash_write_status_mid146085(unsigned short data, mid146085_write_status_mask_e mask)
 {
+	if (0 != (data & ~mask))
+	{
+		return 2;
+	}
+
 	unsigned short status = flash_read_status_mid146085();
-	data |= (status & ~(bit));
-	flash_write_status(FLASH_TYPE_16BIT_STATUS_ONE_CMD, data);
+	if(data != (status & mask))	//To reduce the operation of the status register.
+	{
+		status = data | (status & ~(mask));
+		flash_write_status(FLASH_TYPE_16BIT_STATUS_ONE_CMD, status);
+		status = flash_read_status_mid146085();
+	}
+	if(data == (status & mask))
+	{
+		return 1;
+	}
+	return 0;
 }
 
 /**
  * @brief 		This function serves to set the protection area of the flash.
  * @param[in]   data	- refer to the protection area definition in the .h file.
- * @return 		none.
+ * @return 		1: success, 0: error, 2: parameter error.
  * @note        Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
  *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.
  *              Taking into account the factors such as power supply fluctuations, the safe voltage value needs to be greater
@@ -80,14 +94,14 @@ void flash_write_status_mid146085(unsigned short data, mid146085_write_status_bi
  *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
-void flash_lock_mid146085(mid146085_lock_block_e data)
+unsigned char flash_lock_mid146085(unsigned int data)
 {
-	flash_write_status_mid146085(data, FLASH_WRITE_STATUS_BP_MID146085);
+	return flash_write_status_mid146085(data, FLASH_WRITE_STATUS_BP_MID146085);
 }
 
 /**
  * @brief 		This function serves to flash release protection.
- * @return 		none.
+ * @return 		1: success, 0: error, 2: parameter error.
  * @note        Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
  *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.
  *              Taking into account the factors such as power supply fluctuations, the safe voltage value needs to be greater
@@ -98,9 +112,9 @@ void flash_lock_mid146085(mid146085_lock_block_e data)
  *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
-void flash_unlock_mid146085(void)
+unsigned char flash_unlock_mid146085(void)
 {
-	flash_write_status_mid146085(FLASH_LOCK_NONE_MID146085, FLASH_WRITE_STATUS_BP_MID146085);
+	return flash_write_status_mid146085(FLASH_LOCK_NONE_MID146085, FLASH_WRITE_STATUS_BP_MID146085);
 }
 
 /**
@@ -118,7 +132,7 @@ void flash_unlock_mid146085(void)
  */
 mid146085_lock_block_e flash_get_lock_block_mid146085(void)
 {
-	return flash_read_status_mid146085()|FLASH_WRITE_STATUS_BP_MID146085;
+	return flash_read_status_mid146085()&FLASH_WRITE_STATUS_BP_MID146085;
 }
 
 /**
@@ -127,7 +141,7 @@ mid146085_lock_block_e flash_get_lock_block_mid146085(void)
  *						the address of the  Security Registers #1 0x001000-0x0011ff
  *						the address of the  Security Registers #2 0x002000-0x0021ff
  *						the address of the  Security Registers #3 0x003000-0x0031ff
- * @param[in]   len		- the length of the content to be read.
+ * @param[in]   len		- the length(in byte, must be above 0) of the content to be read.
  * @param[out]  buf		- the starting address of the content to be read.
  * @return 		none.
  * @note        Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
@@ -151,7 +165,7 @@ void flash_read_otp_mid146085(unsigned long addr, unsigned long len, unsigned ch
  *						the address of the  Security Registers #1 0x001000-0x0011ff
  *						the address of the  Security Registers #2 0x002000-0x0021ff
  *						the address of the  Security Registers #3 0x003000-0x0031ff
- * @param[in]   len		- the length of content to be written.
+ * @param[in]   len		- the length(in byte, must be above 0) of content to be written.
  * @param[in]   buf		- the starting address of the content to be written.
  * @return 		none.
  * @note        Attention: Before calling the FLASH function, please check the power supply voltage of the chip.

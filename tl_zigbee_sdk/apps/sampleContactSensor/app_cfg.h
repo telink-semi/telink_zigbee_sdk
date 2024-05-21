@@ -64,6 +64,8 @@ extern "C" {
 #define BOARD_8278_DONGLE				7
 #define BOARD_B91_EVK					8
 #define BOARD_B91_DONGLE				9
+#define BOARD_B92_EVK					10
+#define BOARD_B92_DONGLE				11
 
 /* Board define */
 #if defined(MCU_CORE_826x)
@@ -86,6 +88,10 @@ extern "C" {
 #elif defined(MCU_CORE_B91)
 	#define FLASH_CAP_SIZE_1M			1
 	#define BOARD						BOARD_B91_DONGLE//BOARD_B91_EVK
+	#define CLOCK_SYS_CLOCK_HZ  		48000000
+#elif defined(MCU_CORE_B92)
+	#define FLASH_CAP_SIZE_1M			1
+	#define BOARD						BOARD_B92_DONGLE//BOARD_B92_EVK
 	#define CLOCK_SYS_CLOCK_HZ  		48000000
 #else
 	#error "MCU is undefined!"
@@ -112,6 +118,10 @@ extern "C" {
 	#include "board_b91_evk.h"
 #elif (BOARD == BOARD_B91_DONGLE)
 	#include "board_b91_dongle.h"
+#elif (BOARD == BOARD_B92_EVK)
+	#include "board_b92_evk.h"
+#elif (BOARD == BOARD_B92_DONGLE)
+	#include "board_b92_dongle.h"
 #endif
 
 
@@ -126,14 +136,13 @@ extern "C" {
  * such as VCC.
  */
 #define VOLTAGE_DETECT_ENABLE						0
+#define VOLTAGE_DETECT_ADC_PIN						VOLTAGE_DETECT_PIN
 
-#if defined(MCU_CORE_826x)
-	#define VOLTAGE_DETECT_ADC_PIN					0
-#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-	#define VOLTAGE_DETECT_ADC_PIN					GPIO_PC5
-#elif defined(MCU_CORE_B91)
-	#define VOLTAGE_DETECT_ADC_PIN					ADC_GPIO_PB0
-#endif
+/* Flash protect module */
+/* Only the firmware area will be locked, the NV data area will not be locked.
+ * For details, please refer to drv_flash.c file.
+ */
+#define FLASH_PROTECT_ENABLE						1
 
 /* Watch dog module */
 #define MODULE_WATCHDOG_ENABLE						0

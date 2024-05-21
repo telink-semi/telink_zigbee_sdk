@@ -76,6 +76,14 @@ typedef enum{
 	FLASH_WRITE_ENABLE_CMD 				= 	0x06,
 }flash_command_e;
 
+typedef enum{
+	XIP_READ_CMD						=	0x0003,
+	XIP_FREAD_CMD						=	0x070B,
+	XIP_DREAD_CMD						=	0x173B,
+	XIP_X2READ_CMD						=	0x53BB,
+	XIP_QREAD_CMD						=	0x276B,
+	XIP_X4READ_CMD				    	=	0x65EB,
+}flash_xip_config_e;
 /**
  * @brief     flash status type definition
  */
@@ -154,7 +162,7 @@ static inline void flash_change_rw_func(flash_handler_t read, flash_handler_t wr
 
 /**
  * @brief 		This function serves to erase a sector.
- * @param[in]   addr	- the start address of the sector needs to erase.
+ * @param[in]   addr	- must be 0 or a multiple of 0x1000.
  * @return 		none.
  * @note        Attention: The block erase takes a long time, please pay attention to feeding the dog in advance.
  * 				The maximum block erase time is listed at the beginning of this document and is available for viewing.
@@ -174,7 +182,7 @@ _attribute_text_sec_ void flash_erase_sector(unsigned long addr);
 /**
  * @brief 		This function reads the content from a page to the buf with single mode.
  * @param[in]   addr	- the start address of the page.
- * @param[in]   len		- the length(in byte) of content needs to read out from the page.
+ * @param[in]   len		- the length(in byte, must be above 0) of content needs to read out from the page.
  * @param[out]  buf		- the start address of the buffer(ram address).
  * @return 		none.
  * @note        cmd:1x, addr:1x, data:1x, dummy:0
@@ -212,7 +220,7 @@ _attribute_text_sec_ void flash_dread(unsigned long addr, unsigned long len, uns
 /**
  * @brief 		This function reads the content from a page to the buf with 4*IO read mode.
  * @param[in]   addr	- the start address of the page.
- * @param[in]   len		- the length(in byte) of content needs to read out from the page.
+ * @param[in]   len		- the length(in byte, must be above 0) of content needs to read out from the page.
  * @param[out]  buf		- the start address of the buffer(ram address).
  * @return 		none.
  * @note        cmd:1x, addr:4x, data:4x, dummy:6
@@ -234,7 +242,7 @@ _attribute_text_sec_ void flash_4read(unsigned long addr, unsigned long len, uns
  * 				and the data will become the wrong value. Note that when erasing, the minimum is erased by sector (4k bytes).
  * 				Do not erase the useful information in other locations of the sector during erasing.
  * @param[in]   addr	- the start address of the area.
- * @param[in]   len		- the length(in byte) of content needs to write into the flash.
+ * @param[in]   len		- the length(in byte, must be above 0) of content needs to write into the flash.
  * @param[in]   buf		- the start address of the content needs to write into(ram address).
  * @return 		none.
  * @note        cmd:1x, addr:1x, data:1x
@@ -258,7 +266,7 @@ _attribute_text_sec_ void flash_page_program(unsigned long addr, unsigned long l
  * 				and the data will become the wrong value. Note that when erasing, the minimum is erased by sector (4k bytes).
  * 				Do not erase the useful information in other locations of the sector during erasing.
  * @param[in]   addr	- the start address of the area.
- * @param[in]   len		- the length(in byte) of content needs to write into the flash.
+ * @param[in]   len		- the length(in byte, must be above 0) of content needs to write into the flash.
  * @param[in]   buf		- the start address of the content needs to write into(ram address).
  * @return 		none.
  * @note        cmd:1x, addr:1x, data:4x
@@ -312,14 +320,14 @@ _attribute_text_sec_ unsigned int flash_read_mid(void);
 _attribute_text_sec_ void flash_read_uid(unsigned char idcmd, unsigned char *buf);
 
 /**
- * @brief 		This function serves to set priority threshold. when the interrupt priority > Threshold flash process will disturb by interrupt.
+ * @brief 		This function serves to set priority threshold. When the interrupt priority is greater than the maximum of the current interrupt threshold and the given interrupt threshold, flash process will disturb by interrupt.
  * @param[in]   preempt_en	- 1 can disturb by interrupt, 0 can disturb by interrupt.
  * @param[in]	threshold	- priority Threshold.
  * @return    	none.
  *              -# The correlation between flash_plic_preempt_config() and the flash functions that call sub-functions(flash_mspi_read_ram/flash_mspi_write_ram) is as follows:
  *                  - When preempt_en = 1 and interrupt nesting is enabled (plic_preempt_feature_en):
- *                      - The initialized interrupt threshold can only be 0, because the PLIC threshold will be set to 0 when the flash functions returns.
- *                      - During the flash functions execution, it can be interrupted by external interrupts with priority greater than given threshold
+ *                      - During the flash functions execution, the threshold of the PLIC is set to the maximum of the threshold before calling the interface and the given threshold value. \n
+ *                        This means that when the external interrupt priority is greater than this maximum value, the execution of the flash function is disturbed by this interrupt.
  *                      - machine timer and software interrupt will definitely interrupt the flash functions execution, they are not controlled by the plic interrupt threshold
  *                  - In other cases(preempt_en = 0 or plic_preempt_feature_en = 0), global interrupts (including machine timer and software interrupt) will be turned off during the execution of the flash functions and will be restored when the flash functions exits.
  *              -# If the flash operation may be interrupted by an interrupt, it is necessary to ensure that the interrupt handling function and the function it calls must be in the RAM code. 
@@ -333,7 +341,7 @@ _attribute_text_sec_ void flash_plic_preempt_config(unsigned char preempt_en, un
  * @param[in]	config	- xip configuration,reference structure flash_xip_config_t
  * @return none
  */
-_attribute_text_sec_ void flash_set_xip_config(flash_xip_config_t config);
+_attribute_text_sec_ void flash_set_xip_config(flash_xip_config_e config);
 /**
  * @brief		This function serves to set flash write command.This function interface is only used internally by flash,
  * 				and is currently included in the H file for compatibility with other SDKs. When using this interface,

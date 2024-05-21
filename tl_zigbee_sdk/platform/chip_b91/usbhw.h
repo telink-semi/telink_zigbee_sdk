@@ -52,7 +52,39 @@ typedef enum
 	USB_IRQ_SUSPEND_STATUS =BIT(7),
 }usb_irq_status_e;
 
+typedef enum {
+    USB_EDP8_IN         = 8,
+    USB_EDP1_IN         = 1,
+    USB_EDP2_IN         = 2,
+    USB_EDP3_IN         = 3,
+    USB_EDP4_IN         = 4,
+    USB_EDP5_OUT        = 5,
+    USB_EDP6_OUT        = 6,
+    USB_EDP7_IN         = 7,
+	USB_EDP_PRINTER_IN = 8,     // default hw buf len = 64
+	USB_EDP_MOUSE = 2,			// default hw buf len = 8
+	USB_EDP_KEYBOARD_IN = 1,	// default hw buf len = 8
+	USB_EDP_IN = 3,				// default hw buf len = 16
+	USB_EDP_AUDIO_IN = 4,		// default hw buf len = 64
+	USB_EDP_PRINTER_OUT = 5,	// default hw buf len = 64
+	USB_EDP_SPEAKER = 6,		// default hw buf len = 16
+	USB_EDP_MIC = 7,			// default hw buf len = 16
+	USB_EDP_MS_IN = 4,		// mass storage
+	USB_EDP_MS_OUT = 5,
+	USB_EDP_SOMATIC_IN = USB_EDP_AUDIO_IN,		//  when USB_SOMATIC_ENABLE, USB_EDP_PRINTER_OUT disable
+	USB_EDP_SOMATIC_OUT = USB_EDP_PRINTER_OUT,
+    USB_EDP_CDC_IN = 4,
+    USB_EDP_CDC_OUT = 5,
+}usb_ep_index;
 
+// #defined in the standard spec
+enum {
+	USB_HID_AUDIO       	= 2,
+	USB_HID_MOUSE       	= 1,
+	USB_HID_KB_MEDIA    	= 3,// media
+	USB_HID_KB_SYS      	= 4,// system : power,sleep,wakeup
+	USB_HID_SOMATIC			= 5,// somatic sensor,  may have many report ids
+};
 
 /**
  * @brief     This function servers to set ed8 to fifo mode.
@@ -135,6 +167,18 @@ static inline void usbhw_reset_ep_ptr(unsigned int ep) {
 	reg_usb_ep_ptr(ep) = 0;
 }
 
+
+/**
+ * @brief     This function servers to set the buffer address of data endpoint.
+ * @param[in] ep - select the data endpoint.
+ * @param[in] addr - data endpoint buffer address.
+ * @return    none.
+ */
+static inline void usbhw_set_ep_addr(usb_ep_index ep, unsigned char addr)
+{
+    reg_usb_ep_buf_addr(ep) = addr & 0xff;
+}
+
 /**
  * @brief     This function servers to set the irq mask of Endpoint.
  * @return    none.
@@ -195,7 +239,8 @@ static inline void usbhw_clr_irq_mask( usb_irq_mask_e mask)
 /**
  * @brief     This function servers to get usb irq status.
  * @param[in]  status -the  irq status of usb.
- * @return    the status of irq.
+ * @retval	  non-zero   -  the interrupt occurred.
+ * @retval	  zero  -  the interrupt did not occur.
  */
 static inline unsigned char  usbhw_get_irq_status(usb_irq_status_e status)
 {
@@ -209,7 +254,20 @@ static inline unsigned char  usbhw_get_irq_status(usb_irq_status_e status)
  */
 static inline void usbhw_clr_irq_status(usb_irq_status_e status)
 {
-	reg_usb_irq_mask|=status;
+    /** the reg_usb_irq_mask register mask and status are in the same register
+     * enum
+     * {
+     *      FLD_USB_IRQ_RESET_MASK   = 	BIT(0),
+     *      FLD_USB_IRQ_250US_MASK 	 = 	BIT(1),
+     *      FLD_USB_IRQ_SUSPEND_MASK = 	BIT(2),
+     *      FLD_USB_IRQ_RESET_LVL	 = 	BIT(3),
+     *      FLD_USB_IRQ_250US_LVL	 = 	BIT(4),
+     *      FLD_USB_IRQ_RESET_O 	 = 	BIT(5),
+     *      FLD_USB_IRQ_250US_O		 = 	BIT(6),
+     *      FLD_USB_IRQ_SUSPEND_O	 = 	BIT(7),
+     * };
+     * Flags can only be cleared with |=, not by direct assignment. */
+	reg_usb_irq_mask|=status; 
 }
 
 
@@ -308,32 +366,15 @@ static inline void usbhw_set_printer_threshold(unsigned char th) {
 	reg_usb_ep8_send_thres = th;
 }
 
-enum {
-	USB_EDP_PRINTER_IN = 8,     // default hw buf len = 64
-	USB_EDP_MOUSE = 2,			// default hw buf len = 8
-	USB_EDP_KEYBOARD_IN = 1,	// default hw buf len = 8
-	USB_EDP_IN = 3,				// default hw buf len = 16
-	USB_EDP_AUDIO_IN = 4,		// default hw buf len = 64
-	USB_EDP_PRINTER_OUT = 5,	// default hw buf len = 64
-	USB_EDP_SPEAKER = 6,		// default hw buf len = 16
-	USB_EDP_MIC = 7,			// default hw buf len = 16
-	USB_EDP_MS_IN = 4,		// mass storage
-	USB_EDP_MS_OUT = 5,
-	USB_EDP_SOMATIC_IN = USB_EDP_AUDIO_IN,		//  when USB_SOMATIC_ENABLE, USB_EDP_PRINTER_OUT disable
-	USB_EDP_SOMATIC_OUT = USB_EDP_PRINTER_OUT,
-    USB_EDP_CDC_IN = 4,
-    USB_EDP_CDC_OUT = 5,
-};
-
-// #defined in the standard spec
-enum {
-	USB_HID_AUDIO       	= 2,
-	USB_HID_MOUSE       	= 1,
-	USB_HID_KB_MEDIA    	= 3,// media
-	USB_HID_KB_SYS      	= 4,// system : power,sleep,wakeup
-	USB_HID_SOMATIC			= 5,// somatic sensor,  may have many report ids
-};
-
+/**
+ * @brief     This function servers to set in endpoint buffer max size(except 7 aiso mode).
+ * @param[in] max_size - in endpoint max size.
+ * @return    none.
+ */
+static inline void usbhw_set_eps_max_size(unsigned int max_size)
+{
+    reg_usb_ep_max_size = max_size >> 3;
+}
 
 /**
  * @brief      This function disables the manual interrupt

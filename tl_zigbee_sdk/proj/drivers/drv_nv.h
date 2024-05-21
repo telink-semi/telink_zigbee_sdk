@@ -96,7 +96,7 @@
 /* Flash Base Address define */
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	#define FLASH_TLNK_FLAG_OFFSET		8
-#elif defined(MCU_CORE_B91)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 	#define FLASH_TLNK_FLAG_OFFSET		32
 #endif
 
@@ -275,7 +275,7 @@ typedef struct{
 	u16 size;
 	u8  itemId;
 	u8  usedState;
-#if defined(MCU_CORE_B91)
+#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 	u8  resv[8];   //PUYA flash only supports re-write 64 times
 #endif
 }nv_info_idx_t;

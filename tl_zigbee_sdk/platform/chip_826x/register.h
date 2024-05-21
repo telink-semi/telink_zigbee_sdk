@@ -1254,6 +1254,7 @@ enum{
 	FLD_IRQ_GPIO_RISC2_EN = 	BIT(23),
 
 	FLD_IRQ_EN =				BIT_RNG(24,31),
+	FLD_IRQ_ALL =     			0xFFFFFFFF,
 };
 #define reg_irq_en				REG_ADDR8(0x643)
 

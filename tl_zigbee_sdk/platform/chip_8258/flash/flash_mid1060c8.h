@@ -46,7 +46,7 @@ typedef enum{
  */
 typedef enum{
 	FLASH_WRITE_STATUS_BP_MID1060C8	=	0x1c,
-}mid1060c8_write_status_bit_e;
+}mid1060c8_write_status_mask_e;
 
 
 /**
@@ -79,7 +79,7 @@ unsigned char flash_read_status_mid1060c8(void);
  *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
-void flash_write_status_mid1060c8(unsigned char data, mid1060c8_write_status_bit_e bit);
+unsigned char flash_write_status_mid1060c8(unsigned char data, mid1060c8_write_status_mask_e mask);
 
 /**
  * @brief 		This function serves to set the protection area of the flash.
@@ -95,7 +95,7 @@ void flash_write_status_mid1060c8(unsigned char data, mid1060c8_write_status_bit
  *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
-void flash_lock_mid1060c8(mid1060c8_lock_block_e data);
+unsigned char flash_lock_mid1060c8(unsigned int data);
 
 /**
  * @brief 		This function serves to flash release protection.
@@ -110,9 +110,7 @@ void flash_lock_mid1060c8(mid1060c8_lock_block_e data);
  *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
-void flash_unlock_mid1060c8(void);
-
-void flash_lock_all_mid1060c8(void);
+unsigned char flash_unlock_mid1060c8(void);
 
 #endif
 

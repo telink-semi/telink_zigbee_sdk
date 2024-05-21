@@ -26,7 +26,7 @@
  *
  *	Introduction
  *	===============
- *	B91 analog support dma and normal mode, in each mode, support byte/halfword/word/buffer write and read.
+ *	analog support dma and normal mode, in each mode, support byte/halfword/word/buffer write and read.
  *
  *	API Reference
  *	===============
@@ -59,6 +59,15 @@
  *********************************************************************************************************************/
 
 /**
+ * When reading and writing analog registers in DMA mode, exit interface after configuration.
+ * But the actual operation of the analog register is not finished, and the DMA is still moving the data.
+ * An interrupt may be opened at this time, and if there is an operation on the analog register,
+ * it will interrupt the previous DMA reading and writing the analog register, creating an unknown risk.
+ * Therefore, it is not recommended to use DMA to read and write analog registers.
+ */
+#define ANALOG_DMA		0
+
+/**
  * @brief      This function serves to analog register read by byte.
  * @param[in]  addr - address need to be read.
  * @return     the result of read.
@@ -78,7 +87,7 @@ _attribute_ram_code_sec_noinline_ void analog_write_reg8(unsigned char addr, uns
  * @param[in]  addr - address need to be read.
  * @return     the result of read.
  */
-unsigned short analog_read_reg16(unsigned char addr);
+_attribute_ram_code_sec_noinline_ unsigned short analog_read_reg16(unsigned char addr);
 
 /**
  * @brief      This function serves to analog register write by halfword.
@@ -86,14 +95,14 @@ unsigned short analog_read_reg16(unsigned char addr);
  * @param[in]  data - the value need to be write.
  * @return     none.
  */
-void analog_write_reg16(unsigned char addr, unsigned short data);
+_attribute_ram_code_sec_noinline_ void analog_write_reg16(unsigned char addr, unsigned short data);
 
 /**
  * @brief      This function serves to analog register read by word.
  * @param[in]  addr - address need to be read.
  * @return     the result of read.
  */
- unsigned int analog_read_reg32(unsigned char addr);
+_attribute_ram_code_sec_noinline_ unsigned int analog_read_reg32(unsigned char addr);
 
  /**
   * @brief      This function serves to analog register write by word.
@@ -101,7 +110,7 @@ void analog_write_reg16(unsigned char addr, unsigned short data);
   * @param[in]  data - the value need to be write.
   * @return     none.
   */
-void analog_write_reg32(unsigned char addr, unsigned int data);
+_attribute_ram_code_sec_noinline_ void analog_write_reg32(unsigned char addr, unsigned int data);
 /**
  * @brief      This function serves to analog register read.
  * @param[in]  addr  - address need to be read.
@@ -109,18 +118,18 @@ void analog_write_reg32(unsigned char addr, unsigned int data);
  * @param[in]  len   - the length of read value.
  * @return     none.
  */
-_attribute_ram_code_sec_noinline_ void analog_read_buff(unsigned char addr, unsigned char *buff, int len);
+_attribute_ram_code_sec_noinline_ void analog_read_buff(unsigned char addr, unsigned char *buff, unsigned char len);
 
 /**
  * @brief      This function serves to analog register write.
  * @param[in]  addr  - address need to be write.
  * @param[in]  buff  - the ptr of value need to be write.
- * @param[in]  len   - the length of write value.
+ * @param[in]  len   - the length of write value.(The data length cannot be greater than 8)
  * @return     none.
  */
-_attribute_ram_code_sec_noinline_ void analog_write_buff(unsigned char addr, unsigned char *buff, int len);
+_attribute_ram_code_sec_noinline_ void analog_write_buff(unsigned char addr, unsigned char *buff, unsigned char len);
 
-
+#if (ANALOG_DMA == 1)
 /**
  * @brief      This function serves to analog register write by word using dma.
  * @param[in]  chn  - the dma channel.
@@ -183,3 +192,4 @@ void analog_read_buff_dma(dma_chn_e chn, unsigned char addr, unsigned char *pdat
  * @return     none.
  */
 void analog_write_addr_data_dma(dma_chn_e chn, void *pdat, int len);
+#endif

@@ -69,6 +69,8 @@ extern "C" {
 #define LED_POWER					LED_R
 #define LED_PERMIT					LED_G
 
+#define VOLTAGE_DETECT_PIN			GPIO_PC5
+
 // UART
 #if ZBHCI_UART
 	#define UART_TX_PIN         	UART_TX_PB1
@@ -104,8 +106,8 @@ enum{
 #define	KB_MAP_NUM		KB_MAP_NORMAL
 #define	KB_MAP_FN		KB_MAP_NORMAL
 
-#define KB_DRIVE_PINS  {GPIO_PB2,  GPIO_PB3}
-#define KB_SCAN_PINS   {GPIO_PB4,  GPIO_PB5}
+#define KB_DRIVE_PINS	{GPIO_PB2, GPIO_PB3}
+#define KB_SCAN_PINS	{GPIO_PB4, GPIO_PB5}
 
 
 #define	KB_LINE_MODE		0

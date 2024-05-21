@@ -66,7 +66,7 @@ void flash_write_status(flash_status_typedef_e type , unsigned short data);
 /**
  * @brief 		This function serves to read data from the Security Registers of the flash.
  * @param[in]   addr	- the start address of the Security Registers.
- * @param[in]   len		- the length of the content to be read.
+ * @param[in]   len		- the length(in byte, must be above 0) of the content to be read.
  * @param[out]  buf		- the starting address of the content to be read.
  * @return 		none.
  * @note        Attention: Before calling the FLASH function, please check the power supply voltage of the chip.

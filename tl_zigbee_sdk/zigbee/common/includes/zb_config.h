@@ -94,7 +94,7 @@
 #define ZDO_REJOIN_BACKOFF_ITERATION				8
 /******************************************************************************************************************************/
 
-#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91)
+#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 #if ZB_ROUTER_ROLE
 #if ZB_COORDINATOR_ROLE
 	#define NWK_ROUTE_RECORD_TABLE_NUM				127//300
@@ -150,6 +150,8 @@
 	#define ZB_DEFAULT_TX_POWER_IDX					RF_POWER_INDEX_P11p26dBm
 #elif defined(MCU_CORE_B91)
 	#define ZB_DEFAULT_TX_POWER_IDX					RF_POWER_INDEX_P9p11dBm
+#elif defined(MCU_CORE_B92)
+	#define ZB_DEFAULT_TX_POWER_IDX					RF_POWER_INDEX_P9p90dBm
 #else
 	#define ZB_DEFAULT_TX_POWER_IDX					0/* idx = 0, means MAX TX power. */
 #endif

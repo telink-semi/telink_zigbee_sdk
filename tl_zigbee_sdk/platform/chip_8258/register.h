@@ -797,7 +797,7 @@ enum{
 	//	RSVD		  	  = 	BIT(23),
 
 	FLD_IRQ_EN =				BIT_RNG(24,31),
-	FLD_IRQ_ALL           =     0XFFFFFFFF,
+	FLD_IRQ_ALL =     			0xFFFFFFFF,
 };
 #define reg_irq_en				REG_ADDR8(0x643)
 

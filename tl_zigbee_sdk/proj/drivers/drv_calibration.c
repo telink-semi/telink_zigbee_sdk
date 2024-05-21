@@ -97,10 +97,17 @@ static void drv_calib_adc_verf(void)
 	}
 #endif
 }
+#elif defined(MCU_CORE_B92)
+static void drv_calib_adc_verf(void)
+{
+	/******get adc calibration value from EFUSE********/
+	efuse_calib_adc_vref(GPIO_VOLTAGE_3V3);
+}
+#endif
 
+#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 static void drv_calib_freq_offset(void)
 {
-#if defined(MCU_CORE_B91)
 	u8 freq_offset_value = 0xff;
 
 	flash_read(CFG_FREQUENCY_OFFSET, 1, &freq_offset_value);
@@ -108,19 +115,21 @@ static void drv_calib_freq_offset(void)
 	if(freq_offset_value != 0xff){
 		rf_update_internal_cap(freq_offset_value);
 	}
-#endif
 }
 #endif
 
 void drv_calibration(void)
 {
-#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91)
+#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 	u32 flash_mid = 0;
 	u8 flash_uid[16] = {0};
 
 	if(flash_read_mid_uid_with_check(&flash_mid, flash_uid)){
 		drv_calib_adc_verf();
+
+#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 		drv_calib_freq_offset();
+#endif
 	}
 #endif
 }

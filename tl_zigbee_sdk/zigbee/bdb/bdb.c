@@ -1474,7 +1474,7 @@ _CODE_BDB_ static u8 bdb_topLevelCommissiongConfirm(void){
 _CODE_BDB_ static u8 bdb_topLevelCommissioning(u8 target){
 	/* restore 	persistent ZigBee data */
 
-	if(BDB_STATE_GET() != BDB_STATE_IDLE || g_bdbAttrs.commissioningStatus == BDB_COMMISSION_STA_IN_PROGRESS){
+	if(BDB_STATE_GET() != BDB_STATE_IDLE || !zdo_ifZdoNwkManagerIdle() || g_bdbAttrs.commissioningStatus == BDB_COMMISSION_STA_IN_PROGRESS){
 		return BDB_STATE_COMMISSIONING_BUSY;
 	}
 

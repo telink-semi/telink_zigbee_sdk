@@ -48,7 +48,7 @@
  */
 #define BUFFER_GROUP_0                   	24
 #define BUFFER_GROUP_1                   	60
-#define BUFFER_GROUP_2                   	150
+#define BUFFER_GROUP_2                   	152
 #define BUFFER_GROUP_3                   	512
 #define MAX_BUFFER_SIZE                  	(BUFFER_GROUP_3 - OFFSETOF(ev_bufItem_t, data))
 

@@ -1010,14 +1010,19 @@ s32 zbhci_nodeManageCmdHandler(void *arg){
 	return -1;
 }
 
+
+#define FW_START_UP_FLAG_WHOLE			    0x544c4e4b
+#define FW_START_UP_FLAG_CHECK			    0x544c4eff
+#define TL_IMAGE_START_FLAG					0x4b
+
 void hci_send_ota_start_rsponse(u8 status){
 	u8 array[16] = {0};
 	u8 *pBuf = array;
-	COPY_U32TOBUFFER_BE(pBuf, ota_info.ota_flash_addr_start);
+	COPY_U32TOBUFFER_BE(pBuf, ota_info.otaFlashAddrStart);
 	pBuf += 4;
-	COPY_U32TOBUFFER_BE(pBuf, ota_info.ota_file_total_size);
+	COPY_U32TOBUFFER_BE(pBuf, ota_info.otaFileTotalSize);
 	pBuf += 4;
-	COPY_U32TOBUFFER_BE(pBuf, ota_info.ota_file_offset);
+	COPY_U32TOBUFFER_BE(pBuf, ota_info.otaFileOffset);
 	pBuf += 4;
 	*pBuf++ = status;
 	zbhciTx(ZBHCI_CMD_OTA_START_RESPONSE, pBuf-array, array);
@@ -1025,44 +1030,95 @@ void hci_send_ota_start_rsponse(u8 status){
 void uart_send_ota_block_request(){
 	u8 array[8] = {0};
 	u8 *pBuf = array;
-	COPY_U32TOBUFFER_BE(pBuf, ota_info.ota_file_offset);
+	COPY_U32TOBUFFER_BE(pBuf, ota_info.otaFileOffset);
 	pBuf += 4;
-	u8 next_block_len = 0;
-	if(ota_info.ota_file_total_size - ota_info.ota_file_offset >= HCI_OTA_BLOCK_SIZE_MAX){
-		next_block_len = HCI_OTA_BLOCK_SIZE_MAX;
+	u8 nextBlockLen = 0;
+	if(ota_info.otaFileTotalSize - ota_info.otaFileOffset >= HCI_OTA_BLOCK_SIZE_MAX){
+		nextBlockLen = HCI_OTA_BLOCK_SIZE_MAX;
 	}else{
-		next_block_len = ota_info.ota_file_total_size - ota_info.ota_file_offset;
+		nextBlockLen = ota_info.otaFileTotalSize - ota_info.otaFileOffset;
 	}
-	*pBuf++ = next_block_len;
+	*pBuf++ = nextBlockLen;
 	zbhciTx(ZBHCI_CMD_OTA_BLOCK_REQUEST, pBuf-array, array);
 }
 void uart_send_ota_end(u8 status){
 	u8 array[12] = {0};
 	u8 *pBuf = array;
-	COPY_U32TOBUFFER_BE(pBuf, ota_info.ota_file_total_size);
+	COPY_U32TOBUFFER_BE(pBuf, ota_info.otaFileTotalSize);
 	pBuf += 4;
-	COPY_U32TOBUFFER_BE(pBuf, ota_info.ota_file_offset);
+	COPY_U32TOBUFFER_BE(pBuf, ota_info.otaFileOffset);
 	pBuf += 4;
 	*pBuf++ = status;
 	zbhciTx(ZBHCI_CMD_OTA_END_STATUS, (pBuf-array), array);
 	if(status != ZBHCI_OTA_SUCCESS){
-		u16 sectorNumUsed = ota_info.ota_file_offset / FLASH_SECTOR_SIZE + 1;
+		u16 sectorNumUsed = ota_info.otaFileOffset / FLASH_SECTOR_SIZE + 1;
 		for(u16 i = 0; i < sectorNumUsed; i++){
-			flash_erase(ota_info.ota_flash_addr_start + i * FLASH_SECTOR_SIZE);
+			flash_erase(ota_info.otaFlashAddrStart + i * FLASH_SECTOR_SIZE);
 		}
 	}else{
-		ota_loadImageInfo(NULL);
+		if(ota_info.binType == ZBHCI_OTA_REMOTE_OTA_BIN){
+			ota_loadImageInfo(NULL);
+		}
 	}
+
+#if FLASH_PROTECT_ENABLE
+	flash_lock();
+#endif
+
 	memset(&ota_info, 0, sizeof(hci_ota_info_t));
 }
+
 s32 recv_ota_block_response_cb(void *arg){
-	if(ota_info.block_send_cnt++ < HCI_OTA_BLOCK_REQUEST_RETRY_CNT_MAX){
+	if(ota_info.blockRequestCnt++ < HCI_OTA_BLOCK_REQUEST_RETRY_CNT_MAX){
 		uart_send_ota_block_request();
 		return HCI_OTA_BLOCK_REQUEST_RETRY_INTERVAL;
 	}else{
 		uart_send_ota_end(ZBHCI_OTA_GET_BLOCK_TIMEOUT);
+		g_hciOtaTimer = NULL;
 		return -1;
 	}
+}
+
+s32 local_ota_reboot_delay(void *arg){
+	bool reboot = 0;
+	u8 flashInfo = 0x4b;
+
+	g_hciOtaTimer = NULL;//cancel timer
+
+	u32 newAddr = (mcuBootAddrGet()) ? 0 : FLASH_ADDR_OF_OTA_IMAGE;
+	if(!ota_newImageValid(newAddr)){
+		return -1;
+	}
+
+#if FLASH_PROTECT_ENABLE
+	flash_unlock();
+#endif
+
+	if(flash_writeWithCheck((newAddr + FLASH_TLNK_FLAG_OFFSET), 1, &flashInfo) == TRUE){
+#if (!BOOT_LOADER_MODE)
+		flashInfo = 0;
+		u32 baseAddr = (mcuBootAddrGet()) ? FLASH_ADDR_OF_OTA_IMAGE : 0;
+		flash_write((baseAddr + FLASH_TLNK_FLAG_OFFSET), 1, &flashInfo);//disable boot-up flag
+#endif
+		reboot = 1;
+	}
+
+#if FLASH_PROTECT_ENABLE
+	flash_lock();
+#endif
+
+	if(reboot){
+		SYSTEM_RESET();
+	}
+
+	return -1;
+}
+
+static bool is_valid_fw_flag(u32 addr_fw){
+	u32 startup_flag = 0;
+    flash_read(addr_fw + FLASH_TLNK_FLAG_OFFSET, 4, (u8 *)&startup_flag);
+
+    return ((startup_flag == FW_START_UP_FLAG_CHECK) ? TRUE : FALSE);
 }
 
 void zbhci_uartOTAHandle(void *arg){
@@ -1071,17 +1127,34 @@ void zbhci_uartOTAHandle(void *arg){
 	u8 *p = cmdInfo->payload;
 	if(cmdId == ZBHCI_CMD_OTA_START_REQUEST){
 		u8 start_status = ZBHCI_OTA_SUCCESS;
-		if(ota_info.ota_process_start == 0){
-			ota_info.ota_flash_addr_start = (mcuBootAddrGet()) ? 0 : FLASH_ADDR_OF_OTA_IMAGE;
-			COPY_BUFFERTOU32_BE(ota_info.ota_file_total_size, p);
-			if(ota_info.ota_file_total_size <= FLASH_OTA_IMAGE_MAX_SIZE){
-				ota_info.ota_file_offset = 0;
-				ota_info.ota_process_start = 1;
-				u16 sectorNumUsed = ota_info.ota_file_total_size / FLASH_SECTOR_SIZE + 1;
-				for(u16 i = 0; i < sectorNumUsed; i++){
-					flash_erase(ota_info.ota_flash_addr_start + i * FLASH_SECTOR_SIZE);
+
+		if(ota_info.otaProcessStart == 0){
+			ota_info.otaFlashAddrStart = (mcuBootAddrGet()) ? 0 : FLASH_ADDR_OF_OTA_IMAGE;
+			COPY_BUFFERTOU32_BE(ota_info.otaFileTotalSize, p);
+			p += 4;
+			if(ota_info.otaFileTotalSize < FLASH_OTA_IMAGE_MAX_SIZE){
+				ota_info.binType = ZBHCI_OTA_REMOTE_OTA_BIN;
+				if(cmdInfo->payloadLen > 4){
+					ota_info.binType = *p;
 				}
-				ota_info.block_send_cnt = 0;
+
+				ota_info.otaFileOffset = 0;
+				ota_info.otaProcessStart = 1;
+				u16 sectorNumUsed = ota_info.otaFileTotalSize / FLASH_SECTOR_SIZE + 1;
+
+#if FLASH_PROTECT_ENABLE
+				flash_unlock();
+#endif
+
+				for(u16 i = 0; i < sectorNumUsed; i++){
+					flash_erase(ota_info.otaFlashAddrStart + i * FLASH_SECTOR_SIZE);
+				}
+				ota_info.otaFindBootFlag = 0;
+				ota_info.blockRequestCnt = 0;
+				ota_info.otaCrcValue = 0xffffffff;
+				if(g_hciOtaTimer){
+					TL_ZB_TIMER_CANCEL(&g_hciOtaTimer);
+				}
 				g_hciOtaTimer = TL_ZB_TIMER_SCHEDULE(recv_ota_block_response_cb, NULL, HCI_OTA_BLOCK_INTERVAL_NORMAL);
 			}else{
 				start_status = ZBHCI_OTA_FILE_OVERSIZE;
@@ -1091,36 +1164,83 @@ void zbhci_uartOTAHandle(void *arg){
 		}
 		hci_send_ota_start_rsponse(start_status);
 	}else if(cmdId == ZBHCI_CMD_OTA_BLOCK_RESPONSE){
-		u32 recv_offset = 0;
+		u32 recvOffset = 0;
 		u8* ptr = p;
 		u8 status = *ptr++;
 		if(status != ZBHCI_OTA_SUCCESS){
 			if(g_hciOtaTimer){
 				TL_ZB_TIMER_CANCEL(&g_hciOtaTimer);
 			}
-			if(status != ZBHCI_OTA_SUCCESS){
-				u16 sectorNumUsed = ota_info.ota_file_offset / FLASH_SECTOR_SIZE + 1;
-				for(u16 i = 0; i < sectorNumUsed; i++){
-					flash_erase(ota_info.ota_flash_addr_start + i * FLASH_SECTOR_SIZE);
-				}
-			}
-			memset(&ota_info, 0, sizeof(hci_ota_info_t));
+			uart_send_ota_end(ZBHCI_OTA_INCORRECT_DATA);
+			ev_buf_free(arg);
 			return;
 		}
-		COPY_BUFFERTOU32_BE(recv_offset, ptr);
+		COPY_BUFFERTOU32_BE(recvOffset, ptr);
 		ptr += 4;
-		u8 block_len = *ptr++;
-		if(recv_offset == ota_info.ota_file_offset){
+		u8 blockLen = *ptr++;
+		u8* blockData = ptr;
+		if(recvOffset == ota_info.otaFileOffset){
 			if(g_hciOtaTimer){
 				TL_ZB_TIMER_CANCEL(&g_hciOtaTimer);
 			}
-			flash_write(ota_info.ota_flash_addr_start + recv_offset, block_len, ptr);
-			ota_info.ota_file_offset += block_len;
-			if(ota_info.ota_file_offset < ota_info.ota_file_total_size){
-				ota_info.block_send_cnt = 0;
+			if(ota_info.binType == ZBHCI_OTA_LOCAL_BIN){
+				u8 crcLen = 0;
+				if(ota_info.otaFileTotalSize - ota_info.otaFileOffset < 4){
+					crcLen = 0;
+				}else if(ota_info.otaFileTotalSize - ota_info.otaFileOffset - blockLen >= 4){
+					crcLen = blockLen;
+				}else{
+					crcLen = ota_info.otaFileTotalSize - ota_info.otaFileOffset - 4;
+				}
+
+				ota_info.otaCrcValue = xcrc32(blockData, crcLen, ota_info.otaCrcValue);
+
+				if((recvOffset <= FLASH_TLNK_FLAG_OFFSET) && (recvOffset + blockLen >= FLASH_TLNK_FLAG_OFFSET)){
+					if((blockData[FLASH_TLNK_FLAG_OFFSET - recvOffset]) != TL_IMAGE_START_FLAG){
+						uart_send_ota_end(ZBHCI_OTA_INCORRECT_DATA);
+						ev_buf_free(arg);
+						return;
+					}else{
+						blockData[FLASH_TLNK_FLAG_OFFSET - recvOffset] = 0xff;
+					}
+				}
+			}else{
+				if(!ota_info.otaFindBootFlag){
+					for(u8 i=0; i<blockLen; i++){
+						if((recvOffset + i >= FLASH_TLNK_FLAG_OFFSET) && (recvOffset + i < FLASH_TLNK_FLAG_OFFSET + 4)){
+							ota_info.otaBootFlag[recvOffset + i - FLASH_TLNK_FLAG_OFFSET] = blockData[i];
+							if(recvOffset + i - FLASH_TLNK_FLAG_OFFSET == 3){
+								ota_info.otaFindBootFlag = 1;
+								u32 bootFlag = 0;
+								memcpy((u8*)(&bootFlag), ota_info.otaBootFlag, 4);
+								if(bootFlag == FW_START_UP_FLAG_WHOLE){
+									uart_send_ota_end(ZBHCI_OTA_MATCH_BOOT_FLAG);
+									ev_buf_free(arg);
+									return;
+								}
+								break;
+							}
+						}
+					}
+				}
+			}
+			flash_writeWithCheck(ota_info.otaFlashAddrStart + recvOffset, blockLen, blockData);
+			ota_info.otaFileOffset += blockLen;
+			if(ota_info.otaFileOffset < ota_info.otaFileTotalSize){
+				ota_info.blockRequestCnt = 0;
 				g_hciOtaTimer = TL_ZB_TIMER_SCHEDULE(recv_ota_block_response_cb, NULL, HCI_OTA_BLOCK_INTERVAL_NORMAL);
-			}else if(ota_info.ota_file_offset == ota_info.ota_file_total_size){
-				uart_send_ota_end(ZBHCI_OTA_SUCCESS);
+			}else if(ota_info.otaFileOffset == ota_info.otaFileTotalSize){
+				u8 finalStatus = ZBHCI_OTA_SUCCESS;
+				if(ota_info.binType == ZBHCI_OTA_LOCAL_BIN){
+					u32 crcRecv;
+					flash_read(ota_info.otaFileTotalSize - 4, 4, (u8 *)&crcRecv);
+					if((crcRecv == ota_info.otaCrcValue) && (is_valid_fw_flag(ota_info.otaFlashAddrStart))){
+						g_hciOtaTimer = TL_ZB_TIMER_SCHEDULE(local_ota_reboot_delay, NULL, 3000);
+					}else{
+						finalStatus = ZBHCI_OTA_INCORRECT_DATA;
+					}
+				}
+				uart_send_ota_end(finalStatus);
 			}else{
 				uart_send_ota_end(ZBHCI_OTA_INCORRECT_OFFSET);
 			}
@@ -1128,6 +1248,7 @@ void zbhci_uartOTAHandle(void *arg){
 	}
 	ev_buf_free(arg);
 }
+
 void zbhciCmdHandler(u16 msgType, u16 msgLen, u8 *p){
 	u8 ret[4] = {0,0,0,0};
 	u8 seqNum = 0;//pdu tx seq num
@@ -1251,6 +1372,7 @@ void zbhciCmdHandler(u16 msgType, u16 msgLen, u8 *p){
 
 			case ZBHCI_CMD_OTA_START_REQUEST:
 			case ZBHCI_CMD_OTA_BLOCK_RESPONSE:
+				cmdInfo->payloadLen = msgLen;
 				TL_SCHEDULE_TASK(zbhci_uartOTAHandle, cmdInfo);
 				break;
 

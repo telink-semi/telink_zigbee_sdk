@@ -48,15 +48,26 @@
 
 /**
  * @brief these analog register can store data in deep sleep mode or deep sleep with SRAM retention mode.
- * 	      Reset these analog registers by watchdog, chip reset, RESET Pin, power cycle
+ * 	      Reset these analog registers by watchdog, software reboot (sys_reboot()), RESET Pin, power cycle
  */
-#define PM_ANA_REG_WD_CLR_BUF0 			0x38 // initial value 0xff. [Bit0] is already occupied. The customer cannot change!
+/**
+ * Customers cannot use [bit0] of analog register 0x38 because driver and chip functions are occupied, details are as follows:
+ * [Bit0]: If this bit is 1, it means that reboot or power on has occurred. If this bit is 0, it means that sleep has occurred.
+ */
+#define PM_ANA_REG_WD_CLR_BUF0 			0x38 // initial value 0xff.
 
 /**
  * @brief analog register below can store information when MCU in deep sleep mode or deep sleep with SRAM retention mode.
- * 	      Reset these analog registers only by power cycle
+ * 	      Reset these analog registers only by power cycle,RESET Pin
  */
-#define PM_ANA_REG_POWER_ON_CLR_BUF0 	0x39 // initial value 0x00. [Bit0][Bit1] is already occupied. The customer cannot change!
+/**
+ * Customers cannot use [bit0],[bit1],[bit2] of analog register 0x39 because driver and chip functions are occupied, details are as follows:
+ * [Bit0]: If this bit is 1, it means that reboot has occurred. This bit will be 1 for any reboot caused by any reason.
+ * [Bit1]: If this bit is 1, it means that a deep sleep has occurred after reboot. After reboot, there will be a deep to resolve clock problem, 
+ * 			so this bit is used to distinguish between regular deep and deep after reboot.
+ * [Bit2]: If this bit is 1, it means that the software calls the function sys_reboot() when the crystal oscillator does not start up normally.
+ */
+#define PM_ANA_REG_POWER_ON_CLR_BUF0 	0x39 // initial value 0x00
 #define PM_ANA_REG_POWER_ON_CLR_BUF1 	0x3a // initial value 0x00
 #define PM_ANA_REG_POWER_ON_CLR_BUF2 	0x3b // initial value 0x00
 #define PM_ANA_REG_POWER_ON_CLR_BUF3 	0x3c // initial value 0x00
@@ -111,7 +122,13 @@ typedef enum {
 	 PM_WAKEUP_PAD   		= BIT(3),
 	 PM_WAKEUP_CORE  		= BIT(4),
 	 PM_WAKEUP_TIMER 		= BIT(5),
-	 PM_WAKEUP_COMPARATOR 	= BIT(6),
+	 PM_WAKEUP_COMPARATOR 	= BIT(6),	/**<
+											There are two things to note when using LPC wake up:
+											1.After the LPC is configured, you need to wait 100 microseconds before go to sleep because the LPC need 1-2 32k tick to calculate the result.
+ 				  	  	  	  	  	  	  	  If you enter the sleep function at this time, you may not be able to sleep normally because the data in the result register is abnormal.
+
+											2.When entering sleep, keep the input voltage and reference voltage difference must be greater than 30mV, otherwise can not enter sleep normally, crash occurs.
+	  	  	  	  	  	  	  	  	  	  */
 	 PM_WAKEUP_MDEC		 	= BIT(7),
 }pm_sleep_wakeup_src_e;
 
@@ -124,8 +141,9 @@ typedef enum {
 	 WAKEUP_STATUS_CORE 			= BIT(2),
 	 WAKEUP_STATUS_PAD    			= BIT(3),
 	 WAKEUP_STATUS_MDEC    			= BIT(4),
+	 WAKEUP_STATUS_ALL  			= 0xff,
 
-	 STATUS_GPIO_ERR_NO_ENTER_PM	= BIT(7),
+	 STATUS_GPIO_ERR_NO_ENTER_PM	= BIT(8), /**<Bit8 is used to determine whether the wake source is normal.*/
 	 STATUS_ENTER_SUSPEND  			= BIT(30),
 }pm_wakeup_status_e;
 
@@ -136,11 +154,20 @@ typedef enum {
  * 			state to indicate this process.(add by weihua.zhang, confirmed by libiao and yangbin 20201211)
  */
 typedef enum{
-	MCU_STATUS_POWER_ON  		= BIT(0),
-	MCU_STATUS_REBOOT_BACK    	= BIT(2),	//the user will not see the reboot status.
-	MCU_STATUS_DEEPRET_BACK  	= BIT(3),
-	MCU_STATUS_DEEP_BACK		= BIT(4),
-	MCU_STATUS_REBOOT_DEEP_BACK	= BIT(5),	//reboot + deep
+	MCU_STATUS_POWER_ON 		    = BIT(0),   /**< power on or reset pin */
+	//BIT(1) RSVD
+	MCU_STATUS_REBOOT_BACK    	    = BIT(2),	/**<
+	                                                 1.if clock src is PAD or PLL, and hclk = 1/2cclk, use reboot may cause problem,
+	                                                   sys_init() will determine that if reboot comes back, it will deep(MCU_STATUS_REBOOT_DEEP_BACK),
+	                                                   therefore, users need to use MCU_STATUS_REBOOT_DEEP_BACK to determine whether reboot has occurred,MCU_STATUS_REBOOT_BACK cannot be used,
+	                                                   because the user layer cannot see it.
+	                                            <p>
+	                                                 2.The reboot is classified into two types: timer watchdog reboot and software reboot(sys_reboot()),
+	                                                   If want to know which reboot it is, can use the wd_get_status() interface to determine before calling sys_init().
+	                                               */
+	MCU_STATUS_DEEPRET_BACK  	    = BIT(3),
+	MCU_STATUS_DEEP_BACK		    = BIT(4),
+	MCU_STATUS_REBOOT_DEEP_BACK	    = BIT(5),	/**< reboot + deep */
 }pm_mcu_status;
 
 /**
@@ -225,6 +252,26 @@ static inline pm_wakeup_status_e pm_get_wakeup_src(void)
 }
 
 /**
+ * @brief		This function serves to clear the wakeup bit.
+ * @param[in]	status	- the interrupt status that needs to be cleared.
+ * @return		none.
+ */
+static inline void pm_clr_irq_status(pm_wakeup_status_e status)
+{
+	analog_write_reg8(0x64, status);/*add by weihua.zhang, confirmed by jianzhi.chen*/
+}
+
+/**
+ * @brief		This function serves to set the wakeup source.
+ * @param[in]	wakeup_src	- wake up source select.
+ * @return		none.
+ */
+static inline void pm_set_wakeup_src(pm_sleep_wakeup_src_e wakeup_src)
+{
+	analog_write_reg8(0x4b, wakeup_src);
+}
+
+/**
  * @brief		This function configures a GPIO pin as the wakeup pin.
  * @param[in]	pin	- the pin needs to be configured as wakeup pin.
  * @param[in]	pol - the wakeup polarity of the pad pin(0: low-level wakeup, 1: high-level wakeup).
@@ -239,6 +286,35 @@ void pm_set_gpio_wakeup (gpio_pin_e pin, pm_gpio_wakeup_level_e pol, int en);
  * @return		none.
  */
 void pm_set_wakeup_time_param(pm_r_delay_cycle_s param);
+
+/**
+ * @brief		This function is used in applications where the crystal oscillator is relatively slow to start.
+ * 				When the start-up time is very slow, you can call this function to avoid restarting caused
+ * 				by insufficient crystal oscillator time (it is recommended to leave a certain margin when setting).
+ * @param[in]	delay_us - This time setting is related to the parameter nopnum, which is about the execution time of the for loop
+ * 							in the ramcode(default value: 200).
+ * @param[in]	loopnum - The time for the crystal oscillator to stabilize is approximately: loopnum*40us(default value: loopnum=10).
+ * @param[in]	nopnum - The number of for loops used to wait for the crystal oscillator to stabilize after suspend wakes up.
+ * 						 for(i = 0; i < nopnum; i++){ _asm_("tnop"); }(default value: Flash=250).
+ * @return		none.
+ */
+void pm_set_xtal_stable_timer_param(unsigned int delay_us, unsigned int loopnum, unsigned int nopnum);
+
+/**
+ * @brief   	This function is used to determine the stability of the crystal oscillator.
+ * 				To judge the stability of the crystal oscillator, xo_ready_ana is invalid, and use an alternative solution to judge.
+ * 				Alternative principle: Because the clock source of the stimer is the crystal oscillator,
+ * 				if the crystal oscillator does not vibrate, the tick value of the stimer does not increase or increases very slowly (when there is interference).
+ * 				So first use 24M RC to run the program and wait for a fixed time, calculate the number of ticks that the stimer should increase during this time,
+ * 				and then read the tick value actually increased by the stimer.
+ * 				When it reaches 50% of the calculated value, it proves that the crystal oscillator has started.
+ * 				If it is not reached for a long time, the system will reboot.
+ * @param[in]	all_ramcode_en	- Whether all processing in this function is required to be ram code. If this parameter is set to 1, it requires that:
+ * 				before calling this function, you have done the disable BTB, disable interrupt, mspi_stop_xip and other operations as the corresponding function configured to 0.
+ * @attention   This function can only be called with the 24M clock configuration
+ * @return  	none.
+ */
+_attribute_ram_code_sec_optimize_o2_ void pm_wait_xtal_ready(unsigned char all_ramcode_en);
 
 /**
  * @brief		this function servers to wait bbpll clock lock.
@@ -257,14 +333,12 @@ _attribute_ram_code_sec_noinline_ void pm_stimer_recover(void);
  * @brief		This function serves to set the working mode of MCU based on 32k crystal,e.g. suspend mode, deep sleep mode, deep sleep with SRAM retention mode and shutdown mode.
  * @param[in]	sleep_mode 			- sleep mode type select.
  * @param[in]	wakeup_src 			- wake up source select.
- * 		A0	   	note: The reference current values under different configurations are as followsUnit (uA):
- * 					|	pad		|	32k rc	|	32k xtal	|	mdec	|	lpc	 	|
- * 	deep			|	0.7		|	1.3		|	1.7			|	1.4		|	1.6		|
- * 	deep ret 32k	|	1.8		|	2.4		|	2.8			|	2.6		|	2.8		|
- * 	deep ret 64k	|	2.7		|	3.2		|	3.7			|	3.4		|	3.7		|
- * 				A0 chip, the retention current will float up.
- * @param[in]	wakeup_tick_type	- tick type select. For long timer sleep.currently only 16M is supported(PM_TICK_STIMER_16M).
- * @param[in]	wakeup_tick			- the time of short sleep, which means MCU can sleep for less than 5 minutes.
+ * @param[in]	wakeup_tick_type	- tick type select. Use 32K tick count for long-term sleep and 16M tick count for short-term sleep.
+ * @param[in]	wakeup_tick			- The tick value at the time of wake-up.
+									  If the wakeup_tick_type is PM_TICK_STIMER_16M, then wakeup_tick is converted to 16M. The range of tick that can be set is approximately:
+									  current tick value + (18352~0xe0000000), and the corresponding sleep time is approximately: 2ms~234.88s.It cannot go to sleep normally when it exceeds this range.
+									  If the wakeup_tick_type is PM_TICK_32K, then wakeup_tick is converted to 32K. The range of tick that can be set is approximately:
+									  64~0xffffffff, and the corresponding sleep time is approximately: 2ms~37hours.It cannot go to sleep normally when it exceeds this range.
  * @return		indicate whether the cpu is wake up successful.
  */
 _attribute_text_sec_ int pm_sleep_wakeup(pm_sleep_mode_e sleep_mode,  pm_sleep_wakeup_src_e wakeup_src, pm_wakeup_tick_type_e wakeup_tick_type, unsigned int  wakeup_tick);
@@ -293,3 +367,17 @@ _attribute_ram_code_sec_noinline_ void pm_32k_rc_offset_init(void);
  */
 void pm_set_suspend_power_cfg(pm_suspend_power_cfg_e value, unsigned char on_off);
 
+/**
+ * @brief		this function serves to clear all irq status.
+ * @return		Indicates whether clearing irq status was successful.
+ */
+_attribute_ram_code_sec_noinline_ unsigned char pm_clr_all_irq_status(void);
+
+/**
+ * @brief 		This function serves to reboot system.
+ * @return 		none 
+ */
+_always_inline void sys_reset_all(void)
+{
+	reg_pwdn_en = 0x20;
+}

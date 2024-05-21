@@ -46,7 +46,7 @@
 	#else
 		#error please config system clock
 	#endif
-#elif defined(MCU_CORE_B91)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 	#if(CLOCK_SYS_CLOCK_HZ == 48000000)
 		#define CLOCK_INIT			CCLK_48M_HCLK_48M_PCLK_24M
 	#else
@@ -63,7 +63,7 @@ static void randInit(void)
 {
 #if defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	random_generator_init();
-#elif defined(MCU_CORE_B91)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 	trng_init();
 #endif
 }
@@ -80,7 +80,7 @@ static void randInit(void)
  * @return  None
  */
 static void internalFlashSizeCheck(void){
-#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91)
+#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 	u32 mid = flash_read_mid();
 	u8 *pMid = (u8 *)&mid;
 
@@ -111,7 +111,7 @@ static void internalFlashSizeCheck(void){
 #endif
 }
 
-
+#if VOLTAGE_DETECT_ENABLE || defined(MCU_CORE_8258)
 static void voltage_detect_init(u32 detectPin)
 {
 	drv_adc_init();
@@ -121,13 +121,13 @@ static void voltage_detect_init(u32 detectPin)
 	drv_adc_mode_pin_set(DRV_ADC_VBAT_MODE, NOINPUT);
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	drv_adc_mode_pin_set(DRV_ADC_VBAT_MODE, (GPIO_PinTypeDef)detectPin);
-#elif defined(MCU_CORE_B91)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 	drv_adc_mode_pin_set(DRV_ADC_BASE_MODE, (adc_input_pin_def_e)detectPin);
 #endif
 
 	drv_adc_enable(1);
 }
-
+#endif
 
 #if VOLTAGE_DETECT_ENABLE
 #define VOLTAGE_DEBOUNCE_NUM 	5
@@ -170,6 +170,13 @@ static startup_state_e platform_wakeup_init(void)
 	cpu_wakeup_init(LDO_MODE, EXTERNAL_XTAL_24M);
 #elif defined(MCU_CORE_B91)
 	sys_init(LDO_1P4_LDO_1P8, VBAT_MAX_VALUE_GREATER_THAN_3V6);
+#elif defined(MCU_CORE_B92)
+	sys_init(LDO_1P4_LDO_2P0, VBAT_MAX_VALUE_GREATER_THAN_3V6, GPIO_VOLTAGE_3V3);
+#endif
+
+#if defined(MCU_CORE_B92)
+    wd_32k_stop();
+    wd_stop();
 #endif
 
 #if defined(MCU_CORE_826x)
@@ -177,7 +184,7 @@ static startup_state_e platform_wakeup_init(void)
 	state = (pm_mcu_status == MCU_STATUS_DEEP_BACK) ? SYSTEM_DEEP : SYSTEM_BOOT;
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	state = (startup_state_e)pm_get_mcu_status();
-#elif defined(MCU_CORE_B91)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 	if(g_pm_status_info.mcu_status == MCU_STATUS_DEEPRET_BACK){
 		state = SYSTEM_DEEP_RETENTION;
 	}else if(g_pm_status_info.mcu_status == MCU_STATUS_DEEP_BACK){
@@ -197,11 +204,14 @@ static startup_state_e platform_wakeup_init(void)
 */
 startup_state_e drv_platform_init(void)
 {
+	drv_disable_irq();
+	drv_irqMask_clear();
+
 	startup_state_e state = platform_wakeup_init();
 
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	clock_init(SYS_CLOCK_VALUE);
-#elif defined(MCU_CORE_B91)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 	CLOCK_INIT;
 #endif
 
@@ -210,7 +220,7 @@ startup_state_e drv_platform_init(void)
 	sysTimerPerUs = tickPerUs;
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	sysTimerPerUs = sys_tick_per_us;
-#elif defined(MCU_CORE_B91)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 	sysTimerPerUs = SYSTEM_TIMER_TICK_1US;
 #endif
 
@@ -223,6 +233,12 @@ startup_state_e drv_platform_init(void)
 	if(state != SYSTEM_DEEP_RETENTION){
 		randInit();
 		internalFlashSizeCheck();
+
+#if FLASH_PROTECT_ENABLE
+		flash_loadOpt();
+		flash_lock();
+#endif
+
 #if PM_ENABLE
 		PM_CLOCK_INIT();
 #endif
@@ -248,12 +264,10 @@ startup_state_e drv_platform_init(void)
 
 #if defined(MCU_CORE_8258)
 	if(flash_is_zb()){
-
 #if (!VOLTAGE_DETECT_ENABLE) || !defined(VOLTAGE_DETECT_ENABLE)
 		voltage_detect_init(VOLTAGE_DETECT_ADC_PIN);
 		flash_safe_voltage_set(BATTERY_SAFETY_THRESHOLD);
 #endif
-		flash_unlock_mid13325e();  //add it for the flash which sr is expired
 	}
 #endif
 
@@ -264,7 +278,7 @@ void drv_enable_irq(void)
 {
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	irq_enable();
-#elif defined(MCU_CORE_B91)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 	core_interrupt_enable();
 #endif
 }
@@ -273,8 +287,20 @@ u32 drv_disable_irq(void)
 {
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	return (u32)irq_disable();
-#elif defined(MCU_CORE_B91)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 	return core_interrupt_disable();
+#endif
+}
+
+void drv_irqMask_clear(void){
+#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+	irq_disable_type(FLD_IRQ_ALL);
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
+	reg_irq_src0 = 0;
+	reg_irq_src1 = 0;
+	core_mie_disable(FLD_MIE_MSIE);
+	core_mie_disable(FLD_MIE_MTIE);
+	core_mie_disable(FLD_MIE_MEIE);
 #endif
 }
 
@@ -283,7 +309,7 @@ u32 drv_restore_irq(u32 en)
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	irq_restore((u8)en);
 	return 0;
-#elif defined(MCU_CORE_B91)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 	return core_restore_interrupt(en);
 #endif
 }
@@ -307,7 +333,7 @@ u32 drv_u32Rand(void)
 {
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	return rand();
-#elif defined(MCU_CORE_B91)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 	return trng_rand();
 #endif
 }
@@ -325,3 +351,28 @@ void drv_generateRandomData(u8 *pData, u8 len)
 		randNums >>= 8;
 	}
 }
+
+/*For vbus supply -- close vbus watchdog, watchdog time is 8s.*/
+#if defined(MCU_CORE_B92)
+volatile u32 g_vbus_timer_turn_off_start_tick = 0;
+volatile u8 g_vbus_timer_turn_off_flag = 0;
+void drv_vbusWatchdogClose(void){
+	if(usb_get_vbus_detect_status()){
+		if(g_vbus_timer_turn_off_flag == 0){
+			if(g_vbus_timer_turn_off_start_tick == 0){
+				g_vbus_timer_turn_off_start_tick = stimer_get_tick();
+			}
+
+			if(clock_time_exceed(g_vbus_timer_turn_off_start_tick, 100 * 1000)){
+				wd_turn_off_vbus_timer();//clear reset
+
+				g_vbus_timer_turn_off_start_tick = 0;
+				g_vbus_timer_turn_off_flag = 1;
+			}
+		}
+	}else if(g_vbus_timer_turn_off_flag){
+		g_vbus_timer_turn_off_start_tick = 0;
+		g_vbus_timer_turn_off_flag = 0;
+	}
+}
+#endif

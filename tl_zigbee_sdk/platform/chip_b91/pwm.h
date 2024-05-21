@@ -165,7 +165,7 @@ static inline void pwm_32k_chn_en(pwm_clk_32k_en_chn_e pwm_32K_en_chn){
 
 
 /**
- * @brief     This function servers to set pin as pwm0
+ * @brief     This function servers to set pin as pwm.
  * @param[in] pin - selected pin
  * @return	  none.
  */
@@ -329,7 +329,8 @@ static inline void pwm_clr_irq_mask(pwm_irq_e mask){
 /**
  * @brief     This function servers to get the pwm interrupt status.
  * @param[in] status - variable of enum to select the pwm interrupt source.
- * @return	  none.
+ * @retval	  non-zero   -  the interrupt occurred.
+ * @retval	  zero  -  the interrupt did not occur.
  */
 static inline unsigned char pwm_get_irq_status(pwm_irq_e status){
 

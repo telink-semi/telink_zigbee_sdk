@@ -121,6 +121,7 @@ typedef enum{
 		GPIO_PF3 = GPIO_GROUPF | BIT(3),
 		GPIO_PF4 = GPIO_GROUPF | BIT(4),
 		GPIO_PF5 = GPIO_GROUPF | BIT(5),
+		GPIO_NONE_PIN =0x00,
 }gpio_pin_e;
 
 /**
@@ -252,10 +253,10 @@ static inline void gpio_set_level(gpio_pin_e pin, unsigned char value)
 }
 
 /**
- * @brief     This function read the pin's input/output level.
- * @param[in] pin - the pin needs to read its level.
- * @return    1: the pin's level is high.
- * 			  0: the pin's level is low.
+ * @brief     This function read the pin's input level.
+ * @param[in] pin - the pin needs to read its input level.
+ * @return    1: the pin's input level is high.
+ * 			  0: the pin's input level is low.
  */
 static inline _Bool gpio_get_level(gpio_pin_e pin)
 {
@@ -502,6 +503,10 @@ void gpio_set_input(gpio_pin_e pin, unsigned char value);
  * @brief      This function servers to set the specified GPIO as high resistor.
  * @param[in]  pin  - select the specified GPIO.
  * @return     none.
+ * @note       -# gpio_shutdown(GPIO_ALL) is a debugging method only and is not recommended for use in applications.
+ *             -# gpio_shutdown(GPIO_ALL) set all GPIOs to high impedance except SWS and MSPI.
+ *             -# If you want to use JTAG/USB in active state, or wake up the MCU with a specific pin,
+ *                you can enable the corresponding pin after calling gpio_shutdown(GPIO_ALL).
  */
 void gpio_shutdown(gpio_pin_e pin);
 

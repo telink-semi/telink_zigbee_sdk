@@ -38,7 +38,11 @@ pspi_csn_pin_def_e drv_cs_pin;
  */
 void drv_spi_master_init(u32 spiClock, drv_spi_mode_type_def mode)
 {
+#if	defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91)
 	u8 divClock = ((2 * spiClock) >= SPI_CLOCK_SOURCE) ? 0 : (u8)(SPI_CLOCK_SOURCE / (2 * spiClock) - 1);
+#elif defined(MCU_CORE_B92)
+	u8 divClock = SPI_CLOCK_SOURCE / spiClock;
+#endif
 
 #if	defined(MCU_CORE_826x)
 	SPI_MasterInit(divClock, mode);
@@ -50,6 +54,9 @@ void drv_spi_master_init(u32 spiClock, drv_spi_mode_type_def mode)
 	 */
 	spi_master_init(PSPI_MODULE, divClock, mode);
 	spi_master_config(PSPI_MODULE, SPI_NORMAL);
+#elif defined(MCU_CORE_B92)
+	spi_master_init(GSPI_MODULE, divClock, mode);
+	spi_master_config(GSPI_MODULE, SPI_NORMAL);
 #endif
 }
 
@@ -66,6 +73,8 @@ void drv_spi_slave_init(drv_spi_mode_type_def mode)
 	spi_slave_init(0, mode);
 #elif defined(MCU_CORE_B91)
 	spi_slave_init(PSPI_MODULE, mode);
+#elif defined(MCU_CORE_B92)
+	spi_slave_init(GSPI_MODULE, mode);
 #endif
 }
 
@@ -103,6 +112,18 @@ void drv_spi_master_pin_select(pspi_clk_pin_def_e sclk_pin, pspi_csn_pin_def_e c
 
 	pspi_set_pin(&pspi_pin_config);
 }
+#elif defined(MCU_CORE_B92)
+void drv_spi_master_pin_select(gpio_pin_e sclk_pin, gpio_pin_e cs_pin, gpio_pin_e mosi_pin, gpio_pin_e miso_pin)
+{
+	gspi_pin_config_t gspi_pin_config;
+	gspi_pin_config.spi_clk_pin = sclk_pin;
+	gspi_pin_config.spi_csn_pin = cs_pin;
+	gspi_pin_config.spi_mosi_io0_pin = mosi_pin;
+	gspi_pin_config.spi_miso_io1_pin = miso_pin;
+	gspi_pin_config.spi_io2_pin = 0;
+	gspi_pin_config.spi_io3_pin = 0;
+	gspi_set_pin(&gspi_pin_config);
+}
 #endif
 
 /**
@@ -139,6 +160,12 @@ void drv_spi_slave_pin_select(pspi_clk_pin_def_e sclk_pin, pspi_csn_pin_def_e cs
 
 	pspi_set_pin(&pspi_pin_config);
 }
+#elif defined(MCU_CORE_B92)
+void drv_spi_slave_pin_select(gpio_pin_e sclk_pin, gpio_pin_e cs_pin, gpio_pin_e mosi_pin, gpio_pin_e miso_pin)
+{
+	drv_spi_master_pin_select(sclk_pin, cs_pin, mosi_pin, miso_pin);
+}
+
 #endif
 
 /**
@@ -175,7 +202,19 @@ void drv_spi_write(u8 *cmd, int cmdLen, u8 *data, int dataLen, u32 csPin)
 		pData += dataLen;
 
 		spi_master_write(PSPI_MODULE, pBuf, cmdLen + dataLen);
+		ev_buf_free(pBuf);
+	}
+#elif defined(MCU_CORE_B92)
+	u8 *pBuf = (u8 *)ev_buf_allocate(cmdLen + dataLen);
+	if(pBuf){
+		u8 *pData = pBuf;
 
+		memcpy(pData, cmd, cmdLen);
+		pData += cmdLen;
+		memcpy(pData, data, dataLen);
+		pData += dataLen;
+
+		spi_master_write(GSPI_MODULE, pBuf, cmdLen + dataLen);
 		ev_buf_free(pBuf);
 	}
 #endif
@@ -206,6 +245,8 @@ void drv_spi_read(u8 *cmd, int cmdLen, u8 *data, int dataLen, u32 csPin)
 		drv_cs_pin = csPin;
 	}
 	spi_master_write_read(PSPI_MODULE, cmd, cmdLen, data, dataLen);
+#elif defined(MCU_CORE_B92)
+	spi_master_write_read(GSPI_MODULE, cmd, cmdLen, data, dataLen);
 #endif
 }
 

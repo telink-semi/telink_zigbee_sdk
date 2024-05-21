@@ -207,6 +207,7 @@ void app_task(void)
 
 	if(bdb_isIdle()){
 #if PM_ENABLE
+		app_key_handler();
 		if(!g_sensorAppCtx.keyPressed){
 			drv_pm_lowPowerEnter();
 		}

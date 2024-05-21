@@ -25,7 +25,7 @@
  *
  *	Introduction
  *	===============
- *	B92 supports two uart: uart0~ uart1.
+ *	supports two uart: uart0~ uart1.
  * 	-# support nodma/dma
  *	-# support cts/rts
  *	-# support s7816
@@ -51,11 +51,42 @@
              - rx_irq interrupt:when the number of rxfifo reaches the threshold uart_rx_irq_trig_level, the rx_irq is interrupted,
                configured by uart_rx_irq_trig_level/uart_set_irq_mask(UART_RX_IRQ_MASK) API;
              - detect the UART receives data incorrectly(such as a parity error or a stop bit error),configured by uart_set_irq_mask(UART_ERR_IRQ_MASK) API;
+                 - If err occurs during the receiving process, perform the following operations: 
+                    -# uart_reset();
+                    -# uart_clr_rx_index();
+                    -# clear the data received in ram buff;
              - uart module interrupt enable and total interrupt enable by plic_interrupt_enable/core_interrupt_enable API;
-       -# dma:use tx_done and rx_done to check whether the sending and receiving are complete,and err receive detection when rx_done.
+       -# dma:use tx_done and rx_done(or dma tc_mask) to check whether the sending and receiving are complete,and err receive detection when rx_done.
              - tx_done:use the tx_done of the uart module,use uart_set_irq_mask(UART_TXDONE_MASK);
-             - rx_done:use rx_done of uart module rx_done,use uart_set_irq_mask(UART_RXDONE_MASK);
+             - rx_done:use rx_done of uart module rx_done,use uart_set_irq_mask(UART_RXDONE_MASK) (When the length of the send is not known):
+                  - After rxdone is generated and before configuring the next dma, the rxfifo hardware pointer must be set to 0 (uart_reset())
+                    in order to prevent the next dma from working properly due to the rxfifo pointer not being in the default state(When the sending length is greater than the receiving length).
+                  - When the send length is less than the receive length, although the rxdone interrupt is generated, the dma has not reached the configured length, and the dma is still working.
+                    When configuring the next dma, dma_chn_dis() needs to be configured before the next dma(this action has been processed in uart_receive_dma).
+             - tc_mask:use tc_mask of dma module,use dma_set_irq_mask() : TC_MASK (If the transmission length is fixed):
+                  - A dma interrupt can only occur if the receive length is equal to the length configured by the dma.
+                  - If the dma stops working and reconfigures it, perform the following operations:
+                      -# uart_reset();
+                      -# uart_receive_dma();(dma_chn_dis has been implemented in uart_receive_dma())
+             - If err is displayed during dma receiving, the recommended action is as follows:
+                      -# uart_reset();
+                      -# uart_receive_dma();(dma_chn_dis has been implemented in uart_receive_dma())
              - uart module interrupt or dma module interrupt enable and total interrupt by plic_interrupt_enable/core_interrupt_enable API;
+    -# UART enter suspend sleep before and after handling
+        -# nodma_tx:
+              - before no dma tx goes to suspend sleep, it is necessary to judge the uart busy bit to ensure the completion of UART data transmission.
+              - after suspend sleep wake up, perform the following operations: 
+                      -# uart_clr_tx_index();
+                      -# clear the send data in ram buff;
+        -# nodma_rx
+              - If go to suspend sleep during no dma rx, the recommended action when waking up is as follows: 
+                      -# uart_clr_rx_index();
+                      -# clear the data received in ram buff;
+        -# dma:
+              - If go to suspend sleep during dma sending, the recommended action when waking up is as follows:
+                      -# uart_send_dma();(dma_chn_dis has been implemented in uart_send_dma())
+              - If go to suspend sleep during dma receiving, the recommended action when waking up is as follows:
+                      -# uart_receive_dma();(dma_chn_dis has been implemented in uart_receive_dma())
     -# UART TX and RX
          -# nodma_tx
             - It can be sent in byte/half word/word polling, use uart_send_byte/uart_send_hword/uart_send_word API;
@@ -65,7 +96,15 @@
             - send data by uart_send_dma API;
          -# dma_rx
             - receive data by uart_receive_dma API;
-    -# Note: the points to note when receiving dma:
+    -# Note:
+         - the points to note when receiving nodma:
+            - Since there is no rxdone interrupt under nodma:
+                - if the length of the received data is not known, rx_level should be set to 1;
+                - if the length of the received data is known, rx_level should be set to less than 8 and an integer multiple of the received length;
+            - rx_irq interrupt processing: Use uart_get_rxfifo_num() to determine the number of FIFOs and use uart_read_byte() to read all data in fifo;
+            - The depth size of the uart fifo is 8. If the time before and after entering the rx_irq interrupt exceeds the time of receiving 8 bytes, the fifo pointer may be disturbed, resulting in abnormal received data.
+              You can determine whether uart_get_rxfifo_num() is greater than 8 as an exception,If this exception occurs, it is recommended to use dma mode to receive.
+         - the points to note when receiving dma:
             - the receive length needs to be calculated manually by uart_get_dma_rev_data_len API;
             - Advantages of this method: prevents rx_buff from crossing boundaries;
             - Possible problems:
@@ -74,6 +113,9 @@
                   in interruption period,if the next data is received to the fifo, when the re-entry of the UART RX_DONE interrupt,resulting in the error in computing the received length of the current data.
                 - The two packets of data are very close to each other, but the rx_done signal of the previous data has also been generated. Before the rx_done interrupt flag and rx_fifo software are cleared,
                   the next data has been transferred, which leads to the error of clearing.
+            - When using DMA to receive data, if rx_done occurs and there's data in rx fifo, rx fifo needs to be cleared for the next dma transmission. 
+              in B91, clearing rxbuff interrupt status won't work, therefore requiring uart_reset() function to do this operation,
+              But using uart_reset() function might break dma tx transmission, potentially causing data loss.
  - The UART flow control CTS/RTS
       -# CTS(when the cts pin receives an active level, it stops sending data)
          - Configure the cts pin and polarity,by uart_cts_config API;
@@ -202,7 +244,7 @@ typedef enum{
 	UART1_TX_PD6 = GPIO_PD6,
 	UART1_TX_PE0 = GPIO_PE0,
 
-	UART_TX_NONE_PIN =0xfff,
+	UART_TX_NONE_PIN =GPIO_NONE_PIN,
 }uart_tx_pin_e;
 
 
@@ -218,7 +260,7 @@ typedef enum{
 	UART1_RX_PD7 = GPIO_PD7,
 	UART1_RX_PE2 = GPIO_PE2,
 
-	UART_RX_NONE_PIN =0xfff,
+	UART_RX_NONE_PIN =GPIO_NONE_PIN,
 }uart_rx_pin_e;
 
 /**
@@ -287,6 +329,8 @@ static inline unsigned char uart_get_txfifo_num(uart_num_e uart_num)
  * @brief     Resets uart module,before using uart, need to call uart_reset() to avoid affecting the use of uart.
  * @param[in] uart_num - UART0 or UART1.
  * @return    none
+ * @note -
+ *            this function will clear rx and tx status and fifo.
  */
 static inline void uart_reset(uart_num_e uart_num)
 {
@@ -351,39 +395,56 @@ static inline void uart_clk_en(uart_num_e uart_num)
     -# uart_init() set the baud rate by the div and bwpc of the uart_cal_div_and_bwpc, some applications have higher timing requirements,
        can first calculate the div and bwpc, and then just call uart_init.
  */
-extern void uart_init(uart_num_e uart_num,unsigned short div, unsigned char bwpc, uart_parity_e parity, uart_stop_bit_e stop_bit);
+void uart_init(uart_num_e uart_num,unsigned short div, unsigned char bwpc, uart_parity_e parity, uart_stop_bit_e stop_bit);
 
 /**
- * @brief  		Calculate the best bwpc(bit width).
- * @param[in]	baudrate - baud rate of UART.
- * @param[in]	pclk     - pclk.
- * @param[out]	div      - uart clock divider.
- * @param[out]	bwpc     - bitwidth, should be set to larger than 2,range[3-15].
- * @return 		none
+ * @brief       Calculate the best bwpc(bit width).
+ * @param[in]   baudrate - baud rate of UART.
+ * @param[in]   pclk     - pclk.
+ * @param[out]  div      - uart clock divider.
+ * @param[out]  bwpc     - bitwidth, should be set to larger than 2,range[3-15].
+ * @return      none
  * @note        BaudRate*(div+1)*(bwpc+1) = pclk.
  * <p>
- *  		    simplify the expression: div*bwpc =  constant(z).
+ *              simplify the expression: div*bwpc =  constant(z).
  * <p>
- * 		        bwpc range from 3 to 15.so loop and get the minimum one decimal point.
+ *              bwpc range from 3 to 15.so loop and get the minimum one decimal point.
+ * @note
+     -# The maximum baud rate depends on the hardware environment (such as cable length, etc.) and pclk/cclk/hclk:
+         - pclk is the main factor affecting the upper baud rate of UART
+         - cclk and pclk affect interrupt processing times(increase the frequency of cclk will increase the maximum baud rate of NDMA, but it has no obvious effect on the maximum baud rate of DMA)
+     -# The maximum baud rate must meet two testing conditions: 
+         - proper parsing by the logic analyzer
+         - successful communication on the development board
+     -# Note on the actual use of the maximum baud rate:
+         - if only communication on the development board is considered, the baud rate can be set higher
+         - setting a significantly higher baud rate may result in a deviation between the set and actual baud rates, leading to incorrect parsing by the logic analyzer and possible communication failures with other devices
+     -# Using the B91 development board, the test results:
+         - CCLK_16M_HCLK_16M_PCLK_16M: in nodma,the maximum speed is 2 MHz; in dma,the maximum speed is 2 MHz;
+         - CCLK_24M_HCLK_24M_PCLK_24M: in nodma,the maximum speed is 3 MHz; in dma,the maximum speed is 3 MHz;
+         - CCLK_32M_HCLK_32M_PCLK_16M: in nodma,the maximum speed is 2 MHz; in dma,the maximum speed is 2 MHz;
+         - CCLK_48M_HCLK_48M_PCLK_24M: in nodma,the maximum speed is 3 MHz; in dma,the maximum speed is 3 MHz;
+         - CCLK_96M_HCLK_48M_PCLK_24M: in nodma,the maximum speed is 3 MHz; in dma,the maximum speed is 3 MHz;
  */
 void uart_cal_div_and_bwpc(unsigned int baudrate, unsigned int pclk, unsigned short* div, unsigned char *bwpc);
 
 /**
- * @brief  	  Set rx_timeout:
- *            -# it is used to generate UART_RXDONE signals
- *            -# the UART_RXDONE interrupt is required to process the remaining data below the threshold(the DMA Operation threshold is fixed at 4,
- *               the NDMA threshold can be configured through uart_rx_irq_trig_level)
- * <p>
- *            the rx_timeout interpretation:
- * <p>
- *            rx_timeout = reg_uart_rx_timeout0*reg_uart_rx_timeout1[0:1],when no data is received within the rx_timeout period, that is rx timeout, the UART_RXDONE interrupt is generated.
- *            -# reg_uart_rx_timeout0: the maximum value is 0xff,this setting is transfer one bytes need cycles base on uart_clk,for example, if transfer one bytes (1start bit+8bits data+1 priority bit+2stop bits) total 12 bits,
- *               this register setting should be (bpwc+1)*12;
- *            -# reg_uart_rx_timeout1[0:1]: multiple of the reg_uart_rx_timeout0;
+ * @brief  	 Set rx_timeout.
+   @verbatim
+       The effect:
+         - When no data is received within the rx_timeout period, that is rx timeout, the UART_RXDONE interrupt is generated.
+         - The UART_RXDONE interrupt is required to process the remaining data below the threshold(the DMA Operation threshold is fixed at 4,
+            the NDMA threshold can be configured through uart_rx_irq_trig_level)
+       How to set:
+         rx_timeout =(1/baudrate)* bit_cnt* mul(s)
+         note: ((bwpc+1) * bit_cnt)<=0xff, since this is a one byte register.
+   @endverbatim
  * @param[in] uart_num - UART0 or UART1.
- * @param[in] bwpc     - bitwidth, should be set to larger than 2.
- * @param[in] bit_cnt  - bit number.
- * @param[in] mul	     - mul.
+ * @param[in] bwpc     - bitwidth,bwpc range from 3 to 15,it is calculated by the interface uart_cal_div_and_bwpc.
+ * @param[in] bit_cnt  - bit number,conditions that need to be met:
+ *                         - for example, if transferring one bytes (1start bit+8bits data+1 priority bit+2stop bits) total 12 bits,then set it to at least 12;
+ *                         - ((bwpc+1) * bit_cnt)<=0xff;
+ * @param[in] mul	   - mul.
  * @return 	  none
  */
 void uart_set_rx_timeout(uart_num_e uart_num,unsigned char bwpc, unsigned char bit_cnt, uart_timeout_mul_e mul);
@@ -496,7 +557,7 @@ void uart_set_rtx_pin(uart_rx_pin_e rtx_pin);
  * @param[in] 	addr     - Pointer to data buffer. It must be 4-bytes aligned address
  * @param[in] 	len      - Amount of data to be sent in bytes, range from 1 to 0xFFFFFC
  * @return      1  DMA start send.
- *              0  the length is error.
+ *              0  the length is error.       
  */
 unsigned char uart_send_dma(uart_num_e uart_num, unsigned char * addr, unsigned int len );
 
@@ -517,7 +578,7 @@ unsigned char uart_send(uart_num_e uart_num, unsigned char * addr, unsigned char
  * @param[in]  rev_size - This parameter is used to set the size of the received dma and must be set to a multiple of 4. The maximum value that can be set is 0xFFFFFC.
  * @return 	   none
  */
-extern void uart_receive_dma(uart_num_e uart_num, unsigned char * addr,unsigned int rev_size);
+void uart_receive_dma(uart_num_e uart_num, unsigned char * addr,unsigned int rev_size);
 
 /**
  * @brief     Get the length of the data that dma received.
@@ -525,7 +586,7 @@ extern void uart_receive_dma(uart_num_e uart_num, unsigned char * addr,unsigned 
  * @param[in] chn      - dma channel.
  * @return    data length.
  */
-extern unsigned int uart_get_dma_rev_data_len(uart_num_e uart_num,dma_chn_e chn);
+unsigned int uart_get_dma_rev_data_len(uart_num_e uart_num,dma_chn_e chn);
 
 /**
   * @brief     Configures the uart tx_dma channel control register.
@@ -536,7 +597,7 @@ extern unsigned int uart_get_dma_rev_data_len(uart_num_e uart_num,dma_chn_e chn)
   *            If you must do this, you must perform the following sequence:
   *            1. dma_chn_dis(uart_dma_tx_chn[uart_num]) 2.uart_reset() 3.uart_send_dma()
   */
-extern void uart_set_tx_dma_config(uart_num_e uart_num, dma_chn_e chn);
+void uart_set_tx_dma_config(uart_num_e uart_num, dma_chn_e chn);
 
 /**
  * @brief     Configures uart rx_dma channel control register.
@@ -547,7 +608,7 @@ extern void uart_set_tx_dma_config(uart_num_e uart_num, dma_chn_e chn);
  *            If you must do this, you must perform the following sequence:
  *            1. dma_chn_dis(uart_dma_rx_chn[uart_num]) 2.uart_reset() 3.uart_receive_dma()
  */
-extern void uart_set_rx_dma_config(uart_num_e uart_num, dma_chn_e chn);
+void uart_set_rx_dma_config(uart_num_e uart_num, dma_chn_e chn);
 
 /**
  * @brief     Configure the irq of uart.
@@ -590,7 +651,8 @@ static inline void uart_clr_irq_mask(uart_num_e uart_num,uart_irq_mask_e mask)
  * @brief     Get the irq status of uart.
  * @param[in] uart_num - UART0 or UART1.
  * @param[in] status   - uart irq status.
- * @return    irq status
+ * @retval	  non-zero   -  the interrupt occurred.
+ * @retval	  zero  -  the interrupt did not occur.
  */
 static inline unsigned int  uart_get_irq_status(uart_num_e uart_num,uart_irq_status_get_e status)
 {
@@ -612,7 +674,16 @@ static inline unsigned int  uart_get_irq_status(uart_num_e uart_num,uart_irq_sta
  */
 static inline void uart_clr_irq_status(uart_num_e uart_num,uart_irq_status_clr_e status)
 {
-	reg_uart_status1(uart_num) |= (status);
+	/**
+	  	[2:0]: rbcnt   --read only
+	    [3]  : irq_o   --read only
+ 	 	[6:4]: wbcnt   -- R: wbcnt,   W:[6] write 1 to clear rx
+		[7]  : rx_err  -- R: rx_err,  W:[7] write 1 to clear tx
+	    The status flag bit is write 1 clear 0 and all other bits in this register except the status flag bit are read-only,
+	    so the correct way to write "=" instead of "|=" can be used here.
+	    (using "|=" will have the problem of clearing the flag bit by mistake) (added by xianren.yang, confirmed by xuqiang.zhang 20231017)
+	 */
+	reg_uart_status1(uart_num) = (status);
 }
 
 /**
@@ -627,6 +698,16 @@ static inline void uart_set_rts_en(uart_num_e uart_num)
 
 /**
  * @brief     Disable uart rts.
+ *            The functions are as follows:
+ *            -# If uart_set_rts_dis:the threshold -> rts->timeout->UART_RXDONE_IRQ_STATUS interrupt.
+              -# If uart_set_rts_en: the threshold -> rts->timeout stop->the UART_RXDONE_IRQ_STATUS interrupt is not generated.
+ *            How to use:
+ *            -# When the rts function is not in use, this function need to be called, otherwise it will affect the generation of uart rxdone,
+ *               this function has been called by uart_init() API.
+ *            -# If rts flow control is used, it is recommended to call uart_set_rts_en():
+ *               otherwise, when the sender cts pin receives the active level of rts pin, it stops sending data,
+ *               If this function is called at this time, no data will be sent, resulting in an interruption in rxdone,
+ *               When UART_RXDONE_IRQ_STATUS is cleared, the rx_fifo data will be cleared, causing the rts level to fail.
  * @param[in] uart_num - UART0 or UART1.
  * @return    none
  */
@@ -663,7 +744,7 @@ static inline void uart_set_cts_dis(uart_num_e uart_num)
   *                          0:Active low
   * @return    none
   */
-extern void uart_cts_config(uart_num_e uart_num,uart_cts_pin_e cts_pin,unsigned char cts_parity);
+void uart_cts_config(uart_num_e uart_num,uart_cts_pin_e cts_pin,unsigned char cts_parity);
 
 /**
  * @brief     Configure UART hardware flow RTS.
@@ -674,7 +755,7 @@ extern void uart_cts_config(uart_num_e uart_num,uart_cts_pin_e cts_pin,unsigned 
  * @param[in] auto_mode_en - set the mode of RTS(auto or manual).
  * @return    none
  */
-extern void uart_rts_config(uart_num_e uart_num,uart_rts_pin_e rts_pin,unsigned char rts_parity,unsigned char auto_mode_en);
+void uart_rts_config(uart_num_e uart_num,uart_rts_pin_e rts_pin,unsigned char rts_parity,unsigned char auto_mode_en);
 
 /**
  * @brief     Set uart rts trig level,when the number of rx_fifo reaches the rts trig level, rts is raised.

@@ -69,7 +69,7 @@ void ll_network_store(u8 *nwkKey);
 
 void zcl_zllTouchLinkScanRequestHandler(epInfo_t *dstEp, u8 seqNo);
 
-void zcl_zllTouchLinkScanResponseHandler(zcl_zllTouchLinkScanResp_t *resp, epInfo_t *dstEp);
+void zcl_zllTouchLinkScanResponseHandler(zcl_zllTouchLinkScanResp_t *resp, epInfo_t *dstEp, u8 lqi);
 
 void zcl_zllTouchLinkNetworkStartOrJoin(void *arg);
 

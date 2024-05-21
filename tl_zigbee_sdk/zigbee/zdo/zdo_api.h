@@ -413,4 +413,13 @@ void zdo_nlmeForgetDev(addrExt_t nodeIeeeAddr, bool rejoin);
 
 
 
+/***********************************************************************//**
+ * @brief		Shift to and save the logic channel.
+ *
+ * @param[in]	none
+ *
+ * @return	TRUE--IDLE; FALSE--other state
+ *
+ **************************************************************************/
+bool zdo_ifZdoNwkManagerIdle(void);
 #endif	/* ZDO_API_H */

@@ -25,6 +25,111 @@
 
 #include "../tl_common.h"
 
+#if FLASH_PROTECT_ENABLE
+/*
+ * Only the firmware area will be locked, the NV data area will not be locked.
+ *
+ * The SDK will select how much space to lock based on the size of the flash, to ensure
+ * that the firmware area is protected while the NV data area is not locked. If the
+ * conditions cannot be met, give up using the flash lock function.
+ */
+#define IS_FLASH_LOCK_NOT_ALLOWED()		((NV_BASE_ADDRESS < 0x40000) ? 1 : 0)
+
+drv_flash_opt_t *pFlashOpt = NULL;
+drv_flash_opt_t g_flashOptTable = {0};
+bool g_flashLocked = FALSE;
+
+const drv_flash_opt_t c_flashOptList[] = {
+#if defined(MCU_CORE_8258)
+	//64K
+	//{0x1060c8, flash_unlock_mid1060c8, flash_lock_mid1060c8, FLASH_LOCK_NONE_MID1060C8},
+	//512K
+	{0x13325e, flash_unlock_mid13325e, flash_lock_mid13325e, FLASH_LOCK_LOW_256K_MID13325E},
+	{0x134051, flash_unlock_mid134051, flash_lock_mid134051, FLASH_LOCK_LOW_256K_MID134051},
+	{0x136085, flash_unlock_mid136085, flash_lock_mid136085, FLASH_LOCK_LOW_256K_MID136085},
+	{0x1360c8, flash_unlock_mid1360c8, flash_lock_mid1360c8, FLASH_LOCK_LOW_256K_MID1360C8},
+	{0x1360eb, flash_unlock_mid1360eb, flash_lock_mid1360eb, FLASH_LOCK_LOW_256K_MID1360EB},
+	//1M
+	//{0x14325e, flash_unlock_mid14325e, flash_lock_mid14325e, FLASH_LOCK_NONE_MID14325E},
+	//{0x1460c8, flash_unlock_mid1460c8, flash_lock_mid1460c8, FLASH_LOCK_NONE_MID1460C8},
+	{0x11460c8, flash_unlock_mid011460c8, flash_lock_mid011460c8, FLASH_LOCK_LOW_512K_MID011460C8}
+#elif defined(MCU_CORE_B91)
+	//1M
+	{0x146085, flash_unlock_mid146085, flash_lock_mid146085, FLASH_LOCK_LOW_512K_MID146085},
+	//2M
+	{0x156085, flash_unlock_mid156085, flash_lock_mid156085, FLASH_LOCK_LOW_512K_MID156085},
+	//4M
+	{0x166085, flash_unlock_mid166085, flash_lock_mid166085, FLASH_LOCK_LOW_512K_MID166085}
+#elif defined(MCU_CORE_B92)
+	//1M
+	{0x146085, flash_unlock_mid146085, flash_lock_mid146085, FLASH_LOCK_LOW_512K_MID146085},
+	{0x1460c8, flash_unlock_mid1460c8, flash_lock_mid1460c8, FLASH_LOCK_LOW_512K_MID1460c8},
+	//2M
+	{0x156085, flash_unlock_mid156085, flash_lock_mid156085, FLASH_LOCK_LOW_512K_MID156085},
+	{0x1560c8, flash_unlock_mid1560c8, flash_lock_mid1560c8, FLASH_LOCK_LOW_512K_MID1560c8},
+	//4M
+	{0x166085, flash_unlock_mid166085, flash_lock_mid166085, FLASH_LOCK_LOW_512K_MID166085},
+	//16M
+	{0x186085, flash_unlock_mid186085, flash_lock_mid186085, FLASH_LOCK_LOW_512K_MID186085}
+#else
+	{0, NULL, NULL, 0}
+#endif
+};
+
+#define FLASH_OPT_LIST_NUM	(sizeof(c_flashOptList)/sizeof(drv_flash_opt_t))
+#endif	/* FLASH_PROTECT_ENABLE */
+
+void flash_loadOpt(void){
+#if FLASH_PROTECT_ENABLE
+	u32 mid = flash_read_mid();
+
+	g_flashOptTable.mid = mid;
+
+	if(IS_FLASH_LOCK_NOT_ALLOWED()){
+		pFlashOpt = NULL;
+		return;
+	}
+
+	for(u8 i = 0; i < FLASH_OPT_LIST_NUM; i++){
+		if(mid == c_flashOptList[i].mid){
+			g_flashOptTable.unlock = c_flashOptList[i].unlock;
+			g_flashOptTable.lock = c_flashOptList[i].lock;
+			g_flashOptTable.blockSize = c_flashOptList[i].blockSize;
+
+			pFlashOpt = &g_flashOptTable;
+			return;
+		}
+	}
+#endif
+}
+
+void flash_lock(void){
+#if FLASH_PROTECT_ENABLE
+	if(pFlashOpt && pFlashOpt->lock){
+		if(g_flashLocked){
+			return;
+		}
+
+		if(pFlashOpt->lock(pFlashOpt->blockSize) == 1){
+			g_flashLocked = TRUE;
+		}
+	}
+#endif
+}
+
+void flash_unlock(void){
+#if FLASH_PROTECT_ENABLE
+	if(pFlashOpt && pFlashOpt->unlock){
+		if(!g_flashLocked){
+			return;
+		}
+
+		if(pFlashOpt->unlock() == 1){
+			g_flashLocked = FALSE;
+		}
+	}
+#endif
+}
 
 void flash_write(u32 addr, u32 len, u8 *buf){
 #if (MODULE_WATCHDOG_ENABLE)

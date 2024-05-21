@@ -21,6 +21,48 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
+/** @page S7816
+ *
+ * Introduction
+ * ===============
+ * The chip supports the establishment of communication with IC cards conforming to ISO-7816 protocol.
+ * 
+ * API Reference
+ * ===============
+ * Header File: s7816.h
+ *
+ * How to use this driver(S7816 protocol is realized by UART module of SoC)
+ * ==============
+  -# S7816 Initialization and Configuration
+     -# nodma_trx:
+        - Initialize the rst/vcc/clk/trx pin by s7816_set_pin() API;
+        - Configure UART channels (UART0 and UART1), IC card clock, and adjust IC card clock frequency by F (default 372) and the special rate adjustment factor D (1 by default) by s7816_init() API;
+        - After the configuration is completed, enable the 7816 module by s7816_en() API;
+  -# UART Interrupts Configuration and Response
+     -# UART interrupts initial configuration:
+        - nodma_trx_tx
+           - polling send, it does not need to configure interrupt;
+        - nodma_trx_rx
+           - uart_rx_irq_trig_level() / uart_set_irq_mask() : UART_RX_IRQ_MASK ;
+        - core_interrupt_enable() and plic_interrupt_enable()API
+     -# UART interrupt response(for details, see the enumeration uart_irq_status_e):
+        - uart_get_irq_status() API;
+        - nodma_trx_rx
+           - UART_RXBUF_IRQ_STATUS;
+  -# S7816 Use
+     -# IC card activation and cold reset
+        - Configure the vcc pin is pulled up, enable the clk pin output clock signal, configure the trx pin is set to the receive state, the reset pin is pulled up by s7816_coldreset() API;
+        - Configure the s7816_rst_time time in a cold reset by s7816_set_time() API;
+     -# warm reset
+        - If the answer to reset received by the interrupt does not meet the specified requirements, the terminal will initiate a warm reset and obtain a reset signal from the IC card by s7816_warmreset() API;
+     -# release
+        - Configure the terminal initiates a contact release timing sequence by s7816_release_trig() API;
+     -# s7816 send
+        - Configure the terminal sends data by s7816_send_byte() API;
+     -# s7816 receive
+        - The trx pin is the rx function by default. When there is data in tx_fifo and the interface uart_rtx_pin_tx_trig is called, it is converted to tx function until tx_fifo is empty and converted to rx;
+ */
+
 #ifndef S7816_H_
 #define S7816_H_
 

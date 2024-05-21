@@ -58,11 +58,25 @@ unsigned char flash_read_status_mid1460c8(void)
  *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
-void flash_write_status_mid1460c8(unsigned char data, mid1460c8_write_status_bit_e bit)
+unsigned char flash_write_status_mid1460c8(unsigned char data, mid1460c8_write_status_mask_e mask)
 {
-	unsigned char status = flash_read_status(FLASH_READ_STATUS_CMD_LOWBYTE);
-	data |= (status & ~(bit));
-	flash_write_status(FLASH_TYPE_8BIT_STATUS, data);
+	if (0 != (data & ~mask))
+	{
+		return 2;
+	}
+
+	unsigned char status = flash_read_status_mid1460c8();
+	if(data != (status & mask))	//To reduce the operation of the status register.
+	{
+		status = data | (status & ~(mask));
+		flash_write_status(FLASH_TYPE_8BIT_STATUS, status);
+		status = flash_read_status_mid1460c8();
+	}
+	if(data == (status & mask))
+	{
+		return 1;
+	}
+	return 0;
 }
 
 /**
@@ -79,15 +93,9 @@ void flash_write_status_mid1460c8(unsigned char data, mid1460c8_write_status_bit
  *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
-void flash_lock_mid1460c8(mid1460c8_lock_block_e data)
+unsigned char flash_lock_mid1460c8(unsigned int data)
 {
-	flash_write_status_mid1460c8(data, FLASH_WRITE_STATUS_BP_MID1460C8);
-}
-
-
-void flash_lock_all_mid1460c8(void)
-{
-	flash_write_status_mid1460c8(FLASH_LOCK_ALL_1M_MID1460C8, FLASH_WRITE_STATUS_BP_MID1460C8);
+	return flash_write_status_mid1460c8(data, FLASH_WRITE_STATUS_BP_MID1460C8);
 }
 
 /**
@@ -103,8 +111,8 @@ void flash_lock_all_mid1460c8(void)
  *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
-void flash_unlock_mid1460c8(void)
+unsigned char flash_unlock_mid1460c8(void)
 {
-	flash_write_status_mid1460c8(FLASH_LOCK_NONE_MID1460C8, FLASH_WRITE_STATUS_BP_MID1460C8);
+	return flash_write_status_mid1460c8(FLASH_LOCK_NONE_MID1460C8, FLASH_WRITE_STATUS_BP_MID1460C8);
 }
 

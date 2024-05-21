@@ -101,6 +101,8 @@ extern "C" {
 #define LED_PERMIT					LED_G
 #endif
 
+#define VOLTAGE_DETECT_PIN			ADC_GPIO_PB0
+
 // UART
 #if ZBHCI_UART
 	#error please configurate uart PIN!!!!!!

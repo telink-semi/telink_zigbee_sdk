@@ -340,7 +340,6 @@ typedef struct {
 } USB_Descriptor_Configuration_t;
 
 
-
 u8 *usbdesc_get_language(void);
 u8 *usbdesc_get_vendor(void);
 u8 *usbdesc_get_product(void);

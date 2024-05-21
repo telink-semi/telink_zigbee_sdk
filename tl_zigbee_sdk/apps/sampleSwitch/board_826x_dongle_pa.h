@@ -70,6 +70,8 @@ extern "C" {
 
 #define	PM_WAKEUP_LEVEL		  		PM_WAKEUP_LEVEL_LOW
 
+#define VOLTAGE_DETECT_PIN			NOINPUT
+
 //PA
 #if PA_ENABLE
 	#define PA_TX					GPIO_PD2
@@ -99,8 +101,8 @@ enum{
 #define	KB_MAP_NUM		KB_MAP_NORMAL
 #define	KB_MAP_FN		KB_MAP_NORMAL
 
-#define KB_DRIVE_PINS  {NULL }
-#define KB_SCAN_PINS   {BUTTON1,  BUTTON2}
+#define KB_DRIVE_PINS	{0}
+#define KB_SCAN_PINS	{BUTTON1, BUTTON2}
 
 
 /* Disable C linkage for C++ Compilers: */

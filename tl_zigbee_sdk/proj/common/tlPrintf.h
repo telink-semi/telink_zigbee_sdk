@@ -25,7 +25,7 @@
 
 #pragma once
 
-#if defined(MCU_CORE_B91)
+#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 #include <stdio.h>
 #endif
 

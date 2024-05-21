@@ -56,7 +56,7 @@ ev_queue_sts_t ev_queue_rawPush( ev_queue_t* q, queue_item_t* newElement )
         newElement->next = NULL;
         q->curNum++;
         drv_restore_irq(r);
-        return (ev_queue_sts_t)SUCCESS;
+        return QUEUE_SUCC;
     }
     /* find a place for insertion */
     previous = NULL;
@@ -90,7 +90,7 @@ ev_queue_sts_t ev_queue_rawPush( ev_queue_t* q, queue_item_t* newElement )
     q->curNum++;
 
     drv_restore_irq(r);
-    return (ev_queue_sts_t)SUCCESS;
+    return QUEUE_SUCC;
 }
 
 /*********************************************************************
@@ -158,7 +158,7 @@ ev_queue_sts_t ev_queue_rawDelete(ev_queue_t* q, queue_item_t* delElement)
         }
         q->curNum--;
         drv_restore_irq(r);
-        return (ev_queue_sts_t)SUCCESS;
+        return QUEUE_SUCC;
     }
 
     /* find the to be delete node */
@@ -186,7 +186,7 @@ ev_queue_sts_t ev_queue_rawDelete(ev_queue_t* q, queue_item_t* delElement)
     }
 
     drv_restore_irq(r);
-    return (ev_queue_sts_t)SUCCESS;
+    return QUEUE_SUCC;
 }
 
 
@@ -210,7 +210,7 @@ ev_queue_sts_t ev_queue_init( ev_queue_t *q, ev_priFunc_t priFunc)
 
     memset((u8*)q, 0 , sizeof(ev_queue_t));
     q->priFunc = priFunc;
-    return (ev_queue_sts_t)SUCCESS;
+    return QUEUE_SUCC;
 }
 
 
@@ -289,7 +289,7 @@ ev_queue_sts_t ev_queue_freeQ( ev_queue_t *q )
         ev_buf_free(buffer_ptr);
     }
 
-    return (ev_queue_sts_t)SUCCESS;
+    return QUEUE_SUCC;
 }
 
 

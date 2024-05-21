@@ -63,4 +63,7 @@
 #include "mspi.h"
 #include "adc.h"
 #include "flash/flash_type.h"
+#include "flash/flash_common.h"
 #include "charger.h"
+#include "plic_sw.h"
+#include "plmt.h"

@@ -60,11 +60,25 @@ unsigned short flash_read_status_mid1360eb(void)
  *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
-void flash_write_status_mid1360eb(unsigned short data, mid1360eb_write_status_bit_e bit)
+unsigned char flash_write_status_mid1360eb(unsigned short data, mid1360eb_write_status_mask_e mask)
 {
+	if (0 != (data & ~mask))
+	{
+		return 2;
+	}
+
 	unsigned short status = flash_read_status_mid1360eb();
-	data |= (status & ~(bit));
-	flash_write_status(FLASH_TYPE_16BIT_STATUS_ONE_CMD, data);
+	if(data != (status & mask))	//To reduce the operation of the status register.
+	{
+		status = data | (status & ~(mask));
+		flash_write_status(FLASH_TYPE_16BIT_STATUS_ONE_CMD, status);
+		status = flash_read_status_mid1360eb();
+	}
+	if(data == (status & mask))
+	{
+		return 1;
+	}
+	return 0;
 }
 
 /**
@@ -81,14 +95,9 @@ void flash_write_status_mid1360eb(unsigned short data, mid1360eb_write_status_bi
  *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
-void flash_lock_mid1360eb(mid1360eb_lock_block_e data)
+unsigned char flash_lock_mid1360eb(unsigned int data)
 {
-	flash_write_status_mid1360eb(data, FLASH_WRITE_STATUS_BP_MID1360EB);
-}
-
-void flash_lock_all_mid1360eb(void)
-{
-	flash_write_status_mid1360eb(FLASH_LOCK_ALL_512K_MID1360EB, FLASH_WRITE_STATUS_BP_MID1360EB);
+	return flash_write_status_mid1360eb(data, FLASH_WRITE_STATUS_BP_MID1360EB);
 }
 
 /**
@@ -104,9 +113,9 @@ void flash_lock_all_mid1360eb(void)
  *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
-void flash_unlock_mid1360eb(void)
+unsigned char flash_unlock_mid1360eb(void)
 {
-	flash_write_status_mid1360eb(FLASH_LOCK_NONE_MID1360EB, FLASH_WRITE_STATUS_BP_MID1360EB);
+	return flash_write_status_mid1360eb(FLASH_LOCK_NONE_MID1360EB, FLASH_WRITE_STATUS_BP_MID1360EB);
 }
 
 /**

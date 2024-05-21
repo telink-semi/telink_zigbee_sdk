@@ -79,6 +79,11 @@ typedef enum{
 	I2S_DSP_MODE,
 }i2s_mode_select_e;
 
+typedef enum {
+    POWER_DOWN,
+    POWER_ON,
+}power_switch_e;
+
 typedef enum{
 	CODEC_PARALLEL_MODE ,
 	CODEC_LJ_MODE ,
@@ -398,7 +403,11 @@ CODEC_ADC_WNF_MODE2,
 CODEC_ADC_WNF_MODE3,
 }adc_wnf_mode_sel_e;
 
-
+typedef enum
+{
+    MICBIAS_NORMAL_2V0_MODE,
+    MICBIAS_NORMAL_1V6_MODE,
+} micbias_work_mode_e;
 
 typedef enum
 {
@@ -416,11 +425,11 @@ typedef enum
 }codec_volt_supply_e;
 
 typedef struct {
+	unsigned short   i2s_lrclk_adc_div;
+	unsigned short   i2s_lrclk_dac_div;
 	unsigned char    i2s_clk_step;
 	unsigned char    i2s_clk_mode;
 	unsigned char 	 i2s_bclk_div;
-	unsigned short   i2s_lrclk_adc_div;
-	unsigned short   i2s_lrclk_dac_div;
 }audio_i2s_clk_config_t;
 /**
  * 	@brief      This function serves to set the clock of i2s
@@ -856,7 +865,20 @@ void audio_codec_dac_config(i2s_codec_m_s_mode_e mode,audio_sample_rate_e rate,c
  */
 void audio_codec_adc_config(i2s_codec_m_s_mode_e mode,audio_input_mode_e in_mode,audio_sample_rate_e rate,codec_data_select_e data_select,codec_wreg_mode_e  wreg_mode);
 
+/**
+ * @brief      This function serves to set codec active, the bias voltage can only be set after setting the codec active.
+ * @return     none
+ */
+void audio_codec_active(void);
 
+/**
+ * @brief      This function serves to set amic micbias.
+ * @param[in]  en               - POWER_DOWN or POWER_ON.
+ * @param[in]  micbias_mode     - micbias output mode.
+ * @return     none
+ * @note       The interface audio_codec_active() must be called before the bias voltage can be set.
+ */
+void audio_codec_set_micbias(power_switch_e en, micbias_work_mode_e micbias_mode);
 
 /**
  * @brief     This function serves to config interface, word length, and m/s .

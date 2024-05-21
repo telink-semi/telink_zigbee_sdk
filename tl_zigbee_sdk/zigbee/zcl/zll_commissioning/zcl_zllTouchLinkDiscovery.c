@@ -72,13 +72,13 @@ _CODE_ZCL_ static void zcl_zllTouchLinkIdentifyRequest(void *arg){
 	if(BDB_ATTR().nodeIsOnANetwork){
 		if(ZB_EXTPANID_CMP(peerInfo->epanId, NWK_NIB().extPANId)){
 			/* follow the bdb Spec8.7: Step 9*/
-			if(peerInfo->nwkUpdateId < NWK_NIB().updateId){
+			if((peerInfo->nwkUpdateId < NWK_NIB().updateId) || (peerInfo->logicalChannel != g_zllTouchLink.workingChannelBackUp)){
 				/* send network update command */
 				zcl_zllTouchLinkNetworkUpdateReq_t networkUpdateCmd;
 				networkUpdateCmd.transId = g_zllTouchLink.transId;
 				ZB_EXTPANID_COPY(networkUpdateCmd.epanId, NWK_NIB().extPANId);
 				networkUpdateCmd.nwkUpdateId = NWK_NIB().updateId;
-				networkUpdateCmd.logicalChannel = MAC_IB().phyChannelCur;
+				networkUpdateCmd.logicalChannel = g_zllTouchLink.workingChannelBackUp; //MAC_IB().phyChannelCur;
 				networkUpdateCmd.panId = NWK_NIB().panId;
 				networkUpdateCmd.nwkAddr = NWK_NIB().nwkAddr;
 				zcl_sendInterPANCmd(g_zllTouchLink.devInfo.epId, &dstEp, ZCL_CLUSTER_TOUCHLINK_COMMISSIONING, ZCL_CMD_ZLL_COMMISSIONING_NETWORK_UPDATE, TRUE,
@@ -353,7 +353,7 @@ _CODE_ZCL_  void zcl_zllTouchLinkScanRequestHandler(epInfo_t *srcEp, u8 seqNo){
  * @param 	resp the target information from scan response command
  *
  */
-_CODE_ZCL_ void zcl_zllTouchLinkScanResponseHandler(zcl_zllTouchLinkScanResp_t *resp, epInfo_t *dstEp){
+_CODE_ZCL_ void zcl_zllTouchLinkScanResponseHandler(zcl_zllTouchLinkScanResp_t *resp, epInfo_t *dstEp, u8 lqi){
 	zcl_zllTouchLinkScanResp_t *p = resp;
 
 	u8 idx = g_zllTouchLink.disc->targetNum;
@@ -397,6 +397,7 @@ _CODE_ZCL_ void zcl_zllTouchLinkScanResponseHandler(zcl_zllTouchLinkScanResp_t *
 	scanInfo->totalGroupIds = p->totalGroupIds;
 	scanInfo->respId = p->respId;
 	scanInfo->nwkUpdateId = p->nwkUpdateId;
+	scanInfo->infoLqi = lqi;
 	memcpy((u8 *)&scanInfo->dstEp, (u8 *)dstEp, sizeof(epInfo_t));
 	if(scanInfo->numOfSubdevices == 1){
 		memcpy(&scanInfo->devInfo, &p->subDevInfo, sizeof(zcl_zllSubdeviceInfo_t));
@@ -412,6 +413,10 @@ _CODE_ZCL_ void zcl_zllTouchLinkScanResponseHandler(zcl_zllTouchLinkScanResp_t *
 #endif
 }
 
+s32 resetDeviceTouchLinkDone(){
+	zcl_zllTouchLinkFinish(ZCL_ZLL_TOUCH_LINK_STA_SUCC);
+	return -1;
+}
 
 /*
  * @fn      zcl_zllTouchLinkDiscoverydone
@@ -427,14 +432,29 @@ _CODE_ZCL_ static void zcl_zllTouchLinkDiscoverydone(void *arg){
 	if(pDisc->targetNum){
 		g_zllTouchLink.opIdx = 0;
 		zll_touchLinkScanInfo *pScanInfo = &pDisc->scanList[g_zllTouchLink.opIdx];
-		for(u32 i = 0; i < pDisc->targetNum; i++){
+		u32 i = 0;
+		for(i = 0; i < pDisc->targetNum; i++){
 			if(pScanInfo->zllInfo.bf.priorityReq){
 				g_zllTouchLink.opIdx = i;
 				break;
 			}
+			//printf("lqi:%d\n", pScanInfo->infoLqi);
 			pScanInfo++;
 		}
 
+		if((i >= pDisc->targetNum) && (pDisc->targetNum > 1)){
+			pScanInfo = &pDisc->scanList[0];
+			u8 lqiMax = pScanInfo->infoLqi;
+			for(u32 n = 1; n < pDisc->targetNum; n++){
+				if(lqiMax < pScanInfo->infoLqi){
+					lqiMax = pScanInfo->infoLqi;
+					g_zllTouchLink.opIdx = n;
+				}
+				pScanInfo++;
+			}
+		}
+
+		//printf("opIdx:%d\n", g_zllTouchLink.opIdx);
 		pScanInfo = &pDisc->scanList[g_zllTouchLink.opIdx];
 
 		/* switch the channel to the target node 's */
@@ -450,7 +470,8 @@ _CODE_ZCL_ static void zcl_zllTouchLinkDiscoverydone(void *arg){
 
 		if(reset2FactoryFlag){
 			zcl_zllTouchLinkResetFactoryReq(NULL);
-			zcl_zllTouchLinkFinish(ZCL_ZLL_TOUCH_LINK_STA_SUCC);
+			//the channel will change in zcl_zllTouchLinkFinish, wait the reset information to send successfully.
+			TL_ZB_TIMER_SCHEDULE(resetDeviceTouchLinkDone, NULL, 1000);
 			return;
 		}
 

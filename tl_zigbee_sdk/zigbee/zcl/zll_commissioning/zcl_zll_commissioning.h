@@ -224,6 +224,7 @@ typedef struct{
 	u8 					keyIdx;				/*!< key index */
 	u8					nwkUpdateId;		/*!< nwkUpdateId */
 	zcl_zllSubdeviceInfo_t devInfo;			/*!< sub-device information */
+	u8					infoLqi;
 }zll_touchLinkScanInfo;
 
 /**

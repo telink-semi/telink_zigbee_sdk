@@ -255,7 +255,10 @@ _CODE_ZCL_ void	zcl_zllTouchLinkFinish(u8 status){
 	g_zllTouchLink.state = ZCL_ZLL_COMMISSION_STATE_IDLE;
 	g_zllTouchLink.status = status;
 
-	ZB_TRANSCEIVER_SET_CHANNEL(g_zllTouchLink.workingChannelBackUp);
+	if((g_zllTouchLink.workingChannelBackUp >= TL_ZB_MAC_CHANNEL_START) && \
+	   (g_zllTouchLink.workingChannelBackUp <= TL_ZB_MAC_CHANNEL_STOP)){
+		ZB_TRANSCEIVER_SET_CHANNEL(g_zllTouchLink.workingChannelBackUp);
+	}
 	MAC_IB().rxOnWhenIdle = g_zllTouchLink.zbInfo.bf.rxOnWihleIdle;  //must restore the rxOnWhenIdle for ED
 
 	rf_setTxPower(g_zb_txPowerSet);
@@ -618,7 +621,7 @@ _CODE_ZCL_ static u8 zcl_zllCommissionServerCmdHandler(zclIncoming_t *pInMsg){
 				status =  ZCL_STA_INVALID_VALUE;
 				break;
 			}
-			zcl_zllTouchLinkScanResponseHandler(&resp, &dstEp);
+			zcl_zllTouchLinkScanResponseHandler(&resp, &dstEp, pApsdeInd->indInfo.lqi);
 			break;
 		}
 

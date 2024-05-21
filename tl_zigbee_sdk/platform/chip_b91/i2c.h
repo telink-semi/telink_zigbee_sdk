@@ -30,8 +30,75 @@
  *	API Reference
  *	===============
  *	Header File: i2c.h
+ *	
+ *	How to use this driver
+ *	==============
+ -# I2C Master
+  -# Initialization and Configuration
+     -# nodma/dma:
+        - Initialize the sda/scl pin by i2c_set_pin() API;
+        - Configure the speed by i2c_set_master_clk() API;
+        - Enable master function by i2c_master_init() API;
+     -# dma
+        - dma initial configuration by i2c_set_rx_dma_config() / i2c_set_tx_dma_config() API;
+  -# Interrupts Configuration and Response
+     -# interrupt initial configuration:
+        - nodma_write
+           - polling write, it does not need to configure interrupt;
+        - nodma_read
+           - polling read, it does not need to configure interrupt;
+        - plic_interrupt_enable() / core_interrupt_enable() API;
+  -# TX and RX(note: during write/read, if nack is detected, send a stop signal,and abort the current write/read)
+     -# nodma_write
+        - polling write by i2c_master_write() API;
+     -# nodma_read
+        - polling send by i2c_master_read() API;
+     -# dma_write
+        - write data by i2c_master_write_dma() API,check whether write is complete by polling i2c_master_busy() API;
+     -# dma_read
+        - read data by i2c_master_read_dma() API,check whether read is complete by polling i2c_master_busy() API;
+ -# I2C Slave
+       -# Initialization and Configuration
+          -# nodma/dma:
+            - Initialize the sda/scl pin by i2c_set_pin() API;
+            - Enable slave function and set id by i2c_slave_init() API;
+          -# dma
+            - dma initial configuration by i2c_set_rx_dma_config() / i2c_set_tx_dma_config() API;
+       -# Interrupts Configuration and Response
+          -# interrupts initial configuration:
+            - nodma_write
+              - no associated interrupt is used;
+            - nodma_read
+              - i2c_rx_irq_trig_cnt() / i2c_set_irq_mask() : I2C_RX_BUF_MASK|I2C_RX_DONE_MASK;
+            - dma_write
+              - i2c_set_irq_mask() : I2C_TX_DONE_MASK;
+            - dma_read
+              - dma_set_irq_mask() : TC_MASK;
+            - plic_interrupt_enable() / core_interrupt_enable() API;
+       -# interrupt response(for details, see the enumeration i2c_irq_status_e):
+          - i2c_get_irq_status() ;
+          - i2c_clr_irq_status() ;
+          - nodma_read
+            - I2C_RX_BUF_STATUS/I2C_RXDONE_STATUS
+          - dma_write
+            - I2C_TXDONE_STATUS/I2C_TX_DONE_CLR
+            - Configure the next rx_dma in I2C_TXDONE_STATUS interrupt
+          - dma_read
+            - dma_get_tc_irq_status(I2C_RX_DMA_STATUS)
+            - dma_clr_tc_irq_status(I2C_RX_DMA_STATUS)
+            - Configure the next tx_dma in dma rx tc interrupt.
+       -# TX and RX
+          - nodma_write
+             - polling write by i2c_slave_write() API;
+          - nodma_read
+             - The data is read via I2C_RX_BUF_MASK and I2C_RX_DONE_MASK interrupt,the data is read in the interrupt by i2c_slave_read() API;
+          - dma_write
+             - write data by i2c_slave_set_tx_dma() API;
+          - dma_read
+             - read data by i2c_slave_set_rx_dma() API;
+    -# the attention:
+      - The i2c_master_send_stop() API is used to determine whether the master sends a stop signal after the sending or receiving is complete
  */
-
 #ifndef I2C_H
 #define I2C_H
 #include "gpio.h"
@@ -197,8 +264,9 @@ static inline void i2c_clr_irq_mask(i2c_irq_mask_e mask)
 
 /**
  * @brief      This function serves to get i2c interrupt status.
- * @return     i2c interrupt status.
- *
+ * @param[in] status     i2c interrupt status.
+ * @retval	  non-zero   -  the interrupt occurred.
+ * @retval	  zero  -  the interrupt did not occur.
  */
 static inline unsigned char i2c_get_irq_status(i2c_irq_status_e status)
 {

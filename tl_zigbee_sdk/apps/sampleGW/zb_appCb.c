@@ -248,14 +248,11 @@ void sampleGW_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf)
 void sampleGW_leaveIndHandler(nlme_leave_ind_t *pLeaveInd)
 {
 #if ZBHCI_EN
-	//zbhciLeaveIndMsgPush(pLeaveInd);
-#if 1
 	static u16 leaveNodeCnt = 0;
 	zbhci_nodeLeaveInd_t ind;
 	ind.totalCnt = leaveNodeCnt++;
 	memcpy(ind.macAddr, pLeaveInd->deviceAddr, 8);
 	zbhciAppNodeLeaveIndPush((void *)&ind);
-#endif
 #endif
 }
 

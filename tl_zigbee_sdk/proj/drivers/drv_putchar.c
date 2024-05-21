@@ -34,8 +34,8 @@ _attribute_ram_code_ void soft_uart_putc(unsigned char byte)
 
 	u8 tmp_bit0 = TX_PIN_OUTPUT_REG & (~(DEBUG_INFO_TX_PIN & 0xff));
 	u8 tmp_bit1 = TX_PIN_OUTPUT_REG | (DEBUG_INFO_TX_PIN & 0xff);
-
 	u8 bit[10] = {0};
+
 	bit[0] = tmp_bit0;
 	bit[1] = (byte & 0x01) ? tmp_bit1 : tmp_bit0;
 	bit[2] = ((byte >> 1) & 0x01) ? tmp_bit1 : tmp_bit0;

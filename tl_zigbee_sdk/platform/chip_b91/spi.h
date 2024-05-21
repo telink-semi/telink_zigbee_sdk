@@ -138,19 +138,19 @@ typedef enum{
 }spi_wr_rd_tans_mode_e;
 
 typedef struct{
-	hspi_single_dual_quad_mode_e  hspi_io_mode;//set spi interface mode
 	unsigned char hspi_dummy_cnt;//set dummy cnt if tans_mode have dummy .
 	unsigned char hspi_cmd_en;//enable cmd phase
 	unsigned char hspi_addr_en;//enable address phase
 	unsigned char hspi_addr_len;//enable address phase
 	unsigned char hspi_cmd_fmt_en;//if cmd_en enable cmd fmt will follow the interface (dual/quad)
 	unsigned char hspi_addr_fmt_en;//if addr_en enable addr fmt will follow the interface (dual/quad)
+	hspi_single_dual_quad_mode_e  hspi_io_mode;//set spi interface mode
 }hspi_config_t;
 
 typedef struct{
-	pspi_single_dual_mode_e  pspi_io_mode;//set spi interface mode
 	unsigned char pspi_dummy_cnt;//set dummy cnt if tans_mode have dummy .
     _Bool  pspi_cmd_en;//enable cmd phase
+	pspi_single_dual_mode_e  pspi_io_mode;//set spi interface mode
 }pspi_config_t;
 
 
@@ -269,7 +269,7 @@ typedef enum{
 
 	HSPI_WP_IO2_PB1_PIN   = GPIO_PB1,
 	HSPI_HOLD_IO3_PB0_PIN = GPIO_PB0,
-	HSPI_NONE_PIN = 0xfff,
+	HSPI_NONE_PIN = GPIO_NONE_PIN,
 }hspi_pin_def_e;
 
 typedef struct{
@@ -322,7 +322,7 @@ typedef enum{
 	PSPI_MISO_IO1_PC6_PIN = GPIO_PC6,
 	PSPI_MISO_IO1_PB6_PIN = GPIO_PB6,
 	PSPI_MISO_IO1_PD2_PIN = GPIO_PD2,
-	PSPI_NONE_PIN = 0xfff,
+	PSPI_NONE_PIN = GPIO_NONE_PIN,
 }pspi_pin_def_e;
 
 typedef struct{
@@ -817,7 +817,8 @@ static inline void spi_rx_tx_irq_trig_cnt(spi_sel_e spi_sel, unsigned char cnt)
  * @brief 		This function servers to get irq status.
  * @param[in] 	spi_sel - the spi module.
  * @param[in] 	status 	- the irq status.
- * @return    - the value of status is be set.
+ * @retval	  non-zero   -  the interrupt occurred.
+ * @retval	  zero  -  the interrupt did not occur.
  */
 static inline unsigned char spi_get_irq_status(spi_sel_e spi_sel,spi_irq_status_e status )
 {

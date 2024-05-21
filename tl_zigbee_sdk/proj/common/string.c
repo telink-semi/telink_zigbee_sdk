@@ -88,7 +88,7 @@ void *memmove(void *dest, const void *src, unsigned int n){
 	return dest;
 }
 
-void bcopy(register char *src, register char *dest, int len){
+static void bcopy_(register char *src, register char *dest, int len){
 	char *s = (char *)src;
 	char *d = (char *)dest;
 
@@ -140,7 +140,7 @@ void *memcpy(void *out, const void *in, unsigned int length){
     	return NULL;
     }
 
-	bcopy((char *)in, (char *)out, (int)length);
+	bcopy_((char *)in, (char *)out, (int)length);
 	return out;
 }
 #else
@@ -190,7 +190,7 @@ void *mymemcpy(void *out, const void *in, unsigned int length, unsigned int line
     	ZB_EXCEPTION_POST(SYS_EXCEPTTION_COMMON_MEM_ACCESS);
     }
 
-	bcopy((char *)in, (char *)out, (int)length);
+	bcopy_((char *)in, (char *)out, (int)length);
 	return out;
 }
 #endif

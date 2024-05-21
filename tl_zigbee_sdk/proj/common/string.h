@@ -22,6 +22,9 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
+#if !defined(MCU_CORE_826x) && !defined(MCU_CORE_8258) && !defined(MCU_CORE_8278) && !defined(MCU_CORE_B91)
+#pragma GCC optimize "no-tree-loop-distribute-patterns"
+#endif
 
 #pragma once
 

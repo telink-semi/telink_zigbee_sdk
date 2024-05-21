@@ -73,7 +73,6 @@
 typedef enum{
 	LDO_1P4_LDO_1P8 	= 0x00,	/**< 1.4V-LDO & 1.8V-LDO mode */
 	DCDC_1P4_LDO_1P8	= 0x01,	/**< 1.4V-DCDC & 1.8V-LDO mode */
-	DCDC_1P4_DCDC_1P8	= 0x03,	/**< 1.4V-DCDC & 1.8V-DCDC mode */
 }power_mode_e;
 
 /**
@@ -122,6 +121,11 @@ _attribute_text_sec_ void sys_reboot(void);
  * @param[in]	power_mode - power mode(LDO/DCDC/LDO_DCDC)
  * @param[in]	vbat_v		- This parameter is used to determine whether the VBAT voltage can be greater than 3.6V.
  * @return  	none
+ * @note		For crystal oscillator with slow start-up or poor quality, after calling this function, 
+ * 				a reboot will be triggered(whether a reboot has occurred can be judged by using PM_ANA_REG_POWER_ON_CLR_BUF0[bit2]).
+ * 				For the case where the crystal oscillator used is very slow to start-up, you can call the pm_set_xtal_stable_timer_param interface 
+ * 				to adjust the waiting time for the crystal oscillator to start before calling the sys_init interface.
+ * 				When this time is adjusted to meet the crystal oscillator requirements, it will not reboot.
  */
 void sys_init(power_mode_e power_mode, vbat_type_e vbat_v);
 
@@ -142,5 +146,12 @@ int write_reg_table(const tbl_cmd_set_t * pt, int size);
  * @return    1 means there is a calibration value in EFUSE, and 0 means there is no calibration value in EFUSE.
  */
 unsigned char efuse_get_adc_calib_value(unsigned short* gain, signed char* offset);
+
+/**
+ * @brief     this function servers to manual set crystal.
+ * @return    none.
+ * @note	  This function can only used when cclk is 24M RC cause the function execution process will power down the 24M crystal.
+ */
+_attribute_ram_code_sec_optimize_o2_ void crystal_manual_settle(void);
 
 #endif

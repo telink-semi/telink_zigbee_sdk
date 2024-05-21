@@ -39,10 +39,23 @@ enum
 	FLD_ANA_CYC           = BIT(6),
 	FLD_ANA_BUSY          = BIT(7),
 };
+/**
+ *  This register is for the read function, not for the write function.For the write function,
+ *  the hardware has no length information to determine when the write is finished,
+ *  and when there is no data in the data register, the write operation stops.
+ *  Therefore, if the process of writing data is interrupted for a long time,
+ *  the write operation will end, and the following data will not be written.
+ */
 #define reg_ana_len             REG_ADDR8(ALG_BASE_ADDR+0x03)
 #define reg_ana_data(n)			REG_ADDR8(ALG_BASE_ADDR+0x04+(n))
 #define reg_ana_addr_data16		REG_ADDR16(ALG_BASE_ADDR+0x04)
 #define reg_ana_addr_data32		REG_ADDR32(ALG_BASE_ADDR+0x04)
+
+#define reg_ana_buf_cnt         REG_ADDR8(ALG_BASE_ADDR+0x08)
+enum{
+	FLD_ANA_RX_BUFCNT =  BIT_RNG(0,3),
+	FLD_ANA_TX_BUFCNT =  BIT_RNG(4,7),
+};
 
 #define reg_ana_sta             REG_ADDR8(ALG_BASE_ADDR+0x09)
 enum

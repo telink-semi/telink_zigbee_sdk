@@ -88,7 +88,7 @@ typedef enum{
 typedef enum{
 	FLASH_WRITE_STATUS_BP_MID1360EB		=	0x407c,
 	FLASH_WRITE_STATUS_OTP_MID1360EB	=	0x3800,
-}mid1360eb_write_status_bit_e;
+}mid1360eb_write_status_mask_e;
 
 
 /**
@@ -121,7 +121,7 @@ unsigned short flash_read_status_mid1360eb(void);
  *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
-void flash_write_status_mid1360eb(unsigned short data, mid1360eb_write_status_bit_e bit);
+unsigned char flash_write_status_mid1360eb(unsigned short data, mid1360eb_write_status_mask_e mask);
 
 /**
  * @brief 		This function serves to set the protection area of the flash.
@@ -137,7 +137,7 @@ void flash_write_status_mid1360eb(unsigned short data, mid1360eb_write_status_bi
  *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
-void flash_lock_mid1360eb(mid1360eb_lock_block_e data);
+unsigned char flash_lock_mid1360eb(unsigned int data);
 
 /**
  * @brief 		This function serves to flash release protection.
@@ -152,7 +152,7 @@ void flash_lock_mid1360eb(mid1360eb_lock_block_e data);
  *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
-void flash_unlock_mid1360eb(void);
+unsigned char flash_unlock_mid1360eb(void);
 
 /**
  * @brief 		This function serves to read data from the Security Registers of the flash.
@@ -237,7 +237,5 @@ void flash_erase_otp_mid1360eb(mid1360eb_otp_block_e addr);
  */
 void flash_lock_otp_mid1360eb(mid1360eb_lock_otp_e data);
 
-
-void flash_lock_all_mid1360eb(void);
 #endif
 

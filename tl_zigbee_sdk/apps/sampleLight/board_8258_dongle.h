@@ -137,6 +137,8 @@ extern "C" {
 
 #endif
 
+#define VOLTAGE_DETECT_PIN			GPIO_PC5
+
 // UART
 #if ZBHCI_UART
 	#error please configurate uart PIN!!!!!!
@@ -255,6 +257,8 @@ extern "C" {
 
 #endif
 
+#define VOLTAGE_DETECT_PIN			GPIO_PC5
+
 // UART
 #if ZBHCI_UART
 	#define UART_TX_PIN         	UART_TX_PD7
@@ -287,8 +291,8 @@ enum{
 #define	KB_MAP_NUM		KB_MAP_NORMAL
 #define	KB_MAP_FN		KB_MAP_NORMAL
 
-#define KB_DRIVE_PINS  {NULL }
-#define KB_SCAN_PINS   {BUTTON1,  BUTTON2}
+#define KB_DRIVE_PINS	{0}
+#define KB_SCAN_PINS	{BUTTON1, BUTTON2}
 
 
 /* Disable C linkage for C++ Compilers: */

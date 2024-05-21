@@ -46,7 +46,7 @@
 #define ZB_BUF_SIZE 					(160 + TL_RXPRIMITIVEHDR)
 
 #ifndef ZB_BUF_POOL_NUM
-	#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91)
+	#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 		#if ZB_ROUTER_ROLE
 			#define ZB_BUF_POOL_NUM		36
 		#else

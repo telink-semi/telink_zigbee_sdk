@@ -50,6 +50,11 @@ static inline void wd_stop(void){
 /**
  * @brief     get watchdog overflow status.
  * @return    watchdog overflow status.
+ * @note      -# After the timer watchdog reboot returns, the status is set to 1,before the mcu enters the next state, wd_clear_status() must be used to clear the status,
+ *               otherwise, the next status judgment of the mcu will be affected;
+ *            -# When the status is set to 1, if it is not cleared by calling wd_clear_status():
+ *                - software reboot(sys_reboot()) come back,the interface status remains;
+ *                - deep/deepretation/power cyele/reset pin come back, the status of the interface is lost;
  */
 static inline unsigned char wd_get_status(void)
 {

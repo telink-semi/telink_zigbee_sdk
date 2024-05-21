@@ -38,10 +38,23 @@ enum{
 };
 
 #define reg_system_cal_irq		REG_ADDR8(STIMER_BASE_ADDR+0x9)
-
 typedef enum{
-	FLD_SYSTEM_IRQ  		= 	BIT(0),
-	FLD_SYSTEM_32K_IRQ  	= 	BIT(1),
+	FLD_SYSTEM_IRQ  		= 	BIT(0),/**<
+											When the current tick value of the system timer reaches the preset tick value,the IRQ_SYSTIMER interrupt is generated,
+											This mask must be turned on if you want to trigger an interrupt.
+											If you do not trigger an interrupt and only polling can detect the state, this mask also needs to be turned on.
+											Get interrupt status:stimer_get_irq_status(),clear interrupt status:stimer_clr_irq_status().
+											The interrupt flag bit needs to be manually cleared.
+										  */
+	FLD_SYSTEM_32K_IRQ  	= 	BIT(1),/**<
+											When the system timer completes the calibration of 32k timer,the IRQ_SYSTIMER interrupt is generated,
+											This mask must be turned on if you want to trigger an interrupt.
+											If you do not trigger an interrupt and only polling can detect the state, this mask also needs to be turned on.
+											Get interrupt status:stimer_get_irq_status(),clear interrupt status:stimer_clr_irq_status().
+											The interrupt flag bit needs to be manually cleared.
+										 <p>
+											In Non-dma mode,the received data is read by stimer_get_tracking_32k_value().
+										  */
 }stimer_irq_e;
 
 #define reg_system_ctrl		    REG_ADDR8(STIMER_BASE_ADDR+0xa)
@@ -73,7 +86,7 @@ enum{
 
 #define reg_system_cal_latch_32k         	REG_ADDR32(STIMER_BASE_ADDR+0x14)
 
-#define reg_system_up_32k					REG_ADDR32(STIMER_BASE_ADDR+0x18)
+#define reg_system_up_32k					REG_ADDR8(STIMER_BASE_ADDR+0x18)
 enum{
 
 	FLD_SYSTEM_UPDATE_UPON_32K 			=   BIT(0),

@@ -92,7 +92,7 @@ typedef enum{
 typedef enum{
 	FLASH_WRITE_STATUS_BP_MID011460C8	=	0x407c,
 	FLASH_WRITE_STATUS_OTP_MID011460C8	=	0x3800,
-}mid011460c8_write_status_bit_e;
+}mid011460c8_write_status_mask_e;
 
 
 /**
@@ -113,7 +113,7 @@ unsigned short flash_read_status_mid011460c8(void);
 /**
  * @brief 		This function write the status of flash.
  * @param[in]  	data	- the value of status.
- * @param[in]  	bit		- the range of bits to be modified when writing status.
+ * @param[in]  	mask	- the range of bits to be modified when writing status.
  * @return 		none.
  * @note        Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
  *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.
@@ -125,7 +125,7 @@ unsigned short flash_read_status_mid011460c8(void);
  *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
-void flash_write_status_mid011460c8(unsigned short data, mid011460c8_write_status_bit_e bit);
+unsigned char flash_write_status_mid011460c8(unsigned short data, mid011460c8_write_status_mask_e mask);
 
 /**
  * @brief 		This function serves to set the protection area of the flash.
@@ -141,7 +141,7 @@ void flash_write_status_mid011460c8(unsigned short data, mid011460c8_write_statu
  *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
-void flash_lock_mid011460c8(mid011460c8_lock_block_e data);
+unsigned char flash_lock_mid011460c8(unsigned int data);
 
 /**
  * @brief 		This function serves to flash release protection.
@@ -156,7 +156,7 @@ void flash_lock_mid011460c8(mid011460c8_lock_block_e data);
  *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
-void flash_unlock_mid011460c8(void);
+unsigned char flash_unlock_mid011460c8(void);
 
 /**
  * @brief 		This function serves to read data from the Security Registers of the flash.
@@ -240,8 +240,6 @@ void flash_erase_otp_mid011460c8(mid011460c8_otp_block_e addr);
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
 void flash_lock_otp_mid011460c8(mid011460c8_lock_otp_e data);
-
-void flash_lock_all_mid011460c8(void);
 
 #endif
 

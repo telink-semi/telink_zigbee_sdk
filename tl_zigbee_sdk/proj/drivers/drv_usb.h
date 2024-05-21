@@ -35,7 +35,7 @@ static inline void usb_clear_irq_reset(void){
 	reg_irq_src = FLD_IRQ_USB_RST_EN;
 }
 
-#elif defined(MCU_CORE_B91)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 
 static inline u8 usb_is_irq_reset(void) {
 	return reg_usb_irq_mask & USB_IRQ_RESET_STATUS;
@@ -54,6 +54,8 @@ static inline void usb_edp_en(void) {
 					  FLD_USB_EDP5_EN |
 					  FLD_USB_EDP6_EN |
 					  FLD_USB_EDP7_EN );
+#if defined(MCU_CORE_B91)
 	usbhw_set_irq_mask(USB_IRQ_RESET_MASK | USB_IRQ_SUSPEND_MASK);
+#endif
 }
 #endif

@@ -183,13 +183,19 @@ void ota_mcuReboot(void)
 {
 	u8 flashInfo = TL_IMAGE_START_FLAG;
 	u32 newAddr = FLASH_ADDR_OF_OTA_IMAGE;
+	bool reboot = 0;
 
 #if (BOOT_LOADER_MODE)
 	if(!ota_newImageValid(newAddr)){
 		return;
 	}
-	if(flash_writeWithCheck((newAddr + FLASH_TLNK_FLAG_OFFSET), 1, &flashInfo) != TRUE){
-		return;
+
+#if FLASH_PROTECT_ENABLE
+	flash_unlock();
+#endif
+
+	if(flash_writeWithCheck((newAddr + FLASH_TLNK_FLAG_OFFSET), 1, &flashInfo) == TRUE){
+		reboot = 1;
 	}
 #else
 	u32 baseAddr = 0;
@@ -202,14 +208,25 @@ void ota_mcuReboot(void)
 		return;
 	}
 
-	if(flash_writeWithCheck((newAddr + FLASH_TLNK_FLAG_OFFSET), 1, &flashInfo) != TRUE){
-		return;
-	}
-
-	flashInfo = 0;
-	flash_write((baseAddr + FLASH_TLNK_FLAG_OFFSET), 1, &flashInfo);//disable boot-up flag
+#if FLASH_PROTECT_ENABLE
+	flash_unlock();
 #endif
-	SYSTEM_RESET();
+
+	if(flash_writeWithCheck((newAddr + FLASH_TLNK_FLAG_OFFSET), 1, &flashInfo) == TRUE){
+		flashInfo = 0;
+		flash_write((baseAddr + FLASH_TLNK_FLAG_OFFSET), 1, &flashInfo);//disable boot-up flag
+
+		reboot = 1;
+	}
+#endif
+
+#if FLASH_PROTECT_ENABLE
+	flash_lock();
+#endif
+
+	if(reboot){
+		SYSTEM_RESET();
+	}
 }
 
 /**********************************************************************
@@ -557,6 +574,10 @@ void ota_upgradeComplete(u8 status)
 	}
 
 	zcl_attr_imageUpgradeStatus = IMAGE_UPGRADE_STATUS_NORMAL;
+
+#if FLASH_PROTECT_ENABLE
+	flash_lock();
+#endif
 
 	if(status == ZCL_STA_SUCCESS){
 		nv_resetModule(NV_MODULE_OTA);
@@ -937,7 +958,6 @@ u8 ota_imageDataProcess(u8 len, u8 *pData)
 					pOtaUpdateInfo->otaServerAddrInfo.profileId = g_otaCtx.otaServerEpInfo.profileId;
 					pOtaUpdateInfo->otaServerAddrInfo.endpoint = g_otaCtx.otaServerEpInfo.dstEp;
 					pOtaUpdateInfo->otaServerAddrInfo.txOptions = g_otaCtx.otaServerEpInfo.txOptions;
-					//memcpy((u8 *)&(pOtaUpdateInfo->otaServerEpInfo), (u8 *)&g_otaCtx.otaServerEpInfo, sizeof(g_otaCtx.otaServerEpInfo));
 
 					if(nv_flashWriteNew(1, NV_MODULE_OTA, NV_ITEM_OTA_HDR_SERVERINFO, sizeof(ota_updateInfo_t), (u8 *)pOtaUpdateInfo) != NV_SUCC){
 						return ZCL_STA_INVALID_IMAGE;
@@ -1382,6 +1402,10 @@ static status_t ota_queryNextImageRspHandler(zclIncomingAddrInfo_t *pAddrInfo, o
 		//stop server query start timer
 		ev_unon_timer(&otaTimer);
 
+#if FLASH_PROTECT_ENABLE
+		flash_unlock();
+#endif
+
 		if( g_otaCtx.downloadImageSize == pQueryNextImageRsp->imageSize &&
 			zcl_attr_imageTypeID == pQueryNextImageRsp->imageType &&
 			zcl_attr_downloadFileVer == pQueryNextImageRsp->fileVer &&
@@ -1435,6 +1459,9 @@ static status_t ota_queryNextImageRspHandler(zclIncomingAddrInfo_t *pAddrInfo, o
 
 		pOtaUpdateInfo = (ota_updateInfo_t *)ev_buf_allocate(sizeof(ota_updateInfo_t));
 		if(!pOtaUpdateInfo){
+#if FLASH_PROTECT_ENABLE
+			flash_lock();
+#endif
 			return ZCL_STA_INSUFFICIENT_SPACE;
 		}
 
