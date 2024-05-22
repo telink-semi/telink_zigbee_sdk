@@ -1,3 +1,34 @@
+## V3.6.8.7(Public release)
+
+### Features
+* Support B92 platform.
+* Update B91 platform drivers.
+* Update HCI handler and ZGC Tool to support firmware updates.
+* Add Flash protection processing.
+### Bug Fixes
+* Fix the ZCL write_no_rsp command handler.
+### Code Refactoring
+* N/A
+### Performance
+* N/A
+### BREAKING CHANGES
+* N/A
+
+### Features
+* 支持B92平台。
+* 更新B91平台驱动程序。
+* 更新HCI处理程序和ZGC工具，支持固件更新。
+* 添加Flash保护处理。
+### Bug Fixes
+* 修复ZCL层write_no_rsp命令处理程序。
+### Code Refactoring
+* N/A
+### Performance
+* N/A
+### BREAKING CHANGES
+* N/A
+
+
 ## V3.6.8.6(Public release)
 
 ### Dependency Updates
