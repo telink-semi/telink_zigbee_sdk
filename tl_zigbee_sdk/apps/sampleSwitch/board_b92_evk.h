@@ -37,28 +37,28 @@ extern "C" {
 #define PD2_FUNC			  		AS_GPIO
 #define PD2_OUTPUT_ENABLE	  		0
 #define PD2_INPUT_ENABLE	  		1
-#define	PULL_WAKEUP_SRC_PD2	  		GPIO_PIN_PULLUP_1M
+#define	PULL_WAKEUP_SRC_PD2	  		GPIO_PIN_PULLDOWN_100K
 
 //sw3
 #define BUTTON2               		GPIO_PD7
 #define PD7_FUNC			  		AS_GPIO
 #define PD7_OUTPUT_ENABLE	  		0
 #define PD7_INPUT_ENABLE	  		1
-#define	PULL_WAKEUP_SRC_PD7	  		GPIO_PIN_PULLUP_1M
+#define	PULL_WAKEUP_SRC_PD7	  		GPIO_PIN_PULLDOWN_100K
 
 //sw4
 #define BUTTON3               		GPIO_PD6
 #define PD6_FUNC			  		AS_GPIO
 #define PD6_OUTPUT_ENABLE	  		0
 #define PD6_INPUT_ENABLE	  		1
-#define	PULL_WAKEUP_SRC_PD6	  		GPIO_PIN_PULLUP_1M
+#define	PULL_WAKEUP_SRC_PD6	  		GPIO_PIN_PULLUP_10K
 
 //sw5
 #define BUTTON4               		GPIO_PF6
 #define PF6_FUNC			  		AS_GPIO
 #define PF6_OUTPUT_ENABLE	  		0
 #define PF6_INPUT_ENABLE	  		1
-#define	PULL_WAKEUP_SRC_PF6	  		GPIO_PIN_PULLUP_1M
+#define	PULL_WAKEUP_SRC_PF6	  		GPIO_PIN_PULLUP_10K
 
 // LED
 #define LED_R     					GPIO_PE7
@@ -84,7 +84,7 @@ extern "C" {
 #define LED_POWER					LED_R
 #define LED_PERMIT					LED_G
 
-#define	PM_WAKEUP_LEVEL		  		PM_WAKEUP_LEVEL_LOW
+#define	PM_WAKEUP_LEVEL		  		PM_WAKEUP_LEVEL_HIGH
 
 #define VOLTAGE_DETECT_PIN			ADC_GPIO_PB7
 

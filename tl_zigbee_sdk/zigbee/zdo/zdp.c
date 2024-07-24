@@ -29,9 +29,9 @@
 typedef void (*zdp_funcCb)(void *ind);
 
 typedef struct{
-	zdp_clusterId_e clusterId;
-	u16				restricted;
-	zdp_funcCb		func;
+	u16 clusterId;//zdp_clusterId_e
+	u16	restricted;
+	zdp_funcCb func;
 }zdp_funcList_t;
 
 const zdp_funcList_t g_zdpClientFunc[] = {
@@ -161,7 +161,7 @@ _CODE_ZDO_ static void zdp_clientCmdHandler(void *ind){
 	TL_BUF_INITIAL_ALLOC((zb_buf_t *)ind, 2, zzr.zdu, u8 *);
 	u8 *ptr = zzr.zdu;
 	*ptr++ = p->asdu[0];//seqNum
-	*ptr++ = sta;
+	*ptr++ = (u8)sta;
 
 	zzr.cluster_id = (p->cluster_id | 0x8000);
 	zzr.zduLen = ptr - zzr.zdu;

@@ -555,7 +555,7 @@ enum HID_ReportItemTypes_t
  *
  *  \note Regardless of CPU architecture, these values should be stored as little endian.
  */
-typedef struct
+typedef struct _attribute_packed_
 {
 	USB_Descriptor_Header_t Header; /**< Regular descriptor header containing the descriptor's type and length. */
 
@@ -578,7 +578,7 @@ typedef struct
  *
  *  \note Regardless of CPU architecture, these values should be stored as little endian.
  */
-typedef struct
+typedef struct _attribute_packed_
 {
 	u8  bLength; /**< Size of the descriptor, in bytes. */
 	u8  bDescriptorType; /**< Type of the descriptor, either a value in \ref USB_DescriptorTypes_t or a value
@@ -598,7 +598,7 @@ typedef struct
  *
  *  Type define for a standard Boot Protocol Mouse report
  */
-typedef struct
+typedef struct _attribute_packed_
 {
 	u8 Button; /**< Button mask for currently pressed buttons in the mouse. */
 	s8  X; /**< Current delta X movement of the mouse. */
@@ -609,7 +609,7 @@ typedef struct
  *
  *  Type define for a standard Boot Protocol Keyboard report
  */
-typedef struct
+typedef struct _attribute_packed_
 {
 	u8 Modifier; /**< Keyboard modifier byte, indicating pressed modifier keys (a combination of
 	                   *   \c HID_KEYBOARD_MODIFIER_* masks).

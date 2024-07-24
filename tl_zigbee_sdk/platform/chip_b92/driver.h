@@ -33,11 +33,12 @@
 #include "lib/include/aoa.h"
 #include "lib/include/hadm.h"
 #include "lib/include/hadm_drv.h"
+#include "lib/include/pmp.h"
 
 #include "lib/include/pke/pke.h"
 #include "lib/include/pke/pke_algorithm.h"
 
-#include "emi.h"
+#include "lib/include/emi.h"
 #include "audio.h"
 #include "analog.h"
 #include "dma.h"
@@ -70,3 +71,4 @@
 #include "plic_sw.h"
 #include "plmt.h"
 
+//#include "ext_peripherals/codec_0581/codec_0581.h"

@@ -456,7 +456,7 @@ static _always_inline void gpio_set_level(gpio_pin_e pin, unsigned char value)
  * @return    1: the pin's input level is high.
  * 			  0: the pin's input level is low.
  */
-static inline _Bool gpio_get_level(gpio_pin_e pin)
+static inline bool gpio_get_level(gpio_pin_e pin)
 {
 	return BM_IS_SET(reg_gpio_in(pin), pin & 0xff);
 }
@@ -533,7 +533,7 @@ static inline void gpio_set_output(gpio_pin_e pin, unsigned char value)
  * @return     1: the pin's output function is enabled.
  *             0: the pin's output function is disabled.
  */
-static inline _Bool  gpio_is_output_en(gpio_pin_e pin)
+static inline bool  gpio_is_output_en(gpio_pin_e pin)
 {
 	return !BM_IS_SET(reg_gpio_oen(pin), pin & 0xff);
 }
@@ -544,7 +544,7 @@ static inline _Bool  gpio_is_output_en(gpio_pin_e pin)
  * @return    1: the pin's input function is enabled.
  *            0: the pin's input function is disabled.
  */
-static inline _Bool gpio_is_input_en(gpio_pin_e pin)
+static inline bool gpio_is_input_en(gpio_pin_e pin)
 {
 	return BM_IS_SET(reg_gpio_ie(pin), pin & 0xff);
 }

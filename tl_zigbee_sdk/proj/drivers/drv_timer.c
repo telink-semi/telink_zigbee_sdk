@@ -74,6 +74,19 @@ static void hwTimerInit(u8 tmrIdx, u8 mode)
 	}else{
 		plic_interrupt_enable(IRQ1_SYSTIMER);
 	}
+#elif defined(MCU_CORE_TL721X)
+	if(tmrIdx < TIMER_IDX_3){
+		timer_set_mode(tmrIdx, mode);
+		if(tmrIdx == TIMER_IDX_0){
+			timer_set_irq_mask(FLD_TMR0_MODE_IRQ);
+			plic_interrupt_enable(IRQ_TIMER0);
+		}else if(tmrIdx == TIMER_IDX_1){
+			timer_set_irq_mask(FLD_TMR1_MODE_IRQ);
+			plic_interrupt_enable(IRQ_TIMER1);
+		}
+	}else{
+		plic_interrupt_enable(IRQ_SYSTIMER);
+	}
 #endif
 }
 
@@ -97,6 +110,8 @@ static void hwTimerStart(u8 tmrIdx)
 		stimer_set_irq_mask();
 #elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 		stimer_set_irq_mask(FLD_SYSTEM_IRQ);
+#elif defined(MCU_CORE_TL721X)
+		stimer_set_irq_mask(FLD_SYSTEM_IRQ_MASK);
 #endif
 	}
 }
@@ -110,6 +125,8 @@ static void hwTimerStop(u8 tmrIdx)
 		stimer_clr_irq_mask();
 #elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 		stimer_clr_irq_mask(FLD_SYSTEM_IRQ);
+#elif defined(MCU_CORE_TL721X)
+		stimer_clr_irq_mask(FLD_SYSTEM_IRQ_MASK);
 #endif
 	}
 }

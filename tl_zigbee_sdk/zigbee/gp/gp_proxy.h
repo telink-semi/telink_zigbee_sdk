@@ -75,8 +75,7 @@ typedef struct
 /**
  *  @brief	Proxy table entry
  */
-typedef struct
-{
+typedef struct _attribute_packed_{
 	gpdId_t					gpdId;				//8-bytes
 	gpProxyEntryOpt_t		options;
 	u16						gpdAssignedAlias;
@@ -92,13 +91,12 @@ typedef struct
 	u8						lwSinkCnt:2;
 	u8						sinkGroupCnt:2;
 	u8						reserved:3;
-}gpProxyTabEntry_t;	//75-bytes
+}gpProxyTabEntry_t;	//65-bytes
 
 /***************************************************************************
 * @brief	Define for GP Proxy Table
 */
-typedef struct
-{
+typedef struct _attribute_packed_{
 	gpProxyTabEntry_t gpProxyTab[GPP_MAX_PROXY_TABLE_ENTRIES];
 	u8 gpProxyTabNum;
 }gp_proxyTab_t;

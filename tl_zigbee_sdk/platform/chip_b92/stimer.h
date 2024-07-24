@@ -173,7 +173,7 @@ static _always_inline unsigned int stimer_get_tick(void)
  * @param[in] us   - count by us.
  * @return    true - timeout, false - not timeout
  */
-static _always_inline _Bool clock_time_exceed(unsigned int ref, unsigned int us)
+static _always_inline bool clock_time_exceed(unsigned int ref, unsigned int us)
 {
 	return ((unsigned int)(stimer_get_tick() - ref) > us * SYSTEM_TIMER_TICK_1US);
 }

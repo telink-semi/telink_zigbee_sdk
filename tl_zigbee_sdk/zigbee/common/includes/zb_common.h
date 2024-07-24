@@ -307,8 +307,8 @@ enum{
 #define	MAC_CAP_ALLOCADDR						BIT(7)
 
 typedef struct{
-	tl_zb_mac_pib_t 	macPib;  //76B
-	nwk_nib_t			nwkNib;  //60B
+	tl_zb_mac_pib_t 	macPib;  		//76B
+	nwk_nib_t			nwkNib;  		//60B
 	touchlink_attr_t	touchlinkAttr;  //8B
 	bdb_attr_t			bdbAttr;		//48B
 }zb_info_t;

@@ -69,8 +69,12 @@ const drv_flash_opt_t c_flashOptList[] = {
 	{0x1560c8, flash_unlock_mid1560c8, flash_lock_mid1560c8, FLASH_LOCK_LOW_512K_MID1560c8},
 	//4M
 	{0x166085, flash_unlock_mid166085, flash_lock_mid166085, FLASH_LOCK_LOW_512K_MID166085},
+	{0x1660c8, flash_unlock_mid1660c8, flash_lock_mid1660c8, FLASH_LOCK_LOW_512K_MID1660C8},
 	//16M
 	{0x186085, flash_unlock_mid186085, flash_lock_mid186085, FLASH_LOCK_LOW_512K_MID186085}
+#elif defined(MCU_CORE_TL721X)
+	//2M
+	{0x156085, flash_unlock_mid156085_with_device_num, flash_lock_mid156085_with_device_num, FLASH_LOCK_LOW_512K_MID156085},
 #else
 	{0, NULL, NULL, 0}
 #endif
@@ -81,9 +85,13 @@ const drv_flash_opt_t c_flashOptList[] = {
 
 void flash_loadOpt(void){
 #if FLASH_PROTECT_ENABLE
-	u32 mid = flash_read_mid();
-
-	g_flashOptTable.mid = mid;
+#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
+	g_flashOptTable.mid = flash_read_mid();
+#elif defined(MCU_CORE_TL721X)
+	g_flashOptTable.mid = flash_read_mid_with_device_num(SLAVE0);
+#else
+	return;
+#endif
 
 	if(IS_FLASH_LOCK_NOT_ALLOWED()){
 		pFlashOpt = NULL;
@@ -91,7 +99,7 @@ void flash_loadOpt(void){
 	}
 
 	for(u8 i = 0; i < FLASH_OPT_LIST_NUM; i++){
-		if(mid == c_flashOptList[i].mid){
+		if(g_flashOptTable.mid == c_flashOptList[i].mid){
 			g_flashOptTable.unlock = c_flashOptList[i].unlock;
 			g_flashOptTable.lock = c_flashOptList[i].lock;
 			g_flashOptTable.blockSize = c_flashOptList[i].blockSize;
@@ -110,9 +118,15 @@ void flash_lock(void){
 			return;
 		}
 
+#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 		if(pFlashOpt->lock(pFlashOpt->blockSize) == 1){
 			g_flashLocked = TRUE;
 		}
+#elif defined(MCU_CORE_TL721X)
+		if(pFlashOpt->lock(SLAVE0, pFlashOpt->blockSize) == 1){
+			g_flashLocked = TRUE;
+		}
+#endif
 	}
 #endif
 }
@@ -124,9 +138,15 @@ void flash_unlock(void){
 			return;
 		}
 
+#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 		if(pFlashOpt->unlock() == 1){
 			g_flashLocked = FALSE;
 		}
+#elif defined(MCU_CORE_TL721X)
+		if(pFlashOpt->unlock(SLAVE0) == 1){
+			g_flashLocked = FALSE;
+		}
+#endif
 	}
 #endif
 }
@@ -192,76 +212,3 @@ void flash_erase(u32 addr){
 
 	flash_erase_sector(addr);
 }
-
-#ifdef CFS_ENABLE
-_attribute_ram_code_ void cfs_flash_write_page(u32 addr, u32 len, u8 *buf){
-	u32 r = drv_disable_irq();
-	// important:  buf must not reside at flash, such as constant string.  If that case, pls copy to memory first before write
-	flash_send_cmd(FLASH_WRITE_ENABLE_CMD);
-	flash_send_cmd(FLASH_WRITE_CMD);
-	flash_send_addr(addr);
-
-	u32 i;
-	for(i = 0; i < len; ++i){
-		mspi_write(~(buf[i]));		/* write data */
-		mspi_wait();
-	}
-	mspi_high();
-	flash_wait_done();
-	drv_restore_irq(r);
-}
-
-_attribute_ram_code_ void cfs_flash_read_page(u32 addr, u32 len, u8 *buf){
-	u32 r = drv_disable_irq();
-	flash_send_cmd(FLASH_READ_CMD);
-	flash_send_addr(addr);
-
-	mspi_write(0x00);		/* dummy,  to issue clock */
-	mspi_wait();
-	mspi_ctrl_write(0x0a);	/* auto mode */
-	mspi_wait();
-	/* get data */
-	for(int i = 0; i < len; ++i){
-		*buf++ = ~(mspi_get());
-		mspi_wait();
-	}
-	mspi_high();
-	drv_restore_irq(r);
-}
-
-void cfs_flash_op(u8 opmode, u32 addr, u32 len, u8 *buf){
-	u32 re = addr%256;
-
-	u32 pageReLen = (re)?(256 -re):256;
-
-	u32 writeLen = 0;
-	u32 remainLen = len;
-
-	do{
-		if(remainLen <= pageReLen){
-			writeLen = remainLen;
-			remainLen = 0;
-		}else{
-			remainLen -= pageReLen;
-			writeLen = pageReLen;
-			pageReLen = 256;
-		}
-		if(opmode){
-			cfs_flash_write_page(addr,writeLen,buf);
-		}else{
-			cfs_flash_read_page(addr,writeLen,buf);
-		}
-		buf += writeLen;
-		addr += writeLen;
-	}while(remainLen);
-}
-
-void cfs_flash_write(u32 addr, u32 len, u8 *buf){
-	cfs_flash_op(1, addr, len, buf);
-}
-
-void cfs_flash_read(u32 addr, u32 len, u8 *buf){
-	cfs_flash_op(0, addr, len, buf);
-}
-#endif
-

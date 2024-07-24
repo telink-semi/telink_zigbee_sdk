@@ -208,7 +208,7 @@ enum CDC_LineEncodingParity_t
  *
  *  \note Regardless of CPU architecture, these values should be stored as little endian.
  */
-typedef struct
+typedef struct _attribute_packed_
 {
 	USB_Descriptor_Header_t Header; /**< Regular descriptor header containing the descriptor's type and length. */
 	u8                      Subtype; /**< Sub type value used to distinguish between CDC class-specific descriptors,
@@ -232,7 +232,7 @@ typedef struct
  *
  *  \note Regardless of CPU architecture, these values should be stored as little endian.
  */
-typedef struct
+typedef struct _attribute_packed_
 {
 	u8       bFunctionLength; /**< Size of the descriptor, in bytes. */
 	u8       bDescriptorType; /**< Type of the descriptor, either a value in \ref USB_DescriptorTypes_t or a value
@@ -256,7 +256,7 @@ typedef struct
  *
  *  \note Regardless of CPU architecture, these values should be stored as little endian.
  */
-typedef struct
+typedef struct _attribute_packed_
 {
 	USB_Descriptor_Header_t Header; /**< Regular descriptor header containing the descriptor's type and length. */
 	u8                      Subtype; /**< Sub type value used to distinguish between CDC class-specific descriptors,
@@ -278,7 +278,7 @@ typedef struct
  *
  *  \note Regardless of CPU architecture, these values should be stored as little endian.
  */
-typedef struct
+typedef struct _attribute_packed_
 {
 	u8      bFunctionLength; /**< Size of the descriptor, in bytes. */
 	u8      bDescriptorType; /**< Type of the descriptor, either a value in \ref USB_DescriptorTypes_t or a value
@@ -302,7 +302,7 @@ typedef struct
  *
  *  \note Regardless of CPU architecture, these values should be stored as little endian.
  */
-typedef struct
+typedef struct _attribute_packed_
 {
 	USB_Descriptor_Header_t Header; /**< Regular descriptor header containing the descriptor's type and length. */
 	u8                      Subtype; /**< Sub type value used to distinguish between CDC class-specific descriptors,
@@ -322,7 +322,7 @@ typedef struct
  *
  *  \note Regardless of CPU architecture, these values should be stored as little endian.
  */
-typedef struct
+typedef struct _attribute_packed_
 {
 	u8      bFunctionLength; /**< Size of the descriptor, in bytes. */
 	u8      bDescriptorType; /**< Type of the descriptor, either a value in \ref USB_DescriptorTypes_t or a value

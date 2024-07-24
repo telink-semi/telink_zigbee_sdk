@@ -39,7 +39,7 @@ typedef enum{
 	GPIO_IRQ_MODE,
 	GPIO_IRQ_RISC0_MODE,
 	GPIO_IRQ_RISC1_MODE,
-}drv_gpioIrqMode_t;
+}drv_gpioIrqMode_e;
 
 typedef void (*irq_callback)(void);
 
@@ -50,7 +50,7 @@ typedef void (*irq_callback)(void);
 * param[in] gpio_irq_callback, the callback function
 * @return, 0 success, -1 failed(fail to allocate the node buffer)
 */
-int drv_gpio_irq_config(drv_gpioIrqMode_t mode, u32 pin, drv_gpioPoll_e polarity, irq_callback gpio_irq_callback);
+int drv_gpio_irq_config(drv_gpioIrqMode_e mode, u32 pin, drv_gpioPoll_e polarity, irq_callback gpio_irq_callback);
 
 void drv_gpio_irq_handler(void);
 void drv_gpio_irq_risc0_handler(void);

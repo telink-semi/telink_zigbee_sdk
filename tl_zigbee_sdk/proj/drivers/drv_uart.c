@@ -38,7 +38,7 @@
 									}while(0)
 #endif
 
-#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
+#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
 static u8 *pUartRxBuf = NULL;
 static u32 uartRxBufLen = 0;
 
@@ -50,7 +50,7 @@ drv_uart_t myUartDriver = {
 		.recvCb = NULL,
 #if	defined(MCU_CORE_826x)
 		.send  = uart_pktSend,
-#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
 		.send  = uart_dma_send,
 #endif
 };
@@ -87,7 +87,7 @@ u8 drv_uart_init(u32 baudrate, u8 *rxBuf, u16 rxBufLen, uart_irq_callback uartRe
 	irq_set_mask(FLD_IRQ_DMA_EN);
 	dma_chn_irq_enable(FLD_DMA_CHN_UART_RX | FLD_DMA_CHN_UART_TX, 1); 	//uart Rx/Tx dma irq enable
 	uart_irq_enable(0, 0);  	//uart Rx/Tx irq no need, disable them
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
 	u16 div = 0;
 	u8 bwpc = 0;
 
@@ -98,7 +98,11 @@ u8 drv_uart_init(u32 baudrate, u8 *rxBuf, u16 rxBufLen, uart_irq_callback uartRe
 
 	uart_cal_div_and_bwpc(baudrate, UART_CLOCK_SOURCE, &div, &bwpc);
 
+#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 	uart_set_rx_timeout(UART_IDX, bwpc, 12, UART_BW_MUL2);
+#elif defined(MCU_CORE_TL721X)
+	uart_set_rx_timeout(UART_IDX, bwpc, 12, UART_BW_MUL2, 0);
+#endif
 
 	uart_init(UART_IDX, div, bwpc, UART_PARITY_NONE, UART_STOP_BIT_ONE);
 
@@ -113,8 +117,20 @@ u8 drv_uart_init(u32 baudrate, u8 *rxBuf, u16 rxBufLen, uart_irq_callback uartRe
 
 	uart_clr_irq_mask(UART_IDX, UART_RX_IRQ_MASK | UART_TX_IRQ_MASK | UART_TXDONE_MASK | UART_RXDONE_MASK);
 
+#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 	uart_set_irq_mask(UART_IDX, UART_RXDONE_MASK | UART_TXDONE_MASK);
 	plic_interrupt_enable((UART_IDX == UART0) ? IRQ19_UART0 : IRQ18_UART1);
+#elif defined(MCU_CORE_TL721X)
+	uart_set_irq_mask(UART_IDX, UART_TXDONE_MASK);
+	plic_interrupt_enable((UART_IDX == UART0) ? IRQ_UART0 : IRQ_UART1);
+
+	dma_set_irq_mask(UART_DMA_CHANNEL_RX, TC_MASK);
+	plic_interrupt_enable(IRQ_DMA);
+#endif
+
+#else
+	//not support
+	return 1;
 #endif
 
 	return 0;
@@ -133,31 +149,35 @@ void drv_uart_pin_set(u32 txPin, u32 rxPin)
 	uart_gpio_set(txPin, rxPin);
 #elif defined(MCU_CORE_B91)
 	uart_set_pin(txPin, rxPin);
-#elif defined(MCU_CORE_B92)
+#elif defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
 	uart_set_pin(UART_IDX, txPin, rxPin);
 #endif
 }
 
 void drv_uart_rx_irq_handler(void)
 {
-#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
+#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
 	bool uartRxErr = 0;
 
 	if((uart_get_irq_status(UART_IDX, UART_RX_ERR))){
 		uartRxErr = 1;
 
-#if defined(MCU_CORE_B92)
+#if defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
         uart_clr_irq_status(UART_IDX, UART_RXBUF_IRQ_STATUS);
 #endif
 	}else{
+#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 		/* Fix lost DMA length information, must before clear irq status. */
 		UART_RCV_DMA_LEN_FIX();
+#endif
 	}
 
 #if defined(MCU_CORE_B91)
 	uart_clr_irq_status(UART_IDX, UART_CLR_RX);
 #elif defined(MCU_CORE_B92)
 	uart_clr_irq_status(UART_IDX, UART_RXDONE_IRQ_STATUS);
+#elif defined(MCU_CORE_TL721X)
+	dma_clr_tc_irq_status(BIT(UART_DMA_CHANNEL_RX));
 #endif
 
 	/* Need to reconfigure RX DMA. */
@@ -177,7 +197,7 @@ void drv_uart_tx_irq_handler(void)
 {
 #if defined(MCU_CORE_B91)
 	uart_clr_tx_done(UART_IDX);
-#elif defined(MCU_CORE_B92)
+#elif defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
 	uart_clr_irq_status(UART_IDX, UART_TXDONE_IRQ_STATUS);
 #endif
 
@@ -188,7 +208,7 @@ void drv_uart_tx_irq_handler(void)
 	myUartDriver.status = UART_STA_TX_DONE;
 }
 
-#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
+#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
 static u8 uart_dma_send(u8 *pBuf)
 {
 	u32 len = BUILD_U32(pBuf[0], pBuf[1], pBuf[2], pBuf[3]);
@@ -239,7 +259,7 @@ void drv_uart_exceptionProcess(void)
 	if(uart_is_parity_error()){
 		uart_clear_parity_error();
 	}
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
 	/* RX ERROR is handled in the RX interrupt processing function. */
 #endif
 }

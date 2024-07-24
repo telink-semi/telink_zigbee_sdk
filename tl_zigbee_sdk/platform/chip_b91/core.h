@@ -151,13 +151,27 @@ static inline void core_mie_enable(mie_e mie_mask)
 }
 
 /**
- * @brief This function serves to disable MEI(Machine External Interrupt),MTI(Machine timer Interrupt),or MSI(Machine Software Interrupt).
- * @param[in] mie_mask - MIE(Machine Interrupt Enable) register mask.
- * @return  none
+ * @brief      This function serves to disable MEI(Machine External Interrupt),MTI(Machine timer Interrupt),or MSI(Machine Software Interrupt).
+ * @param[in]  mie_mask - MIE(Machine Interrupt Enable) register mask.
+ * @return     mie register value before disable.
+ * @note       core_mie_disable and core_mie_restore must be used in pairs.
  */
-static inline void core_mie_disable(mie_e mie_mask)
+static inline unsigned int core_mie_disable(mie_e mie_mask)
 {
+    unsigned int r = read_csr(NDS_MIE);
     clear_csr(NDS_MIE, mie_mask);
+    return r;
+}
+
+/**
+ * @brief      This function serves to restore MIE register value.
+ * @param[in]  mie_value - mie register value returned by core_mie_disable().
+ * @return     none.
+ * @note       core_mie_disable and core_mie_restore must be used in pairs.
+ */
+static inline void core_mie_restore(unsigned int mie_value)
+{
+    write_csr(NDS_MIE, mie_value);
 }
 
 /**

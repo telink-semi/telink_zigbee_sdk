@@ -97,24 +97,24 @@ enum{
  * @brief	The node descriptor contains information about the capabilities of the ZigBee node and is
  * 			mandatory for each node. There shall be only one node descriptor in a node.
  */
-typedef struct{
+typedef struct _attribute_packed_{
 	/*Logical type field 000 ZigBee coordinator, 001 ZigBee router, 010 ZigBee end device, 011-111 Reserved*/
-	device_type_t logical_type:3;
+	u8 logical_type:3;//device_type_t
 	/*The complex descriptor available field of the node descriptor is one bit in length
 	and specifies whether a complex descriptor is available on this device. If this field
 	is set to 1, a complex descriptor is available. If this field is set to 0, a complex
 	descriptor is not available.*/
-	u8	complex_descriptor_ava:1;
+	u8 complex_descriptor_ava:1;
 	/*The user descriptor available field of the node descriptor is one bit in length and
 	specifies whether a user descriptor is available on this device. If this field is set to
 	1, a user descriptor is available. If this field is set to 0, a user descriptor is not
 	available.*/
-	u8	user_descriptor_ava:1;
-	u8	reserved:3;//reserved
+	u8 user_descriptor_ava:1;
+	u8 reserved:3;//reserved
 	/*The APS flags field of the node descriptor is three bits in length and specifies the
 	application support sub-layer capabilities of the node.
 	This field is currently not supported and shall be set to zero. */
-	u8	aps_flag:3;//APS flags
+	u8 aps_flag:3;//APS flags
 	/*The frequency band field of the node descriptor is five bits in length and specifies
 	  the frequency bands that are supported by the underlying IEEE 802.15.4 radio
 	  utilized by the node. For each frequency band supported by the underlying IEEE 802.15.4 radio
@@ -123,23 +123,23 @@ typedef struct{
 	  2~902~928MHz
 	  3~2400~2483.5MHz
 	  4~reserved*/
-	u8	freq_band:5;//Frequency band
+	u8 freq_band:5;//Frequency band
 	/*The MAC capability flags field is eight bits in length and specifies the node
 	capabilities, as required by the IEEE 802.15.4-2003 MAC sub-layer
 	 */
 	//todo need to replace u8 with MAC_CAPABILITY_FLAG_T
-	u8	mac_capability_flag;
+	u8 mac_capability_flag;
 	/*The manufacturer code field of the node descriptor is sixteen bits in length and
 	specifies a manufacturer code that is allocated by the ZigBee Alliance, relating the
 	manufacturer to the device.*/
-	u8	mcL8;//Manufacturer code
-	u8	mcH8;
+	u8 mcL8;//Manufacturer code
+	u8 mcH8;
 	/*The maximum buffer size field of the node descriptor is eight bits in length, with a
 	valid range of 0x00-0x7f. This field specifies the maximum size, in octets, of the
 	network sub-layer data unit (NSDU) for this node. This is the maximum size of
 	data or commands passed to or from the application by the application support
 	sub-layer, before any fragmentation or re-assembly. */
-	u8	max_buff_size;//Maximum buffer size
+	u8 max_buff_size;//Maximum buffer size
 	/*The maximum transfer size field of the node descriptor is sixteen bits in length,
 	with a valid range of 0x0000-0x7fff. This field specifies the maximum size, in
 	octets, of the application sub-layer data unit (ASDU) that can be transferred to this
@@ -164,7 +164,7 @@ typedef struct{
 	discovery of particular features of the descriptor fields by other nodes on the
 	system.0: Extended Active Endpoint lst Available; 1: Extended Simple Descriptor lst Available;
 	2~27: reserved*/
-	u8	desc_capability_field;//Descriptor capability field
+	u8 desc_capability_field;//Descriptor capability field
 }node_descriptor_t;
 
 
@@ -191,10 +191,10 @@ typedef enum{
 }power_source_level_t;
 
 typedef struct{
-	power_mode_t current_power_mode:4;
-	power_source_t available_power_sources:4;
-	power_source_t current_power_source:4;
-	power_source_level_t current_power_source_level:4;
+	u8 current_power_mode:4;		//power_mode_t
+	u8 available_power_sources:4;	//power_source_t
+	u8 current_power_source:4;		//power_source_t
+	u8 current_power_source_level:4;//power_source_level_t
 }power_descriptor_t;
 
 
@@ -230,7 +230,7 @@ typedef struct{
 	u8 	 dstAddrMode;
 	u8   dstEp;
 
-	aps_tx_options txOptions;
+	u8   txOptions;//aps_tx_options
 	u8   radius;
 }epInfo_t;
 

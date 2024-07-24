@@ -101,6 +101,8 @@
  */
 #ifndef I2C_H
 #define I2C_H
+
+#include <stdbool.h>
 #include "gpio.h"
 
 #include "analog.h"

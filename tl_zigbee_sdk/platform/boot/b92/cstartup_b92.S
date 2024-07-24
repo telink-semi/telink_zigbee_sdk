@@ -403,6 +403,26 @@ _ISTART:
 	sb		t2, 0x30b(t0)		 //0x8014030b  PB output  =  0x10
 #endif
 
+    /* timer rst enable. */
+    li      t0, 0x801401e2 /* reg_rst2 register address. */
+    li      t1, 0x39       /* bit0=1 timer enable(reset velue 0x38). */
+    sb      t1, 0x0(t0)    /* (*(volatile unsigned char*)(0x801401e2))= 0x39. */
+
+    /* timer clk enable. */
+    li      t0, 0x801401e6 /* tim_ctrl2 register address. */
+    li      t1, 0x31       /* bit0=1 timer enable(reset velue 0x30). */
+    sb      t1, 0x0(t0)    /* (*(volatile unsigned char*)(0x801401e6))= 0x31. */
+
+    /* set timer watchdog value: 10s. */
+    li      t0, 0x8014014c /* wt_target register address. */
+    li      t1, 0xe4e1c00  /* watchdog value = 0xe4e1c00(10s * 24000000) */
+    sw      t1, 0x0(t0)    /* (*(volatile unsigned long*)(0x8014014c))= 0xe4e1c00. */
+
+    /* start timer watchdog. */
+    li      t0, 0x80140142 /* tim_ctrl2 register address. */
+    li      t1, 0x80       /* bit7=1 watchdog enable(reset velue 0x00). */
+    sb      t1, 0x0(t0)    /* (*(volatile unsigned char*)(0x80140142))= 0x80. */
+
 	/* Initialize global pointer */
     la     gp, __global_pointer$
     .option pop

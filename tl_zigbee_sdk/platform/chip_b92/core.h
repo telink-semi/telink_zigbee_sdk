@@ -25,6 +25,23 @@
 #define CORE_H
 #include "lib/include/sys.h"
 #include "nds_intrinsic.h"
+#include <stdbool.h>
+
+#define MCAUSE_INT             0x80000000UL
+#define MCAUSE_CAUSE           0x7FFFFFFFUL
+
+
+#define TRAP_U_ECALL        	8
+#define TRAP_M_ECALL        	11
+
+
+/* Machine CSR */
+#define MSTATUS_MPP_MSK                         ((1ULL << (11)) | (1ULL << (12)))
+/* Hart mode for machine/supervisor/user */
+#define MSTATUS_MPP_USER                        (0ULL << (11))
+#define MSTATUS_MPP_SV                          (1ULL << (11))
+#define MSTATUS_MPP_MC                          ((1ULL << (11)) | (1ULL << (12)))
+
 
 #define DISABLE_BTB __asm__("csrci mmisc_ctl,8")
 #define ENABLE_BTB  __asm__("csrsi mmisc_ctl,8")
@@ -166,13 +183,27 @@ static _always_inline void core_mie_enable(mie_e mie_mask)
 }
 
 /**
- * @brief This function serves to disable MEI(Machine External Interrupt),MTI(Machine timer Interrupt),or MSI(Machine Software Interrupt).
- * @param[in] mie_mask - MIE(Machine Interrupt Enable) register mask.
- * @return  none
+ * @brief      This function serves to disable MEI(Machine External Interrupt),MTI(Machine timer Interrupt),or MSI(Machine Software Interrupt).
+ * @param[in]  mie_mask - MIE(Machine Interrupt Enable) register mask.
+ * @return     mie register value before disable.
+ * @note       core_mie_disable and core_mie_restore must be used in pairs.
  */
-static _always_inline void core_mie_disable(mie_e mie_mask)
+static inline unsigned int core_mie_disable(mie_e mie_mask)
 {
+    unsigned int r = read_csr(NDS_MIE);
     clear_csr(NDS_MIE, mie_mask);
+    return r;
+}
+
+/**
+ * @brief      This function serves to restore MIE register value.
+ * @param[in]  mie_value - mie register value returned by core_mie_disable().
+ * @return     none.
+ * @note       core_mie_disable and core_mie_restore must be used in pairs.
+ */
+static inline void core_mie_restore(unsigned int mie_value)
+{
+    write_csr(NDS_MIE, mie_value);
 }
 
 /**
@@ -345,10 +376,139 @@ __attribute__((always_inline)) static inline unsigned long long rdmcycle(void)
 }
 
 /**
+ * @brief     This function serves to set timeout by us.
+ * @param[in] ref  - reference tick of cclk .
+ * @param[in] us   - count by us.
+ * @return    true - timeout, false - not timeout
+ */
+static _always_inline bool core_cclk_time_exceed(unsigned long long ref, unsigned int us)
+{
+	return ((unsigned long long)(rdmcycle() - ref) > us *  sys_clk.cclk);
+}
+
+/**
  * @brief       This function performs to set delay time by cclk tick.
  * @param[in]   core_cclk_tick - Number of ticks in cclk
  * @return      none
  */
 _attribute_ram_code_sec_optimize_o2_noinline_ void core_cclk_delay_tick(unsigned long long core_cclk_tick);
 
+typedef bool (*condition_fp)(void);
+typedef bool (*condition_fp_with_param)(unsigned int);
+typedef void (*timeout_handler_fp)(unsigned int err_code);
+
+/**
+ * @brief       provides a unified timeout interface(for internal calls only).
+ * @param[in]   condition - function pointer, timeout judgment condition, must be bool xxx(void).
+ * @param[in]   timeout_us - timeout(us).
+ * @param[in]   func -  function pointer, timeout exit handle,must be void xxx(unsigned int).
+ * @param[in]   err_code - xxx_api_error_code_e/drv_api_error_code_e.
+ * @return      1: timeout(the upper layer interface uses drv_api_status_e(DRV_API_TIMEOUT)) 0: pass
+ * @note        the rules for parameter are as follows (for internal purposes only):
+ *              wait_condition_fails_or_timeout_with_param:
+ *              1.If the peripheral module has only one timeout judgment, can call this interface directly;
+ *              2.If the peripheral module has multiple calls, for the code simplicity, can be redefined by macros (refer to I2C_WAIT);
+ *              3.If the function is called by another .c file or by itself .h,
+ *                define it in the.h file and state that it is for internal use (refer to analog.h),otherwise put it in.c;
+ *              condition:
+ *              1.What is the type of the function according to the type of the upper layer interface;
+ *              2.For the new conditional interface,if the function is called by another .c file or by itself .h,
+ *                define it in the.c file,declare in.h and state that it is for internal use (refer to analog.h),otherwise put it in.c;
+ *              3.For the original interface in.h,if the application is likely to call, determine whether to add timeout precautions;
+ *              timeout_us:
+ *              1.If determine that the timeout is caused by own interface(1.must reboot 2.reset is solved,
+ *                but it is called in many places, and function calls are too nested, and most functions have no return type),
+ *                use g_drv_api_error_timeout_us,and the corresponding set interface drv_set_error_timeout;
+ *              2.If the timeout may be caused by an external source or own unexpected exceptions need to be reset,
+ *                define the timeout global variable in the corresponding module(g_xxx_error_timeout_us),
+ *                and the corresponding interface xxx_set_error_timeout:
+ *                - If timeout may be related to the other side of the communication,
+ *                  add comment minimum time limit and solution(refer to i2c);
+ *                - If the timeout may be caused own unexpected exceptions need to be reset,
+ *                  the timeout solution has been added to the parameter func,just note the minimum time limit(refer to aes);
+ *              func:
+ *              1.If determine that the timeout is caused by own interface(1.must reboot 2.reset is solved, but it is called
+ *                in many places, and function calls are too nested, and most functions have no return type), use timeout_handler;
+ *              2.If the timeout may be caused by an external source or own unexpected exceptions need to be reset,
+ *                define the timeout_handler interface in the corresponding module (xxx_timeout_handler):
+ *                - If timeout may be related to the other side of the communication,
+ *                  the driver only needs to record err_code using global variable g_xxx_error_timeout_code(refer to i2c);
+ *                - If the timeout may be caused own unexpected exceptions need to be reset(one wrong reasons),
+ *                  add the timeout solution to the interface,and (void)err_code(refer to trng);
+ *                - If the timeout may be caused own unexpected exceptions need to be reset(many wrong reasons),
+ *                  add the timeout solution to the interface,and (void)err_code(refer to aes);
+ *              err_code:
+ *              1.If determine that the timeout is caused by own interface(1.must reboot 2.reset is solved,
+ *                but it is called in many places, and function calls are too nested, and most functions have no return type),
+ *                use drv_api_error_code_e(self-add);
+ *              2.If the timeout may be caused by an external source or own unexpected exceptions need to be reset:
+ *                 - If timeout may be related to the other side of the communication,
+ *                   define the enumeration xxx_api_error_timeout_code_e, the global variable g_xxx_error_timeout_code,
+ *                   and the interface xxx_get_error_timeout_code(refer to i2c);
+ *                 - If the timeout may be caused own unexpected exceptions need to be reset(one wrong reasons),
+ *                   err_code parameter transfer is 0,no need to define the enumeration xxx_api_error_timeout_code_e,
+ *                   the global variable g_xxx_error_timeout_code, and the interface xxx_get_error_timeout_code(refer to trng);
+ *                 - If the timeout may be caused own unexpected exceptions need to be reset(many wrong reasons),
+ *                   only define the enumeration xxx_api_error_timeout_code_e, no need to define the global variable
+ *                   g_xxx_error_timeout_code, and the interface xxx_get_error_timeout_code(refer to aes);
+ */
+unsigned int wait_condition_fails_or_timeout(condition_fp condition,unsigned int timeout_us,timeout_handler_fp func,unsigned int  err_code);
+
+/**
+ * @brief       provides a unified timeout interface(condition with parameter)(for internal calls only).
+ * @param[in]   condition - function pointer, timeout judgment condition, must be bool xxx(unsigned int).
+ * @param[in]   cdt_param  - condition parameter.
+ * @param[in]   timeout_us - timeout(us).
+ * @param[in]   func -  function pointer, timeout exit handle,must be void xxx(unsigned int).
+ * @param[in]   err_code - xxx_api_error_code_e/drv_api_error_code_e.
+ * @return      1: timeout(the upper layer interface uses drv_api_status_e(DRV_API_TIMEOUT)) 0: pass
+ * @note        the rules for parameter are as follows (for internal purposes only):
+ *              wait_condition_fails_or_timeout_with_param:
+ *              1.If the peripheral module has only one timeout judgment, can call this interface directly;
+ *              2.If the peripheral module has multiple calls, for the code simplicity, can be redefined by macros (refer to I2C_WAIT);
+ *              3.If the function is called by another .c file or by itself .h,
+ *                define it in the.h file and state that it is for internal use (refer to analog.h),otherwise put it in.c;
+ *              condition:
+ *              1.What is the type of the function according to the type of the upper layer interface;
+ *              2.For the new conditional interface,if the function is called by another .c file or by itself .h,
+ *                define it in the.c file,declare in.h and state that it is for internal use (refer to analog.h),otherwise put it in.c;
+ *              3.For the original interface in.h,if the application is likely to call, determine whether to add timeout precautions;
+ *              timeout_us:
+ *              1.If determine that the timeout is caused by own interface(1.must reboot 2.reset is solved,
+ *                but it is called in many places, and function calls are too nested, and most functions have no return type),
+ *                use g_drv_api_error_timeout_us,and the corresponding set interface drv_set_error_timeout;
+ *              2.If the timeout may be caused by an external source or own unexpected exceptions need to be reset,
+ *                define the timeout global variable in the corresponding module(g_xxx_error_timeout_us),
+ *                and the corresponding interface xxx_set_error_timeout:
+ *                - If timeout may be related to the other side of the communication,
+ *                  add comment minimum time limit and solution(refer to i2c);
+ *                - If the timeout may be caused own unexpected exceptions need to be reset,
+ *                  the timeout solution has been added to the parameter func,just note the minimum time limit(refer to aes);
+ *              func:
+ *              1.If determine that the timeout is caused by own interface(1.must reboot 2.reset is solved, but it is called
+ *                in many places, and function calls are too nested, and most functions have no return type), use timeout_handler;
+ *              2.If the timeout may be caused by an external source or own unexpected exceptions need to be reset,
+ *                define the timeout_handler interface in the corresponding module (xxx_timeout_handler):
+ *                - If timeout may be related to the other side of the communication,
+ *                  the driver only needs to record err_code using global variable g_xxx_error_timeout_code(refer to i2c);
+ *                - If the timeout may be caused own unexpected exceptions need to be reset(one wrong reasons),
+ *                  add the timeout solution to the interface,and (void)err_code(refer to trng);
+ *                - If the timeout may be caused own unexpected exceptions need to be reset(many wrong reasons),
+ *                  add the timeout solution to the interface,and (void)err_code(refer to aes);
+ *              err_code:
+ *              1.If determine that the timeout is caused by own interface(1.must reboot 2.reset is solved,
+ *                but it is called in many places, and function calls are too nested, and most functions have no return type),
+ *                use drv_api_error_code_e(self-add);
+ *              2.If the timeout may be caused by an external source or own unexpected exceptions need to be reset:
+ *                 - If timeout may be related to the other side of the communication,
+ *                   define the enumeration xxx_api_error_timeout_code_e, the global variable g_xxx_error_timeout_code,
+ *                   and the interface xxx_get_error_timeout_code(refer to i2c);
+ *                 - If the timeout may be caused own unexpected exceptions need to be reset(one wrong reasons),
+ *                   err_code parameter transfer is 0,no need to define the enumeration xxx_api_error_timeout_code_e,
+ *                   the global variable g_xxx_error_timeout_code, and the interface xxx_get_error_timeout_code(refer to trng);
+ *                 - If the timeout may be caused own unexpected exceptions need to be reset(many wrong reasons),
+ *                   only define the enumeration xxx_api_error_timeout_code_e, no need to define the global variable
+ *                   g_xxx_error_timeout_code, and the interface xxx_get_error_timeout_code(refer to aes);
+ */
+unsigned int wait_condition_fails_or_timeout_with_param(condition_fp_with_param condition,unsigned int cdt_param,unsigned int timeout_us,timeout_handler_fp func,unsigned int  err_code);
 #endif

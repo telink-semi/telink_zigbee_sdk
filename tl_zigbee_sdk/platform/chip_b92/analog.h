@@ -38,6 +38,8 @@
 #include "reg_include/register.h"
 #include "dma.h"
 #include "compiler.h"
+#include "core.h"
+#include "error_handler/error_handler.h"
 
 /**********************************************************************************************************************
  *                                         global constants                                                           *
@@ -193,3 +195,38 @@ void analog_read_buff_dma(dma_chn_e chn, unsigned char addr, unsigned char *pdat
  */
 void analog_write_addr_data_dma(dma_chn_e chn, void *pdat, int len);
 #endif
+
+
+/********************************************************************************************************
+ *											internal
+ *******************************************************************************************************/
+
+/********************************************************************************************************
+ * 				this is only internal interface, customers do not need to care.
+ *******************************************************************************************************/
+/**
+ * @brief      This function serves to judge whether analog Tx buffer is empty.
+ * @return     0:not empty      1: empty
+ */
+_attribute_ram_code_sec_optimize_o2_  bool analog_txbuf_no_empty(void);
+
+/**
+ * @brief      This function serves to judge whether analog is busy.
+ * @return     0: not busy  1:busy
+ */
+_attribute_ram_code_sec_optimize_o2_  bool analog_busy(void);
+
+/**
+ * @brief      This function serves to judge whether analog write/read is busy .
+ * @return     none.
+ */
+#define analog_wait()                  wait_condition_fails_or_timeout(analog_busy,g_drv_api_error_timeout_us,drv_timeout_handler,(unsigned int)DRV_API_ERROR_TIMEOUT_ANALOG_WAIT)
+
+/**
+ * @brief      This function serves to judge whether analog Tx buffer is empty.
+ * @return     none.
+ */
+#define analog_wait_txbuf_no_empty()  wait_condition_fails_or_timeout(analog_txbuf_no_empty,g_drv_api_error_timeout_us,drv_timeout_handler,(unsigned int)DRV_API_ERROR_TIMEOUT_ANA_TX_BUFCNT)
+
+
+

@@ -72,8 +72,8 @@ typedef enum{
  * @brief 	crystal for different application
  */
 typedef enum{
-	EXTERNAL_XTAL_24M	= 0,
-	EXTERNAL_XTAL_48M	= 1,
+	EXTERNAL_XTAL_24M	= 0,			//Use an external 24M crystal and internal capacitors.
+	EXTERNAL_XTAL_EXTERNAL_CAP_24M	= 2,//Use an external 24M crystal and external capacitors.
 }XTAL_TypeDef;
 
 /**

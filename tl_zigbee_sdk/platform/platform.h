@@ -41,5 +41,8 @@
 #elif defined (MCU_CORE_B92)
 #include "chip_b92/driver.h"
 #include "chip_b92/gpio_default.h"
+#elif defined (MCU_CORE_TL721X)
+#include "chip_tl721x/driver.h"
+#include "chip_tl721x/gpio_default.h"
 #endif
 

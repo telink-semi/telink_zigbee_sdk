@@ -38,7 +38,7 @@
  *	==============
   -# UART Initialization and Configuration
      -# nodma/dma/dma_llp:
-        - To prevent the UART module from storing history information, call uart_reset() API before use ;
+        - To prevent the UART module from storing history information, call uart_hw_fsm_reset() API before use ;
         - Initialize the tx/rx pin by uart_set_pin() API;
         - Configure the baud rate/stop bit/ parity by uart_cal_div_and_bwpc() / uart_init() API;
         - Configure rx_timeout by uart_set_rx_timeout();
@@ -141,7 +141,10 @@
        - Rx linked list mode can only be used if write_num_en is enabled and DMA length is configured as 0xffffc. Only rx timeout will jump to the next linked list.
        - Use restriction:
          - it is needed to know the maximum received length,avoid buff overreach issues;
-       
+- Timeout mechanism
+     -# uart_set_error_timeout():define global variable g_uart_error_timeout_us,the default value is a large value,can use the preceding interfaces to adjust the value based on actual applications.
+     -# uart_get_error_timeout_code(): when an error timeout abnormally, can use the above interface to read which error belongs to uart_api_error_code_e.
+     -# uart_timeout_handler():when an error timeout exits abnormally,can do timeout processing at the application layer or the application layer redefines the interface.
  */
 #ifndef     UART_H_
 #define     UART_H_
@@ -263,8 +266,26 @@ typedef enum{
 	UART_DMA_MODE     =1,
 }uart_rxdone_sel_e;
 
+// uart api error code
+typedef enum {
+	UART_API_ERROR_TIMEOUT_NONE             = 0x00,
+	UART_API_ERROR_TIMEOUT_SEND_BYTE	    = 0x01,
+	UART_API_ERROR_TIMEOUT_SEND_HWORD		= 0x02,
+	UART_API_ERROR_TIMEOUT_SEND_WORD        = 0x03,
+}uart_api_error_timeout_code_e;
+
+
+typedef struct {
+    unsigned int g_uart_error_timeout_us;                             //uart_x error timeout(us),a large value is set by default,can set it by uart_set_error_timeout();
+	timeout_handler_fp uart_timeout_handler;                        //uartx_timeout_handler;
+	volatile uart_api_error_timeout_code_e g_uart_error_timeout_code;//record uart_x error timeout code, can obtain the value through the uart_get_error_timeout_code() interface;
+}uart_timeout_error_t;
+
+extern uart_timeout_error_t g_uart_timeout_error[2];
 
 #define uart_rtx_pin_tx_trig(uart_num)  uart_clr_irq_status(uart_num,UART_TXDONE_IRQ_STATUS)
+//for compatibility
+#define uart_reset   uart_hw_fsm_reset
 /**********************************************************************************************************************
  *                    						Internal interface                                             *
  *********************************************************************************************************************/
@@ -321,20 +342,6 @@ static inline unsigned char uart_get_rxfifo_num(uart_num_e uart_num)
 static inline unsigned char uart_get_txfifo_num(uart_num_e uart_num)
 {
 	return (reg_uart_buf_cnt(uart_num)&FLD_UART_TX_BUF_CNT )>>4;
-}
-
-/**
- * @brief     Resets UART module,before using UART, it is needed to call uart_reset() to avoid affecting the use of UART.
- * @param[in] uart_num - UART0 or UART1.
- * @return    none
- * @note
- *            this function will clear rx and tx status and fifo.
- */
-static inline void uart_reset(uart_num_e uart_num)
-{
-
-	reg_rst0 &= (~((uart_num)?FLD_RST0_UART1:FLD_RST0_UART0));
-	reg_rst0 |= ((uart_num)?FLD_RST0_UART1:FLD_RST0_UART0);
 }
 
 /**
@@ -418,11 +425,8 @@ static inline void uart_clr_irq_mask(uart_num_e uart_num,uart_irq_mask_e mask)
  * @param[in] uart_num - UART0 or UART1.
  * @return    none.
  * @note      Note the following:
- *            -# After calling the uart_reset interface, uart_clr_tx_index and uart_clr_rx_index must be called to clear the read/write pointer,
- *               after the uart_reset interface is invoked, the hardware read and write Pointers are cleared to zero.
- *               Therefore, the software read and write Pointers are cleared to ensure logical correctness.
  *            -# After waking up from suspend, you must call uart_clr_tx_index and uart_clr_rx_index to clear read and write pointers,
- *               because after suspend wakes up, the chip is equivalent to performing a uart_reset,
+ *               because after suspend wakes up, the chip is equivalent to performing a uart_hw_fsm_reset,
  *               so the software read and write pointer also needs to be cleared to zero.
  */
 static inline void uart_clr_rx_index(uart_num_e uart_num)
@@ -436,16 +440,31 @@ static inline void uart_clr_rx_index(uart_num_e uart_num)
  * @param[in] uart_num - UART0 or UART1.
  * @return    none.
  * @note      Note the following:
- *            -# After calling the uart_reset interface, uart_clr_tx_index and uart_clr_rx_index must be called to clear the read/write pointer,
- *               after the uart_reset interface is invoked, the hardware read and write Pointers are cleared to zero.
- *               Therefore, the software read and write Pointers are cleared to ensure logical correctness.
  *            -# After waking up from suspend, you must call uart_clr_tx_index and uart_clr_rx_index to clear read and write pointers,
- *               because after waking up from suspend, the chip is equivalent to performing a uart_reset,
+ *               because after waking up from suspend, the chip is equivalent to performing a uart_hw_fsm_reset,
  *               so the software read and write pointer also needs to be cleared to zero.
  */
 static inline void uart_clr_tx_index(uart_num_e uart_num)
 {
 	uart_tx_byte_index[uart_num]=0;
+}
+
+/**
+ * @brief     uart finite state machine reset(the configuration register is still there and does not need to be reconfigured),
+ *            For compatibility define uart_reset uart_hw_fms_reset, uart_hw_fms_reset is used when the driver is invoked (no matter at the driver layer or demo layer),
+ *            before using UART, it is needed to call uart_hw_fsm_reset() to avoid affecting the use of UART.
+ * @param[in] uart_num - UART0 or UART1.
+ * @return    none
+ * @note      this function will clear rx and tx status and fifo.
+ */
+static inline void uart_hw_fsm_reset(uart_num_e uart_num)
+{
+
+	reg_rst0 &= (~((uart_num)?FLD_RST0_UART1:FLD_RST0_UART0));
+	reg_rst0 |= ((uart_num)?FLD_RST0_UART1:FLD_RST0_UART0);
+	uart_clr_tx_index(uart_num);
+	uart_clr_rx_index(uart_num);
+	g_uart_timeout_error[uart_num].g_uart_error_timeout_code = UART_API_ERROR_TIMEOUT_NONE;
 }
 
 /**
@@ -703,9 +722,10 @@ void uart_set_rx_timeout(uart_num_e uart_num,unsigned char bwpc, unsigned char b
   * @brief     Send UART data by byte in no_dma mode.
   * @param[in] uart_num - UART0 or UART1.
   * @param[in] tx_data  - the data to be send.
-  * @return    none
+  * @return    DRV_API_SUCCESS: operation successful;
+  *            DRV_API_TIMEOUT: timeout exit(solution refer to the note for uart_set_error_timeout);
   */
-void uart_send_byte(uart_num_e uart_num,unsigned char tx_data);
+drv_api_status_e uart_send_byte(uart_num_e uart_num,unsigned char tx_data);
 
 /**
  * @brief     Receive UART data by byte in no_dma mode.
@@ -717,23 +737,27 @@ unsigned char uart_read_byte(uart_num_e uart_num);
  * @brief     Judge if the transmission of UART is done.
  * @param[in] uart_num - UART0 or UART1.
  * @return    0:tx is done     1:tx isn't done
+ * @note      If upper-layer application calls the interface, if the timeout mechanism is used, the status cannot be detected because the uart send data is abnormal,
+ *            see uart_set_error_timeout(time setting requirement).
  */
 unsigned char uart_tx_is_busy(uart_num_e uart_num);
 /**
  * @brief     Send UART data by halfword in no_dma mode.
  * @param[in] uart_num - UART0 or UART1.
  * @param[in] data  - the data to be send.
- * @return    none
+ * @return    DRV_API_SUCCESS: operation successful;
+ *            DRV_API_TIMEOUT: timeout exit(solution refer to the note for uart_set_error_timeout);
  */
-void uart_send_hword(uart_num_e uart_num, unsigned short data);
+drv_api_status_e uart_send_hword(uart_num_e uart_num, unsigned short data);
 
 /**
  * @brief     Send UART data by word in no_dma mode.
  * @param[in] uart_num - UART0 or UART1.
  * @param[in] data - the data to be send.
- * @return    none
+ * @return    DRV_API_SUCCESS: operation successful;
+ *            DRV_API_TIMEOUT: timeout exit(solution refer to the note for uart_set_error_timeout);
  */
-void uart_send_word(uart_num_e uart_num, unsigned int data);
+drv_api_status_e uart_send_word(uart_num_e uart_num, unsigned int data);
 
 
 /**
@@ -953,6 +977,44 @@ void uart_rx_dma_chain_init (uart_num_e uart_num, dma_chn_e chn,unsigned char * 
 
 /** @} */
 
+
+/**
+ * @brief     This function serves to record the api status.
+ * @param[in] uart_error_timeout_code - uart_api_error_timeout_code_e.
+ * @return    none.
+ * @note      This function can be rewritten according to the application scenario,can by g_uart_error_timeout_code to obtain details about the timeout reason,
+ *            for the solution, refer to the uart_set_error_timeout note.
+ */
+__attribute__((weak)) void uart0_timeout_handler(unsigned int uart_error_timeout_code);
+__attribute__((weak)) void uart1_timeout_handler(unsigned int uart_error_timeout_code);
+
+/**
+ * @brief     This function serves to set the uart timeout(us).
+ * @param[in] uart_num - UART0 or UART1.
+ * @param[in] timeout_us - the timeout(us).
+ * @return    none.
+ * @note      The default timeout (g_uart_error_timeout_us) is the larger value.If the timeout exceeds the feed dog time and triggers a watchdog restart,
+ *            g_uart_error_timeout_us can be changed to a smaller value via this interface, depending on the application.
+ *            g_uart_error_timeout_us the minimum time must meet the following conditions:
+ *            When not using cts flow control:
+ *            1. eight uart data;
+ *            2. maximum interrupt processing time;
+ *            When using cts flow control:
+ *            1. eight uart data;
+ *            2. maximum interrupt processing time;
+ *            3. The maximum normal cts flow control time;
+ *            when timeout exits, solution:
+ *            1.uart_hw_fsm_reset;
+ *            2.solve why cts has been held up(When using cts flow control);
+ */
+void uart_set_error_timeout(uart_num_e uart_num,unsigned int timeout_us);
+
+/**
+ * @brief     This function serves to return the uart api error code.
+ * @param[in] uart_num - UART0 or UART1.
+ * @return    none.
+ */
+uart_api_error_timeout_code_e uart_get_error_timeout_code(uart_num_e uart_num);
 
 
 #endif	/* UART_H_ */

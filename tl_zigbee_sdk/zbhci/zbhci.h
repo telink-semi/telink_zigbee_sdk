@@ -307,19 +307,19 @@ typedef struct{
  * @brief  the hci response command carryin  the MAC address of the nodes which have joined the network
  *
  * */
-typedef struct{
+typedef struct _attribute_packed_{
 	u16 totalCnt;				/*!	the total count of the joined nodes */
 	u16 startIndex;				/*!	the start index */
 	u8  listCnt;				/*!	the count of the mac address list */
 	u8  status;					/*!	the status */
 }zbhci_mgmt_nodesJoined_rsp_hdr_t;
 
-typedef struct{
+typedef struct _attribute_packed_{
 	addrExt_t macAddr;		// /*!	the mac address list */
 	u16 nwkAddr;
 }zbhci_mgmt_nodesJoined_info_t;
 
-typedef struct{
+typedef struct _attribute_packed_{
 	zbhci_mgmt_nodesJoined_rsp_hdr_t hdr;
 	zbhci_mgmt_nodesJoined_info_t addrList[5];		//[5];	/*!	the mac address list */
 }zbhci_mgmt_nodesJoined_rsp_t;
@@ -372,7 +372,7 @@ typedef struct{
 	addrExt_t	macAddr;
 }zbhci_nodeLeaveInd_t;
 
-typedef struct{
+typedef struct _attribute_packed_{
 	u8 dstMode;
 	tl_zb_addr_t dstAddr; //addrMode = APS_DSTADDR_EP_NOTPRESETNT
 	u8 srcEp;			//
@@ -402,7 +402,7 @@ typedef struct{
 	u8  otaFindBootFlag;
 	u8  otaProcessStart;
 	u8  blockRequestCnt;
-	zbhciOtaType_e binType;		//1--local bin, 0--remote OTA bin
+	u8  binType;//zbhciOtaType_e, 1--local bin, 0--remote OTA bin
 }hci_ota_info_t;
 
 typedef struct{

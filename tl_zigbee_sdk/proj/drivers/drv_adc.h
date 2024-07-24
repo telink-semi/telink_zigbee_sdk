@@ -26,11 +26,10 @@
 #pragma once
 
 
-
 typedef enum{
 	DRV_ADC_BASE_MODE,
 	DRV_ADC_VBAT_MODE,
-}drv_adc_mode_t;
+}drv_adc_mode_e;
 
 /****
 * brief: ADC initiate function
@@ -54,11 +53,13 @@ u16 drv_get_adc_data(void);
 * @return
 */
 #if defined (MCU_CORE_826x)
-void drv_adc_mode_pin_set(drv_adc_mode_t mode, ADC_InputPTypeDef pin);
+void drv_adc_mode_pin_set(drv_adc_mode_e mode, ADC_InputPTypeDef pin);
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-void drv_adc_mode_pin_set(drv_adc_mode_t mode, GPIO_PinTypeDef pin);
+void drv_adc_mode_pin_set(drv_adc_mode_e mode, GPIO_PinTypeDef pin);
 #elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
-void drv_adc_mode_pin_set(drv_adc_mode_t mode, adc_input_pin_def_e pin);
+void drv_adc_mode_pin_set(drv_adc_mode_e mode, adc_input_pin_def_e pin);
+#elif defined(MCU_CORE_TL721X)
+void drv_adc_mode_pin_set(drv_adc_mode_e mode, adc_input_pin_e pin);
 #endif
 
 /****
@@ -67,5 +68,4 @@ void drv_adc_mode_pin_set(drv_adc_mode_t mode, adc_input_pin_def_e pin);
 * @return
 */
 void drv_adc_enable(bool enable);
-
 

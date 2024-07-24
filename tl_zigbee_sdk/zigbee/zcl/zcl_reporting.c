@@ -248,9 +248,9 @@ _CODE_ZCL_ bool reportableChangeValueChk(u8 dataType, u8 *curValue, u8 *prevValu
 				u8 C = curValue[0];
 				u8 R = reportableChange[0];
 				if(P >= C){
-					needReport = ((P - C) > R) ? TRUE : FALSE;
+					needReport = ((P - C) >= R) ? TRUE : FALSE;
 				}else{
-					needReport = ((C - P) > R) ? TRUE : FALSE;
+					needReport = ((C - P) >= R) ? TRUE : FALSE;
 				}
 			}
 			break;
@@ -261,9 +261,9 @@ _CODE_ZCL_ bool reportableChangeValueChk(u8 dataType, u8 *curValue, u8 *prevValu
 				u16 R = BUILD_U16(reportableChange[0], reportableChange[1]);
 
 				if(P >= C){
-					needReport = ((P - C) > R) ? TRUE : FALSE;
+					needReport = ((P - C) >= R) ? TRUE : FALSE;
 				}else{
-					needReport = ((C - P) > R) ? TRUE : FALSE;
+					needReport = ((C - P) >= R) ? TRUE : FALSE;
 				}
 			}
 			break;
@@ -273,9 +273,9 @@ _CODE_ZCL_ bool reportableChangeValueChk(u8 dataType, u8 *curValue, u8 *prevValu
 				u24 C = BUILD_U24(curValue[0], curValue[1], curValue[2]);//*((u24 *)curValue);
 				u24 R = BUILD_U24(reportableChange[0], reportableChange[1], reportableChange[2]);//*((u24 *)reportableChange);
 				if(P >= C){
-					needReport = ((P - C) > R) ? TRUE : FALSE;
+					needReport = ((P - C) >= R) ? TRUE : FALSE;
 				}else{
-					needReport = ((C - P) > R) ? TRUE : FALSE;
+					needReport = ((C - P) >= R) ? TRUE : FALSE;
 				}
 			}
 			break;
@@ -285,9 +285,9 @@ _CODE_ZCL_ bool reportableChangeValueChk(u8 dataType, u8 *curValue, u8 *prevValu
 				u32 C = BUILD_U32(curValue[0], curValue[1], curValue[2], curValue[3]);//*((u32 *)curValue);
 				u32 R = BUILD_U32(reportableChange[0], reportableChange[1], reportableChange[2], reportableChange[3]);//*((u32 *)reportableChange);
 				if(P >= C){
-					needReport = ((P - C) > R) ? TRUE : FALSE;
+					needReport = ((P - C) >= R) ? TRUE : FALSE;
 				}else{
-					needReport = ((C - P) > R) ? TRUE : FALSE;
+					needReport = ((C - P) >= R) ? TRUE : FALSE;
 				}
 			}
 			break;
@@ -297,9 +297,9 @@ _CODE_ZCL_ bool reportableChangeValueChk(u8 dataType, u8 *curValue, u8 *prevValu
 				s8 C = (s8)curValue[0];
 				s8 R = (s8)reportableChange[0];
 				if(P >= C){
-					needReport = ((P - C) > R) ? TRUE : FALSE;
+					needReport = ((P - C) >= R) ? TRUE : FALSE;
 				}else{
-					needReport = ((C - P) > R) ? TRUE : FALSE;
+					needReport = ((C - P) >= R) ? TRUE : FALSE;
 				}
 			}
 			break;
@@ -310,9 +310,9 @@ _CODE_ZCL_ bool reportableChangeValueChk(u8 dataType, u8 *curValue, u8 *prevValu
 				s16 R = BUILD_S16(reportableChange[0], reportableChange[1]);
 
 				if(P >= C){
-					needReport = ((P - C) > R) ? TRUE : FALSE;
+					needReport = ((P - C) >= R) ? TRUE : FALSE;
 				}else{
-					needReport = ((C - P) > R) ? TRUE : FALSE;
+					needReport = ((C - P) >= R) ? TRUE : FALSE;
 				}
 			}
 			break;
@@ -322,9 +322,9 @@ _CODE_ZCL_ bool reportableChangeValueChk(u8 dataType, u8 *curValue, u8 *prevValu
 				s24 C = BUILD_S24(curValue[0], curValue[1], curValue[2]);//*((s24 *)curValue);
 				s24 R = BUILD_S24(reportableChange[0], reportableChange[1], reportableChange[2]);//*((s24 *)reportableChange);
 				if(P >= C){
-					needReport = ((P - C) > R) ? TRUE : FALSE;
+					needReport = ((P - C) >= R) ? TRUE : FALSE;
 				}else{
-					needReport = ((C - P) > R) ? TRUE : FALSE;
+					needReport = ((C - P) >= R) ? TRUE : FALSE;
 				}
 			}
 			break;
@@ -334,9 +334,9 @@ _CODE_ZCL_ bool reportableChangeValueChk(u8 dataType, u8 *curValue, u8 *prevValu
 				s32 C = BUILD_S32(curValue[0], curValue[1], curValue[2], curValue[3]);//*((s32 *)curValue);
 				s32 R = BUILD_S32(reportableChange[0], reportableChange[1], reportableChange[2], reportableChange[3]);//*((s32 *)reportableChange);
 				if(P >= C){
-					needReport = ((P - C) > R) ? TRUE : FALSE;
+					needReport = ((P - C) >= R) ? TRUE : FALSE;
 				}else{
-					needReport = ((C - P) > R) ? TRUE : FALSE;
+					needReport = ((C - P) >= R) ? TRUE : FALSE;
 				}
 			}
 			break;
@@ -347,9 +347,9 @@ _CODE_ZCL_ bool reportableChangeValueChk(u8 dataType, u8 *curValue, u8 *prevValu
 				float C = *((float *)curValue);
 				float R = *((float *)reportableChange);
 				if(P >= C){
-					needReport = ((P - C) > R) ? TRUE : FALSE;
+					needReport = ((P - C) >= R) ? TRUE : FALSE;
 				}else{
-					needReport = ((C - P) > R) ? TRUE : FALSE;
+					needReport = ((C - P) >= R) ? TRUE : FALSE;
 				}
 			}
 			break;
@@ -359,9 +359,9 @@ _CODE_ZCL_ bool reportableChangeValueChk(u8 dataType, u8 *curValue, u8 *prevValu
 				double C = *((double *)curValue);
 				double R = *((double *)reportableChange);
 				if(P >= C){
-					needReport = ((P - C) > R) ? TRUE : FALSE;
+					needReport = ((P - C) >= R) ? TRUE : FALSE;
 				}else{
-					needReport = ((C - P) > R) ? TRUE : FALSE;
+					needReport = ((C - P) >= R) ? TRUE : FALSE;
 				}
 			}
 			break;
@@ -441,9 +441,8 @@ _CODE_ZCL_ void reportNoMinLimit(void)
 				len = zcl_getAttrSize(pAttrEntry->type, pAttrEntry->data);
 				len = (len>8) ? (8):(len);
 
-				if( (!zcl_analogDataType(pAttrEntry->type) && (memcmp(pEntry->prevData, pAttrEntry->data, len) != SUCCESS))
-					|| ((zcl_analogDataType(pAttrEntry->type)
-						&& reportableChangeValueChk(pAttrEntry->type, pAttrEntry->data, pEntry->prevData, pEntry->reportableChange)))
+				if((!zcl_analogDataType(pAttrEntry->type) && (memcmp(pEntry->prevData, pAttrEntry->data, len) != SUCCESS)) ||
+				   ((zcl_analogDataType(pAttrEntry->type) && reportableChangeValueChk(pAttrEntry->type, pAttrEntry->data, pEntry->prevData, pEntry->reportableChange)))
 				){
 					reportAttr(pEntry);
 
@@ -494,9 +493,8 @@ _CODE_ZCL_ s32 reportAttrTimerCb(void *arg)
 
 					len = (len>8) ? (8):(len);
 
-					if( (!zcl_analogDataType(pAttrEntry->type) && (memcmp(pEntry->prevData, pAttrEntry->data, len) != SUCCESS))
-						|| ((zcl_analogDataType(pAttrEntry->type)
-							&& reportableChangeValueChk(pAttrEntry->type, pAttrEntry->data, pEntry->prevData, pEntry->reportableChange)))
+					if((!zcl_analogDataType(pAttrEntry->type) && (memcmp(pEntry->prevData, pAttrEntry->data, len) != SUCCESS)) ||
+					   ((zcl_analogDataType(pAttrEntry->type) && reportableChangeValueChk(pAttrEntry->type, pAttrEntry->data, pEntry->prevData, pEntry->reportableChange)))
 					){
 						reportAttr(pEntry);
 

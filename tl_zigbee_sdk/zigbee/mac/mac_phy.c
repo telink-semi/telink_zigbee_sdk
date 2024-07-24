@@ -490,9 +490,6 @@ _attribute_ram_code_ u8 rf_performCCA(void)
 	}
 }
 
-
-
-
 void rf802154_tx_ready(u8 *buf, u8 len)
 {
   	/* Fill the telink RF header */
@@ -587,7 +584,6 @@ _attribute_ram_code_ bool isWLANActive(void)
 	return FALSE;
 }
 
-
 /*********************************************************************
  * @fn      rf_rx_irq_handler
  *
@@ -597,7 +593,12 @@ _attribute_ram_code_ bool isWLANActive(void)
  *
  * @return  none
  */
-_attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_rx_irq_handler(void)
+#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+_attribute_ram_code_ __attribute__((optimize("-Os")))
+#else
+_attribute_ram_code_
+#endif
+void rf_rx_irq_handler(void)
 {
     u8 *p = rf_rxBuf;
     u8 fAck = 0;
@@ -753,7 +754,12 @@ _attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_rx_irq_handler(voi
  *
  * @return  none
  */
-_attribute_ram_code_ __attribute__((optimize("-Os"))) void rf_tx_irq_handler(void)
+#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+_attribute_ram_code_ __attribute__((optimize("-Os")))
+#else
+_attribute_ram_code_
+#endif
+void rf_tx_irq_handler(void)
 {
 	rf_busyFlag &= ~TX_BUSY;//Clear TX busy flag after receive TX done signal
 

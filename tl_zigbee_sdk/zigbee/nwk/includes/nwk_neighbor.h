@@ -87,20 +87,22 @@ typedef struct nebTbl_t{
 typedef struct{
 	extPANId_t 		extPanId;
 	addrExt_t 		extAddr;
+
 	u16 			shortAddr;
 	u16 			panId;
+
 	u8				addrMode;
 	u8 				logicChannel;
-	u8 				depth : 4;
-	u8 				beaconOrder : 4;
-	u8 				permitJoining : 1;
-	u8 				potentialParent : 1;
-	u8 				routerCapacity : 1;
-	u8 				edCapacity : 1;
-	u8 				stackProfile : 4;
-	u8 				deviceType : 2;
-	u8 				superframeOrder : 6;
+	u8 				depth:4;
+	u8 				beaconOrder:4;
+	u8 				permitJoining:1;
+	u8 				potentialParent:1;
+	u8 				routerCapacity:1;
+	u8 				edCapacity:1;
+	u8 				stackProfile:4;
 
+	u8 				deviceType:2;
+	u8 				superframeOrder:6;
 	u8 				lqi;
 	u8 				nwkUpdateId;
 	u8				rsv;

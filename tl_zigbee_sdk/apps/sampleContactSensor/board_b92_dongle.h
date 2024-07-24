@@ -78,7 +78,7 @@ extern "C" {
 #define LED_POWER					LED_R
 #define LED_PERMIT					LED_G
 
-#define	PM_WAKEUP_LEVEL		  		PM_WAKEUP_LEVEL_HIGH
+#define	PM_WAKEUP_LEVEL		  		PM_WAKEUP_LEVEL_LOW
 
 #define VOLTAGE_DETECT_PIN			ADC_GPIO_PD0
 

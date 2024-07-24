@@ -47,14 +47,14 @@ const zbhciTxMode_e zbhciConvertSet[] = {
 void zbhciTxClusterCmdAddrResolve(epInfo_t *dstEpInfo, u8 *srcEp, u8 **payload){
 	memset((u8 *)dstEpInfo, 0, sizeof(*dstEpInfo));
 
-	zbhciTxMode_e apsTxMode = **payload;
+	zbhciTxMode_e apsTxMode = (zbhciTxMode_e)(**payload);
 	(*payload)++;
 
 	if((apsTxMode < ZBHCI_ADDRMODE_BRC) && (apsTxMode != ZBHCI_ADDRMODE_GROUP)){
 		dstEpInfo->txOptions |= APS_TX_OPT_ACK_TX;
 	}
 	dstEpInfo->profileId = 0x0104;//HA_PROFILE_ID
-	dstEpInfo->dstAddrMode = zbhciConvertSet[apsTxMode];
+	dstEpInfo->dstAddrMode = (u8)zbhciConvertSet[apsTxMode];
 	if(dstEpInfo->dstAddrMode == APS_LONG_DSTADDR_WITHEP){
 		ZB_IEEE_ADDR_REVERT(dstEpInfo->dstAddr.extAddr,*payload);
 		(*payload) += EXT_ADDR_LEN;

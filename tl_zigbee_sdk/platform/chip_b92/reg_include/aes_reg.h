@@ -26,8 +26,13 @@
 
 #include "soc.h"
 
-
+//the registers must be accessed by word
 #define	aes_base_addr				(0x160000)
+
+#define reg_aes_rwbtcntl           REG_ADDR32(aes_base_addr + 0x00)
+enum{
+	FLD_AES_SOFT_RESET		= BIT(26),
+};
 
 #define	reg_aes_irq_mask			REG_ADDR32(aes_base_addr + 0x0c)
 

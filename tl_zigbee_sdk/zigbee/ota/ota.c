@@ -38,14 +38,14 @@
 /**********************************************************************
  * TYPEDEFS
  */
-typedef struct{
+typedef struct _attribute_packed_{
 	addrExt_t extAddr;
 	u16 profileId;
 	u8  endpoint;
 	u8	txOptions;
 }ota_serverAddr_t;
 
-typedef struct{
+typedef struct _attribute_packed_{
 	ota_hdrFields_t		hdrInfo;
 	ota_serverAddr_t  	otaServerAddrInfo;
 }ota_updateInfo_t;
@@ -1034,7 +1034,7 @@ u8 ota_imageDataProcess(u8 len, u8 *pData)
 						for(u8 j = 0; j < copyLen; j += 16){
 							memset(tmpBuf, 0xff, 16);
 							memcpy(tmpBuf, &pData[i + j], 16);
-							aes_decrypt((u8 *)otaAesKey, tmpBuf, &pData[i + j]);
+							drv_aes_decrypt((u8 *)otaAesKey, tmpBuf, &pData[i + j]);
 						}
 					}
 

@@ -378,7 +378,7 @@ static inline void rf_drv_cap(unsigned long addr)
 	flash_read_page(addr, 1, &cap);
 	if(cap != 0xff){
 		cap &= 0x3f;
-		analog_write(0x8a, (analog_read(0x8a) & 0xc0) | cap);
+		analog_write(0x8a, (analog_read(0x8a) & 0x40) | cap);
 	}
 }
 

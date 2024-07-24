@@ -25,9 +25,13 @@
 
 #pragma once
 
-
+#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
 typedef u8 (*drv_flash_lock)(u32 blockSize);
 typedef u8 (*drv_flash_unlock)(void);
+#elif defined(MCU_CORE_TL721X)
+typedef u8 (*drv_flash_lock)(mspi_slave_device_num_e num, u32 blockSize);
+typedef u8 (*drv_flash_unlock)(mspi_slave_device_num_e num);
+#endif
 
 typedef struct{
 	u32 mid;

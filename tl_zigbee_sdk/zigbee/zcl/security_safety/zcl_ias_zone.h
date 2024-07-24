@@ -154,7 +154,7 @@ typedef struct {
 /**
  *  @brief  Definition for ZCL zone table entry
  */
-typedef struct {
+typedef struct _attribute_packed_{
 	u8   zoneId;
     u16  zoneType;
     addrExt_t zoneAddr;
@@ -163,7 +163,7 @@ typedef struct {
 /**
  *  @brief  Definition for ZCL zone table information
  */
-typedef struct {
+typedef struct _attribute_packed_{
 	u8  used;
     u8  endpoint;
     zcl_zoneTabEntry_t zone;

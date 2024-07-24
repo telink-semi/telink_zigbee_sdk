@@ -841,14 +841,33 @@ _CODE_ZCL_ static status_t zcl_recallScenePrc(zclIncoming_t *pInMsg)
 	u8 *pData = pInMsg->pData;
 
 	recallScene_t recallScene;
+	TL_SETSTRUCTCONTENT(recallScene, 0);
+
 	recallScene.groupId = BUILD_U16(pData[0], pData[1]);
 	pData += 2;
 	recallScene.sceneId = *pData++;
+	recallScene.transTime = 0xFFFF;
+	if(pInMsg->dataLen == 5){
+		recallScene.transTime = BUILD_U16(pData[0], pData[1]);
+		pData += 2;
+	}
 
 	zcl_sceneTable_t *pSceneEntry = zcl_scene_findEntry(endpoint, recallScene.groupId, recallScene.sceneId);
 	if(pSceneEntry){
 		if(pInMsg->clusterAppCb){
+			/* store transTime */
+			u16 transTime = pSceneEntry->scene.transTime;
+			u16 transTime100ms = pSceneEntry->scene.transTime100ms;
+			if(recallScene.transTime != 0xFFFF){
+				pSceneEntry->scene.transTime = recallScene.transTime / 10;
+				pSceneEntry->scene.transTime100ms = recallScene.transTime % 10;
+			}
+
 			pInMsg->clusterAppCb(&(pInMsg->addrInfo), ZCL_CMD_SCENE_RECALL_SCENE, &pSceneEntry->scene);
+
+			/* restore transTime */
+			pSceneEntry->scene.transTime = transTime;
+			pSceneEntry->scene.transTime100ms = transTime100ms;
 
 			/* update scene attributes */
 			u16 attrLen = 0;

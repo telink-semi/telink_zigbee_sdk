@@ -166,7 +166,7 @@ typedef struct{
 	/** The transmission options for the ASDU to be transferred.
 	* See structure definition for details.
 	*/
-	aps_tx_options	tx_options;
+	u8	tx_options;//aps_tx_options
 	/** The distance, in hops, that a transmitted frame will be allowed to
 	* travel via the network*/
 	u8	radius;
@@ -179,7 +179,7 @@ typedef struct{
 	* in dstAddress and the endpoint set in dstEndpoint
 	* \li APS_EXT_ADDRESS (0x03) - identifying the destination with a 64-bit extended address specified in dstAddress and the endpoint set in dstEndpoint
 	* \li 0x04..0xff - reserved values, must not be used by the application*/
-	aps_dst_addr_mode	dst_addr_mode;
+	u8					dst_addr_mode;//aps_dst_addr_mode
 	bool				enableNWKsecurity;
 	u8					handle;
 	u8					apsCnt;
@@ -257,7 +257,7 @@ typedef struct{
 	* 	APS_SECURED_HASH_OF_TRUST_CENTER_LINK_KEY_STATUS=0xb2 if secured
 	*                                   with hash of the trust center link key.
 	**/
-	security_with_e	security_status;
+	u8	security_status;//security_with_e
 	/** The link quality indication delivered by the NLDE. */
 	u8	lqi;
 	s8	rssi;
@@ -284,7 +284,7 @@ typedef struct{
 }apsdeDataConf_t;
 
 
-typedef struct{
+typedef struct _attribute_packed_{
 	addrExt_t ext_src_addr;
 
 	u8	src_ep;
@@ -292,7 +292,7 @@ typedef struct{
 	u8	cid16_h;
 	u8	dst_addr_mode;//01 group; 03 ext
 	/*! The destination address for the binding entry.*/
-	union{
+	union _attribute_packed_{
 		struct{
 			addrExt_t dst_ext_addr;
 			/*! This field shall be present only if the dstAddrMode field has a value of
@@ -317,7 +317,7 @@ typedef aps_add_group_req_t aps_delete_group_req_t;
 /**
   Group table entry
  */
-typedef struct{
+typedef struct _attribute_packed_{
   u16 group_addr;
   u8  endpoints[APS_EP_NUM_IN_GROUP_TBL];
   u8  n_endpoints;
@@ -329,8 +329,8 @@ typedef struct{
 #define APS_BIND_DST_ADDR_LONG  1
 
 typedef struct{
-	aps_address_t 		aps_addr;
-	aps_dst_addr_mode	dst_addr_mode;
+	aps_address_t aps_addr;
+	u8 dst_addr_mode;//aps_dst_addr_mode
 }bind_dst_list;
 
 typedef struct{
@@ -391,16 +391,16 @@ typedef struct{
 	boundTblMapList_t BoudList[APS_BINDING_TABLE_NUM_V1 * APS_BINDING_TABLE_NUM_V1];
 }aps_binding_table_t _attribute_aligned_(4);
 
-typedef struct{
+typedef struct _attribute_packed_{
 	addrExt_t extAddr;
 	u8        dstEp;
 }aps_binding_extaddr_t;
 
-typedef struct{
+typedef struct _attribute_packed_{
 	u16 clusterId;     /*! cluster ID */
 	u8  srcEp;         /*! source endpoint */
 	u8  dstAddrMode;   /*! destination address mode */
-	union{
+	union _attribute_packed_{
 		u16 groupAddr;  //group address
 		aps_binding_extaddr_t dstExtAddrInfo; //zb_asp_long_dst_addr_t
 	};
@@ -434,7 +434,7 @@ typedef struct{
 	u8  extFrameCtrl;
 	u8	blockNum;
 	u16 clusterId;
-	u8 resv[2];
+	u8  resv[2];
 }aps_tx_cache_list_t;
 
 typedef struct{

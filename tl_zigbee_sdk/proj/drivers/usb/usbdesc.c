@@ -43,8 +43,8 @@ const USB_Descriptor_String_t language_desc = {
  *  Descriptor.
  */
 const USB_Descriptor_String_t vendor_desc = {
-	{sizeof(USB_Descriptor_Header_t) + sizeof(STRING_VENDOR) - 2, DTYPE_String}, // Header
-	{STRING_VENDOR}
+	{sizeof(USB_Descriptor_Header_t) + STRING_VENDOR_LEN, DTYPE_String}, // Header
+	STRING_VENDOR
 };
 
 /** Product descriptor string. This is a Unicode string containing the product's details in human readable form,
@@ -52,16 +52,16 @@ const USB_Descriptor_String_t vendor_desc = {
  *  Descriptor.
  */
 const USB_Descriptor_String_t product_desc = {
-	{sizeof(USB_Descriptor_Header_t) + sizeof(STRING_PRODUCT) - 2, DTYPE_String}, // Header
-	{STRING_PRODUCT}
+	{sizeof(USB_Descriptor_Header_t) + STRING_PRODUCT_LEN, DTYPE_String}, // Header
+	STRING_PRODUCT
 };
 
 /** Serial number string. This is a Unicode string containing the device's unique serial number, expressed as a
  *  series of uppercase hexadecimal digits.
  */
 const USB_Descriptor_String_t serial_desc = {
-	{sizeof(USB_Descriptor_Header_t) + sizeof(STRING_SERIAL) - 2, DTYPE_String}, // Header
-	{STRING_SERIAL}
+	{sizeof(USB_Descriptor_Header_t) + STRING_SERIAL_LEN, DTYPE_String}, // Header
+	STRING_SERIAL
 };
 
 /** Device descriptor.

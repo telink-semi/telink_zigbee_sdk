@@ -36,13 +36,13 @@ extern "C" {
 #define PB2_FUNC			  		AS_GPIO
 #define PB2_OUTPUT_ENABLE	  		0
 #define PB2_INPUT_ENABLE	  		1
-#define	PULL_WAKEUP_SRC_PB2	  		GPIO_PIN_PULLUP_1M
+#define	PULL_WAKEUP_SRC_PB2	  		GPIO_PIN_PULLUP_10K
 
 #define BUTTON2               		GPIO_PB3//SW7
 #define PB3_FUNC			  		AS_GPIO
 #define PB3_OUTPUT_ENABLE	  		0
 #define PB3_INPUT_ENABLE	  		1
-#define	PULL_WAKEUP_SRC_PB3	  		GPIO_PIN_PULLUP_1M
+#define	PULL_WAKEUP_SRC_PB3	  		GPIO_PIN_PULLUP_10K
 
 // LED
 #define LED_Y     					GPIO_PB5//D7
@@ -91,7 +91,6 @@ extern "C" {
 #if UART_PRINTF_MODE
 	#define	DEBUG_INFO_TX_PIN	    GPIO_PE5//print
 #endif
-
 
 enum{
 	VK_SW1 = 0x01,

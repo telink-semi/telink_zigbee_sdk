@@ -77,6 +77,19 @@ typedef enum{
 	AES_ENCRYPT_MODE	=  0,
 	AES_DECRYPT_MODE	=  2,
 }aes_mode_e;
+
+// aes api error code
+typedef enum {
+	AES_API_ERROR_TIMEOUT_NONE               = 0x00,
+	AES_API_ERROR_TIMEOUT_ENCRYPT			 = 0x01,
+	AES_API_ERROR_TIMEOUT_DECRYPT            = 0x02,
+} aes_api_error_code_e;
+
+/**
+ * aes error timeout(us),a large value is set by default,can set it by aes_set_error_timeout().
+ */
+extern unsigned int g_aes_error_timeout_us;
+
 /**********************************************************************************************************************
  *                                     global variable declaration                                                    *
  *********************************************************************************************************************/
@@ -85,11 +98,40 @@ typedef enum{
  *                                      global function prototype                                                     *
  *********************************************************************************************************************/
 /**
- * @brief    This function servers to perform aes_128 encryption for 16-Byte input data with specific 16-Byte key.
+ * @brief     This function serves to aes finite state machine reset(the configuration register is still there and does not need to be reconfigured).
+ * @return    none.
+ */
+ void aes_hw_fsm_reset(void);
+
+ /**
+  * @brief     This function serves to set the aes timeout(us).
+  * @param[in] timeout_us - the timeout(us).
+  * @return    none.
+  * @note      The default timeout (g_aes_error_timeout_us) is the larger value.If the timeout exceeds the feed dog time and triggers a watchdog restart,
+  *            g_aes_error_timeout_us can be changed to a smaller value via this interface, depending on the application.
+  *            g_aes_error_timeout_us the minimum time must meet the following conditions:
+  *            1. at least 100us;
+  *            2. maximum interrupt processing time;
+  *            3. Consider the conflict time of aes encryption and decryption by ble/bt;
+  */
+void aes_set_error_timeout(unsigned int timeout_us);
+
+/**
+ * @brief     This function serves to record the api status.
+ * @param[in] aes_api_status - aes_api_error_code_e.
+ * @return    none.
+ * @note      This function can be rewritten according to the application scenario,can read the parameters of the interface to obtain details about the timeout reason(aes_api_error_code_e),
+ *            aes_hw_fsm_reset() must be called.
+ */
+__attribute__((weak)) void aes_timeout_handler(unsigned int aes_error_timeout_code);
+
+/**
+ * @brief      This function servers to perform aes_128 encryption for 16-Byte input data with specific 16-Byte key.
  * @param[in]  key       - the key of encrypt, big--endian.
  * @param[in]  plaintext - the plaintext of encrypt, big--endian.
  * @param[out] result    - the result of encrypt, big--endian.
- * @return     none
+ * @return     1: operation successful;
+ *             DRV_API_TIMEOUT: timeout exit(g_aes_error_timeout_us refer to the note for aes_set_error_timeout,the solution processing is already done in aes_timeout_handler, so just re-invoke the interface);
  */
 int aes_encrypt(unsigned char *key, unsigned char* plaintext, unsigned char *result);
 
@@ -98,7 +140,7 @@ int aes_encrypt(unsigned char *key, unsigned char* plaintext, unsigned char *res
  * @param[in]  key       - the key of encrypt, big--endian.
  * @param[in]  plaintext - the plaintext of encrypt, big--endian.
  * @param[out] result    - the result of encrypt, big--endian.
- * @return     none
+ * @return     DRV_API_TIMEOUT: timeout exit(g_aes_error_timeout_us refer to the note for aes_set_error_timeout,the solution processing is already done in aes_timeout_handler, so just re-invoke the interface);
  * @note       Invoking this interface avoids the risk of AES conflicts when BT is connected.
  */
 int aes_encrypt_bt_en(unsigned char* key, unsigned char* plaintext, unsigned char *result);
@@ -106,9 +148,10 @@ int aes_encrypt_bt_en(unsigned char* key, unsigned char* plaintext, unsigned cha
 /**
  * @brief      This function servers to perform aes_128 decryption for 16-Byte input data with specific 16-Byte key.
  * @param[in]  key         - the key of decrypt, big--endian.
- * @param[in]  decrypttext - the decrypttext of decrypt, big--endian.
+ * @param[in]  decrypttext - the text of decrypt, big--endian.
  * @param[out] result      - the result of decrypt, big--endian.
- * @return     none.
+ * @return     1: operation successful;
+ *             DRV_API_TIMEOUT: timeout exit(g_aes_error_timeout_us refer to the note for aes_set_error_timeout,the solution processing is already done in aes_timeout_handler, so just re-invoke the interface);
  */
 int aes_decrypt(unsigned char *key, unsigned char* decrypttext, unsigned char *result);
 
@@ -117,7 +160,7 @@ int aes_decrypt(unsigned char *key, unsigned char* decrypttext, unsigned char *r
  * @param[in]  key         - the key of decrypt, big--endian.
  * @param[in]  decrypttext - the text of decrypt, big--endian.
  * @param[out] result      - the result of decrypt, big--endian.
- * @return     none.
+ * @return     DRV_API_TIMEOUT: timeout exit(g_aes_error_timeout_us refer to the note for aes_set_error_timeout,the solution processing is already done in aes_timeout_handler, so just re-invoke the interface);
  * @note       Invoking this interface avoids the risk of AES conflicts when BT is connected.
  */
 int aes_decrypt_bt_en(unsigned char* key, unsigned char* plaintext, unsigned char *result);

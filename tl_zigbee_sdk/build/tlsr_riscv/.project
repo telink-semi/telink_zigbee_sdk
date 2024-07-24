@@ -117,12 +117,12 @@
 		<link>
 			<name>platform/services/irq_handler.c</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/platform/services/b91m/irq_handler.c</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/platform/services/b91/irq_handler.c</locationURI>
 		</link>
 		<link>
 			<name>platform/services/plic_isr.c</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/platform/services/b91m/plic_isr.c</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/platform/services/b91/plic_isr.c</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>

@@ -168,7 +168,8 @@ typedef enum{
  * */
 typedef struct{
 	addrExt_t ieee_addr_interest;	/*!< The IEEE address to be matched by the Remote Device */
-	zdo_addr_req_type   req_type;   /*!< Request type for this command: \n
+	u8 req_type;   					/*!< zdo_addr_req_type
+										Request type for this command: \n
 										0x00 - Single device response \n
 										0x01 - Extended response \n
 										0x02-0xFF - reserved */
@@ -183,7 +184,8 @@ typedef struct{
  * */
 typedef struct{
 	u16 nwk_addr_interest;		/*!< NWK address that is used for IEEE address mapping */
-	zdo_addr_req_type req_type;	/*!< Request type for this command:
+	u8 req_type;				/*!< zdo_addr_req_type
+									Request type for this command:
 									0x00 C Single device response
 									0x01 C Extended response
 									0x02-0xff C reserved */
@@ -210,7 +212,7 @@ typedef	zdo_node_descriptor_req_t		zdo_power_descriptor_req_t;
  * @brief the structure for simple_descriptor_req command
  *
  * */
-typedef struct{
+typedef struct _attribute_packed_{
 	u16 nwk_addr_interest;			/*!< NWK address for the request */
 	u8  endpoint;					/*!< The endpoint on the destination */
 }zdo_simple_descriptor_req_t;
@@ -249,7 +251,7 @@ typedef	zdo_node_descriptor_req_t		zdo_user_descriptor_req_t;
  * @brief the structure for device_announce command
  *
  * */
-typedef struct{
+typedef struct _attribute_packed_{
 	u16	nwk_addr_local;					/*!< NWK address for the Local Device */
 	addrExt_t ieee_addr_local;			/*!< IEEE address for the Local Device */
 	capability_info_t mac_capability;	/*!< Capability of the local device */
@@ -310,17 +312,16 @@ typedef enum{
 	LONG_EXADDR_DSTENDPOINT 		= 0x03
 }bind_req_dst_addr_mode;
 
-typedef struct{
+typedef struct _attribute_packed_{
 	addrExt_t src_addr; 	/*!< the device who build the binding table */
 
 	u8 src_endpoint;		/*!< The source endpoint for the binding entry */
 	u8 cid16_l;				/*!< The identifier of the cluster on the source device that is bound to the destination low 8-bit */
 	u8 cid16_h;				/*!< The identifier of the cluster on the source device that is bound to the destination high 8-bit */
-	bind_req_dst_addr_mode dst_addr_mode;
-							/*!< destination address mode
+	u8 dst_addr_mode;		/*!< bind_req_dst_addr_mode
 								0x01 - 16-bit group address for dstAddr and dstEp not present
 								0x03 - 64-bit extAddr for dstAddr and estEp present */
-	union{
+	union _attribute_packed_{
 		struct{
 			addrExt_t dst_ext_addr;
 			u8 dst_endpoint;
@@ -398,7 +399,7 @@ typedef struct{
  * */
 #define	MAX_RSPNUM			6		/*!< supported maximum number of the associated device */
 
-typedef struct{
+typedef struct _attribute_packed_{
 	u8 seq_num;  			/*! Sequence number which same with the request value */
 	u8 status;	  			/*! Response status */
 	addrExt_t ieee_addr_remote; /*!< 64-bit address for the Remote Device */
@@ -427,21 +428,21 @@ typedef struct{
  * */
 typedef zdo_nwk_addr_resp_t 			zdo_ieee_addr_resp_t;
 
-typedef struct{
+typedef struct _attribute_packed_{
 	u8 	seq_num;  			/*! Sequence number which same with the request value */
 	u8 	status;	  			/*! Response status */
 	u16 nwk_addr_interest;
 	node_descriptor_t node_descriptor;
 }zdo_node_descript_resp_t;
 
-typedef struct{
+typedef struct _attribute_packed_{
 	u8 	seq_num;  			/*! Sequence number which same with the request value */
 	u8 	status;	  			/*! Response status */
 	u16 nwk_addr_interest;  /*! NWK address of the power descriptor request */
 	power_descriptor_t power_descriptor;   /*! Power descriptor of the device */
 }zdo_power_descriptor_resp_t;
 
-typedef struct{
+typedef struct _attribute_packed_{
 	u8	endpoint;				/*! end-point num of the simple descriptor 1 ~ 240 */
 	u16	app_profile_id;			/*! APP profile ID specifies the profile which supported on this EP. */
 	u16	app_dev_id;				/*! APP DEV ID specifies the device description supported on this EP. */
@@ -450,7 +451,7 @@ typedef struct{
 	u8	listInfo[1];			/*! The cluster list supported on this EP */
 }simple_descriptor_field_t;
 
-typedef struct{
+typedef struct _attribute_packed_{
 	u8 	seq_num;  				/*! Sequence number which same with the request value */
 	u8 	status;	  				/*! Response status */
 	u16	nwk_addr_interest;		/*! NWK address for the request.*/
@@ -462,7 +463,7 @@ typedef struct{
  * @brief the structure for Active_EP_rsp
  *
  * */
-typedef struct{
+typedef struct _attribute_packed_{
 	u8 	seq_num;  				/*! Sequence number which same with the request value */
 	u8 	status;	  				/*! Response status */
 	u16	nwk_addr_interest; 		/*!< NWK address for the request */
@@ -473,7 +474,7 @@ typedef struct{
 /**
  *  @brief Structure for Match_Desc_rsp
  */
-typedef struct{
+typedef struct _attribute_packed_{
 	u8 	seq_num;  			/*! Sequence number which same with the request value */
 	u8 	status;	  			/*! Response status */
 	u16 nwk_addr_interest; 	/*!< NWK address for the request */
@@ -485,7 +486,7 @@ typedef struct{
  * @brief the structure for Complex_Desc_rsp
  *
  * */
-typedef struct{
+typedef struct _attribute_packed_{
 	u8 	seq_num;  				/*! Sequence number which same with the request value */
 	u8 	status;	  				/*! Response status */
 	u16 nwk_addr_interest;		/*!< NWK address for the request */
@@ -497,7 +498,7 @@ typedef struct{
  * @brief the structure for User_Desc_rsp
  *
  * */
-typedef struct{
+typedef struct _attribute_packed_{
 	u8 	seq_num;  				/*! Sequence number which same with the request value */
 	u8 	status;	  				/*! Response status */
 	u16 nwk_addr_interest;		/*!< NWK address for the request */
@@ -536,7 +537,7 @@ typedef struct{
 typedef zdo_bind_resp_t 		zdo_end_dev_bind_resp_t;
 typedef zdo_bind_resp_t 		zdo_unbind_resp_t;
 
-typedef struct{
+typedef struct _attribute_packed_{
 	addrExt_t ext_pan_id;
 	addrExt_t ext_addr;
 	u16	network_addr;
@@ -550,7 +551,7 @@ typedef struct{
 	u8  lqi;
 }neighbor_tbl_lst_t;
 
-typedef struct{
+typedef struct _attribute_packed_{
 	u8 	seq_num;  				/*! Sequence number which same with the request value */
 	u8 	status;	  				/*! Response status */
 	u8  neighbor_tbl_entries;
@@ -559,7 +560,7 @@ typedef struct{
 	neighbor_tbl_lst_t neighbor_tbl_lst[1];
 }zdo_mgmt_lqi_resp_t;
 
-typedef struct{
+typedef struct _attribute_packed_{
 	u8 	seq_num;  				/*! Sequence number which same with the request value */
 	u8 	status;	  				/*! Response status */
 	u8 	bind_tbl_entries;
@@ -575,7 +576,7 @@ typedef struct{
 
 typedef zdo_bind_resp_t 	zdo_mgmt_permit_joining_resp_t;
 
-typedef struct{
+typedef struct _attribute_packed_{
 	u32 scanned_channels;
 	u16 total_transmissions;
 	u16 transmissions_fail;
@@ -589,7 +590,7 @@ typedef struct{
  * 				by the zdo_mgmt_nwk_update_noti_t::status field. Additional event data is provided by the fields of the
  * 				unnamed union.
  **/
-typedef struct{
+typedef struct _attribute_packed_{
 	u8 seq_num;  /*! Sequence number which same with the request value */
 	u8 status;	 /*! Response status */
 	ed_scan_t scan_result;		/*! ED scan result */
@@ -681,7 +682,7 @@ typedef struct{
 	};
 	u16	cluster_id;
 	u8	zduLen;
-	addr_mode_t	dst_addr_mode;
+	u8	dst_addr_mode;//addr_mode_t
 	zdo_callback zdoRspReceivedIndCb;
 	u8	zdpSeqNum;
 }zdo_zdp_req_t;

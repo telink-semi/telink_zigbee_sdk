@@ -28,6 +28,7 @@
 #include "reg_include/register.h"
 #include "gpio.h"
 #include "dma.h"
+#include "error_handler/error_handler.h"
 /**	@page SPI
  *
  *	Introduction
@@ -50,7 +51,26 @@
  * When spi_master_read_dma_plus()/spi_master_write_read_dma()/spi_master_write_read_dma_plus() is used, TC_MASK is used, because SPI_END_EN can only represent the completion of spi receiving,
  * and can not represent whether the dma has completed the work, to prevent abnormal situations.
  * If spi_set_irq_mask() :SPI_END_INT_EN is enabled when master read is used, disable it before read. Enable the read function after it is complete. 
-  */
+
+- Timeout mechanism
+     -# spi_set_error_timeout():define global variable g_spi_error_timeout_us,the default value is a large value,can use the preceding interfaces to adjust the value based on actual applications.
+     -# spi_get_error_timeout_code(): when an error timeout abnormally, can use the above interface to read which error belongs to spi_api_error_code_e.
+     -# spi_timeout_handler():when an error timeout exits abnormally,can do timeout processing at the application layer or the application layer redefines the interface.
+
+*/
+
+/**********************************************************************************************************************
+ *                                         global constants                                                           *
+ *********************************************************************************************************************/
+
+/**********************************************************************************************************************
+ *                                           global macro                                                             *
+ *********************************************************************************************************************/
+
+/**********************************************************************************************************************
+ *                                           global data type                                                             *
+ *********************************************************************************************************************/
+
 typedef enum{
 	SPI_RXFIFO_OR_INT_EN        =BIT(0),
 	SPI_TXFIFO_UR_INT_EN        =BIT(1),
@@ -295,6 +315,29 @@ typedef enum{
 	GSPI_XIP_48M = 2,
 	GSPI_XIP_64M = 3,
 }gspi_xip_addr_e;
+
+/**
+ * @brief  Define spi api error code.
+ */
+typedef enum {
+	SPI_API_ERROR_TIMEOUT_NONE                         = 0,
+	SPI_API_ERROR_TIMEOUT_TXFIFO_NUM_WORD	           = 1,
+	SPI_API_ERROR_TIMEOUT_TXFIFO_FULL	               = 2,
+	SPI_API_ERROR_TIMEOUT_RXFIFO_NUM_WORD              = 3,
+	SPI_API_ERROR_TIMEOUT_RXFIFO_EMPTY		           = 4,
+	SPI_API_ERROR_TIMEOUT_BUS_BUSY                     = 5,
+} spi_api_error_timeout_code_e;
+
+typedef struct {
+    unsigned int g_spi_error_timeout_us;                             //spi error timeout(us)(lspi/gspi),a large value is set by default,can set it by spi_set_error_timeout();
+	timeout_handler_fp spi_timeout_handler;                        //spi_timeout_handler(lspi/gspi);
+	volatile spi_api_error_timeout_code_e g_spi_error_timeout_code;//record spi error timeout code(lspi/gspi), can obtain the value through the spi_get_error_timeout_code() interface;
+}spi_timeout_error_t;
+
+extern spi_timeout_error_t g_spi_timeout_error[2];
+
+#define SPI_WAIT(condition,spi_sel,g_spi_error_timeout_us,spi_timeout_handler,spi_api_error_code)                               wait_condition_fails_or_timeout_with_param(condition,(unsigned int)spi_sel,g_spi_error_timeout_us,spi_timeout_handler,(unsigned int)spi_api_error_code)
+
 /**
  * @brief 		This function set gspi xip end address.
  * @param[in] 	gspi_xip_n 	- the gspi xip select.
@@ -319,6 +362,7 @@ static inline void lspi_reset(void)
 {
 	reg_rst0 &= (~FLD_RST0_LSPI);
 	reg_rst0 |= FLD_RST0_LSPI;
+	g_spi_timeout_error[LSPI_MODULE].g_spi_error_timeout_code = SPI_API_ERROR_TIMEOUT_NONE;
 }
 /**
  * @brief  This function reset GSPI module.
@@ -330,6 +374,25 @@ static inline void gspi_reset(void)
 	reg_rst1 &= (~FLD_RST1_GSPI);
 	reg_rst1 |= FLD_RST1_GSPI;
 	reg_gspi_clk_set |= (FLD_GSPI_DIV_RSTN);
+	g_spi_timeout_error[GSPI_MODULE].g_spi_error_timeout_code = SPI_API_ERROR_TIMEOUT_NONE;
+}
+
+/**
+ * @brief     This function serves to spi finite state machine reset(the configuration register is still there and does not need to be reconfigured).
+ * @param[in] spi_sel - the spi module.
+ * @return    none.
+ */
+static inline void spi_hw_fsm_reset(spi_sel_e spi_sel)
+{
+
+	if(spi_sel == LSPI_MODULE)
+	{
+		lspi_reset();
+	}
+	else if(spi_sel == GSPI_MODULE)
+	{
+		gspi_reset();
+	}
 }
 
 /**
@@ -599,14 +662,14 @@ static inline void spi_set_addr_len(spi_sel_e spi_sel, unsigned char len)
 	(reg_spi_ctrl1(spi_sel)) = ((reg_spi_ctrl1(spi_sel) & (~FLD_SPI_ADDR_LEN)) | (((len - 1) & 0x3) << 2));
 }
 
-
-
 /**
  * @brief 		This function servers to determine whether the bus is busy.
  * @param[in] 	spi_sel 	- the spi module.
  * @return   	1:Indicates that the bus is busy. 0:Indicates that the bus is free.
+                Master timeout will only be affected by their own factors, slave timeout will not only be affected by their own factors,
+                will also be affected by the master side of the influence.
  */
-static inline _Bool spi_is_busy(spi_sel_e spi_sel)
+static inline bool spi_is_busy(spi_sel_e spi_sel)
 {
 	return  reg_spi_status(spi_sel) & FLD_SPI_BUSY;
 
@@ -1138,6 +1201,41 @@ static inline void spi_set_cs_high_time(spi_sel_e spi_sel,unsigned char csht){
 }
 
 /**
+ * @brief     This function serves to record the api status.
+ * @param[in] spi_error_timeout_code - spi_api_error_timeout_code_e.
+ * @return    none.
+ * @note      This function can be rewritten according to the application scenario.
+ */
+__attribute__((weak)) void lspi_timeout_handler(unsigned int spi_error_timeout_code);
+__attribute__((weak)) void gspi_timeout_handler(unsigned int spi_error_timeout_code);
+
+/**
+ * @brief     This function serves to set the spi timeout(us).
+ * @param[in] spi_sel 	 - the spi module.
+ * @param[in] timeout_us - the timeout(us).
+ * @return    none.
+ * @note      The default timeout (g_spi_error_timeout_us) is the larger value.If the timeout exceeds the feed dog time and triggers a watchdog restart,
+ *            g_spi_error_timeout_us can be changed to a smaller value via this interface, depending on the application.
+ *            The minimum time for g_spi_error_timeout_us is related to the following factors:
+ *            1.spi clock rate;
+ *            2.cclk clock rate;
+ *            3.spi's data line(SPI_SINGLE_MODE, SPI_DUAL_MODE, SPI_QUAD_MODE);
+ *            4.maximum interrupt processing time;
+ *            5.spi write/read data length (especially SPI_WAIT_BUSY);
+ *            Solution in case of timeout exit:
+ *            when timeout exits, solution:
+ *            reset SPI(as master or slave) module,corresponding api:spi_hw_fsm_reset;
+ */
+void spi_set_error_timeout(spi_sel_e spi_sel,unsigned int timeout_us);
+
+/**
+ * @brief     This function serves to return the spi api error timeout code.
+ * @param[in] spi_sel 	 - the spi module.
+ * @return    none.
+ */
+spi_api_error_timeout_code_e spi_get_error_timeout_code(spi_sel_e spi_sel);
+
+/**
  * @brief      This function selects  pin  for gspi master or slave mode.
  * @param[in]  pin  - the selected pin.
  * @return     none
@@ -1275,39 +1373,56 @@ void gspi_set_xip_pin(gspi_xip_pin_config_t *gspi_xip_pin_config);
  * @return 		none
  */
 void lspi_set_pin(lspi_pin_config_t *spi_pin_config);
+
 /**
  * @brief     	This function servers to send command by spi.
  * @param[in] 	spi_sel - the spi module.
  * @param[in] 	cmd - command.
- * @return 		none
+ * @return 		DRV_API_SUCCESS:command sent from successfully. others:fail to send command from.
+ *              DRV_API_TIMEOUT:timeout exit(solution refer to the note for spi_set_error_timeout).
  */
-void spi_master_send_cmd(spi_sel_e spi_sel, unsigned char cmd);
+drv_api_status_e spi_master_send_cmd(spi_sel_e spi_sel, unsigned char cmd);
+
 /**
  * @brief     	This function servers to write spi fifo.
+ * tx_fifo_depth are fixed sizes.
+ * lspi with txfifo depth = 20 bytes
+ * gspi with txfifo depth = 8 bytes
  * @param[in] 	spi_sel - the spi module.
  * @param[in] 	data 	- the pointer to the data for write.
  * @param[in] 	len 	- write length.
- * @return    	none
+ * @return    	DRV_API_SUCCESS:data write to txfifo successfully. others:data write to txfifo failed.
+ *              DRV_API_TIMEOUT:timeout exit(solution refer to the note for spi_set_error_timeout).
+                Master timeout will only be affected by their own factors, slave timeout will not only be affected by their own factors,
+                will also be affected by the master side of the influence.
+ *
  */
-void spi_write(spi_sel_e spi_sel, unsigned char *data, unsigned int len);
+drv_api_status_e spi_write(spi_sel_e spi_sel, unsigned char *data, unsigned int len);
 
 /**
  * @brief     	This function servers to read spi fifo.
+ * rx_fifo_depth are fixed sizes.
+ * lspi with rxfifo deepth = 12 bytes
+ * gspi with rxfifo deepth = 8 bytes
  * @param[in] 	spi_sel	- the spi module.
  * @param[in] 	data 	- the pointer to the data for read.
  * @param[in] 	len 	- write length.
- * @return    	none
+ * @return    	DRV_API_SUCCESS:data fetched from rxfifo successfully. others:data fetched from rxfifo failed.
+ *              DRV_API_TIMEOUT:timeout exit(solution refer to the note for spi_set_error_timeout).
+                Master timeout will only be affected by their own factors, slave timeout will not only be affected by their own factors,
+                will also be affected by the master side of the influence.
  */
-void spi_read(spi_sel_e spi_sel, unsigned char *data, unsigned int len);
+drv_api_status_e spi_read(spi_sel_e spi_sel, unsigned char *data, unsigned int len);
 
 /**
  * @brief     	This function serves to normal write data in normal.
  * @param[in] 	spi_sel - the spi module.
  * @param[in] 	data 	- the pointer to the data for write.
  * @param[in] 	len 	- write length.
- * @return  	none
+ * @return  	DRV_API_SUCCESS:master write data successfully. others:master write data failed.
+ *              DRV_API_TIMEOUT:timeout exit(solution refer to the note for spi_set_error_timeout).
  */
-void spi_master_write(spi_sel_e spi_sel, unsigned char *data, unsigned int len);
+drv_api_status_e spi_master_write(spi_sel_e spi_sel, unsigned char *data, unsigned int len);
 
 /**
  * @brief     	This function serves to normal write and read data.
@@ -1318,9 +1433,10 @@ void spi_master_write(spi_sel_e spi_sel, unsigned char *data, unsigned int len);
  * @param[in] 	wr_len 	- write length.
  * @param[in] 	rd_data - the pointer to the data for read.
  * @param[in] 	rd_len 	- read length.
- * @return  	none
+ * @return  	DRV_API_SUCCESS:master write read data successfully. others:master write read data failed.
+ *              DRV_API_TIMEOUT:timeout exit(solution refer to the note for spi_set_error_timeout).
  */
-void spi_master_write_read(spi_sel_e spi_sel, unsigned char *wr_data, unsigned int wr_len, unsigned char *rd_data, unsigned int rd_len);
+drv_api_status_e spi_master_write_read(spi_sel_e spi_sel, unsigned char *wr_data, unsigned int wr_len, unsigned char *rd_data, unsigned int rd_len);
 
 /**
  * @brief     	This function serves to single/dual/quad write to the SPI slave.
@@ -1330,18 +1446,21 @@ void spi_master_write_read(spi_sel_e spi_sel, unsigned char *wr_data, unsigned i
  * @param[in] 	data 		-  pointer to the data need to write.
  * @param[in] 	data_len 	- length in byte of the data need to write.
  * @param[in] 	wr_mode 	- write mode.dummy or not dummy.
- * @return  	none
+ * @return  	DRV_API_SUCCESS:master write data successfully. others:master write data failed.
+ *              DRV_API_TIMEOUT:timeout exit(solution refer to the note for spi_set_error_timeout).
  */
-void spi_master_write_plus(spi_sel_e spi_sel, unsigned char cmd, unsigned int addr, unsigned char *data, unsigned int data_len, spi_wr_tans_mode_e wr_mode);
+drv_api_status_e spi_master_write_plus(spi_sel_e spi_sel, unsigned char cmd, unsigned int addr, unsigned char *data, unsigned int data_len, spi_wr_tans_mode_e wr_mode);
+
 /**
  * @brief     	This function serves to normal write data repeatedly.
  * @param[in] 	spi_sel 	- the spi module.
  * @param[in] 	data 		- the pointer to the data for write.
  * @param[in] 	len 		- write length.
  * @param[in] 	repeat_time - number of times to write data repeatedly.
- * @return  	none
+ * @return  	DRV_API_SUCCESS:master write data successfully. others:master write data failed.
+ *              DRV_API_TIMEOUT:timeout exit(solution refer to the note for spi_set_error_timeout).
  */
-void spi_master_write_repeat(spi_sel_e spi_sel, unsigned char *data, unsigned int len, unsigned int repeat_time);
+drv_api_status_e spi_master_write_repeat(spi_sel_e spi_sel, unsigned char *data, unsigned int len, unsigned int repeat_time);
 
 /**
  * @brief     	This function serves to single/dual/quad write data to the SPI slave repeatedly.
@@ -1352,11 +1471,12 @@ void spi_master_write_repeat(spi_sel_e spi_sel, unsigned char *data, unsigned in
  * @param[in] 	data_len 	- length in byte of the data need to write.
  * @param[in] 	wr_mode 	- write mode.dummy or not dummy.
  * @param[in] 	repeat_time - number of times to write data repeatedly.
- * @return  	none
+ * @return  	DRV_API_SUCCESS:master write data successfully. others:master write data failed.
+ *              DRV_API_TIMEOUT:timeout exit(solution refer to the note for spi_set_error_timeout).
  * @attention 	Only data would be written repeatedly. the typical sending order is cmd + address + data * repeat_time,
  * 				cmd and address would not be repeated.
  */
-void spi_master_write_repeat_plus(spi_sel_e spi_sel, unsigned char cmd, unsigned int addr, unsigned char *data, unsigned int data_len, unsigned int repeat_time, spi_wr_tans_mode_e wr_mode);
+drv_api_status_e spi_master_write_repeat_plus(spi_sel_e spi_sel, unsigned char cmd, unsigned int addr, unsigned char *data, unsigned int data_len, unsigned int repeat_time, spi_wr_tans_mode_e wr_mode);
 
 /**
  * @brief     	This function serves to single/dual/quad  read from the SPI slave.
@@ -1366,9 +1486,10 @@ void spi_master_write_repeat_plus(spi_sel_e spi_sel, unsigned char cmd, unsigned
  * @param[in]  	data 		- pointer to the data need to read.
  * @param[in]  	data_len 	- the length of data.
  * @param[in]  	rd_mode 	- read mode.dummy or not dummy.
- * @return   	none
+ * @return   	DRV_API_SUCCESS:master read data successfully. others:master read data failed.
+ *              DRV_API_TIMEOUT:timeout exit(solution refer to the note for spi_set_error_timeout).
  */
-void spi_master_read_plus(spi_sel_e spi_sel, unsigned char cmd, unsigned int addr, unsigned char *data, unsigned int data_len, spi_rd_tans_mode_e rd_mode);
+drv_api_status_e spi_master_read_plus(spi_sel_e spi_sel, unsigned char cmd, unsigned int addr, unsigned char *data, unsigned int data_len, spi_rd_tans_mode_e rd_mode);
 
 /**
  * @brief      	This function serves to write address, then read data from the SPI slave.
@@ -1380,9 +1501,10 @@ void spi_master_read_plus(spi_sel_e spi_sel, unsigned char cmd, unsigned int add
  * @param[in]  	data 		- the pointer to the data for read.
  * @param[in]  	data_len 	- read length.
  * @param[in] 	wr_mode 	- write mode.dummy or not dummy.
- * @return   	none
+ * @return   	DRV_API_SUCCESS:master write read data successfully, others:master write read data failed.
+ *              DRV_API_TIMEOUT:timeout exit(solution refer to the note for spi_set_error_timeout).
  */
-void spi_master_write_read_plus(spi_sel_e spi_sel, unsigned char cmd, unsigned char *addrs, unsigned int addr_len, unsigned char *data, unsigned int data_len, spi_rd_tans_mode_e wr_mode);
+drv_api_status_e spi_master_write_read_plus(spi_sel_e spi_sel, unsigned char cmd, unsigned char *addrs, unsigned int addr_len, unsigned char *data, unsigned int data_len, spi_rd_tans_mode_e wr_mode);
 
 /**
  * @brief     	This function serves to set tx_dma channel and config dma tx default.

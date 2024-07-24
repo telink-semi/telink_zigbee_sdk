@@ -79,7 +79,6 @@ _RESET_ENTRY:
     .word ('T'<<24 | 'L'<<16 | 'N'<<8 | 'K')
 
     .org 0x26
-    //.short (0x0003)           //READ:    cmd:1x, addr:1x, data:1x, dummy cycle:0
     //.short (0x070B)           //FREAD:   cmd:1x, addr:1x, data:1x, dummy cycle:8
     .short (0x173B)           //DREAD:   cmd:1x, addr:1x, data:2x, dummy cycle:8
     //.short (0x53BB)           //X2READ:  cmd:1x, addr:2x, data:2x, dummy cycle:4

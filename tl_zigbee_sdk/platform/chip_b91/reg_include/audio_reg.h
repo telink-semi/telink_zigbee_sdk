@@ -229,7 +229,11 @@ enum
 	FLD_AUDIO_CODEC_SLEEP_ANALOG        =  BIT(2),
 };
 
-
+#define   addr_audio_codec_cr_ck            REG_ADDR8(REG_CODEC_BASE_ADDR+(0x07<<2))
+enum
+{
+    FLD_AUDIO_CODEC_MCLK_FREQ           =  BIT_RNG(0,1),
+};
 
 #define   reg_audio_codec_dac_itf_ctr           REG_ADDR8(REG_CODEC_BASE_ADDR+(0x08<<2))
 #define   addr_audio_codec_dac_itf_ctr           0x08

@@ -24,6 +24,7 @@
 #ifndef SPI_H
 #define SPI_H
 
+#include <stdbool.h>
 #include "reg_include/register.h"
 #include "gpio.h"
 #include "dma.h"

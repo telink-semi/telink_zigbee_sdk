@@ -61,8 +61,7 @@ typedef struct
 	u8 contactBitmask;
 }genSwitchCmd_t;
 
-typedef struct
-{
+typedef struct _attribute_packed_{
 	u8 reportId;
 	u8 attrOffsetWithinReport;
 	u16 clusterId;
@@ -72,30 +71,26 @@ typedef struct
 	u16 manuId;
 }compactAttrReport_t;
 
-typedef struct
-{
+typedef struct _attribute_packed_{
 	optSelector_t optSelector;
 	genSwitchCmd_t cmd;
 	gpGenericSwCfg_t switchCfg;
 }optRecordVectorCmd_t;
 
-typedef struct
-{
+typedef struct _attribute_packed_{
 	optSelector_t optSelector;
 	compactAttrReport_t report;
 }optRecordCompactAttrReport_t;
 
-typedef union
-{
-	optRecordVectorCmd_t vectorCmd;
-	optRecordCompactAttrReport_t compactReport;
+typedef union _attribute_packed_{
+	optRecordVectorCmd_t vectorCmd;	//4-bytes
+	optRecordCompactAttrReport_t compactReport;	//11-bytes
 }optRecord_t;
 
 /*
  *  @brief	Sink translation table entry
  */
-typedef struct
-{
+typedef struct _attribute_packed_{
 	gpdId_t	gpdId;
 	transOpt_t options;
 	u8 gpdEndpoint;
@@ -106,10 +101,10 @@ typedef struct
 	u8 zbCommandId;
 	u8 zbCmdPayloadLen;
 	u8 optRecordUsed;
-	u8 used;
-	u8 zbCmdPayload[ZB_CMD_PAYLOAD_LEN_MAX];
+	u8 used;		//20-bytes
+	u8 zbCmdPayload[ZB_CMD_PAYLOAD_LEN_MAX];	//8-bytes
 	optRecord_t optRecord;
-}transTabEntry_t;	//50-bytes
+}transTabEntry_t;	//39-bytes
 
 /*
  *  @brief	Sink translation configuration
@@ -127,8 +122,7 @@ typedef struct
 /***************************************************************************
 * @brief	Define for GP Sink Translation Table
 */
-typedef struct
-{
+typedef struct _attribute_packed_{
 	transTabEntry_t transTab[GPS_MAX_TRANS_TABLE_ENTRIES];
 	u8 transTabNum;
 }gp_translationTab_t;

@@ -27,7 +27,7 @@
 
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	#define PWM_CLOCK_SOURCE			CLOCK_SYS_CLOCK_HZ
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
 	#define PWM_CLOCK_SOURCE			(sys_clk.pclk * 1000 * 1000)
 #endif
 
@@ -42,7 +42,7 @@
 	#define drv_pwm_stop(pwmId)			pwm_stop(pwmId)
 	#define drv_pwm_invert(pwmId)		pwm_revert(pwmId)
 	#define drv_pwm_n_invert(pwmId)		pwm_n_revert(pwmId)
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
 	#define drv_pwm_start(pwmId)		(pwmId == PWM0_ID) ? (pwm_start(FLD_PWM0_EN)) : (pwm_start(BIT(pwmId)))
 	#define drv_pwm_stop(pwmId)			(pwmId == PWM0_ID) ? (pwm_stop(FLD_PWM0_EN)) : (pwm_stop(BIT(pwmId)))
 	#define drv_pwm_invert(pwmId)		pwm_invert_en(pwmId)

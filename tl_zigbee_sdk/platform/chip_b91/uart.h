@@ -39,7 +39,7 @@
  - The uart two working modes nodma/dma,can be used as follows:
     -# UART Initialization and Configuration
          -# dma/nodma:
-             - To prevent the uart module from storing history information, before use call uart_reset API;
+             - To prevent the uart module from storing history information, before use call uart_hw_fsm_reset API;
              - Initializes the tx/rx pin by uart_set_pin API;
              - Configure the baud rate/stop bit/ parity by uart_cal_div_and_bwpc/uart_init API;
          -# dma
@@ -52,24 +52,24 @@
                configured by uart_rx_irq_trig_level/uart_set_irq_mask(UART_RX_IRQ_MASK) API;
              - detect the UART receives data incorrectly(such as a parity error or a stop bit error),configured by uart_set_irq_mask(UART_ERR_IRQ_MASK) API;
                  - If err occurs during the receiving process, perform the following operations: 
-                    -# uart_reset();
+                    -# uart_hw_fsm_reset();
                     -# uart_clr_rx_index();
                     -# clear the data received in ram buff;
              - uart module interrupt enable and total interrupt enable by plic_interrupt_enable/core_interrupt_enable API;
        -# dma:use tx_done and rx_done(or dma tc_mask) to check whether the sending and receiving are complete,and err receive detection when rx_done.
              - tx_done:use the tx_done of the uart module,use uart_set_irq_mask(UART_TXDONE_MASK);
              - rx_done:use rx_done of uart module rx_done,use uart_set_irq_mask(UART_RXDONE_MASK) (When the length of the send is not known):
-                  - After rxdone is generated and before configuring the next dma, the rxfifo hardware pointer must be set to 0 (uart_reset())
+                  - After rxdone is generated and before configuring the next dma, the rxfifo hardware pointer must be set to 0 (uart_hw_fsm_reset())
                     in order to prevent the next dma from working properly due to the rxfifo pointer not being in the default state(When the sending length is greater than the receiving length).
                   - When the send length is less than the receive length, although the rxdone interrupt is generated, the dma has not reached the configured length, and the dma is still working.
                     When configuring the next dma, dma_chn_dis() needs to be configured before the next dma(this action has been processed in uart_receive_dma).
              - tc_mask:use tc_mask of dma module,use dma_set_irq_mask() : TC_MASK (If the transmission length is fixed):
                   - A dma interrupt can only occur if the receive length is equal to the length configured by the dma.
                   - If the dma stops working and reconfigures it, perform the following operations:
-                      -# uart_reset();
+                      -# uart_hw_fsm_reset();
                       -# uart_receive_dma();(dma_chn_dis has been implemented in uart_receive_dma())
              - If err is displayed during dma receiving, the recommended action is as follows:
-                      -# uart_reset();
+                      -# uart_hw_fsm_reset();
                       -# uart_receive_dma();(dma_chn_dis has been implemented in uart_receive_dma())
              - uart module interrupt or dma module interrupt enable and total interrupt by plic_interrupt_enable/core_interrupt_enable API;
     -# UART enter suspend sleep before and after handling
@@ -114,8 +114,8 @@
                 - The two packets of data are very close to each other, but the rx_done signal of the previous data has also been generated. Before the rx_done interrupt flag and rx_fifo software are cleared,
                   the next data has been transferred, which leads to the error of clearing.
             - When using DMA to receive data, if rx_done occurs and there's data in rx fifo, rx fifo needs to be cleared for the next dma transmission. 
-              in B91, clearing rxbuff interrupt status won't work, therefore requiring uart_reset() function to do this operation,
-              But using uart_reset() function might break dma tx transmission, potentially causing data loss.
+              in B91, clearing rxbuff interrupt status won't work, therefore requiring uart_hw_fsm_reset() function to do this operation,
+              But using uart_hw_fsm_reset() function might break dma tx transmission, potentially causing data loss.
  - The UART flow control CTS/RTS
       -# CTS(when the cts pin receives an active level, it stops sending data)
          - Configure the cts pin and polarity,by uart_cts_config API;
@@ -150,7 +150,8 @@ extern unsigned char uart_tx_byte_index[2];
 
 #define uart_rtx_pin_tx_trig(uart_num)  uart_clr_tx_done(uart_num)
 
-
+//for compatibility
+#define uart_reset   uart_hw_fsm_reset
 /**********************************************************************************************************************
  *                                         global constants                                                           *
  *********************************************************************************************************************/
@@ -326,13 +327,15 @@ static inline unsigned char uart_get_txfifo_num(uart_num_e uart_num)
 }
 
 /**
- * @brief     Resets uart module,before using uart, need to call uart_reset() to avoid affecting the use of uart.
+ * @brief     uart finite state machine reset(the configuration register is still there and does not need to be reconfigured),
+ *            For compatibility define uart_reset uart_hw_fms_reset, uart_hw_fms_reset is used when the driver is invoked (no matter at the driver layer or demo layer),
+ *            before using UART, it is needed to call uart_hw_fsm_reset() to avoid affecting the use of UART.
  * @param[in] uart_num - UART0 or UART1.
  * @return    none
  * @note -
  *            this function will clear rx and tx status and fifo.
  */
-static inline void uart_reset(uart_num_e uart_num)
+static inline void uart_hw_fsm_reset(uart_num_e uart_num)
 {
 	/**
 	  In B91, tx_done is 1 by default, after uart reset(write 0, then write 1) write 0,UART_TXDONE will be restored to its default value,
@@ -595,7 +598,7 @@ unsigned int uart_get_dma_rev_data_len(uart_num_e uart_num,dma_chn_e chn);
   * @return    none
   * @note      In the case that the DMA transfer is not completed(bit 0 of reg_dma_ctr0(chn): 1-the transmission has not been completed,0-the transmission is completed), re-calling the DMA-related functions may cause problems.
   *            If you must do this, you must perform the following sequence:
-  *            1. dma_chn_dis(uart_dma_tx_chn[uart_num]) 2.uart_reset() 3.uart_send_dma()
+  *            1. dma_chn_dis(uart_dma_tx_chn[uart_num]) 2.uart_hw_fsm_reset() 3.uart_send_dma()
   */
 void uart_set_tx_dma_config(uart_num_e uart_num, dma_chn_e chn);
 
@@ -606,7 +609,7 @@ void uart_set_tx_dma_config(uart_num_e uart_num, dma_chn_e chn);
  * @return    none
  * @note      In the case that the DMA transfer is not completed(bit 0 of reg_dma_ctr0(chn): 1-the transmission has not been completed,0-the transmission is completed), re-calling the DMA-related functions may cause problems.
  *            If you must do this, you must perform the following sequence:
- *            1. dma_chn_dis(uart_dma_rx_chn[uart_num]) 2.uart_reset() 3.uart_receive_dma()
+ *            1. dma_chn_dis(uart_dma_rx_chn[uart_num]) 2.uart_hw_fsm_reset() 3.uart_receive_dma()
  */
 void uart_set_rx_dma_config(uart_num_e uart_num, dma_chn_e chn);
 
@@ -801,7 +804,7 @@ static inline void uart_rts_manual_mode(uart_num_e uart_num)
  *               after the uart reset interface is invoked, the hardware read and write Pointers are cleared to zero.
  *               Therefore, the software read and write Pointers are cleared to ensure logical correctness.
  *            -# After suspend wakes up, you must call uart_clr_tx_index and uart_clr_rx_index to clear read and write pointers,
- *               because after suspend wakes up, the chip is equivalent to performing a uart_reset,
+ *               because after suspend wakes up, the chip is equivalent to performing a uart_hw_fsm_reset,
  *               so the software read and write pointer also needs to be cleared to zero.
  */
 static inline void uart_clr_rx_index(uart_num_e uart_num)
@@ -818,7 +821,7 @@ static inline void uart_clr_rx_index(uart_num_e uart_num)
  *               after the uart reset interface is invoked, the hardware read and write Pointers are cleared to zero.
  *               Therefore, the software read and write Pointers are cleared to ensure logical correctness.
  *            -# After suspend wakes up, you must call uart_clr_tx_index and uart_clr_rx_index to clear read and write pointers,
- *               because after suspend wakes up, the chip is equivalent to performing a uart_reset,
+ *               because after suspend wakes up, the chip is equivalent to performing a uart_hw_fsm_reset,
  *               so the software read and write pointer also needs to be cleared to zero.
  */
 static inline void uart_clr_tx_index(uart_num_e uart_num)

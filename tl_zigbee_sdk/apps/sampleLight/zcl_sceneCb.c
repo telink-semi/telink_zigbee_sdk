@@ -75,7 +75,7 @@ static void sampleLight_sceneRecallReqHandler(zclIncomingAddrInfo_t *pAddrInfo, 
 #ifdef ZCL_LEVEL_CTRL
 	moveToLvl_t moveToLevel;
 	moveToLevel.level = level;
-	moveToLevel.transitionTime = pScene->transTime;
+	moveToLevel.transitionTime = pScene->transTime * 10 + pScene->transTime100ms;
 	moveToLevel.optPresent = 0;
 
 	sampleLight_levelCb(pAddrInfo, ZCL_CMD_LEVEL_MOVE_TO_LEVEL, &moveToLevel);
@@ -86,14 +86,14 @@ static void sampleLight_sceneRecallReqHandler(zclIncomingAddrInfo_t *pAddrInfo, 
 	zcl_colorCtrlMoveToHueAndSaturationCmd_t move2HueAndSat;
 	move2HueAndSat.hue = hue;
 	move2HueAndSat.saturation = saturation;
-	move2HueAndSat.transitionTime = pScene->transTime;
+	move2HueAndSat.transitionTime = pScene->transTime * 10 + pScene->transTime100ms;
 	move2HueAndSat.optPresent = 0;
 
 	sampleLight_colorCtrlCb(pAddrInfo, ZCL_CMD_LIGHT_COLOR_CONTROL_MOVE_TO_HUE_AND_SATURATION, &move2HueAndSat);
 #elif COLOR_CCT_SUPPORT
 	zcl_colorCtrlMoveToColorTemperatureCmd_t move2ColorTemp;
 	move2ColorTemp.colorTemperature = colorTemperatureMireds;
-	move2ColorTemp.transitionTime = pScene->transTime;
+	move2ColorTemp.transitionTime = pScene->transTime * 10 + pScene->transTime100ms;
 	move2ColorTemp.optPresent = 0;
 
 	sampleLight_colorCtrlCb(pAddrInfo, ZCL_CMD_LIGHT_COLOR_CONTROL_MOVE_TO_COLOR_TEMPERATURE, &move2ColorTemp);

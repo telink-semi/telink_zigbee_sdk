@@ -34,6 +34,7 @@
 #ifndef STIMER_H_
 #define STIMER_H_
 
+#include <stdbool.h>
 #include "compiler.h"
 #include "reg_include/stimer_reg.h"
 

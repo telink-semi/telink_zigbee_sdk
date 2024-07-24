@@ -31,6 +31,7 @@
 #include "flash_mid186085.h"    // P25Q128L
 #include "flash_mid1560c8.h"    // GD25LQ16E
 #include "flash_mid1460c8.h"	// GD25LQ80E
+#include "flash_mid1660c8.h"    // GD25LQ32E/GD25LE32E
 /**
  * @brief		This function reads the status of flash.
  * @param[in] 	cmd	- the cmd of read status.

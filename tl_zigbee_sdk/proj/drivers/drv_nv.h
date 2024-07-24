@@ -96,7 +96,7 @@
 /* Flash Base Address define */
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	#define FLASH_TLNK_FLAG_OFFSET		8
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
 	#define FLASH_TLNK_FLAG_OFFSET		32
 #endif
 
@@ -164,6 +164,9 @@ extern u32 g_u32CfgFlashAddr;
  * 0x771C1(or 0xFF1C1) for LDO trim.
  */
 #define CFG_VDD_F_CALIBRATION			(FACTORY_CFG_BASE_ADD + 0x1C0)
+
+/* 2 bytes for RX DCOC */
+#define CFG_RX_DCOC_CALIBRATION			(FACTORY_CFG_BASE_ADD + 0x280)
 
 
 /**************************************************************************************
@@ -288,7 +291,7 @@ typedef struct{
 	u8  used;
 }itemHdr_t;
 
-typedef struct{
+typedef struct _attribute_packed_{
 	u16 opIndex;
 	u8 	opSect;
 }itemIfno_t;

@@ -106,7 +106,7 @@ typedef struct {
 /**
  *  @brief  Structure definition for alarm table entry in alarm cluster
  */
-typedef struct {
+typedef struct _attribute_packed_{
 	u8  alarmCode;                       //!< Identifying code for the cause of the alarm
     u16 clusterId;                       //!< The identifier of the cluster whose attribute generated this alarm
     u32 timeStamp;                       //!< The time at which the alarm occurred
@@ -115,7 +115,7 @@ typedef struct {
 /**
  *  @brief  Structure definition for alarm table
  */
-typedef struct {
+typedef struct _attribute_packed_{
 	u8 used;
 	u8 endpoint;
 	zcl_alarmEntry_t alarm;

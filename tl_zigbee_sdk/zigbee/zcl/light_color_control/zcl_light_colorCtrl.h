@@ -219,26 +219,26 @@ typedef enum {
  */
 typedef struct {
     u8  hue;
-    zcl_colorCtrlDir_t direction;
+    u8  direction;			//!< zcl_colorCtrlDir_t
     u16 transitionTime;
-	u8  optPresent;        //!< options field present
+	u8  optPresent;			//!< options field present
 	u8	optionsMask;
 	u8	optionsOverride;
 } zcl_colorCtrlMoveToHueCmd_t;
 
 typedef struct {
-    zcl_colorCtrlMoveMode_t moveMode;
+    u8  moveMode;			//!< zcl_colorCtrlMoveMode_t
     u8  rate;
-	u8  optPresent;        //!< options field present
+	u8  optPresent;			//!< options field present
 	u8	optionsMask;
 	u8	optionsOverride;
 } zcl_colorCtrlMoveHueCmd_t;
 
 typedef struct {
-    zcl_colorCtrlStepMode_t stepMode;
+    u8  stepMode;			//!< zcl_colorCtrlStepMode_t
     u8  stepSize;
     u8  transitionTime;
-	u8  optPresent;        //!< options field present
+	u8  optPresent;			//!< options field present
 	u8	optionsMask;
 	u8	optionsOverride;
 } zcl_colorCtrlStepHueCmd_t;
@@ -252,18 +252,18 @@ typedef struct {
 } zcl_colorCtrlMoveToSaturationCmd_t;
 
 typedef struct {
-    zcl_colorCtrlMoveMode_t moveMode;
+    u8  moveMode;			//!< zcl_colorCtrlMoveMode_t
     u8  rate;
-	u8  optPresent;        //!< options field present
+	u8  optPresent;			//!< options field present
 	u8	optionsMask;
 	u8	optionsOverride;
 } zcl_colorCtrlMoveSaturationCmd_t;
 
 typedef struct {
-    zcl_colorCtrlStepMode_t stepMode;
+    u8  stepMode;			//!< zcl_colorCtrlStepMode_t
     u8  stepSize;
     u8  transitionTime;
-	u8  optPresent;        //!< options field present
+	u8  optPresent;			//!< options field present
 	u8	optionsMask;
 	u8	optionsOverride;
 } zcl_colorCtrlStepSaturationCmd_t;
@@ -314,25 +314,25 @@ typedef struct {
 typedef struct {
     u16 enhancedHue;
     u16 transitionTime;
-    zcl_colorCtrlDir_t	direction;
-	u8  optPresent;        //!< options field present
+    u8	direction;			//!< zcl_colorCtrlDir_t
+	u8  optPresent;			//!< options field present
 	u8	optionsMask;
 	u8	optionsOverride;
 } zcl_colorCtrlEnhancedMoveToHueCmd_t;
 
 typedef struct {
-    zcl_colorCtrlMoveMode_t	moveMode;
+    u8	moveMode;			//!< zcl_colorCtrlMoveMode_t
     u16	rate;
-	u8  optPresent;        //!< options field present
+	u8  optPresent;			//!< options field present
 	u8	optionsMask;
 	u8	optionsOverride;
 } zcl_colorCtrlEnhancedMoveHueCmd_t;
 
 typedef struct {
-    zcl_colorCtrlStepMode_t stepMode;
+    u8  stepMode;			//!< zcl_colorCtrlStepMode_t
     u16 stepSize;
     u16 transitionTime;
-	u8  optPresent;        //!< options field present
+	u8  optPresent;			//!< options field present
 	u8	optionsMask;
 	u8	optionsOverride;
 } zcl_colorCtrlEnhancedStepHueCmd_t;
@@ -350,9 +350,9 @@ typedef struct {
     u16 time;
     u16 startHue;
     zcl_colorLoopSetUpdateFlags_t	updateFlags;
-    zcl_colorLoopSetAction_t		action;
-    zcl_colorLoopSetDir_t			direction;
-	u8  optPresent;        //!< options field present
+    u8  action;				//!< zcl_colorLoopSetAction_t
+    u8  direction;			//!< zcl_colorLoopSetDir_t
+	u8  optPresent;			//!< options field present
 	u8	optionsMask;
 	u8	optionsOverride;
 } zcl_colorCtrlColorLoopSetCmd_t;
@@ -367,8 +367,8 @@ typedef struct {
 	u16	rate;
 	u16	colorTempMinMireds;
 	u16	colorTempMaxMireds;
-	zcl_colorCtrlMoveMode_t moveMode;
-	u8  optPresent;        //!< options field present
+	u8  moveMode;			//!< zcl_colorCtrlMoveMode_t
+	u8  optPresent;			//!< options field present
 	u8	optionsMask;
 	u8	optionsOverride;
 } zcl_colorCtrlMoveColorTemperatureCmd_t;
@@ -378,8 +378,8 @@ typedef struct {
 	u16	transitionTime;
 	u16	colorTempMinMireds;
 	u16	colorTempMaxMireds;
-	zcl_colorCtrlStepMode_t stepMode;
-	u8  optPresent;        //!< options field present
+	u8  stepMode;			//!< zcl_colorCtrlStepMode_t
+	u8  optPresent;			//!< options field present
 	u8	optionsMask;
 	u8	optionsOverride;
 } zcl_colorCtrlStepColorTemperatureCmd_t;

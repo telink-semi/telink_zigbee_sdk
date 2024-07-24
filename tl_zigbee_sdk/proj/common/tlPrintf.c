@@ -24,7 +24,7 @@
  *******************************************************************************************************/
 
 #include "../drivers/drv_putchar.h"
-#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
+#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
 	#include <stdarg.h>
 #else
 	typedef char *va_list;
@@ -42,7 +42,7 @@
 
 
 
-#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
+#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
 __attribute__((used)) int _write(int fd, const unsigned char *buf, int size){
 	(void)fd;
     int i;

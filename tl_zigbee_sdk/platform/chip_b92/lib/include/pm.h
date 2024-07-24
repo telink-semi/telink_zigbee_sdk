@@ -50,7 +50,12 @@
  * @brief these analog register can store data in deep sleep mode or deep sleep with SRAM retention mode.
  * 	      Reset these analog registers by watchdog, software reboot (sys_reboot()), RESET Pin, power cycle, 32k watchdog, vbus detect.
  */
-#define PM_ANA_REG_WD_CLR_BUF0			0x35 // initial value 0xff. [Bit0] is already occupied. The customer cannot change!
+/**
+ * Customers cannot use analog register 0x35 because driver and chip functions are occupied, details are as follows:
+ * [Bit0]: If this bit is 1, it means that reboot or power on has occurred. If this bit is 0, it means that sleep has occurred.
+ * [Bit1~7]: These bits are used by the driver and cannot be used by the customer.
+ */
+#define PM_ANA_REG_WD_CLR_BUF0			0x35 // initial value 0xff.
 #define PM_ANA_REG_WD_CLR_BUF1			0x36 // initial value 0x00.
 #define PM_ANA_REG_WD_CLR_BUF2			0x37 // initial value 0x00
 #define PM_ANA_REG_WD_CLR_BUF3			0x38 // initial value 0x00
@@ -61,11 +66,12 @@
  * 	      Reset these analog registers by power cycle, 32k watchdog, RESET Pin,vbus detect.
  */
 /**
- * Customers cannot use [bit0],[bit1],[bit2],[bit7] of analog register 0x3a because driver and chip functions are occupied, details are as follows:
+ * Customers cannot use analog register 0x3a because driver and chip functions are occupied, details are as follows:
  * [Bit0]: If this bit is 1, it means that reboot has occurred.
  * [Bit1]: If this bit is 1, it means that the software calls the function sys_reboot() when the crystal oscillator does not start up normally.
  * [Bit2]: If this bit is 1, it means that the pm_sleep_wakeup function failed to clear the pm wake flag bit when using the deep wake source, and the software called sys_reboot().
- * [Bit7]: The security boot function of the bootrom is used.
+ * [Bit3~6]: These bits are used by the driver and cannot be used by the customer.
+ * [Bit7]: The bootrom is used.
  */
 #define PM_ANA_REG_POWER_ON_CLR_BUF0	0x3a // initial value 0x00
 #define PM_ANA_REG_POWER_ON_CLR_BUF1	0x3b // initial value 0x00

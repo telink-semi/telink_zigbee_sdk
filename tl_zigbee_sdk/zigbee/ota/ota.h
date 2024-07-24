@@ -65,7 +65,7 @@ typedef enum{
 
 
 
-typedef struct{
+typedef struct _attribute_packed_{
 	/*The value is a unique 4-byte value that is included at the beginning of all ZigBee OTA upgrade image
 	files in order to quickly identify and distinguish the file as being a ZigBee OTA cluster upgrade file,
 	without having to examine the whole file content. This helps distinguishing the file from other file
@@ -100,7 +100,7 @@ typedef struct{
 	addrExt_t	fileDest;
 	u16			minHdrVer;
 	u16			maxHdrVer;
-}ota_hdrFields_t;
+}ota_hdrFields_t;	//69-bytes
 
 typedef struct{
 	u32			fileVer;
@@ -159,7 +159,7 @@ typedef struct{
 	bool 	isOtaServer;
 }ota_ctx_t;
 
-typedef struct{
+typedef struct _attribute_packed_{
 	u32		offset;
 	u32		crcValue;
 	u32		otaElementPos;

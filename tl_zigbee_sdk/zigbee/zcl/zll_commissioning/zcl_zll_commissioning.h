@@ -184,7 +184,7 @@ typedef struct{
 /**
  *  @brief  Definition for sub-device information
  */
-typedef struct {
+typedef struct _attribute_packed_{
 	u8 		epId;				/*!< end-point identifier */
 	u16 	profileId;			/*!< profile identifier */
 	u16 	deviceId;			/*!< device identifier */
@@ -243,7 +243,7 @@ typedef struct{
 /**
  *  @brief  Definition for touch link scan request command format
  */
-typedef struct {
+typedef struct _attribute_packed_{
 	u32  transId;				/*!< Inter-PAN transaction identifier */
 	zll_tlZbInfo_t  zbInfo;		/*!< zigbee information */
 	zll_tlZllInfo_t zllInfo;	/*!< zll informationn */
@@ -253,7 +253,7 @@ typedef struct {
 /**
  *  @brief  Definition for touch link scan response command format
  */
-typedef struct {
+typedef struct _attribute_packed_{
 	u32  			transId;			/*!< Inter-PAN transaction identifier */
 	u8  			rssiCorrection;		/*!< RSSI correction */
 	zll_tlZbInfo_t  zbInfo;				/*!< ZigBee information */
@@ -274,7 +274,7 @@ typedef struct {
 /**
  *  @brief  Definition for touch link network start request command format
  */
-typedef struct {
+typedef struct _attribute_packed_{
 	u32 		transId;				/*!< Inter-PAN transaction identifier */
 	addrExt_t 	epanId;					/*!< Extended PAN identifier */
 	u8 			keyIdx;					/*!< Key index */
@@ -296,7 +296,7 @@ typedef struct {
 /**
  *  @brief  Definition for touch link network start response command format
  */
-typedef struct {
+typedef struct _attribute_packed_{
 	u32 		transId;				/*!< Inter-PAN transaction identifier */
 	u8 			status;					/*!< status */
 	addrExt_t 	epanId;					/*!< Extended PAN identifier */
@@ -309,7 +309,7 @@ typedef struct {
 /**
  *  @brief  Definition for touch link network join ED/route request command format
  */
-typedef struct {
+typedef struct _attribute_packed_{
 	u32 		transId;				/*!< Inter-PAN transaction identifier */
 	addrExt_t 	epanId;					/*!< Extended PAN identifier */
 	u8 			keyIdx;					/*!< Key index */
@@ -330,7 +330,7 @@ typedef struct {
 /**
  *  @brief  Definition for touch link network join ED/route response command format
  */
-typedef struct {
+typedef struct _attribute_packed_{
 	u32 		transId;			/*!< Inter-PAN transaction identifier */
 	u8 			status;				/*!< status */
 } zcl_zllTouchLinkNetworkJoinResp_t;
@@ -354,7 +354,7 @@ typedef struct{
  * @brief  Definition for the format of the device information record field
  *
  * */
-typedef struct {
+typedef struct _attribute_packed_{
 	addrExt_t 	ieeeAddr;				/*!< IEEE address */
 	u8 			epId;					/*!< Endpoint identifier */
 	u16 		profileId;				/*!< Profile identifier */
@@ -368,7 +368,7 @@ typedef struct {
  * @brief  Definition for touch link device information request command format
  *
  * */
-typedef struct {
+typedef struct _attribute_packed_{
 	u32 				transId;		/*!< Inter-PAN transaction identifier */
 	u8 					startIdx;			/*!< start index */
 } zcl_zllTouchLinkDeviceInfoReq_t;
@@ -378,11 +378,11 @@ typedef struct {
  * @brief  Definition for touch link device information response command format
  *
  * */
-typedef struct {
+typedef struct _attribute_packed_{
 	u32 				transId;			/*!< Inter-PAN transaction identifier */
 	u8 					numOfSubdevices;	/*!< Number of sub devices */
-	u8 				startIdx;			/*!< Start index */
-	u8 				deviceInfoRecordCnt;/*!< Device information record count */
+	u8 					startIdx;			/*!< Start index */
+	u8 					deviceInfoRecordCnt;/*!< Device information record count */
 	zcl_zllDeviceInfoRec_t 	rec[];			/*!< Device information record */
 } zcl_zllTouchLinkDeviceInfoResp_t;
 
@@ -392,7 +392,7 @@ typedef struct {
  * @brief  Definition for zll Touch Link identify request command format
  *
  * */
-typedef struct {
+typedef struct _attribute_packed_{
 	u32  transId;					/*!< Inter-PAN transaction identifier */
 	u16  identifyDuration;			/*!< identify duration */
 } zcl_zllTouchLinkIdentifyReq_t;
@@ -409,7 +409,7 @@ typedef struct {
  * @brief  Definition for zll Touch Link network update Request command format
  *
  * */
-typedef struct {
+typedef struct _attribute_packed_{
 	u32 		transId;			/*!< Inter-PAN transaction identifier */
 	addrExt_t 	epanId;				/*!< Extended PAN identifier */
 	u8 			nwkUpdateId;		/*!< Network update identifier */
@@ -433,7 +433,7 @@ typedef void (*zcl_zllTouchLinkAppCallbacks_t)(u8 status, void *arg);
  * @brief  endpoint information
  *
  * */
-typedef struct {
+typedef struct _attribute_packed_{
 	u16 		nwkAddr;		/*!< Network address */
 	u8 			epId;			/*!< end point identifier */
 	u16 		profileId;		/*!< profile identifier */
@@ -445,14 +445,14 @@ typedef struct {
  * @brief  endpoint information (for zll commission utility) command format
  *
  * */
-typedef struct {
+typedef struct _attribute_packed_{
 	addrExt_t 	ieeeAddr;		/*!< IEEE address */
 	zcl_zllEndpointInfo_t info;	/*!< endpoint information */
 } zcl_zllUtilityEndpointInfo_t;
 
 
 
-typedef struct {
+typedef struct _attribute_packed_{
 	u16 	groupId;
 	u8 		groupType;
 } zcl_groupInfo;
@@ -470,7 +470,7 @@ typedef struct {
  * @brief  get group identifiers response (for zll commission utility) command format
  *
  * */
-typedef struct {
+typedef struct _attribute_packed_{
 	u8 	total;			/*!< otal number of group identifiers supported by the 3 device */
 	u8 	startIdx;		/*!< start index */
 	u8 	count;			/*!< the number of entries in the group information record 10 list field */
@@ -491,7 +491,7 @@ typedef struct {
  * @brief  get endpoint list (for zll commission utility ) response command format
  *
  * */
-typedef struct {
+typedef struct _attribute_packed_{
 	u8 total;			/*!< the total number of endpoints supported by the device */
 	u8 startIdx;		/*!< start index */
 	u8 count;			/*!< the number of entries in the endpoint information 11 record list field */

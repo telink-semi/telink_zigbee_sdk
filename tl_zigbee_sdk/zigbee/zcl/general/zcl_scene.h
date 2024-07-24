@@ -115,7 +115,7 @@
 /**
  *  @brief  Structure definition for scene table entry in scene cluster
  */
-typedef struct {
+typedef struct _attribute_packed_{
     u16 groupId;                                //!< The group ID for which this scene applies
     u8 sceneId;                                 //!< The identifier, unique within this group, which is used to identify this scene.
     u8 sceneName[ZCL_MAX_SCENE_NAME_LEN];       //!< The name of the scene
@@ -123,12 +123,12 @@ typedef struct {
     u16 transTime100ms;							//!< todo - check if this causes any problems
     u8 extFieldLen;                             //!< The length of extension field
     u8 extField[ZCL_MAX_SCENE_EXT_FIELD_SIZE];  //!< The extension field
-} zcl_sceneEntry_t;
+} zcl_sceneEntry_t; //44-bytes
 
 /**
  *  @brief  Structure definition for add scene command in scene cluster
  */
-typedef struct {
+typedef struct _attribute_packed_{
 	zcl_sceneEntry_t scene;
 } addScene_t;
 
@@ -168,7 +168,7 @@ typedef struct {
  */
 typedef struct {
     u16 groupId;                        //!< group id
-    u16 transTime;						//!< transition time
+    u16 transTime;						//!< transition time, 1/10ths of a second
     u8 sceneId;                         //!< scene id
 } recallScene_t;
 
@@ -338,7 +338,7 @@ extern const u8 zcl_scene_attrNum;
 /**
  *  @brief  Structure definition for scene table
  */
-typedef struct {
+typedef struct _attribute_packed_{
 	u8 used;
 	u8 endpoint;
 	zcl_sceneEntry_t scene;

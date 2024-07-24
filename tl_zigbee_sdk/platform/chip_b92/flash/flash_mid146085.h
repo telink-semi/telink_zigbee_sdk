@@ -130,7 +130,7 @@ unsigned short flash_read_status_mid146085(void);
 /**
  * @brief 		This function write the status of flash.
  * @param[in]  	data	- the status value of the flash after the mask.
- * @param[in]  	mask		- the range of masks to be modified when writing status.
+ * @param[in]  	mask		- mid146085_write_status_mask_e.
  * @return 		1: success, 0: error, 2: parameter error.
  * @note        Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
  *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.
@@ -142,11 +142,11 @@ unsigned short flash_read_status_mid146085(void);
  *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
-unsigned char flash_write_status_mid146085(unsigned short data, mid146085_write_status_mask_e mask);
+unsigned char flash_write_status_mid146085(unsigned short data, unsigned int mask);
 
 /**
  * @brief 		This function serves to set the protection area of the flash.
- * @param[in]   data	- refer to the protection area definition in the .h file.
+ * @param[in]   data	- mid146085_lock_block_e.
  * @return 		1: success, 0: error, 2: parameter error.
  * @note        Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
  *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.
@@ -177,7 +177,7 @@ unsigned char flash_unlock_mid146085(void);
 
 /**
  * @brief 		This function serves to get the protection area of the flash.
- * @return 		the protection area of the flash.
+ * @return 		mid146085_lock_block_e.
  * @note        Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
  *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.
  *              Taking into account the factors such as power supply fluctuations, the safe voltage value needs to be greater
@@ -188,7 +188,7 @@ unsigned char flash_unlock_mid146085(void);
  *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
-mid146085_lock_block_e flash_get_lock_block_mid146085(void);
+unsigned int flash_get_lock_block_mid146085(void);
 
 /**
  * @brief 		This function serves to read data from the Security Registers of the flash.

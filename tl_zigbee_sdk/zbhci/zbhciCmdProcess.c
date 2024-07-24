@@ -175,6 +175,7 @@ static void zbhciNodeDescRspMsgPush(void* arg){
 
 	ZB_LEBESWAP(((u8 *)&(rsp->node_descriptor.max_in_tr_size)), 2);
 	ZB_LEBESWAP(((u8 *)&(rsp->node_descriptor.max_out_tr_size)), 2);
+	ZB_LEBESWAP(((u8 *)&(rsp->node_descriptor.server_mask)), 2);
 
 	u8* ptr = ev_buf_allocate(p->length + 2);	//src_addr
 	u8 i = 0;

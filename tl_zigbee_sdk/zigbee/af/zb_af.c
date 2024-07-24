@@ -124,7 +124,7 @@ _CODE_AF_ void af_powerDescriptorSet(power_descriptor_t *value){
  */
 _CODE_AF_ void af_powerDescPowerModeUpdate(power_mode_t mode){
 #if defined (ZB_ED_ROLE) && (ZB_ED_ROLE == TRUE)
-	pdt.current_power_mode = mode;
+	pdt.current_power_mode = (u8)mode;
 #endif
 }
 
@@ -208,7 +208,7 @@ _CODE_AF_ u8 af_nodeMacCapabilityGet(void){
  * @return	device_type_t
  */
 _CODE_AF_ device_type_t af_nodeDevTypeGet(void){
-	return ndt.logical_type;
+	return (device_type_t)ndt.logical_type;
 }
 
 /****************************************************************************************************

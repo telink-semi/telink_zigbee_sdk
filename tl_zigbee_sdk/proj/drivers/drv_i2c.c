@@ -41,7 +41,7 @@ void drv_i2c_master_init(u32 i2cClock)
 	I2C_MasterInit(divClock);
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	i2c_master_init(divClock);
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
 	i2c_master_init();
 	i2c_set_master_clk(divClock);
 #endif
@@ -59,7 +59,7 @@ void drv_i2c_slave_init(u8 deviceID)
 	I2C_SlaveInit(deviceID, 0, NULL);
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	i2c_slave_init(deviceID, 0, NULL);
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
 	i2c_slave_init(deviceID);
 #endif
 }
@@ -82,7 +82,7 @@ void drv_i2c_write_byte(u8 slaveID, u32 addr, u32 addrLen, u8 data)
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	i2c_set_id(slaveID);
 	i2c_write_byte(addr, addrLen, data);
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
 	u8 buf[6] = {0};
 	u8 *pBuf = buf;
 
@@ -112,7 +112,7 @@ void drv_i2c_write_series(u8 slaveID, u32 addr, u32 addrLen, u8 *dataBuf, int da
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	i2c_set_id(slaveID);
 	i2c_write_series(addr, addrLen, dataBuf, dataLen);
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
 	u8 *pBuf = (u8 *)ev_buf_allocate(addrLen + dataLen);
 	if(pBuf){
 		u8 *pData = pBuf;
@@ -146,7 +146,7 @@ u8 drv_i2c_read_byte(u8 slaveID, u32 addr, u32 addrLen)
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	i2c_set_id(slaveID);
 	return i2c_read_byte(addr, addrLen);
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
 	u8 data = 0;
 	u8 buf[4] = {0};
 	u8 *pBuf = buf;
@@ -158,6 +158,8 @@ u8 drv_i2c_read_byte(u8 slaveID, u32 addr, u32 addrLen)
 	i2c_master_write_read(slaveID, buf, (u8)addrLen, &data, 1);
 
 	return data;
+#else
+	return 0;
 #endif
 }
 
@@ -178,7 +180,7 @@ void drv_i2c_read_series(u8 slaveID, u32 addr, u32 addrLen, u8 *dataBuf, int dat
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 	i2c_set_id(slaveID);
 	i2c_read_series(addr, addrLen, dataBuf, dataLen);
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
 	u8 buf[4] = {0};
 	u8 *pBuf = buf;
 
@@ -214,7 +216,7 @@ void drv_i2c_gpio_set(i2c_sda_pin_e sda_pin, i2c_scl_pin_e scl_pin)
 {
 	i2c_set_pin(sda_pin, scl_pin);
 }
-#elif defined(MCU_CORE_B92)
+#elif defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
 void drv_i2c_gpio_set(gpio_func_pin_e sda_pin, gpio_func_pin_e scl_pin)
 {
 	i2c_set_pin(sda_pin, scl_pin);

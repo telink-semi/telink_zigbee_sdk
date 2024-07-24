@@ -26,6 +26,7 @@
 #include "compiler.h"
 #include "gpio.h"
 #include "reg_include/mspi_reg.h"
+#include "error_handler/error_handler.h"
 
 /**
  * @brief  Define the MSPI work mode.
@@ -97,24 +98,34 @@ typedef enum{
 	MSPI_ERASE      = 2,
 }mspi_func_e;
 
+/********************************************************************************************************
+ *											internal
+ *******************************************************************************************************/
+
+/********************************************************************************************************
+ * 				this is only internal interface, customers do not need to care.
+ *******************************************************************************************************/
+
+/**
+ * @brief      This function serves to judge whether mspi is busy.
+ * @return     0:not busy   1:busy.
+ */
+static _attribute_ram_code_sec_optimize_o2_ inline bool mspi_busy(void)
+{
+	return reg_mspi_status & FLD_MSPI_BUSY;
+
+}
+
 /**
  * @brief 		This function servers to set the spi wait.
  * @param[in] 	none.
  * @return   	none.
  */
-_attribute_ram_code_sec_optimize_o2_ static void mspi_wait(void)
-{
-	unsigned long long start = rdmcycle();
-	while (reg_mspi_status & FLD_MSPI_BUSY)
-	{
-		if(rdmcycle() - start > TIMEOUT_US * sys_clk.cclk)
-		{
-			timeout_handler(ERROR_TIMEOUT_MSPI_WAIT);
-			return;
-		}
-	}
-}
+#define mspi_wait()   wait_condition_fails_or_timeout(mspi_busy,g_drv_api_error_timeout_us,drv_timeout_handler,(unsigned int)DRV_API_ERROR_TIMEOUT_MSPI_WAIT);
 
+/********************************************************************************************************
+ *											external
+ *******************************************************************************************************/
 /**
  * @brief 		This function set hspi command content.
  * @param[in] 	cmd 		- command content.

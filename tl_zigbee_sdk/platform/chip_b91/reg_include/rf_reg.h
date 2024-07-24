@@ -649,6 +649,7 @@ enum{
 #define    reg_rf_ll_2d_sclk       REG_ADDR8(REG_BB_LL_BASE_ADDR+0x24)
 typedef enum {
     FLD_RF_STATE_MACHINE_IDLE = 0,          /**< idle */
+    FLD_RF_STATE_MACHINE_ACTIVE,            /**< active */
     FLD_RF_STATE_MACHINE_TX_SETTLE,         /**< tx settle*/
 	FLD_RF_STATE_MACHINE_TX,                /**< tx */
 	FLD_RF_STATE_MACHINE_RX_WAIT,           /**< rx wait */

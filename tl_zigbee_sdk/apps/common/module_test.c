@@ -45,6 +45,9 @@
 #elif defined(MCU_CORE_B92)
 	#define UART_TX_PIN		GPIO_PB1
 	#define UART_RX_PIN		GPIO_PB2
+#elif defined(MCU_CORE_TL721X)
+	#define UART_TX_PIN		GPIO_PC4
+	#define UART_RX_PIN		GPIO_PC5
 #else
 	#error	"undefined TEST_MODULE"
 #endif
@@ -111,6 +114,8 @@ void moduleTest_forUart(void){
 	drv_adc_mode_pin_set(DRV_ADC_BASE_MODE, ADC_GPIO_PB0);
 #elif defined(MCU_CORE_B92)
 	drv_adc_mode_pin_set(DRV_ADC_BASE_MODE, ADC_GPIO_PB5);
+#elif defined(MCU_CORE_TL721X)
+	drv_adc_mode_pin_set(DRV_ADC_BASE_MODE, ADC_GPIO_PB6);
 #endif
 
 	drv_enable_irq();
@@ -173,6 +178,8 @@ void moduleTest_forUart(void){
 	#define TEST_GPIO		GPIO_PB7
 #elif defined(MCU_CORE_B92)
 	#define TEST_GPIO		GPIO_PE7
+#elif defined(MCU_CORE_TL721X)
+	#define TEST_GPIO		GPIO_PC0
 #else
 	#error	"undefined TEST_MODULE"
 #endif
@@ -269,7 +276,7 @@ void moduleTest_NV(void){
 }
 #endif
 
-#define MODULE_TEST_PM 0
+#define MODULE_TEST_PM	0
 
 #if MODULE_TEST_PM
 
@@ -292,7 +299,7 @@ void moduleTest_PM(void){
 	ZB_RADIO_TX_POWER_SET(0);
 	ZB_RADIO_TRX_CFG(144);
 
-	ZB_RADIO_TRX_SWITCH(RF_MODE_TX, 50);
+	ZB_RADIO_TRX_SWITCH(RF_MODE_TX, 50);	//2450, channel 20
 
 	ZB_RADIO_DMA_HDR_BUILD(txPktForPm, 8);
 
@@ -310,7 +317,7 @@ void moduleTest_PM(void){
 
 #if defined(MCU_CORE_826x)
 	mode = PM_SLEEP_MODE_SUSPEND;
-#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
 	mode = PM_SLEEP_MODE_DEEP_WITH_RETENTION;
 #endif
 
@@ -354,6 +361,8 @@ void moduleTest_PM(void){
 	#define TEST_GPIO		GPIO_PB7
 #elif defined(MCU_CORE_B92)
 	#define TEST_GPIO		GPIO_PE7
+#elif defined(MCU_CORE_TL721X)
+	#define TEST_GPIO		GPIO_PC0
 #else
 	#error	"undefined TEST_MODULE"
 #endif
@@ -478,6 +487,8 @@ void moduleTest_adc(void){
 	drv_adc_mode_pin_set(DRV_ADC_BASE_MODE, ADC_GPIO_PB0);
 #elif defined(MCU_CORE_B92)
 	drv_adc_mode_pin_set(DRV_ADC_BASE_MODE, ADC_GPIO_PB5);
+#elif defined(MCU_CORE_TL721X)
+	drv_adc_mode_pin_set(DRV_ADC_BASE_MODE, ADC_GPIO_PB6);
 #endif
 
 	drv_adc_enable(1);
@@ -509,6 +520,9 @@ void moduleTest_adc(void){
 #elif defined(MCU_CORE_B92)
 	#define TEST_GPIO_0		GPIO_PD1
 	#define TEST_GPIO_1		GPIO_PE7
+#elif defined(MCU_CORE_TL721X)
+	#define TEST_GPIO_0		GPIO_PC0
+	#define TEST_GPIO_1		GPIO_PC1
 #else
 	#error	"undefined TEST_MODULE"
 #endif
@@ -774,7 +788,7 @@ void moduleTest_spi(void){
 #elif defined(MCU_CORE_B91)
 	#define TEST_I2C_PIN_SDA		I2C_GPIO_SDA_B3
 	#define TEST_I2C_PIN_SCL		I2C_GPIO_SCL_B2
-#elif defined(MCU_CORE_B92)
+#elif defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
 	#define TEST_I2C_PIN_SDA		GPIO_FC_PB3
 	#define TEST_I2C_PIN_SCL		GPIO_FC_PB2
 #endif
@@ -798,7 +812,7 @@ void i2c_master_test_init(void){
 
 #if	defined(MCU_CORE_826x) || defined(MCU_CORE_8258)
 	drv_i2c_gpio_set(TEST_I2C_PIN_GROUP);
-#elif defined(MCU_CORE_8278) || defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
+#elif defined(MCU_CORE_8278) || defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
 	drv_i2c_gpio_set(TEST_I2C_PIN_SDA, TEST_I2C_PIN_SCL);
 #endif
 }
@@ -869,6 +883,12 @@ void moduleTest_i2c(void){
 	#define TEST_SW1		GPIO_PD2
 	#define TEST_SW2		GPIO_PD7
 	#define TEST_GPIO		GPIO_PB3
+#elif defined(MCU_CORE_TL721X)		//TL721X EVK
+	#define TEST_LED1		GPIO_PC0
+	#define TEST_LED2		GPIO_PC1
+	#define TEST_SW1		GPIO_PD4
+	#define TEST_SW2		GPIO_PD6
+	#define TEST_GPIO		GPIO_PB6
 #else
 	#error	"undefined TEST_MODULE"
 #endif
@@ -892,14 +912,14 @@ void moduleTest_gpioIrqCb3(void){
 	gpio_toggle(TEST_LED1);
 
 	if(drv_gpio_read(TEST_GPIO)){
-#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
+#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
 		drv_gpio_up_down_resistor(TEST_GPIO, GPIO_PIN_PULLUP_10K);
 #else
 		drv_gpio_up_down_resistor(TEST_GPIO, PM_PIN_PULLUP_10K);
 #endif
 		drv_gpio_irq_config(GPIO_IRQ_MODE, TEST_GPIO, FALLING_EDGE, moduleTest_gpioIrqCb3);
 	}else{
-#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
+#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
 		drv_gpio_up_down_resistor(TEST_GPIO, GPIO_PIN_PULLDOWN_100K);
 #else
 		drv_gpio_up_down_resistor(TEST_GPIO, PM_PIN_PULLDOWN_100K);
@@ -927,7 +947,7 @@ void moduleTest_gpioIrq(void)
 	drv_gpio_func_set(TEST_SW1);
 	drv_gpio_output_en(TEST_SW1, 0);
 	drv_gpio_input_en(TEST_SW1, 1);
-#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
+#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
 	drv_gpio_up_down_resistor(TEST_SW1, GPIO_PIN_PULLUP_10K);
 #else
 	drv_gpio_up_down_resistor(TEST_SW1, PM_PIN_PULLUP_10K);
@@ -940,7 +960,7 @@ void moduleTest_gpioIrq(void)
 	drv_gpio_func_set(TEST_SW2);
 	drv_gpio_output_en(TEST_SW2, 0);
 	drv_gpio_input_en(TEST_SW2, 1);
-#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
+#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
 	drv_gpio_up_down_resistor(TEST_SW2, GPIO_PIN_PULLUP_10K);
 #else
 	drv_gpio_up_down_resistor(TEST_SW2, PM_PIN_PULLUP_10K);
@@ -953,7 +973,7 @@ void moduleTest_gpioIrq(void)
 	drv_gpio_output_en(TEST_GPIO, 0);
 	drv_gpio_input_en(TEST_GPIO, 1);
 	if(drv_gpio_read(TEST_GPIO)){
-#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
+#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
 		drv_gpio_up_down_resistor(TEST_GPIO, GPIO_PIN_PULLUP_10K);
 #else
 		drv_gpio_up_down_resistor(TEST_GPIO, PM_PIN_PULLUP_10K);
@@ -961,7 +981,7 @@ void moduleTest_gpioIrq(void)
 		drv_gpio_irq_config(GPIO_IRQ_MODE, TEST_GPIO, FALLING_EDGE, moduleTest_gpioIrqCb3);
 		drv_gpio_write(TEST_LED1, 1);
 	}else{
-#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
+#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
 		drv_gpio_up_down_resistor(TEST_GPIO, GPIO_PIN_PULLDOWN_100K);
 #else
 		drv_gpio_up_down_resistor(TEST_GPIO, PM_PIN_PULLDOWN_100K);

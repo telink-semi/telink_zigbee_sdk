@@ -27,7 +27,12 @@
 /**********************************************************************************************************************
  *                                              global variable                                                       *
  *********************************************************************************************************************/
-error_code_e g_error_code = ERROR_NONE;
+/**
+ *  @note Time out settings,this variable is applicable to the module that does reboot handle when the times out,can set it by drv_set_error_timeout().
+*/
+unsigned int g_drv_api_error_timeout_us = 0xffffffff;
+
+drv_api_error_code_e g_error_code = DRV_API_ERROR_NONE;
 
 /**********************************************************************************************************************
  *                                         global function implementation                                             *
@@ -37,7 +42,7 @@ error_code_e g_error_code = ERROR_NONE;
  * @brief     This function serves to return the error code.
  * @return    none.
  */
-error_code_e get_error_code(void)
+drv_api_error_code_e drv_get_error_code(void)
 {
     return g_error_code;
 }
@@ -48,8 +53,17 @@ error_code_e get_error_code(void)
  * @return    none.
  * @note      This function can be rewritten according to the application scenario.
  */
-__attribute__((weak)) void timeout_handler(error_code_e error_code)
+__attribute__((weak)) void drv_timeout_handler(unsigned int error_code)
 {
     g_error_code = error_code;
     sys_reboot();
+}
+
+/**
+ * @brief     This function serves to set the error timeout(us).
+ * @param[in] timeout_us - the error timeout(us).
+ * @return    none.
+ */
+void drv_set_error_timeout(unsigned int timeout_us){
+	g_drv_api_error_timeout_us = timeout_us;
 }

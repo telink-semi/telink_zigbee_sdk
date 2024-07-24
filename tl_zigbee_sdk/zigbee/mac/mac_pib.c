@@ -167,13 +167,15 @@ _CODE_MAC_ void generateIEEEAddr(void){
   	  	 * xx xx xx D1 19 C4 xx xx
   	  	 * xx xx xx CB 0B D8 xx xx
   	  	 * xx xx xx 77 5F D8 xx xx
+  	  	 * xx xx xx B4 CF 3C xx xx
 		 *
 		 * so, it need to do shift
 		 * */
 		if((addr[3] == 0x38 && addr[4] == 0xC1 && addr[5] == 0xA4) ||
 		   (addr[3] == 0xD1 && addr[4] == 0x19 && addr[5] == 0xC4) ||
 		   (addr[3] == 0xCB && addr[4] == 0x0B && addr[5] == 0xD8) ||
-		   (addr[3] == 0x77 && addr[4] == 0x5F && addr[5] == 0xD8)){
+		   (addr[3] == 0x77 && addr[4] == 0x5F && addr[5] == 0xD8) ||
+		   (addr[3] == 0xB4 && addr[4] == 0xCF && addr[5] == 0x3C)){
 			flash_read(CFG_MAC_ADDRESS, 6, addr + 2);
 			flash_read(CFG_MAC_ADDRESS + 6, 2, addr);
 		}

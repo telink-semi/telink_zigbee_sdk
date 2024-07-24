@@ -314,7 +314,7 @@ typedef struct{
 	u8	commissioningStatus;	//<! the status of its commissioning attempt
 	addrExt_t joiningNodeEui64;	//<! the EUI-64 of the node joining the centralized security network
 	u8	joiningNodeNewTCLinkKey[16]; 	//!< the new link key established with the joining node but which has not yet been confirmed
-	bdb_nodeCommissioningCap_e	nodeCommissioningCapability;	//!< the commissioning capabilities of the node
+	u8	nodeCommissioningCapability;	//!< bdb_nodeCommissioningCap_e, the commissioning capabilities of the node
 	u8	joinUsesInstallCodeKey;		//!< indicates whether it requires an install code derived preconfigured link key to be preinstalled, only for ZC
 	u8	nodeIsOnANetwork;				//!< indicates whether a node is joined to a network
 	u8  nodeJoinLinkKeyType;			//!< indicates the type of link key,only for ZR/ZED

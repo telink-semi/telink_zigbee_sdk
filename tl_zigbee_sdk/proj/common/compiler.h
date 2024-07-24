@@ -25,7 +25,12 @@
 #ifndef COMPILER_H_
 #define COMPILER_H_
 
+#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+#define _attribute_packed_
+#else
 #define _attribute_packed_						__attribute__((packed))
+#endif
+
 #define _attribute_aligned_(s)					__attribute__((aligned(s)))
 #define _attribute_session_(s)					__attribute__((section(s)))
 

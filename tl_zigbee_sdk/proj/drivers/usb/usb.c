@@ -73,16 +73,16 @@ static void usb_prepare_desc_data(void){
 		case DTYPE_String:
 			if(USB_STRING_LANGUAGE == value_l){
 				g_response = usbdesc_get_language();
-				g_response_len = sizeof(LANGUAGE_ID_ENG);
+				g_response_len = g_response[0];//sizeof(LANGUAGE_ID_ENG);
 			}else if(USB_STRING_VENDOR == value_l){
 				g_response = usbdesc_get_vendor();
-				g_response_len = sizeof(STRING_VENDOR);
+				g_response_len = g_response[0];//sizeof(STRING_VENDOR);
 			}else if(USB_STRING_PRODUCT == value_l){
 				g_response = usbdesc_get_product();
-				g_response_len = sizeof(STRING_PRODUCT);
+				g_response_len = g_response[0];//sizeof(STRING_PRODUCT);
 			}else if(USB_STRING_SERIAL == value_l){
 				g_response = usbdesc_get_serial();
-				g_response_len = sizeof(STRING_SERIAL);
+				g_response_len = g_response[0];//sizeof(STRING_SERIAL);
 			}else{
 				g_stall = 1;
 			}

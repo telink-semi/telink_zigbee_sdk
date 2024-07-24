@@ -66,6 +66,8 @@ extern "C" {
 #define BOARD_B91_DONGLE				9
 #define BOARD_B92_EVK					10
 #define BOARD_B92_DONGLE				11
+#define BOARD_TL721X_EVK				12
+#define BOARD_TL721X_DONGLE				13
 
 /* Board define */
 #if defined(MCU_CORE_826x)
@@ -93,6 +95,10 @@ extern "C" {
 	#define FLASH_CAP_SIZE_1M			1
 	#define BOARD						BOARD_B92_DONGLE//BOARD_B92_EVK
 	#define CLOCK_SYS_CLOCK_HZ  		48000000
+#elif defined(MCU_CORE_TL721X)
+	#define FLASH_CAP_SIZE_1M			1
+	#define BOARD						BOARD_TL721X_EVK
+	#define CLOCK_SYS_CLOCK_HZ  		120000000
 #else
 	#error "MCU is undefined!"
 #endif
@@ -122,6 +128,10 @@ extern "C" {
 	#include "board_b92_evk.h"
 #elif (BOARD == BOARD_B92_DONGLE)
 	#include "board_b92_dongle.h"
+#elif (BOARD == BOARD_TL721X_EVK)
+	#include "board_tl721x_evk.h"
+#elif (BOARD == BOARD_TL721X_DONGLE)
+	#include "board_tl721x_dongle.h"
 #endif
 
 

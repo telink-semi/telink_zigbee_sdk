@@ -165,9 +165,9 @@ typedef struct {
 
 // There is no way to directly recognise whether a typedef is defined
 // http://stackoverflow.com/questions/3517174/how-to-check-if-a-datatype-is-defined-with-typedef
-#ifdef __GNUC__
-typedef	u16	wchar_t;		
-#endif
+//#ifdef __GNUC__
+//typedef	u16	wchar_t;
+//#endif
 
 #ifndef WIN32
 typedef u32 size_t;
@@ -195,6 +195,7 @@ typedef u32 size_t;
 #define NV_OPER_FAILED            0x0A
 #define INVALID_MEM_SIZE          0x0B
 #define NV_BAD_ITEM_LEN           0x0C
+#define TIMER_CANCEL_NOT_ALLOWED  0x0D
 
 
 #define ADDR_MODE_NONE				0        //!< Address not present

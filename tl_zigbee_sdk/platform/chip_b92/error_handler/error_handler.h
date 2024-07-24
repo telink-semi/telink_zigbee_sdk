@@ -28,33 +28,43 @@
 #include "clock.h"
 
 /**********************************************************************************************************************
- *                                           global macro                                                             *
+ *                                           global variable                                                             *
  *********************************************************************************************************************/
 /**
- *  @note Time out settings for all modules.
+ *  @note Time out settings,this variable is applicable to the module that does reboot handle when the times out,can set it by drv_set_error_timeout().
 */
-#define TIMEOUT_US			5000000
+extern unsigned int g_drv_api_error_timeout_us;
 
 /**********************************************************************************************************************
  *                                         global data type                                                           *
  *********************************************************************************************************************/
-
 /**
- *  @brief  Timeout error code.
+ *  @note:For newly added interfaces, the corresponding status is returned according to the enumeration.
+ *        For earlier interfaces, only the newly returned status is returned using the enumeration for compatibility issues.
+ */
+typedef enum
+{
+	DRV_API_SUCCESS          = 0x00,
+	DRV_API_FAILURE          = 0x01,
+	DRV_API_TIMEOUT          = 0x02,
+	DRV_API_INVALID_PARAM    = 0x03
+} drv_api_status_e;
+/**
+ *  @brief  Timeout error code,this enumeration is applicable to the module that does reboot handle when the times out.
  */
 typedef enum {
-	ERROR_NONE						= 0,
-	ERROR_TIMEOUT_RC_24M_CAL		= 0x01,
-	ERROR_TIMEOUT_RC_32K_CAL		= 0x02,
-	ERROR_TIMEOUT_MSPI_WAIT			= 0x03,
-	ERROR_TIMEOUT_ANALOG_WAIT		= 0x04,
-	ERROR_TIMEOUT_ANA_TX_BUFCNT		= 0x05,
-} error_code_e;
+	DRV_API_ERROR_NONE						= 0,
+	DRV_API_ERROR_TIMEOUT_RC_24M_CAL		= 0x01,
+	DRV_API_ERROR_TIMEOUT_RC_32K_CAL		= 0x02,
+	DRV_API_ERROR_TIMEOUT_MSPI_WAIT			= 0x03,
+	DRV_API_ERROR_TIMEOUT_ANALOG_WAIT		= 0x04,
+	DRV_API_ERROR_TIMEOUT_ANA_TX_BUFCNT		= 0x05,
+} drv_api_error_code_e;
 
 /**********************************************************************************************************************
  *                                     global variable declaration                                                    *
  *********************************************************************************************************************/
-extern error_code_e g_error_code;
+extern drv_api_error_code_e g_drv_api_error_code;
 
 /**********************************************************************************************************************
  *                                      global function prototype                                                     *
@@ -64,7 +74,7 @@ extern error_code_e g_error_code;
  * @brief     This function serves to return the error code.
  * @return    none.
  */
-error_code_e get_error_code(void);
+drv_api_error_code_e drv_get_error_code(void);
 
 /**
  * @brief     This function serves to record the error code and restart the system.
@@ -72,7 +82,12 @@ error_code_e get_error_code(void);
  * @return    none.
  * @note      This function can be rewritten according to the application scenario.
  */
-__attribute__((weak)) void timeout_handler(error_code_e error_code);
+__attribute__((weak)) void drv_timeout_handler(unsigned int error_code);
 
-
+/**
+ * @brief     This function serves to set the error timeout(us).
+ * @param[in] timeout_us - the error timeout(us).
+ * @return    none.
+ */
+void drv_set_error_timeout(unsigned int timeout_us);
 #endif
