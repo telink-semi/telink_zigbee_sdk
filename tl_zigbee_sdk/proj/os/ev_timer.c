@@ -182,6 +182,7 @@ ev_timer_event_t *ev_timer_add(ev_timer_callback_t func, void *arg, u32 timeout)
 
 	timerEvt->cb = func;
 	timerEvt->data = arg;
+	timerEvt->isBusy = 0;
 
 	ev_on_timer(timerEvt, timeout);
 
@@ -203,11 +204,14 @@ ev_timer_event_t *ev_timer_taskPost(ev_timer_callback_t func, void *arg, u32 t_m
 
 u8 ev_timer_taskCancel(ev_timer_event_t **evt)
 {
-	u8 ret = NO_TIMER_AVAIL;
 	ev_timer_event_t *timerEvt = *evt;
 
 	if(!timerEvt || !timerEvt->used){
-		return ret;
+		return NO_TIMER_AVAIL;
+	}
+
+	if(timerEvt->isBusy){
+		return TIMER_CANCEL_NOT_ALLOWED;
 	}
 
 	ev_unon_timer(timerEvt);
@@ -219,12 +223,14 @@ u8 ev_timer_taskCancel(ev_timer_event_t **evt)
 
 void ev_timer_update(u32 updateTime)
 {
-	u32 updateTimeMs = 0;
-	u32 curSysTick = clock_time();
-
 	if(updateTime == 0){
 		return;
+	}else{
+		ev_rtc_update(updateTime);
 	}
+
+	u32 updateTimeMs = 0;
+	u32 curSysTick = clock_time();
 
 	u32 r = drv_disable_irq();
 
@@ -260,6 +266,9 @@ void ev_timer_executeCB(void)
 
 	while(timerEvt){
 		if(timerEvt->timeout == 0){
+			/* start executing callback function */
+			timerEvt->isBusy = 1;
+
 			s32 t = timerEvt->cb(timerEvt->data);
 
 			if(t < 0){
@@ -270,6 +279,9 @@ void ev_timer_executeCB(void)
 				timerEvt->period = (u32)t;
 				timerEvt->timeout = timerEvt->period;
 			}
+
+			/* callback function execution ended */
+			timerEvt->isBusy = 0;
 
 			if(prev_head != ev_timer.timer_head){
 				timerEvt = ev_timer.timer_head;

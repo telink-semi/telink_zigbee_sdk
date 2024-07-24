@@ -44,6 +44,7 @@
 #include "os/ev_poll.h"
 #include "os/ev_buffer.h"
 #include "os/ev_queue.h"
+#include "os/ev_rtc.h"
 #include "os/ev_timer.h"
 #include "os/ev.h"
 

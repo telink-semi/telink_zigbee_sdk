@@ -48,7 +48,8 @@ typedef struct ev_timer_event_t {
     u32 timeout;             		//!< In millisecond
     u32 period;      				//!< Used internal
     u32 curSysTick;					//!< Used internal, system tick when registering
-	u8 resv[2];
+	u8 resv;
+	u8 isBusy;						//!< Used internal
 	u8 isRunning;					//!< Used internal
     u8 used;						//!< Used internal
 } ev_timer_event_t;
@@ -135,6 +136,8 @@ ev_timer_event_t *ev_timer_taskPost(ev_timer_callback_t func, void *arg, u32 t_m
 
 /**
   * @brief       cancel timer task from task list
+  * 			 In the timer callback function, 'return -1' should be used instead of
+  * 			 calling ev_timer_taskCancel() to cancel the timer event itself.
   *
   * @param[in]   evt - the pointer to the the timer event pointer
   *
