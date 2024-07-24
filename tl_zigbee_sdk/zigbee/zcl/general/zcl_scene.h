@@ -168,7 +168,7 @@ typedef struct {
  */
 typedef struct {
     u16 groupId;                        //!< group id
-    u16 transTime;						//!< transition time, 1/10ths of a second
+    u16 transTime;						//!< transition time, tenth of a second
     u8 sceneId;                         //!< scene id
 } recallScene_t;
 
