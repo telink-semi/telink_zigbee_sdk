@@ -1,3 +1,68 @@
+## V3.7.0.0(ER)
+
+### Version
+* Chips
+  - TC32: TLSR8269, TLSR8258, TLSR8278
+  - RISCV: TLSR921x(B91), TLSR952x(B92), TL721x
+* Driver Version
+  - tl_platform_sdk V3.1.0
+* Toolchain Version
+  - Telink GCC: TLSR8269, TLSR8258, TLSR8278
+  - GCC7: TLSR921x(B91)
+  - GCC12: TLSR952x(B92), TL721x
+### Features
+* Support TL721x platform.
+### Bug Fixes
+* Fix ZCL recall scene command handler.
+### Performance
+* Improve the safety of software timers to ensure they are not illegally canceled.
+### Code Refactoring
+* Change ADC sampling mode to use non DMA mode.
+### BREAKING CHANGES
+* Remove "-fpack-struct" and "-fshort-enums" compilation options from the project configuration files, except for the TC32 project.
+* Adjust the structure and enumeration definitions, decorate structures that require single byte alignment with "_attributie_packed_".
+### CodeSize
+* Units: k Bytes
+|   chip   | sampleGW (RAM/FLASH Size) | sampleLight (RAM/FLASH Size) | sampleSwitch (RAM/FLASH Size) |
+| :------- | :-----------------------: | :--------------------------: | :---------------------------: |
+| TLSR8258 | 34 / 173                  | 31 / 193                     | 22 / 135                      |
+| TLSR8278 | 34 / 169                  | 31 / 190                     | 22 / 131                      |
+| TLSR921x | 36 / 160                  | 34 / 179                     | 24 / 121                      |
+| TLSR952x | 36 / 169                  | 34 / 189                     | 27 / 132                      |
+| TL721x   | 36 / 168                  | 34 / 188                     | 27 / 131                      |
+
+### Version
+* 芯片
+  - TC32: TLSR8269, TLSR8258, TLSR8278
+  - RISCV: TLSR921x(B91), TLSR952x(B92), TL721x
+* 驱动版本
+  - tl_platform_sdk V3.1.0
+* 工具链版本
+  - Telink GCC: TLSR8269, TLSR8258, TLSR8278
+  - GCC7: TLSR921x(B91)
+  - GCC12: TLSR952x(B92), TL721x
+### Features
+* 支持TL721x平台
+### Bug Fixes
+* 修复ZCL调用场景命令处理程序。
+### Performance
+* 提高软件计时器的安全性，确保它们不会被非法取消。
+### Code Refactoring
+* 将ADC采样模式更改为使用非DMA模式。
+### BREAKING CHANGES
+* 从项目工程配置文件中删除“-fpack struct”和“-fshort enums”编译选项，TC32项目工程除外。
+* 调整结构体和枚举定义，用“_attributie_packed_”修饰需要单字节对齐的结构体。
+### CodeSize
+* 单位: k Bytes
+|   chip   | sampleGW (RAM/FLASH Size) | sampleLight (RAM/FLASH Size) | sampleSwitch (RAM/FLASH Size) |
+| :------- | :-----------------------: | :--------------------------: | :---------------------------: |
+| TLSR8258 | 34 / 173                  | 31 / 193                     | 22 / 135                      |
+| TLSR8278 | 34 / 169                  | 31 / 190                     | 22 / 131                      |
+| TLSR921x | 36 / 160                  | 34 / 179                     | 24 / 121                      |
+| TLSR952x | 36 / 169                  | 34 / 189                     | 27 / 132                      |
+| TL721x   | 36 / 168                  | 34 / 188                     | 27 / 131                      |
+
+
 ## V3.6.8.7(Public release)
 
 ### Features
