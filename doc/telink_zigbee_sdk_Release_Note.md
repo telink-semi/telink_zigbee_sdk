@@ -3,13 +3,17 @@
 ### Version
 * Chips
   - TC32: TLSR8269, TLSR8258, TLSR8278
-  - RISCV: TLSR921x(B91), TLSR952x(B92), TL721x
+  - RISCV: TLSR921x(B91), TLSR952x(B92), TL721x A1
 * Driver Version
   - tl_platform_sdk V3.1.0
 * Toolchain Version
-  - Telink GCC: TLSR8269, TLSR8258, TLSR8278
-  - GCC7: TLSR921x(B91)
-  - GCC12: TLSR952x(B92), TL721x
+  - TC32 ELF GCC4.3: TLSR8269, TLSR8258, TLSR8278
+  - TL32 ELF MCULIB V5F GCC7.4: TLSR921x(B91)
+  - TL32 ELF MCULIB V5F GCC12.2: TLSR952x(B92), TL721x
+* IDE Version
+  - Telink IDE: [Telink IDE](https://wiki.telink-semi.cn/tools_and_sdk/Tools/IDE/Telink_IDE.zip)
+  - Telink V323 RDS: [telink_v323_rds](https://wiki.telink-semi.cn/tools_and_sdk/Tools/IDE/telink_v323_rds_official_windows.zip)
+  - Telink IoT Studio: [TelinkIoTStudio_V2024.6](https://wiki.telink-semi.cn/tools_and_sdk/Tools/IoTStudio/TelinkIoTStudio_V2024.6.zip)
 ### Features
 * Support TL721x platform.
 ### Bug Fixes
@@ -20,9 +24,10 @@
 * Change ADC sampling mode to use non DMA mode.
 ### BREAKING CHANGES
 * Remove "-fpack-struct" and "-fshort-enums" compilation options from the project configuration files, except for the TC32 project.
-* Adjust the structure and enumeration definitions, decorate structures that require single byte alignment with "_attributie_packed_".
+* Adjust the structure and enumeration definitions, decorate structures that require single byte alignment with "\_attributie_packed_".
 ### CodeSize
-* Units: k Bytes
+* Units: KBytes
+
 |   chip   | sampleGW (RAM/FLASH Size) | sampleLight (RAM/FLASH Size) | sampleSwitch (RAM/FLASH Size) |
 | :------- | :-----------------------: | :--------------------------: | :---------------------------: |
 | TLSR8258 | 34 / 173                  | 31 / 193                     | 22 / 135                      |
@@ -34,13 +39,17 @@
 ### Version
 * 芯片
   - TC32: TLSR8269, TLSR8258, TLSR8278
-  - RISCV: TLSR921x(B91), TLSR952x(B92), TL721x
+  - RISCV: TLSR921x(B91), TLSR952x(B92), TL721x A1
 * 驱动版本
   - tl_platform_sdk V3.1.0
 * 工具链版本
-  - Telink GCC: TLSR8269, TLSR8258, TLSR8278
-  - GCC7: TLSR921x(B91)
-  - GCC12: TLSR952x(B92), TL721x
+  - TC32 ELF GCC4.3: TLSR8269, TLSR8258, TLSR8278
+  - TL32 ELF MCULIB V5F GCC7.4: TLSR921x(B91)
+  - TL32 ELF MCULIB V5F GCC12.2: TLSR952x(B92), TL721x
+* IDE版本
+  - Telink IDE: [Telink IDE](https://wiki.telink-semi.cn/tools_and_sdk/Tools/IDE/Telink_IDE.zip)
+  - Telink V323 RDS: [telink_v323_rds](https://wiki.telink-semi.cn/tools_and_sdk/Tools/IDE/telink_v323_rds_official_windows.zip)
+  - Telink IoT Studio: [TelinkIoTStudio_V2024.6](https://wiki.telink-semi.cn/tools_and_sdk/Tools/IoTStudio/TelinkIoTStudio_V2024.6.zip)
 ### Features
 * 支持TL721x平台
 ### Bug Fixes
@@ -53,7 +62,8 @@
 * 从项目工程配置文件中删除“-fpack struct”和“-fshort enums”编译选项，TC32项目工程除外。
 * 调整结构体和枚举定义，用“_attributie_packed_”修饰需要单字节对齐的结构体。
 ### CodeSize
-* 单位: k Bytes
+* 单位: KBytes
+
 |   chip   | sampleGW (RAM/FLASH Size) | sampleLight (RAM/FLASH Size) | sampleSwitch (RAM/FLASH Size) |
 | :------- | :-----------------------: | :--------------------------: | :---------------------------: |
 | TLSR8258 | 34 / 173                  | 31 / 193                     | 22 / 135                      |
