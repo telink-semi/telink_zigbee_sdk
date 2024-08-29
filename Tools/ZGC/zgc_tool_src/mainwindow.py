@@ -403,8 +403,19 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_setTxPower.addItem(self.horizontalSpacer_25)
 
-
         self.gridLayout.addLayout(self.horizontalLayout_setTxPower, 6, 0, 1, 1)
+
+        self.horizontalLayout_getLocalDevInfo = QHBoxLayout()
+        self.horizontalLayout_getLocalDevInfo.setSpacing(6)
+        self.horizontalLayout_getLocalDevInfo.setObjectName(u"horizontalLayout_getLocalDevInfo")
+        self.pushButton_getLocalDevInfo = QPushButton(self.scrollAreaWidgetContents_5)
+        self.pushButton_getLocalDevInfo.setObjectName(u"pushButton_getLocalDevInfo")
+
+        self.horizontalLayout_getLocalDevInfo.addWidget(self.pushButton_getLocalDevInfo)
+        self.horizontalSpacer_23 = QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalLayout_getLocalDevInfo.addItem(self.horizontalSpacer_23)
+        self.gridLayout.addLayout(self.horizontalLayout_getLocalDevInfo, 8, 0, 1, 1)
+        
 
         self.horizontalLayout_7 = QHBoxLayout()
         self.horizontalLayout_7.setSpacing(6)
@@ -451,7 +462,7 @@ class Ui_MainWindow(object):
         self.label_bindFailList.setObjectName(u"label_bindFailList")
         self.label_bindFailList.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignTop)
 
-        self.gridLayout.addWidget(self.label_bindFailList, 8, 0, 1, 1)
+        self.gridLayout.addWidget(self.label_bindFailList, 9, 0, 1, 1)
 
         self.scrollArea_bdb.setWidget(self.scrollAreaWidgetContents_5)
 
@@ -4321,6 +4332,7 @@ class Ui_MainWindow(object):
         self.lineEdit_macAddr.setText("")
         self.lineEdit_macAddr.setPlaceholderText(QCoreApplication.translate("MainWindow", u"macAddr", None))
         self.pushButton_BDBsetTXPower.setText(QCoreApplication.translate("MainWindow", u"set TX power", None))
+        self.pushButton_getLocalDevInfo.setText(QCoreApplication.translate("MainWindow", u"get local network info", None))
         self.lineEdit_TxIndex.setPlaceholderText(QCoreApplication.translate("MainWindow", u"index of tx power list", None))
         self.lineEdit_srcEp.setPlaceholderText(QCoreApplication.translate("MainWindow", u"srcEp", None))
         self.lineEdit_clusterId.setPlaceholderText(QCoreApplication.translate("MainWindow", u"clusterID", None))

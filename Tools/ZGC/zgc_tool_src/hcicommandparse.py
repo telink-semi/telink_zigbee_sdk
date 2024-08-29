@@ -726,11 +726,11 @@ class ParseRecvCommand:
 
     def hci_get_own_info_rsp_handle(self, payload, nodes_info, auto_bind):
         bytes_data = bytearray(payload)
-        dev_type, capability, onnetwork, panid, ext_panid, nwk_addr, ieee_addr = struct.unpack("!3BHQHQ", bytes_data)
+        dev_type, capability, onnetwork, panid, ext_panid, nwk_addr, ieee_addr, curr_channel = struct.unpack("!3BHQHQB", bytes_data)
         dev_type_str = get_node_dev_type(dev_type)
         self.description = 'dev_type:' + dev_type_str + ' capability' + hex(capability) + \
                            ' node_onnetwork:%x' % onnetwork + ' panid:' + hex(panid) + ' ext_panid:' + hex(ext_panid) \
-                           + ' network_addr:' + hex(nwk_addr) + ' ieee_addr:0x%016x' % ieee_addr
+                           + ' network_addr:' + hex(nwk_addr) + ' ieee_addr:0x%016x' % ieee_addr + ' curr_channel:%d' % curr_channel
 
         self.payload_items = ['\tdev_type:' + dev_type_str,
                               '\tcapability:' + hex(capability),
@@ -738,7 +738,8 @@ class ParseRecvCommand:
                               '\tpanid: 0x%04x' % panid,
                               '\text_panid: 0x%016x' % ext_panid,
                               '\tnetwork_addr: 0x%04x' % nwk_addr,
-                              '\tieee_addr:0x%016x' % ieee_addr]
+                              '\tieee_addr:0x%016x' % ieee_addr,
+                              '\tcurr_channel:%d' % curr_channel]
 
         # print('onnetwork' + str(onnetwork))
         if onnetwork:

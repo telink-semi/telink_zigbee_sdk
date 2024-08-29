@@ -543,6 +543,7 @@ class Pyside6Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         self.pushButton_BDBdongleMode.clicked.connect(self.working_mode_set)
         self.pushButton_BDBnodeDelete.clicked.connect(self.node_delete)
         self.pushButton_BDBsetTXPower.clicked.connect(self.set_tx_power)
+        self.pushButton_getLocalDevInfo.clicked.connect(self.get_locak_device_info)
 
     def set_working_channel(self):
         channel = int(self.comboBox_channelList.currentText())
@@ -589,6 +590,9 @@ class Pyside6Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         tx_power = line_edit_str2int(1, tx_power_s)
         payload = struct.pack("!%dB" % len(tx_power), *tx_power)
         self.send_hci_command(0x000a, len(payload), payload)
+
+    def get_locak_device_info(self):
+        self.send_hci_command(0x0045, 0, 'None')
 
     def nodes_mgmt_init(self):
         self.pushButton_getJoinedNodes.clicked.connect(self.get_joined_nodes)
