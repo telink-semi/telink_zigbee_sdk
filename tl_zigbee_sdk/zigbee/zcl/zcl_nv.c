@@ -87,7 +87,7 @@ nv_sts_t zcl_reportingTab_restore(void)
 #if NV_ENABLE
 	st = nv_flashReadNew(1, NV_MODULE_ZCL, NV_ITEM_ZCL_REPORT, sizeof(zcl_reportingTab_t), (u8*)&reportingTab);
 	for(u8 i = 0; i < reportingTab.reportNum; i++){
-		memset(reportingTab.reportCfgInfo[i].prevData, 0, REPORTABLE_CHANGE_MAX_ANALOG_SIZE);
+		memset(reportingTab.reportCfgInfo[i].prevData, 0xFF, REPORTABLE_CHANGE_MAX_ANALOG_SIZE);
 	}
 #else
 	st = NV_ENABLE_PROTECT_ERROR;
