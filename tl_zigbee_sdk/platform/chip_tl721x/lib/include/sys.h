@@ -34,7 +34,7 @@
 
 #ifndef SYS_H_
 #define SYS_H_
-#include "reg_include/stimer_reg.h"
+#include "reg_include/register.h"
 #include "compiler.h"
 
 /**********************************************************************************************************************
@@ -145,39 +145,18 @@ _attribute_text_sec_ void sys_reboot(void);
  * @attention   If vbat_v is set to VBAT_MAX_VALUE_LESS_THAN_3V6, then gpio_v can only be set to GPIO_VOLTAGE_3V3.
  * @return      none
  * @note        For crystal oscillator with slow start-up or poor quality, after calling this function, 
- *              a reboot will be triggered(whether a reboot has occurred can be judged by using PM_ANA_REG_POWER_ON_CLR_BUF0[bit1]).
+ *              a reboot will be triggered(whether a reboot has occurred can be judged by using pm_update_status_info() and pm_get_sw_reboot_event()).
  *              For the case where the crystal oscillator used is very slow to start-up, you can call the pm_set_xtal_stable_timer_param interface 
  *              to adjust the waiting time for the crystal oscillator to start before calling the sys_init interface.
  *              When this time is adjusted to meet the crystal oscillator requirements, it will not reboot.
  */
-void sys_init(power_mode_e power_mode, vbat_type_e vbat_v, cap_typedef_e cap);
-
-/**
- * @brief       This function serves to set system power mode.
- * @param[in]   power_mode  - power mode(LDO/DCDC/LDO_DCDC).
- * @return      none.
- * @note        pd_dcdc_ldo_sw<1:0>, dcdc & bypass ldo status bits:
-                    dcdc_0p94   dcdc_1p8     ldo_0p94    ldo_1p8
-                00:     N           N           Y           Y
-                01:     Y           N           N           Y
-                10:     Y           N           N           N
-                11:     Y           Y           N           N
- */
-void sys_set_power_mode(power_mode_e power_mode);
-
-/**
- * @brief       This function serves to set vbat type. 
- * @param[in]   vbat_v  - This parameter is used to determine whether the VBAT voltage can be greater than 3.6V.
- *                      - Please refer to vbat_type_e for specific usage precautions.
- * @return      none
- */
-void sys_set_vbat_type(vbat_type_e vbat_v);
+_attribute_ram_code_sec_noinline_ void sys_init(power_mode_e power_mode, vbat_type_e vbat_v, cap_typedef_e cap);
 
 /**
  * @brief     this function servers to manual set crystal.
  * @return    none.
  * @note      This function can only used when cclk is 24M RC cause the function execution process will power down the 24M crystal.
  */
-_attribute_ram_code_sec_noinline_ void crystal_manual_settle(void);
+_attribute_ram_code_sec_optimize_o2_noinline_ void crystal_manual_settle(void);
 
 #endif

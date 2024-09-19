@@ -35,13 +35,13 @@ extern "C" {
 #define PE7_FUNC			  		AS_GPIO
 #define PE7_OUTPUT_ENABLE	  		0
 #define PE7_INPUT_ENABLE	  		1
-#define	PULL_WAKEUP_SRC_PE7	  		GPIO_PIN_PULLUP_10K
+#define	PULL_WAKEUP_SRC_PE7	  		GPIO_PIN_PULLUP_1M//GPIO_PIN_PULLUP_10K
 
 #define BUTTON2               		GPIO_PF5//SW2
 #define PF5_FUNC			  		AS_GPIO
 #define PF5_OUTPUT_ENABLE	  		0
 #define PF5_INPUT_ENABLE	  		1
-#define	PULL_WAKEUP_SRC_PF5	  		GPIO_PIN_PULLUP_10K
+#define	PULL_WAKEUP_SRC_PF5	  		GPIO_PIN_PULLUP_1M//GPIO_PIN_PULLUP_10K
 
 // LED
 /***************************************************************

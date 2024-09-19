@@ -55,6 +55,9 @@
 #include "gpio.h"
 #include "reg_include/register.h"
 
+#ifndef INTERNAL_TEST_FUNC_EN
+#define INTERNAL_TEST_FUNC_EN            0//only for internal test
+#endif
 typedef enum{
 	ADC_VREF_0P9V = 0x01,//Only for internal testing,not recommended.
 	ADC_VREF_1P2V = 0x02,
@@ -242,22 +245,6 @@ static inline void adc_set_tsample_cycle(adc_sample_cycle_e sample_cycle)
 	analog_write_reg8(areg_adc_tsmaple_m, sample_cycle);  //optimize, <7:4> not cared
 }
 /**
- * @brief      This function open temperature sensor power.
- * @return     none
- */
-static inline void adc_temp_sensor_power_on(void)
-{
-	analog_write_reg8(areg_temp_sensor_ctrl, (analog_read_reg8(areg_temp_sensor_ctrl)&(~FLD_TEMP_SENSOR_POWER_DOWN)));
-}
-/**
- * @brief      This function close temperature sensor power.
- * @return     none
- */
-static inline void adc_temp_sensor_power_off(void)
-{
-	analog_write_reg8(areg_temp_sensor_ctrl, (analog_read_reg8(areg_temp_sensor_ctrl)|FLD_TEMP_SENSOR_POWER_DOWN));
-}
-/**
  * @brief This function serves to set input channel in differential_mode.
  * @param[in]  p_ain - enum variable of ADC analog positive input channel.
  * @param[in]  n_ain - enum variable of ADC analog negative input channel.
@@ -365,13 +352,6 @@ void adc_set_sample_rate(adc_sample_freq_e sample_freq);
  */
 void adc_set_scale_factor(adc_pre_scale_e pre_scale);
 /**
- * @brief This function servers to initialize ADC temperature sensor.
- * @return     none.
- * @attention Temperature sensor suggested initial setting are Vref = 1.2V, pre_scale = 1, sample_freq =96K.
- * 			  The user don't need to change it.
- */
-void adc_temperature_sample_init(void);
-/**
  * @brief This function is used to initialize the ADC for gpio sampling.
  * @param[in]  pin - adc_input_pin_def_e ADC input gpio pin
  * @param[in]  v_ref - enum variable of ADC reference voltage.
@@ -449,6 +429,30 @@ unsigned short adc_get_code(void);
  * @return 		adc_vol_mv 	- the average value of adc voltage value.
  */
 unsigned short adc_calculate_voltage(unsigned short adc_code);
+#if INTERNAL_TEST_FUNC_EN
+/**
+ * @brief      This function open temperature sensor power.
+ * @return     none
+ */
+static inline void adc_temp_sensor_power_on(void)
+{
+	analog_write_reg8(areg_temp_sensor_ctrl, (analog_read_reg8(areg_temp_sensor_ctrl)&(~FLD_TEMP_SENSOR_POWER_DOWN)));
+}
+/**
+ * @brief      This function close temperature sensor power.
+ * @return     none
+ */
+static inline void adc_temp_sensor_power_off(void)
+{
+	analog_write_reg8(areg_temp_sensor_ctrl, (analog_read_reg8(areg_temp_sensor_ctrl)|FLD_TEMP_SENSOR_POWER_DOWN));
+}
+/**
+ * @brief This function servers to initialize ADC temperature sensor.
+ * @return     none.
+ * @attention Temperature sensor suggested initial setting are Vref = 1.2V, pre_scale = 1, sample_freq =96K.
+ * 			  The user don't need to change it.
+ */
+void adc_temperature_sample_init(void);
 /**
  * @brief This function serves to calculate temperature from temperature sensor adc sample code.
  * @param[in]   adc_code	 		- the temperature sensor adc sample code.
@@ -457,3 +461,4 @@ unsigned short adc_calculate_voltage(unsigned short adc_code);
  * 			Temp =  564 - ((adc_code * 819)>>13),when Vref = 1.2V, pre_scale = 1.
  */
 unsigned short adc_calculate_temperature(unsigned short adc_code);
+#endif

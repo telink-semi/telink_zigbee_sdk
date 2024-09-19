@@ -59,10 +59,11 @@ typedef enum{
  * @brief  Define DMA chain interrupt mode.
  */
 typedef enum{
-	DMA_CONTINUE_MODE=0, /**< The chain transfers are constant, interrupts are only generated when the last chain is completed.*/
-	DMA_INTERRUPT_MODE,  /**< The chain transfers are constant,interrupts are generated at the completion of each chain.*/
-	DMA_TERMINAL_MODE,   /**< The chain transfers are automatically stopped at the completion of each chain, and interrupts are generated at the completion of each chain.*/
-}dma_llp_int_mode_e;
+    DMA_CONTINUE_MODE=0, /**< The transmission of DMA chain is continuous, interrupts are only generated when the last chain transmission is completed.*/
+    DMA_INTERRUPT_MODE,  /**< The transmission of DMA chain is continuous, interrupts are generated at the completion of each chain transmission.*/
+    DMA_TERMINAL_MODE,   /**< The transmission of DMA chain is automatically stopped at the completion of each chain transmission,
+                            DMA should be triggered again for the next chain transfer and interrupts are generated at the completion of each chain transmission.*/
+}dma_llp_irq_mode_e;
 
 /**
  * @brief Define DMA Interrupt Request enumeration.
@@ -225,7 +226,7 @@ typedef struct {
  * @param[in]  llp_mode - DMA channel
  * @return     none
  */
-static inline void dma_set_llp_int_mode(dma_chn_e chn,dma_llp_int_mode_e llp_mode)
+static inline void dma_set_llp_irq_mode(dma_chn_e chn,dma_llp_irq_mode_e llp_mode)
 {
 	reg_dma_llp_int_mode(chn)= (reg_dma_llp_int_mode(chn)&(~BIT_RNG((chn%4)<<1,((chn%4)<<1)+1)))|(llp_mode<<((chn%4)<<1));
 }
@@ -281,7 +282,6 @@ static inline void dma_set_chn_abort(dma_chn_e chn){
 static inline void dma_set_irq_mask(dma_chn_e chn,dma_irq_mask_e mask)
 {
 	reg_dma_ctr0(chn) = (reg_dma_ctr0(chn) | BIT_RNG(1,3)) & (~(mask));
-	dma_set_llp_int_mode(chn,DMA_INTERRUPT_MODE);
 }
 
 /**
@@ -469,7 +469,7 @@ static inline void dma_set_wnum_dis(dma_chn_e chn){
  * @param[in] burst_size - dma burst mode
  * @return    none
  */
-static inline void dma_set_spi_burst_size(dma_chn_e chn ,dma_burst_size_e burst_size)
+static inline void dma_set_burst_size(dma_chn_e chn ,dma_burst_size_e burst_size)
 {
 		reg_dma_ctr3(chn) = (reg_dma_ctr3(chn)&(~FLD_DMA_SRC_BURST_SIZE))|burst_size;
 }

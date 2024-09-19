@@ -23,7 +23,7 @@
  *******************************************************************************************************/
 #pragma once
 
-#include "analog.h"
+#include "lib/include/analog.h"
 
 /**
  * define input IO.

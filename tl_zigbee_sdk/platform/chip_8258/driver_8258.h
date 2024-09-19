@@ -49,4 +49,4 @@
 #include "emi.h"
 #include "pm.h"
 #include "flash/flash_type.h"
-
+#include "flash/flash_common.h"

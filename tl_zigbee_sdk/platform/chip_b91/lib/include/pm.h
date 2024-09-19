@@ -342,6 +342,7 @@ _attribute_ram_code_sec_noinline_ void pm_stimer_recover(void);
 									  If the wakeup_tick_type is PM_TICK_32K, then wakeup_tick is converted to 32K. The range of tick that can be set is approximately:
 									  64~0xffffffff, and the corresponding sleep time is approximately: 2ms~37hours.It cannot go to sleep normally when it exceeds this range.
  * @return		indicate whether the cpu is wake up successful.
+ * @attention   Must ensure that all GPIOs cannot be floating status before going to sleep to prevent power leakage.
  */
 _attribute_text_sec_ int pm_sleep_wakeup(pm_sleep_mode_e sleep_mode,  pm_sleep_wakeup_src_e wakeup_src, pm_wakeup_tick_type_e wakeup_tick_type, unsigned int  wakeup_tick);
 

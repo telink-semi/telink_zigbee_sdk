@@ -1,13 +1,12 @@
 /********************************************************************************************************
- * @file	flash_mid136085.h
+ * @file    flash_mid136085.h
  *
- * @brief	This is the header file for B85
+ * @brief   This is the header file for B85
  *
- * @author	Driver Group
- * @date	2018
+ * @author  Driver Group
+ * @date    2018
  *
  * @par     Copyright (c) 2018, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -26,12 +25,14 @@
 #define __MID136085_H__
 
 /*
- * @brief	MID = 0x136085 Flash include P25Q40L.
+ * @brief	MID = 0x136085 Flash include P25Q40L/P25D40SU.
  */
 
 
 /**
- * @brief	define the section of the protected memory area which is read-only and unalterable.
+ * @brief   define the section of the protected memory area which is read-only and unalterable.
+ * @note    when data protection, only enumeration items in mid136085_lock_block_e can be selected,
+ *          to ensure that the values returned by the interface flash_get_lock_block_mid136085 are in the mid136085_lock_block_e.
  */
 typedef enum{
 	FLASH_LOCK_NONE_MID136085		=	0x0000,	//000000h-000000h	//0x0020 0x407c 0x4030...
@@ -88,7 +89,7 @@ typedef enum{
 typedef enum{
 	FLASH_WRITE_STATUS_BP_MID136085		=	0x407c,
 	FLASH_WRITE_STATUS_OTP_MID136085	=	0x3800,
-}mid136085_write_status_mask_e;
+}mid136085_write_status_bit_e;
 
 
 /**
@@ -108,10 +109,10 @@ unsigned short flash_read_status_mid136085(void);
 
 /**
  * @brief 		This function write the status of flash.
- * @param[in]  	data	- the value of status.
- * @param[in]  	bit		- the range of bits to be modified when writing status.
- * @return		none.
- * @note		Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
+ * @param[in]  	data	- the status value of the flash after the mask.
+ * @param[in]  	mask    - mid136085_write_status_mask_e.
+ * @return 		1: success, 0: error, 2: parameter error.
+ * @note        Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
  *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.
  *              Taking into account the factors such as power supply fluctuations, the safe voltage value needs to be greater
  *              than the minimum chip operating voltage. For the specific value, please make a reasonable setting according
@@ -121,12 +122,12 @@ unsigned short flash_read_status_mid136085(void);
  *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
-unsigned char flash_write_status_mid136085(unsigned short data, mid136085_write_status_mask_e mask);
+unsigned char flash_write_status_mid136085(unsigned short data, unsigned int mask);
 
 /**
  * @brief 		This function serves to set the protection area of the flash.
- * @param[in]   data	- refer to the protection area definition in the .h file.
- * @return 		none.
+ * @param[in]   data	- mid136085_lock_block_e.
+ * @return 		1: success, 0: error, 2: parameter error.
  * @note        Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
  *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.
  *              Taking into account the factors such as power supply fluctuations, the safe voltage value needs to be greater
@@ -137,11 +138,11 @@ unsigned char flash_write_status_mid136085(unsigned short data, mid136085_write_
  *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
-unsigned char flash_lock_mid136085(unsigned int data);
+unsigned char  flash_lock_mid136085(unsigned int data);
 
 /**
  * @brief 		This function serves to flash release protection.
- * @return 		none.
+ * @return 		1: success, 0: error, 2: parameter error.
  * @note        Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
  *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.
  *              Taking into account the factors such as power supply fluctuations, the safe voltage value needs to be greater
@@ -152,7 +153,22 @@ unsigned char flash_lock_mid136085(unsigned int data);
  *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
-unsigned char flash_unlock_mid136085(void);
+unsigned char  flash_unlock_mid136085(void);
+
+/**
+ * @brief 		This function serves to get the protection area of the flash.
+ * @return 		mid136085_lock_block_e.
+ * @note        Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
+ *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.
+ *              Taking into account the factors such as power supply fluctuations, the safe voltage value needs to be greater
+ *              than the minimum chip operating voltage. For the specific value, please make a reasonable setting according
+ *              to the specific application and hardware circuit.
+ *
+ *              Risk description: When the chip power supply voltage is relatively low, due to the unstable power supply,
+ *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
+ *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
+ */
+unsigned int flash_get_lock_block_mid136085(void);
 
 /**
  * @brief 		This function serves to read data from the Security Registers of the flash.
@@ -235,6 +251,7 @@ void flash_erase_otp_mid136085(mid136085_otp_block_e addr);
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
 void flash_lock_otp_mid136085(mid136085_lock_otp_e data);
+
 
 #endif
 

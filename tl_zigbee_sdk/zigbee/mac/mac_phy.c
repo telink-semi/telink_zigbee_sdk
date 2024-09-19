@@ -453,6 +453,7 @@ u8 rf_stopEDScan(void)
 #endif
 }
 
+volatile s8 T_rssiPeak = 0;
 _attribute_ram_code_ u8 rf_performCCA(void)
 {
 	if(isWLANActive()){
@@ -482,6 +483,8 @@ _attribute_ram_code_ u8 rf_performCCA(void)
 #endif
 	}
 	rssi_peak = rssiSum/cnt;
+
+	T_rssiPeak = rssi_peak;
 
 	if(rssi_peak > CCA_THRESHOLD || (rf_busyFlag & TX_BUSY)){//Return if currently in TX state
 		return PHY_CCA_BUSY;

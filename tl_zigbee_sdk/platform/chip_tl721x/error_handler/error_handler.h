@@ -25,7 +25,7 @@
 #define ERROR_HANDLER_H_
 
 #include "lib/include/sys.h"
-#include "clock.h"
+#include "lib/include/clock.h"
 
 /**********************************************************************************************************************
  *                                           global variable                                                             *

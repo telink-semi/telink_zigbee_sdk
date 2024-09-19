@@ -225,14 +225,14 @@ void ev_timer_update(u32 updateTime)
 {
 	if(updateTime == 0){
 		return;
-	}else{
-		ev_rtc_update(updateTime);
 	}
+
+	u32 r = drv_disable_irq();
 
 	u32 updateTimeMs = 0;
 	u32 curSysTick = clock_time();
 
-	u32 r = drv_disable_irq();
+	ev_rtc_update(updateTime);
 
 	ev_timer_event_t *timerEvt = ev_timer.timer_head;
 
@@ -318,7 +318,9 @@ void ev_timer_process(void)
 		/* more than 1 ms. */
 		if(updateTime){
 			ev_timer_update(updateTime);
-			ev_timer_executeCB();
 		}
+
+		/* execute callback */
+		ev_timer_executeCB();
 	}
 }

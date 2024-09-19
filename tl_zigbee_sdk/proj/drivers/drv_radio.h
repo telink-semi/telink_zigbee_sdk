@@ -918,9 +918,9 @@
 														}while(0)
 #endif
 
-#elif defined(MCU_CORE_TL721X)
+#elif defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
 /*******************************************************************************************************
- * 									Radio interface for TL721X
+ * 									Radio interface for TL721X and TL321X
  ******************************************************************************************************/
 /* radio module reset */
 #define ZB_RADIO_RESET()
@@ -1051,9 +1051,13 @@
 
 #define ZB_RADION_PKT_RSSI_GET(p)						(p[rf_zigbee_dma_rx_offset_rssi(p)])
 
-
 /* tx power 0dBm*/
-#define ZB_RADIO_TX_0DBM								RF_POWER_INDEX_P0p05dBm
+#if defined(MCU_CORE_TL321X)
+	#define ZB_RADIO_TX_0DBM								RF_POWER_INDEX_P0p25dBm
+#else
+	#define ZB_RADIO_TX_0DBM								RF_POWER_INDEX_P0p05dBm
+#endif
+
 
 /* radio initialization */
 #define ZB_RADIO_INIT()									do{ \

@@ -503,15 +503,13 @@ void cust_ota_start_req(epInfo_t *dstEpInfo,u8 srcEp,u8 **payload)
 {
 //	u32 image_length;
 	ota_hdrFields_t ota_hdr;
-	u32 ota_start_addr = 0;
-	if(mcuBootAddrGet() == 0)//boot from 0
-	{
-		ota_start_addr = FLASH_ADDR_OF_OTA_IMAGE;
+	u32 ota_start_addr = mcuBootAddrGet();
+
+	if(ota_start_addr == 0xFFFFFFFF){
+		return;
 	}
-	else		//boot from 0x40000
-	{
-		ota_start_addr = 0;
-	}
+
+	ota_start_addr = (ota_start_addr) ? 0 : FLASH_ADDR_OF_OTA_IMAGE;
 
 	flash_read(ota_start_addr,sizeof(ota_hdrFields_t),(u8*)&ota_hdr);
 //	image_length = ota_hdr.totalImageSize;

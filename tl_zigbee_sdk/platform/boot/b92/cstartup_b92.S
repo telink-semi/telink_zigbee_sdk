@@ -34,9 +34,18 @@
  *	        1. During fixture production, burning a firmware program that disables the "dp_through_swire"function into unprogrammed chip will cause the problem that chip can not be burned again due to swire communication failure.
  *	        2. Burning a firmware program that disables the "dp_through_swire" function with BDT tool may result in failure of debugging due to swire communication failure.
  *	        If developers evaluate that the above scheme (set "DP_THROUGH_SWIRE_DIS" as "1") cannot be used, they can only set "DP_THROUGH_SWIRE_DIS" to "0" to enable the "dp_through_swire" function. However, be careful not to make DP and DM pin trigger "dp_through_swire" timing.
+ *          In USB applications, 1. calling the usb_set_pin(1) interface (equivalent to usb_set_pin_en) will re-enable the dp_through_swire function 2. calling the usb_set_pin(0) interface will disable the dp_through_swire function.
  */
 #ifndef DP_THROUGH_SWIRE_DIS
 #define DP_THROUGH_SWIRE_DIS		1
+#endif
+
+/* If using Andes toolchain, these two Macro are defined in it's toolchain */
+/* If using std gcc toolchain, these two core registers(not standard risc-v core registers)
+    should be defined here. */
+#ifdef STD_GCC
+#define mmisc_ctl  0x7D0
+#define mcache_ctl 0x7CA
 #endif
 
 /**
@@ -232,10 +241,10 @@ _ANA_TIMEROUT_END:
     .option pop
 	
 #if DP_THROUGH_SWIRE_DIS
-	lui		t0, 0x80100
-	addi	t0 , t0 , 0x700
-	li		t1, 0x40
-	sb		t1, 0x501(t0)  //0x80100c01 -> 0x40  <7>: 0 swire_usb_dis <6>:read-only bit
+    lui     t0, 0x80100
+    addi    t0 , t0 , 0x700
+    li      t1, 0x00
+    sb      t1, 0x501(t0)  //0x80100c01 -> 0x00  <7>: 0 swire_usb_dis 
 #endif
 
 	/* Initialize stack pointer */
@@ -316,7 +325,7 @@ _RAMCODE_INIT_BEGIN:
     addi   t2, t2, 4
     j      _RAMCODE_INIT_BEGIN
 
-	/* Move Data from flash to sram */
+    /* Move Data from flash to sram */
 _DATA_INIT:
     la     t1, _DATA_LMA_START
     la     t2, _DATA_VMA_START
@@ -329,7 +338,7 @@ _DATA_INIT_BEGIN:
     addi   t2, t2, 4
     j      _DATA_INIT_BEGIN
 
-	/* Zero .bss section in sram */
+    /* Zero .bss section in sram */
 _ZERO_BSS:
     lui    t0, 0
     la     t2, _BSS_VMA_START
@@ -340,7 +349,7 @@ _ZERO_BSS_BEGIN:
     addi   t2, t2, 4
     j      _ZERO_BSS_BEGIN
 
-	/* Zero .aes section in sram */
+    /* Zero .aes section in sram */
 _ZERO_AES:
     lui    t0, 0
     la     t2, _AES_VMA_START
@@ -351,7 +360,7 @@ _ZERO_AES_BEGIN:
     addi   t2, t2, 4
     j      _ZERO_AES_BEGIN
 
-	/* Fill the remaining section in sram */
+    /* Fill the remaining section in sram */
 _FILL_STK:
 #if 0
     lui    t0, 0x55555

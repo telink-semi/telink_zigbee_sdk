@@ -52,7 +52,7 @@
 #define PA6_INPUT_ENABLE	0
 #endif
 #ifndef PA7_INPUT_ENABLE
-#define PA7_INPUT_ENABLE	1	//SWS
+#define PA7_INPUT_ENABLE	1	//SWS:input must be enabled
 #endif
 #ifndef PA0_OUTPUT_ENABLE
 #define PA0_OUTPUT_ENABLE	0
@@ -335,16 +335,16 @@
 #define PC3_INPUT_ENABLE	0
 #endif
 #ifndef PC4_INPUT_ENABLE
-#define PC4_INPUT_ENABLE	1  //JTAG 4-WIRE FUNCTION
+#define PC4_INPUT_ENABLE	0  //JTAG 4-WIRE FUNCTION
 #endif
 #ifndef PC5_INPUT_ENABLE
-#define PC5_INPUT_ENABLE	1  //JTAG 4-WIRE FUNCTION
+#define PC5_INPUT_ENABLE	0  //JTAG 4-WIRE FUNCTION
 #endif
 #ifndef PC6_INPUT_ENABLE
-#define PC6_INPUT_ENABLE	1  //JTAG 4-WIRE FUNCTION
+#define PC6_INPUT_ENABLE	0  //JTAG 4-WIRE FUNCTION
 #endif
 #ifndef PC7_INPUT_ENABLE
-#define PC7_INPUT_ENABLE	1  //JTAG 4-WIRE FUNCTION
+#define PC7_INPUT_ENABLE	0  //JTAG 4-WIRE FUNCTION
 #endif
 #ifndef PC0_OUTPUT_ENABLE
 #define PC0_OUTPUT_ENABLE	0
@@ -431,16 +431,16 @@
 #define PC3_FUNC	AS_GPIO
 #endif
 #ifndef PC4_FUNC
-#define PC4_FUNC	AS_TDI //JTAG 4-WIRE FUNCTION
+#define PC4_FUNC	AS_GPIO //JTAG 4-WIRE FUNCTION
 #endif
 #ifndef PC5_FUNC
-#define PC5_FUNC	AS_TDO //JTAG 4-WIRE FUNCTION
+#define PC5_FUNC	AS_GPIO //JTAG 4-WIRE FUNCTION
 #endif
 #ifndef PC6_FUNC
-#define PC6_FUNC	AS_TMS //JTAG 4-WIRE FUNCTION
+#define PC6_FUNC	AS_GPIO //JTAG 4-WIRE FUNCTION
 #endif
 #ifndef PC7_FUNC
-#define PC7_FUNC	AS_TCK //JTAG 4-WIRE FUNCTION
+#define PC7_FUNC	AS_GPIO //JTAG 4-WIRE FUNCTION
 #endif
 #ifndef PULL_WAKEUP_SRC_PC0
 #define PULL_WAKEUP_SRC_PC0	0
@@ -455,16 +455,16 @@
 #define PULL_WAKEUP_SRC_PC3	0
 #endif
 #ifndef PULL_WAKEUP_SRC_PC4
-#define PULL_WAKEUP_SRC_PC4	GPIO_PIN_PULLUP_10K //JTAG 4-WIRE FUNCTION
+#define PULL_WAKEUP_SRC_PC4	0 //JTAG 4-WIRE FUNCTION
 #endif
 #ifndef PULL_WAKEUP_SRC_PC5
-#define PULL_WAKEUP_SRC_PC5	GPIO_PIN_PULLUP_10K //JTAG 4-WIRE FUNCTION
+#define PULL_WAKEUP_SRC_PC5	0 //JTAG 4-WIRE FUNCTION
 #endif
 #ifndef PULL_WAKEUP_SRC_PC6
-#define PULL_WAKEUP_SRC_PC6	GPIO_PIN_PULLUP_10K //JTAG 4-WIRE FUNCTION
+#define PULL_WAKEUP_SRC_PC6	0 //JTAG 4-WIRE FUNCTION
 #endif
 #ifndef PULL_WAKEUP_SRC_PC7
-#define PULL_WAKEUP_SRC_PC7	GPIO_PIN_PULLDOWN_100K //JTAG 4-WIRE FUNCTION
+#define PULL_WAKEUP_SRC_PC7	0 //JTAG 4-WIRE FUNCTION
 #endif
 
 /************************************************************PD*******************************************************/
@@ -910,22 +910,22 @@
 #endif
 /************************************************************PF*******************************************************/
 #ifndef PG0_INPUT_ENABLE
-#define PG0_INPUT_ENABLE	1   //MSPI
+#define PG0_INPUT_ENABLE	1   //MSPI:input must be enabled
 #endif
 #ifndef PG1_INPUT_ENABLE
-#define PG1_INPUT_ENABLE	1   //MSPI
+#define PG1_INPUT_ENABLE	1   //MSPI:input must be enabled
 #endif
 #ifndef PG2_INPUT_ENABLE
-#define PG2_INPUT_ENABLE	1   //MSPI
+#define PG2_INPUT_ENABLE	1   //MSPI:input must be enabled
 #endif
 #ifndef PG3_INPUT_ENABLE
-#define PG3_INPUT_ENABLE	1   //MSPI
+#define PG3_INPUT_ENABLE	1   //MSPI:input must be enabled
 #endif
 #ifndef PG4_INPUT_ENABLE
-#define PG4_INPUT_ENABLE	1   //MSPI
+#define PG4_INPUT_ENABLE	1   //MSPI:input must be enabled
 #endif
 #ifndef PG5_INPUT_ENABLE
-#define PG5_INPUT_ENABLE	1   //MSPI
+#define PG5_INPUT_ENABLE	1   //MSPI:input must be enabled
 #endif
 #ifndef PG0_OUTPUT_ENABLE
 #define PG0_OUTPUT_ENABLE	0

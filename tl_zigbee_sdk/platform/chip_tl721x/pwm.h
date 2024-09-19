@@ -272,6 +272,23 @@ static inline void pwm_set_pwm0_mode(pwm_mode_e  mode){
         reg_pwm0_mode = mode;  //only PWM0 has count/IR/fifo IR mode
 }
 
+/**
+ * @brief     This function servers to set pwm0 output to analog.
+ * @return    none.
+ */
+static inline void pwm_set_pwm0_output_to_ana_ir_en(void)
+{
+    BM_SET(reg_pwm0_mode, BIT(4));
+}
+
+/**
+ * @brief     This function servers to disable pwm0 output to analog.
+ * @return    none.
+ */
+static inline void pwm_set_pwm0_output_to_ana_ir_dis(void)
+{
+    BM_CLR(reg_pwm0_mode, BIT(4));
+}
 
 /**
  * @brief     This function servers to set pwm cycle time & count status.

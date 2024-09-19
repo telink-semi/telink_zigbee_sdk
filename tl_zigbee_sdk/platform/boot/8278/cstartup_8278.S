@@ -149,21 +149,7 @@ EFUSE_DELAY:
 	tjle 	EFUSE_DELAY
 EFUSE_DELAY_END:
 
-@********************************************************************************************************
-@                              		 FILL .STK WITH 0xFF
-@********************************************************************************************************
-#if FLL_STK_EN
-	tloadr	r0, FLL_D						@r0 = 0xffffffff
-	tloadr	r1, FLL_D+4						@r1 = _end_custom_bss_
-	tloadr	r2, FLL_D+8						@r2 = _stack_end_
-FLL_STK:
-	tcmp	r1, r2							@
-	tjge	FLL_STK_END						@r1>=r2 jump to FLL_STK_END
-	tstorer r0, [r1, #0]					@*(unsigned int*)(_start_data_)=0xffffffff
-	tadd    r1, #4							@r1 = r1+4
-	tj		FLL_STK							@jump to FLL_STK
-FLL_STK_END:
-#endif
+
 @********************************************************************************************************
 @                              		 UPDATE SP UNDER IRQ/SVC MODE
 @********************************************************************************************************
@@ -253,6 +239,23 @@ MULTI_ADDRESS_BEGIN:
 	tj			ZERO_BSS_END				@ deep wakeup with retention
 MULTI_ADDRESS_END:
 #endif
+
+@********************************************************************************************************
+@                              		 FILL .STK WITH 0xFF
+@********************************************************************************************************
+#if FLL_STK_EN
+	tloadr	r0, FLL_D						@r0 = 0xffffffff
+	tloadr	r1, FLL_D+4						@r1 = _end_custom_bss_
+	tloadr	r2, FLL_D+8						@r2 = _stack_end_
+FLL_STK:
+	tcmp	r1, r2							@
+	tjge	FLL_STK_END						@r1>=r2 jump to FLL_STK_END
+	tstorer r0, [r1, #0]					@*(unsigned int*)(_start_data_)=0xffffffff
+	tadd    r1, #4							@r1 = r1+4
+	tj		FLL_STK							@jump to FLL_STK
+FLL_STK_END:
+#endif
+
 @********************************************************************************************************
 @                                    DATA INITIALIZATION
 @********************************************************************************************************

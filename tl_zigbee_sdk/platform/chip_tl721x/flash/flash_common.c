@@ -38,8 +38,8 @@
       If tRES1 > 150us, this flash model cannot be used, because the chip hardware boot program only waits for 150us.
  **/
 const flash_hal_handler_t flash_list[] = {
-    //4M
-    {0x156085, flash_get_lock_block_mid156085_with_device_num, flash_unlock_mid156085_with_device_num, flash_lock_mid156085_with_device_num,FLASH_LOCK_NONE_MID156085,flash_write_status_mid156085_with_device_num,FLASH_WRITE_STATUS_QE_MID156085,FLASH_QE_ENABLE_MID156085,FLASH_QE_DISABLE_MID156085},
+    //2M
+    {0x156085, flash_get_lock_block_mid156085_with_device_num, flash_unlock_mid156085_with_device_num, flash_lock_mid156085_with_device_num,FLASH_LOCK_LOW_1M_MID156085,flash_write_status_mid156085_with_device_num,FLASH_WRITE_STATUS_QE_MID156085,FLASH_QE_ENABLE_MID156085,FLASH_QE_DISABLE_MID156085},
 };
 const unsigned int FLASH_CNT = sizeof(flash_list)/sizeof(flash_hal_handler_t);
 

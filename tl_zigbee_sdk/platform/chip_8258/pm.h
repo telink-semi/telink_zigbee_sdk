@@ -31,15 +31,16 @@
 
 
 #define PM_XTAL_DELAY_DURATION      		500
-#define EARLYWAKEUP_TIME_US_DEEP    		1100
-#define EARLYWAKEUP_TIME_US_SUSPEND 		1250
-#define EMPTYRUN_TIME_US       	    		1500
+//#define EARLYWAKEUP_TIME_US_DEEP    		1240
+//#define EARLYWAKEUP_TIME_US_SUSPEND 		1190
+//#define EMPTYRUN_TIME_US       	    	1500
 
-#define PM_DCDC_DELAY_DURATION      		1000
+//#define PM_DCDC_DELAY_DURATION      		1000
 
 #define EARLYWAKEUP_TIME_MS_DEEP	2
+#define EARLYWAKEUP_TIME_MS_SUSPEND	1
 #define	tick_32k_tick_per_ms		32
-#define PM_EMPTYRUN_TIME_US			2
+#define PM_EMPTYRUN_TIME_MS			2
 
 
 
@@ -114,7 +115,7 @@ enum {
 	 WAKEUP_STATUS_PAD    			= BIT(3),
 
 	 WAKEUP_STATUS_WD    			= BIT(6),
-	 STATUS_GPIO_ERR_NO_ENTER_PM  	= BIT(7),
+	 STATUS_GPIO_ERR_NO_ENTER_PM  	= BIT(8),/**<Bit8 is used to determine whether the wake source is normal.*/
 
 	 STATUS_ENTER_SUSPEND  			= BIT(30),
 };
@@ -137,6 +138,27 @@ typedef struct{
 	unsigned char mcu_status;
 }pm_para_t;
 
+/**
+ * @brief	early wakeup time
+ */
+typedef struct {
+	unsigned short  suspend;	/*< suspend_early_wakeup_time_us >*/
+	unsigned short  deep_ret;	/*< deep_ret_early_wakeup_time_us >*/
+	unsigned short  deep;		/*< deep_early_wakeup_time_us >*/
+	unsigned short  min;		/*< sleep_min_time_us >*/
+}pm_early_wakeup_time_us_s;
+
+extern volatile pm_early_wakeup_time_us_s g_pm_early_wakeup_time_us;
+
+/**
+ * @brief	hardware delay time
+ */
+typedef struct {
+	unsigned short  deep_r_delay_us ;			/**< hardware delay time, deep_r_delay_us = (deep_r_delay_cycle) * 1/16k */
+	unsigned short  suspend_ret_r_delay_us ;		/**< hardware delay time, suspend_ret_r_delay_us = (suspend_ret_r_delay_cycle) * 1/16k */
+}pm_r_delay_us_s;
+
+extern volatile pm_r_delay_us_s g_pm_r_delay_us;
 
 typedef int (*suspend_handler_t)(void);
 typedef unsigned int (*pm_tim_recover_handler_t)(unsigned int);
@@ -223,6 +245,13 @@ unsigned int cpu_stall(int WakeupSrc, unsigned int IntervalUs,unsigned int syscl
  */
 void cpu_set_gpio_wakeup(GPIO_PinTypeDef pin, GPIO_LevelTypeDef pol, int en);
 
+/**
+ * @brief   This function serves to reboot chip.
+ * @param   none.
+ * @return  none.
+ */
+
+void start_reboot(void);
 
 /**
  * @brief   This function serves to get the 32k tick.
@@ -280,6 +309,16 @@ int cpu_sleep_wakeup_32k_xtal(SleepMode_TypeDef sleep_mode, SleepWakeupSrc_TypeD
 int pm_long_sleep_wakeup(SleepMode_TypeDef sleep_mode, SleepWakeupSrc_TypeDef wakeup_src, unsigned int wakeup_tick);
 
 /**
+ * @brief      This function servers to wake up the cpu from sleep mode.
+ * @param[in]  sleep_mode - sleep mode type select.
+ * @param[in]  wakeup_src - wake up source select.
+ * @param[in]  wakeup_tick - the 32k tick which you want to sleep.(32768 -> 1s)
+ * 							 Note that the frequency of the external 32k crystal is 32768, not 32000. The sleep tick value is calculated based on 32768 ticks being 1s.
+ * @return     indicate whether the cpu is wake up successful.
+ */
+int cpu_long_sleep_wakeup_32k_xtal(SleepMode_TypeDef sleep_mode,  SleepWakeupSrc_TypeDef wakeup_src, unsigned int  wakeup_tick);
+
+/**
  * @brief      This function serves to determine whether wake up source is internal 32k RC.
  * @param[in]  none.
  * @return     none.
@@ -311,14 +350,23 @@ extern  unsigned char       	pm_long_suspend;
 
 void sleep_start(void);
 
-unsigned int  pm_get_info0(void);
+unsigned int pm_get_info0(void);
 
-unsigned int  pm_get_info1(void);
-
-unsigned int cpu_get_32k_tick(void);
+unsigned int pm_get_info1(void);
 
 void soft_reboot_dly13ms_use24mRC(void);
 
-
+/**
+ * @brief   	This function is used to determine the stability of the crystal oscillator.
+ * 				To judge the stability of the crystal oscillator, xo_ready_ana is invalid, and use an alternative solution to judge.
+ * 				Alternative principle: Because the clock source of the stimer is the crystal oscillator,
+ * 				if the crystal oscillator does not vibrate, the tick value of the stimer does not increase or increases very slowly (when there is interference).
+ * 				So first use 24M RC to run the program and wait for a fixed time, calculate the number of ticks that the stimer should increase during this time,
+ * 				and then read the tick value actually increased by the stimer.
+ * 				When it reaches 50% of the calculated value, it proves that the crystal oscillator has started.
+ * 				If it is not reached for a long time, the system will reboot.
+ * @return  	none.
+ */
+void pm_wait_xtal_ready(void);
 
 

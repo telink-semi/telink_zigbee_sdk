@@ -28,7 +28,7 @@
 #include "lib/include/rf/rf_dma.h"
 #include "lib/include/rf/rf_common.h"
 #include "gpio.h"
-#include "stimer.h"
+#include "lib/include/stimer.h"
 
 #if(0)
 /******************************************************FOR HADM************************************************************/

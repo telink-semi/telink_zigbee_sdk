@@ -1020,10 +1020,15 @@ enum{
 
 #define reg_dfifo_irq_status	REG_ADDR8(0xb13)
 enum{
-	FLD_AUD_DFIFO0_L_IRQ	= BIT(4),
-	FLD_AUD_DFIFO0_H_IRQ	= BIT(5),
-	FLD_AUD_DFIFO1_L_IRQ	= BIT(6),
-	FLD_AUD_DFIFO1_H_IRQ	= BIT(7),
+	FLD_AUD_DFIFO0_L_IRQ_FLAG	= BIT(0),//Write 1 to clear.
+	FLD_AUD_DFIFO0_H_IRQ_FLAG	= BIT(1),//Write 1 to clear.
+	FLD_AUD_DFIFO1_H_IRQ_FLAG	= BIT(2),//Write 1 to clear.
+	FLD_AUD_DFIFO2_H_IRQ_FLAG	= BIT(3),//Write 1 to clear.
+
+	FLD_AUD_DFIFO0_L_IRQ	= BIT(4),//automatically cleared when the data number in DFIFO0 is no less than the threshold
+	FLD_AUD_DFIFO0_H_IRQ	= BIT(5),//automatically cleared when the data number in DFIFO0 is no less than the threshold
+	FLD_AUD_DFIFO1_H_IRQ	= BIT(6),
+	FLD_AUD_DFIFO2_H_IRQ	= BIT(7),
 };
 #define reg_dfifo0_rptr			REG_ADDR16(0xb14)
 #define reg_dfifo0_wptr			REG_ADDR16(0xb16)
@@ -1266,41 +1271,21 @@ enum
 	FLD_RF_HPMC_EXP_DIFF_COUNT_L	  = BIT_RNG(4,7),
 };
 /*******************************      pke registers: 0x2000      ******************************/
-#define reg_pke_ctrl             REG_ADDR32(0x2000)
-enum{
-	FLD_PKE_CTRL_START = 		 BIT(0),
-	FLD_PKE_CTRL_STOP = 		 BIT(16),
-};
-
-#define reg_pke_conf             REG_ADDR32(0x2004)
-enum{
-	FLD_PKE_CONF_IRQ_EN = 		 BIT(8),
-	FLD_PKE_CONF_PARTIAL_RADIX = BIT_RNG(16,23),
-	FLD_PKE_CONF_BASE_RADIX	=    BIT_RNG(24,26),
-};
-
-#define reg_pke_mc_ptr           REG_ADDR32(0x2010)
-
-#define reg_pke_stat             REG_ADDR32(0x2020)
-enum{
-	FLD_PKE_STAT_DONE = 		 BIT(0),
-};
-
-#define reg_pke_rt_code          REG_ADDR32(0x2024)
-enum{
-	FLD_PKE_RT_CODE_STOP_LOG =	 BIT_RNG(0,3),
-};
-
-#define reg_pke_exe_conf         REG_ADDR32(0x2050)
-enum{
-	FLD_PKE_EXE_CONF_IAFF_R0 = 	 BIT(0),
-	FLD_PKE_EXE_CONF_IMON_R0 = 	 BIT(1),
-	FLD_PKE_EXE_CONF_IAFF_R1 = 	 BIT(2),
-	FLD_PKE_EXE_CONF_IMON_R1 = 	 BIT(3),
-	FLD_PKE_EXE_CONF_OAFF = 	 BIT(4),
-	FLD_PKE_EXE_CONF_OMON = 	 BIT(5),
-	FLD_PKE_EXE_CONF_ME_SCA_EN = BIT_RNG(8,9),
-};
+#define PKE_BASE             (0x802000)
+#define PKE_CTRL             (*((volatile unsigned int *)(PKE_BASE)))
+#define PKE_CONF             (*((volatile unsigned int *)(PKE_BASE+0x04)))
+typedef enum{
+	FLD_PKE_CONF_IRQ_EN			= BIT(8),
+	FLD_PKE_CONF_PARTIAL_RADIX	= BIT_RNG(16,23),
+	FLD_PKE_CONF_BASE_RADIX		= BIT_RNG(24,26),
+}pke_conf_e;
+#define PKE_MC_PTR           (*((volatile unsigned int *)(PKE_BASE+0x10)))
+#define PKE_STAT             (*((volatile unsigned int *)(PKE_BASE+0x20)))
+#define PKE_RT_CODE          (*((volatile unsigned int *)(PKE_BASE+0x24)))
+#define PKE_EXE_CONF         (*((volatile unsigned int *)(PKE_BASE+0x50)))
+#define PKE_VERSION          (*((volatile unsigned int *)(PKE_BASE+0x80)))
+#define PKE_A(a, step)       ((volatile unsigned int *)(PKE_BASE+0x0400+(a)*(step)))
+#define PKE_B(a, step)       ((volatile unsigned int *)(PKE_BASE+0x1000+(a)*(step)))
 
 /********************************************************************************************
  *****|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|*****

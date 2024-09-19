@@ -268,16 +268,30 @@ enum{
 
 #define reg_clkzb_set               REG_ADDR8(SC_BASE_ADDR+0x56)
 
-#define reg_i2s_step(i)             REG_ADDR16(SC_BASE_ADDR+0x06+((i)*0x16))//i2s0-0x06 , i2s1-0x1c
+#define reg_i2s0_step               REG_ADDR16(SC_BASE_ADDR+0x06)
 enum{
-    FLD_I2S_STEP            =   BIT_RNG(0,14),
-    FLD_I2S_CLK_EN          =   BIT(15),
+    FLD_I2S0_STEP               =   BIT_RNG(0,14),
+    FLD_I2S0_CLK_EN_0           =   BIT(15),
 };
 
-#define reg_i2s_mod(i)              REG_ADDR16(SC_BASE_ADDR+0x2a-((i)*0x0C))//i2s0-0x2a , i2s1-0x1e
+#define reg_i2s1_step               REG_ADDR16(SC_BASE_ADDR+0x1c)
+enum{
+    FLD_I2S1_STEP               =   BIT_RNG(0,14),
+    FLD_I2S1_CLK_EN_0           =   BIT(15),
+};
+#define reg_i2s2_step               REG_ADDR16(SC_BASE_ADDR+0x08)
+enum{
+    FLD_I2S2_STEP               =   BIT_RNG(0,14),
+    FLD_I2S2_CLK_EN_0           =   BIT(15),
+};
 
+#define reg_i2s0_mod                REG_ADDR16(SC_BASE_ADDR+0x2a)
 
-#define reg_dmic_mod                REG_ADDR8(SC_BASE_ADDR+0x2d)
+#define reg_i2s1_mod                REG_ADDR16(SC_BASE_ADDR+0x1e)
+
+#define reg_i2s2_mod                REG_ADDR16(SC_BASE_ADDR+0x0a)
+
+#define reg_dmic_mod                REG_ADDR8(SC_BASE_ADDR+0x36)
 
 #define reg_dmic_step               REG_ADDR16(SC_BASE_ADDR+0x2c)
 enum{

@@ -29,585 +29,160 @@
  */
 #include "tl_common.h"
 
-
-volatile unsigned long mcause;
-volatile unsigned long mepc;
-
-/**
- * @brief  exception handler.this defines an exception handler to handle all the platform pre-defined exceptions.
- * @return none
- */
-_attribute_ram_code_sec_ __attribute__((weak)) void except_handler()
-{
-	mcause = core_get_mcause();
-	mepc   = core_get_mepc();
- 	while(1){
- 		/* Unhandled Trap */
- 		for(volatile unsigned int i = 0; i < 0xffff; i++)
- 		{
- 			_ASM_NOP_;
- 		}
- 	}
-}
-
-_attribute_ram_code_sec_noinline_  __attribute__((weak)) void trap_entry(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void trap_entry(void)
-{
- 	except_handler();
-}
-
-__attribute__((section(".ram_code"))) void default_irq_handler(void)
-{
-	
-}
-
-
 /**********************************************************************************
  * The interrupt sources used in the SDK.
  * If you want to use other interrupts, you'll need to find the corresponding registered
- * function in the commented code below and put it there
+ * function in the commented code below and put it here.
  **********************************************************************************/
-void stimer_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void uart0_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void rf_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void timer1_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void timer0_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void gpio_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void gpio_risc0_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void gpio_risc1_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
+//interrupt handler register
+#if (__PROJECT_TL_BOOT_LOADER__)
+extern void uart0_irq_handler(void);
 
-_attribute_ram_code_sec_noinline_ void entry_irq19(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq19(void)
-{
-	plic_isr(uart0_irq_handler,IRQ19_UART0);
-}
+PLIC_ISR_REGISTER(uart0_irq_handler, IRQ_UART0)
+#else
+extern void uart0_irq_handler(void);
+extern void rf_irq_handler(void);
+extern void timer1_irq_handler(void);
+extern void timer0_irq_handler(void);
+extern void stimer_irq_handler(void);
+extern void gpio_irq_handler(void);
+extern void gpio_risc0_irq_handler(void);
+extern void gpio_risc1_irq_handler(void);
 
-/**
- * @brief telink rf interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq15(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq15(void)
-{
-	plic_isr(rf_irq_handler,IRQ15_ZB_RT);
-}
-
-/**
- * @brief timer1 interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq3(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq3(void)
-{
-	plic_isr(timer1_irq_handler,IRQ3_TIMER1);
-}
-
-/**
- * @brief timer0 interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq4(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq4(void)
-{
-	plic_isr(timer0_irq_handler,IRQ4_TIMER0);
-}
-
-/**
- * @brief system timer interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq1(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq1(void)
-{
-	plic_isr(stimer_irq_handler,IRQ1_SYSTIMER);
-}
-
-
-/**
- * @brief gpio interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq25(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq25(void)
-{
-	plic_isr(gpio_irq_handler,IRQ25_GPIO);
-}
-
-/**
- * @brief gpio_risc0 interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq26(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq26(void)
-{
-	plic_isr(gpio_risc0_irq_handler,IRQ26_GPIO2RISC0);
-}
-
-/**
- * @brief gpio_risc1 interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq27(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq27(void)
-{
-	plic_isr(gpio_risc1_irq_handler,IRQ27_GPIO2RISC1);
-}
-
-/*All interrupt register functions*/
-#if 0
-void stimer_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void analog_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void timer1_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void timer0_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void dma_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void bmc_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void usb_ctrl_ep_setup_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void usb_ctrl_ep_data_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void usb_ctrl_ep_status_irq_handler(void)  __attribute__((weak, alias("default_irq_handler")));
-void usb_ctrl_ep_setinf_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void usb_endpoint_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void rf_bt_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void rf_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void pwm_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void pke_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void uart1_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void uart0_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void audio_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void i2c_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void usb_pwdn_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void gpio_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void gpio_risc0_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void gpio_risc1_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void soft_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void usb_250us_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void usb_reset_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void qdec_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void pm_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-
-void lspi_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void gspi_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void mspi_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void gpio_src0_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void gpio_src1_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void gpio_src2_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void gpio_src3_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void gpio_src4_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void gpio_src5_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void gpio_src6_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void gpio_src7_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void pm_wkup_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-void dpr_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
-
-/**
- * @brief system timer interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq1(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq1(void)
-{
-	plic_isr(stimer_irq_handler,IRQ1_SYSTIMER);
-}
-
-/**
- * @brief analog register master interface interrupt.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq2(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq2(void)
-{
-	plic_isr(analog_irq_handler,IRQ2_ALG);
-}
-
-/**
- * @brief timer1 interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq3(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq3(void)
-{
-	plic_isr(timer1_irq_handler,IRQ3_TIMER1);
-}
-
-/**
- * @brief timer0 interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq4(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq4(void)
-{
-	plic_isr(timer0_irq_handler,IRQ4_TIMER0);
-}
-
-/**
- * @brief dma interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq5(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq5(void)
-{
-	plic_isr(dma_irq_handler,IRQ5_DMA);
-}
-
-/**
- * @brief ahb bus matrix controller interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq6(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq6(void)
-{
-	plic_isr(bmc_irq_handler,IRQ6_BMC);
-}
-
-/**
- * @brief usb control endpoint setup interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq7(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq7(void)
-{
-	plic_isr(usb_ctrl_ep_setup_irq_handler,IRQ7_USB_CTRL_EP_SETUP);
-}
-
-/**
- * @brief usb control endpoint data interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq8(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq8(void)
-{
-	plic_isr(usb_ctrl_ep_data_irq_handler,IRQ8_USB_CTRL_EP_DATA);
-}
-
-/**
- * @brief usb control endpoint status interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq9(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq9(void)
-{
-	plic_isr(usb_ctrl_ep_status_irq_handler,IRQ9_USB_CTRL_EP_STATUS);
-}
-
-/**
- * @brief usb control endpoint set interface interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq10(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq10(void)
-{
-	plic_isr(usb_ctrl_ep_setinf_irq_handler,IRQ10_USB_CTRL_EP_SETINF);
-}
-
-/**
- * @brief USB edp (1-8) interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq11(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq11(void)
-{
-	plic_isr(usb_endpoint_irq_handler,IRQ11_USB_ENDPOINT);
-}
-
-/**
- * @brief rf BR/EDR sub-system interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq14(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq14(void)
-{
-	plic_isr(rf_bt_irq_handler,IRQ14_ZB_BT);
-}
-
-/**
- * @brief telink rf interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq15(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq15(void)
-{
-	plic_isr(rf_irq_handler,IRQ15_ZB_RT);
-}
-
-/**
- * @brief pwm interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq16(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq16(void)
-{
-	plic_isr(pwm_irq_handler,IRQ16_PWM);
-}
-
-/**
- * @brief pke interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq17(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq17(void)
-{
-	plic_isr(pke_irq_handler,IRQ17_PKE);
-}
-
-/**
- * @brief uart1 interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq18(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq18(void)
-{
-	plic_isr(uart1_irq_handler,IRQ18_UART1);
-}
-
-/**
- * @brief uart0 interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq19(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq19(void)
-{
-	plic_isr(uart0_irq_handler,IRQ19_UART0);
-}
-
-/**
- * @brief audio dma fifo interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq20(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq20(void)
-{
-	plic_isr(audio_irq_handler,IRQ20_DFIFO);
-}
-
-/**
- * @brief i2c interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq21(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq21(void)
-{
-	plic_isr(i2c_irq_handler,IRQ21_I2C);
-}
-
-/**
- * @brief Lspi interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq22(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq22(void)
-{
-	plic_isr(lspi_irq_handler,IRQ22_LSPI);
-}
-
-/**
- * @brief gspi interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq23(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq23(void)
-{
-	plic_isr(gspi_irq_handler,IRQ23_GSPI);
-}
-
-/**
- * @brief USB suspend interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq24(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq24(void)
-{
-	plic_isr(usb_pwdn_irq_handler,IRQ24_USB_PWDN);
-}
-
-/**
- * @brief gpio interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq25(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq25(void)
-{
-	plic_isr(gpio_irq_handler,IRQ25_GPIO);
-}
-
-/**
- * @brief gpio_risc0 interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq26(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq26(void)
-{
-	plic_isr(gpio_risc0_irq_handler,IRQ26_GPIO2RISC0);
-}
-
-/**
- * @brief gpio_risc1 interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq27(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq27(void)
-{
-	plic_isr(gpio_risc1_irq_handler,IRQ27_GPIO2RISC1);
-}
-
-/**
- * @brief soft interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq28(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq28(void)
-{
-	plic_isr(soft_irq_handler,IRQ28_SOFT);
-}
-
-/**
- * @brief mspi interrupt handler.
- * @return none
- */
-
-_attribute_ram_code_sec_noinline_ void entry_irq29(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq29(void)
-{
-	plic_isr(mspi_irq_handler,IRQ29_MSPI);
-}
-
-/**
- * @brief USB reset interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq30(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq30(void)
-{
-	plic_isr(usb_reset_irq_handler,IRQ30_USB_RESET);
-}
-
-/**
- * @brief USB 250us or SOF interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq31(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq31(void)
-{
-	plic_isr(usb_250us_irq_handler,IRQ31_USB_250US);
-}
-
-
-/**
- * @brief qdec interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq33(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq33(void)
-{
-	plic_isr(qdec_irq_handler, IRQ33_QDEC);
-}
-
-/**
- * @brief Gpio group0 interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq34(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq34(void)
-{
-	plic_isr(gpio_src0_irq_handler,IRQ34_GPIO_SRC0);
-}
-
-/**
- * @brief Gpio group1 interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq35(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq35(void)
-{
-	plic_isr(gpio_src1_irq_handler,IRQ35_GPIO_SRC1);
-}
-
-/**
- * @brief Gpio group2 interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq36(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq36(void)
-{
-	plic_isr(gpio_src2_irq_handler,IRQ36_GPIO_SRC2);
-}
-
-/**
- * @brief Gpio group3 interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq37(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq37(void)
-{
-	plic_isr(gpio_src3_irq_handler,IRQ37_GPIO_SRC3);
-}
-
-/**
- * @brief Gpio group4 interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq38(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq38(void)
-{
-	plic_isr(gpio_src4_irq_handler,IRQ38_GPIO_SRC4);
-}
-
-/**
- * @brief Gpio group5 interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq39(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq39(void)
-{
-	plic_isr(gpio_src5_irq_handler,IRQ39_GPIO_SRC5);
-}
-
-/**
- * @brief Gpio group6 interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq40(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq40(void)
-{
-	plic_isr(gpio_src6_irq_handler,IRQ40_GPIO_SRC6);
-}
-
-/**
- * @brief Gpio group7 interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq41(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq41(void)
-{
-	plic_isr(gpio_src7_irq_handler,IRQ41_GPIO_SRC7);
-}
-
-/**
- * @brief PM wakeup interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq44(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq44(void)
-{
-	plic_isr(pm_wkup_irq_handler,IRQ44_PM_WKUP);
-}
-
-/**
- * @brief PM mixed interrupt handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq45(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq45(void)
-{
-	plic_isr(pm_irq_handler,IRQ45_PM_IRQ);
-}
-
-/**
- * @brief dynamic power reduction handler.
- * @return none
- */
-_attribute_ram_code_sec_noinline_ void entry_irq46(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-void entry_irq46(void)
-{
-	plic_isr(dpr_irq_handler,IRQ46_DPR_IRQ);
-}
+PLIC_ISR_REGISTER(uart0_irq_handler, IRQ_UART0)
+PLIC_ISR_REGISTER(rf_irq_handler, IRQ_ZB_RT)
+PLIC_ISR_REGISTER(timer1_irq_handler, IRQ_TIMER1)
+PLIC_ISR_REGISTER(timer0_irq_handler, IRQ_TIMER0)
+PLIC_ISR_REGISTER(stimer_irq_handler, IRQ_SYSTIMER)
+PLIC_ISR_REGISTER(gpio_irq_handler, IRQ_GPIO)
+PLIC_ISR_REGISTER(gpio_risc0_irq_handler, IRQ_GPIO2RISC0)
+PLIC_ISR_REGISTER(gpio_risc1_irq_handler, IRQ_GPIO2RISC1)
 #endif
 
+/**
+ * @brief The value of the mtval register when the exception is entered.
+ */
+static volatile long exception_mtval;
+
+/**
+ * @brief The value of the mepc register when the exception is entered.
+ */
+static volatile long exception_mepc;
+
+/**
+ * @brief The value of the mstatus register when the exception is entered.
+ */
+static volatile long exception_mstatus;
+
+/**
+ * @brief The value of the mcause register when the exception is entered.
+ */
+static volatile long exception_mcause;
+
+/**
+ * @brief The value of the mdcause register when the exception is entered.
+ */
+static volatile long exception_mdcause;
+
+/**
+ * @brief     Default mtime irq handler.
+ * @return    none
+ */
+__attribute__((weak)) void mtime_irq_handler(void)
+{
+}
+
+/**
+ * @brief     Default swi irq handler.
+ * @return    none
+ */
+__attribute__((weak)) void mswi_irq_handler(void)
+{
+}
+
+/**
+ * @brief     Default exception irq handler.
+ * @return      none
+ */
+__attribute__((weak)) void except_handler(void)
+{
+    /* unhandled trap */
+    exception_mtval = read_csr(NDS_MTVAL);
+    exception_mepc = read_csr(NDS_MEPC);
+    exception_mstatus = read_csr(NDS_MSTATUS);
+    exception_mcause = read_csr(NDS_MCAUSE);
+    exception_mdcause = read_csr(NDS_MDCAUSE);
+
+    while (1)
+    {
+        _ASM_NOP_;
+    }
+}
+
+/**
+ * @brief       This function service to handle all the platform pre-defined interrupt or exception.
+ * @return      none
+ */
+_attribute_ram_code_sec_noinline_ void trap_entry(void) __attribute__((interrupt("machine"), aligned(4)));
+__attribute__((weak)) void trap_entry(void)
+{
+    long mcause = read_csr(NDS_MCAUSE);
+    long mepc = 0;
+    long mstatus = 0;
+    long mxstatus = 0;
+
+    if(g_plic_preempt_en)
+    {
+        mepc = read_csr(NDS_MEPC);
+        mstatus = read_csr(NDS_MSTATUS);
+        mxstatus = read_csr(NDS_MXSTATUS);
+    }
+
+    if((mcause & 0x80000000UL) && ((mcause & 0x7FFFFFFFUL) == 7)) /* machine timer interrupt */
+    {
+        if(g_plic_preempt_en)
+        {
+            /* before enable global interrupt,disable the timer interrupt to prevent re-entry */
+            core_mie_disable(FLD_MIE_MTIE);
+            set_csr(NDS_MSTATUS, FLD_MSTATUS_MIE);
+        }
+
+        mtime_irq_handler();
+
+        if(g_plic_preempt_en)
+        {
+            clear_csr(NDS_MSTATUS, FLD_MSTATUS_MIE);
+            /* re-enable the timer interrupt. */
+            core_mie_enable(FLD_MIE_MTIE);
+        }
+    }
+    else if((mcause & 0x80000000UL) && ((mcause & 0x7FFFFFFFUL) == 3)) /* machine software interrupt */
+    {
+        plic_sw_interrupt_claim();
+        /* if support interrupt nest,enable global interrupt */
+        if(g_plic_preempt_en)
+        {
+            set_csr(NDS_MSTATUS, FLD_MSTATUS_MIE);
+        }
+
+        mswi_irq_handler();
+
+        if(g_plic_preempt_en)
+        {
+            clear_csr(NDS_MSTATUS, FLD_MSTATUS_MIE);
+        }
+
+        plic_sw_interrupt_complete();
+    }
+    else /* unhandled Trap */
+    {
+        except_handler();
+    }
+
+    if(g_plic_preempt_en)
+    {
+        write_csr(NDS_MSTATUS, mstatus);
+        write_csr(NDS_MEPC, mepc);
+        write_csr(NDS_MXSTATUS, mxstatus);
+    }
+}

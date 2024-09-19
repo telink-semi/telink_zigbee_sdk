@@ -141,7 +141,7 @@ static inline void rf_dma_set_size(rf_dma_chn_e chn,unsigned int size_byte,rf_dm
  * @return  none
  * @note    After calling this interface, it is necessary to reconfigure RF DMA.
  */
-static inline void rf_dma_reset(void)
+static _always_inline void rf_dma_reset(void)
 {
     reg_n22_rst0 &= ~(FLD_RST0_DMA_BB);         // reset DMA_BB
     reg_n22_rst0 |= FLD_RST0_DMA_BB;            // clear DMA_BB reset

@@ -120,7 +120,7 @@ static void drv_calib_freq_offset(void)
 
 	flash_read(CFG_FREQUENCY_OFFSET, 1, &freq_offset_value);
 
-	if(freq_offset_value != 0xff){
+	if((freq_offset_value != 0xff) && (freq_offset_value <= 63)){
 		rf_update_internal_cap(freq_offset_value);
 	}
 }
@@ -135,6 +135,17 @@ static void drv_calib_rf_rx_dcoc(void)
 	 (((flash_iq_code & 0x007e) >> 1) > 0) && (((flash_iq_code & 0x007e) >> 1) < 63) &&
 	 (((flash_iq_code & 0x1f80) >> 7) > 0) && (((flash_iq_code & 0x1f80) >> 7) < 63)){
 		rf_update_rx_dcoc_calib_code(flash_iq_code);
+	}
+}
+#elif defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+static void drv_calib_freq_offset(void)
+{
+	u8 freq_offset_value = 0xff;
+
+	flash_read(CFG_FREQUENCY_OFFSET, 1, &freq_offset_value);
+
+	if((freq_offset_value != 0xff) && (freq_offset_value <= 63)){
+		rf_update_internal_cap(freq_offset_value);
 	}
 }
 #endif
@@ -156,6 +167,20 @@ void drv_calibration(void)
 		drv_calib_adc_verf();
 		drv_calib_freq_offset();
 		drv_calib_rf_rx_dcoc();
+	}
+#elif defined(MCU_CORE_TL721X)
+	u32 flash_mid = 0;
+	u8 flash_uid[16] = {0};
+
+	if(flash_read_mid_uid_with_check_with_device_num(SLAVE0, &flash_mid, flash_uid)){
+		drv_calib_freq_offset();
+	}
+#elif defined(MCU_CORE_TL321X)
+	u32 flash_mid = 0;
+	u8 flash_uid[16] = {0};
+
+	if(flash_read_mid_uid_with_check(&flash_mid, flash_uid)){
+		drv_calib_freq_offset();
 	}
 #endif
 }

@@ -42,6 +42,7 @@
 #include "lib/include/sys.h"
 #include "gpio.h"
 
+#define rf_set_power_level_index_singletone(power_level)    rf_set_power_level_singletone(power_level)
 /**********************************************************************************************************************
  *                                         RF  global macro                                                           *
  *********************************************************************************************************************/
@@ -1417,9 +1418,9 @@ void rf_set_baseband_trans_unit(rf_trans_unit_e size);
 unsigned char rf_get_crc_err(void);
 
 /**
- * @brief	  	This function is mainly used to set the energy when sending a single carrier.
- * @param[in]	level		- The slice corresponding to the energy value.
- * @return	 	none.
+ * @brief          This function is mainly used to set the energy when sending a single carrier.
+ * @param[in]    level        - The slice corresponding to the energy value.
+ * @return         none.
  */
 void rf_set_power_level_singletone(rf_power_level_e level);
 

@@ -53,6 +53,19 @@ const drv_flash_opt_t c_flashOptList[] = {
 	//{0x14325e, flash_unlock_mid14325e, flash_lock_mid14325e, FLASH_LOCK_NONE_MID14325E},
 	//{0x1460c8, flash_unlock_mid1460c8, flash_lock_mid1460c8, FLASH_LOCK_NONE_MID1460C8},
 	{0x11460c8, flash_unlock_mid011460c8, flash_lock_mid011460c8, FLASH_LOCK_LOW_512K_MID011460C8}
+#elif defined(MCU_CORE_8278)
+	//128K
+	//{0x11325e, flash_unlock_mid11325e, flash_lock_mid11325e, FLASH_LOCK_NONE_MID11325E},
+	//{0x1160c8, flash_unlock_mid1160c8, flash_lock_mid1160c8, FLASH_LOCK_NONE_MID1160C8},
+	//512K
+	{0x13325e, flash_unlock_mid13325e, flash_lock_mid13325e, FLASH_LOCK_LOW_256K_MID13325E},
+	{0x1360c8, flash_unlock_mid1360c8, flash_lock_mid1360c8, FLASH_LOCK_LOW_256K_MID1360C8},
+	//1M
+	//{0x14325e, flash_unlock_mid14325e, flash_lock_mid14325e, FLASH_LOCK_NONE_MID14325E},
+	//{0x1460c8, flash_unlock_mid1460c8, flash_lock_mid1460c8, FLASH_LOCK_NONE_MID1460C8},
+	{0x146085, flash_unlock_mid146085, flash_lock_mid146085, FLASH_LOCK_LOW_512K_MID146085},
+	//2M
+	{0x1570cd, flash_unlock_mid1570cd, flash_lock_mid1570cd, FLASH_LOCK_LOW_512K_MID1570CD},
 #elif defined(MCU_CORE_B91)
 	//1M
 	{0x146085, flash_unlock_mid146085, flash_lock_mid146085, FLASH_LOCK_LOW_512K_MID146085},
@@ -75,6 +88,15 @@ const drv_flash_opt_t c_flashOptList[] = {
 #elif defined(MCU_CORE_TL721X)
 	//2M
 	{0x156085, flash_unlock_mid156085_with_device_num, flash_lock_mid156085_with_device_num, FLASH_LOCK_LOW_512K_MID156085},
+#elif defined(MCU_CORE_TL321X)
+	//512K
+	{0x136085, flash_unlock_mid136085, flash_lock_mid136085, FLASH_LOCK_LOW_256K_MID136085},
+	//1M
+	{0x146085, flash_unlock_mid146085, flash_lock_mid146085, FLASH_LOCK_LOW_512K_MID146085},
+    //2M
+    {0x156085, flash_unlock_mid156085, flash_lock_mid156085, FLASH_LOCK_LOW_512K_MID156085},
+    //4M
+    {0x166085, flash_unlock_mid166085, flash_lock_mid166085, FLASH_LOCK_LOW_512K_MID166085},
 #else
 	{0, NULL, NULL, 0}
 #endif
@@ -85,7 +107,7 @@ const drv_flash_opt_t c_flashOptList[] = {
 
 void flash_loadOpt(void){
 #if FLASH_PROTECT_ENABLE
-#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
+#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL321X)
 	g_flashOptTable.mid = flash_read_mid();
 #elif defined(MCU_CORE_TL721X)
 	g_flashOptTable.mid = flash_read_mid_with_device_num(SLAVE0);
@@ -118,7 +140,7 @@ void flash_lock(void){
 			return;
 		}
 
-#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
+#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL321X)
 		if(pFlashOpt->lock(pFlashOpt->blockSize) == 1){
 			g_flashLocked = TRUE;
 		}
@@ -138,7 +160,7 @@ void flash_unlock(void){
 			return;
 		}
 
-#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
+#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL321X)
 		if(pFlashOpt->unlock() == 1){
 			g_flashLocked = FALSE;
 		}

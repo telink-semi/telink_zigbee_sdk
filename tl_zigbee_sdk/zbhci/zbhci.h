@@ -225,6 +225,7 @@ typedef enum{
     ZBHCI_OTA_FILE_OVERSIZE,
     ZBHCI_OTA_INCORRECT_DATA,
     ZBHCI_OTA_MATCH_BOOT_FLAG,
+	ZBHCI_OTA_BOOT_ADDR_ERROR,
 }zbhci_ota_status_e;
 
 typedef enum{

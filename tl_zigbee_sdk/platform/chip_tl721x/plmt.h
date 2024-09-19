@@ -49,8 +49,8 @@
 #ifndef __PLMT_H_
 #define __PLMT_H_
 #include "reg_include/register.h"
-#include "core.h"
-#include "clock.h"
+#include "lib/include/core.h"
+#include "lib/include/clock.h"
 
 /**
  * @brief     This function servers to get mtimecmp value.

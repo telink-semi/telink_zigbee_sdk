@@ -215,6 +215,6 @@ void ota_queryStart(u16 seconds);
 void ota_serverAddrPerprogrammed(addrExt_t ieeeAddr, u8 srvEndPoint);
 void ota_mcuReboot(void);
 void ota_upgradeAbort(void);
-u8 mcuBootAddrGet(void);//0: boot from 0, 1: boot from 0x40000
+u32 mcuBootAddrGet(void);
 bool ota_newImageValid(u32 new_image_addr);
 #endif	/* OTA_H */

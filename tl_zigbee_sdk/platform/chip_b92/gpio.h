@@ -25,7 +25,12 @@
  *
  *	Introduction
  *	===============
- *	B92 contain two six group gpio(A~F), total 44 gpio pin.
+ * -#To prevent power leakage, you need to make sure that all GPIOs are not FLOATING, suggested use process is as follows:
+ *    -# gpio_shutdown(GPIO_ALL);---All GPIOs except MSPI as well as SWS will be set to high resistance state.(Prevent power leakage.)
+ *    -# gpio_setup_up_down_resistor(GPIO_SWS, PM_PIN_PULLUP_1M);---Ensure SWS is a constant level.(There are two purposes: the first is to prevent leakage,
+ *     the second is to prevent the SWS no fixed level, generating some interfering signals through the sws mistakenly written to the chip resulting in death.)
+ *    -# If you want to use GPIO as another function, please configure it yourself.
+ *    -# Must ensure that all GPIOs cannot be FLOATING status before going to sleep to prevent power leakage.
  *
  *	API Reference
  *	===============
@@ -762,12 +767,10 @@ void gpio_set_input(gpio_pin_e pin, unsigned char value);
 
 /**
  * @brief      This function servers to set the specified GPIO as high resistor.
+ *             To prevent power leakage, you need to call gpio_shutdown(GPIO_ALL) (set all gpio to high resistance, except SWS and MSPI.)
+ *             as front as possible in the program, and then initialize the corresponding GPIO according to the actual using situation.
  * @param[in]  pin  - select the specified GPIO.
  * @return     none.
- * @note       -# gpio_shutdown(GPIO_ALL) is a debugging method only and is not recommended for use in applications.
- *             -# gpio_shutdown(GPIO_ALL) set all GPIOs to high impedance except SWS and MSPI.
- *             -# If you want to use JTAG/USB in active state, or wake up the MCU with a specific pin,
- *                you can enable the corresponding pin after calling gpio_shutdown(GPIO_ALL).
  */
 void gpio_shutdown(gpio_pin_e pin);
 

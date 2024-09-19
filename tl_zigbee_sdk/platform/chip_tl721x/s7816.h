@@ -26,7 +26,7 @@
 
 #include "gpio.h"
 #include "uart.h"
-#include "stimer.h"
+#include "lib/include/stimer.h"
 #define s7816_en(uart_num)                uart_rtx_en(uart_num)
 #define s7816_set_rtx_pin(uart_num,s7816_trx_pin)  uart_set_rtx_pin(uart_num,s7816_trx_pin)
 /**

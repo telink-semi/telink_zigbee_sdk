@@ -34,6 +34,7 @@
 /* 4 + 8 + 8N + 69 + 9 + 8 + (20 + 8)N = 4096; N = 110*/
 #define FLASH_WRITE_COUNT_GET(size)		((size / (110 * OTA_IMAGE_MAX_DATA_SIZE)) + 1)
 #define TL_IMAGE_START_FLAG				0x4b
+#define TL_START_UP_FLAG_WHOLE			0x544c4e4b
 
 /**********************************************************************
  * TYPEDEFS
@@ -82,7 +83,7 @@ zcl_ota_AppCallbacks_t zcl_otaCb =
  */
 
 //boot address flag
-u8 mcuBootAddr = 0;
+u32 mcuBootAddr = 0;
 const u8 otaHdrMagic[] = {0x1e, 0xf1, 0xee, 0x0b};
 
 const u8 otaAesKey[16] = {0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
@@ -118,19 +119,30 @@ void ota_upgradeWait(u32 seconds);
 void ota_upgradeComplete(u8 status);
 
 /**********************************************************************
- * @brief		get mcu reboot address
+ * @brief		get mcu boot address
  *
- * return 		0 - reboot form address 0x0
- * 				1 - reboot from address 0x40000
+ * return 		boot form 0x0 or FLASH_ADDR_OF_OTA_IMAGE
+ * 				all 0xFF means invalid
  */
-u8 mcuBootAddrGet(void)
+u32 mcuBootAddrGet(void)
 {
 #if (BOOT_LOADER_MODE)
 	return 0;
 #else
-	u8 flashInfo = 0;
-	flash_read(0 + FLASH_TLNK_FLAG_OFFSET, 1, &flashInfo);
-	return ((flashInfo == TL_IMAGE_START_FLAG) ? 0 : 1);
+	u32 bootAddr = 0xFFFFFFFF;
+	u32 flashInfo = 0;
+
+	flash_read(0 + FLASH_TLNK_FLAG_OFFSET, 4, (u8 *)&flashInfo);
+	if(flashInfo == TL_START_UP_FLAG_WHOLE){
+		bootAddr = 0;
+	}else{
+		flash_read(FLASH_ADDR_OF_OTA_IMAGE + FLASH_TLNK_FLAG_OFFSET, 4, (u8 *)&flashInfo);
+		if(flashInfo == TL_START_UP_FLAG_WHOLE){
+			bootAddr = FLASH_ADDR_OF_OTA_IMAGE;
+		}
+	}
+
+	return bootAddr;
 #endif
 }
 
@@ -301,8 +313,13 @@ void ota_init(ota_type_e type, af_simple_descriptor_t *simpleDesc, ota_preamble_
 {
 	otaCb = cb;
 
-	//get current reboot address
+	//get current boot-up address
 	mcuBootAddr = mcuBootAddrGet();
+	if(mcuBootAddr == 0xFFFFFFFF){
+		//should not happen
+		ZB_EXCEPTION_POST(SYS_EXCEPTTION_COMMON_BOOT_ADDR_ERROR);
+		//while(1);
+	}
 
 	memset((u8 *)&g_otaCtx, 0, sizeof(g_otaCtx));
 	memset((u8 *)&otaClientInfo, 0, sizeof(otaClientInfo));
@@ -1449,6 +1466,15 @@ static status_t ota_queryNextImageRspHandler(zclIncomingAddrInfo_t *pAddrInfo, o
 		zcl_attr_imageTypeID = pQueryNextImageRsp->imageType;
 		zcl_attr_downloadFileVer = pQueryNextImageRsp->fileVer;
 		g_otaCtx.downloadImageSize = pQueryNextImageRsp->imageSize;
+
+		//double check the boot-up address to prevent unexpected
+		if(mcuBootAddr != mcuBootAddrGet()){
+#if FLASH_PROTECT_ENABLE
+			flash_lock();
+#endif
+			ZB_EXCEPTION_POST(SYS_EXCEPTTION_COMMON_BOOT_ADDR_ERROR);
+			//while(1);
+		}
 
 		u16 sectorNumUsed = g_otaCtx.downloadImageSize / FLASH_SECTOR_SIZE + 1;
 		u32 baseAddr = (mcuBootAddr) ? 0 : FLASH_ADDR_OF_OTA_IMAGE;

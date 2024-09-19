@@ -137,7 +137,7 @@ _attribute_ram_code_sec_noinline_ void flash_mspi_read_ram(unsigned char cmd, un
  * @param[in]   addr		- starting address.
  * @param[in]   addr_en		- whether need to send an address.
  * @param[out]  data		- the start address of the data buffer.
- * @param[in]   data_len	- the length(in byte) of content needs to read out.
+ * @param[in]   data_len	- the length(in byte) of content needs to be written.
  * @return 		none.
  * @note		important:  "data" must not reside at flash, such as constant string.If that case, pls copy to memory first before write.
  */
@@ -180,7 +180,10 @@ _attribute_ram_code_sec_noinline_ unsigned char flash_mspi_write_ram(unsigned ch
  * @brief 		This function serves to erase a sector.
  * @param[in]   addr	- the start address of the sector needs to erase.
  * @return 		none.
- * @note        Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
+ * @note        Attention: The block erase takes a long time, please pay attention to feeding the dog in advance.
+ * 				The maximum block erase time is listed at the beginning of this document and is available for viewing.
+ *
+ * 				Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
  *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.
  *              Taking into account the factors such as power supply fluctuations, the safe voltage value needs to be greater
  *              than the minimum chip operating voltage. For the specific value, please make a reasonable setting according
@@ -286,8 +289,12 @@ unsigned char flash_read_status(unsigned char cmd)
  *              Risk description: When the chip power supply voltage is relatively low, due to the unstable power supply,
  *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
+ *
+ *              Because the operation of the write state takes a long time, and the interface of the write state will close the interrupt,
+ *              it is not suitable for the situation that needs to respond to the interrupt in a timely manner.
+ *              By using a weak definition for this interface, the application layer can redefine the interface according to its own needs.
  */
-void flash_write_status(flash_status_typedef_e type , unsigned short data)
+__attribute__((weak)) void flash_write_status(flash_status_typedef_e type , unsigned short data)
 {
 	unsigned char buf[2];
 
@@ -415,10 +422,10 @@ unsigned int flash_read_mid(void)
 	flash_mspi_read_ram(FLASH_GET_JEDEC_ID, 0, 0, 0, (unsigned char*)(&flash_mid), 3);
 
 	/*
-	 * The mids of GD25LD80C and GD25LE80C are both 0x1460c8, but the status register of GD25LD80C is 8 bits,
+	 * The mids of GD25LD80C/GD25LD80E and GD25LE80C are both 0x1460c8, but the status register of GD25LD80C/GD25LD80E are 8 bits,
 	 * and the status register of GD25LE80C is 16 bits. The functions of the two chips are different.
 	 * The software detection method is to read SFDP Signature. If it is 50444653H, it is GD25LE80C,
-	 * if it is all zeros, it is GD25LD80C.
+	 * if it is all zeros, it is GD25LD80C//GD25LD80E.
 	 */
 	if(flash_mid == 0x1460c8)
 	{
@@ -450,13 +457,9 @@ unsigned int flash_read_mid(void)
  */
 void flash_read_uid(unsigned char idcmd, unsigned char *buf)
 {
-	if(idcmd == FLASH_READ_UID_CMD_GD_PUYA_ZB_UT)	//< GD/PUYA/ZB/UT
+	if(idcmd == FLASH_READ_UID_CMD_GD_PUYA_ZB_TH)	//< GD/PUYA/ZB/TH
 	{
 		flash_mspi_read_ram(idcmd, 0x00, 1, 1, buf, 16);
-	}
-	else if (idcmd == FLASH_XTX_READ_UID_CMD)		//< XTX
-	{
-		flash_mspi_read_ram(idcmd, 0x80, 1, 1, buf, 16);
 	}
 }
 
@@ -465,60 +468,28 @@ void flash_read_uid(unsigned char idcmd, unsigned char *buf)
  ******************************************************************************************************************/
 
 /**
- * @brief		This function serves to read flash mid and uid,and check the correctness of mid and uid.
- * @param[out]	flash_mid	- Flash Manufacturer ID.
- * @param[out]	flash_uid	- Flash Unique ID.
- * @return		0: flash no uid or not a known flash model 	 1:the flash model is known and the uid is read.
- * @note        Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
- *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.
- *              Taking into account the factors such as power supply fluctuations, the safe voltage value needs to be greater
- *              than the minimum chip operating voltage. For the specific value, please make a reasonable setting according
- *              to the specific application and hardware circuit.
- *
- *              Risk description: When the chip power supply voltage is relatively low, due to the unstable power supply,
- *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
- *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
+ * @brief		This function serves to get flash vendor.
+ * @param[in]	none.
+ * @return		0 - err, other - flash vendor.
  */
-int flash_read_mid_uid_with_check(unsigned int *flash_mid, unsigned char *flash_uid)
+unsigned int flash_get_vendor(unsigned int flash_mid)
 {
-	unsigned char no_uid[16]={0x51,0x01,0x51,0x01,0x51,0x01,0x51,0x01,0x51,0x01,0x51,0x01,0x51,0x01,0x51,0x01};
-	int i,f_cnt=0;
-	*flash_mid  = flash_read_mid();
-
-	/*
-	 * If add flash type, need pay attention to the read uid cmd and the bir number of status register
-	   Flash Type	CMD			MID		Company
-	   ZB25WD40B	0x4b	0x13325E	ZB
-	   ZB25WD80B	0x4b	0x14325E	ZB
-	   GD25LD05C	0x4b(AN)0x1060C8	GD
-	   GD25LD40C	0x4b	0x1360C8	GD
-	   GD25LD80C	0x4b(AN)0x1460C8	GD
-	   GD25LE80C	0x4b	0x1460C8	GD
-	   GD25LQ80C	0x4b	0x1460C8	GD
-	   MD25D40D		0x4b(AN)0x134051	GD
-	   P25Q40L		0x4b	0x136085	PUYA
-	   TH25D40LA	0x4b	0x1360EB	UT
-	   TH25D40UA	0x4b	0x1360EB	UT
-
-	   The uid of the early ZB25WD40B (mid is 0x13325E) is 8 bytes. If you read 16 bytes of uid,
-	   the next 8 bytes will be read as 0xff. Later, the uid of ZB25WD40B has been switched to 16 bytes.
-	 */
-	if((*flash_mid == 0x1460C8)||(*flash_mid == 0x011460C8)||(*flash_mid == 0x1060C8)||(*flash_mid == 0x134051)||(*flash_mid == 0x136085)||(*flash_mid == 0x1360C8)||(*flash_mid == 0x1360EB)||(*flash_mid == 0x13325E)||(*flash_mid == 0x14325E)){
-		flash_read_uid(FLASH_READ_UID_CMD_GD_PUYA_ZB_UT, (unsigned char *)flash_uid);
-	}else{
+	switch(flash_mid&0x0000ffff)
+	{
+	case 0x0000325E:
+		return FLASH_ETOX_ZB;
+	case 0x000060C8:
+		return FLASH_ETOX_GD;
+	case 0x00004051:
+		return FLASH_ETOX_GD;
+	case 0x00006085:
+		return FLASH_SONOS_PUYA;
+	case 0x000060EB:
+		return FLASH_SONOS_TH;
+	case 0x000060CD:
+		return FLASH_SST_TH;
+	default:
 		return 0;
-	}
-
-	for(i=0;i<16;i++){
-		if(flash_uid[i] == no_uid[i]){
-			f_cnt++;
-		}
-	}
-
-	if(f_cnt == 16){	//no uid flash
-		return 0;
-	}else{
-		return 1;
 	}
 }
 
@@ -568,6 +539,6 @@ void flash_vdd_f_calib(void)
 	}
 	else
 	{
-		analog_write(0x0c, ((analog_read(0x0c) & 0xf8)  | calib_value));
+		analog_write(0x0c, ((analog_read(0x0c) & 0xf8)  | (calib_value & 0x07)));
 	}
 }

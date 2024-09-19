@@ -25,7 +25,12 @@
  *
  *  Introduction
  *  ===============
- *  B92 contain two six group gpio(A~F), total 44 gpio pin.
+ * -#To prevent power leakage, you need to make sure that all GPIOs are not FLOATING, suggested use process is as follows:
+ *    -# gpio_shutdown(GPIO_ALL);---All GPIOs except MSPI as well as SWS will be set to high resistance state.(Prevent power leakage.)
+ *    -# gpio_setup_up_down_resistor(GPIO_SWS, PM_PIN_PULLUP_1M);---Ensure SWS is a constant level.(There are two purposes: the first is to prevent leakage,
+ *     the second is to prevent the SWS no fixed level, generating some interfering signals through the sws mistakenly written to the chip resulting in death.)
+ *    -# If you want to use GPIO as another function, please configure it yourself.
+ *    -# Must ensure that all GPIOs cannot be FLOATING status before going to sleep to prevent power leakage.
  *
  *  API Reference
  *  ===============
@@ -36,7 +41,7 @@
 
 
 #include "lib/include/plic.h"
-#include "analog.h"
+#include "lib/include/analog.h"
 #include "reg_include/gpio_reg.h"
 /**********************************************************************************************************************
  *                                         global constants                                                           *
@@ -419,7 +424,7 @@ typedef enum{
     PROBE_CLK_I2S1          = 11,
     PROBE_CLK_I2S2          = 12,
     PROBE_CLK_USBPHY        = 13,
-    PROBE_CLK_DMIC          = 14,
+    PROBE_CODEC_MCLK        = 14,
     PROBE_CLK_7816          = 15,
     PROBE_DSM_DEBUG         = 16,
     //RSVD
@@ -597,6 +602,28 @@ static inline _Bool  gpio_is_output_en(gpio_pin_e pin)
 static inline _Bool gpio_is_input_en(gpio_pin_e pin)
 {
     return BM_IS_SET(reg_gpio_ie(pin), pin & 0xff);
+}
+
+/**
+ * @brief       This function is used to enable the GPIO pin of mspi.
+ * @param[in]   none.
+ * @return      none.
+ * @note        This interface is for internal use only.
+ */
+static _always_inline void gpio_set_mspi_pin_ie_en(void)
+{
+    reg_gpio_pg_ie = 0x3f;
+}
+
+/**
+ * @brief       This function is used to disable the GPIO pin of mspi.
+ * @param[in]   none.
+ * @return      none.
+ * @note        This interface is for internal use only.
+ */
+static _always_inline void gpio_set_mspi_pin_ie_dis(void)
+{
+    reg_gpio_pg_ie = 0x00;
 }
 
 /**
@@ -795,12 +822,10 @@ void gpio_input_dis(gpio_pin_e pin);
 void gpio_set_input(gpio_pin_e pin, unsigned char value);
 /**
  * @brief      This function servers to set the specified GPIO as high resistor.
- * @param[in]  pin  - select the specified GPIO, GPIOI GPIOJ group is not included in GPIO_ALL.
+ *             To prevent power leakage, you need to call gpio_shutdown(GPIO_ALL) (set all gpio to high resistance, except SWS and MSPI.)
+ *             as front as possible in the program, and then initialize the corresponding GPIO according to the actual using situation.
+ * @param[in]  pin  - select the specified GPIO.
  * @return     none.
- * @note       -# gpio_shutdown(GPIO_ALL) is a debugging method only and is not recommended for use in applications.
- *             -# gpio_shutdown(GPIO_ALL) set all GPIOs to high impedance except SWS and MSPI.
- *             -# If you want to use JTAG/USB in active state, or wake up the MCU with a specific pin,
- *                you can enable the corresponding pin after calling gpio_shutdown(GPIO_ALL).
  */
 void gpio_shutdown(gpio_pin_e pin);
 
@@ -845,6 +870,24 @@ static inline void gpio_set_src_irq_group(gpio_group_e group)
  * @return    none.
  */
 void gpio_set_probe_clk_function(gpio_func_pin_e pin, probe_clk_sel_e sel_clk);
+
+/**
+ * @brief     This function serves to set jtag(4 wires) pin , Where, PC[4]; PC[5]; PC[6]; PC[7] correspond to TDI; TDO; TMS; TCK functions mux respectively.
+ * @param[in] none
+ * @return    none.
+ * @note      Power-on or hardware reset will detect the level of PB0 (reboot will not detect it), detecting a low level is configured as jtag,
+               detecting a high level is configured as sdp.  the level of PB0 can not be configured internally by the software, and can only be input externally.
+ */
+ void jtag_set_pin_en(void);
+
+/**
+ * @brief     This function serves to set sdp(2 wires) pin ,where, PC[6]; PC[7] correspond to TMS and TCK functions mux respectively.
+ * @param[in] none
+ * @return    none.
+ * @note      Power-on or hardware reset will detect the level of PB0 (reboot will not detect it), detecting a low level is configured as jtag,
+               detecting a high level is configured as sdp.  the level of PB0 can not be configured internally by the software, and can only be input externally.
+ */
+ void sdp_set_pin_en(void);
 #endif
 
 

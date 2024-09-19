@@ -52,7 +52,7 @@
 #define PA6_INPUT_ENABLE    0
 #endif
 #ifndef PA7_INPUT_ENABLE
-#define PA7_INPUT_ENABLE    1   //SWS
+#define PA7_INPUT_ENABLE    1   //SWS:input must be enabled
 #endif
 #ifndef PA0_OUTPUT_ENABLE
 #define PA0_OUTPUT_ENABLE   0
@@ -431,16 +431,16 @@
 #define PC3_FUNC    AS_GPIO
 #endif
 #ifndef PC4_FUNC
-#define PC4_FUNC    AS_TDI //JTAG 4-WIRE FUNCTION
+#define PC4_FUNC    AS_GPIO //JTAG 4-WIRE FUNCTION
 #endif
 #ifndef PC5_FUNC
-#define PC5_FUNC    AS_TDO //JTAG 4-WIRE FUNCTION
+#define PC5_FUNC    AS_GPIO //JTAG 4-WIRE FUNCTION
 #endif
 #ifndef PC6_FUNC
-#define PC6_FUNC    AS_TMS //JTAG 4-WIRE FUNCTION
+#define PC6_FUNC    AS_GPIO //JTAG 4-WIRE FUNCTION
 #endif
 #ifndef PC7_FUNC
-#define PC7_FUNC    AS_TCK //JTAG 4-WIRE FUNCTION
+#define PC7_FUNC    AS_GPIO //JTAG 4-WIRE FUNCTION
 #endif
 #ifndef PULL_WAKEUP_SRC_PC0
 #define PULL_WAKEUP_SRC_PC0     0
@@ -455,16 +455,16 @@
 #define PULL_WAKEUP_SRC_PC3     0
 #endif
 #ifndef PULL_WAKEUP_SRC_PC4
-#define PULL_WAKEUP_SRC_PC4     GPIO_PIN_PULLUP_10K //JTAG 4-WIRE FUNCTION
+#define PULL_WAKEUP_SRC_PC4     0 //JTAG 4-WIRE FUNCTION
 #endif
 #ifndef PULL_WAKEUP_SRC_PC5
-#define PULL_WAKEUP_SRC_PC5     GPIO_PIN_PULLUP_10K //JTAG 4-WIRE FUNCTION
+#define PULL_WAKEUP_SRC_PC5     0 //JTAG 4-WIRE FUNCTION
 #endif
 #ifndef PULL_WAKEUP_SRC_PC6
-#define PULL_WAKEUP_SRC_PC6     GPIO_PIN_PULLUP_10K //JTAG 4-WIRE FUNCTION
+#define PULL_WAKEUP_SRC_PC6     0 //JTAG 4-WIRE FUNCTION
 #endif
 #ifndef PULL_WAKEUP_SRC_PC7
-#define PULL_WAKEUP_SRC_PC7     GPIO_PIN_PULLDOWN_100K //JTAG 4-WIRE FUNCTION
+#define PULL_WAKEUP_SRC_PC7     0 //JTAG 4-WIRE FUNCTION
 #endif
 
 /************************************************************PD*******************************************************/
@@ -907,22 +907,22 @@
 
 /************************************************************PG*******************************************************/
 #ifndef PG0_INPUT_ENABLE
-#define PG0_INPUT_ENABLE    1   //MSPI
+#define PG0_INPUT_ENABLE    1   //MSPI:input must be enabled
 #endif
 #ifndef PG1_INPUT_ENABLE
-#define PG1_INPUT_ENABLE    1   //MSPI
+#define PG1_INPUT_ENABLE    1   //MSPI:input must be enabled
 #endif
 #ifndef PG2_INPUT_ENABLE
-#define PG2_INPUT_ENABLE    1   //MSPI
+#define PG2_INPUT_ENABLE    1   //MSPI:input must be enabled
 #endif
 #ifndef PG3_INPUT_ENABLE
-#define PG3_INPUT_ENABLE    1   //MSPI
+#define PG3_INPUT_ENABLE    1   //MSPI:input must be enabled
 #endif
 #ifndef PG4_INPUT_ENABLE
-#define PG4_INPUT_ENABLE    1   //MSPI
+#define PG4_INPUT_ENABLE    1   //MSPI:input must be enabled
 #endif
 #ifndef PG5_INPUT_ENABLE
-#define PG5_INPUT_ENABLE    1   //MSPI
+#define PG5_INPUT_ENABLE    1   //MSPI:input must be enabled
 #endif
 #ifndef PG0_OUTPUT_ENABLE
 #define PG0_OUTPUT_ENABLE   0
@@ -1076,6 +1076,8 @@ static inline void gpio_init(int anaRes_init_en){
     //PA group
     reg_gpio_pa_out_set  =  (PA0_DATA_OUT<<0) | (PA1_DATA_OUT<<1) | (PA2_DATA_OUT<<2) | (PA3_DATA_OUT<<3) |
                             (PA4_DATA_OUT<<4) | (PA5_DATA_OUT<<5) | (PA6_DATA_OUT<<6) | (PA7_DATA_OUT<<7) ;
+    reg_gpio_pa_out_clear=  ((PA0_DATA_OUT?0:1)<<0) | ((PA1_DATA_OUT?0:1)<<1) | ((PA2_DATA_OUT?0:1)<<2) | ((PA3_DATA_OUT?0:1)<<3) |
+                            ((PA4_DATA_OUT?0:1)<<4) | ((PA5_DATA_OUT?0:1)<<5) | ((PA6_DATA_OUT?0:1)<<6) | ((PA7_DATA_OUT?0:1)<<7) ;
     reg_gpio_pa_setting1 =
         (PA0_INPUT_ENABLE<<8)  | (PA1_INPUT_ENABLE<<9)  | (PA2_INPUT_ENABLE<<10) | (PA3_INPUT_ENABLE<<11) |
         (PA4_INPUT_ENABLE<<12) | (PA5_INPUT_ENABLE<<13) | (PA6_INPUT_ENABLE<<14) | (PA7_INPUT_ENABLE<<15) |
@@ -1090,6 +1092,8 @@ static inline void gpio_init(int anaRes_init_en){
     //PB group
     reg_gpio_pb_out_set  =  (PB0_DATA_OUT<<0) | (PB1_DATA_OUT<<1) | (PB2_DATA_OUT<<2) | (PB3_DATA_OUT<<3) |
                             (PB4_DATA_OUT<<4) | (PB5_DATA_OUT<<5) | (PB6_DATA_OUT<<6) | (PB7_DATA_OUT<<7) ;
+    reg_gpio_pb_out_clear=  ((PB0_DATA_OUT?0:1)<<0) | ((PB1_DATA_OUT?0:1)<<1) | ((PB2_DATA_OUT?0:1)<<2) | ((PB3_DATA_OUT?0:1)<<3) |
+                            ((PB4_DATA_OUT?0:1)<<4) | ((PB5_DATA_OUT?0:1)<<5) | ((PB6_DATA_OUT?0:1)<<6) | ((PB7_DATA_OUT?0:1)<<7) ;
     reg_gpio_pb_setting1 =
         (PB0_INPUT_ENABLE<<8)  | (PB1_INPUT_ENABLE<<9)  | (PB2_INPUT_ENABLE<<10) | (PB3_INPUT_ENABLE<<11) |
         (PB4_INPUT_ENABLE<<12) | (PB5_INPUT_ENABLE<<13) | (PB6_INPUT_ENABLE<<14) | (PB7_INPUT_ENABLE<<15) |
@@ -1102,10 +1106,12 @@ static inline void gpio_init(int anaRes_init_en){
         (PB4_FUNC==AS_GPIO ? BIT(20):0) | (PB5_FUNC==AS_GPIO ? BIT(21):0)| (PB6_FUNC==AS_GPIO ? BIT(22):0)| (PB7_FUNC==AS_GPIO ? BIT(23):0);
 
     //PC group
-    analog_write_reg8(areg_gpio_pc_ie,  (PC0_INPUT_ENABLE<<0) | (PC1_INPUT_ENABLE<<1) | (PC2_INPUT_ENABLE<<2) | (PC3_INPUT_ENABLE<<3) |
-                                        (PC4_INPUT_ENABLE<<4) | (PC5_INPUT_ENABLE<<5) | (PC6_INPUT_ENABLE<<6) | (PC7_INPUT_ENABLE<<7));
     reg_gpio_pc_out_set  =  (PC0_DATA_OUT<<0) | (PC1_DATA_OUT<<1) | (PC2_DATA_OUT<<2) | (PC3_DATA_OUT<<3) |
                             (PC4_DATA_OUT<<4) | (PC5_DATA_OUT<<5) | (PC6_DATA_OUT<<6) | (PC7_DATA_OUT<<7) ;
+    reg_gpio_pc_out_clear=  ((PC0_DATA_OUT?0:1)<<0) | ((PC1_DATA_OUT?0:1)<<1) | ((PC2_DATA_OUT?0:1)<<2) | ((PC3_DATA_OUT?0:1)<<3) |
+                            ((PC4_DATA_OUT?0:1)<<4) | ((PC5_DATA_OUT?0:1)<<5) | ((PC6_DATA_OUT?0:1)<<6) | ((PC7_DATA_OUT?0:1)<<7) ;
+    analog_write_reg8(areg_gpio_pc_ie,  (PC0_INPUT_ENABLE<<0) | (PC1_INPUT_ENABLE<<1) | (PC2_INPUT_ENABLE<<2) | (PC3_INPUT_ENABLE<<3) |
+                                        (PC4_INPUT_ENABLE<<4) | (PC5_INPUT_ENABLE<<5) | (PC6_INPUT_ENABLE<<6) | (PC7_INPUT_ENABLE<<7));
     reg_gpio_pc_oen =
         ((PC0_OUTPUT_ENABLE?0:1)<<0) | ((PC1_OUTPUT_ENABLE?0:1)<<1) | ((PC2_OUTPUT_ENABLE?0:1)<<2) | ((PC3_OUTPUT_ENABLE?0:1)<<3) |
         ((PC4_OUTPUT_ENABLE?0:1)<<4) | ((PC5_OUTPUT_ENABLE?0:1)<<5) | ((PC6_OUTPUT_ENABLE?0:1)<<6) | ((PC7_OUTPUT_ENABLE?0:1)<<7);
@@ -1116,10 +1122,12 @@ static inline void gpio_init(int anaRes_init_en){
         (PC4_FUNC==AS_GPIO ? BIT(4):0) | (PC5_FUNC==AS_GPIO ? BIT(5):0) | (PC6_FUNC==AS_GPIO ? BIT(6):0) | (PC7_FUNC==AS_GPIO ? BIT(7):0);
 
     //PD group
-    analog_write_reg8(areg_gpio_pd_ie,  (PD0_INPUT_ENABLE<<0) | (PD1_INPUT_ENABLE<<1) | (PD2_INPUT_ENABLE<<2) | (PD3_INPUT_ENABLE<<3) |
-                                        (PD4_INPUT_ENABLE<<4) | (PD5_INPUT_ENABLE<<5) | (PD6_INPUT_ENABLE<<6) | (PD7_INPUT_ENABLE<<7));
     reg_gpio_pd_out_set  =  (PD0_DATA_OUT<<0) | (PD1_DATA_OUT<<1) | (PD2_DATA_OUT<<2) | (PD3_DATA_OUT<<3) |
                             (PD4_DATA_OUT<<4) | (PD5_DATA_OUT<<5) | (PD6_DATA_OUT<<6) | (PD7_DATA_OUT<<7) ;
+    reg_gpio_pd_out_clear=  ((PD0_DATA_OUT?0:1)<<0) | ((PD1_DATA_OUT?0:1)<<1) | ((PD2_DATA_OUT?0:1)<<2) | ((PD3_DATA_OUT?0:1)<<3) |
+                            ((PD4_DATA_OUT?0:1)<<4) | ((PD5_DATA_OUT?0:1)<<5) | ((PD6_DATA_OUT?0:1)<<6) | ((PD7_DATA_OUT?0:1)<<7) ;
+    analog_write_reg8(areg_gpio_pd_ie,  (PD0_INPUT_ENABLE<<0) | (PD1_INPUT_ENABLE<<1) | (PD2_INPUT_ENABLE<<2) | (PD3_INPUT_ENABLE<<3) |
+                                        (PD4_INPUT_ENABLE<<4) | (PD5_INPUT_ENABLE<<5) | (PD6_INPUT_ENABLE<<6) | (PD7_INPUT_ENABLE<<7));
     reg_gpio_pd_oen =
         ((PD0_OUTPUT_ENABLE?0:1)<<0) | ((PD1_OUTPUT_ENABLE?0:1)<<1) | ((PD2_OUTPUT_ENABLE?0:1)<<2)  | ((PD3_OUTPUT_ENABLE?0:1)<<3) |
         ((PD4_OUTPUT_ENABLE?0:1)<<4) | ((PD5_OUTPUT_ENABLE?0:1)<<5) | ((PD6_OUTPUT_ENABLE?0:1)<<6)  | ((PD7_OUTPUT_ENABLE?0:1)<<7);
@@ -1132,6 +1140,8 @@ static inline void gpio_init(int anaRes_init_en){
     //PE group
     reg_gpio_pe_out_set  =  (PE0_DATA_OUT<<0) | (PE1_DATA_OUT<<1) | (PE2_DATA_OUT<<2) | (PE3_DATA_OUT<<3) |
                             (PE4_DATA_OUT<<4) | (PE5_DATA_OUT<<5) | (PE6_DATA_OUT<<6) | (PE7_DATA_OUT<<7) ;
+    reg_gpio_pe_out_clear=  ((PE0_DATA_OUT?0:1)<<0) | ((PE1_DATA_OUT?0:1)<<1) | ((PE2_DATA_OUT?0:1)<<2) | ((PE3_DATA_OUT?0:1)<<3) |
+                            ((PE4_DATA_OUT?0:1)<<4) | ((PE5_DATA_OUT?0:1)<<5) | ((PE6_DATA_OUT?0:1)<<6) | ((PE7_DATA_OUT?0:1)<<7) ;
     reg_gpio_pe_setting1 =
         (PE0_INPUT_ENABLE<<8)   | (PE1_INPUT_ENABLE<<9)  | (PE2_INPUT_ENABLE<<10) | (PE3_INPUT_ENABLE<<11) |
         (PE4_INPUT_ENABLE<<12)  | (PE5_INPUT_ENABLE<<13) | (PE6_INPUT_ENABLE<<14) | (PE7_INPUT_ENABLE<<15) |
@@ -1146,6 +1156,8 @@ static inline void gpio_init(int anaRes_init_en){
     //PF group
     reg_gpio_pf_out_set  =  (PF0_DATA_OUT<<0) | (PF1_DATA_OUT<<1) | (PF2_DATA_OUT<<2) | (PF3_DATA_OUT<<3) |
                             (PF4_DATA_OUT<<4) | (PF5_DATA_OUT<<5) | (PF6_DATA_OUT<<6) | (PF7_DATA_OUT<<7) ;
+    reg_gpio_pf_out_clear=  ((PF0_DATA_OUT?0:1)<<0) | ((PF1_DATA_OUT?0:1)<<1) | ((PF2_DATA_OUT?0:1)<<2) | ((PF3_DATA_OUT?0:1)<<3) |
+                            ((PF4_DATA_OUT?0:1)<<4) | ((PF5_DATA_OUT?0:1)<<5) | ((PF6_DATA_OUT?0:1)<<6) | ((PF7_DATA_OUT?0:1)<<7) ;
     reg_gpio_pf_setting1 =
         (PF0_INPUT_ENABLE<<8)  | (PF1_INPUT_ENABLE<<9)  | (PF2_INPUT_ENABLE<<10) | (PF3_INPUT_ENABLE<<11) |
         (PF4_INPUT_ENABLE<<12) | (PF5_INPUT_ENABLE<<13) | (PF6_INPUT_ENABLE<<14) | (PF7_INPUT_ENABLE<<15) |
@@ -1160,6 +1172,8 @@ static inline void gpio_init(int anaRes_init_en){
     //PG group
     reg_gpio_pg_out_set  =  (PG0_DATA_OUT<<0) | (PG1_DATA_OUT<<1) | (PG2_DATA_OUT<<2) | (PG3_DATA_OUT<<3) |
                             (PG4_DATA_OUT<<4) | (PG5_DATA_OUT<<5)  ;
+    reg_gpio_pg_out_clear=  ((PG0_DATA_OUT?0:1)<<0) | ((PG1_DATA_OUT?0:1)<<1) | ((PG2_DATA_OUT?0:1)<<2) | ((PG3_DATA_OUT?0:1)<<3) |
+                            ((PG4_DATA_OUT?0:1)<<4) | ((PG5_DATA_OUT?0:1)<<5) ;
     reg_gpio_pg_setting1 =
         (PG0_INPUT_ENABLE<<8)  | (PG1_INPUT_ENABLE<<9)  | (PG2_INPUT_ENABLE<<10) | (PG3_INPUT_ENABLE<<11) |
         (PG4_INPUT_ENABLE<<12) | (PG5_INPUT_ENABLE<<13) |

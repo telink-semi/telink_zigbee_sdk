@@ -728,7 +728,7 @@ static void zbhci_bindCmdHandler(void *arg){
 	ev_buf_free(arg);
 }
 
-
+#if ZB_COORDINATOR_ROLE
 s32 node_toggle_unicast_test(void *arg){
 	u32 mode = (u32)arg;
 
@@ -809,7 +809,7 @@ s32 node_toggle_broadcast_test(void *arg){
 	onOff ^= 1;
 	return 0;
 }
-
+#endif
 
 s32 rxtx_performance_test(void *arg){
 	txrx_performce_test_req_t *txrxTest = (txrx_performce_test_req_t *)arg;
@@ -981,6 +981,8 @@ s32 zbhci_nodeManageCmdHandler(void *arg){
 		ZB_IEEE_ADDR_REVERT(pBuf, NIB_IEEE_ADDRESS());
 		pBuf += 8;
 
+		*pBuf++ = MAC_IB().phyChannelCur;
+
 		zbhciTx(ZBHCI_CMD_GET_LOCAL_NWK_INFO_RSP, (u8)(pBuf-temp), temp);
 	}else if(cmdID == ZBHCI_CMD_GET_CHILD_NODES_REQ){
 		zbhci_childNodeGetReq_t *ng = (zbhci_childNodeGetReq_t *)p;
@@ -1086,7 +1088,12 @@ s32 local_ota_reboot_delay(void *arg){
 
 	g_hciOtaTimer = NULL;//cancel timer
 
-	u32 newAddr = (mcuBootAddrGet()) ? 0 : FLASH_ADDR_OF_OTA_IMAGE;
+	u32 bootAddr = mcuBootAddrGet();
+	if(bootAddr == 0xFFFFFFFF){
+		return -1;
+	}
+
+	u32 newAddr = (bootAddr) ? 0 : FLASH_ADDR_OF_OTA_IMAGE;
 	if(!ota_newImageValid(newAddr)){
 		return -1;
 	}
@@ -1098,7 +1105,7 @@ s32 local_ota_reboot_delay(void *arg){
 	if(flash_writeWithCheck((newAddr + FLASH_TLNK_FLAG_OFFSET), 1, &flashInfo) == TRUE){
 #if (!BOOT_LOADER_MODE)
 		flashInfo = 0;
-		u32 baseAddr = (mcuBootAddrGet()) ? FLASH_ADDR_OF_OTA_IMAGE : 0;
+		u32 baseAddr = (bootAddr) ? FLASH_ADDR_OF_OTA_IMAGE : 0;
 		flash_write((baseAddr + FLASH_TLNK_FLAG_OFFSET), 1, &flashInfo);//disable boot-up flag
 #endif
 		reboot = 1;
@@ -1130,35 +1137,40 @@ void zbhci_uartOTAHandle(void *arg){
 		u8 start_status = ZBHCI_OTA_SUCCESS;
 
 		if(ota_info.otaProcessStart == 0){
-			ota_info.otaFlashAddrStart = (mcuBootAddrGet()) ? 0 : FLASH_ADDR_OF_OTA_IMAGE;
-			COPY_BUFFERTOU32_BE(ota_info.otaFileTotalSize, p);
-			p += 4;
-			if(ota_info.otaFileTotalSize < FLASH_OTA_IMAGE_MAX_SIZE){
-				ota_info.binType = ZBHCI_OTA_REMOTE_OTA_BIN;
-				if(cmdInfo->payloadLen > 4){
-					ota_info.binType = *p;
-				}
+			u32 bootAddr = mcuBootAddrGet();
+			if(bootAddr == 0xFFFFFFFF){
+				start_status = ZBHCI_OTA_BOOT_ADDR_ERROR;
+			}else{
+				ota_info.otaFlashAddrStart = (bootAddr) ? 0 : FLASH_ADDR_OF_OTA_IMAGE;
+				COPY_BUFFERTOU32_BE(ota_info.otaFileTotalSize, p);
+				p += 4;
+				if(ota_info.otaFileTotalSize < FLASH_OTA_IMAGE_MAX_SIZE){
+					ota_info.binType = ZBHCI_OTA_REMOTE_OTA_BIN;
+					if(cmdInfo->payloadLen > 4){
+						ota_info.binType = *p;
+					}
 
-				ota_info.otaFileOffset = 0;
-				ota_info.otaProcessStart = 1;
-				u16 sectorNumUsed = ota_info.otaFileTotalSize / FLASH_SECTOR_SIZE + 1;
+					ota_info.otaFileOffset = 0;
+					ota_info.otaProcessStart = 1;
+					u16 sectorNumUsed = ota_info.otaFileTotalSize / FLASH_SECTOR_SIZE + 1;
 
 #if FLASH_PROTECT_ENABLE
-				flash_unlock();
+					flash_unlock();
 #endif
 
-				for(u16 i = 0; i < sectorNumUsed; i++){
-					flash_erase(ota_info.otaFlashAddrStart + i * FLASH_SECTOR_SIZE);
+					for(u16 i = 0; i < sectorNumUsed; i++){
+						flash_erase(ota_info.otaFlashAddrStart + i * FLASH_SECTOR_SIZE);
+					}
+					ota_info.otaFindBootFlag = 0;
+					ota_info.blockRequestCnt = 0;
+					ota_info.otaCrcValue = 0xffffffff;
+					if(g_hciOtaTimer){
+						TL_ZB_TIMER_CANCEL(&g_hciOtaTimer);
+					}
+					g_hciOtaTimer = TL_ZB_TIMER_SCHEDULE(recv_ota_block_response_cb, NULL, HCI_OTA_BLOCK_INTERVAL_NORMAL);
+				}else{
+					start_status = ZBHCI_OTA_FILE_OVERSIZE;
 				}
-				ota_info.otaFindBootFlag = 0;
-				ota_info.blockRequestCnt = 0;
-				ota_info.otaCrcValue = 0xffffffff;
-				if(g_hciOtaTimer){
-					TL_ZB_TIMER_CANCEL(&g_hciOtaTimer);
-				}
-				g_hciOtaTimer = TL_ZB_TIMER_SCHEDULE(recv_ota_block_response_cb, NULL, HCI_OTA_BLOCK_INTERVAL_NORMAL);
-			}else{
-				start_status = ZBHCI_OTA_FILE_OVERSIZE;
 			}
 		}else{
 			start_status = ZBHCI_OTA_IN_PROGRESS;
@@ -1234,7 +1246,7 @@ void zbhci_uartOTAHandle(void *arg){
 				u8 finalStatus = ZBHCI_OTA_SUCCESS;
 				if(ota_info.binType == ZBHCI_OTA_LOCAL_BIN){
 					u32 crcRecv;
-					flash_read(ota_info.otaFileTotalSize - 4, 4, (u8 *)&crcRecv);
+					flash_read(ota_info.otaFlashAddrStart + ota_info.otaFileTotalSize - 4, 4, (u8 *)&crcRecv);
 					if((crcRecv == ota_info.otaCrcValue) && (is_valid_fw_flag(ota_info.otaFlashAddrStart))){
 						g_hciOtaTimer = TL_ZB_TIMER_SCHEDULE(local_ota_reboot_delay, NULL, 3000);
 					}else{

@@ -45,15 +45,20 @@
 #define _attribute_custom_data_  				__attribute__((section(".custom_data")))
 #define _attribute_custom_bss_  				__attribute__((section(".custom_bss")))
 #define _attribute_text_sec_   					__attribute__((section(".text")))
+#define _attribute_flash_code_sec_noinline_     __attribute__((section(".flash_code"))) __attribute__((noinline))
 #define _attribute_aes_data_sec_      			__attribute__((section(".aes_data")))
 
 /**
  * No_execit must be added here for the following reasons: When compiling at the optimization level of -Os, link may use exec.it for functions compiled at -O2. To disable this behavior,
  * add -mno-exit to the linking phase (see Andes Programming Guide), or add _attribute_((no_execit)) to functions that don't want to use exec.it.
  */
+#ifndef STD_GCC //standard open source risc-V GCC
 #define _attribute_ram_code_sec_optimize_o2_    __attribute__((section(".ram_code"))) __attribute__((optimize("O2"))) __attribute__((no_execit))
-
 #define _attribute_ram_code_sec_optimize_o2_noinline_    __attribute__((noinline)) __attribute__((section(".ram_code"))) __attribute__((optimize("O2"))) __attribute__((no_execit))
+#else
+#define _attribute_ram_code_sec_optimize_o2_    __attribute__((section(".ram_code"))) __attribute__((optimize("O2")))
+#define _attribute_ram_code_sec_optimize_o2_noinline_    __attribute__((noinline)) __attribute__((section(".ram_code"))) __attribute__((optimize("O2")))
+#endif
 
 /**
  *  _always_inline needs to be added in the following two cases:

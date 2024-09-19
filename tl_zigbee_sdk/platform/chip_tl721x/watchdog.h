@@ -51,8 +51,8 @@
  */
 #ifndef WATCHDOG_H_
 #define WATCHDOG_H_
-#include "analog.h"
-#include "clock.h"
+#include "lib/include/analog.h"
+#include "lib/include/clock.h"
 #include "compiler.h"
 
 #define wd_clear_cnt        wd_clear

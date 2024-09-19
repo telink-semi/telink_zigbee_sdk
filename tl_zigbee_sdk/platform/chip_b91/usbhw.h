@@ -37,6 +37,10 @@
 #include "reg_include/register.h"
 #include "analog.h"
 #include "gpio.h"
+#include <stdbool.h>
+
+/* For compatibility, usb_set_pin_en() is equivalent to usb_set_pin(1), configure the usb pin and enable the dp_through_swire function.*/
+#define usb_set_pin_en()    usb_set_pin(1)
 
 typedef enum
 {
@@ -451,16 +455,18 @@ static inline void usb_power_on(unsigned char en)
 }
 
 /**
- * @brief      This function serves to set GPIO MUX function as DP and DM pin of USB
+ * @brief      This function serves to set dp_through_swire function.
+ * @param[in]  dp_through_swire - 1: swire_usb_en 0: swire_usb_dis
  * @return     none.
  */
-static inline void usb_set_pin_en(void)
-{
-	reg_gpio_func_mux(GPIO_PA5)=reg_gpio_func_mux(GPIO_PA5)&(~BIT_RNG(2,3));
-	gpio_function_dis(GPIO_PA5);
-	reg_gpio_func_mux(GPIO_PA6)=reg_gpio_func_mux(GPIO_PA6)&(~BIT_RNG(4,5));
-	gpio_function_dis(GPIO_PA6);
-	gpio_input_en(GPIO_PA5|GPIO_PA6);//DP/DM must set input enable
-	usb_dp_pullup_en (1);
-	write_reg8(0x100c01, (read_reg8(0x100c01) | BIT(7)));   //swire_usb_en
-}
+void dp_through_swire_en(bool dp_through_swire);
+
+/**
+ * @brief      This function serves to set GPIO MUX function as DP and DM pin of USB.
+ * @param[in]  dp_through_swire - 1: swire_usb_en 0: swire_usb_dis
+ * @return     none.
+ * @note       1. Configure usb_set_pin(0) , there are some risks, please refer to the startup.S file about DP_THROUGH_SWIRE_DIS
+ *                for detailed description (by default dp_through_swire is disabled). Configure usb_set_pin(1) to enable dp_through_swire again.
+ *             2. When dp_through_swire is enabled, Swire and USB applications do not affect each other.
+ */
+void usb_set_pin(bool dp_through_swire);

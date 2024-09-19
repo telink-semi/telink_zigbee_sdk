@@ -25,18 +25,18 @@
 
 #pragma once
 
-#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
+#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
 #include <stdio.h>
 #endif
 
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-int Tl_printf(const char *format, ...);
+int tl_printf(const char *format, ...);
 #endif
 
 
 #if (UART_PRINTF_MODE || USB_PRINTF_MODE)
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-	#define printf										Tl_printf
+	#define printf										tl_printf
 #endif
 
 	#define TRACE										printf

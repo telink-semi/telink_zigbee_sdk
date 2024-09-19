@@ -121,19 +121,4 @@ enum{
 #define reg_dma_llp(i)              REG_ADDR32 (DMA_BASE_ADDR+0x54+(i)*0x14)
 #define reg_dma_llp_int_mode(i) REG_ADDR8(DMA_BASE_ADDR+0x113+(((i)>3) ? 1 : 0))
 
-#define reg_dma_rx_wptr             REG_ADDR8(DMA_BASE_ADDR+0xf4)
-#define reg_dma_tx_wptr             REG_ADDR8(DMA_BASE_ADDR+0x100)
-enum{
-    FLD_DMA_WPTR_MASK =         BIT_RNG(0,4),
-};
-
-#define reg_dma_rx_rptr             REG_ADDR8(DMA_BASE_ADDR+0xf5)
-#define reg_dma_tx_rptr             REG_ADDR8(DMA_BASE_ADDR+0x101)
-enum{
-    FLD_DMA_RPTR_MASK =         BIT_RNG(0,4),
-    FLD_DMA_RPTR_SET =          BIT(5),
-    FLD_DMA_RPTR_NEXT =         BIT(6),
-    FLD_DMA_RPTR_CLR =          BIT(7),
-};
-
 #endif

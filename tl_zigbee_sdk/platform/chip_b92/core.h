@@ -24,7 +24,7 @@
 #ifndef CORE_H
 #define CORE_H
 #include "lib/include/sys.h"
-#include "nds_intrinsic.h"
+#include "reg_include/core_reg.h"
 #include <stdbool.h>
 
 #define MCAUSE_INT             0x80000000UL
@@ -42,9 +42,13 @@
 #define MSTATUS_MPP_SV                          (1ULL << (11))
 #define MSTATUS_MPP_MC                          ((1ULL << (11)) | (1ULL << (12)))
 
-
+#ifdef STD_GCC
+#define DISABLE_BTB __asm__("csrci %0,8" :: "i" (mmisc_ctl))
+#define ENABLE_BTB  __asm__("csrsi %0,8" :: "i" (mmisc_ctl))
+#else
 #define DISABLE_BTB __asm__("csrci mmisc_ctl,8")
 #define ENABLE_BTB  __asm__("csrsi mmisc_ctl,8")
+#endif
 
 /**
  * @brief Machine mode MHSP_CTL
@@ -84,11 +88,30 @@ typedef enum {
     CORE_PREEMPT_PRI_MODE3 = BIT(1),                      /**< MEI, MSI and MTI can be nested within each other(MIE register bit1 is an invalid bit). */
 }core_preempt_pri_e;
 
-#define  read_csr(reg)		         __nds__csrr(reg)
-#define  write_csr(reg, val)	      __nds__csrw(val, reg)
-#define  swap_csr(reg, val)	          __nds__csrrw(val, reg)
-#define set_csr(reg, bit)	         __nds__csrrs(bit, reg)
-#define clear_csr(reg, bit)	         __nds__csrrc(bit, reg)
+#define read_csr(reg) ({ unsigned long __tmp; \
+  __asm__ volatile ("csrr %0, %1" : "=r"(__tmp) : "i" (reg)); \
+  __tmp; })
+
+#define write_csr(reg, val) ({ \
+  __asm__ volatile ("csrw %0, %1" :: "i" (reg), "rK"(val)); })
+
+#define swap_csr(reg, val) ({ unsigned long __tmp; \
+  __asm__ volatile ("csrrw %0, %1, %2" : "=r"(__tmp) : "i" (reg), "rK"(val)); \
+  __tmp; })
+
+#define set_csr(reg, bit) ({ unsigned long __tmp; \
+  __asm__ volatile ("csrrs %0, %1, %2" : "=r"(__tmp) : "i" (reg), "rK"(bit)); \
+  __tmp; })
+
+#define clear_csr(reg, bit) ({ unsigned long __tmp; \
+  __asm__ volatile ("csrrc %0, %1, %2" : "=r"(__tmp) : "i" (reg), "rK"(bit)); \
+  __tmp; })
+
+#define fence_iorw               __asm__ volatile ("fence" : : : "memory")
+
+#define core_get_current_sp() ({ unsigned long __tmp; \
+  __asm__ volatile ("mv %0, sp" : "=r"(__tmp)); \
+  __tmp; })
 
 /*
  * Inline nested interrupt entry/exit macros
@@ -130,8 +153,6 @@ typedef enum {
 	 restore_csr(NDS_MSTATUS)                        \
 	 restore_csr(NDS_MEPC)                           \
 	 restore_mxstatus()
-
-#define fence_iorw	      	__nds__fence(FENCE_IORW,FENCE_IORW)
 
 typedef enum{
 	FLD_FEATURE_PREEMPT_PRIORITY_INT_EN = BIT(0),
@@ -281,15 +302,6 @@ static inline unsigned int core_get_msp_bound(void)
 static inline unsigned int core_get_msp_base(void)
 {
     return read_csr(NDS_MSP_BASE);
-}
-
-/**
- * @brief This function serves to get current sp(Stack pointer).
- * @return     none
- */
-static inline unsigned int core_get_current_sp(void)
-{
-    return __nds__get_current_sp();
 }
 
 /**

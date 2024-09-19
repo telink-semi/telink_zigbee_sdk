@@ -158,7 +158,7 @@
 #ifndef I2C_H
 #define I2C_H
 #include <stdbool.h>
-#include "analog.h"
+#include "lib/include/analog.h"
 #include "dma.h"
 #include "gpio.h"
 #include "reg_include/i2c_reg.h"

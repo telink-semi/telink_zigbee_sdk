@@ -26,11 +26,13 @@
 
 #include "lib/include/rf.h"
 
+
 /**********************************************************************************************************************
  *                                           global macro                                                             *
  *********************************************************************************************************************/
 #define EMI_ACCESS_ADDR                      0x140808
 #define EMI_ACCESS_CODE                      0x29417671
+#define EMI_TX_PKT_PAYLOAD                     37
 
 /**********************************************************************************************************************
  *                                         function declaration                                                    *
@@ -89,9 +91,13 @@ void rf_emi_tx_continue_setup(void);
  * @param[in]  power_level - power level of RF.
  * @param[in]  rf_chn      - channel of RF.
  * @param[in]  pkt_type    - The type of data sent.
- * -#0:random
- * -#1:0xf0
- * -#2:0x55
+ *    -#0:random
+ *    -#1:0x0f
+ *    -#2:0x55
+ *    -#3:0xaa
+ *    -#4:0xf0
+ *    -#5:0x00
+ *    -#6:0xff
  * @return     none
  */
 void rf_emi_tx_continue_update_data(rf_mode_e rf_mode,rf_power_level_e power_level,signed char rf_chn,unsigned char pkt_type);
@@ -135,6 +141,14 @@ void rf_emi_tx_burst_setup(rf_mode_e rf_mode,rf_power_level_e power_level,signed
 void rf_phy_test_prbs9 (unsigned char *p, int n);
 
 /**
+ * @brief      This function serves to generate random packets that need to be sent in burst mode
+ * @param[in] *p - the address of random packets.
+ * @param[in]  n - the number of random packets.
+ * @return     none
+ */
+void rf_phy_test_prbs15 (unsigned char *p, int n);
+
+/**
  * @brief      This function serves to reset baseband.
  * @return     none
  */
@@ -149,8 +163,8 @@ unsigned int emi_pn_gen(unsigned int state);
 
 /**
  * @brief This function is used in RF current test configurations where only RF modules work
- * @param[in]	none.
- * @return		none.
+ * @param[in]    none.
+ * @return       none.
  * @note  The complete test conditions for TX/RX current:
  *        (1) turn off the clock and power of the modules irrelevant to RF;
  *        (2) hold the modules irrelevant to RF;
@@ -159,23 +173,5 @@ unsigned int emi_pn_gen(unsigned int state);
  */
 _attribute_ram_code_sec_noinline_ void rf_current_test_cfg(void);
 
-/**
- * @brief      This function is mainly used to set the mode, channel and packet sending energy for sending pkt+tone mode.
- * @param[in]  rf_mode	   - Which mode to use to send packets.
- * @param[in]  power_level - the power level of packet.
- * @param[in]  rf_chn      - the channel.
- * @return     none
- */
-void rf_emi_tx_pkt_tone_setup(rf_mode_e rf_mode,rf_power_level_e power_level,signed char rf_chn);
-
-/**
- * @brief      This function is used to send PKT+TONE.
- * @param[in]  tone_power  - Which mode to use to send packets.
- * @param[in]  power_level - Set the energy of the sent tone. Usually the energy of this tone needs to be consistent with
- * 			   the energy of the pkt sent together.
- * @param[in]  tone_us      - Set the duration of sending tone.
- * @return     none
- */
-void rf_emi_tx_pkt_tone_loop(rf_power_level_e tone_power,unsigned char tone_us);
 
 #endif

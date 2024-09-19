@@ -38,7 +38,7 @@
 		#define BAUDRATE					1000000//1M
 	#endif
 		#define	BIT_INTERVAL	 			((16*1000*1000) / BAUDRATE)
-#elif defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
+#elif defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
 	#ifndef	BAUDRATE
 		#define BAUDRATE					1000000//1M
 	#endif
@@ -47,7 +47,7 @@
 
 #if UART_PRINTF_MODE
 	#ifdef DEBUG_INFO_TX_PIN
-		#if defined(MCU_CORE_TL721X)
+		#if defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
 			#define TX_PIN_OUTPUT_REG			reg_gpio_out_set_clear(DEBUG_INFO_TX_PIN)
 		#else//826x/8258/8278/b91/b92
 			#define TX_PIN_OUTPUT_REG			reg_gpio_out(DEBUG_INFO_TX_PIN)
@@ -60,7 +60,7 @@
 												gpio_setup_up_down_resistor(DEBUG_INFO_TX_PIN, PM_PIN_PULLUP_1M); 	\
 												gpio_write(DEBUG_INFO_TX_PIN, 1);									\
 											}while(0)
-		#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
+		#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
 			#define DEBUG_TX_PIN_INIT()		do{	\
 												gpio_function_en(DEBUG_INFO_TX_PIN);								\
 												gpio_set_output(DEBUG_INFO_TX_PIN, 1);								\

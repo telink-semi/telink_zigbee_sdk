@@ -40,7 +40,7 @@
 #ifndef TIMER_H_
 #define TIMER_H_
 
-#include "analog.h"
+#include "lib/include/analog.h"
 #include "gpio.h"
 #include "reg_include/register.h"
 #include "dma.h"

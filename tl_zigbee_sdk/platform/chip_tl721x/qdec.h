@@ -26,7 +26,7 @@
 #include "gpio.h"
 #include "dma.h"
 #include "reg_include/register.h"
-#include "clock.h"
+#include "lib/include/clock.h"
 
 /**
  * qedc input channel

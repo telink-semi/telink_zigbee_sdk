@@ -43,6 +43,8 @@
 		#define CHIP_TYPE					TLSR_B92
 #elif defined(MCU_CORE_TL721X)
 		#define CHIP_TYPE					TLSR_TL721X
+#elif defined(MCU_CORE_TL321X)
+		#define CHIP_TYPE					TLSR_TL321X
 #endif
 
 #define APP_RELEASE							0x10//app release 1.0

@@ -30,11 +30,7 @@ extern "C" {
 #define HADM_VERSION_INT(major, minor, micro) (((major) << 16) | ((minor) << 8) | (micro))
 #define HADM_VERSION HADM_VERSION_INT(1, 1, 17)
 
-#ifdef __riscv
-#define ANDES 1
-#else
-#define ANDES 0
-#endif
+//#define STD_GCC //standard open source risc-V GCC
 
 //#define INITIATOR 0
 //#define REFLECTOR 1
@@ -94,9 +90,8 @@ extern "C" {
 #define PRECQ15NORM 32767
 #define TOL1 (1e-7*PRECBITSNORM)
 
-#if(ANDES == 1)
+#ifndef STD_GCC //standard open source risc-V GCC
 #include <nds_math_types.h>
-#include <nds_intrinsic.h>
 #include <nds_utils_math.h>
 #include <nds_basic_math.h>
 #include <nds_statistics_math.h>

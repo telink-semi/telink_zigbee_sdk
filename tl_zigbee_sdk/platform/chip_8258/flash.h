@@ -44,7 +44,7 @@ enum{
 	FLASH_SECT_ERASE_CMD				=	0x20,
 	FLASH_ERASE_SECURITY_REGISTERS_CMD	=	0x44,
 
-	FLASH_READ_UID_CMD_GD_PUYA_ZB_UT	=	0x4B,	//Flash Type = GD/PUYA/ZB/UT
+	FLASH_READ_UID_CMD_GD_PUYA_ZB_TH	=	0x4B,	//Flash Type = GD/PUYA/ZB/TH
 	FLASH_READ_UID_CMD_XTX				=	0x5A,	//Flash Type = XTX
 
 	FLASH_GET_JEDEC_ID					=	0x9F,
@@ -71,12 +71,15 @@ typedef enum{
 }flash_status_typedef_e;
 
 /**
- * @brief     flash uid cmd definition
+ * @brief     flash vendor and technology definition
  */
 typedef enum{
-	FLASH_UID_CMD_GD_PUYA   = 0x4b,
-	FLASH_XTX_READ_UID_CMD	= 0x5A,
-}flash_uid_cmddef_e;
+	FLASH_ETOX_ZB  		= 0x0100325E,	// 325E		bit[24]:ETOX: Byte Program Time != Page Programming Time
+	FLASH_ETOX_GD   	= 0x010060C8,	// 60C8/4051
+	FLASH_SONOS_PUYA  	= 0x02006085,	// 6085		bit[25]:SONOS:Byte Program Time == Page Programming Time
+	FLASH_SONOS_TH  	= 0x020060EB,	// 60EB
+	FLASH_SST_TH  		= 0x040060CD,	// 60CD		bit[26]:SST:  Byte Program Time != Page Programming Time
+}flash_vendor_e;
 
 /**
  * @brief	flash capacity definition
@@ -118,7 +121,10 @@ typedef enum {
  * @brief 		This function serves to erase a sector.
  * @param[in]   addr	- the start address of the sector needs to erase.
  * @return 		none.
- * @note        Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
+ * @note        Attention: The block erase takes a long time, please pay attention to feeding the dog in advance.
+ * 				The maximum block erase time is listed at the beginning of this document and is available for viewing.
+ *
+ * 				Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
  *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.
  *              Taking into account the factors such as power supply fluctuations, the safe voltage value needs to be greater
  *              than the minimum chip operating voltage. For the specific value, please make a reasonable setting according
@@ -219,25 +225,14 @@ unsigned int flash_read_mid(void);
 void flash_read_uid(unsigned char idcmd, unsigned char *buf);
 
 /*******************************************************************************************************************
- *												Primary interface
+ *												Secondary interface
  ******************************************************************************************************************/
-
 /**
- * @brief		This function serves to read flash mid and uid,and check the correctness of mid and uid.
- * @param[out]	flash_mid	- Flash Manufacturer ID.
- * @param[out]	flash_uid	- Flash Unique ID.
- * @return		0: flash no uid or not a known flash model 	 1:the flash model is known and the uid is read.
- * @note        Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
- *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.
- *              Taking into account the factors such as power supply fluctuations, the safe voltage value needs to be greater
- *              than the minimum chip operating voltage. For the specific value, please make a reasonable setting according
- *              to the specific application and hardware circuit.
- *
- *              Risk description: When the chip power supply voltage is relatively low, due to the unstable power supply,
- *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
- *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
+ * @brief		This function serves to get flash vendor.
+ * @param[in]	none.
+ * @return		0 - err, other - flash vendor.
  */
-int flash_read_mid_uid_with_check( unsigned int *flash_mid, unsigned char *flash_uid);
+unsigned int flash_get_vendor(unsigned int flash_mid);
 
 /**
  * @brief		This function serves to find whether it is zb flash.

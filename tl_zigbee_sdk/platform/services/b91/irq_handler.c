@@ -1,7 +1,7 @@
 /********************************************************************************************************
  * @file    irq_handler.c
  *
- * @brief   This is the source file of irq_handler for b91m
+ * @brief   This is the source file of irq_handler for b91
  *
  * @author  Zigbee Group
  * @date    2021
@@ -29,7 +29,6 @@
 volatile u8 T_DBG_testIrq[16] = {0};
 
 #if (__PROJECT_TL_BOOT_LOADER__)
-#if UART_ENABLE
 void uart0_irq_handler(void)
 {
 	if(uart_get_irq_status(UART0, UART_TXDONE)){
@@ -42,7 +41,6 @@ void uart0_irq_handler(void)
 		drv_uart_rx_irq_handler();
 	}
 }
-#endif
 #else
 extern void rf_rx_irq_handler(void);
 extern void rf_tx_irq_handler(void);

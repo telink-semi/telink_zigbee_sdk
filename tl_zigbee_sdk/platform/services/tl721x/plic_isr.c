@@ -29,6 +29,11 @@
  */
 #include "tl_common.h"
 
+/**********************************************************************************
+ * The interrupt sources used in the SDK.
+ * If you want to use other interrupts, you'll need to find the corresponding registered
+ * function in the commented code below and put it here.
+ **********************************************************************************/
 //interrupt handler register
 #if (__PROJECT_TL_BOOT_LOADER__)
 extern void uart0_irq_handler(void);
@@ -103,7 +108,7 @@ __attribute__((weak)) void mswi_irq_handler(void)
  * @brief     Default exception irq handler.
  * @return      none
  */
-__attribute__((weak)) void except_handler()
+__attribute__((weak)) void except_handler(void)
 {
     /* unhandled trap */
     exception_mtval = read_csr(NDS_MTVAL);
@@ -123,7 +128,7 @@ __attribute__((weak)) void except_handler()
  * @return      none
  */
 _attribute_ram_code_sec_noinline_ void trap_entry(void) __attribute__((interrupt("machine"), aligned(4)));
-void trap_entry(void)
+__attribute__((weak)) void trap_entry(void)
 {
     long mcause = read_csr(NDS_MCAUSE);
     long mepc = 0;

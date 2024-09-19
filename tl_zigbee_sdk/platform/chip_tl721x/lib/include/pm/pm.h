@@ -26,19 +26,13 @@
 #include "reg_include/register.h"
 #include "compiler.h"
 #include "gpio.h"
-#include "clock.h"
+#include "lib/include/clock.h"
 
 
 /**
  * @brief these analog register can store data in deep sleep mode or deep sleep with SRAM retention mode.
  *        Reset these analog registers by watchdog, software reboot (sys_reboot()), RESET Pin, power cycle, 32k watchdog, vbus detect.
  */
-/**
- * Customers cannot use analog register 0x35 because driver and chip functions are occupied, details are as follows:
- * [Bit0]: If this bit is 1, it means that reboot or power on has occurred. If this bit is 0, it means that sleep has occurred.
- * [Bit1~7]: These bits are used by the driver and cannot be used by the customer.
- */
-#define PM_ANA_REG_WD_CLR_BUF0          0x35 // initial value 0xff.
 #define PM_ANA_REG_WD_CLR_BUF1          0x36 // initial value 0x00.
 #define PM_ANA_REG_WD_CLR_BUF2          0x37 // initial value 0x00.
 #define PM_ANA_REG_WD_CLR_BUF3          0x38 // initial value 0x00.
@@ -48,14 +42,6 @@
  * @brief analog register below can store information when MCU in deep sleep mode or deep sleep with SRAM retention mode.
  *        Reset these analog registers by power cycle, 32k watchdog, RESET Pin,vbus detect.
  */
-/**
- * Customers cannot use analog register 0x3a because driver and chip functions are occupied, details are as follows:
- * [Bit0]: If this bit is 1, it means that reboot has occurred.
- * [Bit1]: If this bit is 1, it means that the software calls the function sys_reboot() when the crystal oscillator does not start up normally.
- * [Bit2]: If this bit is 1, it means that the pm_sleep_wakeup function failed to clear the pm wake flag bit when using the deep wake source, and the software called sys_reboot().
- * [Bit3~7]: These bits are used by the driver and cannot be used by the customer.
- */
-#define PM_ANA_REG_POWER_ON_CLR_BUF0    0x3a // initial value 0x00.
 #define PM_ANA_REG_POWER_ON_CLR_BUF1    0x3b // initial value 0x00.
 #define PM_ANA_REG_POWER_ON_CLR_BUF2    0x3c // initial value 0xff.
 
@@ -113,45 +99,40 @@ typedef enum {
  * @brief   wakeup status
  */
 typedef enum {
-    WAKEUP_STATUS_PAD               = FLD_WAKEUP_STATUS_PAD,
-    WAKEUP_STATUS_CORE              = FLD_WAKEUP_STATUS_CORE,
-    WAKEUP_STATUS_TIMER             = FLD_WAKEUP_STATUS_TIMER,
-    WAKEUP_STATUS_COMPARATOR        = FLD_WAKEUP_STATUS_COMPARATOR,
-    WAKEUP_STATUS_ALL               = FLD_WAKEUP_STATUS_ALL,
-    WAKEUP_STATUS_INUSE_ALL         = FLD_WAKEUP_STATUS_INUSE_ALL,
+    WAKEUP_STATUS_PAD            = FLD_WAKEUP_STATUS_PAD,
+    WAKEUP_STATUS_CORE           = FLD_WAKEUP_STATUS_CORE,
+    WAKEUP_STATUS_TIMER          = FLD_WAKEUP_STATUS_TIMER,
+    WAKEUP_STATUS_COMPARATOR     = FLD_WAKEUP_STATUS_COMPARATOR,
+    WAKEUP_STATUS_ALL            = FLD_WAKEUP_STATUS_ALL,
+    WAKEUP_STATUS_INUSE_ALL      = FLD_WAKEUP_STATUS_INUSE_ALL,
 
-    STATUS_GPIO_ERR_NO_ENTER_PM     = BIT(8), /**<Bit8 is used to determine whether the wake source is normal.*/
-    STATUS_EXCEED_MAX               = BIT(27),
-    STATUS_EXCEED_MIN               = BIT(28),
-    STATUS_CLEAR_FAIL               = BIT(29),
-    STATUS_ENTER_SUSPEND            = BIT(30),
+    STATUS_GPIO_ERR_NO_ENTER_PM  = BIT(8), /**<Bit8 is used to determine whether the wake source is normal.*/
+    STATUS_EXCEED_MAX            = BIT(27),
+    STATUS_EXCEED_MIN            = BIT(28),
+    STATUS_CLEAR_FAIL            = BIT(29),
+    STATUS_ENTER_SUSPEND         = BIT(30),
 }pm_suspend_wakeup_status_e;
 
 /**
  * @brief   mcu status
  */
 typedef enum{
-    MCU_STATUS_POWER_ON         = BIT(0), /**<  power on, vbus detect or reset pin */
+    MCU_POWER_ON                 = BIT(0),/**< power on, vbus detect or reset pin */
     //BIT(1) RSVD
-    MCU_STATUS_REBOOT_BACK      = BIT(2), /**<  the reboot specific categories,see pm_reboot_event_e:
-                                                1.If want to know which reboot it is, call the pm_get_mcu_reboot_status() interface to determine after calling sys_init().
-                                                2.If determine whether is 32k watchdog/timer watchdog,can also use the interface wd_32k_get_status()/wd_get_status() to determine.
-                                                */
-    MCU_STATUS_DEEPRET_BACK     = BIT(3),
-    MCU_STATUS_DEEP_BACK        = BIT(4),
-}pm_mcu_status;
-
-/**
- * @brief  reboot status
- */
-typedef enum{
-    SW_SYSTEM_REBOOT            = BIT(0),/**< Clear the watchdog status flag in time, otherwise, the system reboot may be wrongly judged as the watchdog.*/
-    HW_TIMER_WATCHDOG_REBOOT    = BIT(1),
-    HW_32K_WATCHDOG_REBOOT      = BIT(2),/**< - When the 32k watchdog/timer watchdog status is set to 1, if it is not cleared:
+    MCU_SW_REBOOT_BACK           = BIT(2),/**< Clear the watchdog status flag in time, otherwise, the system reboot may be wrongly judged as the watchdog.*/
+    MCU_DEEPRET_BACK             = BIT(3),
+    MCU_DEEP_BACK                = BIT(4),
+    MCU_HW_REBOOT_TIMER_WATCHDOG = BIT(5),/**< If determine whether is 32k watchdog/timer watchdog,can also use the interface wd_32k_get_status()/wd_get_status() to determine. */
+    MCU_HW_REBOOT_32K_WATCHDOG   = BIT(6),/**< - When the 32k watchdog/timer watchdog status is set to 1, if it is not cleared:
                                               - power cyele/vbus detect/reset pin come back, the status is lost;
                                               - but software reboot(sys_reboot())/deep/deepretation/32k watchdog come back,the status remains;
                                               */
-}pm_reboot_event_e;
+
+    MCU_STATUS_POWER_ON          = MCU_POWER_ON,
+    MCU_STATUS_REBOOT_BACK       = MCU_SW_REBOOT_BACK,
+    MCU_STATUS_DEEPRET_BACK      = MCU_DEEPRET_BACK,
+    MCU_STATUS_DEEP_BACK         = MCU_DEEP_BACK,
+}pm_mcu_status;
 
 /**
  * @brief power sel
@@ -193,8 +174,8 @@ typedef struct {
     unsigned short  deep_early_wakeup_time_us;      /**< deep_early_wakeup_time_us = suspend_ret_r_delay_us*/
     unsigned short  sleep_min_time_us;              /**< sleep_min_time_us = suspend_early_wakeup_time_us + 200*/
 }pm_early_wakeup_time_us_s;
-
 extern volatile pm_early_wakeup_time_us_s g_pm_early_wakeup_time_us;
+
 /**
  * @brief   hardware delay time
  */
@@ -204,8 +185,8 @@ typedef struct {
     unsigned short  deep_xtal_delay_cycle ;         /**< hardware delay time ,deep_ret_xtal_delay_us = deep_xtal_delay_cycle * 1/16k */
     unsigned short  suspend_ret_xtal_delay_cycle ;  /**< hardware delay time ,suspend_ret_xtal_delay_us = suspend_ret_xtal_delay_cycle * 1/16k */
 }pm_r_delay_cycle_s;
-
 extern volatile pm_r_delay_cycle_s g_pm_r_delay_cycle;
+
 /**
  * @brief   deep sleep wakeup status
  */
@@ -215,37 +196,33 @@ typedef struct{
     unsigned char mcu_status;
     unsigned char rsvd;
 }pm_status_info_s;
-
 extern _attribute_aligned_(4) pm_status_info_s g_pm_status_info;
+
 extern _attribute_data_retention_sec_ unsigned char g_pm_vbat_v;
-
-
-/**
- * @brief       This function serves to get deep retention flag.
- * @return      1 deep retention, 0 deep.
- */
-static inline unsigned char pm_get_deep_retention_flag(void)
-{
-    return !(analog_read_reg8(0x7f) & BIT(0));
-}
+extern unsigned char g_areg_aon_7f;
 
 /**
  * @brief       This function serves to get wakeup source.
  * @return      wakeup source.
+ * @note        After the wake source is obtained, &WAKEUP_STATUS_INUSE_ALL is needed to determine
+ *              whether the wake source in use has been cleared, because some of the wake sources
+ *              that are not in use may have been set up.
  */
 static _always_inline pm_wakeup_status_e pm_get_wakeup_src(void)
 {
-    return ((pm_wakeup_status_e)analog_read_reg8(0x64));
+    return ((pm_wakeup_status_e)analog_read_reg8(areg_aon_0x64));
 }
 
 /**
  * @brief       This function serves to clear the wakeup bit.
  * @param[in]   status  - the interrupt status that needs to be cleared.
  * @return      none.
+ * @note        To clear all wake sources, the parameter of this interface is usually FLD_WAKEUP_STATUS_ALL
+ *              instead of FLD_WAKEUP_STATUS_INUSE_ALL.
  */
 static _always_inline void pm_clr_irq_status(pm_wakeup_status_e status)
 {
-    analog_write_reg8(0x64, status);
+    analog_write_reg8(areg_aon_0x64, status);
 }
 
 /**
@@ -253,9 +230,27 @@ static _always_inline void pm_clr_irq_status(pm_wakeup_status_e status)
  * @param[in]   wakeup_src  - wake up source select.
  * @return      none.
  */
-static inline void pm_set_wakeup_src(pm_sleep_wakeup_src_e wakeup_src)
+static _always_inline void pm_set_wakeup_src(pm_sleep_wakeup_src_e wakeup_src)
 {
-    analog_write_reg8(0x4b, wakeup_src);
+    analog_write_reg8(areg_aon_0x4b, wakeup_src);
+}
+
+/**
+ * @brief       This function serves to set vbat type.
+ * @param[in]   vbat_v  - This parameter is used to determine whether the VBAT voltage can be greater than 3.6V.
+ *                      - Please refer to vbat_type_e for specific usage precautions.
+ * @return      none
+ * @note        When the VBAT voltage is greater than 3.6V, use VBAT_MAX_VALUE_GREATER_THAN_3V6.
+ *              When the VBAT voltage is less than 2.2V, use VBAT_MAX_VALUE_LESS_THAN_3V6.
+ */
+static _always_inline void pm_set_vbat_type(vbat_type_e vbat_v)
+{
+    /*
+     *      pd_bit                      note
+     * ---------------------------------------------------------------------------
+     * <3>:pd_vbat_sw  default:1,->vbat_v Power down of bypass switch(VBAT LDO).
+     */
+    analog_write_reg8(areg_aon_0x06, (analog_read_reg8(areg_aon_0x06) | FLD_PD_VBAT_SW) & ~(vbat_v));
 }
 
 /**
@@ -265,14 +260,7 @@ static inline void pm_set_wakeup_src(pm_sleep_wakeup_src_e wakeup_src)
  * @param[in]   en  - enable or disable the wakeup function for the pan pin(1: enable, 0: disable).
  * @return      none.
  */
-void pm_set_gpio_wakeup (gpio_pin_e pin, pm_gpio_wakeup_level_e pol, int en);
-
-/**
- * @brief       This function serves to recover system timer.
- *              The code is placed in the ram code section, in order to shorten the time.
- * @return      none.
- */
-_attribute_ram_code_sec_noinline_ void pm_stimer_recover(void);
+void pm_set_gpio_wakeup(gpio_pin_e pin, pm_gpio_wakeup_level_e pol, int en);
 
 /**
  * @brief       This function configures pm wakeup time parameter.
@@ -313,36 +301,47 @@ void pm_set_cfg_for_os_compile_opt(pm_optimize_sel_e optimization);
 void pm_set_suspend_power_cfg(pm_pd_module_e value, unsigned char on_off);
 
 /**
- * @brief       This function serves to set the working mode of MCU based on 32k crystal,e.g. suspend mode, deep sleep mode, deep sleep with SRAM retention mode and shutdown mode.
+ * @brief       This function serves to set the working mode of MCU based on 32k crystal,
+ *              e.g. suspend mode, deep sleep mode, deep sleep with SRAM retention mode and shutdown mode.
  * @param[in]   sleep_mode          - sleep mode type select.
  * @param[in]   wakeup_src          - wake up source select.
  * @param[in]   wakeup_tick_type    - tick type select. Use 32K tick count for long-time sleep or 24M tick count for short-time sleep.
  * @param[in]   wakeup_tick         - The tick value at the time of wake-up.
-                                      If the wakeup_tick_type is PM_TICK_STIMER, then wakeup_tick is converted to 24M. The range of tick that can be set is approximately:
-                                      current tick value + (18352~0xe0000000), and the corresponding sleep time is approximately: 2ms~234.88s.It cannot go to sleep normally when it exceeds this range.
-                                      If the wakeup_tick_type is PM_TICK_32K, then wakeup_tick is converted to 32K. The range of tick that can be set is approximately:
-                                      64~0xffffffff, and the corresponding sleep time is approximately: 2ms~37hours.It cannot go to sleep normally when it exceeds this range.
+                                      If wakeup_tick_type is pm_tick_timer and
+                                      if system timer is 24M, the scale range that can be set is about:
+                                      The current tick value + (48000 ~ 0xe0000000) ranges from 2ms ~ 156.59 seconds.
+                                      If the system timer is 16M, the scale range that can be set is about:
+                                      The current tick value + (32000 ~ 0xe0000000) ranges from 2ms ~ 234.88 seconds.
+                                      If the wakeup_tick_type is PM_TICK_32K, then wakeup_tick is converted to 32K.
+                                      The range of tick that can be set is approximately: 64~0xffffffff,
+                                      and the corresponding sleep time is approximately: 2ms~37hours.
+                                      When it exceeds this range, it cannot sleep properly.
+ * @note        There are two things to note when using LPC wake up:
+ *              1.After the LPC is configured, you need to wait 100 seconds before you can go to sleep.
+ *                After the LPC is opened, 1-2 32k tick is needed to calculate the result.
+ *                Before this, the data in the result register is random. If you enter the sleep function at this time,
+ *                you may not be able to sleep normally because the data in the result register is abnormal.
+ *              2.When entering sleep, keep the input voltage and reference voltage difference must be greater than 30mV,
+ *                otherwise can not enter sleep normally, crash occurs.
  * @return      indicate whether the cpu is wake up successful.
+ * @attention   Must ensure that all GPIOs cannot be floating status before going to sleep to prevent power leakage.
  */
-_attribute_text_sec_ int pm_sleep_wakeup(pm_sleep_mode_e sleep_mode,  pm_sleep_wakeup_src_e wakeup_src, pm_wakeup_tick_type_e wakeup_tick_type, unsigned int  wakeup_tick);
+_attribute_text_sec_ int pm_sleep_wakeup(pm_sleep_mode_e sleep_mode, pm_sleep_wakeup_src_e wakeup_src, pm_wakeup_tick_type_e wakeup_tick_type, unsigned int wakeup_tick);
 
 /**
- * @brief       This function serves to get reboot status.
- * @return      reboot enum element of pm_reboot_event_e.
- * @note        -# if return HW_TIMER_WATCHDOG_REBOOT, need call wd_clear_status() to avoid affecting the next detection of the mcu status;
- *              -# if return HW_32K_WATCHDOG_REBOOT,need call wd_32k_clear_status() to avoid affecting the next detection of the mcu status;
- *              -# if return HW_VBUS_DETECT_REBOOT,need to write 1 and 0 for 0x64(bit7) to avoid affecting the next detection of the mcu status;
- *              -# the interface sys_init() must be called before this interface can be invoked;
+ * @brief       This function is used to obtain the cause of software reboot.
+ * @return      reboot enum element of pm_poweron_clr_buf0_e.
+ * @note        -# the interface pm_update_status_info() must be called before this interface can be invoked;
  */
-pm_reboot_event_e pm_get_reboot_event(void);
+pm_sw_reboot_reason_e pm_get_sw_reboot_event(void);
 
 /**
- * @brief       This function serves to switch digital module power.    
+ * @brief       This function serves to switch digital module power.
  * @param[in]   module - digital module.
  * @param[in]   power_sel - power up or power down.
  * @return      none.
  */
-_attribute_ram_code_sec_noinline_ void pm_set_dig_module_power_switch(pm_pd_module_e module, pm_power_sel_e power_sel);
+_attribute_ram_code_sec_optimize_o2_noinline_ void pm_set_dig_module_power_switch(pm_pd_module_e module, pm_power_sel_e power_sel);
 
 /**
  * @brief       This function serves to test different voltages from pd3.
@@ -350,4 +349,45 @@ _attribute_ram_code_sec_noinline_ void pm_set_dig_module_power_switch(pm_pd_modu
  * @return      none.
  */
 void pm_set_probe_vol_to_pd3(pm_vol_mux_sel_e mux_sel);
+
+/**
+ * @brief       This function serves to update wakeup status.
+ * @param[in]   clr_en  - Whether to set the value of the status register to a fixed value.
+ *                        If the interface is called twice, the first time it is not modified, clr_en=0;
+ *                        if the interface is called once, it is modified, clr_en=1.
+ * @return      none.
+ * @note        After calling this interface, it is necessary to clear the flag of the timer watchdog or the 32k watchdog.
+ *              Otherwise, if the flag remains set, it may affect the next judgment.
+ *              After calling this interface, other states are set to fixed values.
+ *              Therefore, this interface cannot be called twice,
+ *              and if it is called twice, the state will be fixed to one state, not the correct state.
+ */
+_attribute_ram_code_sec_noinline_ void pm_update_status_info(unsigned char clr_en);
+
+/**
+ * @brief       This function serves to set system power mode.
+ * @param[in]   power_mode  - power mode(LDO/DCDC/LDO_DCDC).
+ * @return      none.
+ * @note        pd_dcdc_ldo_sw<1:0>, dcdc & bypass ldo status bits:
+                    dcdc_0p94   dcdc_1p8     ldo_0p94    ldo_1p8
+                00:     N           N           Y           Y
+                01:     Y           N           N           Y
+                10:     Y           N           N           N
+                11:     Y           Y           N           N
+ */
+_attribute_ram_code_sec_noinline_ void pm_set_power_mode(power_mode_e power_mode);
+
+/********************************************************************************************************
+ *                                          internal
+ *******************************************************************************************************/
+/********************************************************************************************************
+ *              This is just for internal debug purpose, users are prohibited from calling.
+ *******************************************************************************************************/
+/**
+ * @brief       When an error occurs, such as the crystal does not vibrate properly, the corresponding recording and reset operations are performed.
+ * @param[in]   reboot_reason  - The bit to be configured in the power on buffer.
+ * @param[in]   all_ramcode_en  - Whether all processing in this function is required to be ram code.
+ * @return      none.
+ */
+_attribute_ram_code_sec_optimize_o2_noinline_ void pm_sys_reboot_with_reason(pm_sw_reboot_reason_e reboot_reason, unsigned char all_ramcode_en);
 

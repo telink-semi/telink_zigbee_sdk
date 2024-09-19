@@ -211,4 +211,14 @@ void sys_set_dcdc_1pP4_ldo_2p0(void);
 */
 unsigned char efuse_get_chip_id(unsigned char *chip_id_buff);
 
+/**
+ * @brief        This function retrieves specific functionality bits from the EFUSE.
+ * @return       result:
+ *               - bit 0: JTAG function (0 = enabled, 1 = disabled)
+ *               - bit 1: SWS function (0 = enabled, 1 = disabled)
+ *               - bit 2: Mode selector (1 = secure boot mode, 0 = normal mode)
+ * @note         If there's an error reading the EFUSE, returns 0xFF.
+ */
+unsigned char efuse_get_chip_status(void);
+
 #endif

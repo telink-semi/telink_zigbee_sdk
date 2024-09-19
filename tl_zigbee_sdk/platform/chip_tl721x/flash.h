@@ -45,7 +45,7 @@
  */
 #pragma once
 
-#include "mspi.h"
+#include "lib/include/mspi.h"
 #include "compiler.h"
 
 #define PAGE_SIZE       256
@@ -201,7 +201,7 @@ extern _attribute_data_retention_sec_ flash_read_check_handler_t flash_read_page
  * @param[in]   write   - the write function.
  * @none
  */
-static inline void flash_change_rw_func(flash_handler_t read, flash_handler_t write)
+static _always_inline void flash_change_rw_func(flash_handler_t read, flash_handler_t write)
 {
     flash_read_page = read;
     flash_write_page = write;

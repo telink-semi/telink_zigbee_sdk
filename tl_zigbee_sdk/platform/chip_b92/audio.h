@@ -1356,13 +1356,13 @@ void audio_i2s_output_init(audio_i2s_input_output_t* audio_i2s_output);
  * @brief This function serves to enable the i2s align function.
  * @return    none
  */
-void  audio_set_i2s_align_en(void);
+void  audio_i2s_align_en(void);
 
 /**
  * @brief This function serves to disable the i2s align function.
  * @return    none
  */
-void  audio_set_i2s_align_dis(void);
+void  audio_i2s_align_dis(void);
 
 /**
  * @brief This function serves to sets the align data bit width .(i2s sync mode 16bit:{i2s1_r[15:0], i2s1_l[15:0]}

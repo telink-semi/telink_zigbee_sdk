@@ -51,7 +51,7 @@
 #include "usbhw.h"
 #include "watchdog.h"
 #include "s7816.h"
-#include "nds_intrinsic.h"
+#include "core.h"
 #include "mdec.h"
 
 #include "uart.h"
@@ -71,4 +71,3 @@
 #include "plic_sw.h"
 #include "plmt.h"
 
-//#include "ext_peripherals/codec_0581/codec_0581.h"

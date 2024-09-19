@@ -36,9 +36,18 @@
  *	        1. During fixture production, burning a firmware program that disables the "dp_through_swire"function into unprogrammed chip will cause the problem that chip can not be burned again due to swire communication failure.
  *	        2. Burning a firmware program that disables the "dp_through_swire" function with BDT tool may result in failure of debugging due to swire communication failure.
  *	        If developers evaluate that the above scheme (set "DP_THROUGH_SWIRE_DIS" as "1") cannot be used, they can only set "DP_THROUGH_SWIRE_DIS" to "0" to enable the "dp_through_swire" function. However, be careful not to make DP and DM pin trigger "dp_through_swire" timing.
+ *          In USB applications, 1. calling the usb_set_pin(1) interface (equivalent to usb_set_pin_en) will re-enable the dp_through_swire function 2. calling the usb_set_pin(0) interface will disable the dp_through_swire function.
  */
 #ifndef DP_THROUGH_SWIRE_DIS
 #define DP_THROUGH_SWIRE_DIS      1
+#endif
+
+/* If using Andes toolchain, these two Macro are defined in it's toolchain */
+/* If using std gcc toolchain, these two core registers(not standard risc-v core registers)
+    should be defined here. */
+#ifdef STD_GCC
+#define mmisc_ctl  0x7D0
+#define mcache_ctl 0x7CA
 #endif
 
 //According to the current internal seal flash model of B91m, the maximum time between the flash awakening and the operating flash is 20us, which leaves some margin and is set to 25us.
@@ -104,10 +113,10 @@ _START:
     .option pop
 
 #if DP_THROUGH_SWIRE_DIS
-	lui		t0, 0x80100
-	addi	t0 , t0 , 0x700
-	li		t1, 0x040
-	sb		t1, 0x501(t0)  //0x80100c01 -> 0x40  <7>: 0 swire_usb_dis <6>:read-only bit
+    lui     t0, 0x80100
+    addi    t0 , t0 , 0x700
+    li      t1, 0x00
+    sb      t1, 0x501(t0)  //0x80100c01 -> 0x00  <7>: 0 swire_usb_dis 
 #endif
 	/* Initialize stack pointer */
     la     t0, _STACK_TOP
@@ -200,8 +209,7 @@ _RAMCODE_INIT_BEGIN:
     addi   t2, t2, 4
     j      _RAMCODE_INIT_BEGIN
 
-
-	/* Move Data from flash to sram */
+    /* Move Data from flash to sram */
 _DATA_INIT:
     la     t1, _DATA_LMA_START
     la     t2, _DATA_VMA_START
@@ -213,7 +221,6 @@ _DATA_INIT_BEGIN:
     addi   t1, t1, 4
     addi   t2, t2, 4
     j      _DATA_INIT_BEGIN
-
 
 
 	/* Zero .bss section in sram */

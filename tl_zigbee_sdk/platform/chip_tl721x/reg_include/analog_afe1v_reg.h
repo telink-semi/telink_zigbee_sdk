@@ -51,9 +51,48 @@ enum{
     FLD_XO_EN_CLK_ANA        =  BIT(1),//xtal_24M clock to analog   0:turn off  1:turn on   default :0
 };
 
+/**
+ * BIT[0:1] Adjust output current in CODEC_BIAS.
+ * BIT[2] 0: Unmute PGA 1: Mute PGA.
+ * BIT[3] 0: Enable PGA input 1: Disable PGA input.
+ * BIT[4:7] 1111 for min PGA gain; 0000 for max PGA gain.
+ */
+#define areg_0x8d                 0x8d
+enum
+{
+    FLD_AUDIO_IBSEL                =  BIT_RNG(0,1),
+    FLD_AUDIO_MUTE_PGA             =  BIT(2),
+    FLD_AUDIO_INMUTE_PGA           =  BIT(3),
+    FLD_AUDIO_PGAVOL_IN            =  BIT_RNG(4,7),
+};
+
+/**
+ * BIT[0] 0: enable 0.6V Vmid  1:keep 0.9V Vmid.
+ * BIT[3] 0:PD signal for 1st OPA in PGA. 0 for power-on.
+ * BIT[4] PD signal for 2nd OPA in PGA. 0 for power-on.
+ * BIT[5] No actual use.
+ * BIT[6] PD signal for sigma-delta ADC. 0 for power-on.
+ * BIT[7] PD signal for CODEC_BIAS. 0 for power-on.
+ */
+#define areg_0x8e                 0x8e
+enum
+{
+    FLD_AUDIO_PD_ENABLE_0R6        =  BIT(0),
+    FLD_AUDIO_PD_INPPGA            =  BIT(3),
+    FLD_AUDIO_PD_PGABUF            =  BIT(4),
+    FLD_AUDIO_PD_PGABOOST          =  BIT(5),
+    FLD_AUDIO_PD_ASDM              =  BIT(6),
+    FLD_AUDIO_PD_BIAS              =  BIT(7),
+};
+
+/**
+ * BIT[0] power down PGA bias current initial state..
+ * BIT[1] Enable VMID voltage 1:turn off  0:turn on   default :0.
+ */
 #define areg_0x8f               0x8f
 enum{
-    FLD_PGA_BIAS_PD             =  BIT(1),//power down PGA bias current initial state.
+    FLD_PGA_BIAS_PD             =  BIT(0),
+    FLD_AUDIO_VMID_EN           =  BIT(1),
 };
 
 #define areg_0xc6               0xc6
