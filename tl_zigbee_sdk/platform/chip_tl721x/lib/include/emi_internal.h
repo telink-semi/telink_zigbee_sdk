@@ -1,5 +1,5 @@
 /********************************************************************************************************
- * @file    emi_intercel.h
+ * @file    emi_internal.h
  *
  * @brief   This is the header file for TL721X
  *
