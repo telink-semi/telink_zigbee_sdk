@@ -28,6 +28,15 @@
 * N/A
 ### BREAKING CHANGES
 * N/A
+### Flash
+|   chip   |                  flash                  |
+| :------- | :-------------------------------------: |
+| TLSR8258 | GD25LD40C/GD25LD40E/GD25LD80C/GD25LD80E |
+| TLSR8278 |                    /                    |
+| TLSR921x |             P25Q80U/P25Q16SU            |
+| TLSR952x |                    /                    |
+| TL721x   |                    /                    |
+| TL321x   |        P25Q80SU/P25Q16SU/P25Q32SU       | 
 ### CodeSize
 * Units: KBytes
 
@@ -68,6 +77,15 @@
 * N/A
 ### BREAKING CHANGES
 * N/A
+### Flash
+|   chip   |                  flash                  |
+| :------- | :-------------------------------------: |
+| TLSR8258 | GD25LD40C/GD25LD40E/GD25LD80C/GD25LD80E |
+| TLSR8278 |                    /                    |
+| TLSR921x |             P25Q80U/P25Q16SU            |
+| TLSR952x |                    /                    |
+| TL721x   |                    /                    |
+| TL321x   |        P25Q80SU/P25Q16SU/P25Q32SU       | 
 ### CodeSize
 * 单位: KBytes
 
