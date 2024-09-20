@@ -1,3 +1,86 @@
+## V3.7.1.0(PR)
+
+### Version
+* Chips
+  - TC32: TLSR8269/TLSR8258/TLSR8278
+  - RISCV: TLSR921x(B91)/TLSR952x(B92)/TL721x A1/TL321x A1
+* Driver Version
+  - tl_platform_sdk V3.2.0
+* Toolchain Version
+  - TLSR8269/TLSR8258/TLSR8278: TC32 ELF GCC4.3
+  - TLSR921x(B91): TL32 ELF MCULIB V5F GCC7.4
+  - TLSR952x(B92)/TL721x: TL32 ELF MCULIB V5F GCC12.2
+  - TL321x: TL32 ELF MCULIB V5 GCC12.2
+* IDE Version
+  - Telink IoT Studio: [TelinkIoTStudio_V2024.8](https://wiki.telink-semi.cn/tools_and_sdk/Tools/IoTStudio/TelinkIoTStudio_V2024.8.zip)
+### Features
+* Support TL321x platform.
+* Update other platform drivers.
+### Bug Fixes
+* Fix the parsing issue of OTA Start Request command in ZGC tool.
+* Fix the issue of CRC check failure during local upgrade through HCI.
+* Fix the initial value in the reporting table.
+### Performance
+* Improve the execution efficiency of software timer tasks.
+* Improve OTA safety checks.
+* Optimize entering sleep mode.
+### Code Refactoring
+* N/A
+### BREAKING CHANGES
+* N/A
+### CodeSize
+* Units: KBytes
+
+|   chip   | sampleGW (RAM/FLASH Size) | sampleLight (RAM/FLASH Size) | sampleSwitch (RAM/FLASH Size) |
+| :------- | :-----------------------: | :--------------------------: | :---------------------------: |
+| TLSR8258 | 34 / 173                  | 31 / 193                     | 22 / 135                      |
+| TLSR8278 | 34 / 169                  | 31 / 190                     | 22 / 131                      |
+| TLSR921x | 36 / 160                  | 34 / 179                     | 24 / 121                      |
+| TLSR952x | 36 / 169                  | 34 / 189                     | 27 / 132                      |
+| TL721x   | 36 / 168                  | 34 / 188                     | 27 / 131                      |
+| TL321x   | 36 / 168                  | 33 / 189                     | 27 / 131                      |
+
+### Version
+* 芯片
+  - TC32: TLSR8269/TLSR8258/TLSR8278
+  - RISCV: TLSR921x(B91)/TLSR952x(B92)/TL721x A1/TL321x A1
+* 驱动版本
+  - tl_platform_sdk V3.2.0
+* 工具链版本
+  - TLSR8269/TLSR8258/TLSR8278: TC32 ELF GCC4.3
+  - TLSR921x(B91): TL32 ELF MCULIB V5F GCC7.4
+  - TLSR952x(B92)/TL721x: TL32 ELF MCULIB V5F GCC12.2
+  - TL321x: TL32 ELF MCULIB V5 GCC12.2
+* IDE版本
+  - Telink IoT Studio: [TelinkIoTStudio_V2024.8](https://wiki.telink-semi.cn/tools_and_sdk/Tools/IoTStudio/TelinkIoTStudio_V2024.8.zip)
+### Features
+* 支持TL321x平台。
+* 更新其他平台驱动。
+### Bug Fixes
+* 修复ZGC工具中OTA Start Request命令解析的问题。
+* 修复通过HCI本地升级时CRC校验失败的问题。
+* 修复reporting表中的初始值。
+### Performance
+* 提高软件定时器任务的执行效率。
+* 改进OTA安全检查。
+* 优化休眠模式。
+### Code Refactoring
+* N/A
+### BREAKING CHANGES
+* N/A
+### CodeSize
+* 单位: KBytes
+
+|   chip   | sampleGW (RAM/FLASH Size) | sampleLight (RAM/FLASH Size) | sampleSwitch (RAM/FLASH Size) |
+| :------- | :-----------------------: | :--------------------------: | :---------------------------: |
+| TLSR8258 | 34 / 173                  | 31 / 193                     | 22 / 135                      |
+| TLSR8278 | 34 / 169                  | 31 / 190                     | 22 / 131                      |
+| TLSR921x | 36 / 160                  | 34 / 179                     | 24 / 121                      |
+| TLSR952x | 36 / 169                  | 34 / 189                     | 27 / 132                      |
+| TL721x   | 36 / 168                  | 34 / 188                     | 27 / 131                      |
+| TL321x   | 36 / 168                  | 33 / 189                     | 27 / 131                      |
+
+
 ## V3.7.0.0(ER)
 
 ### Version
