@@ -158,6 +158,16 @@ oss:
 
 misspellChecking:
   stage: misspellChecking
+  variables:
+    pattern: "./tl_zigbee_sdk/platform/chip_tl321x/lib/include/pke/pke.h
+              ./tl_zigbee_sdk/platform/chip_tl321x/lib/include/pke/pke.h
+              ./tl_zigbee_sdk/platform/chip_tl321x/lib/include/pke/pke.h
+              ./tl_zigbee_sdk/platform/chip_tl321x/lib/include/pke/pke.h
+              ./tl_zigbee_sdk/platform/chip_b91/reg_include/core_reg
+              ./tl_zigbee_sdk/platform/chip_b92/reg_include/core_reg.h
+              ./tl_zigbee_sdk/platform/chip_tl321x/reg_include/core_reg.h
+              ./tl_zigbee_sdk/platform/chip_tl721x/reg_include/core_reg.h"
+    word_filter_pattern: "monts SIE"
   tags:
     - LINUX
   script:
