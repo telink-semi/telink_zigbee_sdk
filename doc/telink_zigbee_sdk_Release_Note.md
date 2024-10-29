@@ -1,3 +1,102 @@
+## V3.7.1.1(PR)
+
+### Version
+* Chips
+  - TC32: TLSR8269/TLSR8258/TLSR8278
+  - RISCV: TLSR921x(B91)/TLSR952x(B92)/TL721x A1/TL321x A1
+* Driver Version
+  - tl_platform_sdk V3.2.0
+* Toolchain Version
+  - TLSR8269/TLSR8258/TLSR8278: TC32 ELF GCC4.3
+  - TLSR921x(B91): TL32 ELF MCULIB V5F GCC7.4
+  - TLSR952x(B92)/TL721x: TL32 ELF MCULIB V5F GCC12.2
+  - TL321x: TL32 ELF MCULIB V5 GCC12.2
+* IDE Version
+  - Telink IoT Studio: [TelinkIoTStudio_V2024.8](https://wiki.telink-semi.cn/tools_and_sdk/Tools/IoTStudio/TelinkIoTStudio_V2024.8.zip)
+### Features
+* Press the button to rejoin if ZED is offline.
+* Add flash drivers for TLSR8278.
+### Bug Fixes
+* Fix the address range check of the ev_buffer.
+* Fix the issue of setting RF TX Power through HCI.
+* Fix the issue of the configure reporting command handler.
+* Fix RF DMA channel setup issue on TL321x and TL721x.
+### Performance
+* Update libraries and provide workaround for RSSI Register abnormal.
+### Code Refactoring
+* N/A
+### BREAKING CHANGES
+* N/A
+### Flash
+|   chip   |                  flash                  |
+| :------- | :-------------------------------------: |
+| TLSR8258 | GD25LD40C/GD25LD40E/GD25LD80C/GD25LD80E |
+| TLSR8278 |                    /                    |
+| TLSR921x |        P25Q80U/P25Q80SU/P25Q16SU        |
+| TLSR952x |                    /                    |
+| TL721x   |                    /                    |
+| TL321x   |        P25Q80SU/P25Q16SU/P25Q32SU       | 
+### CodeSize
+* Units: KBytes
+
+|   chip   | sampleGW (RAM/FLASH Size) | sampleLight (RAM/FLASH Size) | sampleSwitch (RAM/FLASH Size) |
+| :------- | :-----------------------: | :--------------------------: | :---------------------------: |
+| TLSR8258 | 34 / 175                  | 31 / 194                     | 22 / 137                      |
+| TLSR8278 | 34 / 170                  | 31 / 191                     | 22 / 133                      |
+| TLSR921x | 36 / 160                  | 34 / 179                     | 25 / 122                      |
+| TLSR952x | 36 / 169                  | 34 / 189                     | 27 / 133                      |
+| TL721x   | 37 / 169                  | 34 / 189                     | 28 / 132                      |
+| TL321x   | 36 / 168                  | 33 / 189                     | 27 / 131                      |
+
+### Version
+* 芯片
+  - TC32: TLSR8269/TLSR8258/TLSR8278
+  - RISCV: TLSR921x(B91)/TLSR952x(B92)/TL721x A1/TL321x A1
+* 驱动版本
+  - tl_platform_sdk V3.2.0
+* 工具链版本
+  - TLSR8269/TLSR8258/TLSR8278: TC32 ELF GCC4.3
+  - TLSR921x(B91): TL32 ELF MCULIB V5F GCC7.4
+  - TLSR952x(B92)/TL721x: TL32 ELF MCULIB V5F GCC12.2
+  - TL321x: TL32 ELF MCULIB V5 GCC12.2
+* IDE版本
+  - Telink IoT Studio: [TelinkIoTStudio_V2024.8](https://wiki.telink-semi.cn/tools_and_sdk/Tools/IoTStudio/TelinkIoTStudio_V2024.8.zip)
+### Features
+* 当ZED处于离线状态时通过按键回连。
+* TLSR8278添加Flash驱动代码。
+### Bug Fixes
+* 修复ev_buffer的地址范围检查。
+* 修复通过HCI设置RF发射功率的问题。
+* 修复配置上报命令的处理问题。
+* 修复TL321x和TL721x的RF DMA通道设置问题。
+### Performance
+* 更新库并提供RSSI寄存器异常的解决方法。
+### Code Refactoring
+* N/A
+### BREAKING CHANGES
+* N/A
+### Flash
+|   chip   |                  flash                  |
+| :------- | :-------------------------------------: |
+| TLSR8258 | GD25LD40C/GD25LD40E/GD25LD80C/GD25LD80E |
+| TLSR8278 |                    /                    |
+| TLSR921x |        P25Q80U/P25Q80SU/P25Q16SU        |
+| TLSR952x |                    /                    |
+| TL721x   |                    /                    |
+| TL321x   |        P25Q80SU/P25Q16SU/P25Q32SU       | 
+### CodeSize
+* 单位: KBytes
+
+|   chip   | sampleGW (RAM/FLASH Size) | sampleLight (RAM/FLASH Size) | sampleSwitch (RAM/FLASH Size) |
+| :------- | :-----------------------: | :--------------------------: | :---------------------------: |
+| TLSR8258 | 34 / 175                  | 31 / 194                     | 22 / 137                      |
+| TLSR8278 | 34 / 170                  | 31 / 191                     | 22 / 133                      |
+| TLSR921x | 36 / 160                  | 34 / 179                     | 25 / 122                      |
+| TLSR952x | 36 / 169                  | 34 / 189                     | 27 / 133                      |
+| TL721x   | 37 / 169                  | 34 / 189                     | 28 / 132                      |
+| TL321x   | 36 / 168                  | 33 / 189                     | 27 / 131                      |
+
+
 ## V3.7.1.0(PR)
 
 ### Version
