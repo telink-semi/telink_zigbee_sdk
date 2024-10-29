@@ -577,6 +577,7 @@ static void zbhci_bdbCmdHandler(void *arg){
 		zdo_nlmeForgetDev(delNodeAddr.macAddr, 0);
 	}else if(cmdID == ZBHCI_CMD_BDB_TX_POWER_SET){
 		/* Set TX power, value is index of the RF power. */
+		g_zb_txPowerSet = p[0];
 		rf_setTxPower(p[0]);
 	}
 
