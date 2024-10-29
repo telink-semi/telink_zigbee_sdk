@@ -167,6 +167,8 @@ void buttonShortPressed(u8 btNum){
 			statusChangeNotification.delay = 0;
 
 			zcl_iasZone_statusChangeNotificationCmd(SAMPLE_SENSOR_ENDPOINT, &dstEpInfo, TRUE, &statusChangeNotification);
+		}else{
+			zb_rejoinReq(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
 		}
 	}else if(btNum == VK_SW2){
 		if(zb_isDeviceJoinedNwk()){

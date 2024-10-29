@@ -197,6 +197,8 @@ void buttonShortPressed(u8 btNum){
 #else
 			brc_toggle();
 #endif
+		}else{
+			zb_rejoinReq(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
 		}
 	}else if(btNum == VK_SW2){
 		if(zb_isDeviceJoinedNwk()){
