@@ -147,4 +147,16 @@ static _always_inline void rf_dma_reset(void)
     reg_n22_rst0 |= FLD_RST0_DMA_BB;            // clear DMA_BB reset
 }
 
+static inline void rf_dma_chn_en(rf_dma_chn_e chn)
+{
+    BM_SET(reg_bb_dma_ctr0(chn),FLD_BB_DMA_CHANNEL_ENABLE);
+    BM_SET(reg_bb_dma_ctr3(chn),FLD_BB_DMA_AUTO_ENABLE_EN);
+}
+
+static inline void rf_dma_chn_dis(rf_dma_chn_e chn)
+{
+    BM_CLR(reg_bb_dma_ctr0(chn),FLD_BB_DMA_CHANNEL_ENABLE);
+    BM_CLR(reg_bb_dma_ctr3(chn),FLD_BB_DMA_AUTO_ENABLE_EN);
+}
+
 #endif /*_RF_DMA_H_ */

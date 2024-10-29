@@ -971,10 +971,10 @@
 #define ZB_RADIO_TX_DISABLE
 
 /* enable rx */
-#define ZB_RADIO_RX_ENABLE								dma_chn_en(RF_RX_DMA)
+#define ZB_RADIO_RX_ENABLE								rf_dma_chn_en(RF_RX_DMA)
 
 /* disable rx */
-#define ZB_RADIO_RX_DISABLE								dma_chn_dis(RF_RX_DMA)
+#define ZB_RADIO_RX_DISABLE								rf_dma_chn_dis(RF_RX_DMA)
 
 /* clear mask to disable irq */
 #define ZB_RADIO_IRQ_MASK_CLR							rf_clr_irq_mask(FLD_RF_IRQ_TX)
