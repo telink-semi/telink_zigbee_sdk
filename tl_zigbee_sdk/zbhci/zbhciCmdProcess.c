@@ -27,7 +27,6 @@
 #include "ota.h"
 #include "zbhci.h"
 
-
 #if ZBHCI_EN
 /**********************************************************************
  * LOCAL CONSTANTS

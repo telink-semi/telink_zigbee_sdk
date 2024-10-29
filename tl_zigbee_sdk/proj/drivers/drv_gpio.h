@@ -48,6 +48,7 @@ typedef void (*irq_callback)(void);
 
 /****
 * brief: initialize the gpio interrupt
+* param[in] mode, the gpio interrupt mode
 * param[in] pin, the gpio interrupt pin
 * param[in] polarity, the falling edge or the rising edge.
 * param[in] gpio_irq_callback, the callback function

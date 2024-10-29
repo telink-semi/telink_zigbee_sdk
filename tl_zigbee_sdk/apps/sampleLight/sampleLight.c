@@ -250,10 +250,6 @@ void app_task(void)
 
 static void sampleLightSysException(void)
 {
-	zcl_onOffAttr_save();
-	zcl_levelAttr_save();
-	zcl_colorCtrlAttr_save();
-
 #if 1
 	SYSTEM_RESET();
 #else

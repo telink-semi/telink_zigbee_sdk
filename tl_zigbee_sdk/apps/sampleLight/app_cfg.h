@@ -79,7 +79,7 @@ extern "C" {
 #if (CHIP_TYPE == TLSR_8258_1M)
 	#define FLASH_CAP_SIZE_1M			1
 #endif
-	#define BOARD						BOARD_8258_DONGLE//BOARD_8258_EVK
+	#define BOARD						BOARD_8258_DONGLE//BOARD_8258_EVK_V1P2
 	#define CLOCK_SYS_CLOCK_HZ  		48000000
 #elif defined(MCU_CORE_8278)
 	#define FLASH_CAP_SIZE_1M			1

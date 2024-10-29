@@ -483,7 +483,6 @@ _attribute_ram_code_ u8 rf_performCCA(void)
 #endif
 	}
 	rssi_peak = rssiSum/cnt;
-
 	T_rssiPeak = rssi_peak;
 
 	if(rssi_peak > CCA_THRESHOLD || (rf_busyFlag & TX_BUSY)){//Return if currently in TX state
@@ -636,7 +635,6 @@ void rf_rx_irq_handler(void)
     /* Parse necessary field to be used later */
     u8 len = (u8)ZB_RADIO_ACTUAL_PAYLOAD_LEN(p);
     u8 *macPld = p + ZB_RADIO_RX_HDR_LEN;
-
 
     /*----------------------------------------------------------
      *  Do the filter

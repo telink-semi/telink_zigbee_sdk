@@ -311,15 +311,15 @@ void ota_clientInfoRecover(void)
  */
 void ota_init(ota_type_e type, af_simple_descriptor_t *simpleDesc, ota_preamble_t *otaPreamble, ota_callBack_t *cb)
 {
-	otaCb = cb;
-
 	//get current boot-up address
 	mcuBootAddr = mcuBootAddrGet();
 	if(mcuBootAddr == 0xFFFFFFFF){
 		//should not happen
 		ZB_EXCEPTION_POST(SYS_EXCEPTTION_COMMON_BOOT_ADDR_ERROR);
-		//while(1);
+		return;
 	}
+
+	otaCb = cb;
 
 	memset((u8 *)&g_otaCtx, 0, sizeof(g_otaCtx));
 	memset((u8 *)&otaClientInfo, 0, sizeof(otaClientInfo));
@@ -1473,7 +1473,7 @@ static status_t ota_queryNextImageRspHandler(zclIncomingAddrInfo_t *pAddrInfo, o
 			flash_lock();
 #endif
 			ZB_EXCEPTION_POST(SYS_EXCEPTTION_COMMON_BOOT_ADDR_ERROR);
-			//while(1);
+			return ZCL_STA_ABORT;
 		}
 
 		u16 sectorNumUsed = g_otaCtx.downloadImageSize / FLASH_SECTOR_SIZE + 1;

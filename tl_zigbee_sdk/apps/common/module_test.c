@@ -82,11 +82,10 @@ void module_test_uartRcvHandler(void){
 	 *
 	 * */
 	uart_rxData_t *rxData = (uart_rxData_t *)moduleTest_uartRxBuf;
-	T_uartPktRecvLen = rxData->dataLen;
 	T_uartPktRecvSeqNo = rxData->dataPayload[0];
 
 	if(T_uartPktRecvSeqNo == 0){
-		drv_uart_tx_start(rxData->dataPayload, T_uartPktRecvLen);
+		T_uartPktRecvLen = rxData->dataLen;
 	}
 
 	if(T_uartPktRecvSeqNo == 0xBB){
@@ -128,7 +127,13 @@ void moduleTest_forUart(void){
 
 	while(1)
 	{
-		if(T_uartPktRecvSeqNo == 0xAA){
+		if(T_uartPktRecvSeqNo == 0){
+			if(T_uartPktRecvLen){
+				T_uartPktRecvLen = 0;
+				uart_rxData_t *rxData = (uart_rxData_t *)moduleTest_uartRxBuf;
+				drv_uart_tx_start(rxData->dataPayload, rxData->dataLen);
+			}
+		}else if(T_uartPktRecvSeqNo == 0xAA){
 			moduleTest_uartTxBuf[0] = T_uartPktSentSeqNo++;
 			if(drv_uart_tx_start(moduleTest_uartTxBuf, sizeof(moduleTest_uartTxBuf)/sizeof(u8)) == 1){
 				WaitMs(1000);
@@ -328,10 +333,6 @@ void moduleTest_PM(void){
 	if(wakeupSrc == (PM_WAKEUP_SRC_PAD | PM_WAKEUP_SRC_TIMER)){
 		interval = 10000;
 	}
-
-	drv_enable_irq();
-
-	WaitUs(1000*1000);
 
 	while(1){
 		ZB_RADIO_TX_START(txPktForPm);
@@ -607,25 +608,28 @@ void moduleTest_timer(void){
 
 #if (__PROJECT_TL_DIMMABLE_LIGHT__)
 void moduleTest_pwm(void){
+	u8 duty = 0;
+	u8 dir = 1;
+	u32 period = PWM_CLOCK_SOURCE / 1000;//1kHz
+	u32 pulse = 0;
+
 	PWM_R_CHANNEL_SET();
 	drv_pwm_init();
-
-	u8 duty = 5;
-	u8 fullDuty = 100;
-	u32 max_tick = PWM_CLOCK_SOURCE / 1000;
-	u32 cmp_tick = (duty * max_tick) / fullDuty;
-
-	drv_pwm_cfg(PWM_R_CHANNEL, (u16)cmp_tick, (u16)max_tick);
+	drv_pwm_cfg(PWM_R_CHANNEL, (u16)pulse, (u16)period);
 	drv_pwm_start(PWM_R_CHANNEL);
 
 	while(1){
-		if(cmp_tick <= max_tick){
-			drv_pwm_cfg(PWM_R_CHANNEL, (u16)cmp_tick, (u16)max_tick);
-			cmp_tick += 2400;
-			WaitMs(500);
-		}else{
-			cmp_tick = 0;
+		pulse = period * duty / 100;
+		drv_pwm_cfg(PWM_R_CHANNEL, (u16)pulse, (u16)period);
+
+		dir ? (duty++) : (duty--);
+		if(duty >= 100){
+			dir = 0;
+		}else if(duty <= 0){
+			dir = 1;
 		}
+
+		WaitMs(10);
 	}
 }
 #else
