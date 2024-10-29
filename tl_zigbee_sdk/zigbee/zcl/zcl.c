@@ -1777,6 +1777,10 @@ _CODE_ZCL_ status_t zcl_configureReporting(u8 endpoint, u16 profileId, u16 clust
 				return ZCL_STA_SUCCESS;
 			}
 		}
+	}else{
+		if(pCfgReportRec->maxReportInt < pCfgReportRec->minReportInt){
+			return ZCL_STA_INVALID_VALUE;
+		}
 	}
 
 	if(!pEntry){
