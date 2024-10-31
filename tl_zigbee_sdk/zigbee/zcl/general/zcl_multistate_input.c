@@ -29,7 +29,7 @@
 #include "../zcl_include.h"
 
 
-#if ZCL_MULTISTATE_INPUT
+#ifdef ZCL_MULTISTATE_INPUT
 /**********************************************************************
  * LOCAL CONSTANTS
  */
