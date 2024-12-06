@@ -47,58 +47,111 @@
  */
 static void sampleLight_sceneRecallReqHandler(zclIncomingAddrInfo_t *pAddrInfo, zcl_sceneEntry_t *pScene)
 {
+	u8 *pData = pScene->extField;
+	u16 clusterID = 0xFFFF;
 	u8 extLen = 0;
 
+	while(pData < pScene->extField + pScene->extFieldLen){
+		clusterID = BUILD_U16(pData[0], pData[1]);
+		pData += 2;//cluster id
+
+		extLen = *pData++;//length
+
 #ifdef ZCL_ON_OFF
-	zcl_onOffAttr_t *pOnOff = zcl_onoffAttrGet();
+		if(clusterID == ZCL_CLUSTER_GEN_ON_OFF){
+			if(extLen >= 1){
+				u8 onOff = *pData++;
 
-	pOnOff->onOff = pScene->extField[extLen+3];
-	extLen += 4;
+				sampleLight_onOffCb(pAddrInfo, onOff, NULL);
+				extLen--;
+			}
+		}else
 #endif
-
 #ifdef ZCL_LEVEL_CTRL
-	u8 level = pScene->extField[extLen+3];
-	extLen += 4;
-#endif
+		if(clusterID == ZCL_CLUSTER_GEN_LEVEL_CONTROL){
+			if(extLen >= 1){
+				moveToLvl_t moveToLevel = {0};
+				moveToLevel.optPresent = 0;
+				moveToLevel.level = *pData++;
+				moveToLevel.transitionTime = pScene->transTime * 10 + pScene->transTime100ms;
 
+				sampleLight_levelCb(pAddrInfo, ZCL_CMD_LEVEL_MOVE_TO_LEVEL, &moveToLevel);
+				extLen--;
+			}
+		}else
+#endif
 #ifdef ZCL_LIGHT_COLOR_CONTROL
+		if(clusterID == ZCL_CLUSTER_LIGHTING_COLOR_CONTROL){
+			if(extLen >= 13){
+#if COLOR_RGB_SUPPORT && !defined(COLOR_X_Y_DISABLE)
+				zcl_colorCtrlMoveToColorCmd_t move2Color = {0};
+				move2Color.optPresent = 0;
+				move2Color.colorX = BUILD_U16(pData[0], pData[1]);
+				move2Color.colorY = BUILD_U16(pData[2], pData[3]);
+				move2Color.transitionTime = pScene->transTime * 10 + pScene->transTime100ms;
+#endif
+				pData += 4;
+				extLen -= 4;//x + y
+
+#if COLOR_RGB_SUPPORT && !defined(COLOR_X_Y_DISABLE)
+				if(move2Color.colorX || move2Color.colorY){
+					sampleLight_colorCtrlCb(pAddrInfo, ZCL_CMD_LIGHT_COLOR_CONTROL_MOVE_TO_COLOR, &move2Color);
+				}else
+#endif
+				{
 #if COLOR_RGB_SUPPORT
-	u8 hue = pScene->extField[extLen+3];
-	u8 saturation = pScene->extField[extLen+4];
-	extLen += 5;
-#elif COLOR_CCT_SUPPORT
-	u16 colorTemperatureMireds = BUILD_U16(pScene->extField[extLen+3], pScene->extField[extLen+4]);
-	extLen += 5;
+					zcl_colorCtrlEnhancedMoveToHueAndSaturationCmd_t move2EnhHueAndSat = {0};
+					move2EnhHueAndSat.optPresent = 0;
+					move2EnhHueAndSat.enhancedHue = BUILD_U16(pData[0], pData[1]);
+					move2EnhHueAndSat.saturation = pData[2];
+					move2EnhHueAndSat.transitionTime = pScene->transTime * 10 + pScene->transTime100ms;
 #endif
-#endif
-
-#ifdef ZCL_LEVEL_CTRL
-	moveToLvl_t moveToLevel;
-	moveToLevel.level = level;
-	moveToLevel.transitionTime = pScene->transTime * 10 + pScene->transTime100ms;
-	moveToLevel.optPresent = 0;
-
-	sampleLight_levelCb(pAddrInfo, ZCL_CMD_LEVEL_MOVE_TO_LEVEL, &moveToLevel);
-#endif
-
-#ifdef ZCL_LIGHT_COLOR_CONTROL
+					pData += 3;
+					extLen -= 3;//enhHue + sat
 #if COLOR_RGB_SUPPORT
-	zcl_colorCtrlMoveToHueAndSaturationCmd_t move2HueAndSat;
-	move2HueAndSat.hue = hue;
-	move2HueAndSat.saturation = saturation;
-	move2HueAndSat.transitionTime = pScene->transTime * 10 + pScene->transTime100ms;
-	move2HueAndSat.optPresent = 0;
-
-	sampleLight_colorCtrlCb(pAddrInfo, ZCL_CMD_LIGHT_COLOR_CONTROL_MOVE_TO_HUE_AND_SATURATION, &move2HueAndSat);
-#elif COLOR_CCT_SUPPORT
-	zcl_colorCtrlMoveToColorTemperatureCmd_t move2ColorTemp;
-	move2ColorTemp.colorTemperature = colorTemperatureMireds;
-	move2ColorTemp.transitionTime = pScene->transTime * 10 + pScene->transTime100ms;
-	move2ColorTemp.optPresent = 0;
-
-	sampleLight_colorCtrlCb(pAddrInfo, ZCL_CMD_LIGHT_COLOR_CONTROL_MOVE_TO_COLOR_TEMPERATURE, &move2ColorTemp);
+					zcl_colorCtrlColorLoopSetCmd_t colorLoopSet = {0};
+					colorLoopSet.optPresent = 0;
+					colorLoopSet.updateFlags.bits.action = 1;
+					colorLoopSet.updateFlags.bits.direction = 1;
+					colorLoopSet.updateFlags.bits.time = 1;
+					colorLoopSet.action = pData[0] ? COLOR_LOOP_SET_ACTION_FROM_ENHANCED_CURRENT_HUE : COLOR_LOOP_SET_DEACTION;
+					colorLoopSet.direction = pData[1];
+					colorLoopSet.time = BUILD_U16(pData[2], pData[3]);
 #endif
+					pData += 4;
+					extLen -= 4;//active + direction + time
+#if COLOR_RGB_SUPPORT
+					if(move2EnhHueAndSat.enhancedHue || move2EnhHueAndSat.saturation){
+						sampleLight_colorCtrlCb(pAddrInfo, ZCL_CMD_LIGHT_COLOR_CONTROL_ENHANCED_MOVE_TO_HUE_AND_SATURATION, &move2EnhHueAndSat);
+					}
+
+					if(colorLoopSet.action || colorLoopSet.direction || colorLoopSet.time){
+						sampleLight_colorCtrlCb(pAddrInfo, ZCL_CMD_LIGHT_COLOR_CONTROL_COLOR_LOOP_SET, &colorLoopSet);
+					}
 #endif
+#if COLOR_CCT_SUPPORT
+					zcl_colorCtrlMoveToColorTemperatureCmd_t move2CT = {0};
+					move2CT.optPresent = 0;
+					move2CT.colorTemperature = BUILD_U16(pData[0], pData[1]);
+					move2CT.transitionTime = pScene->transTime * 10 + pScene->transTime100ms;
+#endif
+					pData += 2;
+					extLen -= 2;//colorTemperature
+#if COLOR_CCT_SUPPORT
+					if(move2CT.colorTemperature){
+						sampleLight_colorCtrlCb(pAddrInfo, ZCL_CMD_LIGHT_COLOR_CONTROL_MOVE_TO_COLOR_TEMPERATURE, &move2CT);
+					}
+#endif
+				}
+			}
+		}else
+#endif
+		{
+			//do nothing
+		}
+
+		pData += extLen;
+	}
 }
 
 /*********************************************************************
@@ -113,7 +166,6 @@ static void sampleLight_sceneRecallReqHandler(zclIncomingAddrInfo_t *pAddrInfo, 
  */
 static void sampleLight_sceneStoreReqHandler(zcl_sceneEntry_t *pScene)
 {
-	/* receive Store Scene Request command, get the latest Scene info to save */
 	u8 extLen = 0;
 
 #ifdef ZCL_ON_OFF
@@ -121,7 +173,7 @@ static void sampleLight_sceneStoreReqHandler(zcl_sceneEntry_t *pScene)
 
 	pScene->extField[extLen++] = LO_UINT16(ZCL_CLUSTER_GEN_ON_OFF);
 	pScene->extField[extLen++] = HI_UINT16(ZCL_CLUSTER_GEN_ON_OFF);
-	pScene->extField[extLen++] = 1;
+	pScene->extField[extLen++] = sizeof(u8);
 	pScene->extField[extLen++] = pOnOff->onOff;
 #endif
 
@@ -130,7 +182,7 @@ static void sampleLight_sceneStoreReqHandler(zcl_sceneEntry_t *pScene)
 
 	pScene->extField[extLen++] = LO_UINT16(ZCL_CLUSTER_GEN_LEVEL_CONTROL);
 	pScene->extField[extLen++] = HI_UINT16(ZCL_CLUSTER_GEN_LEVEL_CONTROL);
-	pScene->extField[extLen++] = 1;
+	pScene->extField[extLen++] = sizeof(u8);
 	pScene->extField[extLen++] = pLevel->curLevel;
 #endif
 
@@ -139,15 +191,105 @@ static void sampleLight_sceneStoreReqHandler(zcl_sceneEntry_t *pScene)
 
 	pScene->extField[extLen++] = LO_UINT16(ZCL_CLUSTER_LIGHTING_COLOR_CONTROL);
 	pScene->extField[extLen++] = HI_UINT16(ZCL_CLUSTER_LIGHTING_COLOR_CONTROL);
-#if COLOR_RGB_SUPPORT
-	pScene->extField[extLen++] = 2;
-	pScene->extField[extLen++] = pColor->currentHue;
-	pScene->extField[extLen++] = pColor->currentSaturation;
-#elif COLOR_CCT_SUPPORT
-	pScene->extField[extLen++] = 2;
-	pScene->extField[extLen++] = LO_UINT16(pColor->colorTemperatureMireds);
-	pScene->extField[extLen++] = HI_UINT16(pColor->colorTemperatureMireds);
+	pScene->extField[extLen++] = 13;
+
+	if(pColor->colorMode == ZCL_COLOR_MODE_CURRENT_X_Y){
+#if COLOR_RGB_SUPPORT && !defined(COLOR_X_Y_DISABLE)
+		//currentX
+		pScene->extField[extLen++] = LO_UINT16(pColor->currentX);
+		pScene->extField[extLen++] = HI_UINT16(pColor->currentX);
+		//currentY
+		pScene->extField[extLen++] = LO_UINT16(pColor->currentY);
+		pScene->extField[extLen++] = HI_UINT16(pColor->currentY);
+#else
+		//currentX
+		pScene->extField[extLen++] = 0;
+		pScene->extField[extLen++] = 0;
+		//currentY
+		pScene->extField[extLen++] = 0;
+		pScene->extField[extLen++] = 0;
 #endif
+		//enhancedCurrentHue
+		pScene->extField[extLen++] = 0;
+		pScene->extField[extLen++] = 0;
+		//currentSaturation
+		pScene->extField[extLen++] = 0;
+		//colorLoopActive
+		pScene->extField[extLen++] = 0;
+		//colorLoopDirection
+		pScene->extField[extLen++] = 0;
+		//colorLoopTime
+		pScene->extField[extLen++] = 0;
+		pScene->extField[extLen++] = 0;
+		//colorTemperatureMireds
+		pScene->extField[extLen++] = 0;
+		pScene->extField[extLen++] = 0;
+	}else if(pColor->colorMode == ZCL_COLOR_MODE_CURRENT_HUE_SATURATION){
+		//currentX
+		pScene->extField[extLen++] = 0;
+		pScene->extField[extLen++] = 0;
+		//currentY
+		pScene->extField[extLen++] = 0;
+		pScene->extField[extLen++] = 0;
+#if COLOR_RGB_SUPPORT
+		//enhancedCurrentHue
+		pScene->extField[extLen++] = LO_UINT16(pColor->enhancedCurrentHue);
+		pScene->extField[extLen++] = HI_UINT16(pColor->enhancedCurrentHue);
+		//currentSaturation
+		pScene->extField[extLen++] = pColor->currentSaturation;
+		//colorLoopActive
+		pScene->extField[extLen++] = pColor->colorLoopActive;
+		//colorLoopDirection
+		pScene->extField[extLen++] = pColor->colorLoopDirection;
+		//colorLoopTime
+		pScene->extField[extLen++] = LO_UINT16(pColor->colorLoopTime);
+		pScene->extField[extLen++] = HI_UINT16(pColor->colorLoopTime);
+#else
+		//enhancedCurrentHue
+		pScene->extField[extLen++] = 0;
+		pScene->extField[extLen++] = 0;
+		//currentSaturation
+		pScene->extField[extLen++] = 0;
+		//colorLoopActive
+		pScene->extField[extLen++] = 0;
+		//colorLoopDirection
+		pScene->extField[extLen++] = 0;
+		//colorLoopTime
+		pScene->extField[extLen++] = 0;
+		pScene->extField[extLen++] = 0;
+#endif
+		//colorTemperatureMireds
+		pScene->extField[extLen++] = 0;
+		pScene->extField[extLen++] = 0;
+	}else if(pColor->colorMode == ZCL_COLOR_MODE_COLOR_TEMPERATURE_MIREDS){
+		//currentX
+		pScene->extField[extLen++] = 0;
+		pScene->extField[extLen++] = 0;
+		//currentY
+		pScene->extField[extLen++] = 0;
+		pScene->extField[extLen++] = 0;
+		//enhancedCurrentHue
+		pScene->extField[extLen++] = 0;
+		pScene->extField[extLen++] = 0;
+		//currentSaturation
+		pScene->extField[extLen++] = 0;
+		//colorLoopActive
+		pScene->extField[extLen++] = 0;
+		//colorLoopDirection
+		pScene->extField[extLen++] = 0;
+		//colorLoopTime
+		pScene->extField[extLen++] = 0;
+		pScene->extField[extLen++] = 0;
+#if COLOR_CCT_SUPPORT
+		//colorTemperatureMireds
+		pScene->extField[extLen++] = LO_UINT16(pColor->colorTemperatureMireds);
+		pScene->extField[extLen++] = HI_UINT16(pColor->colorTemperatureMireds);
+#else
+		//colorTemperatureMireds
+		pScene->extField[extLen++] = 0;
+		pScene->extField[extLen++] = 0;
+#endif
+	}
 #endif
 
 	pScene->extFieldLen = extLen;
@@ -164,6 +306,8 @@ static void sampleLight_sceneStoreReqHandler(zcl_sceneEntry_t *pScene)
  */
 status_t sampleLight_sceneCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
 {
+	status_t status = ZCL_STA_SUCCESS;
+
 	if(pAddrInfo->dstEp == SAMPLE_LIGHT_ENDPOINT){
 		if(pAddrInfo->dirCluster == ZCL_FRAME_CLIENT_SERVER_DIR){
 			switch(cmdId){
@@ -174,12 +318,13 @@ status_t sampleLight_sceneCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *c
 					sampleLight_sceneRecallReqHandler(pAddrInfo, (zcl_sceneEntry_t *)cmdPayload);
 					break;
 				default:
+					status = ZCL_STA_UNSUP_MANU_CLUSTER_COMMAND;
 					break;
 			}
 		}
 	}
 
-	return ZCL_STA_SUCCESS;
+	return status;
 }
 
 #endif  /* __PROJECT_TL_DIMMABLE_LIGHT__ */

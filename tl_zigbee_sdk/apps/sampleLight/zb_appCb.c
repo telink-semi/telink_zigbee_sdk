@@ -235,15 +235,12 @@ void zbdemo_bdbCommissioningCb(u8 status, void *arg){
 	}
 }
 
-
-extern void sampleLight_zclIdentifyCmdHandler(u8 endpoint, u16 srcAddr, u16 identifyTime);
 void zbdemo_bdbIdentifyCb(u8 endpoint, u16 srcAddr, u16 identifyTime){
 #if FIND_AND_BIND_SUPPORT
+	extern void sampleLight_zclIdentifyCmdHandler(u8 endpoint, u16 srcAddr, u16 identifyTime);
 	sampleLight_zclIdentifyCmdHandler(endpoint, srcAddr, identifyTime);
 #endif
 }
-
-
 
 #ifdef ZCL_OTA
 void sampleLight_otaProcessMsgHandler(u8 evt, u8 status)

@@ -28,21 +28,21 @@
 
 
 /**********************************************************************
- * CONSTANT
+ * TYPEDEFS
  */
-
+typedef enum
+{
+	LIGHT_STA_ON_OFF,
+	LIGHT_STA_LEVEL,
+	LIGHT_STA_COLOR,
+}lightSta_e;
 
 /**********************************************************************
  * FUNCTIONS
  */
-void hwLight_init(void);
-void hwLight_onOffUpdate(u8 onOff);
-void hwLight_levelUpdate(u8 level);
-void hwLight_colorUpdate_colorTemperature(u16 colorTemperatureMireds, u8 level);
-void hwLight_colorUpdate_HSV2RGB(u8 hue, u8 saturation, u8 level);
-
+void light_init(void);
 void light_adjust(void);
-void light_fresh(void);
+void light_refresh(lightSta_e);
 void light_applyUpdate(u8 *curLevel, u16 *curLevel256, s32 *stepLevel256, u16 *remainingTime, u8 minLevel, u8 maxLevel, bool wrap);
 void light_applyUpdate_16(u16 *curLevel, u32 *curLevel256, s32 *stepLevel256, u16 *remainingTime, u16 minLevel, u16 maxLevel, bool wrap);
 

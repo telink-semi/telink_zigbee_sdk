@@ -118,6 +118,9 @@ typedef struct{
 	u16	remainingTime;
 	u8	curLevel;
 	u8	startUpCurrentLevel;
+	u8	minLevel;
+	u8	maxLevel;
+	u8	options;
 }zcl_levelAttr_t;
 
 /**
@@ -125,8 +128,8 @@ typedef struct{
  */
 typedef struct{
 	u8	colorMode;
-	u8	options;
 	u8	enhancedColorMode;
+	u8	options;
 	u8	numOfPrimaries;
 	u16 colorCapabilities;
 #if COLOR_RGB_SUPPORT
@@ -134,13 +137,20 @@ typedef struct{
 	u8	currentSaturation;
 	u8	colorLoopActive;
 	u8	colorLoopDirection;
+#ifndef COLOR_X_Y_DISABLE
+	u16 currentX;
+	u16 currentY;
+#endif
 	u16	colorLoopTime;
 	u16 colorLoopStartEnhancedHue;
 	u16 colorLoopStoredEnhancedHue;
-#elif COLOR_CCT_SUPPORT
+	u16 enhancedCurrentHue;
+#endif
+#if COLOR_CCT_SUPPORT
 	u16 colorTemperatureMireds;
 	u16 colorTempPhysicalMinMireds;
 	u16 colorTempPhysicalMaxMireds;
+	u16 coupleColorTempToLevelMinMireds;
 	u16 startUpColorTemperatureMireds;
 #endif
 }zcl_lightColorCtrlAttr_t;
@@ -148,7 +158,7 @@ typedef struct{
 /**
  *  @brief Defined for saving on/off attributes
  */
-typedef struct {
+typedef struct _attribute_packed_{
 	u8	onOff;
 	u8	startUpOnOff;
 }zcl_nv_onOff_t;
@@ -156,7 +166,7 @@ typedef struct {
 /**
  *  @brief Defined for saving level attributes
  */
-typedef struct {
+typedef struct _attribute_packed_{
 	u8	curLevel;
 	u8	startUpCurLevel;
 }zcl_nv_level_t;
@@ -164,11 +174,18 @@ typedef struct {
 /**
  *  @brief Defined for saving color control attributes
  */
-typedef struct {
+typedef struct _attribute_packed_{
+	u8	colorMode;
+	u8	enhancedColorMode;
 #if COLOR_RGB_SUPPORT
 	u8	currentHue;
 	u8	currentSaturation;
-#elif COLOR_CCT_SUPPORT
+#ifndef COLOR_X_Y_DISABLE
+	u16 currentX;
+	u16 currentY;
+#endif
+#endif
+#if COLOR_CCT_SUPPORT
 	u16	colorTemperatureMireds;
 	u16	startUpColorTemperatureMireds;
 #endif
@@ -220,7 +237,7 @@ void sampleLight_leaveIndHandler(nlme_leave_ind_t *pLeaveInd);
 void sampleLight_otaProcessMsgHandler(u8 evt, u8 status);
 bool sampleLight_nwkUpdateIndicateHandler(nwkCmd_nwkUpdate_t *pNwkUpdate);
 
-void sampleLight_onoff(u8 cmd);
+void sampleLight_onOffUpdate(u8 cmd);
 
 void zcl_sampleLightAttrsInit(void);
 nv_sts_t zcl_onOffAttr_save(void);

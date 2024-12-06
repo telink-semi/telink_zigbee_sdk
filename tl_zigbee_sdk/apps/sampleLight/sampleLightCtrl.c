@@ -32,72 +32,44 @@
 #include "zcl_include.h"
 #include "sampleLight.h"
 #include "sampleLightCtrl.h"
-
+#include <math.h>
 
 /**********************************************************************
  * LOCAL CONSTANTS
  */
-#define PWM_FREQUENCY					1000	//1KHz
-#define PWM_FULL_DUTYCYCLE				100
+#define PWM_FREQUENCY					1000//1KHz
 #define PMW_MAX_TICK		            (PWM_CLOCK_SOURCE / PWM_FREQUENCY)
 
+#define clamp(a, min, max) 				((a) < (min) ? (min) : ((a) > (max) ? (max) : (a)))
 
 /**********************************************************************
  * TYPEDEFS
  */
-
+typedef struct{
+	u8 r;
+	u8 g;
+	u8 b;
+}color_t;
 
 /**********************************************************************
  * GLOBAL VARIABLES
  */
-
+#if COLOR_RGB_SUPPORT
+color_t g_color;
+#endif
 
 /**********************************************************************
  * FUNCTIONS
  */
-extern void sampleLight_updateOnOff(void);
-extern void sampleLight_updateLevel(void);
-extern void sampleLight_updateColor(void);
-
 extern void sampleLight_onOffInit(void);
-extern void sampleLight_levelInit(void);
+#if ZCL_LIGHT_COLOR_CONTROL_SUPPORT
 extern void sampleLight_colorInit(void);
-
-/*********************************************************************
- * @fn      pwmSetDuty
- *
- * @brief
- *
- * @param   ch			-	PWM channel
- * 			dutycycle	-	level * PWM_FULL_DUTYCYCLE
- *
- * @return  None
- */
-void pwmSetDuty(u8 ch, u16 dutycycle)
-{
-#ifdef ZCL_LEVEL_CTRL
-	u32 cmp_tick = ((u32)dutycycle * PMW_MAX_TICK) / (ZCL_LEVEL_ATTR_MAX_LEVEL * PWM_FULL_DUTYCYCLE);
-	drv_pwm_cfg(ch, (u16)cmp_tick, PMW_MAX_TICK);
+#elif ZCL_LEVEL_CTRL_SUPPORT
+extern void sampleLight_levelInit(void);
 #endif
-}
 
 /*********************************************************************
- * @fn      pwmInit
- *
- * @brief
- *
- * @param   ch			-	PWM channel
- * 			dutycycle	-	level * PWM_FULL_DUTYCYCLE
- *
- * @return  None
- */
-void pwmInit(u8 ch, u16 dutycycle)
-{
-	pwmSetDuty(ch, dutycycle);
-}
-
-/*********************************************************************
- * @fn      hwLight_init
+ * @fn      light_adjust
  *
  * @brief
  *
@@ -105,133 +77,70 @@ void pwmInit(u8 ch, u16 dutycycle)
  *
  * @return  None
  */
-void hwLight_init(void)
+void light_adjust(void)
 {
+	sampleLight_onOffInit();
+#if ZCL_LIGHT_COLOR_CONTROL_SUPPORT
+	sampleLight_colorInit();
+#elif ZCL_LEVEL_CTRL_SUPPORT
+	sampleLight_levelInit();
+#endif
+}
+
+#if ZCL_LEVEL_CTRL_SUPPORT || ZCL_LIGHT_COLOR_CONTROL_SUPPORT
+/*********************************************************************
+ * @fn      pwmSet
+ *
+ * @brief
+ *
+ * @param   chn		-	PWM channel
+ * 			level	-	level
+ *
+ * @return  None
+ */
+void pwmSet(u8 chn, u8 level)
+{
+	u32 cmp_tick = ((u32)level * PMW_MAX_TICK) / ZCL_LEVEL_ATTR_MAX_LEVEL;
+	drv_pwm_cfg(chn, (u16)cmp_tick, PMW_MAX_TICK);
+}
+#endif
+
+/*********************************************************************
+ * @fn      light_init
+ *
+ * @brief
+ *
+ * @param   None
+ *
+ * @return  None
+ */
+void light_init(void)
+{
+#if COLOR_RGB_SUPPORT || COLOR_CCT_SUPPORT || ZCL_LEVEL_CTRL_SUPPORT
 	drv_pwm_init();
+#endif
 
 #if COLOR_RGB_SUPPORT
 	R_LIGHT_PWM_SET();
 	G_LIGHT_PWM_SET();
 	B_LIGHT_PWM_SET();
-	pwmInit(R_LIGHT_PWM_CHANNEL, 0);
-	pwmInit(G_LIGHT_PWM_CHANNEL, 0);
-	pwmInit(B_LIGHT_PWM_CHANNEL, 0);
-#else
-	COOL_LIGHT_PWM_SET();
-	pwmInit(COOL_LIGHT_PWM_CHANNEL, 0);
-#if COLOR_CCT_SUPPORT
+	pwmSet(R_LIGHT_PWM_CHANNEL, 0);
+	pwmSet(G_LIGHT_PWM_CHANNEL, 0);
+	pwmSet(B_LIGHT_PWM_CHANNEL, 0);
+#elif COLOR_CCT_SUPPORT
 	WARM_LIGHT_PWM_SET();
-	pwmInit(WARM_LIGHT_PWM_CHANNEL, 0);
-#endif
-#endif
-}
-
-/*********************************************************************
- * @fn      hwLight_onOffUpdate
- *
- * @brief
- *
- * @param   onOff - onOff attribute value
- *
- * @return  None
- */
-void hwLight_onOffUpdate(u8 onOff)
-{
-	if(onOff){
-#if COLOR_RGB_SUPPORT
-		drv_pwm_start(R_LIGHT_PWM_CHANNEL);
-		drv_pwm_start(G_LIGHT_PWM_CHANNEL);
-		drv_pwm_start(B_LIGHT_PWM_CHANNEL);
+	COOL_LIGHT_PWM_SET();
+	pwmSet(WARM_LIGHT_PWM_CHANNEL, 0);
+	pwmSet(COOL_LIGHT_PWM_CHANNEL, 0);
+#elif ZCL_LEVEL_CTRL_SUPPORT
+	COOL_LIGHT_PWM_SET();
+	pwmSet(COOL_LIGHT_PWM_CHANNEL, 0);
 #else
-#if COLOR_CCT_SUPPORT
-		drv_pwm_start(WARM_LIGHT_PWM_CHANNEL);
+	drv_gpio_write(COOL_LIGHT_GPIO, 0);
 #endif
-		drv_pwm_start(COOL_LIGHT_PWM_CHANNEL);
-#endif
-	}else{
+}
+
 #if COLOR_RGB_SUPPORT
-		drv_pwm_stop(R_LIGHT_PWM_CHANNEL);
-		drv_pwm_stop(G_LIGHT_PWM_CHANNEL);
-		drv_pwm_stop(B_LIGHT_PWM_CHANNEL);
-#else
-#if COLOR_CCT_SUPPORT
-		drv_pwm_stop(WARM_LIGHT_PWM_CHANNEL);
-#endif
-		drv_pwm_stop(COOL_LIGHT_PWM_CHANNEL);
-#endif
-	}
-}
-
-/*********************************************************************
- * @fn      hwLight_levelUpdate
- *
- * @brief
- *
- * @param   level - level attribute value
- *
- * @return  None
- */
-void hwLight_levelUpdate(u8 level)
-{
-#if !defined COLOR_RGB_SUPPORT || (COLOR_RGB_SUPPORT == 0)
-	level = (level < 0x10) ? 0x10 : level;
-
-	u16 gammaCorrectLevel = ((u16)level * level) / ZCL_LEVEL_ATTR_MAX_LEVEL;
-
-	pwmSetDuty(COOL_LIGHT_PWM_CHANNEL, gammaCorrectLevel * PWM_FULL_DUTYCYCLE);
-#endif
-}
-
-/*********************************************************************
- * @fn      temperatureToCW
- *
- * @brief
- *
- * @param   [in]colorTemperatureMireds	-	colorTemperatureMireds attribute value
- * 			[in]level					-	level attribute value
- * 			[out]C						-	cool light PWM
- * 			[out]W						-	warm light PWM
- *
- * @return  None
- */
-void temperatureToCW(u16 temperatureMireds, u8 level, u8 *C, u8 *W)
-{
-#if COLOR_CCT_SUPPORT
-	zcl_lightColorCtrlAttr_t *pColor = zcl_colorAttrGet();
-
-	*W = (u8)(((temperatureMireds - pColor->colorTempPhysicalMinMireds) * level) / (pColor->colorTempPhysicalMaxMireds - pColor->colorTempPhysicalMinMireds));
-	*C = level - (*W);
-#endif
-}
-
-/*********************************************************************
- * @fn      hwLight_colorUpdate_colorTemperature
- *
- * @brief
- *
- * @param   colorTemperatureMireds	-	colorTemperatureMireds attribute value
- * 			level					-	level attribute value
- *
- * @return  None
- */
-void hwLight_colorUpdate_colorTemperature(u16 colorTemperatureMireds, u8 level)
-{
-#if COLOR_CCT_SUPPORT
-	u8 C = 0;
-	u8 W = 0;
-
-	level = (level < 0x10) ? 0x10 : level;
-
-	temperatureToCW(colorTemperatureMireds, level, &C, &W);
-
-	u16 gammaCorrectC = ((u16)C * C) / ZCL_LEVEL_ATTR_MAX_LEVEL;
-	u16 gammaCorrectW = ((u16)W * W) / ZCL_LEVEL_ATTR_MAX_LEVEL;
-
-	pwmSetDuty(COOL_LIGHT_PWM_CHANNEL, gammaCorrectC * PWM_FULL_DUTYCYCLE);
-	pwmSetDuty(WARM_LIGHT_PWM_CHANNEL, gammaCorrectW * PWM_FULL_DUTYCYCLE);
-#endif
-}
-
 /*********************************************************************
  * @fn      hsvToRGB
  *
@@ -240,68 +149,66 @@ void hwLight_colorUpdate_colorTemperature(u16 colorTemperatureMireds, u8 level)
  * @param   [in]hue			-	hue attribute value
  * 			[in]saturation	-	saturation attribute value
  * 			[in]level		-	level attribute value
- * 			[out]R			-	R light PWM
- * 			[out]G			-	G light PWM
- * 			[out]B			-	B light PWM
+ * 			[out]R			-	R light level
+ * 			[out]G			-	G light level
+ * 			[out]B			-	B light level
  *
  * @return  None
  */
-void hsvToRGB(u8 hue, u8 saturation, u8 level, u8 *R, u8 *G, u8 *B)
+static void hsvToRGB(u8 hue, u8 saturation, u8 level, u8 *R, u8 *G, u8 *B)
 {
-#if COLOR_RGB_SUPPORT
-    u8 region;
-    u8 remainder;
-    u8 p, q, t;
-
-	u16 rHue = (u16)hue * 360 / ZCL_COLOR_ATTR_HUE_MAX;
-	u8 rS = saturation;
-	u8 rV = level;
+	u8 region, p, q, t;
+	u32 h, s, v, remainder;
 
 	if(saturation == 0){
-		*R = rV;
-		*G = rV;
-		*B = rV;
-		return;
-	}
-
-	if(rHue < 360){
-		region = rHue / 60;
+		*R = level;
+		*G = level;
+		*B = level;
 	}else{
-		region = 0;
+		h = hue;
+		s = saturation;
+		v = level;
+
+		region = h / 43;
+		remainder = (h - (region * 43)) * 6;
+		p = (v * (255 - s)) >> 8;
+		q = (v * (255 - ((s * remainder) >> 8))) >> 8;
+		t = (v * (255 - ((s * (255 - remainder)) >> 8))) >> 8;
+
+		switch(region){
+		case 0:
+			*R = v;
+			*G = t;
+			*B = p;
+			break;
+		case 1:
+			*R = q;
+			*G = v;
+			*B = p;
+			break;
+		case 2:
+			*R = p;
+			*G = v;
+			*B = t;
+			break;
+		case 3:
+			*R = p;
+			*G = q;
+			*B = v;
+			break;
+		case 4:
+			*R = t;
+			*G = p;
+			*B = v;
+			break;
+		case 5:
+		default:
+			*R = v;
+			*G = p;
+			*B = q;
+			break;
+		}
 	}
-
-	remainder = (rHue - (region * 60)) * 4;
-
-    p = (rV * (255 - rS)) >> 8;
-    q = (rV * (255 - ((rS * remainder) >> 8))) >> 8;
-    t = (rV * (255 - ((rS * (255 - remainder)) >> 8))) >> 8;
-
-    if (region == 0) {
-    	*R = rV;
-    	*G = t;
-    	*B = p;
-    } else if (region == 1) {
-    	*R = q;
-    	*G = rV;
-    	*B = p;
-    } else if (region == 2) {
-    	*R = p;
-    	*G = rV;
-    	*B = t;
-    } else if (region == 3) {
-    	*R = p;
-    	*G = q;
-    	*B = rV;
-    } else if (region == 4) {
-    	*R = t;
-    	*G = p;
-    	*B = rV;
-    } else {
-    	*R = rV;
-    	*G = p;
-    	*B = q;
-    }
-#endif
 }
 
 /*********************************************************************
@@ -315,29 +222,262 @@ void hsvToRGB(u8 hue, u8 saturation, u8 level, u8 *R, u8 *G, u8 *B)
  *
  * @return  None
  */
-void hwLight_colorUpdate_HSV2RGB(u8 hue, u8 saturation, u8 level)
+static void hwLight_colorUpdate_HSV2RGB(u8 hue, u8 saturation, u8 level)
 {
+	hsvToRGB(hue, saturation, level, &g_color.r, &g_color.g, &g_color.b);
+
+	//printf("HSV->R = %d, G = %d, B = %d\n", g_color.r, g_color.g, g_color.b);
+
+	pwmSet(PWM_R_CHANNEL, g_color.r);
+	pwmSet(PWM_G_CHANNEL, g_color.g);
+	pwmSet(PWM_B_CHANNEL, g_color.b);
+}
+
+#ifndef COLOR_X_Y_DISABLE
+/*********************************************************************
+ * @fn      xyToRGB
+ *
+ * @brief	convert xyY color space to RGB
+ *
+ * @param   [in]currentX	-	current X value
+ * 			[in]currentY	-	current Y value
+ * 			[in]level		-	level attribute value
+ * 			[out]R			-	R light level
+ * 			[out]G			-	G light level
+ * 			[out]B			-	B light level
+ *
+ * @return  None
+ */
+static void xyToRGB(u16 currentX, u16 currentY, u8 level, u8 *R, u8 *G, u8 *B)
+{
+#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+	//lookup table?
+	return;
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL721X)
+	float x, y, z;
+	float X, Y, Z;
+	float r, g, b;
+
+	//refer https://en.wikipedia.org/wiki/CIE_1931_color_space#CIE_xy_chromaticity_diagram_and_the_CIE_xyY_color_space
+
+	x = ((float)currentX) / 65535.0f;
+	y = ((float)currentY) / 65535.0f;
+	z = 1.0f - x - y;
+
+	// Y - given brightness in 0 - 1 range
+	Y = ((float)level) / 254.0f;
+	X = (Y / y) * x;
+	Z = (Y / y) * z;
+
+	X = X / 100.0f;
+	Y = Y / 100.0f;
+	Z = Z / 100.0f;
+
+	r = (X * 3.2406f) - (Y * 1.5372f) - (Z * 0.4986f);
+	g = -(X * 0.9689f) + (Y * 1.8758f) + (Z * 0.0415f);
+	b = (X * 0.0557f) - (Y * 0.2040f) + (Z * 1.0570f);
+
+	r = (r <= 0.0031308f ? 12.92f * r : (1.055f) * pow(r, (1.0f / 2.4f)) - 0.055f);
+	g = (g <= 0.0031308f ? 12.92f * g : (1.055f) * pow(g, (1.0f / 2.4f)) - 0.055f);
+	b = (b <= 0.0031308f ? 12.92f * b : (1.055f) * pow(b, (1.0f / 2.4f)) - 0.055f);
+
+	r = clamp(r, 0, 1);
+	g = clamp(g, 0, 1);
+	b = clamp(b, 0, 1);
+
+	*R = (u8)(r * 255);
+	*G = (u8)(g * 255);
+	*B = (u8)(b * 255);
+#endif
+}
+
+/*********************************************************************
+ * @fn      hwLight_colorUpdate_XY2RGB
+ *
+ * @brief
+ *
+ * @param   currentX	-	current X value
+ * 			currentY	-	current Y value
+ * 			level		-	level attribute value
+ *
+ * @return  None
+ */
+static void hwLight_colorUpdate_XY2RGB(u16 currentX, u16 currentY, u8 level)
+{
+	xyToRGB(currentX, currentY, level, &g_color.r, &g_color.g, &g_color.b);
+
+	//printf("XY->R = %d, G = %d, B = %d\n", g_color.r, g_color.g, g_color.b);
+
+	pwmSet(PWM_R_CHANNEL, g_color.r);
+	pwmSet(PWM_G_CHANNEL, g_color.g);
+	pwmSet(PWM_B_CHANNEL, g_color.b);
+}
+#endif
+
+#if COLOR_CCT_SUPPORT
+/*********************************************************************
+ * @fn      temperatureToRGB
+ *
+ * @brief	convert Mireds to centiKelvins. k = 1,000,000/mired
+ *
+ * @param   [in]colorTemperatureMireds	-	colorTemperatureMireds attribute value
+ * 			[out]R						-	R light level
+ * 			[out]G						-	G light level
+ * 			[out]B						-	B light level
+ *
+ * @return  None
+ */
+static void temperatureToRGB(u16 temperatureMireds, u8 *R, u8 *G, u8 *B)
+{
+#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+	return;
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL721X)
+	float r, g, b;
+
+	 //algorithm credits to Tanner Helland:
+	 //https://tannerhelland.com/2012/09/18/convert-temperature-rgb-algorithm-code.html
+
+	float centiKelvins = 10000 / temperatureMireds;
+
+	r = (centiKelvins <= 66) ? 255
+							 : (329.698727446f * pow(centiKelvins - 60, -0.1332047592f));
+	g = (centiKelvins <= 66) ? (99.4708025861f * log(centiKelvins) - 161.1195681661f)
+							 : (288.1221695283f * pow(centiKelvins - 60, -0.0755148492f));
+	b = (centiKelvins >= 66) ? 255
+							 : ((centiKelvins <= 19) ? 0 : (138.5177312231 * log(centiKelvins - 10) - 305.0447927307));
+
+	*R = (u8)clamp(r, 0, 255);
+	*G = (u8)clamp(g, 0, 255);
+	*B = (u8)clamp(b, 0, 255);
+#endif
+}
+#endif
+
+#elif COLOR_CCT_SUPPORT
+/*********************************************************************
+ * @fn      temperatureToCW
+ *
+ * @brief
+ *
+ * @param   [in]colorTemperatureMireds	-	colorTemperatureMireds attribute value
+ * 			[in]level					-	level attribute value
+ * 			[out]C						-	cool light level
+ * 			[out]W						-	warm light level
+ *
+ * @return  None
+ */
+static void temperatureToCW(u16 temperatureMireds, u8 level, u8 *C, u8 *W)
+{
+	zcl_lightColorCtrlAttr_t *pColor = zcl_colorAttrGet();
+
+	*W = (u8)(((temperatureMireds - pColor->colorTempPhysicalMinMireds) * level) / (pColor->colorTempPhysicalMaxMireds - pColor->colorTempPhysicalMinMireds));
+	*C = level - (*W);
+}
+#endif
+
+#if COLOR_CCT_SUPPORT
+/*********************************************************************
+ * @fn      hwLight_colorUpdate_colorTemperature
+ *
+ * @brief
+ *
+ * @param   colorTemperatureMireds	-	colorTemperatureMireds attribute value
+ * 			level					-	level attribute value
+ *
+ * @return  None
+ */
+static void hwLight_colorUpdate_colorTemperature(u16 colorTemperatureMireds, u8 level)
+{
+#if COLOR_RGB_SUPPORT && COLOR_CCT_SUPPORT
+	temperatureToRGB(colorTemperatureMireds, &g_color.r, &g_color.g, &g_color.b);
+
+	//printf("CT-> R = %d, G = %d, B = %d\n", g_color.r, g_color.g, g_color.b);
+
+	pwmSet(PWM_R_CHANNEL, g_color.r);
+	pwmSet(PWM_G_CHANNEL, g_color.g);
+	pwmSet(PWM_B_CHANNEL, g_color.b);
+#elif COLOR_CCT_SUPPORT
+	u8 c = 0;
+	u8 w = 0;
+
+	temperatureToCW(colorTemperatureMireds, level, &c, &w);
+
+	//printf("CT-> C = %d, W = %d\n", c, w);
+
+	pwmSet(COOL_LIGHT_PWM_CHANNEL, c);
+	pwmSet(WARM_LIGHT_PWM_CHANNEL, w);
+#endif
+}
+#endif
+
+#if ZCL_LIGHT_COLOR_CONTROL_SUPPORT
+/*********************************************************************
+ * @fn      light_colorUpdate
+ *
+ * @brief
+ *
+ * @param   None
+ *
+ * @return  None
+ */
+static void light_colorUpdate(void)
+{
+	zcl_lightColorCtrlAttr_t *pColor = zcl_colorAttrGet();
+	zcl_levelAttr_t *pLevel = zcl_levelAttrGet();
+
 #if COLOR_RGB_SUPPORT
-	u8 R = 0;
-	u8 G = 0;
-	u8 B = 0;
+	if(pColor->colorMode == ZCL_COLOR_MODE_CURRENT_HUE_SATURATION){
+		if(pColor->enhancedColorMode == ZCL_ENHANCED_COLOR_MODE_CURRENT_HUE_SATURATION){
+			pColor->currentHue = (pColor->enhancedCurrentHue & 0xFF00) >> 8;
+			if(pColor->currentHue > ZCL_COLOR_ATTR_HUE_MAX){
+				pColor->currentHue = ZCL_COLOR_ATTR_HUE_MAX;
+			}
+		}else{
+			pColor->enhancedCurrentHue = (u16)pColor->currentHue << 8;
+		}
 
-	level = (level < 0x10) ? 0x10 : level;
+		//printf("h = %x, s = %x, l = %x\n", pColor->currentHue, pColor->currentSaturation, pLevel->curLevel);
 
-	hsvToRGB(hue, saturation, level, &R, &G, &B);
+		hwLight_colorUpdate_HSV2RGB(pColor->currentHue, pColor->currentSaturation, pLevel->curLevel);
+	}else
+#ifndef COLOR_X_Y_DISABLE
+	if(pColor->colorMode == ZCL_COLOR_MODE_CURRENT_X_Y){
+		//printf("x = %x, y = %x, l = %x\n", pColor->currentX, pColor->currentY, pLevel->curLevel);
 
-	u16 gammaCorrectR = ((u16)R * R) / ZCL_LEVEL_ATTR_MAX_LEVEL;
-	u16 gammaCorrectG = ((u16)G * G) / ZCL_LEVEL_ATTR_MAX_LEVEL;
-	u16 gammaCorrectB = ((u16)B * B) / ZCL_LEVEL_ATTR_MAX_LEVEL;
-
-	pwmSetDuty(PWM_R_CHANNEL, gammaCorrectR * PWM_FULL_DUTYCYCLE);
-	pwmSetDuty(PWM_G_CHANNEL, gammaCorrectG * PWM_FULL_DUTYCYCLE);
-	pwmSetDuty(PWM_B_CHANNEL, gammaCorrectB * PWM_FULL_DUTYCYCLE);
+		hwLight_colorUpdate_XY2RGB(pColor->currentX, pColor->currentY, pLevel->curLevel);
+	}else
 #endif
+#endif	/* COLOR_RGB_SUPPORT */
+#if COLOR_CCT_SUPPORT
+	if(pColor->colorMode == ZCL_COLOR_MODE_COLOR_TEMPERATURE_MIREDS){
+		//printf("t = %x, l = %x\n", pColor->colorTemperatureMireds, pLevel->curLevel);
+
+		hwLight_colorUpdate_colorTemperature(pColor->colorTemperatureMireds, pLevel->curLevel);
+	}else
+#endif
+	{
+		//do nothing
+	}
+}
+
+#elif ZCL_LEVEL_CTRL_SUPPORT
+
+/*********************************************************************
+ * @fn      hwLight_levelUpdate
+ *
+ * @brief
+ *
+ * @param   level - level attribute value
+ *
+ * @return  None
+ */
+static void hwLight_levelUpdate(u8 level)
+{
+	pwmSet(COOL_LIGHT_PWM_CHANNEL, level);
 }
 
 /*********************************************************************
- * @fn      light_adjust
+ * @fn      light_levelUpdate
  *
  * @brief
  *
@@ -345,20 +485,55 @@ void hwLight_colorUpdate_HSV2RGB(u8 hue, u8 saturation, u8 level)
  *
  * @return  None
  */
-void light_adjust(void)
+static void light_levelUpdate(void)
 {
-#ifdef ZCL_LIGHT_COLOR_CONTROL
-	sampleLight_colorInit();
+	zcl_levelAttr_t *pLevel = zcl_levelAttrGet();
+	hwLight_levelUpdate(pLevel->curLevel);
+}
+#endif
+
+/*********************************************************************
+ * @fn      hwLight_onOffUpdate
+ *
+ * @brief
+ *
+ * @param   onOff - onOff attribute value
+ *
+ * @return  None
+ */
+static void hwLight_onOffUpdate(bool onOff)
+{
+	if(onOff){
+#if COLOR_RGB_SUPPORT
+		drv_pwm_start(R_LIGHT_PWM_CHANNEL);
+		drv_pwm_start(G_LIGHT_PWM_CHANNEL);
+		drv_pwm_start(B_LIGHT_PWM_CHANNEL);
+#elif COLOR_CCT_SUPPORT
+		drv_pwm_start(WARM_LIGHT_PWM_CHANNEL);
+		drv_pwm_start(COOL_LIGHT_PWM_CHANNEL);
+#elif ZCL_LEVEL_CTRL_SUPPORT
+		drv_pwm_start(COOL_LIGHT_PWM_CHANNEL);
 #else
-#ifdef ZCL_LEVEL_CTRL
-	sampleLight_levelInit();
+		drv_gpio_write(COOL_LIGHT_GPIO, 1);
 #endif
+	}else{
+#if COLOR_RGB_SUPPORT
+		drv_pwm_stop(R_LIGHT_PWM_CHANNEL);
+		drv_pwm_stop(G_LIGHT_PWM_CHANNEL);
+		drv_pwm_stop(B_LIGHT_PWM_CHANNEL);
+#elif COLOR_CCT_SUPPORT
+		drv_pwm_stop(WARM_LIGHT_PWM_CHANNEL);
+		drv_pwm_stop(COOL_LIGHT_PWM_CHANNEL);
+#elif ZCL_LEVEL_CTRL_SUPPORT
+		drv_pwm_stop(COOL_LIGHT_PWM_CHANNEL);
+#else
+		drv_gpio_write(COOL_LIGHT_GPIO, 0);
 #endif
-	sampleLight_onOffInit();
+	}
 }
 
 /*********************************************************************
- * @fn      light_fresh
+ * @fn      light_onOffUpdate
  *
  * @brief
  *
@@ -366,22 +541,48 @@ void light_adjust(void)
  *
  * @return  None
  */
-void light_fresh(void)
+static void light_onOffUpdate(void)
 {
-#ifdef ZCL_LIGHT_COLOR_CONTROL
-	sampleLight_updateColor();
-#else
-#ifdef ZCL_LEVEL_CTRL
-	sampleLight_updateLevel();
-#else
-	pwmSetDuty(COOL_LIGHT_PWM_CHANNEL, ZCL_LEVEL_ATTR_MAX_LEVEL * PWM_FULL_DUTYCYCLE);
+	zcl_onOffAttr_t *pOnOff = zcl_onoffAttrGet();
+	hwLight_onOffUpdate(pOnOff->onOff);
+}
+
+/*********************************************************************
+ * @fn      light_refresh
+ *
+ * @brief
+ *
+ * @param   None
+ *
+ * @return  None
+ */
+void light_refresh(lightSta_e sta)
+{
+	switch(sta){
+#if ZCL_ON_OFF_SUPPORT
+		case LIGHT_STA_ON_OFF:
+			light_onOffUpdate();
+			break;
 #endif
+#if ZCL_LIGHT_COLOR_CONTROL_SUPPORT
+		case LIGHT_STA_LEVEL:
+		case LIGHT_STA_COLOR:
+			light_colorUpdate();
+			break;
+#elif ZCL_LEVEL_CTRL_SUPPORT
+		case LIGHT_STA_LEVEL:
+			light_levelUpdate();
+			break;
 #endif
-	sampleLight_updateOnOff();
+		default:
+			return;
+			break;
+	}
 
 	gLightCtx.lightAttrsChanged = TRUE;
 }
 
+#if ZCL_LEVEL_CTRL_SUPPORT || ZCL_LIGHT_COLOR_CONTROL_SUPPORT
 /*********************************************************************
  * @fn      light_applyUpdate
  *
@@ -415,8 +616,6 @@ void light_applyUpdate(u8 *curLevel, u16 *curLevel256, s32 *stepLevel256, u16 *r
 	}else if(*remainingTime != 0xFFFF){
 		*remainingTime = *remainingTime -1;
 	}
-
-	light_fresh();
 }
 
 /*********************************************************************
@@ -452,9 +651,8 @@ void light_applyUpdate_16(u16 *curLevel, u32 *curLevel256, s32 *stepLevel256, u1
 	}else if(*remainingTime != 0xFFFF){
 		*remainingTime = *remainingTime -1;
 	}
-
-	light_fresh();
 }
+#endif
 
 /*********************************************************************
  * @fn      light_blink_TimerEvtCb
@@ -465,9 +663,18 @@ void light_applyUpdate_16(u16 *curLevel, u32 *curLevel256, s32 *stepLevel256, u1
  *
  * @return  0: timer continue on; -1: timer will be canceled
  */
-s32 light_blink_TimerEvtCb(void *arg)
+static s32 light_blink_TimerEvtCb(void *arg)
 {
 	u32 interval = 0;
+
+	gLightCtx.sta = !gLightCtx.sta;
+	if(gLightCtx.sta){
+		hwLight_onOffUpdate(ZCL_CMD_ONOFF_ON);
+		interval = gLightCtx.ledOnTime;
+	}else{
+		hwLight_onOffUpdate(ZCL_CMD_ONOFF_OFF);
+		interval = gLightCtx.ledOffTime;
+	}
 
 	if(gLightCtx.sta == gLightCtx.oriSta){
 		if(gLightCtx.times){
@@ -483,15 +690,6 @@ s32 light_blink_TimerEvtCb(void *arg)
 				return -1;
 			}
 		}
-	}
-
-	gLightCtx.sta = !gLightCtx.sta;
-	if(gLightCtx.sta){
-		hwLight_onOffUpdate(ZCL_CMD_ONOFF_ON);
-		interval = gLightCtx.ledOnTime;
-	}else{
-		hwLight_onOffUpdate(ZCL_CMD_ONOFF_OFF);
-		interval = gLightCtx.ledOffTime;
 	}
 
 	return interval;
@@ -513,21 +711,15 @@ void light_blink_start(u8 times, u16 ledOnTime, u16 ledOffTime)
 	u32 interval = 0;
 	zcl_onOffAttr_t *pOnoff = zcl_onoffAttrGet();
 
-	gLightCtx.oriSta = pOnoff->onOff;
-	gLightCtx.times = times;
-
 	if(!gLightCtx.timerLedEvt){
-		if(gLightCtx.oriSta){
-			hwLight_onOffUpdate(ZCL_CMD_ONOFF_OFF);
-			gLightCtx.sta = 0;
-			interval = ledOffTime;
-		}else{
-			hwLight_onOffUpdate(ZCL_CMD_ONOFF_ON);
-			gLightCtx.sta = 1;
-			interval = ledOnTime;
-		}
+		gLightCtx.times = times;
 		gLightCtx.ledOnTime = ledOnTime;
 		gLightCtx.ledOffTime = ledOffTime;
+
+		gLightCtx.oriSta = pOnoff->onOff;
+
+		gLightCtx.sta = gLightCtx.oriSta;
+		interval = gLightCtx.sta ? ledOnTime : ledOffTime;
 
 		gLightCtx.timerLedEvt = TL_ZB_TIMER_SCHEDULE(light_blink_TimerEvtCb, NULL, interval);
 	}

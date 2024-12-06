@@ -40,12 +40,42 @@
 #define ZCL_BASIC_MFG_NAME     		{6,'T','E','L','I','N','K'}
 #endif
 #ifndef ZCL_BASIC_MODEL_ID
-#define ZCL_BASIC_MODEL_ID	   		{8,'T','L','S','R','8','2','x','x'}
+#define ZCL_BASIC_MODEL_ID	   		{8,'T','L','S','R','x','x','x','x'}
 #endif
 #ifndef ZCL_BASIC_SW_BUILD_ID
 #define ZCL_BASIC_SW_BUILD_ID     	{10,'0','1','2','2','0','5','2','0','1','7'}
 #endif
 
+#if COLOR_RGB_SUPPORT
+#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+#if COLOR_CCT_SUPPORT
+#error "NOT SUPPORT"
+#else
+#define COLOR_CAPABILITIES			ZCL_COLOR_CAPABILITIES_BIT_HUE_SATURATION |	\
+									ZCL_COLOR_CAPABILITIES_BIT_ENHANCED_HUE |	\
+									ZCL_COLOR_CAPABILITIES_BIT_COLOR_LOOP
+#define COLOR_MODE_INIT				ZCL_COLOR_MODE_CURRENT_HUE_SATURATION
+#endif
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL721X)
+#if COLOR_CCT_SUPPORT
+#define COLOR_CAPABILITIES			ZCL_COLOR_CAPABILITIES_BIT_HUE_SATURATION | \
+									ZCL_COLOR_CAPABILITIES_BIT_ENHANCED_HUE |	\
+									ZCL_COLOR_CAPABILITIES_BIT_X_Y_ATTRIBUTES | \
+									ZCL_COLOR_CAPABILITIES_BIT_COLOR_LOOP |		\
+									ZCL_COLOR_CAPABILITIES_BIT_COLOR_TEMPERATURE
+#define COLOR_MODE_INIT				ZCL_COLOR_MODE_CURRENT_X_Y
+#else
+#define COLOR_CAPABILITIES			ZCL_COLOR_CAPABILITIES_BIT_HUE_SATURATION |	\
+									ZCL_COLOR_CAPABILITIES_BIT_ENHANCED_HUE |	\
+									ZCL_COLOR_CAPABILITIES_BIT_X_Y_ATTRIBUTES | \
+									ZCL_COLOR_CAPABILITIES_BIT_COLOR_LOOP
+#define COLOR_MODE_INIT				ZCL_COLOR_MODE_CURRENT_X_Y
+#endif
+#endif
+#elif COLOR_CCT_SUPPORT
+#define COLOR_CAPABILITIES			ZCL_COLOR_CAPABILITIES_BIT_COLOR_TEMPERATURE
+#define COLOR_MODE_INIT				ZCL_COLOR_MODE_COLOR_TEMPERATURE_MIREDS
+#endif
 
 #if COLOR_CCT_SUPPORT
 #define COLOR_TEMPERATURE_PHYSICAL_MIN	0x00FA//4000K
@@ -112,14 +142,12 @@ const u16 sampleLight_outClusterList[] =
 const af_simple_descriptor_t sampleLight_simpleDesc =
 {
 	HA_PROFILE_ID,                      		/* Application profile identifier */
-#ifdef ZCL_LIGHT_COLOR_CONTROL
-	HA_DEV_COLOR_DIMMABLE_LIGHT,
+#if defined(ZCL_LIGHT_COLOR_CONTROL)
+	HA_DEV_COLOR_DIMMABLE_LIGHT,				/* Application device identifier */
+#elif defined(ZCL_LEVEL_CTRL)
+	HA_DEV_DIMMABLE_LIGHT,              		/* Application device identifier */
 #else
-	#ifdef ZCL_LEVEL_CTRL
-		HA_DEV_DIMMABLE_LIGHT,              	/* Application device identifier */
-	#else
-		HA_DEV_ONOFF_LIGHT,						/* Application device identifier */
-	#endif
+	HA_DEV_ONOFF_LIGHT,							/* Application device identifier */
 #endif
 	SAMPLE_LIGHT_ENDPOINT,              		/* Endpoint */
 	1,                                  		/* Application device version */
@@ -296,8 +324,11 @@ const zclAttrInfo_t onOff_attrTbl[] =
 /* Level */
 zcl_levelAttr_t g_zcl_levelAttrs =
 {
-	.curLevel				= 0xFE,
+	.curLevel				= ZCL_LEVEL_ATTR_MAX_LEVEL,
 	.remainingTime			= 0,
+	.options				= 0,
+	.minLevel				= ZCL_LEVEL_ATTR_MIN_LEVEL,
+	.maxLevel				= ZCL_LEVEL_ATTR_MAX_LEVEL,
 	.startUpCurrentLevel 	= ZCL_START_UP_CURRENT_LEVEL_TO_PREVIOUS,
 };
 
@@ -305,6 +336,9 @@ const zclAttrInfo_t level_attrTbl[] =
 {
 	{ ZCL_ATTRID_LEVEL_CURRENT_LEVEL,  			ZCL_DATA_TYPE_UINT8,   ACCESS_CONTROL_READ | ACCESS_CONTROL_REPORTABLE, (u8*)&g_zcl_levelAttrs.curLevel },
 	{ ZCL_ATTRID_LEVEL_REMAINING_TIME, 			ZCL_DATA_TYPE_UINT16,  ACCESS_CONTROL_READ,  							(u8*)&g_zcl_levelAttrs.remainingTime },
+	{ ZCL_ATTRID_LEVEL_MIN_LEVEL,  				ZCL_DATA_TYPE_UINT8,   ACCESS_CONTROL_READ, 							(u8*)&g_zcl_levelAttrs.minLevel },
+	{ ZCL_ATTRID_LEVEL_MAX_LEVEL,  				ZCL_DATA_TYPE_UINT8,   ACCESS_CONTROL_READ, 							(u8*)&g_zcl_levelAttrs.maxLevel },
+	{ ZCL_ATTRID_LEVEL_OPTIONS,  				ZCL_DATA_TYPE_BITMAP8, ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, 		(u8*)&g_zcl_levelAttrs.options },
 	{ ZCL_ATTRID_LEVEL_START_UP_CURRENT_LEVEL,  ZCL_DATA_TYPE_UINT8,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE,  	(u8*)&g_zcl_levelAttrs.startUpCurrentLevel },
 
 	{ ZCL_ATTRID_GLOBAL_CLUSTER_REVISION, 		ZCL_DATA_TYPE_UINT16,  ACCESS_CONTROL_READ,  							(u8*)&zcl_attr_global_clusterRevision},
@@ -317,51 +351,63 @@ const zclAttrInfo_t level_attrTbl[] =
 /* Color Control */
 zcl_lightColorCtrlAttr_t g_zcl_colorCtrlAttrs =
 {
-	.colorMode						= ZCL_COLOR_MODE_COLOR_TEMPERATURE_MIREDS,
+	.colorCapabilities				= COLOR_CAPABILITIES,
+	.colorMode						= COLOR_MODE_INIT,
+	.enhancedColorMode				= COLOR_MODE_INIT,
 	.options						= 0,
-	.enhancedColorMode				= ZCL_COLOR_MODE_COLOR_TEMPERATURE_MIREDS,
-	.colorCapabilities				= ZCL_COLOR_CAPABILITIES_BIT_COLOR_TEMPERATURE,
 	.numOfPrimaries					= 0,
 #if COLOR_RGB_SUPPORT
+#ifndef COLOR_X_Y_DISABLE
+	.currentX 						= 0x616b,
+	.currentY						= 0x607d,
+#endif
 	.currentHue						= 0x00,
+	.enhancedCurrentHue				= 0x0000,
 	.currentSaturation				= 0x00,
 	.colorLoopActive				= 0x00,
 	.colorLoopDirection				= 0x00,
 	.colorLoopTime					= 0x0019,
 	.colorLoopStartEnhancedHue		= 0x2300,
 	.colorLoopStoredEnhancedHue		= 0x0000,
-#elif COLOR_CCT_SUPPORT
-	.colorTemperatureMireds			= COLOR_TEMPERATURE_PHYSICAL_MAX,
+#endif
+#if COLOR_CCT_SUPPORT
+	.colorTemperatureMireds			= COLOR_TEMPERATURE_PHYSICAL_MIN,
 	.colorTempPhysicalMinMireds		= COLOR_TEMPERATURE_PHYSICAL_MIN,
 	.colorTempPhysicalMaxMireds 	= COLOR_TEMPERATURE_PHYSICAL_MAX,
+	.coupleColorTempToLevelMinMireds = COLOR_TEMPERATURE_PHYSICAL_MIN,
 	.startUpColorTemperatureMireds 	= ZCL_START_UP_COLOR_TEMPERATURE_MIREDS_TO_PREVIOUS,
 #endif
 };
 
 const zclAttrInfo_t lightColorCtrl_attrTbl[] =
 {
-    { ZCL_ATTRID_COLOR_MODE,              			ZCL_DATA_TYPE_ENUM8,   	ACCESS_CONTROL_READ,     					(u8*)&g_zcl_colorCtrlAttrs.colorMode },
-    { ZCL_ATTRID_COLOR_OPTIONS,           			ZCL_DATA_TYPE_BITMAP8, 	ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&g_zcl_colorCtrlAttrs.options },
-    { ZCL_ATTRID_ENHANCED_COLOR_MODE,     			ZCL_DATA_TYPE_ENUM8,   	ACCESS_CONTROL_READ,     					(u8*)&g_zcl_colorCtrlAttrs.enhancedColorMode },
-    { ZCL_ATTRID_COLOR_CAPABILITIES,       			ZCL_DATA_TYPE_BITMAP16, ACCESS_CONTROL_READ,     					(u8*)&g_zcl_colorCtrlAttrs.colorCapabilities },
-    { ZCL_ATTRID_NUMBER_OF_PRIMARIES,     			ZCL_DATA_TYPE_UINT8,   	ACCESS_CONTROL_READ,     					(u8*)&g_zcl_colorCtrlAttrs.numOfPrimaries },
-
+    { ZCL_ATTRID_COLOR_MODE,              				ZCL_DATA_TYPE_ENUM8,   	ACCESS_CONTROL_READ, 							 (u8*)&g_zcl_colorCtrlAttrs.colorMode },
+    { ZCL_ATTRID_COLOR_OPTIONS,           				ZCL_DATA_TYPE_BITMAP8, 	ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE,		 (u8*)&g_zcl_colorCtrlAttrs.options },
+    { ZCL_ATTRID_ENHANCED_COLOR_MODE,     				ZCL_DATA_TYPE_ENUM8,   	ACCESS_CONTROL_READ, 							 (u8*)&g_zcl_colorCtrlAttrs.enhancedColorMode },
+    { ZCL_ATTRID_COLOR_CAPABILITIES,       				ZCL_DATA_TYPE_BITMAP16, ACCESS_CONTROL_READ, 							 (u8*)&g_zcl_colorCtrlAttrs.colorCapabilities },
+    { ZCL_ATTRID_NUMBER_OF_PRIMARIES,     				ZCL_DATA_TYPE_UINT8,   	ACCESS_CONTROL_READ, 							 (u8*)&g_zcl_colorCtrlAttrs.numOfPrimaries },
 #if COLOR_RGB_SUPPORT
-    { ZCL_ATTRID_CURRENT_HUE,             			ZCL_DATA_TYPE_UINT8,   	ACCESS_CONTROL_READ | ACCESS_CONTROL_REPORTABLE, (u8*)&g_zcl_colorCtrlAttrs.currentHue },
-    { ZCL_ATTRID_CURRENT_SATURATION,      			ZCL_DATA_TYPE_UINT8,   	ACCESS_CONTROL_READ | ACCESS_CONTROL_REPORTABLE, (u8*)&g_zcl_colorCtrlAttrs.currentSaturation },
-    { ZCL_ATTRID_COLOR_LOOP_ACTIVE,       			ZCL_DATA_TYPE_UINT8,    ACCESS_CONTROL_READ | ACCESS_CONTROL_REPORTABLE, (u8*)&g_zcl_colorCtrlAttrs.colorLoopActive },
-    { ZCL_ATTRID_COLOR_LOOP_DIRECTION,    			ZCL_DATA_TYPE_UINT8,    ACCESS_CONTROL_READ | ACCESS_CONTROL_REPORTABLE, (u8*)&g_zcl_colorCtrlAttrs.colorLoopDirection },
-    { ZCL_ATTRID_COLOR_LOOP_TIME,         			ZCL_DATA_TYPE_UINT16,   ACCESS_CONTROL_READ | ACCESS_CONTROL_REPORTABLE, (u8*)&g_zcl_colorCtrlAttrs.colorLoopTime },
-    { ZCL_ATTRID_COLOR_LOOP_START_ENHANCED_HUE,   	ZCL_DATA_TYPE_UINT16,   ACCESS_CONTROL_READ,     						 (u8*)&g_zcl_colorCtrlAttrs.colorLoopStartEnhancedHue },
-    { ZCL_ATTRID_COLOR_LOOP_STORED_ENHANCED_HUE,  	ZCL_DATA_TYPE_UINT16,   ACCESS_CONTROL_READ,     						 (u8*)&g_zcl_colorCtrlAttrs.colorLoopStoredEnhancedHue },
-#elif COLOR_CCT_SUPPORT
-    { ZCL_ATTRID_COLOR_TEMPERATURE_MIREDS,			ZCL_DATA_TYPE_UINT16,  	ACCESS_CONTROL_READ | ACCESS_CONTROL_REPORTABLE, (u8*)&g_zcl_colorCtrlAttrs.colorTemperatureMireds },
-    { ZCL_ATTRID_COLOR_TEMP_PHYSICAL_MIN_MIREDS,  	ZCL_DATA_TYPE_UINT16,  	ACCESS_CONTROL_READ,     						 (u8*)&g_zcl_colorCtrlAttrs.colorTempPhysicalMinMireds },
-    { ZCL_ATTRID_COLOR_TEMP_PHYSICAL_MAX_MIREDS,  	ZCL_DATA_TYPE_UINT16,  	ACCESS_CONTROL_READ,     						 (u8*)&g_zcl_colorCtrlAttrs.colorTempPhysicalMaxMireds },
-    { ZCL_ATTRID_START_UP_COLOR_TEMPERATURE_MIREDS, ZCL_DATA_TYPE_UINT16,  	ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE,      (u8*)&g_zcl_colorCtrlAttrs.startUpColorTemperatureMireds },
+#ifndef COLOR_X_Y_DISABLE
+    { ZCL_ATTRID_CURRENT_X,             				ZCL_DATA_TYPE_UINT16,   ACCESS_CONTROL_READ | ACCESS_CONTROL_REPORTABLE, (u8*)&g_zcl_colorCtrlAttrs.currentX },
+    { ZCL_ATTRID_CURRENT_Y,      						ZCL_DATA_TYPE_UINT16,   ACCESS_CONTROL_READ | ACCESS_CONTROL_REPORTABLE, (u8*)&g_zcl_colorCtrlAttrs.currentY },
 #endif
-
-    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION, 			ZCL_DATA_TYPE_UINT16,   ACCESS_CONTROL_READ,  							 (u8*)&zcl_attr_global_clusterRevision},
+    { ZCL_ATTRID_CURRENT_HUE,             				ZCL_DATA_TYPE_UINT8,   	ACCESS_CONTROL_READ | ACCESS_CONTROL_REPORTABLE, (u8*)&g_zcl_colorCtrlAttrs.currentHue },
+    { ZCL_ATTRID_CURRENT_SATURATION,      				ZCL_DATA_TYPE_UINT8,   	ACCESS_CONTROL_READ | ACCESS_CONTROL_REPORTABLE, (u8*)&g_zcl_colorCtrlAttrs.currentSaturation },
+	{ ZCL_ATTRID_ENHANCED_CURRENT_HUE,       			ZCL_DATA_TYPE_UINT16,   ACCESS_CONTROL_READ, 							 (u8*)&g_zcl_colorCtrlAttrs.enhancedCurrentHue },
+	{ ZCL_ATTRID_COLOR_LOOP_ACTIVE,       				ZCL_DATA_TYPE_UINT8,    ACCESS_CONTROL_READ, 							 (u8*)&g_zcl_colorCtrlAttrs.colorLoopActive },
+    { ZCL_ATTRID_COLOR_LOOP_DIRECTION,    				ZCL_DATA_TYPE_UINT8,    ACCESS_CONTROL_READ, 							 (u8*)&g_zcl_colorCtrlAttrs.colorLoopDirection },
+    { ZCL_ATTRID_COLOR_LOOP_TIME,         				ZCL_DATA_TYPE_UINT16,   ACCESS_CONTROL_READ, 							 (u8*)&g_zcl_colorCtrlAttrs.colorLoopTime },
+    { ZCL_ATTRID_COLOR_LOOP_START_ENHANCED_HUE,   		ZCL_DATA_TYPE_UINT16,   ACCESS_CONTROL_READ,     						 (u8*)&g_zcl_colorCtrlAttrs.colorLoopStartEnhancedHue },
+    { ZCL_ATTRID_COLOR_LOOP_STORED_ENHANCED_HUE,  		ZCL_DATA_TYPE_UINT16,   ACCESS_CONTROL_READ,     						 (u8*)&g_zcl_colorCtrlAttrs.colorLoopStoredEnhancedHue },
+#endif
+#if COLOR_CCT_SUPPORT
+    { ZCL_ATTRID_COLOR_TEMPERATURE_MIREDS,				ZCL_DATA_TYPE_UINT16,  	ACCESS_CONTROL_READ | ACCESS_CONTROL_REPORTABLE, (u8*)&g_zcl_colorCtrlAttrs.colorTemperatureMireds },
+    { ZCL_ATTRID_COLOR_TEMP_PHYSICAL_MIN_MIREDS,  		ZCL_DATA_TYPE_UINT16,  	ACCESS_CONTROL_READ,     						 (u8*)&g_zcl_colorCtrlAttrs.colorTempPhysicalMinMireds },
+    { ZCL_ATTRID_COLOR_TEMP_PHYSICAL_MAX_MIREDS,  		ZCL_DATA_TYPE_UINT16,  	ACCESS_CONTROL_READ,     						 (u8*)&g_zcl_colorCtrlAttrs.colorTempPhysicalMaxMireds },
+	{ ZCL_ATTRID_COUPLE_COLOR_TEMP_TO_LEVEL_MIN_MIREDS, ZCL_DATA_TYPE_UINT16,  	ACCESS_CONTROL_READ,     						 (u8*)&g_zcl_colorCtrlAttrs.coupleColorTempToLevelMinMireds },
+	{ ZCL_ATTRID_START_UP_COLOR_TEMPERATURE_MIREDS, 	ZCL_DATA_TYPE_UINT16,  	ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE,      (u8*)&g_zcl_colorCtrlAttrs.startUpColorTemperatureMireds },
+#endif
+    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION, 				ZCL_DATA_TYPE_UINT16,   ACCESS_CONTROL_READ,  							 (u8*)&zcl_attr_global_clusterRevision},
 };
 
 #define ZCL_COLOR_ATTR_NUM	 sizeof(lightColorCtrl_attrTbl) / sizeof(zclAttrInfo_t)
@@ -414,22 +460,24 @@ nv_sts_t zcl_onOffAttr_save(void)
 
 #ifdef ZCL_ON_OFF
 #if NV_ENABLE
+	bool needSave = FALSE;
 	zcl_nv_onOff_t zcl_nv_onOff;
 
-	st = nv_flashReadNew(1, NV_MODULE_ZCL,  NV_ITEM_ZCL_ON_OFF, sizeof(zcl_nv_onOff_t), (u8*)&zcl_nv_onOff);
-
+	st = nv_flashReadNew(1, NV_MODULE_ZCL,  NV_ITEM_ZCL_ON_OFF, sizeof(zcl_nv_onOff_t), (u8 *)&zcl_nv_onOff);
 	if(st == NV_SUCC){
-		if((zcl_nv_onOff.onOff != g_zcl_onOffAttrs.onOff) || (zcl_nv_onOff.startUpOnOff != g_zcl_onOffAttrs.startUpOnOff)){
-			zcl_nv_onOff.onOff = g_zcl_onOffAttrs.onOff;
-			zcl_nv_onOff.startUpOnOff = g_zcl_onOffAttrs.startUpOnOff;
-
-			st = nv_flashWriteNew(1, NV_MODULE_ZCL, NV_ITEM_ZCL_ON_OFF, sizeof(zcl_nv_onOff_t), (u8*)&zcl_nv_onOff);
+		if((zcl_nv_onOff.onOff != g_zcl_onOffAttrs.onOff) ||
+		   (zcl_nv_onOff.startUpOnOff != g_zcl_onOffAttrs.startUpOnOff)){
+			needSave = TRUE;
 		}
 	}else if(st == NV_ITEM_NOT_FOUND){
+		needSave = TRUE;
+	}
+
+	if(needSave){
 		zcl_nv_onOff.onOff = g_zcl_onOffAttrs.onOff;
 		zcl_nv_onOff.startUpOnOff = g_zcl_onOffAttrs.startUpOnOff;
 
-		st = nv_flashWriteNew(1, NV_MODULE_ZCL, NV_ITEM_ZCL_ON_OFF, sizeof(zcl_nv_onOff_t), (u8*)&zcl_nv_onOff);
+		st = nv_flashWriteNew(1, NV_MODULE_ZCL, NV_ITEM_ZCL_ON_OFF, sizeof(zcl_nv_onOff_t), (u8 *)&zcl_nv_onOff);
 	}
 #else
 	st = NV_ENABLE_PROTECT_ERROR;
@@ -456,8 +504,7 @@ nv_sts_t zcl_onOffAttr_restore(void)
 #if NV_ENABLE
 	zcl_nv_onOff_t zcl_nv_onOff;
 
-	st = nv_flashReadNew(1, NV_MODULE_ZCL,  NV_ITEM_ZCL_ON_OFF, sizeof(zcl_nv_onOff_t), (u8*)&zcl_nv_onOff);
-
+	st = nv_flashReadNew(1, NV_MODULE_ZCL,  NV_ITEM_ZCL_ON_OFF, sizeof(zcl_nv_onOff_t), (u8 *)&zcl_nv_onOff);
 	if(st == NV_SUCC){
 		g_zcl_onOffAttrs.onOff = zcl_nv_onOff.onOff;
 		g_zcl_onOffAttrs.startUpOnOff = zcl_nv_onOff.startUpOnOff;
@@ -485,22 +532,24 @@ nv_sts_t zcl_levelAttr_save(void)
 
 #ifdef ZCL_LEVEL_CTRL
 #if NV_ENABLE
+	bool needSave = FALSE;
 	zcl_nv_level_t zcl_nv_level;
 
-	st = nv_flashReadNew(1, NV_MODULE_ZCL,  NV_ITEM_ZCL_LEVEL, sizeof(zcl_nv_level_t), (u8*)&zcl_nv_level);
-
+	st = nv_flashReadNew(1, NV_MODULE_ZCL,  NV_ITEM_ZCL_LEVEL, sizeof(zcl_nv_level_t), (u8 *)&zcl_nv_level);
 	if(st == NV_SUCC){
-		if((zcl_nv_level.curLevel != g_zcl_levelAttrs.curLevel) || (zcl_nv_level.startUpCurLevel != g_zcl_levelAttrs.startUpCurrentLevel)){
-			zcl_nv_level.curLevel = g_zcl_levelAttrs.curLevel;
-			zcl_nv_level.startUpCurLevel = g_zcl_levelAttrs.startUpCurrentLevel;
-
-			st = nv_flashWriteNew(1, NV_MODULE_ZCL, NV_ITEM_ZCL_LEVEL, sizeof(zcl_nv_level_t), (u8*)&zcl_nv_level);
+		if((zcl_nv_level.curLevel != g_zcl_levelAttrs.curLevel) ||
+		   (zcl_nv_level.startUpCurLevel != g_zcl_levelAttrs.startUpCurrentLevel)){
+			needSave = TRUE;
 		}
 	}else if(st == NV_ITEM_NOT_FOUND){
+		needSave = TRUE;
+	}
+
+	if(needSave){
 		zcl_nv_level.curLevel = g_zcl_levelAttrs.curLevel;
 		zcl_nv_level.startUpCurLevel = g_zcl_levelAttrs.startUpCurrentLevel;
 
-		st = nv_flashWriteNew(1, NV_MODULE_ZCL, NV_ITEM_ZCL_LEVEL, sizeof(zcl_nv_level_t), (u8*)&zcl_nv_level);
+		st = nv_flashWriteNew(1, NV_MODULE_ZCL, NV_ITEM_ZCL_LEVEL, sizeof(zcl_nv_level_t), (u8 *)&zcl_nv_level);
 	}
 #else
 	st = NV_ENABLE_PROTECT_ERROR;
@@ -527,8 +576,7 @@ nv_sts_t zcl_levelAttr_restore(void)
 #if NV_ENABLE
 	zcl_nv_level_t zcl_nv_level;
 
-	st = nv_flashReadNew(1, NV_MODULE_ZCL,  NV_ITEM_ZCL_LEVEL, sizeof(zcl_nv_level_t), (u8*)&zcl_nv_level);
-
+	st = nv_flashReadNew(1, NV_MODULE_ZCL,  NV_ITEM_ZCL_LEVEL, sizeof(zcl_nv_level_t), (u8 *)&zcl_nv_level);
 	if(st == NV_SUCC){
 		g_zcl_levelAttrs.curLevel = zcl_nv_level.curLevel;
 		g_zcl_levelAttrs.startUpCurrentLevel = zcl_nv_level.startUpCurLevel;
@@ -559,40 +607,47 @@ nv_sts_t zcl_colorCtrlAttr_save(void)
 	bool needSave = FALSE;
 	zcl_nv_colorCtrl_t zcl_nv_colorCtrl;
 
-	st = nv_flashReadNew(1, NV_MODULE_ZCL,  NV_ITEM_ZCL_COLOR_CTRL, sizeof(zcl_nv_colorCtrl_t), (u8*)&zcl_nv_colorCtrl);
-
+	st = nv_flashReadNew(1, NV_MODULE_ZCL,  NV_ITEM_ZCL_COLOR_CTRL, sizeof(zcl_nv_colorCtrl_t), (u8 *)&zcl_nv_colorCtrl);
+	if(st == NV_SUCC){
+		if(
 #if COLOR_RGB_SUPPORT
-	if(st == NV_SUCC){
-		if((zcl_nv_colorCtrl.currentHue != g_zcl_colorCtrlAttrs.currentHue) || (zcl_nv_colorCtrl.currentSaturation != g_zcl_colorCtrlAttrs.currentSaturation)){
-			zcl_nv_colorCtrl.currentHue = g_zcl_colorCtrlAttrs.currentHue;
-			zcl_nv_colorCtrl.currentSaturation = g_zcl_colorCtrlAttrs.currentSaturation;
-
-			needSave = TRUE;
-		}
-	}else if(st == NV_ITEM_NOT_FOUND){
-		zcl_nv_colorCtrl.currentHue = g_zcl_colorCtrlAttrs.currentHue;
-		zcl_nv_colorCtrl.currentSaturation = g_zcl_colorCtrlAttrs.currentSaturation;
-
-		needSave = TRUE;
-	}
-#elif COLOR_CCT_SUPPORT
-	if(st == NV_SUCC){
-		if((zcl_nv_colorCtrl.colorTemperatureMireds != g_zcl_colorCtrlAttrs.colorTemperatureMireds) || (zcl_nv_colorCtrl.startUpColorTemperatureMireds != g_zcl_colorCtrlAttrs.startUpColorTemperatureMireds)){
-			zcl_nv_colorCtrl.colorTemperatureMireds = g_zcl_colorCtrlAttrs.colorTemperatureMireds;
-			zcl_nv_colorCtrl.startUpColorTemperatureMireds = g_zcl_colorCtrlAttrs.startUpColorTemperatureMireds;
-
-			needSave = TRUE;
-		}
-	}else if(st == NV_ITEM_NOT_FOUND){
-		zcl_nv_colorCtrl.colorTemperatureMireds = g_zcl_colorCtrlAttrs.colorTemperatureMireds;
-		zcl_nv_colorCtrl.startUpColorTemperatureMireds = g_zcl_colorCtrlAttrs.startUpColorTemperatureMireds;
-
-		needSave = TRUE;
-	}
+			(zcl_nv_colorCtrl.currentHue != g_zcl_colorCtrlAttrs.currentHue) ||
+		    (zcl_nv_colorCtrl.currentSaturation != g_zcl_colorCtrlAttrs.currentSaturation) ||
+#ifndef COLOR_X_Y_DISABLE
+		    (zcl_nv_colorCtrl.currentX != g_zcl_colorCtrlAttrs.currentX) ||
+		    (zcl_nv_colorCtrl.currentY != g_zcl_colorCtrlAttrs.currentY) ||
 #endif
+#endif
+#if COLOR_CCT_SUPPORT
+		    (zcl_nv_colorCtrl.colorTemperatureMireds != g_zcl_colorCtrlAttrs.colorTemperatureMireds) ||
+		    (zcl_nv_colorCtrl.startUpColorTemperatureMireds != g_zcl_colorCtrlAttrs.startUpColorTemperatureMireds) ||
+#endif
+			(zcl_nv_colorCtrl.colorMode != g_zcl_colorCtrlAttrs.colorMode)
+		   )
+		{
+			needSave = TRUE;
+		}
+	}else if(st == NV_ITEM_NOT_FOUND){
+		needSave = TRUE;
+	}
 
 	if(needSave){
-		st = nv_flashWriteNew(1, NV_MODULE_ZCL, NV_ITEM_ZCL_COLOR_CTRL, sizeof(zcl_nv_colorCtrl_t), (u8*)&zcl_nv_colorCtrl);
+#if COLOR_RGB_SUPPORT
+		zcl_nv_colorCtrl.currentHue = g_zcl_colorCtrlAttrs.currentHue;
+		zcl_nv_colorCtrl.currentSaturation = g_zcl_colorCtrlAttrs.currentSaturation;
+#ifndef COLOR_X_Y_DISABLE
+		zcl_nv_colorCtrl.currentX = g_zcl_colorCtrlAttrs.currentX;
+		zcl_nv_colorCtrl.currentY = g_zcl_colorCtrlAttrs.currentY;
+#endif
+#endif
+#if COLOR_CCT_SUPPORT
+		zcl_nv_colorCtrl.colorTemperatureMireds = g_zcl_colorCtrlAttrs.colorTemperatureMireds;
+		zcl_nv_colorCtrl.startUpColorTemperatureMireds = g_zcl_colorCtrlAttrs.startUpColorTemperatureMireds;
+#endif
+		zcl_nv_colorCtrl.colorMode = g_zcl_colorCtrlAttrs.colorMode;
+		zcl_nv_colorCtrl.enhancedColorMode = g_zcl_colorCtrlAttrs.enhancedColorMode;
+
+		st = nv_flashWriteNew(1, NV_MODULE_ZCL, NV_ITEM_ZCL_COLOR_CTRL, sizeof(zcl_nv_colorCtrl_t), (u8 *)&zcl_nv_colorCtrl);
 	}
 
 #else
@@ -620,19 +675,23 @@ nv_sts_t zcl_colorCtrlAttr_restore(void)
 #if NV_ENABLE
 	zcl_nv_colorCtrl_t zcl_nv_colorCtrl;
 
-	st = nv_flashReadNew(1, NV_MODULE_ZCL,  NV_ITEM_ZCL_COLOR_CTRL, sizeof(zcl_nv_colorCtrl_t), (u8*)&zcl_nv_colorCtrl);
-
-#if COLOR_RGB_SUPPORT
+	st = nv_flashReadNew(1, NV_MODULE_ZCL,  NV_ITEM_ZCL_COLOR_CTRL, sizeof(zcl_nv_colorCtrl_t), (u8 *)&zcl_nv_colorCtrl);
 	if(st == NV_SUCC){
+		g_zcl_colorCtrlAttrs.colorMode = zcl_nv_colorCtrl.colorMode;
+		g_zcl_colorCtrlAttrs.enhancedColorMode = zcl_nv_colorCtrl.enhancedColorMode;
+#if COLOR_RGB_SUPPORT
 		g_zcl_colorCtrlAttrs.currentHue = zcl_nv_colorCtrl.currentHue;
 		g_zcl_colorCtrlAttrs.currentSaturation = zcl_nv_colorCtrl.currentSaturation;
-	}
-#elif COLOR_CCT_SUPPORT
-	if(st == NV_SUCC){
+#ifndef COLOR_X_Y_DISABLE
+		g_zcl_colorCtrlAttrs.currentX = zcl_nv_colorCtrl.currentX;
+		g_zcl_colorCtrlAttrs.currentY = zcl_nv_colorCtrl.currentY;
+#endif
+#endif
+#if COLOR_CCT_SUPPORT
 		g_zcl_colorCtrlAttrs.colorTemperatureMireds = zcl_nv_colorCtrl.colorTemperatureMireds;
 		g_zcl_colorCtrlAttrs.startUpColorTemperatureMireds = zcl_nv_colorCtrl.startUpColorTemperatureMireds;
-	}
 #endif
+	}
 
 #else
 	st = NV_ENABLE_PROTECT_ERROR;

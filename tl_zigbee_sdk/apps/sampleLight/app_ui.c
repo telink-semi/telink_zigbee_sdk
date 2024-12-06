@@ -91,9 +91,9 @@ void buttonShortPressed(u8 btNum){
 		if(zb_isDeviceJoinedNwk()){
 			gLightCtx.sta = !gLightCtx.sta;
 			if(gLightCtx.sta){
-				sampleLight_onoff(ZCL_ONOFF_STATUS_ON);
+				sampleLight_onOffUpdate(ZCL_ONOFF_STATUS_ON);
 			}else{
-				sampleLight_onoff(ZCL_ONOFF_STATUS_OFF);
+				sampleLight_onOffUpdate(ZCL_ONOFF_STATUS_OFF);
 			}
 		}
 	}else if(btNum == VK_SW2){

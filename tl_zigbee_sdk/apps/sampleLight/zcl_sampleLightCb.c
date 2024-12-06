@@ -80,6 +80,7 @@ static ev_timer_event_t *identifyTimerEvt = NULL;
 /**********************************************************************
  * FUNCTIONS
  */
+void sampleLight_zclIdentifyCmdHandler(u8 endpoint, u16 srcAddr, u16 identifyTime);
 
 /*********************************************************************
  * @fn      sampleLight_zclProcessIncomingMsg
@@ -165,6 +166,24 @@ static void sampleLight_zclWriteReqCmd(u16 clusterId, zclWriteCmd_t *pWriteReqCm
 		for(u8 i = 0; i < numAttr; i++){
 			if(attr[i].attrID == ZCL_ATTRID_START_UP_ONOFF){
 				zcl_onOffAttr_save();
+			}
+		}
+	}else if(clusterId == ZCL_CLUSTER_GEN_LEVEL_CONTROL){
+		for(u8 i = 0; i < numAttr; i++){
+			if(attr[i].attrID == ZCL_ATTRID_LEVEL_START_UP_CURRENT_LEVEL){
+				zcl_levelAttr_save();
+			}
+		}
+	}else if(clusterId == ZCL_CLUSTER_LIGHTING_COLOR_CONTROL){
+		for(u8 i = 0; i < numAttr; i++){
+			if(attr[i].attrID == ZCL_ATTRID_START_UP_COLOR_TEMPERATURE_MIREDS){
+				zcl_colorCtrlAttr_save();
+			}
+		}
+	}else if(clusterId == ZCL_CLUSTER_GEN_IDENTIFY){
+		for(u8 i = 0; i < numAttr; i++){
+			if(attr[i].attrID == ZCL_ATTRID_IDENTIFY_TIME){
+				sampleLight_zclIdentifyCmdHandler(SAMPLE_LIGHT_ENDPOINT, 0xFFFE, g_zcl_identifyAttrs.identifyTime);
 			}
 		}
 	}
@@ -275,7 +294,8 @@ status_t sampleLight_basicCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *c
 		//zcl_nv_attr_reset();
 	}
 
-	return ZCL_STA_SUCCESS;
+	//return ZCL_STA_SUCCESS;
+	return ZCL_STA_UNSUP_CLUSTER_COMMAND;
 }
 #endif
 

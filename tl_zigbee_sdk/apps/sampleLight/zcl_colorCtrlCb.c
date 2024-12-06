@@ -40,8 +40,6 @@
  */
 #define ZCL_COLOR_CHANGE_INTERVAL		100
 
-
-
 /**********************************************************************
  * TYPEDEFS
  */
@@ -49,54 +47,43 @@ typedef struct{
 #if COLOR_RGB_SUPPORT
 	s32 stepHue256;
 	u16	currentHue256;
-	u16	hueRemainingTime;
+
+	s32 stepEnhHue256;
+	u32 currentEnhHue256;
 
 	s32 stepSaturation256;
 	u16 currentSaturation256;
-	u16 saturationRemainingTime;
 	
-#elif COLOR_CCT_SUPPORT
+	u32 currentX256;
+	u32 currentY256;
+	s32 stepColorX256;
+	s32 stepColorY256;
+#endif
+#if COLOR_CCT_SUPPORT
 	s32 stepColorTemp256;
 	u32	currentColorTemp256;
-	u16	colorTempRemainingTime;
 	u16	colorTempMinMireds;
 	u16	colorTempMaxMireds;
 #endif
+	u16	hueRemainingTime;
+	u16 enhHueRemainingTime;
+	u16 saturationRemainingTime;
+	u16 colorRemainingTime;
+	u16	colorTempRemainingTime;
 }zcl_colorInfo_t;
 
 /**********************************************************************
  * LOCAL VARIABLES
  */
-static zcl_colorInfo_t colorInfo = {
-#if COLOR_RGB_SUPPORT
-	.stepHue256 				= 0,
-	.currentHue256				= 0,
-	.hueRemainingTime			= 0,
-
-	.stepSaturation256			= 0,
-	.currentSaturation256		= 0,
-	.saturationRemainingTime	= 0,
-	
-#elif COLOR_CCT_SUPPORT
-	.stepColorTemp256			= 0,
-	.currentColorTemp256		= 0,
-	.colorTempRemainingTime		= 0,
-	.colorTempMinMireds			= 0,
-	.colorTempMaxMireds			= 0,
-#endif
-};
-
+static zcl_colorInfo_t colorInfo = {0};
 static ev_timer_event_t *colorTimerEvt = NULL;
 #if COLOR_RGB_SUPPORT
 static ev_timer_event_t *colorLoopTimerEvt = NULL;
 #endif
 
-
 /**********************************************************************
  * FUNCTIONS
  */
-void sampleLight_updateColorMode(u8 colorMode);
-
 
 /*********************************************************************
  * @fn      sampleLight_colorInit
@@ -112,32 +99,65 @@ void sampleLight_colorInit(void)
 	zcl_lightColorCtrlAttr_t *pColor = zcl_colorAttrGet();
 
 #if COLOR_RGB_SUPPORT
-	pColor->colorCapabilities = ZCL_COLOR_CAPABILITIES_BIT_HUE_SATURATION;
-	pColor->colorMode = ZCL_COLOR_MODE_CURRENT_HUE_SATURATION;
-	pColor->enhancedColorMode = ZCL_COLOR_MODE_CURRENT_HUE_SATURATION;
+	if((pColor->enhancedColorMode == ZCL_COLOR_MODE_CURRENT_HUE_SATURATION) ||
+	   (pColor->enhancedColorMode == ZCL_ENHANCED_COLOR_MODE_CURRENT_HUE_SATURATION)){
+		colorInfo.currentHue256 = (u16)(pColor->currentHue) << 8;
+		colorInfo.currentSaturation256 = (u16)(pColor->currentSaturation) << 8;
+		colorInfo.hueRemainingTime = 0;
+		colorInfo.saturationRemainingTime = 0;
 
-	colorInfo.currentHue256 = (u16)(pColor->currentHue) << 8;
-	colorInfo.currentSaturation256 = (u16)(pColor->currentSaturation) << 8;
+		light_applyUpdate(&pColor->currentHue, &colorInfo.currentHue256,
+						  &colorInfo.stepHue256, &colorInfo.hueRemainingTime,
+						  ZCL_COLOR_ATTR_HUE_MIN, ZCL_COLOR_ATTR_HUE_MAX, TRUE);
 
-	colorInfo.hueRemainingTime = 0;
-	colorInfo.saturationRemainingTime = 0;
+		light_applyUpdate(&pColor->currentSaturation, &colorInfo.currentSaturation256,
+						  &colorInfo.stepSaturation256, &colorInfo.saturationRemainingTime,
+						  ZCL_COLOR_ATTR_SATURATION_MIN, ZCL_COLOR_ATTR_SATURATION_MAX, FALSE);
 
-	light_applyUpdate(&pColor->currentHue, &colorInfo.currentHue256, &colorInfo.stepHue256, &colorInfo.hueRemainingTime,
-						ZCL_COLOR_ATTR_HUE_MIN, ZCL_COLOR_ATTR_HUE_MAX, TRUE);
+		light_refresh(LIGHT_STA_COLOR);
+	}else
+#ifndef COLOR_X_Y_DISABLE
+	if(pColor->enhancedColorMode == ZCL_COLOR_MODE_CURRENT_X_Y){
+		colorInfo.currentX256 = ((u32)pColor->currentX) << 8;
+		colorInfo.currentY256 = ((u32)pColor->currentY) << 8;
+		colorInfo.colorRemainingTime = 0;
 
-	light_applyUpdate(&pColor->currentSaturation, &colorInfo.currentSaturation256, &colorInfo.stepSaturation256, &colorInfo.saturationRemainingTime,
-						ZCL_COLOR_ATTR_SATURATION_MIN, ZCL_COLOR_ATTR_SATURATION_MAX, FALSE);
-#elif COLOR_CCT_SUPPORT
-	pColor->colorCapabilities = ZCL_COLOR_CAPABILITIES_BIT_COLOR_TEMPERATURE;
-	pColor->colorMode = ZCL_COLOR_MODE_COLOR_TEMPERATURE_MIREDS;
-	pColor->enhancedColorMode = ZCL_COLOR_MODE_COLOR_TEMPERATURE_MIREDS;
+		light_applyUpdate_16(&pColor->currentX, &colorInfo.currentX256,
+							 &colorInfo.stepColorX256, &colorInfo.colorRemainingTime,
+							 ZCL_COLOR_ATTR_XY_MIN, ZCL_COLOR_ATTR_XY_MAX, FALSE);
 
-	colorInfo.currentColorTemp256 = (u32)(pColor->colorTemperatureMireds) << 8;
-	colorInfo.colorTempRemainingTime = 0;
+		light_applyUpdate_16(&pColor->currentY, &colorInfo.currentY256,
+							 &colorInfo.stepColorY256, &colorInfo.colorRemainingTime,
+							 ZCL_COLOR_ATTR_XY_MIN, ZCL_COLOR_ATTR_XY_MAX, FALSE);
 
-	light_applyUpdate_16(&pColor->colorTemperatureMireds, &colorInfo.currentColorTemp256, &colorInfo.stepColorTemp256, &colorInfo.colorTempRemainingTime,
-							pColor->colorTempPhysicalMinMireds, pColor->colorTempPhysicalMaxMireds, FALSE);
+		light_refresh(LIGHT_STA_COLOR);
+	}else
 #endif
+#endif	/* COLOR_RGB_SUPPORT */
+#if COLOR_CCT_SUPPORT
+	if(pColor->enhancedColorMode == ZCL_COLOR_MODE_COLOR_TEMPERATURE_MIREDS){
+		colorInfo.colorTempMinMireds = pColor->colorTempPhysicalMinMireds;
+		colorInfo.colorTempMaxMireds = pColor->colorTempPhysicalMaxMireds;
+
+		if(pColor->colorTemperatureMireds < colorInfo.colorTempMinMireds){
+			pColor->colorTemperatureMireds = colorInfo.colorTempMinMireds;
+		}else if(pColor->colorTemperatureMireds > colorInfo.colorTempMaxMireds){
+			pColor->colorTemperatureMireds = colorInfo.colorTempMaxMireds;
+		}
+
+		colorInfo.currentColorTemp256 = (u32)(pColor->colorTemperatureMireds) << 8;
+		colorInfo.colorTempRemainingTime = 0;
+
+		light_applyUpdate_16(&pColor->colorTemperatureMireds, &colorInfo.currentColorTemp256,
+							 &colorInfo.stepColorTemp256, &colorInfo.colorTempRemainingTime,
+							 colorInfo.colorTempMinMireds, colorInfo.colorTempMaxMireds, FALSE);
+
+		light_refresh(LIGHT_STA_COLOR);
+	}else
+#endif	/* COLOR_CCT_SUPPORT */
+	{
+		//do nothing
+	}
 }
 
 /*********************************************************************
@@ -152,11 +172,12 @@ void sampleLight_colorInit(void)
  *
  * @return  None
  */
-void sampleLight_updateColorMode(u8 colorMode)
+static void sampleLight_updateColorMode(u8 colorMode)
 {
 	zcl_lightColorCtrlAttr_t *pColor = zcl_colorAttrGet();
 
 	if(colorMode != pColor->colorMode){
+		//convert: XY <-> HSV
 		if(colorMode == ZCL_COLOR_MODE_CURRENT_X_Y){
 
 		}else if(colorMode == ZCL_COLOR_MODE_CURRENT_HUE_SATURATION){
@@ -165,27 +186,6 @@ void sampleLight_updateColorMode(u8 colorMode)
 
 		}
 	}
-}
-
-/*********************************************************************
- * @fn      sampleLight_updateColor
- *
- * @brief
- *
- * @param   None
- *
- * @return  None
- */
-void sampleLight_updateColor(void)
-{
-	zcl_lightColorCtrlAttr_t *pColor = zcl_colorAttrGet();
-	zcl_levelAttr_t *pLevel = zcl_levelAttrGet();
-
-#if COLOR_RGB_SUPPORT
-	hwLight_colorUpdate_HSV2RGB(pColor->currentHue, pColor->currentSaturation, pLevel->curLevel);
-#elif COLOR_CCT_SUPPORT
-	hwLight_colorUpdate_colorTemperature(pColor->colorTemperatureMireds, pLevel->curLevel);
-#endif
 }
 
 /*********************************************************************
@@ -202,32 +202,104 @@ static s32 sampleLight_colorTimerEvtCb(void *arg)
 	zcl_lightColorCtrlAttr_t *pColor = zcl_colorAttrGet();
 
 #if COLOR_RGB_SUPPORT
-	if( (pColor->enhancedColorMode == ZCL_COLOR_MODE_CURRENT_HUE_SATURATION) ||
-		(pColor->enhancedColorMode == ZCL_ENHANCED_COLOR_MODE_CURRENT_HUE_SATURATION) ){
+	if((pColor->enhancedColorMode == ZCL_COLOR_MODE_CURRENT_HUE_SATURATION) ||
+	   (pColor->enhancedColorMode == ZCL_ENHANCED_COLOR_MODE_CURRENT_HUE_SATURATION)){
+		colorInfo.colorRemainingTime = 0;
+		colorInfo.colorTempRemainingTime = 0;
+
 		if(colorInfo.saturationRemainingTime){
-			light_applyUpdate(&pColor->currentSaturation, &colorInfo.currentSaturation256, &colorInfo.stepSaturation256, &colorInfo.saturationRemainingTime,
-									ZCL_COLOR_ATTR_SATURATION_MIN, ZCL_COLOR_ATTR_SATURATION_MAX, FALSE);
+			light_applyUpdate(&pColor->currentSaturation, &colorInfo.currentSaturation256,
+							  &colorInfo.stepSaturation256, &colorInfo.saturationRemainingTime,
+							  ZCL_COLOR_ATTR_SATURATION_MIN, ZCL_COLOR_ATTR_SATURATION_MAX, FALSE);
 		}
 
 		if(colorInfo.hueRemainingTime){
-			light_applyUpdate(&pColor->currentHue, &colorInfo.currentHue256, &colorInfo.stepHue256, &colorInfo.hueRemainingTime,
-									ZCL_COLOR_ATTR_HUE_MIN, ZCL_COLOR_ATTR_HUE_MAX, TRUE);
+			light_applyUpdate(&pColor->currentHue, &colorInfo.currentHue256,
+							  &colorInfo.stepHue256, &colorInfo.hueRemainingTime,
+							  ZCL_COLOR_ATTR_HUE_MIN, ZCL_COLOR_ATTR_HUE_MAX, TRUE);
 		}
-	}
-#elif COLOR_CCT_SUPPORT
-	if(pColor->enhancedColorMode == ZCL_COLOR_MODE_COLOR_TEMPERATURE_MIREDS){
-		if(colorInfo.colorTempRemainingTime){
-			light_applyUpdate_16(&pColor->colorTemperatureMireds, &colorInfo.currentColorTemp256, &colorInfo.stepColorTemp256, &colorInfo.colorTempRemainingTime,
-									colorInfo.colorTempMinMireds, colorInfo.colorTempMaxMireds, FALSE);
-		}
-	}
-#endif
 
-#if COLOR_RGB_SUPPORT
-	if(colorInfo.saturationRemainingTime || colorInfo.hueRemainingTime){
-#elif COLOR_CCT_SUPPORT
-	if(colorInfo.colorTempRemainingTime){
+		if(colorInfo.enhHueRemainingTime){
+			light_applyUpdate_16(&pColor->enhancedCurrentHue, &colorInfo.currentEnhHue256,
+							  	 &colorInfo.stepEnhHue256, &colorInfo.enhHueRemainingTime,
+								 ZCL_COLOR_ATTR_ENHANCED_HUE_MIN, ZCL_COLOR_ATTR_ENHANCED_HUE_MAX, TRUE);
+		}
+
+		light_refresh(LIGHT_STA_COLOR);
+
+		if(colorInfo.saturationRemainingTime == 0xFFFF){
+			if(((colorInfo.stepSaturation256 > 0) && (pColor->currentSaturation >= ZCL_COLOR_ATTR_SATURATION_MAX)) ||
+			   ((colorInfo.stepSaturation256 < 0) && (pColor->currentSaturation <= ZCL_COLOR_ATTR_SATURATION_MIN))){
+				colorInfo.saturationRemainingTime = 0;
+			}
+		}
+	}else
+#ifndef COLOR_X_Y_DISABLE
+	if(pColor->enhancedColorMode == ZCL_COLOR_MODE_CURRENT_X_Y){
+		colorInfo.saturationRemainingTime = 0;
+		colorInfo.hueRemainingTime = 0;
+		colorInfo.enhHueRemainingTime = 0;
+		colorInfo.colorTempRemainingTime = 0;
+
+		if(colorInfo.colorRemainingTime){
+			light_applyUpdate_16(&pColor->currentX, &colorInfo.currentX256,
+								 &colorInfo.stepColorX256, &colorInfo.colorRemainingTime,
+								 ZCL_COLOR_ATTR_XY_MIN, ZCL_COLOR_ATTR_XY_MAX, FALSE);
+
+			if(colorInfo.colorRemainingTime != 0xFFFF){
+				colorInfo.colorRemainingTime++;
+			}
+
+			light_applyUpdate_16(&pColor->currentY, &colorInfo.currentY256,
+								 &colorInfo.stepColorY256, &colorInfo.colorRemainingTime,
+								 ZCL_COLOR_ATTR_XY_MIN, ZCL_COLOR_ATTR_XY_MAX, FALSE);
+
+			light_refresh(LIGHT_STA_COLOR);
+
+			if(colorInfo.colorRemainingTime == 0xFFFF){
+				if((((colorInfo.stepColorX256 > 0) && (pColor->currentX >= ZCL_COLOR_ATTR_XY_MAX)) ||
+					((colorInfo.stepColorX256 < 0) && (pColor->currentX <= ZCL_COLOR_ATTR_XY_MIN))) &&
+				   (((colorInfo.stepColorY256 > 0) && (pColor->currentY >= ZCL_COLOR_ATTR_XY_MAX)) ||
+					((colorInfo.stepColorY256 < 0) && (pColor->currentY <= ZCL_COLOR_ATTR_XY_MIN)))){
+					colorInfo.colorRemainingTime = 0;
+				}
+			}
+		}
+	}else
 #endif
+#endif	/* COLOR_RGB_SUPPORT */
+#if COLOR_CCT_SUPPORT
+	if(pColor->enhancedColorMode == ZCL_COLOR_MODE_COLOR_TEMPERATURE_MIREDS){
+		colorInfo.saturationRemainingTime = 0;
+		colorInfo.hueRemainingTime = 0;
+		colorInfo.enhHueRemainingTime = 0;
+		colorInfo.colorRemainingTime = 0;
+
+		if(colorInfo.colorTempRemainingTime){
+			light_applyUpdate_16(&pColor->colorTemperatureMireds, &colorInfo.currentColorTemp256,
+								 &colorInfo.stepColorTemp256, &colorInfo.colorTempRemainingTime,
+								 colorInfo.colorTempMinMireds, colorInfo.colorTempMaxMireds, FALSE);
+
+			light_refresh(LIGHT_STA_COLOR);
+
+			if(colorInfo.colorTempRemainingTime == 0xFFFF){
+				if(((colorInfo.stepColorTemp256 > 0) && (pColor->colorTemperatureMireds >= colorInfo.colorTempMaxMireds)) ||
+				   ((colorInfo.stepColorTemp256 < 0) && (pColor->colorTemperatureMireds <= colorInfo.colorTempMinMireds))){
+					colorInfo.colorTempRemainingTime = 0;
+				}
+			}
+		}
+	}else
+#endif	/* COLOR_CCT_SUPPORT */
+	{
+		//do nothing
+	}
+
+	if(colorInfo.saturationRemainingTime ||
+	   colorInfo.hueRemainingTime ||
+	   colorInfo.enhHueRemainingTime ||
+	   colorInfo.colorRemainingTime ||
+	   colorInfo.colorTempRemainingTime){
 		return 0;
 	}else{
 		colorTimerEvt = NULL;
@@ -252,46 +324,6 @@ static void sampleLight_colorTimerStop(void)
 }
 
 #if COLOR_RGB_SUPPORT
-/*********************************************************************
- * @fn      sampleLight_colorLoopTimerEvtCb
- *
- * @brief
- *
- * @param   arg
- *
- * @return  0: timer continue on; -1: timer will be canceled
- */
-static s32 sampleLight_colorLoopTimerEvtCb(void *arg)
-{
-	zcl_lightColorCtrlAttr_t *pColor = zcl_colorAttrGet();
-
-	if(pColor->colorLoopActive){
-
-	}else{
-		colorLoopTimerEvt = NULL;
-		return -1;
-	}
-
-	return 0;
-}
-
-/*********************************************************************
- * @fn      sampleLight_colorLoopTimerStop
- *
- * @brief
- *
- * @param   None
- *
- * @return  None
- */
-static void sampleLight_colorLoopTimerStop(void)
-{
-	if(colorLoopTimerEvt){
-		TL_ZB_TIMER_CANCEL(&colorLoopTimerEvt);
-	}
-}
-
-
 /*********************************************************************
  * @fn      sampleLight_moveToHueProcess
  *
@@ -347,8 +379,11 @@ static void sampleLight_moveToHueProcess(zcl_colorCtrlMoveToHueCmd_t *cmd)
 	colorInfo.stepHue256 = ((s32)hueDiff) << 8;
 	colorInfo.stepHue256 /= (s32)colorInfo.hueRemainingTime;
 
-	light_applyUpdate(&pColor->currentHue, &colorInfo.currentHue256, &colorInfo.stepHue256, &colorInfo.hueRemainingTime,
-							ZCL_COLOR_ATTR_HUE_MIN, ZCL_COLOR_ATTR_HUE_MAX, TRUE);
+	light_applyUpdate(&pColor->currentHue, &colorInfo.currentHue256,
+					  &colorInfo.stepHue256, &colorInfo.hueRemainingTime,
+					  ZCL_COLOR_ATTR_HUE_MIN, ZCL_COLOR_ATTR_HUE_MAX, TRUE);
+
+	light_refresh(LIGHT_STA_COLOR);
 
 	if(colorInfo.hueRemainingTime){
 		sampleLight_colorTimerStop();
@@ -367,9 +402,16 @@ static void sampleLight_moveToHueProcess(zcl_colorCtrlMoveToHueCmd_t *cmd)
  *
  * @return  None
  */
-static void sampleLight_moveHueProcess(zcl_colorCtrlMoveHueCmd_t *cmd)
+static status_t sampleLight_moveHueProcess(zcl_colorCtrlMoveHueCmd_t *cmd)
 {
 	zcl_lightColorCtrlAttr_t *pColor = zcl_colorAttrGet();
+
+	if((cmd->moveMode == COLOR_CTRL_MOVE_UP) ||
+	   (cmd->moveMode == COLOR_CTRL_MOVE_DOWN)){
+		if(cmd->rate == 0){
+			return ZCL_STA_INVALID_FIELD;
+		}
+	}
 
 	sampleLight_updateColorMode(ZCL_COLOR_MODE_CURRENT_HUE_SATURATION);
 
@@ -381,6 +423,7 @@ static void sampleLight_moveHueProcess(zcl_colorCtrlMoveHueCmd_t *cmd)
 	switch(cmd->moveMode){
 		case COLOR_CTRL_MOVE_STOP:
 			colorInfo.stepHue256 = 0;
+			colorInfo.stepEnhHue256 = 0;
 			colorInfo.hueRemainingTime = 0;
 			break;
 		case COLOR_CTRL_MOVE_UP:
@@ -395,8 +438,11 @@ static void sampleLight_moveHueProcess(zcl_colorCtrlMoveHueCmd_t *cmd)
 			break;
 	}
 
-	light_applyUpdate(&pColor->currentHue, &colorInfo.currentHue256, &colorInfo.stepHue256, &colorInfo.hueRemainingTime,
-							ZCL_COLOR_ATTR_HUE_MIN, ZCL_COLOR_ATTR_HUE_MAX, TRUE);
+	light_applyUpdate(&pColor->currentHue, &colorInfo.currentHue256,
+					  &colorInfo.stepHue256, &colorInfo.hueRemainingTime,
+					  ZCL_COLOR_ATTR_HUE_MIN, ZCL_COLOR_ATTR_HUE_MAX, TRUE);
+
+	light_refresh(LIGHT_STA_COLOR);
 
 	if(colorInfo.hueRemainingTime){
 		sampleLight_colorTimerStop();
@@ -404,6 +450,8 @@ static void sampleLight_moveHueProcess(zcl_colorCtrlMoveHueCmd_t *cmd)
 	}else{
 		sampleLight_colorTimerStop();
 	}
+
+	return ZCL_STA_SUCCESS;
 }
 
 /*********************************************************************
@@ -425,9 +473,7 @@ static void sampleLight_stepHueProcess(zcl_colorCtrlStepHueCmd_t *cmd)
 	pColor->enhancedColorMode = ZCL_COLOR_MODE_CURRENT_HUE_SATURATION;
 
 	colorInfo.currentHue256 = (u16)(pColor->currentHue) << 8;
-
 	colorInfo.hueRemainingTime = (cmd->transitionTime == 0) ? 1 : cmd->transitionTime;
-
 	colorInfo.stepHue256 = (((s32)cmd->stepSize) << 8) / colorInfo.hueRemainingTime;
 
 	switch(cmd->stepMode){
@@ -440,8 +486,11 @@ static void sampleLight_stepHueProcess(zcl_colorCtrlStepHueCmd_t *cmd)
 			break;
 	}
 
-	light_applyUpdate(&pColor->currentHue, &colorInfo.currentHue256, &colorInfo.stepHue256, &colorInfo.hueRemainingTime,
-							ZCL_COLOR_ATTR_HUE_MIN, ZCL_COLOR_ATTR_HUE_MAX, TRUE);
+	light_applyUpdate(&pColor->currentHue, &colorInfo.currentHue256,
+					  &colorInfo.stepHue256, &colorInfo.hueRemainingTime,
+					  ZCL_COLOR_ATTR_HUE_MIN, ZCL_COLOR_ATTR_HUE_MAX, TRUE);
+
+	light_refresh(LIGHT_STA_COLOR);
 
 	if(colorInfo.hueRemainingTime){
 		sampleLight_colorTimerStop();
@@ -470,14 +519,15 @@ static void sampleLight_moveToSaturationProcess(zcl_colorCtrlMoveToSaturationCmd
 	pColor->enhancedColorMode = ZCL_COLOR_MODE_CURRENT_HUE_SATURATION;
 
 	colorInfo.currentSaturation256 = (u16)(pColor->currentSaturation) << 8;
-
 	colorInfo.saturationRemainingTime = (cmd->transitionTime == 0) ? 1 : cmd->transitionTime;
-
 	colorInfo.stepSaturation256 = ((s32)(cmd->saturation - pColor->currentSaturation)) << 8;
 	colorInfo.stepSaturation256 /= (s32)colorInfo.saturationRemainingTime;
 
-	light_applyUpdate(&pColor->currentSaturation, &colorInfo.currentSaturation256, &colorInfo.stepSaturation256, &colorInfo.saturationRemainingTime,
-							ZCL_COLOR_ATTR_SATURATION_MIN, ZCL_COLOR_ATTR_SATURATION_MAX, FALSE);
+	light_applyUpdate(&pColor->currentSaturation, &colorInfo.currentSaturation256,
+					  &colorInfo.stepSaturation256, &colorInfo.saturationRemainingTime,
+					  ZCL_COLOR_ATTR_SATURATION_MIN, ZCL_COLOR_ATTR_SATURATION_MAX, FALSE);
+
+	light_refresh(LIGHT_STA_COLOR);
 
 	if(colorInfo.saturationRemainingTime){
 		sampleLight_colorTimerStop();
@@ -496,9 +546,16 @@ static void sampleLight_moveToSaturationProcess(zcl_colorCtrlMoveToSaturationCmd
  *
  * @return  None
  */
-static void sampleLight_moveSaturationProcess(zcl_colorCtrlMoveSaturationCmd_t *cmd)
+static status_t sampleLight_moveSaturationProcess(zcl_colorCtrlMoveSaturationCmd_t *cmd)
 {
 	zcl_lightColorCtrlAttr_t *pColor = zcl_colorAttrGet();
+
+	if((cmd->moveMode == COLOR_CTRL_MOVE_UP) ||
+	   (cmd->moveMode == COLOR_CTRL_MOVE_DOWN)){
+		if(cmd->rate == 0){
+			return ZCL_STA_INVALID_FIELD;
+		}
+	}
 
 	sampleLight_updateColorMode(ZCL_COLOR_MODE_CURRENT_HUE_SATURATION);
 
@@ -524,8 +581,11 @@ static void sampleLight_moveSaturationProcess(zcl_colorCtrlMoveSaturationCmd_t *
 			break;
 	}
 
-	light_applyUpdate(&pColor->currentSaturation, &colorInfo.currentSaturation256, &colorInfo.stepSaturation256, &colorInfo.saturationRemainingTime,
-							ZCL_COLOR_ATTR_SATURATION_MIN, ZCL_COLOR_ATTR_SATURATION_MAX, FALSE);
+	light_applyUpdate(&pColor->currentSaturation, &colorInfo.currentSaturation256,
+					  &colorInfo.stepSaturation256, &colorInfo.saturationRemainingTime,
+					  ZCL_COLOR_ATTR_SATURATION_MIN, ZCL_COLOR_ATTR_SATURATION_MAX, FALSE);
+
+	light_refresh(LIGHT_STA_COLOR);
 
 	if(colorInfo.saturationRemainingTime){
 		sampleLight_colorTimerStop();
@@ -533,6 +593,8 @@ static void sampleLight_moveSaturationProcess(zcl_colorCtrlMoveSaturationCmd_t *
 	}else{
 		sampleLight_colorTimerStop();
 	}
+
+	return ZCL_STA_SUCCESS;
 }
 
 /*********************************************************************
@@ -554,9 +616,7 @@ static void sampleLight_stepSaturationProcess(zcl_colorCtrlStepSaturationCmd_t *
 	pColor->enhancedColorMode = ZCL_COLOR_MODE_CURRENT_HUE_SATURATION;
 
 	colorInfo.currentSaturation256 = (u16)(pColor->currentSaturation) << 8;
-
 	colorInfo.saturationRemainingTime = (cmd->transitionTime == 0) ? 1 : cmd->transitionTime;
-
 	colorInfo.stepSaturation256 = (((s32)cmd->stepSize) << 8) / colorInfo.saturationRemainingTime;
 
 	switch(cmd->stepMode){
@@ -569,8 +629,11 @@ static void sampleLight_stepSaturationProcess(zcl_colorCtrlStepSaturationCmd_t *
 			break;
 	}
 
-	light_applyUpdate(&pColor->currentSaturation, &colorInfo.currentSaturation256, &colorInfo.stepSaturation256, &colorInfo.saturationRemainingTime,
-							ZCL_COLOR_ATTR_SATURATION_MIN, ZCL_COLOR_ATTR_SATURATION_MAX, FALSE);
+	light_applyUpdate(&pColor->currentSaturation, &colorInfo.currentSaturation256,
+					  &colorInfo.stepSaturation256, &colorInfo.saturationRemainingTime,
+					  ZCL_COLOR_ATTR_SATURATION_MIN, ZCL_COLOR_ATTR_SATURATION_MAX, FALSE);
+
+	light_refresh(LIGHT_STA_COLOR);
 
 	if(colorInfo.saturationRemainingTime){
 		sampleLight_colorTimerStop();
@@ -601,10 +664,11 @@ static void sampleLight_moveToHueAndSaturationProcess(zcl_colorCtrlMoveToHueAndS
 	moveToSaturationCmd.saturation = cmd->saturation;
 	moveToSaturationCmd.transitionTime = cmd->transitionTime;
 
-	sampleLight_moveToHueProcess(&moveToHueCmd);
 	sampleLight_moveToSaturationProcess(&moveToSaturationCmd);
+	sampleLight_moveToHueProcess(&moveToHueCmd);
 }
 
+#ifndef COLOR_X_Y_DISABLE
 /*********************************************************************
  * @fn      sampleLight_moveToColorProcess
  *
@@ -623,7 +687,36 @@ static void sampleLight_moveToColorProcess(zcl_colorCtrlMoveToColorCmd_t *cmd)
 	pColor->colorMode = ZCL_COLOR_MODE_CURRENT_X_Y;
 	pColor->enhancedColorMode = ZCL_COLOR_MODE_CURRENT_X_Y;
 
+	colorInfo.currentX256 = ((u32)pColor->currentX) << 8;
+	colorInfo.currentY256 = ((u32)pColor->currentY) << 8;
 
+	colorInfo.colorRemainingTime = (cmd->transitionTime == 0) ? 1 : cmd->transitionTime;
+
+	colorInfo.stepColorX256 = ((s32)(cmd->colorX - pColor->currentX)) << 8;
+	colorInfo.stepColorX256 /= (s32)colorInfo.colorRemainingTime;
+	colorInfo.stepColorY256 = ((s32)(cmd->colorY - pColor->currentY)) << 8;
+	colorInfo.stepColorY256 /= (s32)colorInfo.colorRemainingTime;
+
+	light_applyUpdate_16(&pColor->currentX, &colorInfo.currentX256,
+						 &colorInfo.stepColorX256, &colorInfo.colorRemainingTime,
+						 ZCL_COLOR_ATTR_XY_MIN, ZCL_COLOR_ATTR_XY_MAX, FALSE);
+
+	if(colorInfo.colorRemainingTime != 0xFFFF){
+		colorInfo.colorRemainingTime++;
+	}
+
+	light_applyUpdate_16(&pColor->currentY, &colorInfo.currentY256,
+						 &colorInfo.stepColorY256, &colorInfo.colorRemainingTime,
+						 ZCL_COLOR_ATTR_XY_MIN, ZCL_COLOR_ATTR_XY_MAX, FALSE);
+
+	light_refresh(LIGHT_STA_COLOR);
+
+	if(colorInfo.colorRemainingTime){
+		sampleLight_colorTimerStop();
+		colorTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_colorTimerEvtCb, NULL, ZCL_COLOR_CHANGE_INTERVAL);
+	}else{
+		sampleLight_colorTimerStop();
+	}
 }
 
 /*********************************************************************
@@ -644,7 +737,34 @@ static void sampleLight_moveColorProcess(zcl_colorCtrlMoveColorCmd_t *cmd)
 	pColor->colorMode = ZCL_COLOR_MODE_CURRENT_X_Y;
 	pColor->enhancedColorMode = ZCL_COLOR_MODE_CURRENT_X_Y;
 
+	colorInfo.currentX256 = ((u32)pColor->currentX) << 8;
+	colorInfo.currentY256 = ((u32)pColor->currentY) << 8;
 
+	colorInfo.stepColorX256 = (((s32)cmd->rateX) << 8) / 10;
+	colorInfo.stepColorY256 = (((s32)cmd->rateY) << 8) / 10;
+
+	if(cmd->rateX || cmd->rateY){
+		colorInfo.colorRemainingTime = 0xFFFF;
+	}else{
+		colorInfo.colorRemainingTime = 0;
+	}
+
+	light_applyUpdate_16(&pColor->currentX, &colorInfo.currentX256,
+						 &colorInfo.stepColorX256, &colorInfo.colorRemainingTime,
+						 ZCL_COLOR_ATTR_XY_MIN, ZCL_COLOR_ATTR_XY_MAX, FALSE);
+
+	light_applyUpdate_16(&pColor->currentY, &colorInfo.currentY256,
+						 &colorInfo.stepColorY256, &colorInfo.colorRemainingTime,
+						 ZCL_COLOR_ATTR_XY_MIN, ZCL_COLOR_ATTR_XY_MAX, FALSE);
+
+	light_refresh(LIGHT_STA_COLOR);
+
+	if(colorInfo.colorRemainingTime){
+		sampleLight_colorTimerStop();
+		colorTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_colorTimerEvtCb, NULL, ZCL_COLOR_CHANGE_INTERVAL);
+	}else{
+		sampleLight_colorTimerStop();
+	}
 }
 
 /*********************************************************************
@@ -665,8 +785,38 @@ static void sampleLight_stepColorProcess(zcl_colorCtrlStepColorCmd_t *cmd)
 	pColor->colorMode = ZCL_COLOR_MODE_CURRENT_X_Y;
 	pColor->enhancedColorMode = ZCL_COLOR_MODE_CURRENT_X_Y;
 
+	colorInfo.currentX256 = ((u32)pColor->currentX) << 8;
+	colorInfo.currentY256 = ((u32)pColor->currentY) << 8;
 
+	colorInfo.colorRemainingTime = (cmd->transitionTime == 0) ? 1 : cmd->transitionTime;
+
+	colorInfo.stepColorX256 = ((s32)cmd->stepX) << 8;
+	colorInfo.stepColorX256 /= (s32)colorInfo.colorRemainingTime;
+	colorInfo.stepColorY256 = ((s32)cmd->stepY) << 8;
+	colorInfo.stepColorY256 /= (s32)colorInfo.colorRemainingTime;
+
+	light_applyUpdate_16(&pColor->currentX, &colorInfo.currentX256,
+						 &colorInfo.stepColorX256, &colorInfo.colorRemainingTime,
+						 ZCL_COLOR_ATTR_XY_MIN, ZCL_COLOR_ATTR_XY_MAX, FALSE);
+
+	if(colorInfo.colorRemainingTime != 0xFFFF){
+		colorInfo.colorRemainingTime++;
+	}
+
+	light_applyUpdate_16(&pColor->currentY, &colorInfo.currentY256,
+						 &colorInfo.stepColorY256, &colorInfo.colorRemainingTime,
+						 ZCL_COLOR_ATTR_XY_MIN, ZCL_COLOR_ATTR_XY_MAX, FALSE);
+
+	light_refresh(LIGHT_STA_COLOR);
+
+	if(colorInfo.colorRemainingTime){
+		sampleLight_colorTimerStop();
+		colorTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_colorTimerEvtCb, NULL, ZCL_COLOR_CHANGE_INTERVAL);
+	}else{
+		sampleLight_colorTimerStop();
+	}
 }
+#endif
 
 /*********************************************************************
  * @fn      sampleLight_enhancedMoveToHueProcess
@@ -686,20 +836,55 @@ static void sampleLight_enhancedMoveToHueProcess(zcl_colorCtrlEnhancedMoveToHueC
 	pColor->colorMode = ZCL_COLOR_MODE_CURRENT_HUE_SATURATION;
 	pColor->enhancedColorMode = ZCL_ENHANCED_COLOR_MODE_CURRENT_HUE_SATURATION;
 
+	colorInfo.currentEnhHue256 = (u32)(pColor->enhancedCurrentHue) << 8;
+
+	s32 hueDiff = (s32)cmd->enhancedHue - pColor->enhancedCurrentHue;
+
 	switch(cmd->direction){
 		case COLOR_CTRL_DIRECTION_SHORTEST_DISTANCE:
+			if(hueDiff > (ZCL_COLOR_ATTR_ENHANCED_HUE_MAX / 2)){
+				hueDiff -= (ZCL_COLOR_ATTR_ENHANCED_HUE_MAX + 1);
+			}else if(hueDiff < -ZCL_COLOR_ATTR_ENHANCED_HUE_MAX / 2){
+				hueDiff += (ZCL_COLOR_ATTR_ENHANCED_HUE_MAX + 1);
+			}
 			break;
 		case COLOR_CTRL_DIRECTION_LONGEST_DISTANCE:
+			if((hueDiff > 0) && (hueDiff < (ZCL_COLOR_ATTR_ENHANCED_HUE_MAX / 2))){
+				hueDiff -= (ZCL_COLOR_ATTR_ENHANCED_HUE_MAX + 1);
+			}else if((hueDiff < 0) && (hueDiff > -ZCL_COLOR_ATTR_ENHANCED_HUE_MAX / 2)){
+				hueDiff += (ZCL_COLOR_ATTR_ENHANCED_HUE_MAX + 1);
+			}
 			break;
 		case COLOR_CTRL_DIRECTION_UP:
+			if(hueDiff < 0){
+				hueDiff += ZCL_COLOR_ATTR_ENHANCED_HUE_MAX;
+			}
 			break;
 		case COLOR_CTRL_DIRECTION_DOWN:
+			if(hueDiff > 0){
+				hueDiff -= ZCL_COLOR_ATTR_ENHANCED_HUE_MAX;
+			}
 			break;
 		default:
 			break;
 	}
 
+	colorInfo.enhHueRemainingTime = (cmd->transitionTime == 0) ? 1 : cmd->transitionTime;
+	colorInfo.stepEnhHue256 = ((s32)hueDiff) << 8;
+	colorInfo.stepEnhHue256 /= (s32)colorInfo.enhHueRemainingTime;
 
+	light_applyUpdate_16(&pColor->enhancedCurrentHue, &colorInfo.currentEnhHue256,
+					  	 &colorInfo.stepEnhHue256, &colorInfo.enhHueRemainingTime,
+						 ZCL_COLOR_ATTR_ENHANCED_HUE_MIN, ZCL_COLOR_ATTR_ENHANCED_HUE_MAX, TRUE);
+
+	light_refresh(LIGHT_STA_COLOR);
+
+	if(colorInfo.enhHueRemainingTime){
+		sampleLight_colorTimerStop();
+		colorTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_colorTimerEvtCb, NULL, ZCL_COLOR_CHANGE_INTERVAL);
+	}else{
+		sampleLight_colorTimerStop();
+	}
 }
 
 /*********************************************************************
@@ -711,27 +896,56 @@ static void sampleLight_enhancedMoveToHueProcess(zcl_colorCtrlEnhancedMoveToHueC
  *
  * @return  None
  */
-static void sampleLight_enhancedMoveHueProcess(zcl_colorCtrlEnhancedMoveHueCmd_t *cmd)
+static status_t sampleLight_enhancedMoveHueProcess(zcl_colorCtrlEnhancedMoveHueCmd_t *cmd)
 {
 	zcl_lightColorCtrlAttr_t *pColor = zcl_colorAttrGet();
+
+	if((cmd->moveMode == COLOR_CTRL_MOVE_UP) ||
+	   (cmd->moveMode == COLOR_CTRL_MOVE_DOWN)){
+		if(cmd->rate == 0){
+			return ZCL_STA_INVALID_FIELD;
+		}
+	}
 
 	sampleLight_updateColorMode(ZCL_COLOR_MODE_CURRENT_HUE_SATURATION);
 
 	pColor->colorMode = ZCL_COLOR_MODE_CURRENT_HUE_SATURATION;
 	pColor->enhancedColorMode = ZCL_ENHANCED_COLOR_MODE_CURRENT_HUE_SATURATION;
 
+	colorInfo.currentEnhHue256 = (u32)(pColor->enhancedCurrentHue) << 8;
+
 	switch(cmd->moveMode){
 		case COLOR_CTRL_MOVE_STOP:
+			colorInfo.stepHue256 = 0;
+			colorInfo.stepEnhHue256 = 0;
+			colorInfo.enhHueRemainingTime = 0;
 			break;
 		case COLOR_CTRL_MOVE_UP:
+			colorInfo.stepEnhHue256 = (((s32)cmd->rate) << 8) / 10;
+			colorInfo.enhHueRemainingTime = 0xFFFF;
 			break;
 		case COLOR_CTRL_MOVE_DOWN:
+			colorInfo.stepEnhHue256 = ((-(s32)cmd->rate) << 8) / 10;
+			colorInfo.enhHueRemainingTime = 0xFFFF;
 			break;
 		default:
 			break;
 	}
 
+	light_applyUpdate_16(&pColor->enhancedCurrentHue, &colorInfo.currentEnhHue256,
+					  	 &colorInfo.stepEnhHue256, &colorInfo.enhHueRemainingTime,
+						 ZCL_COLOR_ATTR_ENHANCED_HUE_MIN, ZCL_COLOR_ATTR_ENHANCED_HUE_MAX, TRUE);
 
+	light_refresh(LIGHT_STA_COLOR);
+
+	if(colorInfo.enhHueRemainingTime){
+		sampleLight_colorTimerStop();
+		colorTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_colorTimerEvtCb, NULL, ZCL_COLOR_CHANGE_INTERVAL);
+	}else{
+		sampleLight_colorTimerStop();
+	}
+
+	return ZCL_STA_SUCCESS;
 }
 
 /*********************************************************************
@@ -752,16 +966,32 @@ static void sampleLight_enhancedStepHueProcess(zcl_colorCtrlEnhancedStepHueCmd_t
 	pColor->colorMode = ZCL_COLOR_MODE_CURRENT_HUE_SATURATION;
 	pColor->enhancedColorMode = ZCL_ENHANCED_COLOR_MODE_CURRENT_HUE_SATURATION;
 
+	colorInfo.currentEnhHue256 = (u32)(pColor->enhancedCurrentHue) << 8;
+	colorInfo.enhHueRemainingTime = (cmd->transitionTime == 0) ? 1 : cmd->transitionTime;
+	colorInfo.stepEnhHue256 = (((s32)cmd->stepSize) << 8) / colorInfo.enhHueRemainingTime;
+
 	switch(cmd->stepMode){
 		case COLOR_CTRL_STEP_MODE_UP:
 			break;
 		case COLOR_CTRL_STEP_MODE_DOWN:
+			colorInfo.stepEnhHue256 = -colorInfo.stepEnhHue256;
 			break;
 		default:
 			break;
 	}
 
+	light_applyUpdate_16(&pColor->enhancedCurrentHue, &colorInfo.currentEnhHue256,
+					  	 &colorInfo.stepEnhHue256, &colorInfo.enhHueRemainingTime,
+						 ZCL_COLOR_ATTR_ENHANCED_HUE_MIN, ZCL_COLOR_ATTR_ENHANCED_HUE_MAX, TRUE);
 
+	light_refresh(LIGHT_STA_COLOR);
+
+	if(colorInfo.enhHueRemainingTime){
+		sampleLight_colorTimerStop();
+		colorTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_colorTimerEvtCb, NULL, ZCL_COLOR_CHANGE_INTERVAL);
+	}else{
+		sampleLight_colorTimerStop();
+	}
 }
 
 /*********************************************************************
@@ -785,8 +1015,51 @@ static void sampleLight_enhancedMoveToHueAndSaturationProcess(zcl_colorCtrlEnhan
 	moveToSaturationCmd.saturation = cmd->saturation;
 	moveToSaturationCmd.transitionTime = cmd->transitionTime;
 
-	sampleLight_enhancedMoveToHueProcess(&enhancedMoveToHueCmd);
 	sampleLight_moveToSaturationProcess(&moveToSaturationCmd);
+	sampleLight_enhancedMoveToHueProcess(&enhancedMoveToHueCmd);
+}
+
+/*********************************************************************
+ * @fn      sampleLight_colorLoopTimerEvtCb
+ *
+ * @brief
+ *
+ * @param   arg
+ *
+ * @return  0: timer continue on; -1: timer will be canceled
+ */
+static s32 sampleLight_colorLoopTimerEvtCb(void *arg)
+{
+	zcl_lightColorCtrlAttr_t *pColor = zcl_colorAttrGet();
+
+	if(pColor->colorLoopActive){
+		light_applyUpdate_16(&pColor->enhancedCurrentHue, &colorInfo.currentEnhHue256,
+						  	 &colorInfo.stepEnhHue256, &colorInfo.enhHueRemainingTime,
+							 ZCL_COLOR_ATTR_ENHANCED_HUE_MIN, ZCL_COLOR_ATTR_ENHANCED_HUE_MAX, TRUE);
+
+		light_refresh(LIGHT_STA_COLOR);
+	}else{
+		colorLoopTimerEvt = NULL;
+		return -1;
+	}
+
+	return 0;
+}
+
+/*********************************************************************
+ * @fn      sampleLight_colorLoopTimerStop
+ *
+ * @brief
+ *
+ * @param   None
+ *
+ * @return  None
+ */
+static void sampleLight_colorLoopTimerStop(void)
+{
+	if(colorLoopTimerEvt){
+		TL_ZB_TIMER_CANCEL(&colorLoopTimerEvt);
+	}
 }
 
 /*********************************************************************
@@ -802,6 +1075,11 @@ static void sampleLight_colorLoopSetProcess(zcl_colorCtrlColorLoopSetCmd_t *cmd)
 {
 	zcl_lightColorCtrlAttr_t *pColor = zcl_colorAttrGet();
 
+	sampleLight_updateColorMode(ZCL_ENHANCED_COLOR_MODE_CURRENT_HUE_SATURATION);
+
+	pColor->colorMode = ZCL_COLOR_MODE_CURRENT_HUE_SATURATION;
+	pColor->enhancedColorMode = ZCL_ENHANCED_COLOR_MODE_CURRENT_HUE_SATURATION;
+
 	if(cmd->updateFlags.bits.direction){
 		pColor->colorLoopDirection = cmd->direction;
 	}
@@ -814,22 +1092,74 @@ static void sampleLight_colorLoopSetProcess(zcl_colorCtrlColorLoopSetCmd_t *cmd)
 		pColor->colorLoopStartEnhancedHue = cmd->startHue;
 	}
 
+	if(pColor->colorLoopActive){
+		colorInfo.stepEnhHue256 = ((s32)ZCL_COLOR_ATTR_ENHANCED_HUE_MAX << 8) / (10 * pColor->colorLoopTime);
+		if(pColor->colorLoopDirection == COLOR_LOOP_SET_DECREMENT){
+			colorInfo.stepEnhHue256 = -colorInfo.stepEnhHue256;
+		}
+	}
+
 	if(cmd->updateFlags.bits.action){
 		switch(cmd->action){
 			case COLOR_LOOP_SET_DEACTION:
+				if(pColor->colorLoopActive){
+					sampleLight_colorLoopTimerStop();
+
+					pColor->colorLoopActive = 0;
+
+					pColor->enhancedCurrentHue = pColor->colorLoopStoredEnhancedHue;
+					colorInfo.currentEnhHue256 = (u32)(pColor->enhancedCurrentHue) << 8;
+					colorInfo.enhHueRemainingTime = 0;
+					colorInfo.stepEnhHue256 = 0;
+
+					light_applyUpdate_16(&pColor->enhancedCurrentHue, &colorInfo.currentEnhHue256,
+									  	 &colorInfo.stepEnhHue256, &colorInfo.enhHueRemainingTime,
+										 ZCL_COLOR_ATTR_ENHANCED_HUE_MIN, ZCL_COLOR_ATTR_ENHANCED_HUE_MAX, TRUE);
+
+					light_refresh(LIGHT_STA_COLOR);
+				}
 				break;
 			case COLOR_LOOP_SET_ACTION_FROM_COLOR_LOOP_START_ENHANCED_HUE:
+				sampleLight_colorTimerStop();
+
+				pColor->colorLoopStoredEnhancedHue = pColor->enhancedCurrentHue;
+				pColor->enhancedCurrentHue = pColor->colorLoopStartEnhancedHue;
+				pColor->colorLoopActive = 1;
+
+				colorInfo.enhHueRemainingTime = 0xFFFF;
+				colorInfo.currentEnhHue256 = (u32)(pColor->enhancedCurrentHue) << 8;
+				colorInfo.stepEnhHue256 = ((s32)ZCL_COLOR_ATTR_ENHANCED_HUE_MAX << 8) / (10 * pColor->colorLoopTime);
+				if(pColor->colorLoopDirection == COLOR_LOOP_SET_DECREMENT){
+					colorInfo.stepEnhHue256 = -colorInfo.stepEnhHue256;
+				}
+
+				sampleLight_colorLoopTimerStop();
+				colorLoopTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_colorLoopTimerEvtCb, NULL, ZCL_COLOR_CHANGE_INTERVAL);
 				break;
 			case COLOR_LOOP_SET_ACTION_FROM_ENHANCED_CURRENT_HUE:
+				sampleLight_colorTimerStop();
+
+				pColor->colorLoopStoredEnhancedHue = pColor->enhancedCurrentHue;
+				pColor->colorLoopActive = 1;
+
+				colorInfo.enhHueRemainingTime = 0xFFFF;
+				colorInfo.currentEnhHue256 = (u32)(pColor->enhancedCurrentHue) << 8;
+				colorInfo.stepEnhHue256 = ((s32)ZCL_COLOR_ATTR_ENHANCED_HUE_MAX << 8) / (10 * pColor->colorLoopTime);
+				if(pColor->colorLoopDirection == COLOR_LOOP_SET_DECREMENT){
+					colorInfo.stepEnhHue256 = -colorInfo.stepEnhHue256;
+				}
+
+				sampleLight_colorLoopTimerStop();
+				colorLoopTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_colorLoopTimerEvtCb, NULL, ZCL_COLOR_CHANGE_INTERVAL);
 				break;
 			default:
 				break;
 		}
 	}
 }
+#endif	/* COLOR_RGB_SUPPORT */
 
-#elif COLOR_CCT_SUPPORT
-
+#if COLOR_CCT_SUPPORT
 /*********************************************************************
  * @fn      sampleLight_moveToColorTemperatureProcess
  *
@@ -851,15 +1181,23 @@ static void sampleLight_moveToColorTemperatureProcess(zcl_colorCtrlMoveToColorTe
 	colorInfo.colorTempMinMireds = pColor->colorTempPhysicalMinMireds;
 	colorInfo.colorTempMaxMireds = pColor->colorTempPhysicalMaxMireds;
 
+	u16 newColorTemperature = cmd->colorTemperature;
+	if(newColorTemperature < colorInfo.colorTempMinMireds){
+		newColorTemperature = colorInfo.colorTempMinMireds;
+	}else if(newColorTemperature > colorInfo.colorTempMaxMireds){
+		newColorTemperature = colorInfo.colorTempMaxMireds;
+	}
+
 	colorInfo.currentColorTemp256 = (u32)(pColor->colorTemperatureMireds) << 8;
-
 	colorInfo.colorTempRemainingTime = (cmd->transitionTime == 0) ? 1 : cmd->transitionTime;
-
-	colorInfo.stepColorTemp256 = ((s32)(cmd->colorTemperature - pColor->colorTemperatureMireds)) << 8;
+	colorInfo.stepColorTemp256 = ((s32)(newColorTemperature - pColor->colorTemperatureMireds)) << 8;
 	colorInfo.stepColorTemp256 /= (s32)colorInfo.colorTempRemainingTime;
 
-	light_applyUpdate_16(&pColor->colorTemperatureMireds, &colorInfo.currentColorTemp256, &colorInfo.stepColorTemp256, &colorInfo.colorTempRemainingTime,
-							colorInfo.colorTempMinMireds, colorInfo.colorTempMaxMireds, FALSE);
+	light_applyUpdate_16(&pColor->colorTemperatureMireds, &colorInfo.currentColorTemp256,
+						 &colorInfo.stepColorTemp256, &colorInfo.colorTempRemainingTime,
+						 colorInfo.colorTempMinMireds, colorInfo.colorTempMaxMireds, FALSE);
+
+	light_refresh(LIGHT_STA_COLOR);
 
 	if(colorInfo.colorTempRemainingTime){
 		sampleLight_colorTimerStop();
@@ -878,9 +1216,16 @@ static void sampleLight_moveToColorTemperatureProcess(zcl_colorCtrlMoveToColorTe
  *
  * @return  None
  */
-static void sampleLight_moveColorTemperatureProcess(zcl_colorCtrlMoveColorTemperatureCmd_t *cmd)
+static status_t sampleLight_moveColorTemperatureProcess(zcl_colorCtrlMoveColorTemperatureCmd_t *cmd)
 {
 	zcl_lightColorCtrlAttr_t *pColor = zcl_colorAttrGet();
+
+	if((cmd->moveMode == COLOR_CTRL_MOVE_UP) ||
+	   (cmd->moveMode == COLOR_CTRL_MOVE_DOWN)){
+		if(cmd->rate == 0){
+			return ZCL_STA_INVALID_FIELD;
+		}
+	}
 
 	sampleLight_updateColorMode(ZCL_COLOR_MODE_COLOR_TEMPERATURE_MIREDS);
 
@@ -920,8 +1265,11 @@ static void sampleLight_moveColorTemperatureProcess(zcl_colorCtrlMoveColorTemper
 			break;
 	}
 
-	light_applyUpdate_16(&pColor->colorTemperatureMireds, &colorInfo.currentColorTemp256, &colorInfo.stepColorTemp256, &colorInfo.colorTempRemainingTime,
-							colorInfo.colorTempMinMireds, colorInfo.colorTempMaxMireds, FALSE);
+	light_applyUpdate_16(&pColor->colorTemperatureMireds, &colorInfo.currentColorTemp256,
+						 &colorInfo.stepColorTemp256, &colorInfo.colorTempRemainingTime,
+						 colorInfo.colorTempMinMireds, colorInfo.colorTempMaxMireds, FALSE);
+
+	light_refresh(LIGHT_STA_COLOR);
 
 	if(colorInfo.colorTempRemainingTime){
 		sampleLight_colorTimerStop();
@@ -929,6 +1277,8 @@ static void sampleLight_moveColorTemperatureProcess(zcl_colorCtrlMoveColorTemper
 	}else{
 		sampleLight_colorTimerStop();
 	}
+
+	return ZCL_STA_SUCCESS;
 }
 
 /*********************************************************************
@@ -964,9 +1314,7 @@ static void sampleLight_stepColorTemperatureProcess(zcl_colorCtrlStepColorTemper
 	}
 
 	colorInfo.currentColorTemp256 = (u32)(pColor->colorTemperatureMireds) << 8;
-
 	colorInfo.colorTempRemainingTime = (cmd->transitionTime == 0) ? 1 : cmd->transitionTime;
-
 	colorInfo.stepColorTemp256 = (((s32)cmd->stepSize) << 8) / colorInfo.colorTempRemainingTime;
 
 	switch(cmd->stepMode){
@@ -979,8 +1327,11 @@ static void sampleLight_stepColorTemperatureProcess(zcl_colorCtrlStepColorTemper
 			break;
 	}
 
-	light_applyUpdate_16(&pColor->colorTemperatureMireds, &colorInfo.currentColorTemp256, &colorInfo.stepColorTemp256, &colorInfo.colorTempRemainingTime,
-							colorInfo.colorTempMinMireds, colorInfo.colorTempMaxMireds, FALSE);
+	light_applyUpdate_16(&pColor->colorTemperatureMireds, &colorInfo.currentColorTemp256,
+						 &colorInfo.stepColorTemp256, &colorInfo.colorTempRemainingTime,
+						 colorInfo.colorTempMinMireds, colorInfo.colorTempMaxMireds, FALSE);
+
+	light_refresh(LIGHT_STA_COLOR);
 
 	if(colorInfo.colorTempRemainingTime){
 		sampleLight_colorTimerStop();
@@ -989,8 +1340,7 @@ static void sampleLight_stepColorTemperatureProcess(zcl_colorCtrlStepColorTemper
 		sampleLight_colorTimerStop();
 	}
 }
-
-#endif
+#endif	/* COLOR_CCT_SUPPORT */
 
 /*********************************************************************
  * @fn      sampleLight_stopMoveStepProcess
@@ -1003,14 +1353,11 @@ static void sampleLight_stepColorTemperatureProcess(zcl_colorCtrlStepColorTemper
  */
 static void sampleLight_stopMoveStepProcess(void)
 {
-	//zcl_lightColorCtrlAttr_t *pColor = zcl_colorAttrGet();
-
-#if COLOR_RGB_SUPPORT
 	colorInfo.hueRemainingTime = 0;
+	colorInfo.enhHueRemainingTime = 0;
 	colorInfo.saturationRemainingTime = 0;
-#elif COLOR_CCT_SUPPORT
+	colorInfo.colorRemainingTime = 0;
 	colorInfo.colorTempRemainingTime = 0;
-#endif
 
 	sampleLight_colorTimerStop();
 }
@@ -1028,14 +1375,24 @@ static void sampleLight_stopMoveStepProcess(void)
  */
 status_t sampleLight_colorCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
 {
+	status_t status = ZCL_STA_SUCCESS;
+
 	if(pAddrInfo->dstEp == SAMPLE_LIGHT_ENDPOINT){
+#if COLOR_RGB_SUPPORT
+		//not sure
+		zcl_lightColorCtrlAttr_t *pColor = zcl_colorAttrGet();
+		if(pColor->colorLoopActive && (cmdId != ZCL_CMD_LIGHT_COLOR_CONTROL_COLOR_LOOP_SET)){
+			return ZCL_STA_SUCCESS;
+		}
+#endif
+
 		switch(cmdId){
 #if COLOR_RGB_SUPPORT
 			case ZCL_CMD_LIGHT_COLOR_CONTROL_MOVE_TO_HUE:
 				sampleLight_moveToHueProcess((zcl_colorCtrlMoveToHueCmd_t *)cmdPayload);
 				break;
 			case ZCL_CMD_LIGHT_COLOR_CONTROL_MOVE_HUE:
-				sampleLight_moveHueProcess((zcl_colorCtrlMoveHueCmd_t *)cmdPayload);
+				status = sampleLight_moveHueProcess((zcl_colorCtrlMoveHueCmd_t *)cmdPayload);
 				break;
 			case ZCL_CMD_LIGHT_COLOR_CONTROL_STEP_HUE:
 				sampleLight_stepHueProcess((zcl_colorCtrlStepHueCmd_t *)cmdPayload);
@@ -1044,7 +1401,7 @@ status_t sampleLight_colorCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, voi
 				sampleLight_moveToSaturationProcess((zcl_colorCtrlMoveToSaturationCmd_t *)cmdPayload);
 				break;
 			case ZCL_CMD_LIGHT_COLOR_CONTROL_MOVE_SATURATION:
-				sampleLight_moveSaturationProcess((zcl_colorCtrlMoveSaturationCmd_t *)cmdPayload);
+				status = sampleLight_moveSaturationProcess((zcl_colorCtrlMoveSaturationCmd_t *)cmdPayload);
 				break;
 			case ZCL_CMD_LIGHT_COLOR_CONTROL_STEP_SATURATION:
 				sampleLight_stepSaturationProcess((zcl_colorCtrlStepSaturationCmd_t *)cmdPayload);
@@ -1052,6 +1409,7 @@ status_t sampleLight_colorCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, voi
 			case ZCL_CMD_LIGHT_COLOR_CONTROL_MOVE_TO_HUE_AND_SATURATION:
 				sampleLight_moveToHueAndSaturationProcess((zcl_colorCtrlMoveToHueAndSaturationCmd_t *)cmdPayload);
 				break;
+#ifndef COLOR_X_Y_DISABLE
 			case ZCL_CMD_LIGHT_COLOR_CONTROL_MOVE_TO_COLOR:
 				sampleLight_moveToColorProcess((zcl_colorCtrlMoveToColorCmd_t *)cmdPayload);
 				break;
@@ -1061,11 +1419,12 @@ status_t sampleLight_colorCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, voi
 			case ZCL_CMD_LIGHT_COLOR_CONTROL_STEP_COLOR:
 				sampleLight_stepColorProcess((zcl_colorCtrlStepColorCmd_t *)cmdPayload);
 				break;
+#endif
 			case ZCL_CMD_LIGHT_COLOR_CONTROL_ENHANCED_MOVE_TO_HUE:
 				sampleLight_enhancedMoveToHueProcess((zcl_colorCtrlEnhancedMoveToHueCmd_t *)cmdPayload);
 				break;
 			case ZCL_CMD_LIGHT_COLOR_CONTROL_ENHANCED_MOVE_HUE:
-				sampleLight_enhancedMoveHueProcess((zcl_colorCtrlEnhancedMoveHueCmd_t *)cmdPayload);
+				status = sampleLight_enhancedMoveHueProcess((zcl_colorCtrlEnhancedMoveHueCmd_t *)cmdPayload);
 				break;
 			case ZCL_CMD_LIGHT_COLOR_CONTROL_ENHANCED_STEP_HUE:
 				sampleLight_enhancedStepHueProcess((zcl_colorCtrlEnhancedStepHueCmd_t *)cmdPayload);
@@ -1076,26 +1435,28 @@ status_t sampleLight_colorCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, voi
 			case ZCL_CMD_LIGHT_COLOR_CONTROL_COLOR_LOOP_SET:
 				sampleLight_colorLoopSetProcess((zcl_colorCtrlColorLoopSetCmd_t *)cmdPayload);
 				break;
-#elif COLOR_CCT_SUPPORT
+#endif	/* COLOR_RGB_SUPPORT */
+#if COLOR_CCT_SUPPORT
 			case ZCL_CMD_LIGHT_COLOR_CONTROL_MOVE_TO_COLOR_TEMPERATURE:
 				sampleLight_moveToColorTemperatureProcess((zcl_colorCtrlMoveToColorTemperatureCmd_t *)cmdPayload);
 				break;
 			case ZCL_CMD_LIGHT_COLOR_CONTROL_MOVE_COLOR_TEMPERATURE:
-				sampleLight_moveColorTemperatureProcess((zcl_colorCtrlMoveColorTemperatureCmd_t *)cmdPayload);
+				status = sampleLight_moveColorTemperatureProcess((zcl_colorCtrlMoveColorTemperatureCmd_t *)cmdPayload);
 				break;
 			case ZCL_CMD_LIGHT_COLOR_CONTROL_STEP_COLOR_TEMPERATURE:
 				sampleLight_stepColorTemperatureProcess((zcl_colorCtrlStepColorTemperatureCmd_t *)cmdPayload);
 				break;
-#endif
+#endif	/* COLOR_CCT_SUPPORT */
 			case ZCL_CMD_LIGHT_COLOR_CONTROL_STOP_MOVE_STEP:
 				sampleLight_stopMoveStepProcess();
 				break;
 			default:
+				status = ZCL_STA_UNSUP_CLUSTER_COMMAND;
 				break;
 		}
 	}
 
-	return ZCL_STA_SUCCESS;
+	return status;
 }
 
 #endif	/* ZCL_LIGHT_COLOR_CONTROL */

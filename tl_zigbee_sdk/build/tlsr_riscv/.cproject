@@ -183,6 +183,7 @@
 								<option id="nds.c.link.option.libs.1642737752" name="Libraries (-l)" superClass="nds.c.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="zb_router"/>
 									<listOptionValue builtIn="false" value="drivers_b91"/>
+									<listOptionValue builtIn="false" value="m"/>
 								</option>
 								<option id="nds.c.link.option.paths.1789920002" name="Library search path (-L)" superClass="nds.c.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="../../../zigbee/lib/riscv"/>
