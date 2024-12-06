@@ -815,6 +815,21 @@ _CODE_ZCL_ void zcl_cmdHandler(void *pCmd)
 	u16 devEnableAttrLen = 0;
 	bool devEnable = TRUE;
 
+	/* Check if basic device enable support */
+	if(ZCL_STA_SUCCESS == zcl_getAttrVal(pApsdeInd->indInfo.dst_ep,
+										ZCL_CLUSTER_GEN_BASIC, ZCL_ATTRID_BASIC_DEV_ENABLED,
+										&devEnableAttrLen, (u8*)&devEnable)){
+		if(!devEnable){
+			if((pApsdeInd->indInfo.cluster_id != ZCL_CLUSTER_GEN_IDENTIFY) &&
+			   (inMsg.hdr.frmCtrl.bf.type == ZCL_FRAME_TYPE_PROFILE_CMD) &&
+			   (inMsg.hdr.cmd != ZCL_CMD_READ) &&
+			   (inMsg.hdr.cmd != ZCL_CMD_WRITE)){
+				ev_buf_free(pCmd);
+				return;
+			}
+		}
+	}
+
 	if(status == ZCL_STA_SUCCESS){
 		/* Command dispatch */
 		if(inMsg.hdr.frmCtrl.bf.type == ZCL_FRAME_TYPE_PROFILE_CMD){
@@ -830,32 +845,23 @@ _CODE_ZCL_ void zcl_cmdHandler(void *pCmd)
 			if(!pCluster || (pCluster && (pCluster->manuCode != inMsg.hdr.manufCode) && (inMsg.hdr.manufCode != 0))){
 				status = (inMsg.hdr.manufCode == MANUFACTURER_CODE_NONE) ? ZCL_STA_UNSUP_CLUSTER_COMMAND : ZCL_STA_UNSUP_MANU_CLUSTER_COMMAND;
 			}else{
-				/* Check if basic device enable support */
-				zcl_getAttrVal(pApsdeInd->indInfo.dst_ep, ZCL_CLUSTER_GEN_BASIC, ZCL_ATTRID_BASIC_DEV_ENABLED, &devEnableAttrLen, (u8*)&devEnable);
+				inMsg.clusterAppCb = pCluster->clusterAppCb;
+				inMsg.addrInfo.dirCluster = inMsg.hdr.frmCtrl.bf.dir;
+				inMsg.addrInfo.profileId = pApsdeInd->indInfo.profile_id;
+				inMsg.addrInfo.srcAddr = pApsdeInd->indInfo.src_short_addr;
+				inMsg.addrInfo.dstAddr = pApsdeInd->indInfo.dst_addr;
+				inMsg.addrInfo.srcEp = pApsdeInd->indInfo.src_ep;
+				inMsg.addrInfo.dstEp = pApsdeInd->indInfo.dst_ep;
+				inMsg.addrInfo.seqNum = inMsg.hdr.seqNum;
 
-				if(devEnable || (pCluster->clusterID == ZCL_CLUSTER_GEN_IDENTIFY)){
-					inMsg.clusterAppCb = pCluster->clusterAppCb;
-					inMsg.addrInfo.dirCluster = inMsg.hdr.frmCtrl.bf.dir;
-					inMsg.addrInfo.profileId = pApsdeInd->indInfo.profile_id;
-					inMsg.addrInfo.srcAddr = pApsdeInd->indInfo.src_short_addr;
-					inMsg.addrInfo.dstAddr = pApsdeInd->indInfo.dst_addr;
-					inMsg.addrInfo.srcEp = pApsdeInd->indInfo.src_ep;
-					inMsg.addrInfo.dstEp = pApsdeInd->indInfo.dst_ep;
-					inMsg.addrInfo.seqNum = inMsg.hdr.seqNum;
-
-					status = pCluster->cmdHandlerFunc(&inMsg);
-
-					devEnable = TRUE;
-				}
+				status = pCluster->cmdHandlerFunc(&inMsg);
 			}
 		}
 	}
 
-	if(devEnable){
-		if((inMsg.hdr.frmCtrl.bf.disDefResp == 0 || status != ZCL_STA_SUCCESS) && UNICAST_MSG(inMsg.msg) && (status != ZCL_STA_CMD_HAS_RESP)){
-			/* send default response */
-			zcl_sendDfltRsp(&inMsg, inMsg.hdr.cmd, status);
-		}
+	if((inMsg.hdr.frmCtrl.bf.disDefResp == 0 || status != ZCL_STA_SUCCESS) && UNICAST_MSG(inMsg.msg) && (status != ZCL_STA_CMD_HAS_RESP)){
+		/* send default response */
+		zcl_sendDfltRsp(&inMsg, inMsg.hdr.cmd, status);
 	}
 
 	if(zcl_vars.hookFn && toAppFlg && inMsg.attrCmd){
