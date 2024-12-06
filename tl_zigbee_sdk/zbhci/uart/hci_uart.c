@@ -43,73 +43,78 @@ __attribute__((aligned(4))) u8 uartTxBuf[UART_TX_BUF_SIZE] = {0};
 __attribute__((aligned(4))) u8 uartRxBuf[UART_RX_BUF_SIZE] = {0};
 
 void uart_data_handler(void *arg){
-
-	 /*
-	 * the format of the uart rx data: length(4 Bytes) + payload
-	 *
-	 * */
+	 //the format of the uart rx buffer: length(4 Bytes) + payload
 	u8 ret[4] = {0,0,0,0};
 	u8 st = SUCCESS;
 
 	uart_rxData_t *rxData = (uart_rxData_t *)uartRxBuf;
-	zbhci_msg_t *msg = (zbhci_msg_t *)(rxData->dataPayload);
+	u8 *pData = rxData->dataPayload;
+	zbhci_msg_t *msg = NULL;
+	u32 reLen = rxData->dataLen;
+	u16 msgLen = 0;
+	u16 msgType = 0;
 
-	if(rxData->dataLen == 0){
+	if(rxData->dataLen){
+		if(rxData->dataLen > (UART_RX_BUF_SIZE - 4)){
+			st = ZBHCI_MSG_STATUS_MSG_OVERFLOW;
+		}else{
+			while(reLen){
+				msg = (zbhci_msg_t *)pData;
+
+				/* check the start flag */
+				if(msg->startFlag != ZBHCI_MSG_START_FLAG){
+					st = ZBHCI_MSG_STATUS_ERROR_START_CHAR;
+				}else{
+					msgLen = (msg->msgLen16H << 8) + msg->msgLen16L;
+
+					if(reLen < msgLen + ZBHCI_MSG_HDR_LEN){
+						st = ZBHCI_MSG_STATUS_BAD_MSG;
+					}else{
+						u8 endChar = *(msg->pData + msgLen);
+
+						/* check the end flag */
+						if(endChar != ZBHCI_MSG_END_FLAG){
+							st = ZBHCI_MSG_STATUS_ERROR_END_CHAR;
+						}else{
+							msgType = (msg->msgType16H << 8) + msg->msgType16L;
+
+							u8 crc8 = crc8Calculate(msgType, msgLen, msg->pData);
+
+							if((msgType == ZBHCI_CMD_OTA_START_REQUEST) || (msgType == ZBHCI_CMD_OTA_BLOCK_RESPONSE)){
+								if(crc8 != msg->checkSum){
+									st = ZBHCI_MSG_STATUS_CRC_ERROR;
+								}
+							}
+						}
+					}
+				}
+
+				if(st != SUCCESS){
+					break;
+				}else{
+					zbhciCmdHandler(msgType, msgLen, msg->pData);
+
+					if(reLen >= msgLen + ZBHCI_MSG_HDR_LEN){
+						reLen -= msgLen + ZBHCI_MSG_HDR_LEN;
+						pData += msgLen + ZBHCI_MSG_HDR_LEN;
+					}
+				}
+			}
+		}
+	}else{
 		st = ZBHCI_MSG_STATUS_UART_EXCEPT;
 	}
 
-	if(rxData->dataLen > (UART_RX_BUF_SIZE - 4)){
-		st = ZBHCI_MSG_STATUS_MSG_OVERFLOW;
-	}
-
-	if(st == SUCCESS){
-		if(msg->startFlag == ZBHCI_MSG_START_FLAG){
-			msg->msgType16H = rxData->dataPayload[1];
-			msg->msgType16L = rxData->dataPayload[2];
-			msg->msgLen16H = rxData->dataPayload[3];
-			msg->msgLen16L = rxData->dataPayload[4];
-
-			/* check the start flag */
-			u16 pktLen = (msg->msgLen16H << 8) | msg->msgLen16L;
-			if((pktLen + ZBHCI_MSG_HDR_LEN) == rxData->dataLen){
-				/* check the end flag */
-				if(rxData->dataPayload[rxData->dataLen - 1] != ZBHCI_MSG_END_FLAG){
-				   st = ZBHCI_MSG_STATUS_ERROR_END_CHAR;
-				}
-			}else{
-				st = ZBHCI_MSG_STATUS_BAD_MSG;
-			}
+	if(st != SUCCESS){
+		if((st == ZBHCI_MSG_STATUS_UART_EXCEPT) ||
+		   (st == ZBHCI_MSG_STATUS_MSG_OVERFLOW) ||
+		   (st == ZBHCI_MSG_STATUS_ERROR_START_CHAR)){
+			ret[0] = 0xff;
+			ret[1] = 0xff;
 		}else{
-			st = ZBHCI_MSG_STATUS_ERROR_START_CHAR;
+			ret[0] = msg->msgType16H;
+			ret[1] = msg->msgType16L;
 		}
-	}
-
-	u16 pktLen = (msg->msgLen16H << 8) | msg->msgLen16L;
-	u16 msgType = (msg->msgType16H<<8) + msg->msgType16L;
-	
-	if(st == SUCCESS){
-	    u8 crc8 = crc8Calculate(msgType, pktLen, msg->pData);
-	    if((msgType == ZBHCI_CMD_OTA_START_REQUEST) || (msgType == ZBHCI_CMD_OTA_BLOCK_RESPONSE)){
-	    	if(crc8 != msg->checkSum){
-	    		st = ZBHCI_MSG_STATUS_CRC_ERROR;
-	    	}
-	    }
-	}
-
-	if(st == SUCCESS){
-	    rxData->dataLen = 0;
-
-	    zbhciCmdHandler(msgType, pktLen, msg->pData);
-	}else{
-		rxData->dataLen = 0;
-
-		if((st == ZBHCI_MSG_STATUS_UART_EXCEPT) || (st == ZBHCI_MSG_STATUS_MSG_OVERFLOW) || (st == ZBHCI_MSG_STATUS_ERROR_START_CHAR)){
-			msg->msgType16H = 0xff;
-			msg->msgType16L = 0xff;
-		}
-
-		ret[0] = msg->msgType16H;
-		ret[1] = msg->msgType16L;
 		ret[2] = st;
 		ret[3] = 0;
 
