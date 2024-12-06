@@ -101,6 +101,10 @@
 #define ZCL_START_UP_CURRENT_LEVEL_TO_MIN				  0x00
 #define ZCL_START_UP_CURRENT_LEVEL_TO_PREVIOUS			  0xFF
 
+//Bit mask for Options attribute
+#define ZCL_LEVEL_OPTIONS_EXECUTE_IF_OFF				  0x01
+#define ZCL_LEVEL_OPTIONS_COUPLE_CT_TO_LEVEL			  0x02
+
 /** @} end of group ZCL_LEVEL_Constant */
 
 

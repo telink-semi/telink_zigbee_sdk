@@ -440,6 +440,9 @@ _CODE_ZCL_ static status_t zcl_lightColorCtrl_clientCmdHandler(zclIncoming_t *pI
 	u8 status = ZCL_STA_SUCCESS;
 	u8 *pData = pInMsg->pData;
 
+	u8 optionsMask = 0;
+	u8 optionsOverride = 0;
+
 	zcl_colorCtrl_cmdPayload_t cmdPayload;
 	memset((u8 *)&cmdPayload, 0, sizeof(zcl_colorCtrl_cmdPayload_t));
 
@@ -450,58 +453,76 @@ _CODE_ZCL_ static status_t zcl_lightColorCtrl_clientCmdHandler(zclIncoming_t *pI
 			cmdPayload.moveToHue.direction  = *pData++;
 			cmdPayload.moveToHue.transitionTime = BUILD_U16(pData[0], pData[1]);
 			pData += 2;
-			if(pInMsg->dataLen == 6){
+			if(pInMsg->dataLen >= 6){
 				cmdPayload.moveToHue.optionsMask = *pData++;
 				cmdPayload.moveToHue.optionsOverride = *pData++;
 				cmdPayload.moveToHue.optPresent = 1;
+
+				optionsMask = cmdPayload.moveToHue.optionsMask;
+				optionsOverride = cmdPayload.moveToHue.optionsOverride;
 			}
 			break;
 		case ZCL_CMD_LIGHT_COLOR_CONTROL_MOVE_HUE:
 			cmdPayload.moveHue.moveMode = *pData++;
 			cmdPayload.moveHue.rate  = *pData++;
-			if(pInMsg->dataLen == 4){
+			if(pInMsg->dataLen >= 4){
 				cmdPayload.moveHue.optionsMask = *pData++;
 				cmdPayload.moveHue.optionsOverride = *pData++;
 				cmdPayload.moveHue.optPresent = 1;
+
+				optionsMask = cmdPayload.moveHue.optionsMask;
+				optionsOverride = cmdPayload.moveHue.optionsOverride;
 			}
 			break;
 		case ZCL_CMD_LIGHT_COLOR_CONTROL_STEP_HUE:
 			cmdPayload.stepHue.stepMode = *pData++;
 			cmdPayload.stepHue.stepSize = *pData++;
 			cmdPayload.stepHue.transitionTime = *pData++;
-			if(pInMsg->dataLen == 5){
+			if(pInMsg->dataLen >= 5){
 				cmdPayload.stepHue.optionsMask = *pData++;
 				cmdPayload.stepHue.optionsOverride = *pData++;
 				cmdPayload.stepHue.optPresent = 1;
+
+				optionsMask = cmdPayload.stepHue.optionsMask;
+				optionsOverride = cmdPayload.stepHue.optionsOverride;
 			}
 			break;
 		case ZCL_CMD_LIGHT_COLOR_CONTROL_MOVE_TO_SATURATION:
 			cmdPayload.moveToSaturation.saturation = *pData++;
 			cmdPayload.moveToSaturation.transitionTime = BUILD_U16(pData[0], pData[1]);
 			pData += 2;
-			if(pInMsg->dataLen == 5){
+			if(pInMsg->dataLen >= 5){
 				cmdPayload.moveToSaturation.optionsMask = *pData++;
 				cmdPayload.moveToSaturation.optionsOverride = *pData++;
 				cmdPayload.moveToSaturation.optPresent = 1;
+
+				optionsMask = cmdPayload.moveToSaturation.optionsMask;
+				optionsOverride = cmdPayload.moveToSaturation.optionsOverride;
 			}
 			 break;
 		case ZCL_CMD_LIGHT_COLOR_CONTROL_MOVE_SATURATION:
 			cmdPayload.moveSaturation.moveMode = *pData++;
 			cmdPayload.moveSaturation.rate = *pData++;
-			if(pInMsg->dataLen == 4){
+			if(pInMsg->dataLen >= 4){
 				cmdPayload.moveSaturation.optionsMask = *pData++;
 				cmdPayload.moveSaturation.optionsOverride = *pData++;
 				cmdPayload.moveSaturation.optPresent = 1;
+
+				optionsMask = cmdPayload.moveSaturation.optionsMask;
+				optionsOverride = cmdPayload.moveSaturation.optionsOverride;
 			}
 			break;
 		case ZCL_CMD_LIGHT_COLOR_CONTROL_STEP_SATURATION:
 			cmdPayload.stepSaturation.stepMode = *pData++;
 			cmdPayload.stepSaturation.stepSize = *pData++;
 			cmdPayload.stepSaturation.transitionTime = *pData++;
-			if(pInMsg->dataLen == 5){
+			if(pInMsg->dataLen >= 5){
 				cmdPayload.stepSaturation.optionsMask = *pData++;
 				cmdPayload.stepSaturation.optionsOverride = *pData++;
 				cmdPayload.stepSaturation.optPresent = 1;
+
+				optionsMask = cmdPayload.stepSaturation.optionsMask;
+				optionsOverride = cmdPayload.stepSaturation.optionsOverride;
 			}
 			break;
 		case ZCL_CMD_LIGHT_COLOR_CONTROL_MOVE_TO_HUE_AND_SATURATION:
@@ -509,10 +530,13 @@ _CODE_ZCL_ static status_t zcl_lightColorCtrl_clientCmdHandler(zclIncoming_t *pI
 			cmdPayload.moveToHueAndSaturation.saturation = *pData++;
 			cmdPayload.moveToHueAndSaturation.transitionTime = BUILD_U16(pData[0], pData[1]);
 			pData += 2;
-			if(pInMsg->dataLen == 6){
+			if(pInMsg->dataLen >= 6){
 				cmdPayload.moveToHueAndSaturation.optionsMask = *pData++;
 				cmdPayload.moveToHueAndSaturation.optionsOverride = *pData++;
-				cmdPayload.moveToHue.optPresent = 1;
+				cmdPayload.moveToHueAndSaturation.optPresent = 1;
+
+				optionsMask = cmdPayload.moveToHueAndSaturation.optionsMask;
+				optionsOverride = cmdPayload.moveToHueAndSaturation.optionsOverride;
 			}
 			break;
 		case ZCL_CMD_LIGHT_COLOR_CONTROL_MOVE_TO_COLOR:
@@ -522,10 +546,13 @@ _CODE_ZCL_ static status_t zcl_lightColorCtrl_clientCmdHandler(zclIncoming_t *pI
 			pData += 2;
 			cmdPayload.moveToColor.transitionTime = BUILD_U16(pData[0], pData[1]);
 			pData += 2;
-			if(pInMsg->dataLen == 8){
+			if(pInMsg->dataLen >= 8){
 				cmdPayload.moveToColor.optionsMask = *pData++;
 				cmdPayload.moveToColor.optionsOverride = *pData++;
 				cmdPayload.moveToColor.optPresent = 1;
+
+				optionsMask = cmdPayload.moveToColor.optionsMask;
+				optionsOverride = cmdPayload.moveToColor.optionsOverride;
 			}
 			break;
 		case ZCL_CMD_LIGHT_COLOR_CONTROL_MOVE_COLOR:
@@ -533,10 +560,13 @@ _CODE_ZCL_ static status_t zcl_lightColorCtrl_clientCmdHandler(zclIncoming_t *pI
 			pData += 2;
 			cmdPayload.moveColor.rateY = BUILD_U16(pData[0], pData[1]);
 			pData += 2;
-			if(pInMsg->dataLen == 6){
+			if(pInMsg->dataLen >= 6){
 				cmdPayload.moveColor.optionsMask = *pData++;
 				cmdPayload.moveColor.optionsOverride = *pData++;
 				cmdPayload.moveColor.optPresent = 1;
+
+				optionsMask = cmdPayload.moveColor.optionsMask;
+				optionsOverride = cmdPayload.moveColor.optionsOverride;
 			}
 			break;
 		case ZCL_CMD_LIGHT_COLOR_CONTROL_STEP_COLOR:
@@ -546,10 +576,13 @@ _CODE_ZCL_ static status_t zcl_lightColorCtrl_clientCmdHandler(zclIncoming_t *pI
 			pData += 2;
 			cmdPayload.stepColor.transitionTime = BUILD_U16(pData[0], pData[1]);
 			pData += 2;
-			if(pInMsg->dataLen == 8){
+			if(pInMsg->dataLen >= 8){
 				cmdPayload.stepColor.optionsMask = *pData++;
 				cmdPayload.stepColor.optionsOverride = *pData++;
 				cmdPayload.stepColor.optPresent = 1;
+
+				optionsMask = cmdPayload.stepColor.optionsMask;
+				optionsOverride = cmdPayload.stepColor.optionsOverride;
 			}
 			break;
 		case ZCL_CMD_LIGHT_COLOR_CONTROL_MOVE_TO_COLOR_TEMPERATURE:
@@ -557,10 +590,13 @@ _CODE_ZCL_ static status_t zcl_lightColorCtrl_clientCmdHandler(zclIncoming_t *pI
 			pData += 2;
 			cmdPayload.moveToColorTemperature.transitionTime = BUILD_U16(pData[0], pData[1]);
 			pData += 2;
-			if(pInMsg->dataLen == 6){
+			if(pInMsg->dataLen >= 6){
 				cmdPayload.moveToColorTemperature.optionsMask = *pData++;
 				cmdPayload.moveToColorTemperature.optionsOverride = *pData++;
-				cmdPayload.moveColor.optPresent = 1;
+				cmdPayload.moveToColorTemperature.optPresent = 1;
+
+				optionsMask = cmdPayload.moveToColorTemperature.optionsMask;
+				optionsOverride = cmdPayload.moveToColorTemperature.optionsOverride;
 			}
 			break;
 		case ZCL_CMD_LIGHT_COLOR_CONTROL_ENHANCED_MOVE_TO_HUE:
@@ -569,20 +605,26 @@ _CODE_ZCL_ static status_t zcl_lightColorCtrl_clientCmdHandler(zclIncoming_t *pI
 			cmdPayload.enhancedMoveToHue.direction = *pData++;
 			cmdPayload.enhancedMoveToHue.transitionTime = BUILD_U16(pData[0], pData[1]);
 			pData += 2;
-			if(pInMsg->dataLen == 7){
+			if(pInMsg->dataLen >= 7){
 				cmdPayload.enhancedMoveToHue.optionsMask = *pData++;
 				cmdPayload.enhancedMoveToHue.optionsOverride = *pData++;
 				cmdPayload.enhancedMoveToHue.optPresent = 1;
+
+				optionsMask = cmdPayload.enhancedMoveToHue.optionsMask;
+				optionsOverride = cmdPayload.enhancedMoveToHue.optionsOverride;
 			}
 			break;
 		case ZCL_CMD_LIGHT_COLOR_CONTROL_ENHANCED_MOVE_HUE:
 			cmdPayload.enhancedMoveHue.moveMode = *pData++;
 			cmdPayload.enhancedMoveHue.rate = BUILD_U16(pData[0], pData[1]);
 			pData += 2;
-			if(pInMsg->dataLen == 5){
+			if(pInMsg->dataLen >= 5){
 				cmdPayload.enhancedMoveHue.optionsMask = *pData++;
 				cmdPayload.enhancedMoveHue.optionsOverride = *pData++;
 				cmdPayload.enhancedMoveHue.optPresent = 1;
+
+				optionsMask = cmdPayload.enhancedMoveHue.optionsMask;
+				optionsOverride = cmdPayload.enhancedMoveHue.optionsOverride;
 			}
 			break;
 		case ZCL_CMD_LIGHT_COLOR_CONTROL_ENHANCED_STEP_HUE:
@@ -591,10 +633,13 @@ _CODE_ZCL_ static status_t zcl_lightColorCtrl_clientCmdHandler(zclIncoming_t *pI
 			pData += 2;
 			cmdPayload.enhancedStepHue.transitionTime = BUILD_U16(pData[0], pData[1]);
 			pData += 2;
-			if(pInMsg->dataLen == 7){
+			if(pInMsg->dataLen >= 7){
 				cmdPayload.enhancedStepHue.optionsMask = *pData++;
 				cmdPayload.enhancedStepHue.optionsOverride = *pData++;
 				cmdPayload.enhancedStepHue.optPresent = 1;
+
+				optionsMask = cmdPayload.enhancedStepHue.optionsMask;
+				optionsOverride = cmdPayload.enhancedStepHue.optionsOverride;
 			}
 			break;
 		case ZCL_CMD_LIGHT_COLOR_CONTROL_ENHANCED_MOVE_TO_HUE_AND_SATURATION:
@@ -603,10 +648,13 @@ _CODE_ZCL_ static status_t zcl_lightColorCtrl_clientCmdHandler(zclIncoming_t *pI
 			cmdPayload.enhancedMoveToHueAndSaturation.saturation = *pData++;
 			cmdPayload.enhancedMoveToHueAndSaturation.transitionTime = BUILD_U16(pData[0], pData[1]);
 			pData += 2;
-			if(pInMsg->dataLen == 7){
+			if(pInMsg->dataLen >= 7){
 				cmdPayload.enhancedMoveToHueAndSaturation.optionsMask = *pData++;
 				cmdPayload.enhancedMoveToHueAndSaturation.optionsOverride = *pData++;
 				cmdPayload.enhancedMoveToHueAndSaturation.optPresent = 1;
+
+				optionsMask = cmdPayload.enhancedMoveToHueAndSaturation.optionsMask;
+				optionsOverride = cmdPayload.enhancedMoveToHueAndSaturation.optionsOverride;
 			}
 			break;
 		case ZCL_CMD_LIGHT_COLOR_CONTROL_COLOR_LOOP_SET:
@@ -617,17 +665,23 @@ _CODE_ZCL_ static status_t zcl_lightColorCtrl_clientCmdHandler(zclIncoming_t *pI
 			pData += 2;
 			cmdPayload.colorLoopSet.startHue = BUILD_U16(pData[0], pData[1]);
 			pData += 2;
-			if(pInMsg->dataLen == 9){
+			if(pInMsg->dataLen >= 9){
 				cmdPayload.colorLoopSet.optionsMask = *pData++;
 				cmdPayload.colorLoopSet.optionsOverride = *pData++;
 				cmdPayload.colorLoopSet.optPresent = 1;
+
+				optionsMask = cmdPayload.colorLoopSet.optionsMask;
+				optionsOverride = cmdPayload.colorLoopSet.optionsOverride;
 			}
 			break;
 		case ZCL_CMD_LIGHT_COLOR_CONTROL_STOP_MOVE_STEP:
-			if(pInMsg->dataLen == 2){
+			if(pInMsg->dataLen >= 2){
 				cmdPayload.stopMoveStep.optionsMask = *pData++;
 				cmdPayload.stopMoveStep.optionsOverride = *pData++;
 				cmdPayload.stopMoveStep.optPresent = 1;
+
+				optionsMask = cmdPayload.stopMoveStep.optionsMask;
+				optionsOverride = cmdPayload.stopMoveStep.optionsOverride;
 			}
 			break;
 		case ZCL_CMD_LIGHT_COLOR_CONTROL_MOVE_COLOR_TEMPERATURE:
@@ -638,10 +692,13 @@ _CODE_ZCL_ static status_t zcl_lightColorCtrl_clientCmdHandler(zclIncoming_t *pI
 			pData += 2;
 			cmdPayload.moveColorTemperature.colorTempMaxMireds = BUILD_U16(pData[0], pData[1]);
 			pData += 2;
-			if(pInMsg->dataLen == 9){
+			if(pInMsg->dataLen >= 9){
 				cmdPayload.moveColorTemperature.optionsMask = *pData++;
 				cmdPayload.moveColorTemperature.optionsOverride = *pData++;
 				cmdPayload.moveColorTemperature.optPresent = 1;
+
+				optionsMask = cmdPayload.moveColorTemperature.optionsMask;
+				optionsOverride = cmdPayload.moveColorTemperature.optionsOverride;
 			}
 			break;
 		case ZCL_CMD_LIGHT_COLOR_CONTROL_STEP_COLOR_TEMPERATURE:
@@ -654,10 +711,13 @@ _CODE_ZCL_ static status_t zcl_lightColorCtrl_clientCmdHandler(zclIncoming_t *pI
 			pData += 2;
 			cmdPayload.stepColorTemperature.colorTempMaxMireds = BUILD_U16(pData[0], pData[1]);
 			pData += 2;
-			if(pInMsg->dataLen == 11){
+			if(pInMsg->dataLen >= 11){
 				cmdPayload.stepColorTemperature.optionsMask = *pData++;
 				cmdPayload.stepColorTemperature.optionsOverride = *pData++;
 				cmdPayload.stepColorTemperature.optPresent = 1;
+
+				optionsMask = cmdPayload.stepColorTemperature.optionsMask;
+				optionsOverride = cmdPayload.stepColorTemperature.optionsOverride;
 			}
 			break;
 		default:
@@ -666,13 +726,34 @@ _CODE_ZCL_ static status_t zcl_lightColorCtrl_clientCmdHandler(zclIncoming_t *pI
     }
 
     if(status == ZCL_STA_SUCCESS){
-    	if(pInMsg->clusterAppCb){
-    		pInMsg->clusterAppCb(&(pInMsg->addrInfo), pInMsg->hdr.cmd, &cmdPayload);
+    	bool execute = FALSE;
+    	u16 attrLen = 0;
+
+    	bool onOff = FALSE;
+    	zcl_getAttrVal(pInMsg->msg->indInfo.dst_ep, ZCL_CLUSTER_GEN_ON_OFF, ZCL_ATTRID_ONOFF, &attrLen, (u8 *)&onOff);
+
+    	u8 options = 0;
+    	zcl_getAttrVal(pInMsg->msg->indInfo.dst_ep, ZCL_CLUSTER_LIGHTING_COLOR_CONTROL, ZCL_ATTRID_COLOR_OPTIONS, &attrLen, (u8 *)&options);
+
+    	if(onOff){
+    		execute = TRUE;
+    	}else if(!(options & ZCL_COLOR_OPTIONS_EXECUTE_IF_OFF)){
+    		if(optionsMask && ((optionsMask & optionsOverride) == ZCL_COLOR_OPTIONS_EXECUTE_IF_OFF)){
+    			execute = TRUE;
+    		}
+    	}else if(options & ZCL_COLOR_OPTIONS_EXECUTE_IF_OFF){
+    		if((optionsMask == 0) || (optionsMask & optionsOverride) == ZCL_COLOR_OPTIONS_EXECUTE_IF_OFF){
+    			execute = TRUE;
+    		}
+    	}
+
+    	if(execute && pInMsg->clusterAppCb){
+    		status = pInMsg->clusterAppCb(&(pInMsg->addrInfo), pInMsg->hdr.cmd, &cmdPayload);
 
 #ifdef ZCL_SCENE
-			u16 attrLen = 0;
+			u16 sceneAttrLen = 0;
 			u8 sceneValid = 0;
-			if(zcl_getAttrVal(pInMsg->msg->indInfo.dst_ep, ZCL_CLUSTER_GEN_SCENES, ZCL_ATTRID_SCENE_SCENE_VALID, &attrLen, (u8 *)&sceneValid) == ZCL_STA_SUCCESS){
+			if(zcl_getAttrVal(pInMsg->msg->indInfo.dst_ep, ZCL_CLUSTER_GEN_SCENES, ZCL_ATTRID_SCENE_SCENE_VALID, &sceneAttrLen, (u8 *)&sceneValid) == ZCL_STA_SUCCESS){
 				sceneValid = 0;
 				zcl_setAttrVal(pInMsg->msg->indInfo.dst_ep, ZCL_CLUSTER_GEN_SCENES, ZCL_ATTRID_SCENE_SCENE_VALID, (u8 *)&sceneValid);
 			}

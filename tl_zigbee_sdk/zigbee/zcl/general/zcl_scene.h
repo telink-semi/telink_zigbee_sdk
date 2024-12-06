@@ -55,13 +55,16 @@
 /**
  *  @brief  Max size for ZCL scene name
  */
+#ifndef ZCL_MAX_SCENE_NAME_LEN
 #define ZCL_MAX_SCENE_NAME_LEN                          16
+#endif
 
 /**
  *  @brief  Max size for ZCL scene extension field
  */
+#ifndef ZCL_MAX_SCENE_EXT_FIELD_SIZE
 #define ZCL_MAX_SCENE_EXT_FIELD_SIZE                    20
-
+#endif
 
 
 
@@ -123,7 +126,7 @@ typedef struct _attribute_packed_{
     u16 transTime100ms;							//!< todo - check if this causes any problems
     u8 extFieldLen;                             //!< The length of extension field
     u8 extField[ZCL_MAX_SCENE_EXT_FIELD_SIZE];  //!< The extension field
-} zcl_sceneEntry_t; //44-bytes
+} zcl_sceneEntry_t; //44-bytes? according to app configuration
 
 /**
  *  @brief  Structure definition for add scene command in scene cluster

@@ -419,8 +419,9 @@ typedef struct
 	zclExtAttrInfo_t extAttrInfo[];	//!< supported extended attributes list
 } zclDiscoverAttrExtRspCmd_t;
 
-
+#ifndef REPORTABLE_CHANGE_MAX_ANALOG_SIZE
 #define REPORTABLE_CHANGE_MAX_ANALOG_SIZE	8
+#endif
 
 /**
  *  @brief  If minInterval is 0, then there is no minimum limit;
@@ -443,6 +444,10 @@ typedef struct _attribute_packed_{
 	u8	prevData[REPORTABLE_CHANGE_MAX_ANALOG_SIZE];
 	u8	used;
 } reportCfgInfo_t; //37-bytes
+
+#ifndef ZCL_REPORTING_TABLE_NUM
+#define ZCL_REPORTING_TABLE_NUM		4
+#endif
 
 /**
  *  @brief  Definition for ZCL reporting table

@@ -135,6 +135,8 @@
 //Values of the StartUpColorTemperatureMireds attribute
 #define ZCL_START_UP_COLOR_TEMPERATURE_MIREDS_TO_PREVIOUS	  	0xFFFF
 
+//Bit mask for Options attribute
+#define ZCL_COLOR_OPTIONS_EXECUTE_IF_OFF						0x01
 
 /*********************************************************************
  * ENUMS

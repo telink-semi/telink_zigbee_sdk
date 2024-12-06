@@ -161,6 +161,9 @@ _CODE_ZCL_ static status_t zcl_level_clientCmdHandler(zclIncoming_t *pInMsg)
 	u8 status = ZCL_STA_SUCCESS;
 	u8 *pData = pInMsg->pData;
 
+	u8 optionsMask = 0;
+	u8 optionsOverride = 0;
+
 	zcl_level_cmdPayload_t cmdPayload;
 	memset((u8 *)&cmdPayload, 0, sizeof(zcl_level_cmdPayload_t));
 
@@ -171,20 +174,26 @@ _CODE_ZCL_ static status_t zcl_level_clientCmdHandler(zclIncoming_t *pInMsg)
 			cmdPayload.moveToLevel.level = *pData++;
 			cmdPayload.moveToLevel.transitionTime = BUILD_U16(pData[0], pData[1]);
 			pData += 2;
-			if(pInMsg->dataLen == 5){
+			if(pInMsg->dataLen >= 5){
 				cmdPayload.moveToLevel.optionsMask = *pData++;
 				cmdPayload.moveToLevel.optionsOverride = *pData++;
 				cmdPayload.moveToLevel.optPresent = 1;
+
+				optionsMask = cmdPayload.moveToLevel.optionsMask;
+				optionsOverride = cmdPayload.moveToLevel.optionsOverride;
 			}
 			break;
 		case ZCL_CMD_LEVEL_MOVE:
 		case ZCL_CMD_LEVEL_MOVE_WITH_ON_OFF:
 			cmdPayload.move.moveMode = *pData++;
 			cmdPayload.move.rate = *pData++;
-			if(pInMsg->dataLen == 4){
+			if(pInMsg->dataLen >= 4){
 				cmdPayload.move.optionsMask = *pData++;
 				cmdPayload.move.optionsOverride = *pData++;
 				cmdPayload.move.optPresent = 1;
+
+				optionsMask = cmdPayload.move.optionsMask;
+				optionsOverride = cmdPayload.move.optionsOverride;
 			}
 			break;
 		case ZCL_CMD_LEVEL_STEP:
@@ -193,18 +202,24 @@ _CODE_ZCL_ static status_t zcl_level_clientCmdHandler(zclIncoming_t *pInMsg)
 			cmdPayload.step.stepSize = *pData++;
 			cmdPayload.step.transitionTime = BUILD_U16(pData[0], pData[1]);
 			pData += 2;
-			if(pInMsg->dataLen == 6){
+			if(pInMsg->dataLen >= 6){
 				cmdPayload.step.optionsMask = *pData++;
 				cmdPayload.step.optionsOverride = *pData++;
 				cmdPayload.step.optPresent = 1;
+
+				optionsMask = cmdPayload.step.optionsMask;
+				optionsOverride = cmdPayload.step.optionsOverride;
 			}
 			break;
 		case ZCL_CMD_LEVEL_STOP:
 		case ZCL_CMD_LEVEL_STOP_WITH_ON_OFF:
-			if(pInMsg->dataLen == 2){
+			if(pInMsg->dataLen >= 2){
 				cmdPayload.stop.optionsMask = *pData++;
 				cmdPayload.stop.optionsOverride = *pData++;
 				cmdPayload.stop.optPresent = 1;
+
+				optionsMask = cmdPayload.stop.optionsMask;
+				optionsOverride = cmdPayload.stop.optionsOverride;
 			}
 			break;
 		default:
@@ -213,13 +228,34 @@ _CODE_ZCL_ static status_t zcl_level_clientCmdHandler(zclIncoming_t *pInMsg)
 	}
 
 	if(status == ZCL_STA_SUCCESS){
-		if(pInMsg->clusterAppCb){
+    	bool execute = FALSE;
+    	u16 attrLen = 0;
+
+    	bool onOff = FALSE;
+    	zcl_getAttrVal(pInMsg->msg->indInfo.dst_ep, ZCL_CLUSTER_GEN_ON_OFF, ZCL_ATTRID_ONOFF, &attrLen, (u8 *)&onOff);
+
+    	u8 options = 0;
+    	zcl_getAttrVal(pInMsg->msg->indInfo.dst_ep, ZCL_CLUSTER_GEN_LEVEL_CONTROL, ZCL_ATTRID_LEVEL_OPTIONS, &attrLen, (u8 *)&options);
+
+    	if(onOff || ((pInMsg->hdr.cmd >= ZCL_CMD_LEVEL_MOVE_TO_LEVEL_WITH_ON_OFF) && (pInMsg->hdr.cmd <= ZCL_CMD_LEVEL_STOP_WITH_ON_OFF))){
+    		execute = TRUE;
+    	}else if(!(options & ZCL_LEVEL_OPTIONS_EXECUTE_IF_OFF)){
+    		if(optionsMask && ((optionsMask & optionsOverride) == ZCL_LEVEL_OPTIONS_EXECUTE_IF_OFF)){
+    			execute = TRUE;
+    		}
+    	}else if(options & ZCL_LEVEL_OPTIONS_EXECUTE_IF_OFF){
+    		if((optionsMask == 0) || (optionsMask & optionsOverride) == ZCL_LEVEL_OPTIONS_EXECUTE_IF_OFF){
+    			execute = TRUE;
+    		}
+    	}
+
+		if(execute && pInMsg->clusterAppCb){
 			pInMsg->clusterAppCb(&(pInMsg->addrInfo), pInMsg->hdr.cmd, &cmdPayload);
 
 #ifdef ZCL_SCENE
-			u16 attrLen = 0;
+			u16 sceneAttrLen = 0;
 			u8 sceneValid = 0;
-			if(zcl_getAttrVal(pInMsg->msg->indInfo.dst_ep, ZCL_CLUSTER_GEN_SCENES, ZCL_ATTRID_SCENE_SCENE_VALID, &attrLen, (u8 *)&sceneValid) == ZCL_STA_SUCCESS){
+			if(zcl_getAttrVal(pInMsg->msg->indInfo.dst_ep, ZCL_CLUSTER_GEN_SCENES, ZCL_ATTRID_SCENE_SCENE_VALID, &sceneAttrLen, (u8 *)&sceneValid) == ZCL_STA_SUCCESS){
 				sceneValid = 0;
 				zcl_setAttrVal(pInMsg->msg->indInfo.dst_ep, ZCL_CLUSTER_GEN_SCENES, ZCL_ATTRID_SCENE_SCENE_VALID, (u8 *)&sceneValid);
 			}
