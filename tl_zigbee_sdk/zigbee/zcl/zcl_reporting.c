@@ -247,9 +247,9 @@ _CODE_ZCL_ bool reportableChangeValueChk(u8 dataType, u8 *curValue, u8 *prevValu
 				u8 P = prevValue[0];
 				u8 C = curValue[0];
 				u8 R = reportableChange[0];
-				if(P >= C){
+				if(P > C){
 					needReport = ((P - C) >= R) ? TRUE : FALSE;
-				}else{
+				}else if(P < C){
 					needReport = ((C - P) >= R) ? TRUE : FALSE;
 				}
 			}
@@ -260,9 +260,9 @@ _CODE_ZCL_ bool reportableChangeValueChk(u8 dataType, u8 *curValue, u8 *prevValu
 				u16 C = BUILD_U16(curValue[0], curValue[1]);
 				u16 R = BUILD_U16(reportableChange[0], reportableChange[1]);
 
-				if(P >= C){
+				if(P > C){
 					needReport = ((P - C) >= R) ? TRUE : FALSE;
-				}else{
+				}else if(P < C){
 					needReport = ((C - P) >= R) ? TRUE : FALSE;
 				}
 			}
@@ -272,9 +272,9 @@ _CODE_ZCL_ bool reportableChangeValueChk(u8 dataType, u8 *curValue, u8 *prevValu
 				u24 P = BUILD_U24(prevValue[0], prevValue[1], prevValue[2]);//*((u24 *)prevValue);
 				u24 C = BUILD_U24(curValue[0], curValue[1], curValue[2]);//*((u24 *)curValue);
 				u24 R = BUILD_U24(reportableChange[0], reportableChange[1], reportableChange[2]);//*((u24 *)reportableChange);
-				if(P >= C){
+				if(P > C){
 					needReport = ((P - C) >= R) ? TRUE : FALSE;
-				}else{
+				}else if(P < C){
 					needReport = ((C - P) >= R) ? TRUE : FALSE;
 				}
 			}
@@ -284,9 +284,9 @@ _CODE_ZCL_ bool reportableChangeValueChk(u8 dataType, u8 *curValue, u8 *prevValu
 				u32 P = BUILD_U32(prevValue[0], prevValue[1], prevValue[2], prevValue[3]);//*((u32 *)prevValue);
 				u32 C = BUILD_U32(curValue[0], curValue[1], curValue[2], curValue[3]);//*((u32 *)curValue);
 				u32 R = BUILD_U32(reportableChange[0], reportableChange[1], reportableChange[2], reportableChange[3]);//*((u32 *)reportableChange);
-				if(P >= C){
+				if(P > C){
 					needReport = ((P - C) >= R) ? TRUE : FALSE;
-				}else{
+				}else if(P < C){
 					needReport = ((C - P) >= R) ? TRUE : FALSE;
 				}
 			}
@@ -296,9 +296,9 @@ _CODE_ZCL_ bool reportableChangeValueChk(u8 dataType, u8 *curValue, u8 *prevValu
 				s8 P = (s8)prevValue[0];
 				s8 C = (s8)curValue[0];
 				s8 R = (s8)reportableChange[0];
-				if(P >= C){
+				if(P > C){
 					needReport = ((P - C) >= R) ? TRUE : FALSE;
-				}else{
+				}else if(P < C){
 					needReport = ((C - P) >= R) ? TRUE : FALSE;
 				}
 			}
@@ -309,9 +309,9 @@ _CODE_ZCL_ bool reportableChangeValueChk(u8 dataType, u8 *curValue, u8 *prevValu
 				s16 C = BUILD_S16(curValue[0], curValue[1]);
 				s16 R = BUILD_S16(reportableChange[0], reportableChange[1]);
 
-				if(P >= C){
+				if(P > C){
 					needReport = ((P - C) >= R) ? TRUE : FALSE;
-				}else{
+				}else if(P < C){
 					needReport = ((C - P) >= R) ? TRUE : FALSE;
 				}
 			}
@@ -321,9 +321,9 @@ _CODE_ZCL_ bool reportableChangeValueChk(u8 dataType, u8 *curValue, u8 *prevValu
 				s24 P = BUILD_S24(prevValue[0], prevValue[1], prevValue[2]);//*((s24 *)prevValue);
 				s24 C = BUILD_S24(curValue[0], curValue[1], curValue[2]);//*((s24 *)curValue);
 				s24 R = BUILD_S24(reportableChange[0], reportableChange[1], reportableChange[2]);//*((s24 *)reportableChange);
-				if(P >= C){
+				if(P > C){
 					needReport = ((P - C) >= R) ? TRUE : FALSE;
-				}else{
+				}else if(P < C){
 					needReport = ((C - P) >= R) ? TRUE : FALSE;
 				}
 			}
@@ -333,9 +333,9 @@ _CODE_ZCL_ bool reportableChangeValueChk(u8 dataType, u8 *curValue, u8 *prevValu
 				s32 P = BUILD_S32(prevValue[0], prevValue[1], prevValue[2], prevValue[3]);//*((s32 *)prevValue);
 				s32 C = BUILD_S32(curValue[0], curValue[1], curValue[2], curValue[3]);//*((s32 *)curValue);
 				s32 R = BUILD_S32(reportableChange[0], reportableChange[1], reportableChange[2], reportableChange[3]);//*((s32 *)reportableChange);
-				if(P >= C){
+				if(P > C){
 					needReport = ((P - C) >= R) ? TRUE : FALSE;
-				}else{
+				}else if(P < C){
 					needReport = ((C - P) >= R) ? TRUE : FALSE;
 				}
 			}
@@ -346,9 +346,9 @@ _CODE_ZCL_ bool reportableChangeValueChk(u8 dataType, u8 *curValue, u8 *prevValu
 				float P = *((float *)prevValue);
 				float C = *((float *)curValue);
 				float R = *((float *)reportableChange);
-				if(P >= C){
+				if(P > C){
 					needReport = ((P - C) >= R) ? TRUE : FALSE;
-				}else{
+				}else if(P < C){
 					needReport = ((C - P) >= R) ? TRUE : FALSE;
 				}
 			}
@@ -358,9 +358,9 @@ _CODE_ZCL_ bool reportableChangeValueChk(u8 dataType, u8 *curValue, u8 *prevValu
 				double P = *((double *)prevValue);
 				double C = *((double *)curValue);
 				double R = *((double *)reportableChange);
-				if(P >= C){
+				if(P > C){
 					needReport = ((P - C) >= R) ? TRUE : FALSE;
-				}else{
+				}else if(P < C){
 					needReport = ((C - P) >= R) ? TRUE : FALSE;
 				}
 			}
