@@ -166,6 +166,9 @@ _CODE_ZCL_ void zcl_reportCfgInfoEntryRst(reportCfgInfo_t *pEntry)
 		pEntry->minIntCnt = pEntry->minIntDft;
 		pEntry->maxIntCnt = pEntry->maxIntDft;
 		memset(pEntry->reportableChange, 0, REPORTABLE_CHANGE_MAX_ANALOG_SIZE);
+
+		reportAttrTimerStop();
+		reportAttrTimerStart();
 	}
 }
 
@@ -374,84 +377,102 @@ _CODE_ZCL_ bool reportableChangeValueChk(u8 dataType, u8 *curValue, u8 *prevValu
 }
 
 /*********************************************************************
- * @fn      reportAttr
+ * @fn      reportAttrs
  *
  * @brief
  *
- * @param   pEntry
+ * @param
  *
  * @return	NULL
  */
-_CODE_ZCL_ void reportAttr(reportCfgInfo_t *pEntry)
+_CODE_ZCL_ void reportAttrs(void)
 {
-	if(!zb_bindingTblSearched(pEntry->clusterID, pEntry->endPoint)){
-		return;
-	}
+	struct report_t{
+		u8 numAttr;
+		zclReport_t attr[2];
+	};
 
-	epInfo_t dstEpInfo;
-	TL_SETSTRUCTCONTENT(dstEpInfo, 0);
+	struct report_t report;
 
-	dstEpInfo.dstAddrMode = APS_DSTADDR_EP_NOTPRESETNT;
-	dstEpInfo.profileId = pEntry->profileID;
+	bool again = 0;
+	u16 profileID = 0xFFFF;
+	u16 clusterID = 0xFFFF;
+	u8 endpoint = 0;
+	reportCfgInfo_t *pEntry = NULL;
+	zclAttrInfo_t *pAttrEntry = NULL;
 
-	zclAttrInfo_t *pAttrEntry = zcl_findAttribute(pEntry->endPoint, pEntry->clusterID, pEntry->attrID);
-	if(!pAttrEntry){
-		//should not happen.
-		ZB_EXCEPTION_POST(SYS_EXCEPTTION_ZB_ZCL_ENTRY);
-		return;
-	}
+	do{
+		pEntry = NULL;
+		pAttrEntry = NULL;
 
-	u16 len = zcl_getAttrSize(pAttrEntry->type, pAttrEntry->data);
-
-	len = (len>8) ? (8):(len);
-
-	//store for next compare
-	memcpy(pEntry->prevData, pAttrEntry->data, len);
-
-	zcl_sendReportCmd(pEntry->endPoint, &dstEpInfo,  TRUE, ZCL_FRAME_SERVER_CLIENT_DIR,
-					  pEntry->clusterID, pAttrEntry->id, pAttrEntry->type, pAttrEntry->data);
-}
-
-/*********************************************************************
- * @fn      reportNoMinLimit
- *
- * @brief	check if there is no minimum limit report.
- *
- * @param   NULL
- *
- * @return	NULL
- */
-_CODE_ZCL_ void reportNoMinLimit(void)
-{
-	if(zcl_reportingEntryActiveNumGet()){
-		zclAttrInfo_t *pAttrEntry = NULL;
-		u16 len = 0;
+		clusterID = 0xFFFF;
+		endpoint = 0;
+		again = 0;
+		memset((u8 *)&report, 0, sizeof(report));
 
 		for(u8 i = 0; i < ZCL_REPORTING_TABLE_NUM; i++){
-			reportCfgInfo_t *pEntry = &reportingTab.reportCfgInfo[i];
-			if(pEntry->used && (pEntry->maxInterval != 0xFFFF) && (pEntry->minInterval == 0)){
-				//there is no minimum limit
+			pEntry = &reportingTab.reportCfgInfo[i];
+
+			if(pEntry->used && (pEntry->maxInterval != 0xFFFF) &&
+			   zb_bindingTblSearched(pEntry->clusterID, pEntry->endPoint)){
 				pAttrEntry = zcl_findAttribute(pEntry->endPoint, pEntry->clusterID, pEntry->attrID);
-				if(!pAttrEntry){
-					//should not happen.
-					ZB_EXCEPTION_POST(SYS_EXCEPTTION_ZB_ZCL_ENTRY);
-					return;
-				}
+				if(pAttrEntry){
+					bool valid = 0;
+					u8 dataLen = zcl_getAttrSize(pAttrEntry->type, pAttrEntry->data);
 
-				len = zcl_getAttrSize(pAttrEntry->type, pAttrEntry->data);
-				len = (len>8) ? (8):(len);
+					if(!pEntry->maxIntCnt){
+						valid = 1;
+					}else if(!pEntry->minIntCnt){
+						if((!zcl_analogDataType(pAttrEntry->type) && memcmp(pEntry->prevData, pAttrEntry->data, dataLen)) ||
+							(zcl_analogDataType(pAttrEntry->type) && reportableChangeValueChk(pAttrEntry->type, pAttrEntry->data,
+																							  pEntry->prevData, pEntry->reportableChange))){
+							valid = 1;
+						}else{
+							pEntry->minIntCnt = pEntry->minInterval;
+						}
+					}
 
-				if((!zcl_analogDataType(pAttrEntry->type) && (memcmp(pEntry->prevData, pAttrEntry->data, len) != SUCCESS)) ||
-				   ((zcl_analogDataType(pAttrEntry->type) && reportableChangeValueChk(pAttrEntry->type, pAttrEntry->data, pEntry->prevData, pEntry->reportableChange)))
-				){
-					reportAttr(pEntry);
+					if(valid){
+						if(clusterID == 0xFFFF){
+							clusterID = pEntry->clusterID;
+							profileID = pEntry->profileID;
+							endpoint = pEntry->endPoint;
+						}else if((clusterID != pEntry->clusterID) ||
+								 (profileID != pEntry->profileID) ||
+								 (endpoint != pEntry->endPoint)){
+							again = 1;
+							continue;
+						}
 
-					pEntry->minIntCnt = pEntry->minInterval;
-					pEntry->maxIntCnt = pEntry->maxInterval;
+						report.attr[report.numAttr].attrID = pAttrEntry->id;
+						report.attr[report.numAttr].dataType = pAttrEntry->type;
+						report.attr[report.numAttr].attrData = pAttrEntry->data;
+						report.numAttr++;
+
+						//store for next compare
+						memcpy(pEntry->prevData, pAttrEntry->data, dataLen);
+						pEntry->minIntCnt = pEntry->minInterval;
+						pEntry->maxIntCnt = pEntry->maxInterval;
+
+						if(report.numAttr >= 2){
+							again = 1;
+							break;
+						}
+					}
 				}
 			}
 		}
-	}
+
+		if(clusterID != 0xFFFF){
+			epInfo_t dstEpInfo;
+			TL_SETSTRUCTCONTENT(dstEpInfo, 0);
+
+			dstEpInfo.dstAddrMode = APS_DSTADDR_EP_NOTPRESETNT;
+			dstEpInfo.profileId = profileID;
+
+			zcl_sendReportAttrsCmd(endpoint, &dstEpInfo, TRUE, ZCL_FRAME_SERVER_CLIENT_DIR, clusterID, (zclReportCmd_t *)&report);
+		}
+	}while(again);
 }
 
 /*********************************************************************
@@ -463,53 +484,36 @@ _CODE_ZCL_ void reportNoMinLimit(void)
  *
  * @return	0 -- continue; -1 -- cancel
  */
-_CODE_ZCL_ s32 reportAttrTimerCb(void *arg)
+_CODE_ZCL_ static s32 reportAttrTimerCb(void *arg)
 {
+	u16 seconds = (u16)((u32)arg);
+
 	if(zcl_reportingEntryActiveNumGet()){
 		for(u8 i = 0; i < ZCL_REPORTING_TABLE_NUM; i++){
 			reportCfgInfo_t *pEntry = &reportingTab.reportCfgInfo[i];
-			if(pEntry->used && (pEntry->maxInterval != 0xFFFF) && (pEntry->minInterval || pEntry->maxInterval)){
+
+			if(pEntry->used && (pEntry->maxInterval != 0xFFFF) &&
+			   zb_bindingTblSearched(pEntry->clusterID, pEntry->endPoint)){
 				if(pEntry->minIntCnt){
-					pEntry->minIntCnt--;
+					if(pEntry->minIntCnt >= seconds){
+						pEntry->minIntCnt -= seconds;
+					}else{
+						pEntry->minIntCnt = 0;
+					}
 				}
 				if(pEntry->maxIntCnt){
-					pEntry->maxIntCnt--;
-				}
-
-				if(pEntry->maxInterval && !pEntry->maxIntCnt){
-					reportAttr(pEntry);
-
-					pEntry->minIntCnt = pEntry->minInterval;
-					pEntry->maxIntCnt = pEntry->maxInterval;
-				}else if(pEntry->minInterval && !pEntry->minIntCnt){
-					zclAttrInfo_t *pAttrEntry = zcl_findAttribute(pEntry->endPoint, pEntry->clusterID, pEntry->attrID);
-					if(!pAttrEntry){
-						//should not happen.
-						ZB_EXCEPTION_POST(SYS_EXCEPTTION_ZB_ZCL_ENTRY);
-						return -1;
-					}
-
-					u8 len = zcl_getAttrSize(pAttrEntry->type, pAttrEntry->data);
-
-					len = (len>8) ? (8):(len);
-
-					if((!zcl_analogDataType(pAttrEntry->type) && (memcmp(pEntry->prevData, pAttrEntry->data, len) != SUCCESS)) ||
-					   ((zcl_analogDataType(pAttrEntry->type) && reportableChangeValueChk(pAttrEntry->type, pAttrEntry->data, pEntry->prevData, pEntry->reportableChange)))
-					){
-						reportAttr(pEntry);
-
-						pEntry->minIntCnt = pEntry->minInterval;
-						pEntry->maxIntCnt = pEntry->maxInterval;
+					if(pEntry->maxIntCnt >= seconds){
+						pEntry->maxIntCnt -= seconds;
+					}else{
+						pEntry->maxIntCnt = 0;
 					}
 				}
 			}
 		}
-
-		return 0;
-	}else{
-		reportAttrTimerEvt = NULL;
-		return -1;
 	}
+
+	reportAttrTimerEvt = NULL;
+	return -1;
 }
 
 /*********************************************************************
@@ -521,18 +525,30 @@ _CODE_ZCL_ s32 reportAttrTimerCb(void *arg)
  *
  * @return	NULL
  */
-_CODE_ZCL_ void reportAttrTimerStart(u16 seconds)
+_CODE_ZCL_ void reportAttrTimerStart(void)
 {
-	if(zcl_reportingEntryActiveNumGet() && !reportAttrTimerEvt){
-		for(u8 i = 0; i < ZCL_REPORTING_TABLE_NUM; i++){
-			reportCfgInfo_t *pEntry = &reportingTab.reportCfgInfo[i];
-			if(pEntry->used && (pEntry->minInterval || (pEntry->maxInterval && (pEntry->maxInterval != 0xFFFF)))){
-				if(zb_bindingTblSearched(pEntry->clusterID, pEntry->endPoint)){
-					reportAttrTimerEvt = TL_ZB_TIMER_SCHEDULE(reportAttrTimerCb, NULL, seconds * 1000);
-					break;
-				}
+	u16 seconds = 0xFFFF;
+
+	if(reportAttrTimerEvt){
+		return;
+	}
+
+	for(u8 i = 0; i < ZCL_REPORTING_TABLE_NUM; i++){
+		reportCfgInfo_t *pEntry = &reportingTab.reportCfgInfo[i];
+
+		if(pEntry->used && (pEntry->maxInterval != 0xFFFF) &&
+		   zb_bindingTblSearched(pEntry->clusterID, pEntry->endPoint)){
+			if(pEntry->maxIntCnt && (pEntry->maxIntCnt < seconds)){
+				seconds = pEntry->maxIntCnt;
+			}
+			if(pEntry->minIntCnt && (pEntry->minIntCnt < seconds)){
+				seconds = pEntry->minIntCnt;
 			}
 		}
+	}
+
+	if(seconds != 0xFFFF){
+		reportAttrTimerEvt = TL_ZB_TIMER_SCHEDULE(reportAttrTimerCb, (void *)((u32)seconds), seconds * 1000);
 	}
 }
 
@@ -552,3 +568,19 @@ _CODE_ZCL_ void reportAttrTimerStop(void)
 	}
 }
 
+/*********************************************************************
+ * @fn      report_handler
+ *
+ * @brief
+ *
+ * @param   NULL
+ *
+ * @return	NULL
+ */
+_CODE_ZCL_ void report_handler(void)
+{
+	if(zb_isDeviceJoinedNwk()){
+		reportAttrs();
+		reportAttrTimerStart();
+	}
+}

@@ -177,28 +177,9 @@ void user_app_init(void)
 #endif
 }
 
-
-
 void led_init(void)
 {
 	light_init();
-}
-
-void report_handler(void)
-{
-	if(zb_isDeviceJoinedNwk()){
-		if(zcl_reportingEntryActiveNumGet()){
-			u16 second = 1;//TODO: fix me
-
-			reportNoMinLimit();
-
-			//start report timer
-			reportAttrTimerStart(second);
-		}else{
-			//stop report timer
-			reportAttrTimerStop();
-		}
-	}
 }
 
 void app_task(void)

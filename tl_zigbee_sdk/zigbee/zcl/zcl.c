@@ -1671,6 +1671,41 @@ _CODE_ZCL_ status_t zcl_report(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefault
 	return status;
 }
 
+_CODE_ZCL_ status_t zcl_reportAttrs(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 direction, u8 seqNo, u16 manuCode, u16 clusterId, zclReportCmd_t *pReportAttrs)
+{
+	u16 len = 0;
+	zclReport_t *pAttr = NULL;
+
+	for(u8 i = 0; i < pReportAttrs->numAttr; i++){
+		pAttr = &(pReportAttrs->attrList[i]);
+		len += 2 + 1;	//attrID + dataType
+		len += zcl_getAttrSize(pAttr->dataType, pAttr->attrData);
+	}
+
+	u8 *buf = (u8 *)ev_buf_allocate(len);
+	if(!buf){
+		return ZCL_STA_INSUFFICIENT_SPACE;
+	}
+
+	u8 *pBuf = buf;
+
+	for(u8 i = 0; i < pReportAttrs->numAttr; i++){
+		pAttr = &(pReportAttrs->attrList[i]);
+		*pBuf++ = LO_UINT16(pAttr->attrID);
+		*pBuf++ = HI_UINT16(pAttr->attrID);
+		*pBuf++ = pAttr->dataType;
+		u16 dataLen = zcl_getAttrSize(pAttr->dataType, pAttr->attrData);
+		memcpy(pBuf, pAttr->attrData, dataLen);
+		pBuf += dataLen;
+	}
+
+	u8 status = zcl_sendCmd(srcEp, pDstEpInfo, clusterId, ZCL_CMD_REPORT, FALSE, direction, disableDefaultRsp, manuCode, seqNo, len, buf);
+
+	ev_buf_free(buf);
+
+	return status;
+}
+
 _CODE_ZCL_ zclCfgReportCmd_t *zcl_parseInCfgReportCmd(zclIncoming_t *pCmd)
 {
 	u8 *pBuf = pCmd->pData;
