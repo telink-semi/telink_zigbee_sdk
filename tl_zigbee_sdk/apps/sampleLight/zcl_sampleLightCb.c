@@ -103,6 +103,7 @@ void sampleLight_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg)
 #endif
 #ifdef ZCL_WRITE
 		case ZCL_CMD_WRITE:
+		case ZCL_CMD_WRITE_NO_RSP:
 			sampleLight_zclWriteReqCmd(pInHdlrMsg->msg->indInfo.cluster_id, pInHdlrMsg->attrCmd);
 			break;
 		case ZCL_CMD_WRITE_RSP:

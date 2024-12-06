@@ -100,6 +100,7 @@ void sampleSensor_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg)
 			sampleSensor_zclWriteRspCmd(cluster, pInHdlrMsg->attrCmd);
 			break;
 		case ZCL_CMD_WRITE:
+		case ZCL_CMD_WRITE_NO_RSP:
 			sampleSensor_zclWriteReqCmd(cluster, pInHdlrMsg->attrCmd);
 			break;
 #endif

@@ -46,30 +46,55 @@ extern "C" {
 
 //LED
 /***************************************************************
-* LED_R			GPIO_PD0	//D5 -- red
-* LED_G			GPIO_PD4	//D3 -- green
-* LED_B			GPIO_PD5	//D2 -- blue
-* LED_W			GPIO_PD3	//D4 -- yellow
+* LED_R			GPIO_PD5	//D5 -- red		PWM0
+* LED_G			GPIO_PD3	//D3 -- green	PWM1_N
+* LED_B			GPIO_PD2	//D2 -- blue	PWM3
+* LED_W			GPIO_PD4	//D4 -- white	PWM2_N
 ****************************************************************/
 #if defined COLOR_RGB_SUPPORT && (COLOR_RGB_SUPPORT == 1)
+#define LED_R						GPIO_PD5
+#define LED_G						GPIO_PD3
+#define LED_B						GPIO_PD2
 
-#error "GPIO_PD0 can't be configured as PWM!"
+#define PWM_R_CHANNEL				0	//PWM0
+#define PWM_R_CHANNEL_SET()			do{ \
+										gpio_set_func(LED_R, AS_PWM0); \
+									}while(0)
 
-#else
+#define PWM_G_CHANNEL				1	//PWM1_N
+#define PWM_G_CHANNEL_SET()			do{ \
+										gpio_set_func(LED_G, AS_PWM1_N); \
+										drv_pwm_n_invert(PWM_G_CHANNEL); \
+									}while(0)
 
+#define PWM_B_CHANNEL				3	//PWM3
+#define PWM_B_CHANNEL_SET()			do{ \
+										gpio_set_func(LED_B, AS_PWM3); \
+									}while(0)
+
+//Others as GPIO.
+#define LED_W						GPIO_PD4
+
+#define PD4_FUNC					AS_GPIO
+#define PD4_OUTPUT_ENABLE			1
+#define PD4_INPUT_ENABLE			0
+
+#define LED_POWER					LED_W
+#define LED_PERMIT					LED_W
+#elif defined COLOR_CCT_SUPPORT && (COLOR_CCT_SUPPORT == 1)
 //PWM configuration, LED_B as warm light, LED_W as cool light.
 #define LED_B						GPIO_PD2	//D2 -- blue		PWM3
 #define LED_W						GPIO_PD4	//D4 -- white		PWM2_N
 
-#define PWM_W_CHANNEL				2	//PWM1_N
+#define PWM_B_CHANNEL				3	//PWM3
+#define PWM_B_CHANNEL_SET()			do{ \
+										gpio_set_func(LED_B, AS_PWM3); \
+									}while(0)
+
+#define PWM_W_CHANNEL				2	//PWM2_N
 #define PWM_W_CHANNEL_SET()			do{ \
 										gpio_set_func(LED_W, AS_PWM2_N); \
 										drv_pwm_n_invert(PWM_W_CHANNEL); \
-									}while(0)
-
-#define PWM_B_CHANNEL				3	//PWM0
-#define PWM_B_CHANNEL_SET()			do{ \
-										gpio_set_func(LED_B, AS_PWM3); \
 									}while(0)
 
 #define WARM_LIGHT_PWM_CHANNEL		PWM_B_CHANNEL
@@ -77,33 +102,93 @@ extern "C" {
 #define WARM_LIGHT_PWM_SET()		PWM_B_CHANNEL_SET()
 #define COOL_LIGHT_PWM_SET()		PWM_W_CHANNEL_SET()
 
-//LED_R and LED_G as GPIO.
+//Others as GPIO.
 #define LED_R						GPIO_PD5
 #define LED_G						GPIO_PD3
-
-#define PD3_FUNC					AS_GPIO
-#define PD3_OUTPUT_ENABLE			1
-#define PD3_INPUT_ENABLE			0
 
 #define PD5_FUNC					AS_GPIO
 #define PD5_OUTPUT_ENABLE			1
 #define PD5_INPUT_ENABLE			0
 
+#define PD3_FUNC					AS_GPIO
+#define PD3_OUTPUT_ENABLE			1
+#define PD3_INPUT_ENABLE			0
+
 #define LED_POWER					LED_R
 #define LED_PERMIT					LED_G
+#elif defined ZCL_LEVEL_CTRL_SUPPORT && (ZCL_LEVEL_CTRL_SUPPORT == 1)
+#define LED_W						GPIO_PD4	//D4 -- white		PWM2_N
 
+#define PWM_W_CHANNEL				2	//PWM2_N
+#define PWM_W_CHANNEL_SET()			do{ \
+										gpio_set_func(LED_W, AS_PWM2_N); \
+										drv_pwm_n_invert(PWM_W_CHANNEL); \
+									}while(0)
+
+#define COOL_LIGHT_PWM_CHANNEL		PWM_W_CHANNEL
+#define COOL_LIGHT_PWM_SET()		PWM_W_CHANNEL_SET()
+
+//Others as GPIO.
+#define LED_R						GPIO_PD5
+#define LED_G						GPIO_PD3
+#define LED_B						GPIO_PD2
+
+#define PD5_FUNC					AS_GPIO
+#define PD5_OUTPUT_ENABLE			1
+#define PD5_INPUT_ENABLE			0
+
+#define PD3_FUNC					AS_GPIO
+#define PD3_OUTPUT_ENABLE			1
+#define PD3_INPUT_ENABLE			0
+
+#define PD2_FUNC					AS_GPIO
+#define PD2_OUTPUT_ENABLE			1
+#define PD2_INPUT_ENABLE			0
+
+#define LED_POWER					LED_R
+#define LED_PERMIT					LED_G
+#else
+//All LED as GPIO.
+#define LED_R						GPIO_PD5
+#define LED_G						GPIO_PD3
+#define LED_B						GPIO_PD2
+#define LED_W						GPIO_PD4
+
+#define PD5_FUNC					AS_GPIO
+#define PD5_OUTPUT_ENABLE			1
+#define PD5_INPUT_ENABLE			0
+
+#define PD3_FUNC					AS_GPIO
+#define PD3_OUTPUT_ENABLE			1
+#define PD3_INPUT_ENABLE			0
+
+#define PD2_FUNC					AS_GPIO
+#define PD2_OUTPUT_ENABLE			1
+#define PD2_INPUT_ENABLE			0
+
+#define PD4_FUNC					AS_GPIO
+#define PD4_OUTPUT_ENABLE			1
+#define PD4_INPUT_ENABLE			0
+
+#define COOL_LIGHT_GPIO				LED_W
+
+#define LED_POWER					LED_R
+#define LED_PERMIT					LED_G
 #endif
 
-#define VOLTAGE_DETECT_PIN			GPIO_PC5
+// ADC
+#if VOLTAGE_DETECT_ENABLE
+#define VOLTAGE_DETECT_ADC_PIN		GPIO_PC5
+#endif
 
 // UART
 #if ZBHCI_UART
-	#error please configurate uart PIN!!!!!!
+#error please configurate uart PIN!!!!!!
 #endif
 
 // DEBUG
 #if UART_PRINTF_MODE
-	#define	DEBUG_INFO_TX_PIN	    GPIO_PA2//print
+#define	DEBUG_INFO_TX_PIN	    	GPIO_PA2//print
 #endif
 
 

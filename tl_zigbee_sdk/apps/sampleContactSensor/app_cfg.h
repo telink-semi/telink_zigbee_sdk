@@ -32,14 +32,9 @@ extern "C" {
 
 
 /**********************************************************************
- * Version configuration
+ * App configuration
  */
-#include "version_cfg.h"
-
-/**********************************************************************
- * Product Information
- */
-/* Debug mode config */
+/* Debug mode */
 #define	UART_PRINTF_MODE				0
 #define USB_PRINTF_MODE         		0
 
@@ -53,11 +48,50 @@ extern "C" {
 #define TOUCHLINK_SUPPORT				0
 #define FIND_AND_BIND_SUPPORT			0
 
+/* Voltage detect module */
+/* If VOLTAGE_DETECT_ENABLE is set,
+ * 1) if MCU_CORE_826x is defined, the DRV_ADC_VBAT_MODE mode is used by default,
+ * and there is no need to configure the detection IO port;
+ * 2) if MCU_CORE_8258 or MCU_CORE_8278 is defined, the DRV_ADC_VBAT_MODE mode is used by default,
+ * we need to configure the detection IO port, and the IO must be in a floating state.
+ * 3) if MCU_CORE_B91 is defined, the DRV_ADC_BASE_MODE mode is used by default,
+ * we need to configure the detection IO port, and the IO must be connected to the target under test,
+ * such as VCC.
+ */
+#define VOLTAGE_DETECT_ENABLE			0
+
+/* Flash protect module */
+/* Only the firmware area will be locked, the NV data area will not be locked.
+ * For details, please refer to drv_flash.c file.
+ */
+#define FLASH_PROTECT_ENABLE			1
+
+/* Watch dog module */
+#define MODULE_WATCHDOG_ENABLE			0
+
+/* UART module */
+#define	MODULE_UART_ENABLE				0
+
+#if (ZBHCI_USB_PRINT || ZBHCI_USB_CDC || ZBHCI_USB_HID || ZBHCI_UART)
+	#define ZBHCI_EN					1
+#endif
+
+
+/**********************************************************************
+ * ZCL cluster configuration
+ */
+#define ZCL_IAS_ZONE_SUPPORT			1
+#define ZCL_POLL_CTRL_SUPPORT			1
+#define ZCL_OTA_SUPPORT					1
+
+/**********************************************************************
+ * Board definitions
+ */
 /* Board ID */
 #define BOARD_826x_EVK					0
 #define BOARD_826x_DONGLE				1
 #define BOARD_826x_DONGLE_PA			2
-#define BOARD_8258_EVK					3
+#define BOARD_8258_EVK					3//DEPRECATED
 #define BOARD_8258_EVK_V1P2				4//C1T139A30_V1.2
 #define BOARD_8258_DONGLE				5
 #define BOARD_8278_EVK					6
@@ -109,7 +143,14 @@ extern "C" {
 	#error "MCU is undefined!"
 #endif
 
-/* Board include */
+/**********************************************************************
+ * Version configuration
+ */
+#include "version_cfg.h"
+
+/**********************************************************************
+ * Board configuration
+ */
 #if (BOARD == BOARD_826x_EVK)
 	#include "board_826x_evk.h"
 #elif (BOARD == BOARD_826x_DONGLE)
@@ -119,7 +160,7 @@ extern "C" {
 #elif (BOARD == BOARD_8258_DONGLE)
 	#include "board_8258_dongle.h"
 #elif (BOARD == BOARD_8258_EVK)
-	#include "board_8258_evk.h"
+	#include "board_8258_evk.h"//DEPRECATED
 #elif (BOARD == BOARD_8258_EVK_V1P2)
 	#include "board_8258_evk_v1p2.h"
 #elif (BOARD == BOARD_8278_EVK)
@@ -144,50 +185,10 @@ extern "C" {
 	#include "board_tl321x_dongle.h"
 #endif
 
-
-/* Voltage detect module */
-/* If VOLTAGE_DETECT_ENABLE is set,
- * 1) if MCU_CORE_826x is defined, the DRV_ADC_VBAT_MODE mode is used by default,
- * and there is no need to configure the detection IO port;
- * 2) if MCU_CORE_8258 or MCU_CORE_8278 is defined, the DRV_ADC_VBAT_MODE mode is used by default,
- * we need to configure the detection IO port, and the IO must be in a floating state.
- * 3) if MCU_CORE_B91 is defined, the DRV_ADC_BASE_MODE mode is used by default,
- * we need to configure the detection IO port, and the IO must be connected to the target under test,
- * such as VCC.
- */
-#define VOLTAGE_DETECT_ENABLE						0
-#define VOLTAGE_DETECT_ADC_PIN						VOLTAGE_DETECT_PIN
-
-/* Flash protect module */
-/* Only the firmware area will be locked, the NV data area will not be locked.
- * For details, please refer to drv_flash.c file.
- */
-#define FLASH_PROTECT_ENABLE						1
-
-/* Watch dog module */
-#define MODULE_WATCHDOG_ENABLE						0
-
-/* UART module */
-#define	MODULE_UART_ENABLE							0
-
-#if (ZBHCI_USB_PRINT || ZBHCI_USB_CDC || ZBHCI_USB_HID || ZBHCI_UART)
-	#define ZBHCI_EN								1
-#endif
-
-
-/**********************************************************************
- * ZCL cluster support setting
- */
-#define ZCL_IAS_ZONE_SUPPORT						1
-#define ZCL_POLL_CTRL_SUPPORT						1
-#define ZCL_OTA_SUPPORT								1
-
-
 /**********************************************************************
  * Stack configuration
  */
 #include "stack_cfg.h"
-
 
 /**********************************************************************
  * EV configuration

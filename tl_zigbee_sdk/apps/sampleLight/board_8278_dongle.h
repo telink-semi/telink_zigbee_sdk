@@ -30,10 +30,6 @@
 extern "C" {
 #endif
 
-
-/*******************************************************************************************************
-*********************8278Dongle with 48 Pins: Start*****************************************************
-*******************************************************************************************************/
 //KEY
 #define	BUTTON1 					GPIO_PD6
 #define PD6_FUNC					AS_GPIO
@@ -56,7 +52,6 @@ extern "C" {
 * LED_Y			GPIO_PA4	//D3 -- yellow		PWM2
 ****************************************************************/
 #if defined COLOR_RGB_SUPPORT && (COLOR_RGB_SUPPORT == 1)
-
 #define LED_R						GPIO_PA3	//D2 -- red			PWM1
 #define LED_G						GPIO_PA2	//D1 -- green		PWM0
 #define LED_B						GPIO_PB0	//D4 -- blue		PWM3
@@ -83,7 +78,7 @@ extern "C" {
 #define G_LIGHT_PWM_SET()			PWM_G_CHANNEL_SET()
 #define B_LIGHT_PWM_SET()			PWM_B_CHANNEL_SET()
 
-//LED_Y and LED_W as GPIO.
+//Others as GPIO.
 #define LED_Y						GPIO_PA4
 #define LED_W						GPIO_PB1
 
@@ -97,9 +92,7 @@ extern "C" {
 
 #define LED_POWER					LED_W
 #define LED_PERMIT					LED_Y
-
-#else
-
+#elif defined COLOR_CCT_SUPPORT && (COLOR_CCT_SUPPORT == 1)
 //PWM configuration, LED_Y as warm light, LED_W as cool light.
 #define LED_Y						GPIO_PA4	//D3 -- yellow		PWM2
 #define LED_W						GPIO_PB1	//D5 -- white		PWM4
@@ -119,9 +112,10 @@ extern "C" {
 #define WARM_LIGHT_PWM_SET()		PWM_Y_CHANNEL_SET()
 #define COOL_LIGHT_PWM_SET()		PWM_W_CHANNEL_SET()
 
-//LED_R and LED_G as GPIO.
+//Others as GPIO.
 #define LED_R						GPIO_PA3
 #define LED_G						GPIO_PA2
+#define LED_B						GPIO_PB0
 
 #define PA3_FUNC					AS_GPIO
 #define PA3_OUTPUT_ENABLE			1
@@ -131,24 +125,97 @@ extern "C" {
 #define PA2_OUTPUT_ENABLE			1
 #define PA2_INPUT_ENABLE			0
 
+#define PB0_FUNC					AS_GPIO
+#define PB0_OUTPUT_ENABLE			1
+#define PB0_INPUT_ENABLE			0
+
 #define LED_POWER					LED_R
 #define LED_PERMIT					LED_G
+#elif defined ZCL_LEVEL_CTRL_SUPPORT && (ZCL_LEVEL_CTRL_SUPPORT == 1)
+#define LED_W						GPIO_PB1
 
+#define PWM_W_CHANNEL				4//PWM4
+#define PWM_W_CHANNEL_SET()			do{	\
+										gpio_set_func(LED_W, AS_PWM4); 		\
+									}while(0)
+
+#define COOL_LIGHT_PWM_CHANNEL		PWM_W_CHANNEL
+#define COOL_LIGHT_PWM_SET()		PWM_W_CHANNEL_SET()
+
+//Others as GPIO.
+#define LED_Y						GPIO_PA4
+#define LED_R						GPIO_PA3
+#define LED_G						GPIO_PA2
+#define LED_B						GPIO_PB0
+
+#define PA4_FUNC					AS_GPIO
+#define PA4_OUTPUT_ENABLE			1
+#define PA4_INPUT_ENABLE			0
+
+#define PA3_FUNC					AS_GPIO
+#define PA3_OUTPUT_ENABLE			1
+#define PA3_INPUT_ENABLE			0
+
+#define PA2_FUNC					AS_GPIO
+#define PA2_OUTPUT_ENABLE			1
+#define PA2_INPUT_ENABLE			0
+
+#define PB0_FUNC					AS_GPIO
+#define PB0_OUTPUT_ENABLE			1
+#define PB0_INPUT_ENABLE			0
+
+#define LED_POWER					LED_R
+#define LED_PERMIT					LED_G
+#else
+//All LED as GPIO.
+#define LED_Y						GPIO_PA4
+#define LED_R						GPIO_PA3
+#define LED_G						GPIO_PA2
+#define LED_B						GPIO_PB0
+#define LED_W						GPIO_PB1
+
+#define PA4_FUNC					AS_GPIO
+#define PA4_OUTPUT_ENABLE			1
+#define PA4_INPUT_ENABLE			0
+
+#define PA3_FUNC					AS_GPIO
+#define PA3_OUTPUT_ENABLE			1
+#define PA3_INPUT_ENABLE			0
+
+#define PA2_FUNC					AS_GPIO
+#define PA2_OUTPUT_ENABLE			1
+#define PA2_INPUT_ENABLE			0
+
+#define PB0_FUNC					AS_GPIO
+#define PB0_OUTPUT_ENABLE			1
+#define PB0_INPUT_ENABLE			0
+
+#define PB1_FUNC					AS_GPIO
+#define PB1_OUTPUT_ENABLE			1
+#define PB1_INPUT_ENABLE			0
+
+#define COOL_LIGHT_GPIO				LED_W
+
+#define LED_POWER					LED_R
+#define LED_PERMIT					LED_G
 #endif
 
-#define VOLTAGE_DETECT_PIN			GPIO_PC5
+// ADC
+#if VOLTAGE_DETECT_ENABLE
+#define VOLTAGE_DETECT_ADC_PIN		GPIO_PC5
+#endif
 
 // UART
 #if ZBHCI_UART
-	#define UART_TX_PIN         	UART_TX_PD7
-	#define UART_RX_PIN         	UART_RX_PA0
+#define UART_TX_PIN         		UART_TX_PD7
+#define UART_RX_PIN         		UART_RX_PA0
 
-	#define UART_PIN_CFG()			uart_gpio_set(UART_TX_PIN, UART_RX_PIN);// uart tx/rx pin set
+#define UART_PIN_CFG()				uart_gpio_set(UART_TX_PIN, UART_RX_PIN);// uart tx/rx pin set
 #endif
 
 // DEBUG
 #if UART_PRINTF_MODE
-	#define	DEBUG_INFO_TX_PIN	    GPIO_PC6//print
+#define	DEBUG_INFO_TX_PIN	    	GPIO_PC6//print
 #endif
 
 

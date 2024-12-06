@@ -30,7 +30,6 @@
 extern "C" {
 #endif
 
-
 // BUTTON
 #define BUTTON1               		GPIO_PE7//SW1
 #define PE7_FUNC			  		AS_GPIO
@@ -78,24 +77,27 @@ extern "C" {
 #define LED_POWER					LED_R
 #define LED_PERMIT					LED_G
 
-#define VOLTAGE_DETECT_PIN			ADC_GPIO_PB7//todo
+// ADC
+#if VOLTAGE_DETECT_ENABLE
+#define VOLTAGE_DETECT_ADC_PIN		ADC_GPIO_PB7//todo
+#endif
 
 // UART
 #if UART_ENABLE
-	#define UART_TX_PIN         	GPIO_PD1
-	#define UART_RX_PIN         	GPIO_PD3
+#define UART_TX_PIN         		GPIO_PD1
+#define UART_RX_PIN         		GPIO_PD3
 
-	#define UART_PIN_CFG()			drv_uart_pin_set(UART_TX_PIN, UART_RX_PIN);// uart tx/rx pin set
+#define UART_PIN_CFG()				drv_uart_pin_set(UART_TX_PIN, UART_RX_PIN);// uart tx/rx pin set
 #endif
 
 // DEBUG
 #if UART_PRINTF_MODE
-	#define	DEBUG_INFO_TX_PIN	    GPIO_PC0//print
+#define	DEBUG_INFO_TX_PIN	    	GPIO_PC0//print
 #endif
 
 // USB
 #if ZBHCI_USB_PRINT || ZBHCI_USB_CDC || ZBHCI_USB_HID
-	#define HW_USB_CFG()			do{ \
+#define HW_USB_CFG()				do{ \
 										usb_set_pin_en();	\
 										usb_edp_en();		\
 									}while(0)

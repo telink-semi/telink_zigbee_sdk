@@ -105,6 +105,7 @@ void sampleSwitch_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg)
 			sampleSwitch_zclWriteRspCmd(cluster, pInHdlrMsg->attrCmd);
 			break;
 		case ZCL_CMD_WRITE:
+		case ZCL_CMD_WRITE_NO_RSP:
 			sampleSwitch_zclWriteReqCmd(cluster, pInHdlrMsg->attrCmd);
 			break;
 #endif

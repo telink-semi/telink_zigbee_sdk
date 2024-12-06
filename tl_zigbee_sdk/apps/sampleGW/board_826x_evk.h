@@ -67,34 +67,38 @@ extern "C" {
 #define LED_POWER					LED_W
 #define LED_PERMIT					LED_B
 
-#define VOLTAGE_DETECT_PIN			NOINPUT
 
 //UART
 #if	ZBHCI_UART
-	#define UART_TX_PIN         	GPIO_PC2
-	#define PC2_FUNC                AS_UART
-	#define PC2_INPUT_ENABLE        0
-	#define PC2_OUTPUT_ENABLE       1
-	#define PC2_DATA_STRENGTH       0
+#define UART_TX_PIN         		GPIO_PC2
+#define PC2_FUNC                	AS_UART
+#define PC2_INPUT_ENABLE        	0
+#define PC2_OUTPUT_ENABLE       	1
+#define PC2_DATA_STRENGTH       	0
 
-	#define UART_RX_PIN         	GPIO_PC3
-	#define PC3_FUNC                AS_UART
-	#define PC3_INPUT_ENABLE        1
-	#define PC3_OUTPUT_ENABLE       0
-	#define PC3_DATA_STRENGTH       0
-	#define PULL_WAKEUP_SRC_PC3     PM_PIN_PULLUP_10K
+#define UART_RX_PIN         		GPIO_PC3
+#define PC3_FUNC                	AS_UART
+#define PC3_INPUT_ENABLE        	1
+#define PC3_OUTPUT_ENABLE       	0
+#define PC3_DATA_STRENGTH       	0
+#define PULL_WAKEUP_SRC_PC3     	PM_PIN_PULLUP_10K
 
-	#define UART_PIN_CFG()			UART_GPIO_CFG_PC2_PC3()
+#define UART_PIN_CFG()				UART_GPIO_CFG_PC2_PC3()
+#endif
+
+//ADC
+#if VOLTAGE_DETECT_ENABLE
+#define VOLTAGE_DETECT_ADC_PIN		NOINPUT
 #endif
 
 //DEBUG
 #if UART_PRINTF_MODE
-	#define	DEBUG_INFO_TX_PIN	    GPIO_PC5//print
+#define	DEBUG_INFO_TX_PIN	    	GPIO_PC5//print
 #endif
 
 //USB
 #if ZBHCI_USB_PRINT || ZBHCI_USB_CDC || ZBHCI_USB_HID
-	#define HW_USB_CFG()			do{ \
+#define HW_USB_CFG()				do{ \
 										usb_set_pin_en();	\
 									}while(0)
 #endif

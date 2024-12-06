@@ -30,60 +30,6 @@
 extern "C" {
 #endif
 
-
-#define DONGLE_8258_32				0
-#define	DONGLE_8258_48				1
-
-#if defined DONGLE_8258_32 && (DONGLE_8258_32 == 1)
-/*******************************************************************************************************
-*********************8258Dongle with 32 Pins: Start*****************************************************
-*******************************************************************************************************/
-//KEY
-#define	BUTTON1 					GPIO_PD7
-#define PD7_FUNC					AS_GPIO
-#define PD7_OUTPUT_ENABLE			0
-#define PD7_INPUT_ENABLE			1
-#define	PULL_WAKEUP_SRC_PD7			PM_PIN_PULLUP_10K
-
-#define	BUTTON2 					GPIO_PA1
-#define PA1_FUNC					AS_GPIO
-#define PA1_OUTPUT_ENABLE			0
-#define PA1_INPUT_ENABLE			1
-#define	PULL_WAKEUP_SRC_PA1			PM_PIN_PULLUP_10K
-
-//LED
-#define LED1						GPIO_PA0
-#define PA0_FUNC					AS_GPIO
-#define PA0_OUTPUT_ENABLE			1
-#define PA0_INPUT_ENABLE			0
-
-#define LED3						GPIO_PD4
-#define PD4_FUNC					AS_GPIO
-#define PD4_OUTPUT_ENABLE			1
-#define PD4_INPUT_ENABLE			0
-
-#define LED_POWER					LED3
-
-#define	PM_WAKEUP_LEVEL		  		PM_WAKEUP_LEVEL_LOW
-
-#define VOLTAGE_DETECT_PIN			GPIO_PC5
-
-// UART
-#if ZBHCI_UART
-	#error please configurate uart PIN!!!!!!
-#endif
-
-// DEBUG
-#if UART_PRINTF_MODE
-	#define	DEBUG_INFO_TX_PIN	    GPIO_PC4//print
-#endif
-/*******************************************************************************************************
-*********************8258Dongle with 32 Pins: End*****************************************************
-*******************************************************************************************************/
-#elif defined DONGLE_8258_48 && (DONGLE_8258_48 == 1)
-/*******************************************************************************************************
-*********************8258Dongle with 48 Pins: Start*****************************************************
-*******************************************************************************************************/
 //KEY
 #define	BUTTON1 					GPIO_PD6
 #define PD6_FUNC					AS_GPIO
@@ -112,24 +58,20 @@ extern "C" {
 
 #define	PM_WAKEUP_LEVEL		  		PM_WAKEUP_LEVEL_LOW
 
-#define VOLTAGE_DETECT_PIN			GPIO_PC5
+// ADC
+#if 1//VOLTAGE_DETECT_ENABLE
+#define VOLTAGE_DETECT_ADC_PIN		GPIO_PC5
+#endif
 
 // UART
 #if ZBHCI_UART
-	#error please configurate uart PIN!!!!!!
+#error please configurate uart PIN!!!!!!
 #endif
 
 // DEBUG
 #if UART_PRINTF_MODE
-	#define	DEBUG_INFO_TX_PIN	    GPIO_PC6//print
+#define	DEBUG_INFO_TX_PIN	    	GPIO_PC6//print
 #endif
-/*******************************************************************************************************
-*********************8258Dongle with 48 Pins: End*****************************************************
-*******************************************************************************************************/
-#else
-	#error "Board defined error!"
-#endif
-
 
 enum{
 	VK_SW1 = 0x01,

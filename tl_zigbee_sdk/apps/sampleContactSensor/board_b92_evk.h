@@ -86,16 +86,19 @@ extern "C" {
 
 #define	PM_WAKEUP_LEVEL		  		PM_WAKEUP_LEVEL_HIGH
 
-#define VOLTAGE_DETECT_PIN			ADC_GPIO_PB7
+// ADC
+#if VOLTAGE_DETECT_ENABLE
+#define VOLTAGE_DETECT_ADC_PIN		ADC_GPIO_PB7
+#endif
 
 // UART
 #if ZBHCI_UART
-	#error please configurate uart PIN!!!!!!
+#error please configurate uart PIN!!!!!!
 #endif
 
 // DEBUG
 #if UART_PRINTF_MODE
-	#define	DEBUG_INFO_TX_PIN	    GPIO_PE5//print
+#define	DEBUG_INFO_TX_PIN	    	GPIO_PE5//print
 #endif
 
 

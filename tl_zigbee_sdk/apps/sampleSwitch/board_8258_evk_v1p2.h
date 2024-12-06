@@ -43,12 +43,13 @@ extern "C" {
 #define PB3_INPUT_ENABLE	  		1
 #define	PULL_WAKEUP_SRC_PB3	  		PM_PIN_PULLDOWN_100K
 
-
+#define BUTTON3               		GPIO_PB4
 #define PB4_FUNC			  		AS_GPIO
 #define PB4_OUTPUT_ENABLE	  		0
 #define PB4_INPUT_ENABLE	  		1
 #define	PULL_WAKEUP_SRC_PB4	  		PM_PIN_PULLUP_10K
 
+#define BUTTON4               		GPIO_PB5
 #define PB5_FUNC			  		AS_GPIO
 #define PB5_OUTPUT_ENABLE	  		0
 #define PB5_INPUT_ENABLE	  		1
@@ -69,16 +70,19 @@ extern "C" {
 
 #define	PM_WAKEUP_LEVEL		  		PM_WAKEUP_LEVEL_HIGH
 
-#define VOLTAGE_DETECT_PIN			GPIO_PC5
+// ADC
+#if 1//VOLTAGE_DETECT_ENABLE
+#define VOLTAGE_DETECT_ADC_PIN		GPIO_PC5
+#endif
 
 // UART
 #if ZBHCI_UART
-	#error please configurate uart PIN!!!!!!
+#error please configurate uart PIN!!!!!!
 #endif
 
 // DEBUG
 #if UART_PRINTF_MODE
-	#define	DEBUG_INFO_TX_PIN	    GPIO_PD0//print
+#define	DEBUG_INFO_TX_PIN	    	GPIO_PD0//print
 #endif
 
 

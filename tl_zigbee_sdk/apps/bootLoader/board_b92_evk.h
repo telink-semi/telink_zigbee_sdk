@@ -37,28 +37,28 @@ extern "C" {
 #define PD2_FUNC			  		AS_GPIO
 #define PD2_OUTPUT_ENABLE	  		0
 #define PD2_INPUT_ENABLE	  		1
-#define	PULL_WAKEUP_SRC_PD2	  		GPIO_PIN_PULLUP_1M
+#define	PULL_WAKEUP_SRC_PD2	  		GPIO_PIN_PULLDOWN_100K
 
 //sw3
 #define BUTTON2               		GPIO_PD7
 #define PD7_FUNC			  		AS_GPIO
 #define PD7_OUTPUT_ENABLE	  		0
 #define PD7_INPUT_ENABLE	  		1
-#define	PULL_WAKEUP_SRC_PD7	  		GPIO_PIN_PULLUP_1M
+#define	PULL_WAKEUP_SRC_PD7	  		GPIO_PIN_PULLDOWN_100K
 
 //sw4
 #define BUTTON3               		GPIO_PD6
 #define PD6_FUNC			  		AS_GPIO
 #define PD6_OUTPUT_ENABLE	  		0
 #define PD6_INPUT_ENABLE	  		1
-#define	PULL_WAKEUP_SRC_PD6	  		GPIO_PIN_PULLUP_1M
+#define	PULL_WAKEUP_SRC_PD6	  		GPIO_PIN_PULLUP_10K
 
 //sw5
 #define BUTTON4               		GPIO_PF6
 #define PF6_FUNC			  		AS_GPIO
 #define PF6_OUTPUT_ENABLE	  		0
 #define PF6_INPUT_ENABLE	  		1
-#define	PULL_WAKEUP_SRC_PF6	  		GPIO_PIN_PULLUP_1M
+#define	PULL_WAKEUP_SRC_PF6	  		GPIO_PIN_PULLUP_10K
 
 // LED
 #define LED_R     					GPIO_PE7
@@ -84,24 +84,27 @@ extern "C" {
 #define LED_POWER					LED_R
 #define LED_PERMIT					LED_G
 
-#define VOLTAGE_DETECT_PIN			ADC_GPIO_PB7
+// ADC
+#if VOLTAGE_DETECT_ENABLE
+#define VOLTAGE_DETECT_ADC_PIN		ADC_GPIO_PB7
+#endif
 
 // UART
 #if UART_ENABLE
-	#define UART_TX_PIN         	GPIO_PB1
-	#define UART_RX_PIN         	GPIO_PB2
+#define UART_TX_PIN         		GPIO_PB1
+#define UART_RX_PIN         		GPIO_PB2
 
-	#define UART_PIN_CFG()			drv_uart_pin_set(UART_TX_PIN, UART_RX_PIN);// uart tx/rx pin set
+#define UART_PIN_CFG()				drv_uart_pin_set(UART_TX_PIN, UART_RX_PIN);// uart tx/rx pin set
 #endif
 
 // DEBUG
 #if UART_PRINTF_MODE
-	#define	DEBUG_INFO_TX_PIN	    GPIO_PE5//print
+#define	DEBUG_INFO_TX_PIN	    	GPIO_PE5//print
 #endif
 
 // USB
 #if ZBHCI_USB_PRINT || ZBHCI_USB_CDC || ZBHCI_USB_HID
-	#define HW_USB_CFG()			do{ \
+#define HW_USB_CFG()				do{ \
 										usb_set_pin_en();	\
 										usb_edp_en();		\
 									}while(0)
