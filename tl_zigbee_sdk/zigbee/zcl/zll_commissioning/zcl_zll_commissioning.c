@@ -902,6 +902,12 @@ _CODE_ZCL_ u8 zcl_touchLinkCmdHandler(zclIncoming_t *pInMsg){
 }
 
 
+const zclAttrInfo_t touchLink_attrTbl[] = {
+	{ZCL_ATTRID_GLOBAL_CLUSTER_REVISION, ZCL_DATA_TYPE_UINT16, ACCESS_CONTROL_READ, (u8*)&zcl_attr_global_clusterRevision},
+};
+
+#define ZCL_TOUCH_LINK_ATTR_NUM	 (sizeof(touchLink_attrTbl)/sizeof(zclAttrInfo_t))
+
 /*
  *  zcl_touchlink_register
  *
@@ -910,7 +916,7 @@ _CODE_ZCL_ status_t zcl_touchlink_register(u8 endpoint, const zcl_touchlinkAppCa
 	g_zllCommission.appCb = cb;
 	zcl_touchLinkInit();
 
-	return zcl_registerCluster(endpoint, ZCL_CLUSTER_TOUCHLINK_COMMISSIONING, 0, 0, NULL, zcl_touchLinkCmdHandler, NULL);
+	return zcl_registerCluster(endpoint, ZCL_CLUSTER_TOUCHLINK_COMMISSIONING, 0, ZCL_TOUCH_LINK_ATTR_NUM, touchLink_attrTbl, zcl_touchLinkCmdHandler, NULL);
 }
 
 
