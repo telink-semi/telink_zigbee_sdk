@@ -26,7 +26,9 @@
 #ifndef ZBHCI_H
 #define	ZBHCI_H
 
-
+#ifndef UART_BAUDRATE
+#define UART_BAUDRATE						115200
+#endif
 
 /** Macro to send a log message to the host machine
  *  First byte of the message is the level (0-7).

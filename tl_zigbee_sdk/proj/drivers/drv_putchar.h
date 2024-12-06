@@ -28,29 +28,28 @@
 #include "../tl_common.h"
 
 
-#if defined(MCU_CORE_826x)
-	#ifndef	BAUDRATE
-		#define BAUDRATE					2000000//2M
-	#endif
-		#define	BIT_INTERVAL	 			(CLOCK_SYS_CLOCK_HZ / BAUDRATE)
-#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91)
-	#ifndef	BAUDRATE
-		#define BAUDRATE					1000000//1M
-	#endif
-		#define	BIT_INTERVAL	 			((16*1000*1000) / BAUDRATE)
-#elif defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
-	#ifndef	BAUDRATE
-		#define BAUDRATE					1000000//1M
-	#endif
-		#define	BIT_INTERVAL	 			((24*1000*1000) / BAUDRATE)
-#endif
-
 #if UART_PRINTF_MODE
+	#ifndef DEBUG_BAUDRATE
+		#if defined(MCU_CORE_826x)
+			#define DEBUG_BAUDRATE			2000000//2M
+		#else
+			#define DEBUG_BAUDRATE			1000000//1M
+		#endif
+	#endif
+
+	#if defined(MCU_CORE_826x)
+		#define	BIT_INTERVAL				(CLOCK_SYS_CLOCK_HZ / DEBUG_BAUDRATE)
+	#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91)
+		#define	BIT_INTERVAL				((16 * 1000 * 1000) / DEBUG_BAUDRATE)
+	#elif defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+		#define	BIT_INTERVAL				((24 * 1000 * 1000) / DEBUG_BAUDRATE)
+	#endif
+
 	#ifdef DEBUG_INFO_TX_PIN
 		#if defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
-			#define TX_PIN_OUTPUT_REG			reg_gpio_out_set_clear(DEBUG_INFO_TX_PIN)
+			#define TX_PIN_OUTPUT_REG		reg_gpio_out_set_clear(DEBUG_INFO_TX_PIN)
 		#else//826x/8258/8278/b91/b92
-			#define TX_PIN_OUTPUT_REG			reg_gpio_out(DEBUG_INFO_TX_PIN)
+			#define TX_PIN_OUTPUT_REG		reg_gpio_out(DEBUG_INFO_TX_PIN)
 		#endif
 
 		#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)

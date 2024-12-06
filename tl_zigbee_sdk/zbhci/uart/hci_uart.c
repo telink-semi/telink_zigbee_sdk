@@ -152,7 +152,7 @@ zbhciTx_e uart_txMsg(u16 u16Type, u16 u16Length, u8 *pu8Data)
 
 void hci_uart_init(void){
 	UART_PIN_CFG();
-	drv_uart_init(115200, uartRxBuf, UART_RX_BUF_SIZE, uartRcvHandler);
+	drv_uart_init(UART_BAUDRATE, uartRxBuf, UART_RX_BUF_SIZE, uartRcvHandler);
 }
 
 #endif
