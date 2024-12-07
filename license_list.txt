@@ -1,6 +1,5 @@
 ./tl_zigbee_sdk/apps/bootLoader/app_cfg.h			TELINK_APACHE  
 ./tl_zigbee_sdk/apps/bootLoader/board_8258_dongle.h			TELINK_APACHE  
-./tl_zigbee_sdk/apps/bootLoader/board_8258_evk.h			TELINK_APACHE  
 ./tl_zigbee_sdk/apps/bootLoader/board_8258_evk_v1p2.h			TELINK_APACHE  
 ./tl_zigbee_sdk/apps/bootLoader/board_826x_dongle.h			TELINK_APACHE  
 ./tl_zigbee_sdk/apps/bootLoader/board_826x_evk.h			TELINK_APACHE  
@@ -29,7 +28,6 @@
 ./tl_zigbee_sdk/apps/sampleContactSensor/app_ui.c			TELINK_APACHE  
 ./tl_zigbee_sdk/apps/sampleContactSensor/app_ui.h			TELINK_APACHE  
 ./tl_zigbee_sdk/apps/sampleContactSensor/board_8258_dongle.h			TELINK_APACHE  
-./tl_zigbee_sdk/apps/sampleContactSensor/board_8258_evk.h			TELINK_APACHE  
 ./tl_zigbee_sdk/apps/sampleContactSensor/board_8258_evk_v1p2.h			TELINK_APACHE  
 ./tl_zigbee_sdk/apps/sampleContactSensor/board_826x_dongle.h			TELINK_APACHE  
 ./tl_zigbee_sdk/apps/sampleContactSensor/board_826x_dongle_pa.h			TELINK_APACHE  
@@ -55,7 +53,6 @@
 ./tl_zigbee_sdk/apps/sampleGW/app_ui.c			TELINK_APACHE  
 ./tl_zigbee_sdk/apps/sampleGW/app_ui.h			TELINK_APACHE  
 ./tl_zigbee_sdk/apps/sampleGW/board_8258_dongle.h			TELINK_APACHE  
-./tl_zigbee_sdk/apps/sampleGW/board_8258_evk.h			TELINK_APACHE  
 ./tl_zigbee_sdk/apps/sampleGW/board_8258_evk_v1p2.h			TELINK_APACHE  
 ./tl_zigbee_sdk/apps/sampleGW/board_826x_dongle.h			TELINK_APACHE  
 ./tl_zigbee_sdk/apps/sampleGW/board_826x_dongle_pa.h			TELINK_APACHE  
@@ -82,7 +79,7 @@
 ./tl_zigbee_sdk/apps/sampleLight/app_ui.c			TELINK_APACHE  
 ./tl_zigbee_sdk/apps/sampleLight/app_ui.h			TELINK_APACHE  
 ./tl_zigbee_sdk/apps/sampleLight/board_8258_dongle.h			TELINK_APACHE  
-./tl_zigbee_sdk/apps/sampleLight/board_8258_evk.h			TELINK_APACHE  
+./tl_zigbee_sdk/apps/sampleLight/board_8258_evk_v1p2.h			TELINK_APACHE  
 ./tl_zigbee_sdk/apps/sampleLight/board_826x_dongle.h			TELINK_APACHE  
 ./tl_zigbee_sdk/apps/sampleLight/board_826x_evk.h			TELINK_APACHE  
 ./tl_zigbee_sdk/apps/sampleLight/board_8278_dongle.h			TELINK_APACHE  
@@ -113,7 +110,6 @@
 ./tl_zigbee_sdk/apps/sampleSwitch/app_ui.c			TELINK_APACHE  
 ./tl_zigbee_sdk/apps/sampleSwitch/app_ui.h			TELINK_APACHE  
 ./tl_zigbee_sdk/apps/sampleSwitch/board_8258_dongle.h			TELINK_APACHE  
-./tl_zigbee_sdk/apps/sampleSwitch/board_8258_evk.h			TELINK_APACHE  
 ./tl_zigbee_sdk/apps/sampleSwitch/board_8258_evk_v1p2.h			TELINK_APACHE  
 ./tl_zigbee_sdk/apps/sampleSwitch/board_826x_dongle.h			TELINK_APACHE  
 ./tl_zigbee_sdk/apps/sampleSwitch/board_826x_dongle_pa.h			TELINK_APACHE  
