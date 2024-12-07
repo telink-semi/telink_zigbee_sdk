@@ -4,6 +4,7 @@ stages:
   - checkLicense
   - build_tc32
   - build_riscv
+  - build_iotStudio
   - cov
   - fossid
   - plainPW_check
@@ -60,6 +61,9 @@ checkLicense:
     - "unknow_type_file.txt"
 
 build_tc32:
+  variables:
+    PROJECT_PATH: './tl_zigbee_sdk/build/tlsr_tc32'
+    PROJECT_NAME: 'tl_zigbee_sdk'
   stage: build_tc32
   tags:
     - LINUX
@@ -70,19 +74,19 @@ build_tc32:
     - chmod +x tl_zigbee_sdk/tools/*.sh
     - date
     - ls tl_zigbee_sdk/build/tlsr_tc32
-    - $TC32_ECLIPSE_BUILD  -data ${CI_PIPELINE_ID}_WS1  -import tl_zigbee_sdk/build/tlsr_tc32 -cleanBuild tl_zigbee_sdk/sampleLight_8258
+    - $TC32_ECLIPSE_BUILD  -data ${CI_PIPELINE_ID}_WS1  -import $PROJECT_PATH -cleanBuild $PROJECT_NAME/sampleLight_8258
     - date
 
   artifacts:
     paths:
-    - "tl_zigbee_sdk/build/tlsr_tc32/sampleLight_8258/*.bin"
-    - "tl_zigbee_sdk/build/tlsr_tc32/sampleLight_8258/*.lst"
-    - "tl_zigbee_sdk/build/tlsr_tc32/sampleLight_8258/*.elf"
+    - "$PROJECT_PATH/**/*.bin"
+    - "$PROJECT_PATH/**/*.lst"
+    - "$PROJECT_PATH/**/*.elf"
 
 build_riscv:
   variables:    
-    CODE_COMPILE_ARCH: 'EAGLE_ANDES'    
-    COV_PF_CATALOG: 'ZIGBEE'  
+    PROJECT_PATH: './tl_zigbee_sdk/build/tlsr_riscv'
+    PROJECT_NAME: 'tl_zigbee_sdk'
   stage: build_riscv
   before_script:
   script:
@@ -91,18 +95,37 @@ build_riscv:
     - chmod +x tl_zigbee_sdk/tools/*.sh
     - date
     - echo "--------------- Will build Demo -----------------"
-    - echo #$ECLIPSE_PROJECT/$ECLIPSE_BUILD_TARGET
-    - $ANDESRISCV_ECLIPSE_BUILD  -data ${CI_PIPELINE_ID}_WS  -import tl_zigbee_sdk/build/tlsr_riscv -cleanBuild tl_zigbee_sdk/sampleLight_9518
+    - echo $PROJECT_PATH
+    - $ANDESRISCV_ECLIPSE_BUILD  -data ${CI_PIPELINE_ID}_WS  -import $PROJECT_PATH -cleanBuild $PROJECT_NAME/sampleLight_b91
     - date
-    - simpleMemoryMap.sh riscv32-elf-readelf | tee mm.csv
-    - MemoryMap_Pretty.py mm.csv | tee mm_pretty.csv
 
   artifacts:
     paths:
-    - "tl_zigbee_sdk/build/tlsr_riscv/sampleLight_9518/output/*.bin"
-    - "tl_zigbee_sdk/build/tlsr_riscv/sampleLight_9518/*.elf"
-    - mm_pretty.csv
-    
+    - "$PROJECT_PATH/**/output/*.bin"
+    - "$PROJECT_PATH/**/output/objdump.txt"
+
+build_iotStudio:
+  variables:    
+    PROJECT_PATH: './tl_zigbee_sdk/build/iot_riscv_tl321x'
+    PROJECT_NAME: 'tl_zigbee_sdk'
+  stage: build_iotStudio
+  before_script:
+  script:
+    - ls
+    - pwd
+    - chmod +x tl_zigbee_sdk/tools/*.sh
+    - date
+    - echo "--------------- Will build Demo -----------------"
+    - echo $PROJECT_PATH
+    - $TELINK_IDE_BUILD  -data ${CI_PIPELINE_ID}_WS  -import $PROJECT_PATH -cleanBuild $PROJECT_NAME/sampleLight_tl321x
+    - date
+
+  artifacts:
+    paths:
+    - "$PROJECT_PATH/**/*.bin"
+    - "$PROJECT_PATH/**/*.lst"
+    - "$PROJECT_PATH/**/*.elf"
+
 # The cov job definition
 cov:
   variables:    
