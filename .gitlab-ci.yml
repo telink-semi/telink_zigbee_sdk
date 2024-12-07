@@ -166,8 +166,13 @@ misspellChecking:
               ./tl_zigbee_sdk/platform/chip_b91/reg_include/core_reg
               ./tl_zigbee_sdk/platform/chip_b92/reg_include/core_reg.h
               ./tl_zigbee_sdk/platform/chip_tl321x/reg_include/core_reg.h
-              ./tl_zigbee_sdk/platform/chip_tl721x/reg_include/core_reg.h"
-    word_filter_pattern: "monts SIE"
+              ./tl_zigbee_sdk/platform/chip_tl721x/reg_include/core_reg.h
+              ./tl_zigbee_sdk/apps/sampleLight/sampleLightCtrl.c
+              ./tl_zigbee_sdk/apps/sampleLight/sampleLightEpCfg.c
+              ./tl_zigbee_sdk/apps/sampleLight/sampleLight.h
+              ./tl_zigbee_sdk/apps/sampleLight/zcl_sceneCb.c
+              ./tl_zigbee_sdk/apps/sampleLight/zcl_colorCtrlCb.c"
+    word_filter_pattern: "monts SIE currentY"
   tags:
     - LINUX
   script:
