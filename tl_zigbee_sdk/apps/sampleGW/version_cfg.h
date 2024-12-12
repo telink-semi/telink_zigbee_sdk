@@ -35,16 +35,24 @@
 	#endif
 #elif defined(MCU_CORE_8258)
 		#define CHIP_TYPE					TLSR_8258_512K//TLSR_8258_1M
+	#if (CHIP_TYPE == TLSR_8258_1M)
+		#define FLASH_CAP_SIZE_1M			1
+	#endif
 #elif defined(MCU_CORE_8278)
 		#define CHIP_TYPE					TLSR_8278
+		#define FLASH_CAP_SIZE_1M			1
 #elif defined(MCU_CORE_B91)
 		#define CHIP_TYPE					TLSR_B91
+		#define FLASH_CAP_SIZE_1M			1
 #elif defined(MCU_CORE_B92)
 		#define CHIP_TYPE					TLSR_B92
+		#define FLASH_CAP_SIZE_1M			1
 #elif defined(MCU_CORE_TL721X)
 		#define CHIP_TYPE					TLSR_TL721X
+		#define FLASH_CAP_SIZE_1M			1
 #elif defined(MCU_CORE_TL321X)
 		#define CHIP_TYPE					TLSR_TL321X
+		#define FLASH_CAP_SIZE_1M			1
 #endif
 
 #define APP_RELEASE							0x10//app release 1.0
