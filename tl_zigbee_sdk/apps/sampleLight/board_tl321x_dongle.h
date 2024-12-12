@@ -144,7 +144,7 @@ extern "C" {
 #define PD5_INPUT_ENABLE			0
 
 #define LED_POWER					LED_Y
-#define LED_PERMIT					LED_W
+#define LED_PERMIT					LED_G
 #elif defined ZCL_LEVEL_CTRL_SUPPORT && (ZCL_LEVEL_CTRL_SUPPORT == 1)
 #define LED_B						GPIO_PB1
 
@@ -184,7 +184,7 @@ extern "C" {
 #define PD5_INPUT_ENABLE			0
 
 #define LED_POWER					LED_Y
-#define LED_PERMIT					LED_W
+#define LED_PERMIT					LED_G
 #else
 //All LED as GPIO.
 #define LED_G						GPIO_PB0
@@ -221,7 +221,7 @@ extern "C" {
 #define COOL_LIGHT_GPIO				LED_B
 
 #define LED_POWER					LED_Y
-#define LED_PERMIT					LED_W
+#define LED_PERMIT					LED_G
 #endif
 
 // ADC
