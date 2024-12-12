@@ -1040,6 +1040,7 @@ typedef struct
 */
 typedef struct
 {
+	tl_zb_normal_neighbor_entry_t *edEntry;
 	nwk_txDataPendEntry_t *entry;
 	ev_timer_event_t *retryTimer;
 	u16	*passiveAckAddr;	/* keep track of which of its neighboring devices have successfully relayed.
