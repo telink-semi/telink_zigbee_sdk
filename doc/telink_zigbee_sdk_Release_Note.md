@@ -1,3 +1,140 @@
+## V3.7.1.2(PR)
+
+### Version
+* Chips
+  - TC32: TLSR8269/TLSR8258/TLSR8278
+  - RISCV: TLSR921x(B91)/TLSR952x(B92)/TL721x A1/TL321x A1
+* Hardware Version
+  - TLSR8258: C1T139A30_V1_2/C1T139A3_V2.0A
+  - TLSR921x(B91): C1T213A20_V1_3/C1T213A3_V1_1
+  - TL321x: C1T335A20_V1_0/C1T335A3_V1_0
+* Driver Version
+  - tl_platform_sdk V3.2.0
+* Toolchain Version
+  - TLSR8269/TLSR8258/TLSR8278: TC32 ELF GCC4.3
+  - TLSR921x(B91): TL32 ELF MCULIB V5F GCC7.4
+  - TLSR952x(B92)/TL721x: TL32 ELF MCULIB V5F GCC12.2
+  - TL321x: TL32 ELF MCULIB V5 GCC12.2
+* IDE Version
+  - Telink IoT Studio: [TelinkIoTStudio_V2024.8](https://wiki.telink-semi.cn/tools_and_sdk/Tools/IoTStudio/TelinkIoTStudio_V2024.8.zip)
+### Features
+* Update sampleLight demo.
+* Update some features of ZCL, such as Level and Color Control.
+* Global ClusterRevision attribute added for Touch Link Cluster.
+### Bug Fixes
+* Fix the DeviceEnabled attribute handling of ZCL Basic Cluster.
+* Fix the exception caused by report value checks.
+* Fix the return pointer of memcpy() and memset().
+* Update libraries to fix the issue of searching for end devices when the broadcast method is 0xFFFF.
+* Update libraries to fix the length issue of APS encrypted data.
+  - The affected SDK versions are from v3.6.8.4 to v3.7.1.1.
+  - In addition, users also can fix this issue by using the tl_apsDataIndRegister() function as follows. 
+  This patch is only available for SDK versions from v3.6.8.4 to v3.7.1.1.
+	~~~
+	void app_apsDataIndLengthFix(void *arg){
+		aps_data_ind_t *ind = (aps_data_ind_t *)arg;
+		if(ind->security_status & SECURITY_IN_APSLAYER){
+			ind->asduLength += 4;
+		}
+	}
+
+	tl_apsDataIndRegister(app_apsDataIndLengthFix);
+	~~~
+### Performance
+* Update UART reception processing to improve fault tolerance.
+### Code Refactoring
+* Refactoring the ZCL report handler and supporting simultaneous reporting of multiple attributes.
+### BREAKING CHANGES
+* N/A
+### Flash
+|   chip   |                  flash                  |
+| :------- | :-------------------------------------: |
+| TLSR8258 | GD25LD40C/GD25LD40E/GD25LD80C/GD25LD80E |
+| TLSR8278 |                    /                    |
+| TLSR921x |        P25Q80U/P25Q80SU/P25Q16SU        |
+| TLSR952x |                    /                    |
+| TL721x   |                    /                    |
+| TL321x   |        P25Q80SU/P25Q16SU/P25Q32SU       | 
+### CodeSize
+* Units: KBytes
+
+|   chip   | sampleGW (RAM/FLASH Size) | sampleLight (RAM/FLASH Size) | sampleSwitch (RAM/FLASH Size) |
+| :------- | :-----------------------: | :--------------------------: | :---------------------------: |
+| TLSR8258 | 34 / 175                  | 32 / 196                     | 22 / 137                      |
+| TLSR8278 | 34 / 171                  | 32 / 193                     | 22 / 133                      |
+| TLSR921x | 36 / 161                  | 34 / 180                     | 25 / 122                      |
+| TLSR952x | 36 / 170                  | 34 / 190                     | 27 / 133                      |
+| TL721x   | 37 / 169                  | 35 / 190                     | 28 / 132                      |
+| TL321x   | 36 / 169                  | 34 / 190                     | 27 / 131                      |
+
+### Version
+* 芯片
+  - TC32: TLSR8269/TLSR8258/TLSR8278
+  - RISCV: TLSR921x(B91)/TLSR952x(B92)/TL721x A1/TL321x A1
+* 硬件版本
+  - TLSR8258: C1T139A30_V1_2/C1T139A3_V2.0A
+  - TLSR921x(B91): C1T213A20_V1_3/C1T213A3_V1_1
+  - TL321x: C1T335A20_V1_0/C1T335A3_V1_0
+* 驱动版本
+  - tl_platform_sdk V3.2.0
+* 工具链版本
+  - TLSR8269/TLSR8258/TLSR8278: TC32 ELF GCC4.3
+  - TLSR921x(B91): TL32 ELF MCULIB V5F GCC7.4
+  - TLSR952x(B92)/TL721x: TL32 ELF MCULIB V5F GCC12.2
+  - TL321x: TL32 ELF MCULIB V5 GCC12.2
+* IDE版本
+  - Telink IoT Studio: [TelinkIoTStudio_V2024.8](https://wiki.telink-semi.cn/tools_and_sdk/Tools/IoTStudio/TelinkIoTStudio_V2024.8.zip)
+### Features
+* 更新sampleLight示例。
+* 更新ZCL的一些功能，如亮度和颜色控制。
+* Touch Link Cluster添加全局ClusterRevision属性。
+### Bug Fixes
+* 修复ZCL Basic Cluster中DeviceEnabled属性的处理。
+* 修复上报值检查引起的异常。
+* 修复memcpy()和memset()的返回指针。
+* 更新库以修复在广播方法为0xFFFF时搜索终端设备的问题。
+* 更新库以修复APS加密数据的长度问题。
+  - 受影响的SDK版本为v3.6.8.4至v3.7.1.1.
+  - 除此之外，用户还可以使用tl_apsDataIndRegister()来修复此问题，参考如下。
+  该补丁仅限于版本为v3.6.8.4至v3.7.1.1的SDK。
+  	~~~
+	void app_apsDataIndLengthFix(void *arg){
+		aps_data_ind_t *ind = (aps_data_ind_t *)arg;
+		if(ind->security_status & SECURITY_IN_APSLAYER){
+			ind->asduLength += 4;
+		}
+	}
+
+	tl_apsDataIndRegister(app_apsDataIndLengthFix);
+	~~~
+### Performance
+* 更新UART接收处理提高容错能力。
+### Code Refactoring
+* 重构ZCL报告处理程序，支持同时报告多个属性。
+### BREAKING CHANGES
+* N/A
+### Flash
+|   chip   |                  flash                  |
+| :------- | :-------------------------------------: |
+| TLSR8258 | GD25LD40C/GD25LD40E/GD25LD80C/GD25LD80E |
+| TLSR8278 |                    /                    |
+| TLSR921x |        P25Q80U/P25Q80SU/P25Q16SU        |
+| TLSR952x |                    /                    |
+| TL721x   |                    /                    |
+| TL321x   |        P25Q80SU/P25Q16SU/P25Q32SU       | 
+### CodeSize
+* 单位: KBytes
+
+|   chip   | sampleGW (RAM/FLASH Size) | sampleLight (RAM/FLASH Size) | sampleSwitch (RAM/FLASH Size) |
+| :------- | :-----------------------: | :--------------------------: | :---------------------------: |
+| TLSR8258 | 34 / 175                  | 32 / 196                     | 22 / 137                      |
+| TLSR8278 | 34 / 171                  | 32 / 193                     | 22 / 133                      |
+| TLSR921x | 36 / 161                  | 34 / 180                     | 25 / 122                      |
+| TLSR952x | 36 / 170                  | 34 / 190                     | 27 / 133                      |
+| TL721x   | 37 / 169                  | 35 / 190                     | 28 / 132                      |
+| TL321x   | 36 / 169                  | 34 / 190                     | 27 / 131                      |
+
+
 ## V3.7.1.1(PR)
 
 ### Version
