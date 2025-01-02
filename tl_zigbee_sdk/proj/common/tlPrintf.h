@@ -57,10 +57,10 @@ int tl_printf(const char *format, ...);
 														}while(0)
 #else
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-	#define printf
+	#define printf(...)	
 #endif
 
-	#define TRACE
+	#define TRACE(...)	
 	#define	DEBUG(compileFlag, ...)
 	#define DEBUG_ARRAY(compileFlag, arrayAddr, len)
 #endif
