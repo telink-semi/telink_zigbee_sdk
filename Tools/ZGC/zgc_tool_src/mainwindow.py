@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'mainwindow.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.4.2
+## Created by: Qt User Interface Compiler version 6.6.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -27,7 +27,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(1173, 846)
+        MainWindow.resize(1229, 846)
         MainWindow.setMinimumSize(QSize(0, 0))
         self.centralWidget = QWidget(MainWindow)
         self.centralWidget.setObjectName(u"centralWidget")
@@ -186,6 +186,7 @@ class Ui_MainWindow(object):
 
         self.checkBox_autoClear = QCheckBox(self.widget)
         self.checkBox_autoClear.setObjectName(u"checkBox_autoClear")
+        self.checkBox_autoClear.setChecked(True)
 
         self.verticalLayout_5.addWidget(self.checkBox_autoClear)
 
@@ -197,8 +198,135 @@ class Ui_MainWindow(object):
 
         self.gridLayout_67.addWidget(self.widget, 0, 0, 1, 1)
 
+        self.verticalLayout_2 = QVBoxLayout()
+        self.verticalLayout_2.setSpacing(6)
+        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.splitter_2 = QSplitter(self.centralWidget)
+        self.splitter_2.setObjectName(u"splitter_2")
+        self.splitter_2.setOrientation(Qt.Horizontal)
+        self.layoutWidget = QWidget(self.splitter_2)
+        self.layoutWidget.setObjectName(u"layoutWidget")
+        self.verticalLayout = QVBoxLayout(self.layoutWidget)
+        self.verticalLayout.setSpacing(6)
+        self.verticalLayout.setContentsMargins(11, 11, 11, 11)
+        self.verticalLayout.setObjectName(u"verticalLayout")
+        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
+        self.listWidget_commandData = QListWidget(self.layoutWidget)
+        self.listWidget_commandData.setObjectName(u"listWidget_commandData")
+        self.listWidget_commandData.setEnabled(True)
+        self.listWidget_commandData.setLineWidth(4)
+        self.listWidget_commandData.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
+        self.listWidget_commandData.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
+
+        self.verticalLayout.addWidget(self.listWidget_commandData)
+
+        self.horizontalLayout = QHBoxLayout()
+        self.horizontalLayout.setSpacing(6)
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.plainTextEdit_sendData = QPlainTextEdit(self.layoutWidget)
+        self.plainTextEdit_sendData.setObjectName(u"plainTextEdit_sendData")
+        self.plainTextEdit_sendData.setEnabled(True)
+        self.plainTextEdit_sendData.setLineWidth(4)
+
+        self.horizontalLayout.addWidget(self.plainTextEdit_sendData)
+
+        self.pushButton_send = QPushButton(self.layoutWidget)
+        self.pushButton_send.setObjectName(u"pushButton_send")
+        sizePolicy1 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(self.pushButton_send.sizePolicy().hasHeightForWidth())
+        self.pushButton_send.setSizePolicy(sizePolicy1)
+        self.pushButton_send.setIconSize(QSize(20, 20))
+
+        self.horizontalLayout.addWidget(self.pushButton_send)
+
+
+        self.verticalLayout.addLayout(self.horizontalLayout)
+
+        self.splitter_2.addWidget(self.layoutWidget)
+        self.listWidget_commandDataParse = QListWidget(self.splitter_2)
+        self.listWidget_commandDataParse.setObjectName(u"listWidget_commandDataParse")
+        self.listWidget_commandDataParse.setLineWidth(4)
+        self.splitter_2.addWidget(self.listWidget_commandDataParse)
+
+        self.verticalLayout_2.addWidget(self.splitter_2)
+
+        self.horizontalLayout_2 = QHBoxLayout()
+        self.horizontalLayout_2.setSpacing(6)
+        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.checkBox_thread = QCheckBox(self.centralWidget)
+        self.checkBox_thread.setObjectName(u"checkBox_thread")
+
+        self.horizontalLayout_2.addWidget(self.checkBox_thread)
+
+        self.checkBox_bleHci = QCheckBox(self.centralWidget)
+        self.checkBox_bleHci.setObjectName(u"checkBox_bleHci")
+
+        self.horizontalLayout_2.addWidget(self.checkBox_bleHci)
+
+        self.horizontalSpacer_64 = QSpacerItem(38, 18, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_2.addItem(self.horizontalSpacer_64)
+
+        self.checkBox_timesend = QCheckBox(self.centralWidget)
+        self.checkBox_timesend.setObjectName(u"checkBox_timesend")
+
+        self.horizontalLayout_2.addWidget(self.checkBox_timesend)
+
+        self.lineEdit_sendInterval = QLineEdit(self.centralWidget)
+        self.lineEdit_sendInterval.setObjectName(u"lineEdit_sendInterval")
+        self.lineEdit_sendInterval.setMaximumSize(QSize(60, 16777215))
+
+        self.horizontalLayout_2.addWidget(self.lineEdit_sendInterval)
+
+        self.label_sendInterval = QLabel(self.centralWidget)
+        self.label_sendInterval.setObjectName(u"label_sendInterval")
+
+        self.horizontalLayout_2.addWidget(self.label_sendInterval)
+
+        self.horizontalSpacer_67 = QSpacerItem(38, 18, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_2.addItem(self.horizontalSpacer_67)
+
+        self.label_recvLabel = QLabel(self.centralWidget)
+        self.label_recvLabel.setObjectName(u"label_recvLabel")
+        self.label_recvLabel.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+
+        self.horizontalLayout_2.addWidget(self.label_recvLabel)
+
+        self.lineEdit_recvInterval = QLineEdit(self.centralWidget)
+        self.lineEdit_recvInterval.setObjectName(u"lineEdit_recvInterval")
+        self.lineEdit_recvInterval.setMaximumSize(QSize(60, 16777215))
+
+        self.horizontalLayout_2.addWidget(self.lineEdit_recvInterval)
+
+        self.label_recvInterval = QLabel(self.centralWidget)
+        self.label_recvInterval.setObjectName(u"label_recvInterval")
+
+        self.horizontalLayout_2.addWidget(self.label_recvInterval)
+
+        self.horizontalSpacer_56 = QSpacerItem(558, 18, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_2.addItem(self.horizontalSpacer_56)
+
+
+        self.verticalLayout_2.addLayout(self.horizontalLayout_2)
+
+
+        self.gridLayout_67.addLayout(self.verticalLayout_2, 1, 0, 1, 2)
+
         self.tabWidget = QTabWidget(self.centralWidget)
         self.tabWidget.setObjectName(u"tabWidget")
+        palette = QPalette()
+        brush = QBrush(QColor(85, 85, 255, 255))
+        brush.setStyle(Qt.SolidPattern)
+        palette.setBrush(QPalette.Active, QPalette.Text, brush)
+        palette.setBrush(QPalette.Inactive, QPalette.Text, brush)
+        brush1 = QBrush(QColor(120, 120, 120, 255))
+        brush1.setStyle(Qt.SolidPattern)
+        palette.setBrush(QPalette.Disabled, QPalette.Text, brush1)
+        self.tabWidget.setPalette(palette)
         self.tabWidget.setElideMode(Qt.ElideNone)
         self.tabWidget.setDocumentMode(False)
         self.bdb = QWidget()
@@ -209,19 +337,19 @@ class Ui_MainWindow(object):
         self.gridLayout_5.setObjectName(u"gridLayout_5")
         self.scrollArea_bdb = QScrollArea(self.bdb)
         self.scrollArea_bdb.setObjectName(u"scrollArea_bdb")
-        palette = QPalette()
-        brush = QBrush(QColor(255, 255, 255, 255))
-        brush.setStyle(Qt.SolidPattern)
-        palette.setBrush(QPalette.Active, QPalette.Base, brush)
-        palette.setBrush(QPalette.Inactive, QPalette.Base, brush)
-        brush1 = QBrush(QColor(240, 240, 240, 255))
-        brush1.setStyle(Qt.SolidPattern)
-        palette.setBrush(QPalette.Disabled, QPalette.Base, brush1)
-        self.scrollArea_bdb.setPalette(palette)
+        palette1 = QPalette()
+        brush2 = QBrush(QColor(255, 255, 255, 255))
+        brush2.setStyle(Qt.SolidPattern)
+        palette1.setBrush(QPalette.Active, QPalette.Base, brush2)
+        palette1.setBrush(QPalette.Inactive, QPalette.Base, brush2)
+        brush3 = QBrush(QColor(240, 240, 240, 255))
+        brush3.setStyle(Qt.SolidPattern)
+        palette1.setBrush(QPalette.Disabled, QPalette.Base, brush3)
+        self.scrollArea_bdb.setPalette(palette1)
         self.scrollArea_bdb.setWidgetResizable(True)
         self.scrollAreaWidgetContents_5 = QWidget()
         self.scrollAreaWidgetContents_5.setObjectName(u"scrollAreaWidgetContents_5")
-        self.scrollAreaWidgetContents_5.setGeometry(QRect(0, 0, 893, 328))
+        self.scrollAreaWidgetContents_5.setGeometry(QRect(0, 0, 949, 365))
         self.gridLayout = QGridLayout(self.scrollAreaWidgetContents_5)
         self.gridLayout.setSpacing(6)
         self.gridLayout.setContentsMargins(11, 11, 11, 11)
@@ -235,32 +363,32 @@ class Ui_MainWindow(object):
         self.horizontalLayout_setChannel.addWidget(self.pushButton_BDBsetCh)
 
         self.comboBox_channelList = QComboBox(self.scrollAreaWidgetContents_5)
-        self.comboBox_channelList.addItem("11")
-        self.comboBox_channelList.addItem("12")
-        self.comboBox_channelList.addItem("13")
-        self.comboBox_channelList.addItem("14")
-        self.comboBox_channelList.addItem("15")
-        self.comboBox_channelList.addItem("16")
-        self.comboBox_channelList.addItem("17")
-        self.comboBox_channelList.addItem("18")
-        self.comboBox_channelList.addItem("19")
-        self.comboBox_channelList.addItem("20")
-        self.comboBox_channelList.addItem("21")
-        self.comboBox_channelList.addItem("22")
-        self.comboBox_channelList.addItem("23")
-        self.comboBox_channelList.addItem("24")
-        self.comboBox_channelList.addItem("25")
-        self.comboBox_channelList.addItem("26")
+        self.comboBox_channelList.addItem("")
+        self.comboBox_channelList.addItem("")
+        self.comboBox_channelList.addItem("")
+        self.comboBox_channelList.addItem("")
+        self.comboBox_channelList.addItem("")
+        self.comboBox_channelList.addItem("")
+        self.comboBox_channelList.addItem("")
+        self.comboBox_channelList.addItem("")
+        self.comboBox_channelList.addItem("")
+        self.comboBox_channelList.addItem("")
+        self.comboBox_channelList.addItem("")
+        self.comboBox_channelList.addItem("")
+        self.comboBox_channelList.addItem("")
+        self.comboBox_channelList.addItem("")
+        self.comboBox_channelList.addItem("")
+        self.comboBox_channelList.addItem("")
         self.comboBox_channelList.setObjectName(u"comboBox_channelList")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
-        sizePolicy1.setHorizontalStretch(0)
-        sizePolicy1.setVerticalStretch(0)
-        sizePolicy1.setHeightForWidth(self.comboBox_channelList.sizePolicy().hasHeightForWidth())
-        self.comboBox_channelList.setSizePolicy(sizePolicy1)
+        sizePolicy2 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+        sizePolicy2.setHorizontalStretch(0)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.comboBox_channelList.sizePolicy().hasHeightForWidth())
+        self.comboBox_channelList.setSizePolicy(sizePolicy2)
         self.comboBox_channelList.setMinimumSize(QSize(20, 0))
         self.comboBox_channelList.setMaximumSize(QSize(100, 16777215))
         self.comboBox_channelList.setSizeAdjustPolicy(QComboBox.AdjustToContents)
-        self.comboBox_channelList.setMinimumContentsLength(3)
+        self.comboBox_channelList.setMinimumContentsLength(0)
 
         self.horizontalLayout_setChannel.addWidget(self.comboBox_channelList)
 
@@ -311,11 +439,11 @@ class Ui_MainWindow(object):
 
         self.lineEdit_dstAddr = QLineEdit(self.scrollAreaWidgetContents_5)
         self.lineEdit_dstAddr.setObjectName(u"lineEdit_dstAddr")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
-        sizePolicy2.setHorizontalStretch(0)
-        sizePolicy2.setVerticalStretch(0)
-        sizePolicy2.setHeightForWidth(self.lineEdit_dstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_dstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        sizePolicy3.setHorizontalStretch(0)
+        sizePolicy3.setVerticalStretch(0)
+        sizePolicy3.setHeightForWidth(self.lineEdit_dstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_dstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_dstAddr.setMinimumSize(QSize(0, 0))
         self.lineEdit_dstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -370,8 +498,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_macAddr = QLineEdit(self.scrollAreaWidgetContents_5)
         self.lineEdit_macAddr.setObjectName(u"lineEdit_macAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_macAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_macAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_macAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_macAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_macAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_macAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -403,19 +531,23 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_setTxPower.addItem(self.horizontalSpacer_25)
 
+
         self.gridLayout.addLayout(self.horizontalLayout_setTxPower, 6, 0, 1, 1)
 
-        self.horizontalLayout_getLocalDevInfo = QHBoxLayout()
-        self.horizontalLayout_getLocalDevInfo.setSpacing(6)
-        self.horizontalLayout_getLocalDevInfo.setObjectName(u"horizontalLayout_getLocalDevInfo")
+        self.horizontalLayout_9 = QHBoxLayout()
+        self.horizontalLayout_9.setSpacing(6)
+        self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
         self.pushButton_getLocalDevInfo = QPushButton(self.scrollAreaWidgetContents_5)
         self.pushButton_getLocalDevInfo.setObjectName(u"pushButton_getLocalDevInfo")
 
-        self.horizontalLayout_getLocalDevInfo.addWidget(self.pushButton_getLocalDevInfo)
-        self.horizontalSpacer_23 = QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum)
-        self.horizontalLayout_getLocalDevInfo.addItem(self.horizontalSpacer_23)
-        self.gridLayout.addLayout(self.horizontalLayout_getLocalDevInfo, 8, 0, 1, 1)
-        
+        self.horizontalLayout_9.addWidget(self.pushButton_getLocalDevInfo)
+
+        self.horizontalSpacer_8 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_9.addItem(self.horizontalSpacer_8)
+
+
+        self.gridLayout.addLayout(self.horizontalLayout_9, 7, 0, 1, 1)
 
         self.horizontalLayout_7 = QHBoxLayout()
         self.horizontalLayout_7.setSpacing(6)
@@ -456,7 +588,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_7.addItem(self.horizontalSpacer_4)
 
 
-        self.gridLayout.addLayout(self.horizontalLayout_7, 7, 0, 1, 1)
+        self.gridLayout.addLayout(self.horizontalLayout_7, 8, 0, 1, 1)
 
         self.label_bindFailList = QLabel(self.scrollAreaWidgetContents_5)
         self.label_bindFailList.setObjectName(u"label_bindFailList")
@@ -480,7 +612,7 @@ class Ui_MainWindow(object):
         self.scrollArea_nodesMgmt.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 914, 316))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 259, 173))
         self.gridLayout_11 = QGridLayout(self.scrollAreaWidgetContents)
         self.gridLayout_11.setSpacing(6)
         self.gridLayout_11.setContentsMargins(11, 11, 11, 11)
@@ -544,15 +676,15 @@ class Ui_MainWindow(object):
         self.gridLayout_9.setObjectName(u"gridLayout_9")
         self.scrollArea_mgmt = QScrollArea(self.mgmt)
         self.scrollArea_mgmt.setObjectName(u"scrollArea_mgmt")
-        palette1 = QPalette()
-        palette1.setBrush(QPalette.Active, QPalette.Base, brush)
-        palette1.setBrush(QPalette.Inactive, QPalette.Base, brush)
-        palette1.setBrush(QPalette.Disabled, QPalette.Base, brush1)
-        self.scrollArea_mgmt.setPalette(palette1)
+        palette2 = QPalette()
+        palette2.setBrush(QPalette.Active, QPalette.Base, brush2)
+        palette2.setBrush(QPalette.Inactive, QPalette.Base, brush2)
+        palette2.setBrush(QPalette.Disabled, QPalette.Base, brush3)
+        self.scrollArea_mgmt.setPalette(palette2)
         self.scrollArea_mgmt.setWidgetResizable(True)
         self.scrollAreaWidgetContents_6 = QWidget()
         self.scrollAreaWidgetContents_6.setObjectName(u"scrollAreaWidgetContents_6")
-        self.scrollAreaWidgetContents_6.setGeometry(QRect(0, 0, 893, 533))
+        self.scrollAreaWidgetContents_6.setGeometry(QRect(0, 0, 873, 533))
         self.verticalLayout_3 = QVBoxLayout(self.scrollAreaWidgetContents_6)
         self.verticalLayout_3.setSpacing(6)
         self.verticalLayout_3.setContentsMargins(11, 11, 11, 11)
@@ -567,8 +699,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_permit_dstAddr = QLineEdit(self.scrollAreaWidgetContents_6)
         self.lineEdit_permit_dstAddr.setObjectName(u"lineEdit_permit_dstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_permit_dstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_permit_dstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_permit_dstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_permit_dstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_permit_dstAddr.setMinimumSize(QSize(260, 0))
         self.lineEdit_permit_dstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -598,8 +730,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_ieeeReqdstAddr = QLineEdit(self.scrollAreaWidgetContents_6)
         self.lineEdit_ieeeReqdstAddr.setObjectName(u"lineEdit_ieeeReqdstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_ieeeReqdstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_ieeeReqdstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_ieeeReqdstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_ieeeReqdstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_ieeeReqdstAddr.setMinimumSize(QSize(260, 0))
         self.lineEdit_ieeeReqdstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -644,8 +776,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_nwkReqDstAddr = QLineEdit(self.scrollAreaWidgetContents_6)
         self.lineEdit_nwkReqDstAddr.setObjectName(u"lineEdit_nwkReqDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_nwkReqDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_nwkReqDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_nwkReqDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_nwkReqDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_nwkReqDstAddr.setMinimumSize(QSize(260, 0))
         self.lineEdit_nwkReqDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -690,8 +822,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_activeReqDstAddr = QLineEdit(self.scrollAreaWidgetContents_6)
         self.lineEdit_activeReqDstAddr.setObjectName(u"lineEdit_activeReqDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_activeReqDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_activeReqDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_activeReqDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_activeReqDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_activeReqDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_activeReqDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -721,8 +853,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_nodeReqDstAddr = QLineEdit(self.scrollAreaWidgetContents_6)
         self.lineEdit_nodeReqDstAddr.setObjectName(u"lineEdit_nodeReqDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_nodeReqDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_nodeReqDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_nodeReqDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_nodeReqDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_nodeReqDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_nodeReqDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -752,8 +884,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_simpleReqDstAddr = QLineEdit(self.scrollAreaWidgetContents_6)
         self.lineEdit_simpleReqDstAddr.setObjectName(u"lineEdit_simpleReqDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_simpleReqDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_simpleReqDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_simpleReqDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_simpleReqDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_simpleReqDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_simpleReqDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -792,8 +924,8 @@ class Ui_MainWindow(object):
         self.horizontalLayout_80.setObjectName(u"horizontalLayout_80")
         self.lineEdit_matchReqDstAddr = QLineEdit(self.scrollAreaWidgetContents_6)
         self.lineEdit_matchReqDstAddr.setObjectName(u"lineEdit_matchReqDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_matchReqDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_matchReqDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_matchReqDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_matchReqDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_matchReqDstAddr.setMinimumSize(QSize(260, 0))
         self.lineEdit_matchReqDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -801,8 +933,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_matchReqInterestAddr = QLineEdit(self.scrollAreaWidgetContents_6)
         self.lineEdit_matchReqInterestAddr.setObjectName(u"lineEdit_matchReqInterestAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_matchReqInterestAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_matchReqInterestAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_matchReqInterestAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_matchReqInterestAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_matchReqInterestAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_matchReqInterestAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -859,8 +991,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_bindReqSrcAddr = QLineEdit(self.scrollAreaWidgetContents_6)
         self.lineEdit_bindReqSrcAddr.setObjectName(u"lineEdit_bindReqSrcAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_bindReqSrcAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_bindReqSrcAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_bindReqSrcAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_bindReqSrcAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_bindReqSrcAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_bindReqSrcAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -891,8 +1023,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_bindReqDstAddr = QLineEdit(self.scrollAreaWidgetContents_6)
         self.lineEdit_bindReqDstAddr.setObjectName(u"lineEdit_bindReqDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_bindReqDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_bindReqDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_bindReqDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_bindReqDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_bindReqDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_bindReqDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -921,8 +1053,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_unbindReqSrcAddr = QLineEdit(self.scrollAreaWidgetContents_6)
         self.lineEdit_unbindReqSrcAddr.setObjectName(u"lineEdit_unbindReqSrcAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_unbindReqSrcAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_unbindReqSrcAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_unbindReqSrcAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_unbindReqSrcAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_unbindReqSrcAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_unbindReqSrcAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -953,8 +1085,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_unbindReqDstAddr = QLineEdit(self.scrollAreaWidgetContents_6)
         self.lineEdit_unbindReqDstAddr.setObjectName(u"lineEdit_unbindReqDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_unbindReqDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_unbindReqDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_unbindReqDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_unbindReqDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_unbindReqDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_unbindReqDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -983,8 +1115,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_lqiReqDstAddr = QLineEdit(self.scrollAreaWidgetContents_6)
         self.lineEdit_lqiReqDstAddr.setObjectName(u"lineEdit_lqiReqDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_lqiReqDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_lqiReqDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_lqiReqDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_lqiReqDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_lqiReqDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_lqiReqDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -1014,8 +1146,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_mgmtBindReqDstAddr = QLineEdit(self.scrollAreaWidgetContents_6)
         self.lineEdit_mgmtBindReqDstAddr.setObjectName(u"lineEdit_mgmtBindReqDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_mgmtBindReqDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_mgmtBindReqDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_mgmtBindReqDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_mgmtBindReqDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_mgmtBindReqDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_mgmtBindReqDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -1045,8 +1177,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_mgmtLeaveReqDstAddr = QLineEdit(self.scrollAreaWidgetContents_6)
         self.lineEdit_mgmtLeaveReqDstAddr.setObjectName(u"lineEdit_mgmtLeaveReqDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_mgmtLeaveReqDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_mgmtLeaveReqDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_mgmtLeaveReqDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_mgmtLeaveReqDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_mgmtLeaveReqDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_mgmtLeaveReqDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -1090,8 +1222,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_nwkUpdateReqDstAddr = QLineEdit(self.scrollAreaWidgetContents_6)
         self.lineEdit_nwkUpdateReqDstAddr.setObjectName(u"lineEdit_nwkUpdateReqDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_nwkUpdateReqDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_nwkUpdateReqDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_nwkUpdateReqDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_nwkUpdateReqDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_nwkUpdateReqDstAddr.setMinimumSize(QSize(236, 0))
         self.lineEdit_nwkUpdateReqDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -1149,11 +1281,11 @@ class Ui_MainWindow(object):
         self.gridLayout_3.setObjectName(u"gridLayout_3")
         self.scrollArea_general = QScrollArea(self.general)
         self.scrollArea_general.setObjectName(u"scrollArea_general")
-        palette2 = QPalette()
-        palette2.setBrush(QPalette.Active, QPalette.Base, brush)
-        palette2.setBrush(QPalette.Inactive, QPalette.Base, brush)
-        palette2.setBrush(QPalette.Disabled, QPalette.Base, brush1)
-        self.scrollArea_general.setPalette(palette2)
+        palette3 = QPalette()
+        palette3.setBrush(QPalette.Active, QPalette.Base, brush2)
+        palette3.setBrush(QPalette.Inactive, QPalette.Base, brush2)
+        palette3.setBrush(QPalette.Disabled, QPalette.Base, brush3)
+        self.scrollArea_general.setPalette(palette3)
         self.scrollArea_general.setWidgetResizable(True)
         self.scrollAreaWidgetContents_4 = QWidget()
         self.scrollAreaWidgetContents_4.setObjectName(u"scrollAreaWidgetContents_4")
@@ -1187,8 +1319,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_readAttrDstAddr = QLineEdit(self.scrollAreaWidgetContents_4)
         self.lineEdit_readAttrDstAddr.setObjectName(u"lineEdit_readAttrDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_readAttrDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_readAttrDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_readAttrDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_readAttrDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_readAttrDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_readAttrDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -1271,8 +1403,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_writeAttrDstAddr = QLineEdit(self.scrollAreaWidgetContents_4)
         self.lineEdit_writeAttrDstAddr.setObjectName(u"lineEdit_writeAttrDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_writeAttrDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_writeAttrDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_writeAttrDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_writeAttrDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_writeAttrDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_writeAttrDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -1388,11 +1520,11 @@ class Ui_MainWindow(object):
         self.comboBox_writeAttrDataType.addItem("")
         self.comboBox_writeAttrDataType.addItem("")
         self.comboBox_writeAttrDataType.setObjectName(u"comboBox_writeAttrDataType")
-        sizePolicy3 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        sizePolicy3.setHorizontalStretch(0)
-        sizePolicy3.setVerticalStretch(0)
-        sizePolicy3.setHeightForWidth(self.comboBox_writeAttrDataType.sizePolicy().hasHeightForWidth())
-        self.comboBox_writeAttrDataType.setSizePolicy(sizePolicy3)
+        sizePolicy4 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        sizePolicy4.setHorizontalStretch(0)
+        sizePolicy4.setVerticalStretch(0)
+        sizePolicy4.setHeightForWidth(self.comboBox_writeAttrDataType.sizePolicy().hasHeightForWidth())
+        self.comboBox_writeAttrDataType.setSizePolicy(sizePolicy4)
         self.comboBox_writeAttrDataType.setMinimumSize(QSize(99, 0))
         self.comboBox_writeAttrDataType.setMaximumSize(QSize(600, 16777215))
         self.comboBox_writeAttrDataType.setSizeAdjustPolicy(QComboBox.AdjustToContents)
@@ -1401,8 +1533,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_writeAttrData = QLineEdit(self.scrollAreaWidgetContents_4)
         self.lineEdit_writeAttrData.setObjectName(u"lineEdit_writeAttrData")
-        sizePolicy2.setHeightForWidth(self.lineEdit_writeAttrData.sizePolicy().hasHeightForWidth())
-        self.lineEdit_writeAttrData.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_writeAttrData.sizePolicy().hasHeightForWidth())
+        self.lineEdit_writeAttrData.setSizePolicy(sizePolicy3)
         self.lineEdit_writeAttrData.setMinimumSize(QSize(400, 0))
 
         self.horizontalLayout_51.addWidget(self.lineEdit_writeAttrData)
@@ -1446,8 +1578,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_readReportCfgDstAddr = QLineEdit(self.scrollAreaWidgetContents_4)
         self.lineEdit_readReportCfgDstAddr.setObjectName(u"lineEdit_readReportCfgDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_readReportCfgDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_readReportCfgDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_readReportCfgDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_readReportCfgDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_readReportCfgDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_readReportCfgDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -1547,8 +1679,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_resetDstAddr = QLineEdit(self.scrollAreaWidgetContents_4)
         self.lineEdit_resetDstAddr.setObjectName(u"lineEdit_resetDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_resetDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_resetDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_resetDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_resetDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_resetDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_resetDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -1602,8 +1734,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_configReportDstAddr = QLineEdit(self.scrollAreaWidgetContents_4)
         self.lineEdit_configReportDstAddr.setObjectName(u"lineEdit_configReportDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_configReportDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_configReportDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_configReportDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_configReportDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_configReportDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_configReportDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -1785,15 +1917,15 @@ class Ui_MainWindow(object):
         self.gridLayout_10.setObjectName(u"gridLayout_10")
         self.scrollArea_group = QScrollArea(self.tab_group)
         self.scrollArea_group.setObjectName(u"scrollArea_group")
-        palette3 = QPalette()
-        palette3.setBrush(QPalette.Active, QPalette.Base, brush)
-        palette3.setBrush(QPalette.Inactive, QPalette.Base, brush)
-        palette3.setBrush(QPalette.Disabled, QPalette.Base, brush1)
-        self.scrollArea_group.setPalette(palette3)
+        palette4 = QPalette()
+        palette4.setBrush(QPalette.Active, QPalette.Base, brush2)
+        palette4.setBrush(QPalette.Inactive, QPalette.Base, brush2)
+        palette4.setBrush(QPalette.Disabled, QPalette.Base, brush3)
+        self.scrollArea_group.setPalette(palette4)
         self.scrollArea_group.setWidgetResizable(True)
         self.scrollAreaWidgetContents_7 = QWidget()
         self.scrollAreaWidgetContents_7.setObjectName(u"scrollAreaWidgetContents_7")
-        self.scrollAreaWidgetContents_7.setGeometry(QRect(0, 0, 914, 316))
+        self.scrollAreaWidgetContents_7.setGeometry(QRect(0, 0, 892, 244))
         self.gridLayout_8 = QGridLayout(self.scrollAreaWidgetContents_7)
         self.gridLayout_8.setSpacing(6)
         self.gridLayout_8.setContentsMargins(11, 11, 11, 11)
@@ -1822,8 +1954,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_addGroupDstAddr = QLineEdit(self.scrollAreaWidgetContents_7)
         self.lineEdit_addGroupDstAddr.setObjectName(u"lineEdit_addGroupDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_addGroupDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_addGroupDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_addGroupDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_addGroupDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_addGroupDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_addGroupDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -1887,8 +2019,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_rmGroupDstAddr = QLineEdit(self.scrollAreaWidgetContents_7)
         self.lineEdit_rmGroupDstAddr.setObjectName(u"lineEdit_rmGroupDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_rmGroupDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_rmGroupDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_rmGroupDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_rmGroupDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_rmGroupDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_rmGroupDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -1944,8 +2076,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_getGroupDstAddr = QLineEdit(self.scrollAreaWidgetContents_7)
         self.lineEdit_getGroupDstAddr.setObjectName(u"lineEdit_getGroupDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_getGroupDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_getGroupDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_getGroupDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_getGroupDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_getGroupDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_getGroupDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -2001,18 +2133,18 @@ class Ui_MainWindow(object):
 
         self.lineEdit_viewGroupDstAddr = QLineEdit(self.scrollAreaWidgetContents_7)
         self.lineEdit_viewGroupDstAddr.setObjectName(u"lineEdit_viewGroupDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_viewGroupDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_viewGroupDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_viewGroupDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_viewGroupDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_viewGroupDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_viewGroupDstAddr.setMaximumSize(QSize(160, 16777215))
 
         self.horizontalLayout_viewGroup.addWidget(self.lineEdit_viewGroupDstAddr)
 
-        self.lineEdit_viewGroupSrcEp = QLineEdit(self.scrollAreaWidgetContents_7)
-        self.lineEdit_viewGroupSrcEp.setObjectName(u"lineEdit_viewGroupSrcEp")
-        self.lineEdit_viewGroupSrcEp.setMaximumSize(QSize(60, 16777215))
+        self.lineEdit_viewGoupSrcEp = QLineEdit(self.scrollAreaWidgetContents_7)
+        self.lineEdit_viewGoupSrcEp.setObjectName(u"lineEdit_viewGoupSrcEp")
+        self.lineEdit_viewGoupSrcEp.setMaximumSize(QSize(60, 16777215))
 
-        self.horizontalLayout_viewGroup.addWidget(self.lineEdit_viewGroupSrcEp)
+        self.horizontalLayout_viewGroup.addWidget(self.lineEdit_viewGoupSrcEp)
 
         self.lineEdit_viewGroupDstEp = QLineEdit(self.scrollAreaWidgetContents_7)
         self.lineEdit_viewGroupDstEp.setObjectName(u"lineEdit_viewGroupDstEp")
@@ -2062,8 +2194,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_addIdenDstAddr = QLineEdit(self.scrollAreaWidgetContents_7)
         self.lineEdit_addIdenDstAddr.setObjectName(u"lineEdit_addIdenDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_addIdenDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_addIdenDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_addIdenDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_addIdenDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_addIdenDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_addIdenDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -2126,8 +2258,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_removeAllDstAddr = QLineEdit(self.scrollAreaWidgetContents_7)
         self.lineEdit_removeAllDstAddr.setObjectName(u"lineEdit_removeAllDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_removeAllDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_removeAllDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_removeAllDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_removeAllDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_removeAllDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_removeAllDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -2165,15 +2297,15 @@ class Ui_MainWindow(object):
         self.gridLayout_13.setObjectName(u"gridLayout_13")
         self.scrollArea_5 = QScrollArea(self.on_off)
         self.scrollArea_5.setObjectName(u"scrollArea_5")
-        palette4 = QPalette()
-        palette4.setBrush(QPalette.Active, QPalette.Base, brush)
-        palette4.setBrush(QPalette.Inactive, QPalette.Base, brush)
-        palette4.setBrush(QPalette.Disabled, QPalette.Base, brush1)
-        self.scrollArea_5.setPalette(palette4)
+        palette5 = QPalette()
+        palette5.setBrush(QPalette.Active, QPalette.Base, brush2)
+        palette5.setBrush(QPalette.Inactive, QPalette.Base, brush2)
+        palette5.setBrush(QPalette.Disabled, QPalette.Base, brush3)
+        self.scrollArea_5.setPalette(palette5)
         self.scrollArea_5.setWidgetResizable(True)
         self.scrollAreaWidgetContents_9 = QWidget()
         self.scrollAreaWidgetContents_9.setObjectName(u"scrollAreaWidgetContents_9")
-        self.scrollAreaWidgetContents_9.setGeometry(QRect(0, 0, 914, 316))
+        self.scrollAreaWidgetContents_9.setGeometry(QRect(0, 0, 615, 59))
         self.gridLayout_12 = QGridLayout(self.scrollAreaWidgetContents_9)
         self.gridLayout_12.setSpacing(6)
         self.gridLayout_12.setContentsMargins(11, 11, 11, 11)
@@ -2202,8 +2334,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_onoffDstAddr = QLineEdit(self.scrollAreaWidgetContents_9)
         self.lineEdit_onoffDstAddr.setObjectName(u"lineEdit_onoffDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_onoffDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_onoffDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_onoffDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_onoffDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_onoffDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_onoffDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -2254,15 +2386,15 @@ class Ui_MainWindow(object):
         self.gridLayout_15.setObjectName(u"gridLayout_15")
         self.scrollArea_6 = QScrollArea(self.level)
         self.scrollArea_6.setObjectName(u"scrollArea_6")
-        palette5 = QPalette()
-        palette5.setBrush(QPalette.Active, QPalette.Base, brush)
-        palette5.setBrush(QPalette.Inactive, QPalette.Base, brush)
-        palette5.setBrush(QPalette.Disabled, QPalette.Base, brush1)
-        self.scrollArea_6.setPalette(palette5)
+        palette6 = QPalette()
+        palette6.setBrush(QPalette.Active, QPalette.Base, brush2)
+        palette6.setBrush(QPalette.Inactive, QPalette.Base, brush2)
+        palette6.setBrush(QPalette.Disabled, QPalette.Base, brush3)
+        self.scrollArea_6.setPalette(palette6)
         self.scrollArea_6.setWidgetResizable(True)
         self.scrollAreaWidgetContents_10 = QWidget()
         self.scrollAreaWidgetContents_10.setObjectName(u"scrollAreaWidgetContents_10")
-        self.scrollAreaWidgetContents_10.setGeometry(QRect(0, 0, 1000, 295))
+        self.scrollAreaWidgetContents_10.setGeometry(QRect(0, 0, 1000, 170))
         self.gridLayout_14 = QGridLayout(self.scrollAreaWidgetContents_10)
         self.gridLayout_14.setSpacing(6)
         self.gridLayout_14.setContentsMargins(11, 11, 11, 11)
@@ -2291,8 +2423,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_toLevelDstAddr = QLineEdit(self.scrollAreaWidgetContents_10)
         self.lineEdit_toLevelDstAddr.setObjectName(u"lineEdit_toLevelDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_toLevelDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_toLevelDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_toLevelDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_toLevelDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_toLevelDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_toLevelDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -2364,8 +2496,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_stopDstAddr = QLineEdit(self.scrollAreaWidgetContents_10)
         self.lineEdit_stopDstAddr.setObjectName(u"lineEdit_stopDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_stopDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_stopDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_stopDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_stopDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_stopDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_stopDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -2422,8 +2554,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_moveDstAddr = QLineEdit(self.scrollAreaWidgetContents_10)
         self.lineEdit_moveDstAddr.setObjectName(u"lineEdit_moveDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_moveDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_moveDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_moveDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_moveDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_moveDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_moveDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -2494,8 +2626,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_stepDstAddr = QLineEdit(self.scrollAreaWidgetContents_10)
         self.lineEdit_stepDstAddr.setObjectName(u"lineEdit_stepDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_stepDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_stepDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_stepDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_stepDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_stepDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_stepDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -2568,15 +2700,15 @@ class Ui_MainWindow(object):
         self.gridLayout_17.setObjectName(u"gridLayout_17")
         self.scrollArea_7 = QScrollArea(self.color)
         self.scrollArea_7.setObjectName(u"scrollArea_7")
-        palette6 = QPalette()
-        palette6.setBrush(QPalette.Active, QPalette.Base, brush)
-        palette6.setBrush(QPalette.Inactive, QPalette.Base, brush)
-        palette6.setBrush(QPalette.Disabled, QPalette.Base, brush1)
-        self.scrollArea_7.setPalette(palette6)
+        palette7 = QPalette()
+        palette7.setBrush(QPalette.Active, QPalette.Base, brush2)
+        palette7.setBrush(QPalette.Inactive, QPalette.Base, brush2)
+        palette7.setBrush(QPalette.Disabled, QPalette.Base, brush3)
+        self.scrollArea_7.setPalette(palette7)
         self.scrollArea_7.setWidgetResizable(True)
         self.scrollAreaWidgetContents_11 = QWidget()
         self.scrollAreaWidgetContents_11.setObjectName(u"scrollAreaWidgetContents_11")
-        self.scrollAreaWidgetContents_11.setGeometry(QRect(0, 0, 927, 295))
+        self.scrollAreaWidgetContents_11.setGeometry(QRect(0, 0, 927, 170))
         self.gridLayout_16 = QGridLayout(self.scrollAreaWidgetContents_11)
         self.gridLayout_16.setSpacing(6)
         self.gridLayout_16.setContentsMargins(11, 11, 11, 11)
@@ -2606,8 +2738,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_moveHueDstAddr = QLineEdit(self.scrollAreaWidgetContents_11)
         self.lineEdit_moveHueDstAddr.setObjectName(u"lineEdit_moveHueDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_moveHueDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_moveHueDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_moveHueDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_moveHueDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_moveHueDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_moveHueDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -2678,8 +2810,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_moveTempDstAddr = QLineEdit(self.scrollAreaWidgetContents_11)
         self.lineEdit_moveTempDstAddr.setObjectName(u"lineEdit_moveTempDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_moveTempDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_moveTempDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_moveTempDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_moveTempDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_moveTempDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_moveTempDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -2743,8 +2875,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_moveSatDstAddr = QLineEdit(self.scrollAreaWidgetContents_11)
         self.lineEdit_moveSatDstAddr.setObjectName(u"lineEdit_moveSatDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_moveSatDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_moveSatDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_moveSatDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_moveSatDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_moveSatDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_moveSatDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -2812,8 +2944,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_moveColorDstAddr = QLineEdit(self.scrollAreaWidgetContents_11)
         self.lineEdit_moveColorDstAddr.setObjectName(u"lineEdit_moveColorDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_moveColorDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_moveColorDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_moveColorDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_moveColorDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_moveColorDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_moveColorDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -2874,15 +3006,15 @@ class Ui_MainWindow(object):
         self.gridLayout_19.setObjectName(u"gridLayout_19")
         self.scrollArea_8 = QScrollArea(self.identify)
         self.scrollArea_8.setObjectName(u"scrollArea_8")
-        palette7 = QPalette()
-        palette7.setBrush(QPalette.Active, QPalette.Base, brush)
-        palette7.setBrush(QPalette.Inactive, QPalette.Base, brush)
-        palette7.setBrush(QPalette.Disabled, QPalette.Base, brush1)
-        self.scrollArea_8.setPalette(palette7)
+        palette8 = QPalette()
+        palette8.setBrush(QPalette.Active, QPalette.Base, brush2)
+        palette8.setBrush(QPalette.Inactive, QPalette.Base, brush2)
+        palette8.setBrush(QPalette.Disabled, QPalette.Base, brush3)
+        self.scrollArea_8.setPalette(palette8)
         self.scrollArea_8.setWidgetResizable(True)
         self.scrollAreaWidgetContents_12 = QWidget()
         self.scrollAreaWidgetContents_12.setObjectName(u"scrollAreaWidgetContents_12")
-        self.scrollAreaWidgetContents_12.setGeometry(QRect(0, 0, 914, 316))
+        self.scrollAreaWidgetContents_12.setGeometry(QRect(0, 0, 725, 96))
         self.gridLayout_18 = QGridLayout(self.scrollAreaWidgetContents_12)
         self.gridLayout_18.setSpacing(6)
         self.gridLayout_18.setContentsMargins(11, 11, 11, 11)
@@ -2912,8 +3044,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_identifyQueryDstAddr = QLineEdit(self.scrollAreaWidgetContents_12)
         self.lineEdit_identifyQueryDstAddr.setObjectName(u"lineEdit_identifyQueryDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_identifyQueryDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_identifyQueryDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_identifyQueryDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_identifyQueryDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_identifyQueryDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_identifyQueryDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -2967,8 +3099,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_identifyDstAddr = QLineEdit(self.scrollAreaWidgetContents_12)
         self.lineEdit_identifyDstAddr.setObjectName(u"lineEdit_identifyDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_identifyDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_identifyDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_identifyDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_identifyDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_identifyDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_identifyDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -3013,11 +3145,11 @@ class Ui_MainWindow(object):
         self.gridLayout_21.setObjectName(u"gridLayout_21")
         self.scrollArea_9 = QScrollArea(self.scene)
         self.scrollArea_9.setObjectName(u"scrollArea_9")
-        palette8 = QPalette()
-        palette8.setBrush(QPalette.Active, QPalette.Base, brush)
-        palette8.setBrush(QPalette.Inactive, QPalette.Base, brush)
-        palette8.setBrush(QPalette.Disabled, QPalette.Base, brush1)
-        self.scrollArea_9.setPalette(palette8)
+        palette9 = QPalette()
+        palette9.setBrush(QPalette.Active, QPalette.Base, brush2)
+        palette9.setBrush(QPalette.Inactive, QPalette.Base, brush2)
+        palette9.setBrush(QPalette.Disabled, QPalette.Base, brush3)
+        self.scrollArea_9.setPalette(palette9)
         self.scrollArea_9.setWidgetResizable(True)
         self.scrollAreaWidgetContents_13 = QWidget()
         self.scrollAreaWidgetContents_13.setObjectName(u"scrollAreaWidgetContents_13")
@@ -3054,8 +3186,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_addSceneDstAddr = QLineEdit(self.scrollAreaWidgetContents_13)
         self.lineEdit_addSceneDstAddr.setObjectName(u"lineEdit_addSceneDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_addSceneDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_addSceneDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_addSceneDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_addSceneDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_addSceneDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_addSceneDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -3128,8 +3260,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_addSceneExtField = QLineEdit(self.scrollAreaWidgetContents_13)
         self.lineEdit_addSceneExtField.setObjectName(u"lineEdit_addSceneExtField")
-        sizePolicy2.setHeightForWidth(self.lineEdit_addSceneExtField.sizePolicy().hasHeightForWidth())
-        self.lineEdit_addSceneExtField.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_addSceneExtField.sizePolicy().hasHeightForWidth())
+        self.lineEdit_addSceneExtField.setSizePolicy(sizePolicy3)
         self.lineEdit_addSceneExtField.setMinimumSize(QSize(400, 0))
 
         self.horizontalLayout_addScene2.addWidget(self.lineEdit_addSceneExtField)
@@ -3169,8 +3301,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_storeSceneDstAddr = QLineEdit(self.scrollAreaWidgetContents_13)
         self.lineEdit_storeSceneDstAddr.setObjectName(u"lineEdit_storeSceneDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_storeSceneDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_storeSceneDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_storeSceneDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_storeSceneDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_storeSceneDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_storeSceneDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -3233,8 +3365,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_viewSceneDstAddr = QLineEdit(self.scrollAreaWidgetContents_13)
         self.lineEdit_viewSceneDstAddr.setObjectName(u"lineEdit_viewSceneDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_viewSceneDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_viewSceneDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_viewSceneDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_viewSceneDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_viewSceneDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_viewSceneDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -3297,8 +3429,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_recallSceneDstAddr = QLineEdit(self.scrollAreaWidgetContents_13)
         self.lineEdit_recallSceneDstAddr.setObjectName(u"lineEdit_recallSceneDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_recallSceneDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_recallSceneDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_recallSceneDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_recallSceneDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_recallSceneDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_recallSceneDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -3361,8 +3493,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_sceneRemoveAllDstAddr = QLineEdit(self.scrollAreaWidgetContents_13)
         self.lineEdit_sceneRemoveAllDstAddr.setObjectName(u"lineEdit_sceneRemoveAllDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_sceneRemoveAllDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_sceneRemoveAllDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_sceneRemoveAllDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_sceneRemoveAllDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_sceneRemoveAllDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_sceneRemoveAllDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -3422,8 +3554,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_removeSceneDstAddr = QLineEdit(self.scrollAreaWidgetContents_13)
         self.lineEdit_removeSceneDstAddr.setObjectName(u"lineEdit_removeSceneDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_removeSceneDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_removeSceneDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_removeSceneDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_removeSceneDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_removeSceneDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_removeSceneDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -3486,8 +3618,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_getSceneDstAddr = QLineEdit(self.scrollAreaWidgetContents_13)
         self.lineEdit_getSceneDstAddr.setObjectName(u"lineEdit_getSceneDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_getSceneDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_getSceneDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_getSceneDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_getSceneDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_getSceneDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_getSceneDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -3557,8 +3689,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_otaDstAddr = QLineEdit(self.ota)
         self.lineEdit_otaDstAddr.setObjectName(u"lineEdit_otaDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_otaDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_otaDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_otaDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_otaDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_otaDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_otaDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -3588,8 +3720,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_jitter = QLineEdit(self.ota)
         self.lineEdit_jitter.setObjectName(u"lineEdit_jitter")
-        sizePolicy2.setHeightForWidth(self.lineEdit_jitter.sizePolicy().hasHeightForWidth())
-        self.lineEdit_jitter.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_jitter.sizePolicy().hasHeightForWidth())
+        self.lineEdit_jitter.setSizePolicy(sizePolicy3)
         self.lineEdit_jitter.setMinimumSize(QSize(160, 0))
         self.lineEdit_jitter.setMaximumSize(QSize(160, 16777215))
 
@@ -3618,33 +3750,32 @@ class Ui_MainWindow(object):
         self.gridLayout_68.setObjectName(u"gridLayout_68")
         self.scrollArea_23 = QScrollArea(self.zbd)
         self.scrollArea_23.setObjectName(u"scrollArea_23")
-        palette9 = QPalette()
-        palette9.setBrush(QPalette.Active, QPalette.Base, brush)
-        palette9.setBrush(QPalette.Inactive, QPalette.Base, brush)
-        palette9.setBrush(QPalette.Disabled, QPalette.Base, brush1)
-        self.scrollArea_23.setPalette(palette9)
+        palette10 = QPalette()
+        palette10.setBrush(QPalette.Active, QPalette.Base, brush2)
+        palette10.setBrush(QPalette.Inactive, QPalette.Base, brush2)
+        palette10.setBrush(QPalette.Disabled, QPalette.Base, brush3)
+        self.scrollArea_23.setPalette(palette10)
         self.scrollArea_23.setWidgetResizable(True)
         self.scrollAreaWidgetContents_34 = QWidget()
         self.scrollAreaWidgetContents_34.setObjectName(u"scrollAreaWidgetContents_34")
-        self.scrollAreaWidgetContents_34.setGeometry(QRect(0, 0, 914, 316))
-        self.widget1 = QWidget(self.scrollAreaWidgetContents_34)
-        self.widget1.setObjectName(u"widget1")
-        self.widget1.setGeometry(QRect(11, 11, 891, 293))
-        self.gridLayout_69 = QGridLayout(self.widget1)
+        self.scrollAreaWidgetContents_34.setGeometry(QRect(0, 0, 913, 98))
+        self.gridLayout_26 = QGridLayout(self.scrollAreaWidgetContents_34)
+        self.gridLayout_26.setSpacing(6)
+        self.gridLayout_26.setContentsMargins(11, 11, 11, 11)
+        self.gridLayout_26.setObjectName(u"gridLayout_26")
+        self.gridLayout_69 = QGridLayout()
         self.gridLayout_69.setSpacing(6)
-        self.gridLayout_69.setContentsMargins(11, 11, 11, 11)
         self.gridLayout_69.setObjectName(u"gridLayout_69")
-        self.gridLayout_69.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_identify_4 = QHBoxLayout()
         self.horizontalLayout_identify_4.setSpacing(6)
         self.horizontalLayout_identify_4.setObjectName(u"horizontalLayout_identify_4")
-        self.pushButton_if_state_set = QPushButton(self.widget1)
+        self.pushButton_if_state_set = QPushButton(self.scrollAreaWidgetContents_34)
         self.pushButton_if_state_set.setObjectName(u"pushButton_if_state_set")
         self.pushButton_if_state_set.setMinimumSize(QSize(121, 0))
 
         self.horizontalLayout_identify_4.addWidget(self.pushButton_if_state_set)
 
-        self.comboBox_ifSetDstMode = QComboBox(self.widget1)
+        self.comboBox_ifSetDstMode = QComboBox(self.scrollAreaWidgetContents_34)
         self.comboBox_ifSetDstMode.addItem("")
         self.comboBox_ifSetDstMode.addItem("")
         self.comboBox_ifSetDstMode.addItem("")
@@ -3658,28 +3789,28 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_identify_4.addWidget(self.comboBox_ifSetDstMode)
 
-        self.lineEdit_ifStateSetDstAddr = QLineEdit(self.widget1)
+        self.lineEdit_ifStateSetDstAddr = QLineEdit(self.scrollAreaWidgetContents_34)
         self.lineEdit_ifStateSetDstAddr.setObjectName(u"lineEdit_ifStateSetDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_ifStateSetDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_ifStateSetDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_ifStateSetDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_ifStateSetDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_ifStateSetDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_ifStateSetDstAddr.setMaximumSize(QSize(160, 16777215))
 
         self.horizontalLayout_identify_4.addWidget(self.lineEdit_ifStateSetDstAddr)
 
-        self.lineEdit_ifStateSrcEp = QLineEdit(self.widget1)
+        self.lineEdit_ifStateSrcEp = QLineEdit(self.scrollAreaWidgetContents_34)
         self.lineEdit_ifStateSrcEp.setObjectName(u"lineEdit_ifStateSrcEp")
         self.lineEdit_ifStateSrcEp.setMaximumSize(QSize(60, 16777215))
 
         self.horizontalLayout_identify_4.addWidget(self.lineEdit_ifStateSrcEp)
 
-        self.lineEdit_ifStateDstEp = QLineEdit(self.widget1)
+        self.lineEdit_ifStateDstEp = QLineEdit(self.scrollAreaWidgetContents_34)
         self.lineEdit_ifStateDstEp.setObjectName(u"lineEdit_ifStateDstEp")
         self.lineEdit_ifStateDstEp.setMaximumSize(QSize(60, 16777215))
 
         self.horizontalLayout_identify_4.addWidget(self.lineEdit_ifStateDstEp)
 
-        self.lineEdit_ifState = QLineEdit(self.widget1)
+        self.lineEdit_ifState = QLineEdit(self.scrollAreaWidgetContents_34)
         self.lineEdit_ifState.setObjectName(u"lineEdit_ifState")
         self.lineEdit_ifState.setMinimumSize(QSize(160, 0))
         self.lineEdit_ifState.setMaximumSize(QSize(60, 16777215))
@@ -3696,13 +3827,13 @@ class Ui_MainWindow(object):
         self.horizontalLayout_18 = QHBoxLayout()
         self.horizontalLayout_18.setSpacing(6)
         self.horizontalLayout_18.setObjectName(u"horizontalLayout_18")
-        self.pushButton_anj_timeout = QPushButton(self.widget1)
+        self.pushButton_anj_timeout = QPushButton(self.scrollAreaWidgetContents_34)
         self.pushButton_anj_timeout.setObjectName(u"pushButton_anj_timeout")
         self.pushButton_anj_timeout.setMinimumSize(QSize(121, 0))
 
         self.horizontalLayout_18.addWidget(self.pushButton_anj_timeout)
 
-        self.comboBox_anjTimeDstMode = QComboBox(self.widget1)
+        self.comboBox_anjTimeDstMode = QComboBox(self.scrollAreaWidgetContents_34)
         self.comboBox_anjTimeDstMode.addItem("")
         self.comboBox_anjTimeDstMode.addItem("")
         self.comboBox_anjTimeDstMode.addItem("")
@@ -3716,28 +3847,28 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_18.addWidget(self.comboBox_anjTimeDstMode)
 
-        self.lineEdit_anjTimeDstAddr = QLineEdit(self.widget1)
+        self.lineEdit_anjTimeDstAddr = QLineEdit(self.scrollAreaWidgetContents_34)
         self.lineEdit_anjTimeDstAddr.setObjectName(u"lineEdit_anjTimeDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_anjTimeDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_anjTimeDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_anjTimeDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_anjTimeDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_anjTimeDstAddr.setMinimumSize(QSize(160, 0))
         self.lineEdit_anjTimeDstAddr.setMaximumSize(QSize(160, 16777215))
 
         self.horizontalLayout_18.addWidget(self.lineEdit_anjTimeDstAddr)
 
-        self.lineEdit_anjTimeSrcEp = QLineEdit(self.widget1)
+        self.lineEdit_anjTimeSrcEp = QLineEdit(self.scrollAreaWidgetContents_34)
         self.lineEdit_anjTimeSrcEp.setObjectName(u"lineEdit_anjTimeSrcEp")
         self.lineEdit_anjTimeSrcEp.setMaximumSize(QSize(60, 16777215))
 
         self.horizontalLayout_18.addWidget(self.lineEdit_anjTimeSrcEp)
 
-        self.lineEdit_anjTimeDstEp = QLineEdit(self.widget1)
+        self.lineEdit_anjTimeDstEp = QLineEdit(self.scrollAreaWidgetContents_34)
         self.lineEdit_anjTimeDstEp.setObjectName(u"lineEdit_anjTimeDstEp")
         self.lineEdit_anjTimeDstEp.setMaximumSize(QSize(60, 16777215))
 
         self.horizontalLayout_18.addWidget(self.lineEdit_anjTimeDstEp)
 
-        self.lineEdit_anjTime = QLineEdit(self.widget1)
+        self.lineEdit_anjTime = QLineEdit(self.scrollAreaWidgetContents_34)
         self.lineEdit_anjTime.setObjectName(u"lineEdit_anjTime")
         self.lineEdit_anjTime.setMinimumSize(QSize(160, 0))
         self.lineEdit_anjTime.setMaximumSize(QSize(60, 16777215))
@@ -3755,6 +3886,9 @@ class Ui_MainWindow(object):
 
         self.gridLayout_69.addItem(self.verticalSpacer_41, 2, 0, 1, 1)
 
+
+        self.gridLayout_26.addLayout(self.gridLayout_69, 0, 0, 1, 1)
+
         self.scrollArea_23.setWidget(self.scrollAreaWidgetContents_34)
 
         self.gridLayout_68.addWidget(self.scrollArea_23, 0, 0, 1, 1)
@@ -3768,15 +3902,15 @@ class Ui_MainWindow(object):
         self.gridLayout_23.setObjectName(u"gridLayout_23")
         self.scrollArea_10 = QScrollArea(self.AF)
         self.scrollArea_10.setObjectName(u"scrollArea_10")
-        palette10 = QPalette()
-        palette10.setBrush(QPalette.Active, QPalette.Base, brush)
-        palette10.setBrush(QPalette.Inactive, QPalette.Base, brush)
-        palette10.setBrush(QPalette.Disabled, QPalette.Base, brush1)
-        self.scrollArea_10.setPalette(palette10)
+        palette11 = QPalette()
+        palette11.setBrush(QPalette.Active, QPalette.Base, brush2)
+        palette11.setBrush(QPalette.Inactive, QPalette.Base, brush2)
+        palette11.setBrush(QPalette.Disabled, QPalette.Base, brush3)
+        self.scrollArea_10.setPalette(palette11)
         self.scrollArea_10.setWidgetResizable(True)
         self.scrollAreaWidgetContents_14 = QWidget()
         self.scrollAreaWidgetContents_14.setObjectName(u"scrollAreaWidgetContents_14")
-        self.scrollAreaWidgetContents_14.setGeometry(QRect(0, 0, 914, 316))
+        self.scrollAreaWidgetContents_14.setGeometry(QRect(0, 0, 883, 155))
         self.verticalLayout_6 = QVBoxLayout(self.scrollAreaWidgetContents_14)
         self.verticalLayout_6.setSpacing(6)
         self.verticalLayout_6.setContentsMargins(11, 11, 11, 11)
@@ -3796,8 +3930,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_txrxTestDstAddr = QLineEdit(self.scrollAreaWidgetContents_14)
         self.lineEdit_txrxTestDstAddr.setObjectName(u"lineEdit_txrxTestDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_txrxTestDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_txrxTestDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_txrxTestDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_txrxTestDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_txrxTestDstAddr.setMinimumSize(QSize(260, 0))
         self.lineEdit_txrxTestDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -3853,8 +3987,8 @@ class Ui_MainWindow(object):
 
         self.lineEdit_afDataSendDstAddr = QLineEdit(self.scrollAreaWidgetContents_14)
         self.lineEdit_afDataSendDstAddr.setObjectName(u"lineEdit_afDataSendDstAddr")
-        sizePolicy2.setHeightForWidth(self.lineEdit_afDataSendDstAddr.sizePolicy().hasHeightForWidth())
-        self.lineEdit_afDataSendDstAddr.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.lineEdit_afDataSendDstAddr.sizePolicy().hasHeightForWidth())
+        self.lineEdit_afDataSendDstAddr.setSizePolicy(sizePolicy3)
         self.lineEdit_afDataSendDstAddr.setMinimumSize(QSize(260, 0))
         self.lineEdit_afDataSendDstAddr.setMaximumSize(QSize(160, 16777215))
 
@@ -3974,9 +4108,6 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_4.addWidget(self.progressBar_hciOta)
 
-        self.checkBox_hciOta = QCheckBox(self.hciOta)
-        self.checkBox_hciOta.setObjectName(u"checkBox_hciOta")
-        self.horizontalLayout_4.addWidget(self.checkBox_hciOta)
 
         self.gridLayout_24.addLayout(self.horizontalLayout_4, 1, 0, 1, 1)
 
@@ -4075,126 +4206,221 @@ class Ui_MainWindow(object):
         self.gridLayout_2.addLayout(self.horizontalLayout_3, 0, 0, 1, 1)
 
         self.tabWidget.addTab(self.analyze, "")
+        self.blehci = QWidget()
+        self.blehci.setObjectName(u"blehci")
+        self.gridLayout_25 = QGridLayout(self.blehci)
+        self.gridLayout_25.setSpacing(6)
+        self.gridLayout_25.setContentsMargins(11, 11, 11, 11)
+        self.gridLayout_25.setObjectName(u"gridLayout_25")
+        self.gridLayout_6 = QGridLayout()
+        self.gridLayout_6.setSpacing(6)
+        self.gridLayout_6.setObjectName(u"gridLayout_6")
+        self.horizontalLayout_10 = QHBoxLayout()
+        self.horizontalLayout_10.setSpacing(6)
+        self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
+        self.pushButton_advParaSet = QPushButton(self.blehci)
+        self.pushButton_advParaSet.setObjectName(u"pushButton_advParaSet")
+
+        self.horizontalLayout_10.addWidget(self.pushButton_advParaSet)
+
+        self.lineEdit_minAdvInterval = QLineEdit(self.blehci)
+        self.lineEdit_minAdvInterval.setObjectName(u"lineEdit_minAdvInterval")
+        sizePolicy3.setHeightForWidth(self.lineEdit_minAdvInterval.sizePolicy().hasHeightForWidth())
+        self.lineEdit_minAdvInterval.setSizePolicy(sizePolicy3)
+
+        self.horizontalLayout_10.addWidget(self.lineEdit_minAdvInterval)
+
+        self.lineEdit_maxAdvInterval = QLineEdit(self.blehci)
+        self.lineEdit_maxAdvInterval.setObjectName(u"lineEdit_maxAdvInterval")
+        sizePolicy3.setHeightForWidth(self.lineEdit_maxAdvInterval.sizePolicy().hasHeightForWidth())
+        self.lineEdit_maxAdvInterval.setSizePolicy(sizePolicy3)
+
+        self.horizontalLayout_10.addWidget(self.lineEdit_maxAdvInterval)
+
+        self.horizontalSpacer_20 = QSpacerItem(80, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_10.addItem(self.horizontalSpacer_20)
+
+
+        self.gridLayout_6.addLayout(self.horizontalLayout_10, 0, 1, 1, 1)
+
+        self.listWidget_AdvList = QListWidget(self.blehci)
+        self.listWidget_AdvList.setObjectName(u"listWidget_AdvList")
+        sizePolicy5 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        sizePolicy5.setHorizontalStretch(0)
+        sizePolicy5.setVerticalStretch(0)
+        sizePolicy5.setHeightForWidth(self.listWidget_AdvList.sizePolicy().hasHeightForWidth())
+        self.listWidget_AdvList.setSizePolicy(sizePolicy5)
+
+        self.gridLayout_6.addWidget(self.listWidget_AdvList, 0, 2, 8, 1)
+
+        self.horizontalLayout_11 = QHBoxLayout()
+        self.horizontalLayout_11.setSpacing(6)
+        self.horizontalLayout_11.setObjectName(u"horizontalLayout_11")
+        self.pushButton_advDataSet = QPushButton(self.blehci)
+        self.pushButton_advDataSet.setObjectName(u"pushButton_advDataSet")
+
+        self.horizontalLayout_11.addWidget(self.pushButton_advDataSet)
+
+        self.lineEdit_advData = QLineEdit(self.blehci)
+        self.lineEdit_advData.setObjectName(u"lineEdit_advData")
+        self.lineEdit_advData.setEnabled(True)
+        sizePolicy3.setHeightForWidth(self.lineEdit_advData.sizePolicy().hasHeightForWidth())
+        self.lineEdit_advData.setSizePolicy(sizePolicy3)
+        self.lineEdit_advData.setMinimumSize(QSize(200, 0))
+
+        self.horizontalLayout_11.addWidget(self.lineEdit_advData)
+
+        self.horizontalSpacer_21 = QSpacerItem(35, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_11.addItem(self.horizontalSpacer_21)
+
+
+        self.gridLayout_6.addLayout(self.horizontalLayout_11, 1, 1, 1, 1)
+
+        self.horizontalLayout_12 = QHBoxLayout()
+        self.horizontalLayout_12.setSpacing(6)
+        self.horizontalLayout_12.setObjectName(u"horizontalLayout_12")
+        self.pushButton_advStart = QPushButton(self.blehci)
+        self.pushButton_advStart.setObjectName(u"pushButton_advStart")
+
+        self.horizontalLayout_12.addWidget(self.pushButton_advStart)
+
+        self.pushButton_advStop = QPushButton(self.blehci)
+        self.pushButton_advStop.setObjectName(u"pushButton_advStop")
+
+        self.horizontalLayout_12.addWidget(self.pushButton_advStop)
+
+        self.horizontalSpacer_23 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_12.addItem(self.horizontalSpacer_23)
+
+
+        self.gridLayout_6.addLayout(self.horizontalLayout_12, 2, 1, 1, 1)
+
+        self.horizontalLayout_15 = QHBoxLayout()
+        self.horizontalLayout_15.setSpacing(6)
+        self.horizontalLayout_15.setObjectName(u"horizontalLayout_15")
+        self.pushButton_bleDisconnect = QPushButton(self.blehci)
+        self.pushButton_bleDisconnect.setObjectName(u"pushButton_bleDisconnect")
+
+        self.horizontalLayout_15.addWidget(self.pushButton_bleDisconnect)
+
+        self.lineEdit_bleConnHandle = QLineEdit(self.blehci)
+        self.lineEdit_bleConnHandle.setObjectName(u"lineEdit_bleConnHandle")
+        sizePolicy3.setHeightForWidth(self.lineEdit_bleConnHandle.sizePolicy().hasHeightForWidth())
+        self.lineEdit_bleConnHandle.setSizePolicy(sizePolicy3)
+
+        self.horizontalLayout_15.addWidget(self.lineEdit_bleConnHandle)
+
+        self.horizontalSpacer_70 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_15.addItem(self.horizontalSpacer_70)
+
+
+        self.gridLayout_6.addLayout(self.horizontalLayout_15, 6, 1, 1, 1)
+
+        self.horizontalLayout_8 = QHBoxLayout()
+        self.horizontalLayout_8.setSpacing(6)
+        self.horizontalLayout_8.setObjectName(u"horizontalLayout_8")
+        self.pushButton_scanParaSet = QPushButton(self.blehci)
+        self.pushButton_scanParaSet.setObjectName(u"pushButton_scanParaSet")
+
+        self.horizontalLayout_8.addWidget(self.pushButton_scanParaSet)
+
+        self.lineEdit_scanInterval = QLineEdit(self.blehci)
+        self.lineEdit_scanInterval.setObjectName(u"lineEdit_scanInterval")
+        sizePolicy3.setHeightForWidth(self.lineEdit_scanInterval.sizePolicy().hasHeightForWidth())
+        self.lineEdit_scanInterval.setSizePolicy(sizePolicy3)
+
+        self.horizontalLayout_8.addWidget(self.lineEdit_scanInterval)
+
+        self.lineEdit_scanWindow = QLineEdit(self.blehci)
+        self.lineEdit_scanWindow.setObjectName(u"lineEdit_scanWindow")
+        sizePolicy3.setHeightForWidth(self.lineEdit_scanWindow.sizePolicy().hasHeightForWidth())
+        self.lineEdit_scanWindow.setSizePolicy(sizePolicy3)
+
+        self.horizontalLayout_8.addWidget(self.lineEdit_scanWindow)
+
+        self.horizontalSpacer_69 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_8.addItem(self.horizontalSpacer_69)
+
+
+        self.gridLayout_6.addLayout(self.horizontalLayout_8, 3, 1, 1, 1)
+
+        self.label_bleState = QLabel(self.blehci)
+        self.label_bleState.setObjectName(u"label_bleState")
+        sizePolicy6 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        sizePolicy6.setHorizontalStretch(0)
+        sizePolicy6.setVerticalStretch(0)
+        sizePolicy6.setHeightForWidth(self.label_bleState.sizePolicy().hasHeightForWidth())
+        self.label_bleState.setSizePolicy(sizePolicy6)
+
+        self.gridLayout_6.addWidget(self.label_bleState, 7, 0, 2, 2)
+
+        self.verticalSpacer = QSpacerItem(963, 13, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.gridLayout_6.addItem(self.verticalSpacer, 8, 1, 1, 2)
+
+        self.horizontalLayout_14 = QHBoxLayout()
+        self.horizontalLayout_14.setSpacing(6)
+        self.horizontalLayout_14.setObjectName(u"horizontalLayout_14")
+        self.pushButton_bleScanstart = QPushButton(self.blehci)
+        self.pushButton_bleScanstart.setObjectName(u"pushButton_bleScanstart")
+
+        self.horizontalLayout_14.addWidget(self.pushButton_bleScanstart)
+
+        self.pushButton_bleScanstop = QPushButton(self.blehci)
+        self.pushButton_bleScanstop.setObjectName(u"pushButton_bleScanstop")
+
+        self.horizontalLayout_14.addWidget(self.pushButton_bleScanstop)
+
+        self.horizontalSpacer_68 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_14.addItem(self.horizontalSpacer_68)
+
+
+        self.gridLayout_6.addLayout(self.horizontalLayout_14, 4, 1, 1, 1)
+
+        self.horizontalLayout_13 = QHBoxLayout()
+        self.horizontalLayout_13.setSpacing(6)
+        self.horizontalLayout_13.setObjectName(u"horizontalLayout_13")
+        self.pushButton_bleConnect = QPushButton(self.blehci)
+        self.pushButton_bleConnect.setObjectName(u"pushButton_bleConnect")
+
+        self.horizontalLayout_13.addWidget(self.pushButton_bleConnect)
+
+        self.lineEdit_bleMac = QLineEdit(self.blehci)
+        self.lineEdit_bleMac.setObjectName(u"lineEdit_bleMac")
+        sizePolicy3.setHeightForWidth(self.lineEdit_bleMac.sizePolicy().hasHeightForWidth())
+        self.lineEdit_bleMac.setSizePolicy(sizePolicy3)
+
+        self.horizontalLayout_13.addWidget(self.lineEdit_bleMac)
+
+        self.pushButton_getConnList = QPushButton(self.blehci)
+        self.pushButton_getConnList.setObjectName(u"pushButton_getConnList")
+
+        self.horizontalLayout_13.addWidget(self.pushButton_getConnList)
+
+        self.horizontalSpacer_49 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_13.addItem(self.horizontalSpacer_49)
+
+
+        self.gridLayout_6.addLayout(self.horizontalLayout_13, 5, 1, 1, 1)
+
+
+        self.gridLayout_25.addLayout(self.gridLayout_6, 0, 0, 1, 1)
+
+        self.tabWidget.addTab(self.blehci, "")
 
         self.gridLayout_67.addWidget(self.tabWidget, 0, 1, 1, 1)
-
-        self.verticalLayout_2 = QVBoxLayout()
-        self.verticalLayout_2.setSpacing(6)
-        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-        self.splitter_2 = QSplitter(self.centralWidget)
-        self.splitter_2.setObjectName(u"splitter_2")
-        self.splitter_2.setOrientation(Qt.Horizontal)
-        self.layoutWidget = QWidget(self.splitter_2)
-        self.layoutWidget.setObjectName(u"layoutWidget")
-        self.verticalLayout = QVBoxLayout(self.layoutWidget)
-        self.verticalLayout.setSpacing(6)
-        self.verticalLayout.setContentsMargins(11, 11, 11, 11)
-        self.verticalLayout.setObjectName(u"verticalLayout")
-        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
-        self.listWidget_commandData = QListWidget(self.layoutWidget)
-        self.listWidget_commandData.setObjectName(u"listWidget_commandData")
-        self.listWidget_commandData.setEnabled(True)
-        self.listWidget_commandData.setLineWidth(4)
-        self.listWidget_commandData.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
-        self.listWidget_commandData.setHorizontalScrollMode(QAbstractItemView.ScrollPerPixel)
-
-        self.verticalLayout.addWidget(self.listWidget_commandData)
-
-        self.horizontalLayout = QHBoxLayout()
-        self.horizontalLayout.setSpacing(6)
-        self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.plainTextEdit_sendData = QPlainTextEdit(self.layoutWidget)
-        self.plainTextEdit_sendData.setObjectName(u"plainTextEdit_sendData")
-        self.plainTextEdit_sendData.setEnabled(True)
-        self.plainTextEdit_sendData.setLineWidth(4)
-
-        self.horizontalLayout.addWidget(self.plainTextEdit_sendData)
-
-        self.pushButton_send = QPushButton(self.layoutWidget)
-        self.pushButton_send.setObjectName(u"pushButton_send")
-        sizePolicy4 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-        sizePolicy4.setHorizontalStretch(0)
-        sizePolicy4.setVerticalStretch(0)
-        sizePolicy4.setHeightForWidth(self.pushButton_send.sizePolicy().hasHeightForWidth())
-        self.pushButton_send.setSizePolicy(sizePolicy4)
-        self.pushButton_send.setIconSize(QSize(20, 20))
-
-        self.horizontalLayout.addWidget(self.pushButton_send)
-
-
-        self.verticalLayout.addLayout(self.horizontalLayout)
-
-        self.splitter_2.addWidget(self.layoutWidget)
-        self.listWidget_commandDataParse = QListWidget(self.splitter_2)
-        self.listWidget_commandDataParse.setObjectName(u"listWidget_commandDataParse")
-        self.listWidget_commandDataParse.setLineWidth(4)
-        self.splitter_2.addWidget(self.listWidget_commandDataParse)
-
-        self.verticalLayout_2.addWidget(self.splitter_2)
-
-        self.horizontalLayout_2 = QHBoxLayout()
-        self.horizontalLayout_2.setSpacing(6)
-        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.checkBox_thread = QCheckBox(self.centralWidget)
-        self.checkBox_thread.setObjectName(u"checkBox_thread")
-
-        self.horizontalLayout_2.addWidget(self.checkBox_thread)
-
-        self.horizontalSpacer_64 = QSpacerItem(38, 18, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout_2.addItem(self.horizontalSpacer_64)
-
-        self.checkBox_timesend = QCheckBox(self.centralWidget)
-        self.checkBox_timesend.setObjectName(u"checkBox_timesend")
-
-        self.horizontalLayout_2.addWidget(self.checkBox_timesend)
-
-        self.lineEdit_sendInterval = QLineEdit(self.centralWidget)
-        self.lineEdit_sendInterval.setObjectName(u"lineEdit_sendInterval")
-        self.lineEdit_sendInterval.setMaximumSize(QSize(60, 16777215))
-
-        self.horizontalLayout_2.addWidget(self.lineEdit_sendInterval)
-
-        self.label_sendInterval = QLabel(self.centralWidget)
-        self.label_sendInterval.setObjectName(u"label_sendInterval")
-
-        self.horizontalLayout_2.addWidget(self.label_sendInterval)
-
-        self.horizontalSpacer_67 = QSpacerItem(38, 18, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout_2.addItem(self.horizontalSpacer_67)
-
-        self.label_recvLabel = QLabel(self.centralWidget)
-        self.label_recvLabel.setObjectName(u"label_recvLabel")
-        self.label_recvLabel.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
-
-        self.horizontalLayout_2.addWidget(self.label_recvLabel)
-
-        self.lineEdit_recvInterval = QLineEdit(self.centralWidget)
-        self.lineEdit_recvInterval.setObjectName(u"lineEdit_recvInterval")
-        self.lineEdit_recvInterval.setMaximumSize(QSize(60, 16777215))
-
-        self.horizontalLayout_2.addWidget(self.lineEdit_recvInterval)
-
-        self.label_recvInterval = QLabel(self.centralWidget)
-        self.label_recvInterval.setObjectName(u"label_recvInterval")
-
-        self.horizontalLayout_2.addWidget(self.label_recvInterval)
-
-        self.horizontalSpacer_56 = QSpacerItem(558, 18, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout_2.addItem(self.horizontalSpacer_56)
-
-
-        self.verticalLayout_2.addLayout(self.horizontalLayout_2)
-
-
-        self.gridLayout_67.addLayout(self.verticalLayout_2, 1, 0, 1, 2)
 
         MainWindow.setCentralWidget(self.centralWidget)
         self.menuBar = QMenuBar(MainWindow)
         self.menuBar.setObjectName(u"menuBar")
-        self.menuBar.setGeometry(QRect(0, 0, 1173, 26))
+        self.menuBar.setGeometry(QRect(0, 0, 1229, 26))
         MainWindow.setMenuBar(self.menuBar)
         self.statusBar = QStatusBar(MainWindow)
         self.statusBar.setObjectName(u"statusBar")
@@ -4291,6 +4517,19 @@ class Ui_MainWindow(object):
         self.checkBox_scroll.setText(QCoreApplication.translate("MainWindow", u"scroll to bottom", None))
         self.checkBox_autoClear.setText(QCoreApplication.translate("MainWindow", u"auto clear(500 lines)", None))
         self.pushButton_clear.setText(QCoreApplication.translate("MainWindow", u"clear", None))
+        self.pushButton_send.setText(QCoreApplication.translate("MainWindow", u"Send", None))
+        self.checkBox_thread.setText(QCoreApplication.translate("MainWindow", u"thread", None))
+        self.checkBox_bleHci.setText(QCoreApplication.translate("MainWindow", u"bleHci", None))
+        self.checkBox_timesend.setText(QCoreApplication.translate("MainWindow", u"Repeat Send", None))
+        self.lineEdit_sendInterval.setInputMask("")
+        self.lineEdit_sendInterval.setText(QCoreApplication.translate("MainWindow", u"1000", None))
+        self.lineEdit_sendInterval.setPlaceholderText(QCoreApplication.translate("MainWindow", u"1000", None))
+        self.label_sendInterval.setText(QCoreApplication.translate("MainWindow", u"ms", None))
+        self.label_recvLabel.setText(QCoreApplication.translate("MainWindow", u"Recv Detection Interval", None))
+        self.lineEdit_recvInterval.setInputMask("")
+        self.lineEdit_recvInterval.setText(QCoreApplication.translate("MainWindow", u"5", None))
+        self.lineEdit_recvInterval.setPlaceholderText(QCoreApplication.translate("MainWindow", u"1000", None))
+        self.label_recvInterval.setText(QCoreApplication.translate("MainWindow", u"ms", None))
         self.pushButton_BDBsetCh.setText(QCoreApplication.translate("MainWindow", u"set channel", None))
         self.comboBox_channelList.setItemText(0, QCoreApplication.translate("MainWindow", u"11", None))
         self.comboBox_channelList.setItemText(1, QCoreApplication.translate("MainWindow", u"12", None))
@@ -4332,8 +4571,8 @@ class Ui_MainWindow(object):
         self.lineEdit_macAddr.setText("")
         self.lineEdit_macAddr.setPlaceholderText(QCoreApplication.translate("MainWindow", u"macAddr", None))
         self.pushButton_BDBsetTXPower.setText(QCoreApplication.translate("MainWindow", u"set TX power", None))
-        self.pushButton_getLocalDevInfo.setText(QCoreApplication.translate("MainWindow", u"get local network info", None))
         self.lineEdit_TxIndex.setPlaceholderText(QCoreApplication.translate("MainWindow", u"index of tx power list", None))
+        self.pushButton_getLocalDevInfo.setText(QCoreApplication.translate("MainWindow", u"get local network info", None))
         self.lineEdit_srcEp.setPlaceholderText(QCoreApplication.translate("MainWindow", u"srcEp", None))
         self.lineEdit_clusterId.setPlaceholderText(QCoreApplication.translate("MainWindow", u"clusterID", None))
         self.lineEdit_dstEp.setPlaceholderText(QCoreApplication.translate("MainWindow", u"dstEp", None))
@@ -4883,9 +5122,9 @@ class Ui_MainWindow(object):
         self.lineEdit_viewGroupDstAddr.setInputMask("")
         self.lineEdit_viewGroupDstAddr.setText("")
         self.lineEdit_viewGroupDstAddr.setPlaceholderText(QCoreApplication.translate("MainWindow", u"DstAddr", None))
-        self.lineEdit_viewGroupSrcEp.setInputMask("")
-        self.lineEdit_viewGroupSrcEp.setText("")
-        self.lineEdit_viewGroupSrcEp.setPlaceholderText(QCoreApplication.translate("MainWindow", u"SrcEp", None))
+        self.lineEdit_viewGoupSrcEp.setInputMask("")
+        self.lineEdit_viewGoupSrcEp.setText("")
+        self.lineEdit_viewGoupSrcEp.setPlaceholderText(QCoreApplication.translate("MainWindow", u"SrcEp", None))
         self.lineEdit_viewGroupDstEp.setPlaceholderText(QCoreApplication.translate("MainWindow", u"DstEp", None))
         self.lineEdit_viewGroupGroupId.setText("")
         self.lineEdit_viewGroupGroupId.setPlaceholderText(QCoreApplication.translate("MainWindow", u"groupID", None))
@@ -5510,6 +5749,7 @@ class Ui_MainWindow(object):
         self.pushButton_nodesToggleTest.setText(QCoreApplication.translate("MainWindow", u"nodes toggle test", None))
         self.comboBox_toggleTestMode.setItemText(0, QCoreApplication.translate("MainWindow", u"broadcast", None))
         self.comboBox_toggleTestMode.setItemText(1, QCoreApplication.translate("MainWindow", u"unicast", None))
+
         self.lineEdit_toggleInterval.setInputMask("")
         self.lineEdit_toggleInterval.setText("")
         self.lineEdit_toggleInterval.setPlaceholderText(QCoreApplication.translate("MainWindow", u"interval, set the interval to 0 to stop, unit: 1/100s.", None))
@@ -5518,7 +5758,6 @@ class Ui_MainWindow(object):
         self.lineEdit_hciOtaFilePath.setPlaceholderText(QCoreApplication.translate("MainWindow", u"HCI OTA file path", None))
         self.pushButton_hciOtaStart.setText(QCoreApplication.translate("MainWindow", u"Start OTA", None))
         self.label_hciotaPercent.setText(QCoreApplication.translate("MainWindow", u"OTA Progress Bar", None))
-        self.checkBox_hciOta.setText(QCoreApplication.translate("MainWindow", u"LocalBinFile", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.hciOta), QCoreApplication.translate("MainWindow", u"HCI OTA", None))
         self.label_analyzeAddr.setText(QCoreApplication.translate("MainWindow", u"Address:", None))
         self.lineEdit_analyzeAddr.setPlaceholderText(QCoreApplication.translate("MainWindow", u"dev_addr", None))
@@ -5533,18 +5772,26 @@ class Ui_MainWindow(object):
         self.pushButton_analyzePathChoose.setText(QCoreApplication.translate("MainWindow", u"Analyze Folder Path", None))
         self.lineEdit_analyzePath.setPlaceholderText(QCoreApplication.translate("MainWindow", u"analyze folder path", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.analyze), QCoreApplication.translate("MainWindow", u"analyze", None))
-        self.pushButton_send.setText(QCoreApplication.translate("MainWindow", u"Send", None))
-        self.checkBox_thread.setText(QCoreApplication.translate("MainWindow", u"thread", None))
-        self.checkBox_timesend.setText(QCoreApplication.translate("MainWindow", u"Repeat Send", None))
-        self.lineEdit_sendInterval.setInputMask("")
-        self.lineEdit_sendInterval.setText(QCoreApplication.translate("MainWindow", u"1000", None))
-        self.lineEdit_sendInterval.setPlaceholderText(QCoreApplication.translate("MainWindow", u"1000", None))
-        self.label_sendInterval.setText(QCoreApplication.translate("MainWindow", u"ms", None))
-        self.label_recvLabel.setText(QCoreApplication.translate("MainWindow", u"Recv Detection Interval", None))
-        self.lineEdit_recvInterval.setInputMask("")
-        self.lineEdit_recvInterval.setText(QCoreApplication.translate("MainWindow", u"5", None))
-        self.lineEdit_recvInterval.setPlaceholderText(QCoreApplication.translate("MainWindow", u"1000", None))
-        self.label_recvInterval.setText(QCoreApplication.translate("MainWindow", u"ms", None))
+        self.pushButton_advParaSet.setText(QCoreApplication.translate("MainWindow", u"Adv Para set", None))
+        self.lineEdit_minAdvInterval.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Min interval(2Bytes)", None))
+        self.lineEdit_maxAdvInterval.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Max interval(2Bytes)", None))
+        self.pushButton_advDataSet.setText(QCoreApplication.translate("MainWindow", u"Adv data set", None))
+        self.lineEdit_advData.setPlaceholderText(QCoreApplication.translate("MainWindow", u"adv data", None))
+        self.pushButton_advStart.setText(QCoreApplication.translate("MainWindow", u"start Adv", None))
+        self.pushButton_advStop.setText(QCoreApplication.translate("MainWindow", u"stop Adv", None))
+        self.pushButton_bleDisconnect.setText(QCoreApplication.translate("MainWindow", u"disconnect", None))
+        self.lineEdit_bleConnHandle.setText("")
+        self.lineEdit_bleConnHandle.setPlaceholderText(QCoreApplication.translate("MainWindow", u"ble handle(2Bytes)", None))
+        self.pushButton_scanParaSet.setText(QCoreApplication.translate("MainWindow", u"scan para set", None))
+        self.lineEdit_scanInterval.setPlaceholderText(QCoreApplication.translate("MainWindow", u"scan interval(2Bytes)", None))
+        self.lineEdit_scanWindow.setPlaceholderText(QCoreApplication.translate("MainWindow", u"scan window(2Bytes)", None))
+        self.label_bleState.setText("")
+        self.pushButton_bleScanstart.setText(QCoreApplication.translate("MainWindow", u"start scan", None))
+        self.pushButton_bleScanstop.setText(QCoreApplication.translate("MainWindow", u"stop scan", None))
+        self.pushButton_bleConnect.setText(QCoreApplication.translate("MainWindow", u"connect", None))
+        self.lineEdit_bleMac.setPlaceholderText(QCoreApplication.translate("MainWindow", u"ble mac addr(6Bytes)", None))
+        self.pushButton_getConnList.setText(QCoreApplication.translate("MainWindow", u"get connect list ", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.blehci), QCoreApplication.translate("MainWindow", u"bleHci", None))
         self.toolBar.setWindowTitle(QCoreApplication.translate("MainWindow", u"toolBar", None))
     # retranslateUi
 

@@ -97,10 +97,10 @@ class RingBuffer:
                         self.read_ptr = read_ptr_start
                         self.valid_data_length = valid_len_start  # 恢复指针和长度
                 else: #clear invalid length data
-                    print('not recv all data.')
+                    # print('not recv all data.')
                     packet_length = 0
             else: #wait for the other data
-                print('read head fail')
+                # print('read head fail')
                 packet_length = 0
                 self.read_ptr = read_ptr_start
                 self.valid_data_length = valid_len_start  # 恢复指针和长度

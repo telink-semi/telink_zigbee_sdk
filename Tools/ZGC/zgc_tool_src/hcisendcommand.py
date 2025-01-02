@@ -13,7 +13,7 @@ from csvFiles import CsvFiles
 from txtFiles import TxtFiles
 from settings import Settings
 from ringbuffer import RingBuffer
-from hcicommandparse import parse_packet_detail_show, SetAutoBindPara, hci_mgmt_bind_req_send, hci_bind_req_send
+from hcicommandparse import parse_packet_detail_show, SetAutoBindPara, hci_mgmt_bind_req_send, hci_bind_req_send, convert_str2int
 
 
 def crc8_calculate(datatype, length, data):
@@ -118,6 +118,10 @@ class Pyside6Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         self.recv_interval = 5
         self.recv_interval_pre = 5
         self.clearRecvFlag = 0
+        self.advList = {}
+        self.ble_choose_mac = []
+        self.blehandle = 0
+        self.bleHci_enable = False
         self.init()
 
     def init(self):
@@ -137,6 +141,8 @@ class Pyside6Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         self.af_test_init()
         self.hci_ota_init()
         self.command_analyze_init()
+
+        self.ble_hci_init()
 
     def serial_init(self):
         self.port_detect()
@@ -181,6 +187,9 @@ class Pyside6Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         # 解析接收窗口的数据
         self.listWidget_commandData.itemClicked.connect(self.command_entry_parse)
         self.listWidget_commandData.currentItemChanged.connect(self.command_entry_parse)
+
+        # ble广播接收窗口的数据
+        self.listWidget_AdvList.itemClicked.connect(self.ble_mac_get)
 
     def port_detect(self):
         # 检测所有存在的串口，将信息存储在字典中
@@ -249,6 +258,10 @@ class Pyside6Serial(QtWidgets.QMainWindow, Ui_MainWindow):
             self.lineEdit_dstEp.textChanged.connect(self.auto_bind_para_change)
             self.checkBox_autobind.stateChanged.connect(self.auto_bind_para_change)
             self.auto_bind_para_change()
+            if not self.checkBox_bleHci.isChecked():
+                self.bleHci_enable = False
+            else:
+                self.bleHci_enable = True
             if not self.checkBox_thread.isChecked():
                 self.get_joined_nodes()
 
@@ -321,8 +334,74 @@ class Pyside6Serial(QtWidgets.QMainWindow, Ui_MainWindow):
             if self.checkBox_timesend.isChecked():
                 self.checkBox_timesend.setChecked(False)
             return
+        
+    def ble_event_data_parse(self, recv_data):
+        try:
+            if recv_data[1] == 0x3e and recv_data[3] == 0x01: #LE_mATA LE_CONNECTION COMPLETE
+                if recv_data[2] ==0x13 and recv_data[4] == 0x00: #status
+                    connHandle = recv_data[5] + (recv_data[6] << 8)
+                    self.blehandle = connHandle
+                    role = recv_data[7]
+                    addrType = recv_data[8]
+                    ieee_addr_s = ''
+                    for a in range(6):
+                        ieee_addr_s += ":%02x"%recv_data[14-a]
+                    
+                    conn_interval = recv_data[15] + (recv_data[16] << 8)
+                    conn_interval = conn_interval * 5
+                    conn_interval = conn_interval/4
+                    conn_latency = recv_data[17] + (recv_data[18] << 8)
+                    conn_sup = recv_data[19] + (recv_data[20] << 8)
+                    conn_sup = conn_sup * 10
+                    self.label_bleState.setStyleSheet("color:red")
+                    self.label_bleState.setText('  BLE connected: ' + '      Handle:0x%04x'%connHandle + 
+                                                '\n     Peer addr type:0x%x'%role +  '      Peer addr' + ieee_addr_s +
+                                                '\n     conn interval:%dms'%conn_interval + '    conn latency:%d'%conn_latency + '   supervision Timeout:%dms'%conn_sup)
+            elif recv_data[5] == 0x06 and recv_data[6] == 0x04 and recv_data[3] == 0x00:  #disconnect
+                if recv_data[4] == 0x01:
+                    # print('disconnect')
+                    self.label_bleState.setStyleSheet("color:red")
+                    self.label_bleState.setText('BLE disconnected.')
+                    self.blehandle = 0
+            elif recv_data[1] == 0x05 and recv_data[2] == 0x04:
+                self.label_bleState.setStyleSheet("color:red")
+                self.label_bleState.setText('BLE disconnected.')
+                self.blehandle = 0
+            elif recv_data[1] == 0x3e and recv_data[4] == 0x01:
+                # print('len:%d'%len(recv_data))
+                # print('length:%d'%recv_data[2])
+                pack_len_idx = 0
+                pack_len = 0
+                # print(recv_data)
+                # print("firstLen:%d"%pack_len)
+                while 1:
+                    if (len(recv_data) - pack_len_idx) >= 13:
+                        # print('firstdata:%d'%(recv_data[pack_len_idx]))
+                        if recv_data[pack_len_idx] == 0x04 and recv_data[pack_len_idx+1] == 0x3e:
+                            pack_len = recv_data[pack_len_idx+2]+3
+                        else:
+                            break
+                        if (pack_len + 3) <= (len(recv_data) - pack_len_idx):
+                            pack_data = recv_data[pack_len_idx:(pack_len_idx+ pack_len)]
+                            bleMac = pack_data[7:13]
+                            if bleMac not in self.advList:
+                                self.advList[bleMac] = {}
+                                self.advList[bleMac]['rssi'] = pack_data[-1]
+                                if pack_data[13] >3 and pack_data[15] == 0x09:
+                                    self.advList[bleMac]['name'] = pack_data[16: 16+pack_data[14]]
+                                else:
+                                    self.advList[bleMac]['name'] = "no name"
+                            pack_len_idx += pack_len
+                        else:
+                            break
+                    else:
+                        break
+        except IndexError:
+            print('index error....')
+            return
 
     def serial_data_receive(self):
+        #print("waiting data...")
         try:
             num = self.serial.inWaiting()
         except:
@@ -330,29 +409,55 @@ class Pyside6Serial(QtWidgets.QMainWindow, Ui_MainWindow):
             self.port_close()
             return None
         if num > 0:
-            # print('recv num:%d' % num)
             recv_data = self.serial.read(num)
-            if not self.checkBox_thread.isChecked():  # hex发送
-                self.ring_buffer.ring_buffer_write(recv_data)
-            else:
-                # self.listWidget_commandData.addItem(recv_data.decode('utf-8')) #ascii
-                if self.checkBox_autoClear.isChecked():
-                    if self.listWidget_commandData.count() > 500:
-                        self.listWidget_commandData.clear()
-                dt = datetime.now()
-                timestr = dt.strftime('%y-%m-%d %H:%M:%S.%f')
-                # self.listWidget_commandData.addItem(timestr + ' recv<--:')
-                # print(recv_data)
-                recv_data_str = ''
-                try:
-                    recv_data_str = recv_data.decode('utf-8')
-                    self.listWidget_commandData.addItem('【' + timestr + '】' + recv_data_str)
-                except UnicodeDecodeError:
-                    pass
+            pktLen = len(recv_data)
+        # print('recv num:%d' % num)
+            
+            if pktLen > 0:            
+                if not self.checkBox_thread.isChecked():  # hex发送
+                    if self.bleHci_enable is True:
+                        if recv_data[0] ==0x04 and recv_data[1] != 0xff:
+                            #print('recv ble data...')
+                            #print(recv_data)
+                            dt = datetime.now()
+                            timestr = dt.strftime('%y-%m-%d %H:%M:%S.%f')
+                            
+                            self.ble_event_data_parse(recv_data)
+                            recv_data_str = ''
+                            for a in range(pktLen):
+                                hhex = '%02x' % recv_data[a]
+                                recv_data_str += hhex + ' '
 
-                write_result = self.txtFiles.write_file(timestr, recv_data_str, 'recv<--')
-                if write_result != 1:
-                    QMessageBox.warning(self, 'write file warning', "Do not open the file when writing！")
+                            #print("recv_data_str")
+                            #print(recv_data_str)
+                            self.listWidget_commandData.addItem(timestr + ' recv<--:' + recv_data_str)
+                        else:
+                            self.ring_buffer.ring_buffer_write(recv_data)
+                    else:
+                        self.ring_buffer.ring_buffer_write(recv_data)
+                else:
+                    # self.listWidget_commandData.addItem(recv_data.decode('utf-8')) #ascii
+                    if self.checkBox_autoClear.isChecked():
+                        if self.listWidget_commandData.count() > 500:
+                            self.listWidget_commandData.clear()
+                    dt = datetime.now()
+                    timestr = dt.strftime('%y-%m-%d %H:%M:%S.%f')
+                    # self.listWidget_commandData.addItem(timestr + ' recv<--:')
+                    #print(recv_data)
+                    recv_data_str = ''
+                    try:
+                        recv_data_str = recv_data.decode('utf-8')
+                        self.listWidget_commandData.addItem('【' + timestr + '】' + recv_data_str)
+                    except UnicodeDecodeError:
+                        pass
+
+                    write_result = self.txtFiles.write_file(timestr, recv_data_str, 'recv<--')
+                    if write_result != 1:
+                        QMessageBox.warning(self, 'write file warning', "Do not open the file when writing！")
+        if not self.checkBox_bleHci.isChecked():
+            self.bleHci_enable = False
+        else:
+            self.bleHci_enable = True
         if self.checkBox_scroll.isChecked():
             self.listWidget_commandData.scrollToBottom()
         # # 升级过程中不允许更改文件地址和开始ota，如果升级一半出错，得重启工具
@@ -381,6 +486,17 @@ class Pyside6Serial(QtWidgets.QMainWindow, Ui_MainWindow):
             # print(get_real_data)
             parse_items = parse_packet_detail_show(self.ai_setting, get_real_data)
             self.listWidget_commandDataParse.addItems(parse_items)
+
+    def ble_mac_get(self, item):
+        try:
+            get_data = item.text()
+        except AttributeError:
+            return
+        get_blemac_s = get_data[6:18]
+        # print('get_blemac_s:')
+        # print(get_blemac_s)
+        self.ble_choose_mac = convert_str2int(get_blemac_s)
+        self.ble_choose_mac.reverse()
 
     def input_data_send_timer(self):
         if self.checkBox_timesend.isChecked():
@@ -523,7 +639,7 @@ class Pyside6Serial(QtWidgets.QMainWindow, Ui_MainWindow):
 
                     if len(self.auto_bind_list) != 0 and not self.bindReqSendTimer.isActive():
                         self.bindReqSendTimer.start(1000)
-                else:
+                elif write_result != 2:
                     QMessageBox.warning(self, 'write file warning', "Do not open the file when writing！")
                 # print('self.CsvFiles.send_data len:%d' % len(self.CsvFiles.send_data))
                 if len(self.CsvFiles.send_data):
@@ -1674,6 +1790,168 @@ class Pyside6Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         self.pushButton_startAnalyze.clicked.connect(self.analyze_differ_nodes)
         self.pushButton_startFilter.clicked.connect(self.start_filter_nodes)
 
+    def ble_hci_init(self):
+        self.pushButton_advParaSet.clicked.connect(self.set_ble_adv_parameters)
+        self.pushButton_advDataSet.clicked.connect(self.set_ble_adv_data)
+        self.pushButton_advStart.clicked.connect(self.set_ble_adv_start)
+        self.pushButton_advStop.clicked.connect(self.set_ble_adv_stop)
+        self.pushButton_scanParaSet.clicked.connect(self.set_ble_scan_para)
+        self.pushButton_bleScanstart.clicked.connect(self.start_ble_scan)
+        self.pushButton_bleScanstop.clicked.connect(self.stop_ble_scan)
+        self.pushButton_bleConnect.clicked.connect(self.ble_connect_to_dev)
+        self.pushButton_bleDisconnect.clicked.connect(self.ble_disconnect_to_dev)
+        self.pushButton_getConnList.clicked.connect(self.ble_get_connect_list)
+
+    def set_ble_adv_parameters(self):    
+        adv_set_para_start = [0x01, 0x06, 0x20, 0x0f]
+        send_data = struct.pack("!%dB" % len(adv_set_para_start), *adv_set_para_start)
+        
+        advMinInterval_s = self.lineEdit_minAdvInterval.text()
+        advMinInterval = line_edit_str2int(2, advMinInterval_s)
+        advMinInterval.reverse()
+        send_data += struct.pack("!%dB" % len(advMinInterval), *advMinInterval)
+
+        advMaxInterval_s = self.lineEdit_maxAdvInterval.text()
+        advMaxInterval = line_edit_str2int(2, advMaxInterval_s)
+        advMaxInterval.reverse()
+        send_data += struct.pack("!%dB" % len(advMaxInterval), *advMaxInterval)
+
+        adv_para_other = [0x00, 0x00, 0x00, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01, 0x07, 0x00]
+        send_data += struct.pack("!%dB" % len(adv_para_other), *adv_para_other)
+        self.send_ble_standard_data(send_data)
+
+    def set_ble_adv_data(self):
+        adv_set_advdata_start = [0x01, 0x08, 0x20]
+        send_data = struct.pack("!%dB" % len(adv_set_advdata_start), *adv_set_advdata_start)
+
+        advData_s = self.lineEdit_advData.text()
+        # print(advData_s)
+        advdata_hex = simple_str2hex(advData_s)
+        # print(advdata_hex)
+        # print(len(advdata_hex))
+        send_data += struct.pack("!2B%dB" % len(advdata_hex), len(advdata_hex)+1, len(advdata_hex), *advdata_hex)
+        self.send_ble_standard_data(send_data)
+
+    def set_ble_adv_start(self):
+        adv_start = [0x01, 0x0a, 0x20, 0x01, 0x01]
+        send_data = struct.pack("!%dB" % len(adv_start), *adv_start)
+        self.send_ble_standard_data(send_data)
+
+    def set_ble_adv_stop(self):
+        adv_stop = [0x01, 0x0a, 0x20, 0x01, 0x00]
+        send_data = struct.pack("!%dB" % len(adv_stop), *adv_stop)
+        self.send_ble_standard_data(send_data)
+
+    def set_ble_scan_para(self):
+        scan_para_start = [0x01, 0x0b, 0x20, 0x07, 0x01]
+        send_data = struct.pack("!%dB" % len(scan_para_start), *scan_para_start)
+        
+        scanInterval_s = self.lineEdit_scanInterval.text()
+        scanInterval = line_edit_str2int(2, scanInterval_s)
+        scanInterval.reverse()
+        send_data += struct.pack("!%dB" % len(scanInterval), *scanInterval)
+
+        scanWindow_s = self.lineEdit_scanWindow.text()
+        scanWindow = line_edit_str2int(2, scanWindow_s)
+        scanWindow.reverse()
+        send_data += struct.pack("!%dB" % len(scanWindow), *scanWindow)
+
+        scan_para_other = [0x00, 0x00]
+        send_data += struct.pack("!%dB" % len(scan_para_other), *scan_para_other)
+        self.send_ble_standard_data(send_data)
+
+    def start_ble_scan(self):
+        start_scan = [0x01, 0x0c, 0x20, 0x02, 0x01, 0x00]
+        send_data = struct.pack("!%dB" % len(start_scan), *start_scan)
+
+        self.send_ble_standard_data(send_data)
+        self.listWidget_AdvList.clear()
+        self.ble_choose_mac = []
+        self.advList = {}
+
+    def stop_ble_scan(self):
+        stop_scan = [0x01, 0x0c, 0x20, 0x02, 0x00, 0x00]
+        send_data = struct.pack("!%dB" % len(stop_scan), *stop_scan)
+
+        self.send_ble_standard_data(send_data)
+        # print('stop scan .......')
+        self.listWidget_AdvList.clear()
+        self.ble_choose_mac = []
+        for advNode in self.advList:
+            # print(advNode)
+            # print(self.advList[advNode]['rssi'])
+            # print(self.advList[advNode]['name'])
+            data_show_s = 'mac:0x'
+            for i in range(6):
+                hhex = '%02x' % advNode[5-i]
+                data_show_s += hhex
+            data_show_s +="  rssi:" + '%d' % (self.advList[advNode]['rssi'] - 256)
+            if self.advList[advNode]['name'] != 'no name':
+                data_show_s +="  name:"
+                for a in self.advList[advNode]['name']:
+                    if a >= 32 and a<127:
+                        data_show_s +=chr(a)
+                self.listWidget_AdvList.insertItem(0, data_show_s)
+            else:
+                self.listWidget_AdvList.addItem(data_show_s)
+
+    def ble_connect_to_dev(self):
+        connect_data_start = [0x01, 0x0d, 0x20, 0x19, 0xa0, 0x00, 0xa0, 0x00, 0x00, 0x00]
+        send_data = struct.pack("!%dB" % len(connect_data_start), *connect_data_start)
+
+        ble_mac_addr_s = self.lineEdit_bleMac.text()
+        # print('ble_mac_addr_s')
+        # print(ble_mac_addr_s)
+        if ble_mac_addr_s:
+            ieee_addr = line_edit_str2int(6, ble_mac_addr_s)
+            ieee_addr.reverse()
+            send_data += struct.pack("!%dB" % len(ieee_addr), *ieee_addr)
+        else:
+            if self.ble_choose_mac:
+                send_data += struct.pack("!%dB" % len(self.ble_choose_mac), *(self.ble_choose_mac))
+            else:
+                QMessageBox.warning(self, 'BLE connect', "Choose or fill in the mac of the device！")
+                return
+
+        self.ble_choose_mac = []
+        self.listWidget_AdvList.clearSelection()
+        connect_data_end = [0x00, 0x19, 0x00, 0x27, 0x00, 0x02, 0x00, 0x0a, 0x00, 0x00, 0x00, 0x00, 0x00]
+        send_data += struct.pack("!%dB" % len(connect_data_end), *connect_data_end)
+        self.send_ble_standard_data(send_data)
+
+    def ble_disconnect_to_dev(self):
+        disconn_start = [0x01, 0x06, 0x04, 0x03]
+        send_data = struct.pack("!%dB" % len(disconn_start), *disconn_start)
+
+        ble_handle_s = self.lineEdit_bleConnHandle.text()
+        if ble_handle_s != '':
+            ble_handle = line_edit_str2int(2, ble_handle_s)
+            if ble_handle[0] == 0xcc and ble_handle[1] == 0xcc:
+                QMessageBox.warning(self, 'BLE disconnect', "Invalid ble handle！")
+            else:
+                ble_handle.reverse()
+                ble_handle.append(0x13)
+                # print('ble handle.....')
+                # print(ble_handle)
+                send_data += struct.pack("!%dB" % len(ble_handle), *ble_handle)
+                self.send_ble_standard_data(send_data)
+        else:
+            if self.blehandle == 0x00:
+                QMessageBox.warning(self, 'BLE disconnect', "No BLE connection....！")
+            else:
+                disconn_data = []
+                disconn_data.append(self.blehandle & 0xff)
+                disconn_data.append((self.blehandle >> 8)&0xff)
+                disconn_data.append(0x13)
+                send_data += struct.pack("!%dB" % len(disconn_data), *disconn_data)
+                self.send_ble_standard_data(send_data)
+
+    def ble_get_connect_list(self):
+        listInfo_s = 'Not support on windows.\n'
+        self.label_bleState.setStyleSheet("color:red")        
+        self.label_bleState.setText(listInfo_s)
+
+
     def analyze_differ_nodes(self):
         self.pushButton_startAnalyze.setEnabled(False)
         self.textEdit_nwkAddrShow.clear()
@@ -1736,6 +2014,24 @@ class Pyside6Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             pass
 
+    def send_ble_standard_data(self, send_data):
+        send_data_str = ''
+        dt = datetime.now()
+        timestr = dt.strftime('%y-%m-%d %H:%M:%S.%f')
+        for hvol in send_data:
+            hhex = '%02x' % hvol
+            send_data_str += hhex + ' '
+        self.listWidget_commandData.addItem(timestr + ' send-->:' + send_data_str)
+
+        try:
+            self.serial.write(send_data)
+        except serial.serialutil.PortNotOpenError:
+            QMessageBox.warning(self, 'port warning', "Port not open！")
+        except serial.SerialTimeoutException:
+            QMessageBox.warning(self, 'port warning', "Send timeout！")
+        except serial.SerialException:
+            QMessageBox.warning(self, 'port warning', "Port error！")
+
     def send_hci_command(self, command_id, payload_len, payload):
         command_start = self.ai_setting.command_start
         command_crc = crc8_calculate(command_id, payload_len, payload)
@@ -1755,7 +2051,37 @@ class Pyside6Serial(QtWidgets.QMainWindow, Ui_MainWindow):
                                     "Out of the max length:(%d)" % self.ai_setting.command_length_max)
                 return
         try:
-            self.serial.write(send_data)
+            self.parsing_send_command(send_data)
+            if self.bleHci_enable is True:
+                hcicmd = 0x01   #hci command
+                hciOgd = 0x03
+                hciOfd = 0xfd
+                payloadLen = len(send_data)
+                packet_data: bytes = struct.pack("!4B", hcicmd, hciOgd, hciOfd, payloadLen)
+                packet_data += send_data
+                self.serial.write(packet_data)
+            else:
+                self.serial.write(send_data)
+
+        except serial.serialutil.PortNotOpenError:
+            QMessageBox.warning(self, 'port warning', "Port not open！")
+        except serial.SerialTimeoutException:
+            QMessageBox.warning(self, 'port warning', "Send timeout！")
+        except serial.SerialException:
+            QMessageBox.warning(self, 'port warning', "Port error！")
+
+    def send_serial_data_hci(self, ogf, ocf, send_data):
+        if not self.checkBox_thread.isChecked():
+            if len(send_data) > self.ai_setting.command_length_max:
+                QMessageBox.warning(self, 'port warning',
+                                    "Out of the max length:(%d)" % self.ai_setting.command_length_max)
+                return
+        try:
+            if self.bluezhcid > 0:
+                plen = len(send_data)  # + 7
+                self.tl_hcitool.tl_hci_cmd_send(self.bluezhcid, ogf, ocf, plen, send_data)
+            else:
+                self.serial.write(send_data)
             self.parsing_send_command(send_data)
         except serial.serialutil.PortNotOpenError:
             QMessageBox.warning(self, 'port warning', "Port not open！")
@@ -1774,7 +2100,7 @@ class Pyside6Serial(QtWidgets.QMainWindow, Ui_MainWindow):
                 send_data_str += hhex + ' '
             self.listWidget_commandData.addItem(timestr + ' send-->:' + send_data_str)
             write_result = self.CsvFiles.command_parsing_record(self.ai_setting, dt, send_data, send_data_str)
-            if write_result != 1:
+            if write_result != 1 and write_result != 2:
                 QMessageBox.warning(self, 'write file warning', "Do not open the file when writing！")
         else:
             # print(str(send_data))

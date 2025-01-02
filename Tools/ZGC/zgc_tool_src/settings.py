@@ -630,6 +630,15 @@ class Settings:
             0xff: 'ZCL_DATA_TYPE_UNKNOWN',
         }
 
+        self.ble_command_id_list = {
+            0x2006: 'HCI_LE_Set_Advertising_parameters',
+            0x2008: 'HCI_LE_Set_Advertising_Data',
+            0x200a: 'HCI_LE_Set_Advertising_Enable',
+            0x200b: 'HCI_LE_Set_Scan_Parameters',
+            0x200c: 'HCI_LE_Set_Scan_Enable',
+            0x200d: 'HCI_LE_Creat_Connection',
+        }   
+
     def get_zcl_data_type(self, key_value):
         try:
             return self.data_type_dict[key_value]
@@ -651,6 +660,12 @@ class Settings:
     def get_command_id_str(self, key_value):
         try:
             return self.hci_command_list[key_value]
+        except KeyError:
+            return self.not_defined
+        
+    def get_ble_command_id_str(self, key_value):
+        try:
+            return self.ble_command_id_list[key_value]
         except KeyError:
             return self.not_defined
 

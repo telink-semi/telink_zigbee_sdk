@@ -77,30 +77,40 @@ def parse_packet_detail_show(ai_setting, data_str):
     # print('data_int:')
     # print(data_int)
     parse_items = []
-    if data_int is None or len(data_int) < ai_setting.command_length_min:
-        return parse_items
+    
+    packet_start = data_int[0]
+    if packet_start == 0x55:
+        if data_int is None or len(data_int) < ai_setting.command_length_min:
+            return parse_items
+        payload_len = data_int[ai_setting.packet_length_idx_low]
+        commandid_high = data_int[ai_setting.packet_command_idx_high] << 8
+        commandid_hex = commandid_high + data_int[ai_setting.packet_command_idx_low]
 
-    payload_len = data_int[ai_setting.packet_length_idx_low]
-    commandid_high = data_int[ai_setting.packet_command_idx_high] << 8
-    commandid_hex = commandid_high + data_int[ai_setting.packet_command_idx_low]
-
-    if commandid_hex >= 0x8000:
-        # parse_items = ['not support!']
-        nodes_info = {}
-        auto_bind = SetAutoBindPara()
-        list1 = []
-        command_str = ai_setting.get_command_id_str(commandid_hex)
-        parse_items.append('hci commandid: 0x%04x' % commandid_hex + ' (' + command_str + ')')
-        parse_items.append('payload len: %d' % payload_len)
-        # print(parse_items)
-        ota_file_path = ''
-        command_info = ParseRecvCommand(ai_setting, ota_file_path, commandid_hex, payload_len,
-                                        data_int[ai_setting.packet_payload_start_idx:-1], nodes_info, auto_bind, list1)
-        parse_items.extend(command_info.payload_items)
-    else:
-        command_info = ParseSendCommand(ai_setting, commandid_hex, payload_len,
-                                        data_int[ai_setting.packet_payload_start_idx:-1])
-        parse_items.extend(command_info.parse_items)
+        if commandid_hex >= 0x8000:
+            # parse_items = ['not support!']
+            nodes_info = {}
+            auto_bind = SetAutoBindPara()
+            list1 = []
+            command_str = ai_setting.get_command_id_str(commandid_hex)
+            parse_items.append('hci commandid: 0x%04x' % commandid_hex + ' (' + command_str + ')')
+            parse_items.append('payload len: %d' % payload_len)
+            # print(parse_items)
+            ota_file_path = ''
+            command_info = ParseRecvCommand(ai_setting, ota_file_path, commandid_hex, payload_len,
+                                            data_int[ai_setting.packet_payload_start_idx:-1], nodes_info, auto_bind, list1)
+            parse_items.extend(command_info.payload_items)
+        else:
+            command_info = ParseSendCommand(ai_setting, commandid_hex, payload_len,
+                                            data_int[ai_setting.packet_payload_start_idx:-1])
+            parse_items.extend(command_info.parse_items)
+    elif packet_start == 0x01:
+        parse_items.append('ble command:')
+        commandId = data_int[1] + (data_int[2] << 8)
+        # print("commandId:0x%04x" % commandId)
+        command_str = ai_setting.get_ble_command_id_str(commandId)
+        parse_items.append('command opcode: 0x%04x' % commandId + ' (' + command_str + ')')
+    elif packet_start == 0x04:
+        parse_items.append('ble event')
     return parse_items
 
 

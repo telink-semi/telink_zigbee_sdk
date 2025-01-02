@@ -181,7 +181,7 @@ def calculate_loss_rate(process_folder, nodes_addr, all_packets_filename):
     confirm_sta = nodes_info[nodes_info['CommandId'] == 'ZBHCI_CMD_DATA_CONFIRM']
     status_count = confirm_sta['Status'].value_counts()
     # print(status_count)
-    # print('calculate_loss_rate')print
+    # print('calculate_loss_rate')
     # print(nodes_addr)
     diff_status = ['idx', 'node_addr', 'confirm_cnt', 'confirm_fail_cnt', 'loss_rate(%)']
     with open(all_static_file, 'a', encoding='utf-8', newline='')as cal_file:
@@ -327,7 +327,8 @@ class CsvFiles:
                 else:
                     delta_time = (self.now_time - self.before_time).total_seconds()
                 self.before_time = self.now_time
-
+                if data[0]!= 0x55:
+                    return 2
                 direct = ''
                 payload_len = data[ai_setting.packet_length_idx_low]
                 commandid_high = data[ai_setting.packet_command_idx_high] << 8
