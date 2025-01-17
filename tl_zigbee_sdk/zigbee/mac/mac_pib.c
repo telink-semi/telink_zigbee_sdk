@@ -144,44 +144,49 @@ _CODE_MAC_ void generateIEEEAddr(void)
 
     flash_read(CFG_MAC_ADDRESS, 8, addr);
 
-	if(ZB_IEEE_ADDR_IS_INVALID(addr)){
-		unsigned int t0 = clock_time();
-		u32 jitter = 0;
-		do{
-			jitter = drv_u32Rand() % 0x0fff;
-		}while(jitter == 0);
-		while(!clock_time_exceed(t0, jitter));
+    if (ZB_IEEE_ADDR_IS_INVALID(addr)) {
+        if (!drv_get_primary_ieee_addr(addr)) {
+            unsigned int t0 = clock_time();
+            u32 jitter = 0;
+            do {
+                jitter = drv_u32Rand() % 0x0fff;
+            } while(jitter == 0);
+            while(!clock_time_exceed(t0, jitter));
 
-		drv_generateRandomData(addr, 5);
-		memcpy(addr + 5, startIEEEAddr, 3);
-		flash_write(CFG_MAC_ADDRESS, 6, addr + 2);
-		flash_write(CFG_MAC_ADDRESS + 6, 2, addr);
+            drv_generateRandomData(addr, 5);
+            memcpy(addr + 5, startIEEEAddr, 3);
+        }
 
-		u8 buf[8];
-		flash_read(CFG_MAC_ADDRESS, 8, buf);
-		if(ZB_IS_64BIT_ADDR_INVALID(buf)){
-			ZB_EXCEPTION_POST(SYS_EXCEPTTION_COMMON_PARAM_ERROR);
-		}
-	}else{
-		/* MAC address format in TLSR serial chips:
-		 * xx xx xx 38 C1 A4 xx xx
-  	  	 * xx xx xx D1 19 C4 xx xx
-  	  	 * xx xx xx CB 0B D8 xx xx
-  	  	 * xx xx xx 77 5F D8 xx xx
-  	  	 * xx xx xx B4 CF 3C xx xx
-		 *
-		 * so, it need to do shift
-		 * */
-		if((addr[3] == 0x38 && addr[4] == 0xC1 && addr[5] == 0xA4) ||
-		   (addr[3] == 0xD1 && addr[4] == 0x19 && addr[5] == 0xC4) ||
-		   (addr[3] == 0xCB && addr[4] == 0x0B && addr[5] == 0xD8) ||
-		   (addr[3] == 0x77 && addr[4] == 0x5F && addr[5] == 0xD8) ||
-		   (addr[3] == 0xB4 && addr[4] == 0xCF && addr[5] == 0x3C)){
-			flash_read(CFG_MAC_ADDRESS, 6, addr + 2);
-			flash_read(CFG_MAC_ADDRESS + 6, 2, addr);
-		}
-	}
-	ZB_IEEE_ADDR_COPY(ZB_PIB_EXTENDED_ADDRESS(), addr);
+        flash_write(CFG_MAC_ADDRESS, 6, addr + 2);
+        flash_write(CFG_MAC_ADDRESS + 6, 2, addr);
+
+        u8 buf[8];
+        flash_read(CFG_MAC_ADDRESS, 8, buf);
+
+        if (ZB_IS_64BIT_ADDR_INVALID(buf)) {
+            ZB_EXCEPTION_POST(SYS_EXCEPTTION_COMMON_PARAM_ERROR);
+        }
+    } else {
+        /* MAC address format in TLSR serial chips:
+         * xx xx xx 38 C1 A4 xx xx
+         * xx xx xx D1 19 C4 xx xx
+         * xx xx xx CB 0B D8 xx xx
+         * xx xx xx 77 5F D8 xx xx
+         * xx xx xx B4 CF 3C xx xx
+         *
+         * so, it need to do shift
+         */
+        if ((addr[3] == 0x38 && addr[4] == 0xC1 && addr[5] == 0xA4) ||
+            (addr[3] == 0xD1 && addr[4] == 0x19 && addr[5] == 0xC4) ||
+            (addr[3] == 0xCB && addr[4] == 0x0B && addr[5] == 0xD8) ||
+            (addr[3] == 0x77 && addr[4] == 0x5F && addr[5] == 0xD8) ||
+            (addr[3] == 0xB4 && addr[4] == 0xCF && addr[5] == 0x3C)) {
+            flash_read(CFG_MAC_ADDRESS, 6, addr + 2);
+            flash_read(CFG_MAC_ADDRESS + 6, 2, addr);
+        }
+    }
+
+    ZB_IEEE_ADDR_COPY(ZB_PIB_EXTENDED_ADDRESS(), addr);
 }
 
 /*! @} */
