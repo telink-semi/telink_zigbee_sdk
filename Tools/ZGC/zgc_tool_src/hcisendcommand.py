@@ -337,7 +337,7 @@ class Pyside6Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         
     def ble_event_data_parse(self, recv_data):
         try:
-            if recv_data[1] == 0x3e and recv_data[3] == 0x01: #LE_mATA LE_CONNECTION COMPLETE
+            if recv_data[1] == 0x3e and recv_data[3] == 0x01: #LE_CONNECTION COMPLETE
                 if recv_data[2] ==0x13 and recv_data[4] == 0x00: #status
                     connHandle = recv_data[5] + (recv_data[6] << 8)
                     self.blehandle = connHandle
@@ -1822,6 +1822,11 @@ class Pyside6Serial(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def set_ble_adv_data(self):
         adv_set_advdata_start = [0x01, 0x08, 0x20]
+
+        data_type_s = self.comboBox_advOrScanRe.currentText()
+        if data_type_s == 'Scan Response':
+            adv_set_advdata_start = [0x01, 0x09, 0x20]
+
         send_data = struct.pack("!%dB" % len(adv_set_advdata_start), *adv_set_advdata_start)
 
         advData_s = self.lineEdit_advData.text()
