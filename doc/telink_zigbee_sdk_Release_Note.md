@@ -1,3 +1,108 @@
+## V3.7.1.3(ER)
+
+### Version
+* Chips
+  - TC32: TLSR8269/TLSR8258/TLSR8278
+  - RISCV: TLSR921x(B91)/TLSR952x(B92)/TL721x A2/TL321x A2
+* Hardware Version
+  - TLSR8258: C1T139A30_V1_2/C1T139A3_V2.0A
+  - TLSR921x(B91): C1T213A20_V1_3/C1T213A3_V1_1
+  - TL321x: C1T335A20_V1_3/C1T335A3_V1_0
+* Driver Version
+  - SHA-1: fe2317eed5857c1afe6dc3f5006878be4ceca30a
+* Toolchain Version
+  - TLSR8269/TLSR8258/TLSR8278: TC32 ELF GCC4.3
+  - TLSR921x(B91): TL32 ELF MCULIB V5F GCC7.4
+  - TLSR952x(B92)/TL721x: TL32 ELF MCULIB V5F GCC12.2
+  - TL321x: TL32 ELF MCULIB V5 GCC12.2
+* IDE Version
+  - Telink IoT Studio: [TelinkIoTStudio_V2024.8](https://wiki.telink-semi.cn/tools_and_sdk/Tools/IoTStudio/TelinkIoTStudio_V2024.8.zip)
+### Features
+* Update the TL321x platform driver for version A2.
+* Update MAC Address generation rules.
+* Add Uart console to print logs.
+### Bug Fixes
+* Fix the Reset To Factory New command processing of Touch Link Commissioning Cluster.
+* Fix the static declaration issue of zcl_electricalMeasure_cmdHandler().
+### Performance
+* N/A
+### Code Refactoring
+* Code style
+### BREAKING CHANGES
+* N/A
+### Flash
+|   chip   |                  flash                  |
+| :------- | :-------------------------------------: |
+| TLSR8258 | GD25LD40C/GD25LD40E/GD25LD80C/GD25LD80E |
+| TLSR8278 |                    /                    |
+| TLSR921x |        P25Q80U/P25Q80SU/P25Q16SU        |
+| TLSR952x |                    /                    |
+| TL721x   |                    /                    |
+| TL321x   |        P25Q80SU/P25Q16SU/P25Q32SU       | 
+### CodeSize
+* Units: KBytes
+
+|   chip   | sampleGW (RAM/FLASH Size) | sampleLight (RAM/FLASH Size) | sampleSwitch (RAM/FLASH Size) |
+| :------- | :-----------------------: | :--------------------------: | :---------------------------: |
+| TLSR8258 | 34 / 176                  | 32 / 196                     | 22 / 138                      |
+| TLSR8278 | 34 / 171                  | 32 / 193                     | 22 / 133                      |
+| TLSR921x | 36 / 161                  | 34 / 180                     | 24 / 122                      |
+| TLSR952x | 36 / 170                  | 34 / 190                     | 27 / 134                      |
+| TL721x   | 40 / 172                  | 37 / 193                     | 31 / 135                      |
+| TL321x   | 37 / 170                  | 34 / 191                     | 28 / 133                      |
+
+### Version
+* 芯片
+  - TC32: TLSR8269/TLSR8258/TLSR8278
+  - RISCV: TLSR921x(B91)/TLSR952x(B92)/TL721x A2/TL321x A2
+* 硬件版本
+  - TLSR8258: C1T139A30_V1_2/C1T139A3_V2.0A
+  - TLSR921x(B91): C1T213A20_V1_3/C1T213A3_V1_1
+  - TL321x: C1T335A20_V1_3/C1T335A3_V1_0
+* 驱动版本
+  - SHA-1: fe2317eed5857c1afe6dc3f5006878be4ceca30a
+* 工具链版本
+  - TLSR8269/TLSR8258/TLSR8278: TC32 ELF GCC4.3
+  - TLSR921x(B91): TL32 ELF MCULIB V5F GCC7.4
+  - TLSR952x(B92)/TL721x: TL32 ELF MCULIB V5F GCC12.2
+  - TL321x: TL32 ELF MCULIB V5 GCC12.2
+* IDE版本
+  - Telink IoT Studio: [TelinkIoTStudio_V2024.8](https://wiki.telink-semi.cn/tools_and_sdk/Tools/IoTStudio/TelinkIoTStudio_V2024.8.zip)
+### Features
+* 更新A2版本的TL321x平台驱动。
+* 更新MAC地址生成规则。
+* 添加串口打印输出日志。
+### Bug Fixes
+* 修复Touch Link Cluster中Reset To Factory New命令的处理。
+* 修复zcl_electricalMeasure_cmdHandler()函数静态声明的问题。
+### Performance
+* N/A
+### Code Refactoring
+* 代码风格
+### BREAKING CHANGES
+* N/A
+### Flash
+|   chip   |                  flash                  |
+| :------- | :-------------------------------------: |
+| TLSR8258 | GD25LD40C/GD25LD40E/GD25LD80C/GD25LD80E |
+| TLSR8278 |                    /                    |
+| TLSR921x |        P25Q80U/P25Q80SU/P25Q16SU        |
+| TLSR952x |                    /                    |
+| TL721x   |                    /                    |
+| TL321x   |        P25Q80SU/P25Q16SU/P25Q32SU       | 
+### CodeSize
+* 单位: KBytes
+
+|   chip   | sampleGW (RAM/FLASH Size) | sampleLight (RAM/FLASH Size) | sampleSwitch (RAM/FLASH Size) |
+| :------- | :-----------------------: | :--------------------------: | :---------------------------: |
+| TLSR8258 | 34 / 176                  | 32 / 196                     | 22 / 138                      |
+| TLSR8278 | 34 / 171                  | 32 / 193                     | 22 / 133                      |
+| TLSR921x | 36 / 161                  | 34 / 180                     | 24 / 122                      |
+| TLSR952x | 36 / 170                  | 34 / 190                     | 27 / 134                      |
+| TL721x   | 40 / 172                  | 37 / 193                     | 31 / 135                      |
+| TL321x   | 37 / 170                  | 34 / 191                     | 28 / 133                      |
+
+
 ## V3.7.1.2(PR)
 
 ### Version
