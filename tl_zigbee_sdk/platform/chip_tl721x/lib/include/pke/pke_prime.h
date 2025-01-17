@@ -27,19 +27,20 @@
 #include "stdint.h"
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 
-
 //1:use hardware;  2:use software
-#define BIGINT_DIV_CHOICE     (2)
+#define BIGINT_DIV_CHOICE (2)
 
 #if (BIGINT_DIV_CHOICE == 1)
-typedef struct {
-    unsigned int low;
-    unsigned int high;
-}double_unsigned_int;
+    typedef struct
+    {
+        unsigned int low;
+        unsigned int high;
+    } double_unsigned_int;
 #elif (BIGINT_DIV_CHOICE == 2)
 typedef unsigned int double_unsigned_int;
 #endif
@@ -49,23 +50,23 @@ typedef unsigned int double_unsigned_int;
 #define PRIMALITY_TEST_CHOICE (1)
 
 #if (PRIMALITY_TEST_CHOICE == 1)
-#define FERMAT_ROUND          (3)
+    #define FERMAT_ROUND (3)
 #elif (PRIMALITY_TEST_CHOICE == 2)
-#define MILLER_RABIN_ROUND    (3)
+    #define MILLER_RABIN_ROUND (3)
 #endif
 
 
 //prime table level(total number of small prime numbers)
-#define PTL_MAX               (400)   //the max PTL value
-#define PTL_512               (400)   //the best PTL value for prime bit length 512 (RSA1024)
-#define PTL_1024              (400)   //the best PTL value for prime bit length 1024 (RSA2048)
+#define PTL_MAX     (400) //the max PTL value
+#define PTL_512     (400) //the best PTL value for prime bit length 512 (RSA1024)
+#define PTL_1024    (400) //the best PTL value for prime bit length 1024 (RSA2048)
 
 
-#define NOT_PRIME             (0xFFFFFFFF)
-#define MAYBE_PRIME           (0)
+#define NOT_PRIME   (0xFFFFFFFF)
+#define MAYBE_PRIME (0)
 
 
-/**
+    /**
  * @brief       get prime number of pBitLen
  * @param[in]   p              - pointer to unsigned int big prime number.
  * @param[in]   pBitLen        - bit length of p.
@@ -75,7 +76,7 @@ typedef unsigned int double_unsigned_int;
       -# 1.pBitLen must be bigger than 32, but less than 2048.
   @endverbatim
  */
-unsigned int get_prime(unsigned int p[], unsigned int pBitLen);
+    unsigned int get_prime(unsigned int p[], unsigned int pBitLen);
 
 
 #ifdef __cplusplus

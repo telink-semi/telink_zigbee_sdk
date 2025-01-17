@@ -25,51 +25,45 @@
 #define DH_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
-
 
 
 #include "lib/include/pke/pke.h"
 
 
 //DH return code
-#define DH_SUCCESS                          PKE_SUCCESS
-#define DH_POINTER_NULL                     (PKE_SUCCESS+0xA0U)
-#define DH_INVALID_INPUT                    (PKE_SUCCESS+0xA1U)
-#define DH_ZERO_ALL                         (PKE_SUCCESS+0xA2U)
-#define DH_VALUE_ONE                        (PKE_SUCCESS+0xA3U)
-#define DH_INTEGER_TOO_BIG                  (PKE_SUCCESS+0xA4U)
+#define DH_SUCCESS         PKE_SUCCESS
+#define DH_POINTER_NULL    (PKE_SUCCESS + 0xA0U)
+#define DH_INVALID_INPUT   (PKE_SUCCESS + 0xA1U)
+#define DH_ZERO_ALL        (PKE_SUCCESS + 0xA2U)
+#define DH_VALUE_ONE       (PKE_SUCCESS + 0xA3U)
+#define DH_INTEGER_TOO_BIG (PKE_SUCCESS + 0xA4U)
 
+    typedef struct
+    {
+        unsigned int  p_bits;
+        unsigned int  q_bits;
+        unsigned int  g_bits;
+        unsigned int *p;
+        unsigned int *p_h;
+        unsigned int *p_n0;
+        unsigned int *q;
+        unsigned int *g;
+    } DH_PARA;
 
-typedef struct
-{
-    unsigned int p_bits;
-    unsigned int q_bits;
-    unsigned int g_bits;
-    unsigned int *p;
-    unsigned int *p_h;
-    unsigned int *p_n0;
-    unsigned int *q;
-    unsigned int *g;
-}DH_PARA;
-
-
-
-
-
-
-//APIs
-/**
+    //APIs
+    /**
  * @brief       DH parameters pointer init, set pointers of (p, q, g)
  * @param[in]   dh_para      - DH_PARA struct pointer.
- * @param[in]   p_buf        - a U32 buffer holds p, the prime defining the GF(p).
+ * @param[in]   p_buf        - a unsigned int buffer holds p, the prime defining the GF(p).
  * @param[in]   p_bits       - bit length of p.
- * @param[in]   p_h_buf      - a U32 buffer holds pre-calculated mont parameters H(R^2 mod p).
- * @param[in]   P_n0_buf     - a U32 buffer holds pre-calculated mont parameters n0'(-modoulus^(-1) mod 2^w).
- * @param[in]   q_buf        - a U32 buffer holds q, a prime factor of p-1, aka order of g..
+ * @param[in]   p_h_buf      - a unsigned int buffer holds pre-calculated mont parameters H(R^2 mod p).
+ * @param[in]   p_n0_buf     - a unsigned int buffer holds pre-calculated mont parameters n0'(-modoulus^(-1) mod 2^w).
+ * @param[in]   q_buf        - a unsigned int buffer holds q, a prime factor of p-1, aka order of g..
  * @param[in]   q_bits       - bit length of q.
- * @param[in]   g_buf        - a U32 buffer holds g, a generator of the q-order subgroup of GF(p)*.
+ * @param[in]   g_buf        - a unsigned int buffer holds g, a generator of the q-order subgroup of GF(p)*.
  * @param[in]   g_bits       - bit length of g.
  * @return      0:success     other:error
  * @note
@@ -80,15 +74,14 @@ typedef struct
           (w+7)/8 bytes, here w is actually 32. if you do not have this, please set p_n0_buf to NULL.
   @endverbatim
  */
-unsigned int dh_param_pointer_init(DH_PARA *dh_para, unsigned int *p_buf, unsigned int p_bits, unsigned int *p_h_buf, 
-        unsigned int *p_n0_buf, unsigned int *q_buf, unsigned int q_bits, unsigned int *g_buf, unsigned int g_bits);
+    unsigned int dh_param_pointer_init(DH_PARA *dh_para, unsigned int *p_buf, unsigned int p_bits, unsigned int *p_h_buf, unsigned int *p_n0_buf, unsigned int *q_buf, unsigned int q_bits, unsigned int *g_buf, unsigned int g_bits);
 
-/**
+    /**
  * @brief       DH parameters value init, set pointers of (p, q, g)
  * @param[in]   dh_para      - DH_PARA struct pointer.
  * @param[in]   p            - a prime defining the GF(p).
  * @param[in]   p_h          - the pre-calculated mont parameter (R^2 mod p).
- * @param[it]   p_n0         - the pre-calculated mont parameter (-modoulus^(-1) mod 2^w).
+ * @param[in]   p_n0         - the pre-calculated mont parameter (-modoulus^(-1) mod 2^w).
  * @param[in]   q            - a prime factor of p-1, aka order of g.
  * @param[in]   g            - a generator of the q-order subgroup of GF(p)*
  * @return      0:success     other:error
@@ -104,12 +97,12 @@ unsigned int dh_param_pointer_init(DH_PARA *dh_para, unsigned int *p_buf, unsign
            if you do not have p_n0, please set p_n0 to NULL.
   @endverbatim
  */
-unsigned int dh_param_value_init( DH_PARA *dh_para,  unsigned char *p,  unsigned char *p_h,  unsigned char *p_n0,  unsigned char *q,  unsigned char *g);
+    unsigned int dh_param_value_init(DH_PARA *dh_para, unsigned char *p, unsigned char *p_h, unsigned char *p_n0, unsigned char *q, unsigned char *g);
 
-/**
+    /**
  * @brief       DH check public key, it must be in [2, p-2], and pubkey^q = 1 mod p
  * @param[in]   dh_para      - DH_PARA struct pointer.
- * @param[in]   p_minus_1    - p-1.
+ * @param[in]   p_minus_2    - p-1.
  * @param[in]   pubkey       - public key.
  * @return      0:success     other:error
  * @note
@@ -118,9 +111,9 @@ unsigned int dh_param_value_init( DH_PARA *dh_para,  unsigned char *p,  unsigned
       -#2. the input p_minus_1 and pubkey both occupy (dh_para->p_bits+31)/32 words;
   @endverbatim
  */
-unsigned int dh_check_public_key( DH_PARA *dh_para, unsigned int *p_minus_2, unsigned int *pubkey);
+    unsigned int dh_check_public_key(DH_PARA *dh_para, unsigned int *p_minus_2, unsigned int *pubkey);
 
-/**
+    /**
  * @brief       DH generate public key from private key.
  * @param[in]   dh_para      - DH_PARA struct pointer.
  * @param[in]   prikey       - private key.
@@ -133,9 +126,9 @@ unsigned int dh_check_public_key( DH_PARA *dh_para, unsigned int *p_minus_2, uns
            the output pubkey occupies (dh_para->p_bits+7)/8 bytes;
   @endverbatim
  */
-unsigned int dh_generate_pubkey_from_prikey( DH_PARA *dh_para, unsigned char *prikey, unsigned char *pubkey);
+    unsigned int dh_generate_pubkey_from_prikey(DH_PARA *dh_para, unsigned char *prikey, unsigned char *pubkey);
 
-/**
+    /**
  * @brief       DH generate key pair.
  * @param[in]   dh_para      - DH_PARA struct pointer.
  * @param[in]   prikey       - private key.
@@ -148,9 +141,9 @@ unsigned int dh_generate_pubkey_from_prikey( DH_PARA *dh_para, unsigned char *pr
            the output pubkey occupies (dh_para->p_bits+7)/8 bytes;
   @endverbatim
  */
-unsigned int dh_generate_key( DH_PARA *dh_para, unsigned char *prikey, unsigned char *pubkey);
+    unsigned int dh_generate_key(DH_PARA *dh_para, unsigned char *prikey, unsigned char *pubkey);
 
-/**
+    /**
  * @brief       DH compute key
  * @param[in]   dh_para         - DH_PARA struct pointer.
  * @param[in]   local_prikey    - local private key, big-endian.
@@ -163,23 +156,19 @@ unsigned int dh_generate_key( DH_PARA *dh_para, unsigned char *prikey, unsigned 
       -# 2. peer_pubkey and key occupy (dh_para->p_bits+7)/8 bytes.
    @endverbatim
  */
-unsigned int dh_compute_key( DH_PARA *dh_para, unsigned char *local_prikey, unsigned char *peer_pubkey, unsigned char *key);
-
-
+    unsigned int dh_compute_key(DH_PARA *dh_para, unsigned char *local_prikey, unsigned char *peer_pubkey, unsigned char *key);
 
 
 #ifdef DH_SEC
 
-//DH return code(secure version)
-#define DH_SUCCESS_S                        (0x9C9BC1E3U)
-#define DH_ERROR_S                          (0xFDC28CB1U)
+    //DH return code(secure version)
+    #define DH_SUCCESS_S (0x9C9BC1E3U)
+    #define DH_ERROR_S   (0xFDC28CB1U)
 
 
-unsigned int dh_compute_key_s(DH_PARA *dh_para, unsigned char *local_prikey, unsigned char *peer_pubkey, unsigned char *key);
+    unsigned int dh_compute_key_s(DH_PARA *dh_para, unsigned char *local_prikey, unsigned char *peer_pubkey, unsigned char *key);
 
 #endif
-
-
 
 
 #ifdef __cplusplus
@@ -187,4 +176,3 @@ unsigned int dh_compute_key_s(DH_PARA *dh_para, unsigned char *local_prikey, uns
 #endif
 
 #endif
-

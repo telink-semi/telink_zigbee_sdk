@@ -29,30 +29,32 @@
  * axon driver functions return either a positive success value
  * or a negative error code.
  */
-typedef enum {
-  kAxonResultFailureInvalidAsyncMode = -16,/**< returned by AxonApiExecuteOps and AxonApiQueueOpsList if the other is busy (these are mutually exclusive) */
-  kAxonResultFailureInputOutOfRange = -15, /**< Input parameter value out of allowed range */
-  kAxonResultFailureMissingNullCoef = -14, /**< FIR requires last filter coefficient to be 0. */
-  kAxonResultFailureNullBuffer = -13,      /**< one or more required buffers is NULL */
-  kAxonResultFailureInvalidRounding = -12, /**< Rounding value specified is out of range */
-  kAxonResultFailureIBadOpHandle = -10,    /**< All internal buffers are in use. Free some operations or allocate more buffers. */
-  kAxonResultFailureNoMoreBuffers = -9,    /**< All internal buffers are in use. Free some operations or allocate more buffers. */
-  kAxonResultFailureInvalidDataWidth = -8, /**< requested data_width is not supported by the function */
-  kAxonResultFailureUnalignedBuffer = -7,  /**< One or more buffers do not meet alignment requirements for the requested data_width  */
-  kAxonResultFailureUnsupportedHw = -6,    /**< axon driverhardware version is unsupported */
-  kAxonResultFailureHwError = -5,          /**< error within axon hardware */
-  kAxonResultFailureBadHandle = -4,        /**< Unable to acquire the mutex to access the Axon */
-  kAxonResultFailureMutexFailed = -3,      /**< Unable to acquire the mutex to access the Axon */
-  kAxonResultFailureInvalidLength = -2,    /**< length provided in the input struct was invalid */
-  kAxonResultFailure = -1,                 /**< generic failure code */
-  kAxonResultSuccess = 0,                  /**< success */
-  kAxonResultNotFinished = 1,              /**< An async operation hasn't completed */
-  kAxonResultFailureOverflow = 2,          /**< HW overflow occurs, give a warning */
+typedef enum
+{
+    kAxonResultFailureInvalidAsyncMode = -16, /**< returned by AxonApiExecuteOps and AxonApiQueueOpsList if the other is busy (these are mutually exclusive) */
+    kAxonResultFailureInputOutOfRange  = -15, /**< Input parameter value out of allowed range */
+    kAxonResultFailureMissingNullCoef  = -14, /**< FIR requires last filter coefficient to be 0. */
+    kAxonResultFailureNullBuffer       = -13, /**< one or more required buffers is NULL */
+    kAxonResultFailureInvalidRounding  = -12, /**< Rounding value specified is out of range */
+    kAxonResultFailureIBadOpHandle     = -10, /**< All internal buffers are in use. Free some operations or allocate more buffers. */
+    kAxonResultFailureNoMoreBuffers    = -9,  /**< All internal buffers are in use. Free some operations or allocate more buffers. */
+    kAxonResultFailureInvalidDataWidth = -8,  /**< requested data_width is not supported by the function */
+    kAxonResultFailureUnalignedBuffer  = -7,  /**< One or more buffers do not meet alignment requirements for the requested data_width  */
+    kAxonResultFailureUnsupportedHw    = -6,  /**< axon driverhardware version is unsupported */
+    kAxonResultFailureHwError          = -5,  /**< error within axon hardware */
+    kAxonResultFailureBadHandle        = -4,  /**< Unable to acquire the mutex to access the Axon */
+    kAxonResultFailureMutexFailed      = -3,  /**< Unable to acquire the mutex to access the Axon */
+    kAxonResultFailureInvalidLength    = -2,  /**< length provided in the input struct was invalid */
+    kAxonResultFailure                 = -1,  /**< generic failure code */
+    kAxonResultSuccess                 = 0,   /**< success */
+    kAxonResultNotFinished             = 1,   /**< An async operation hasn't completed */
+    kAxonResultFailureOverflow         = 2,   /**< HW overflow occurs, give a warning */
 } AxonResultEnum;
 
-typedef enum {
-  kAxonBoolFalse,
-  kAxonBoolTrue
+typedef enum
+{
+    kAxonBoolFalse,
+    kAxonBoolTrue
 } AxonBoolEnum;
 
 /*
@@ -63,37 +65,38 @@ typedef enum {
  * kAxonAsyncModeSynchronous:
  * use the CPU to poll status bits
  */
-typedef enum {
-  kAxonAsyncModeSynchronous, /**< Synchronous mode w/ software polling of hardware status without sleeping. Axon interrupts are disabled. */
-  kAxonAsyncModeAsynchronous, /**< Asynchronous mode. Axon interrupts are enabled. */
-  kAxonAsyncModeSyncWithWfi, /**< Synchronous mode, but driver invokes AxonHostWfi() to allow processor to sleep. Axon interrupts are enabled.*/
+typedef enum
+{
+    kAxonAsyncModeSynchronous,  /**< Synchronous mode w/ software polling of hardware status without sleeping. Axon interrupts are disabled. */
+    kAxonAsyncModeAsynchronous, /**< Asynchronous mode. Axon interrupts are enabled. */
+    kAxonAsyncModeSyncWithWfi,  /**< Synchronous mode, but driver invokes AxonHostWfi() to allow processor to sleep. Axon interrupts are enabled.*/
 } AxonAsyncModeEnum;
-
-
 
 /*
  * Data width enum and packing
  * Packing results in data elements being stored in less memory, but also impacts buffer alignment.
  * See comments for each value.
  */
-typedef enum {
-  kAxonDataWidth24 = 0, /**< data elements are 24bits wide, aligned to 32bits regardless of packing */
-  kAxonDataWidth16,     /**< data elements are 16bits wide, buffer must be aligned to 8 bytes and data elements aligned to 16bits with packing enabled */
-  kAxonDataWidth12,     /**< data elements are 12bits wide,  buffer must be aligned to 8 bytes and data elements aligned to 16bits with packing enabled */
-  kAxonDataWidth8,      /**< data elements are 8bits wide,  buffer must be aligned to 16 bytes and data elements aligned to 16bits with packing enabled */
-  kAxonDataWidthCount = 0x3,
-  kAxonDataWidthMask = 0x3,
-  kAxonDataWidth16to24 = kAxonDataWidth24 | (kAxonDataWidth16<<2),
-  kAxonDataWidth12to24 = kAxonDataWidth24 | (kAxonDataWidth12<<2),
-  kAxonDataWidth8to24 = kAxonDataWidth24 | (kAxonDataWidth8<<2),
-  kAxonDataWidth8to16 = kAxonDataWidth16 | (kAxonDataWidth8<<2),
-  kAxonDataWidth8to12 = kAxonDataWidth12 | (kAxonDataWidth8<<2),
-  kAxonDataWidthNoExt = 0,
-}AxonDataWidthEnum;
+typedef enum
+{
+    kAxonDataWidth24 = 0, /**< data elements are 24bits wide, aligned to 32bits regardless of packing */
+    kAxonDataWidth16,     /**< data elements are 16bits wide, buffer must be aligned to 8 bytes and data elements aligned to 16bits with packing enabled */
+    kAxonDataWidth12,     /**< data elements are 12bits wide,  buffer must be aligned to 8 bytes and data elements aligned to 16bits with packing enabled */
+    kAxonDataWidth8,      /**< data elements are 8bits wide,  buffer must be aligned to 16 bytes and data elements aligned to 16bits with packing enabled */
+    kAxonDataWidthCount  = 0x3,
+    kAxonDataWidthMask   = 0x3,
+    kAxonDataWidth16to24 = kAxonDataWidth24 | (kAxonDataWidth16 << 2),
+    kAxonDataWidth12to24 = kAxonDataWidth24 | (kAxonDataWidth12 << 2),
+    kAxonDataWidth8to24  = kAxonDataWidth24 | (kAxonDataWidth8 << 2),
+    kAxonDataWidth8to16  = kAxonDataWidth16 | (kAxonDataWidth8 << 2),
+    kAxonDataWidth8to12  = kAxonDataWidth12 | (kAxonDataWidth8 << 2),
+    kAxonDataWidthNoExt  = 0,
+} AxonDataWidthEnum;
 
-typedef enum {
-  kAxonDataPackingDisabled, /**< data elements aligned to 32bits regardless of data width. buffers also aligned to 4bytes */
-  kAxonDataPackingEnabled /**< data element alignment and buffer alignment requirements are specific to the data width */
+typedef enum
+{
+    kAxonDataPackingDisabled, /**< data elements aligned to 32bits regardless of data width. buffers also aligned to 4bytes */
+    kAxonDataPackingEnabled   /**< data element alignment and buffer alignment requirements are specific to the data width */
 } AxonDataPackEnum;
 
 /**
@@ -101,21 +104,24 @@ typedef enum {
  * applied to the output of an operation.
  * They can also be applied as an explicit operation.
  */
-typedef enum {
-  kAxonAfDisabled, /**< No activation function is run on the output */
-  kAxonAfRelu,     /**< Relu function is run on the output */
-  kAxonAfSigmoid,  /**< Sigmoid is run on the output */
-  kAxonAfTanh,     /**< Tanh is run on the output */
-  kAxonAfQuantSigmoid, /**< adds .5 to the number then clamps between 0 & 1 */
+typedef enum
+{
+    kAxonAfDisabled,     /**< No activation function is run on the output */
+    kAxonAfRelu,         /**< Relu function is run on the output */
+    kAxonAfSigmoid,      /**< Sigmoid is run on the output */
+    kAxonAfTanh,         /**< Tanh is run on the output */
+    kAxonAfQuantSigmoid, /**< adds .5 to the number then clamps between 0 & 1 */
 } AxonAfEnum;
+
 /**
  * Output Rounding
  * Rounding will shift the output values by the number of bits
  * specified, then add 1 if the shifted MSB is a 1.
  */
-typedef enum {
-  kAxonRoundingNone = 0,  /**< numbers are not rounded   */
-  kAxonRoundingMax = 32 /**< Maximum supported rounding value */
+typedef enum
+{
+    kAxonRoundingNone = 0, /**< numbers are not rounded   */
+    kAxonRoundingMax  = 32 /**< Maximum supported rounding value */
 } AxonRoundingEnum;
 
 /*
@@ -123,32 +129,35 @@ typedef enum {
  * Axon can be configured to step over elements in a vector. This is useful
  * in cases where vectors are interleaved in the same array (stereo audio for example).
  */
-typedef enum {
-  kAxonStride0 = 0, /**< iterate over the same data element (effectively a scalar) */
-  kAxonStride1 = 1, /**< data elements are in adjacent indexes in vector */
-  kAxonStride2 = 2, /**< data elements are in every other index in vector */
-  kAxonStrideEnumCount /**< number of items in enum, used for range checking of input */
+typedef enum
+{
+    kAxonStride0 = 0,    /**< iterate over the same data element (effectively a scalar) */
+    kAxonStride1 = 1,    /**< data elements are in adjacent indexes in vector */
+    kAxonStride2 = 2,    /**< data elements are in every other index in vector */
+    kAxonStrideEnumCount /**< number of items in enum, used for range checking of input */
 } AxonStrideEnum;
+
 /**
  * Generic input structure for Axon functions.
  * Not all fields are used by all functions; see function comments
  * for usage.
  */
-typedef struct {
-  AxonDataWidthEnum data_width; /**< width (in bits) of all data used/produced by the function */
-  AxonDataPackEnum  data_packing;    /**< indicates if data is packed or not */
-  AxonRoundingEnum  output_rounding; /**< level of rounding applied to the output */
-  AxonAfEnum        output_af;       /**< Specifies which (if any) activation function to apply to the output. */
-  AxonStrideEnum x_stride;           /**< spacing of input elements in vector. */
-  AxonStrideEnum y_stride;           /**< spacing of input elements in vector. */
-  AxonStrideEnum q_stride;           /**< spacing of output elements in vector. */
-  uint16_t length;        /**< number of elements in the x vector. Other vectors may be of this size depending on the function being called */
-  uint16_t y_length;      /**< number of elements in the y vector. Only used on functions were y vector length is allowed to be different from the x vector. */
-  const int32_t *x_in;         /**< X input vector address */
-  const int32_t *y_in;         /**< Y input vector address */
-  int32_t a_in;         /**< A input scalar value */
-  int32_t b_in;         /**< B input scalar value */
-  int32_t *q_out;        /**< Q output vector address */
+typedef struct
+{
+    AxonDataWidthEnum data_width;      /**< width (in bits) of all data used/produced by the function */
+    AxonDataPackEnum  data_packing;    /**< indicates if data is packed or not */
+    AxonRoundingEnum  output_rounding; /**< level of rounding applied to the output */
+    AxonAfEnum        output_af;       /**< Specifies which (if any) activation function to apply to the output. */
+    AxonStrideEnum    x_stride;        /**< spacing of input elements in vector. */
+    AxonStrideEnum    y_stride;        /**< spacing of input elements in vector. */
+    AxonStrideEnum    q_stride;        /**< spacing of output elements in vector. */
+    uint16_t          length;          /**< number of elements in the x vector. Other vectors may be of this size depending on the function being called */
+    uint16_t          y_length;        /**< number of elements in the y vector. Only used on functions were y vector length is allowed to be different from the x vector. */
+    const int32_t    *x_in;            /**< X input vector address */
+    const int32_t    *y_in;            /**< Y input vector address */
+    int32_t           a_in;            /**< A input scalar value */
+    int32_t           b_in;            /**< B input scalar value */
+    int32_t          *q_out;           /**< Q output vector address */
 } AxonInputStruct;
 
 /**
@@ -168,15 +177,15 @@ typedef void *AxonOpHandle;
  * command list is completed.
  * Axon interrupts will be processed in the interrupt context; AxonHostInterruptNotification() will not be invoked.
  */
-typedef struct AxonMgrQueuedOpsStruct{
-  AxonOpHandle *op_handle_list;        /**< pointer to the list of op handles to execute */
-  uint8_t op_handle_count;             /**< number of op handles in op_handle_list */
-  uint8_t resvd[3];                    /**< preserve 32bit alignment even if packed structures are enabled */
-  void *callback_context;              /**< caller-provided pointer that is provided in the callback function. */
-  void (*callback_function)(AxonResultEnum result, void *callback_context);  /**< caller-provided function to be invoked when the operation list is completed */
-  struct AxonMgrQueuedOpsStruct *next;
-}AxonMgrQueuedOpsStruct;
-
+typedef struct AxonMgrQueuedOpsStruct
+{
+    AxonOpHandle *op_handle_list;                                             /**< pointer to the list of op handles to execute */
+    uint8_t       op_handle_count;                                            /**< number of op handles in op_handle_list */
+    uint8_t       resvd[3];                                                   /**< preserve 32bit alignment even if packed structures are enabled */
+    void         *callback_context;                                           /**< caller-provided pointer that is provided in the callback function. */
+    void (*callback_function)(AxonResultEnum result, void *callback_context); /**< caller-provided function to be invoked when the operation list is completed */
+    struct AxonMgrQueuedOpsStruct *next;
+} AxonMgrQueuedOpsStruct;
 
 /**
  * Calculates an FFT, q_out=FFT(x_in)
@@ -1202,5 +1211,3 @@ AxonResultEnum AxonApiQueueOpsList(void *axon_handle, AxonMgrQueuedOpsStruct *op
  * Invoking this function will simply return true.
  */
 AxonResultEnum AxonNop();
-
-

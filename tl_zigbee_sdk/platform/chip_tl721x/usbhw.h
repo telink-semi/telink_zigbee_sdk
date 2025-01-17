@@ -44,18 +44,18 @@
 #include <stdbool.h>
 
 /* For compatibility, usb_set_pin_en() is equivalent to usb_set_pin(1), configure the usb pin and enable the dp_through_swire function.*/
-#define usb_set_pin_en()    usb_set_pin(1)
+#define usb_set_pin_en() usb_set_pin(1)
 
 typedef enum
 {
-    USB_EDP8_IN         = 8, // default buff len = 64
-    USB_EDP1_IN         = 1, // default buff len = 8
-    USB_EDP2_IN         = 2, // default buff len = 8
-    USB_EDP3_IN         = 3, // default buff len = 16
-    USB_EDP4_IN         = 4, // default buff len = 64
-    USB_EDP5_OUT        = 5, // default buff len = 64
-    USB_EDP6_OUT        = 6, // default buff len = 16
-    USB_EDP7_IN         = 7, // default buff len = 16
+    USB_EDP8_IN  = 8, // default buff len = 64
+    USB_EDP1_IN  = 1, // default buff len = 8
+    USB_EDP2_IN  = 2, // default buff len = 8
+    USB_EDP3_IN  = 3, // default buff len = 16
+    USB_EDP4_IN  = 4, // default buff len = 64
+    USB_EDP5_OUT = 5, // default buff len = 64
+    USB_EDP6_OUT = 6, // default buff len = 16
+    USB_EDP7_IN  = 7, // default buff len = 16
 
     USB_EDP_PRINTER_IN  = USB_EDP8_IN,
     USB_EDP_KEYBOARD_IN = USB_EDP1_IN,
@@ -76,11 +76,11 @@ typedef enum
 // #defined in the standard spec
 enum
 {
-    USB_HID_AUDIO       = 2,
-    USB_HID_MOUSE       = 1,
-    USB_HID_KB_MEDIA    = 3, // media
-    USB_HID_KB_SYS      = 4, // system : power,sleep,wakeup
-    USB_HID_SOMATIC     = 5, // somatic sensor,  may have many report ids
+    USB_HID_AUDIO    = 2,
+    USB_HID_MOUSE    = 1,
+    USB_HID_KB_MEDIA = 3, // media
+    USB_HID_KB_SYS   = 4, // system : power,sleep,wakeup
+    USB_HID_SOMATIC  = 5, // somatic sensor,  may have many report ids
 };
 
 typedef enum
@@ -203,7 +203,7 @@ static inline int usbhw_is_ctrl_ep_busy(void)
  */
 static inline void usbhw_reset_ep_ptr(usb_ep_index ep)
 {
-    reg_usb_ep_ptr(ep) = 0;
+    reg_usb_ep_ptr(ep)  = 0;
     reg_usb_ep_ptrh(ep) = 0;
 }
 
@@ -225,6 +225,7 @@ static inline void usbhw_clr_ctrl_ep_irq(int ep)
 {
     reg_ctrl_ep_irq_sta = ep;
 }
+
 /**
  * @brief     This function servers to get the pointer of data endpoint.
  * @param[in] ep - select the data endpoint.
@@ -243,7 +244,7 @@ static inline unsigned short usbhw_get_ep_ptr(usb_ep_index ep)
  */
 static inline void usbhw_set_ep_addr(usb_ep_index ep, unsigned short addr)
 {
-    reg_usb_ep_buf_addr(ep) = addr & 0xff;
+    reg_usb_ep_buf_addr(ep)  = addr & 0xff;
     reg_usb_ep_buf_addrh(ep) = (addr >> 8) & 0xff;
 }
 
@@ -337,12 +338,9 @@ static inline void usbhw_clr_irq_status(usb_irq_status_e status)
  */
 static inline void usbhw_set_eps_en(usb_ep_en_e ep)
 {
-    if (reg_usb_min1 & FLD_USB_EDPS_SM_MAP_EN)
-    {
+    if (reg_usb_min1 & FLD_USB_EDPS_SM_MAP_EN) {
         reg_usb_edps_logic_en = ep;
-    }
-    else
-    {
+    } else {
         reg_usb_edp_en = ep;
     }
 }
@@ -356,6 +354,7 @@ static inline void usbhw_set_eps_dis(usb_ep_en_e ep)
 {
     reg_usb_edp_en &= (~ep);
 }
+
 /**
  * @brief     This function servers to enable mapping logical data endpoint.
  * @param[in] ep - select the data endpoint.
@@ -474,7 +473,7 @@ static inline void usbhw_set_printer_threshold(unsigned char th)
  */
 static inline void usbhw_set_in_ep_size(unsigned short size)
 {
-    reg_usb_edp_eptrl =size & 0xff;
+    reg_usb_edp_eptrl = size & 0xff;
     reg_usb_edp_eptrh = (size >> 8) & 0xff;
 }
 
@@ -562,12 +561,9 @@ void usbhw_ep_map_en(usb_ep_map_sel_e map_en);
 static inline void usb_dp_pullup_en(int en)
 {
     unsigned char dat = analog_read_reg8(0x0b);
-    if (en)
-    {
+    if (en) {
         dat = dat & (~BIT(7));
-    }
-    else
-    {
+    } else {
         dat = dat | BIT(7);
     }
 
@@ -581,12 +577,9 @@ static inline void usb_dp_pullup_en(int en)
  */
 static inline void usb_power_on(unsigned char en)
 {
-    if (en)
-    {
+    if (en) {
         analog_write_reg8(0x7d, analog_read_reg8(0x7d) & 0xfd);
-    }
-    else
-    {
+    } else {
         analog_write_reg8(0x7d, analog_read_reg8(0x7d) | 0x02);
     }
 }
@@ -607,4 +600,50 @@ void dp_through_swire_en(bool dp_through_swire);
  *             2. When dp_through_swire is enabled, Swire and USB applications do not affect each other.
  */
 void usb_set_pin(bool dp_through_swire);
+
+/**
+ * @brief     This function servers to get host connect status.
+ * @retval    non-zero - host connected.
+ * @retval    zero - host disconnected.
+ */
+static inline unsigned char usbhw_get_host_conn_status(void)
+{
+    return reg_usb_addr & BIT(7); // Set Configuration will set BIT(7) to 1.
+}
+
+/**
+ * @brief     This function servers to get wakeup feature.
+ * @retval    non-zero - host is dormant.
+ * @retval    zero - host is not dormant.
+ */
+static inline unsigned char usbhw_get_wkup_feature(void)
+{
+    return reg_usb_mdev & FLD_USB_MDEV_WAKE_FEA;
+}
+
+/**
+ * @brief     This function servers to reset wakeup en.
+ * @return    none.
+ */
+static inline void usbhw_reset_wkup_en(void)
+{
+    reg_wakeup_en = 0;
+}
+
+/**
+ * @brief   This function serves to resume host by hardware.
+ * @note    When the host can send Set/Clear Feature, you can directly wake up the host by manipulating the register.
+ * @param   none.
+ * @return    none.
+ */
+void usb_hardware_remote_wakeup(void);
+
+/**
+ * @brief   This function serves to resume host by software.
+ * @note    When the host cannot send Set/Clear Feature, it needs to use IO simulation to wake up host remotely.
+ * @param   none.
+ * @return    none.
+ */
+void usb_software_remote_wakeup(void);
+
 #endif

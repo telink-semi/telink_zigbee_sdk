@@ -26,36 +26,34 @@
 #define _ECDH_H_
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 
 #include "pke.h"
 
+    //ECDH return code
+    enum ECDH_RET_CODE
+    {
+        ECDH_SUCCESS      = PKE_SUCCESS,
+        ECDH_POINTOR_NULL = PKE_SUCCESS + 0x60,
+        ECDH_INVALID_INPUT,
+    };
 
-//ECDH return code
-enum ECDH_RET_CODE
-{
-	ECDH_SUCCESS = PKE_SUCCESS,
-	ECDH_POINTOR_NULL = PKE_SUCCESS+0x60,
-	ECDH_INVALID_INPUT,
-};
+    //APIs
 
-
-//APIs
-
-/**
- * @brief		ECDH compute key.
- * @param[in]	curve			- ecc curve struct pointer, please make sure it is valid.
- * @param[in]	local_prikey	- local private key, big-endian.
- * @param[in]	peer_pubkey		- peer public key, big-endian.
- * @param[out]	key				- output key.
- * @param[in]	keyByteLen		- byte length of output key.
- * @param[in]	KDF				- KDF function to get key.
- * @Return		0(success), other(error)
+    /**
+ * @brief       ECDH compute key.
+ * @param[in]   curve           - ecc curve struct pointer, please make sure it is valid.
+ * @param[in]   local_prikey    - local private key, big-endian.
+ * @param[in]   peer_pubkey     - peer public key, big-endian.
+ * @param[out]  key             - output key.
+ * @param[in]   keyByteLen      - byte length of output key.
+ * @param[in]   KDF             - KDF function to get key.
+ * @Return      0(success), other(error)
  */
-unsigned char ecdh_compute_key(eccp_curve_t *curve, unsigned char *local_prikey, unsigned char *peer_pubkey, unsigned char *key,
-		unsigned int keyByteLen, KDF_FUNC kdf);
+    unsigned char ecdh_compute_key(eccp_curve_t *curve, unsigned char *local_prikey, unsigned char *peer_pubkey, unsigned char *key, unsigned int keyByteLen, KDF_FUNC kdf);
 
 
 #ifdef __cplusplus

@@ -64,4 +64,4 @@
 #include "drivers/drv_usb.h"
 #include "drivers/drv_calibration.h"
 #include "drivers/drv_security.h"
-
+#include "drivers/drv_console.h"

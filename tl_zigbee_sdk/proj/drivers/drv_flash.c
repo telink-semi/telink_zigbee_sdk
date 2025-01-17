@@ -73,10 +73,10 @@ const drv_flash_opt_t c_flashOptList[] = {
 #elif defined(MCU_CORE_B92)
     //1M
     {0x146085, flash_unlock_mid146085, flash_lock_mid146085, FLASH_LOCK_LOW_512K_MID146085},
-	{0x1460c8, flash_unlock_mid1460c8, flash_lock_mid1460c8, FLASH_LOCK_LOW_512K_MID1460c8},
+    {0x1460c8, flash_unlock_mid1460c8, flash_lock_mid1460c8, FLASH_LOCK_LOW_512K_MID1460C8},
     //2M
     {0x156085, flash_unlock_mid156085, flash_lock_mid156085, FLASH_LOCK_LOW_512K_MID156085},
-	{0x1560c8, flash_unlock_mid1560c8, flash_lock_mid1560c8, FLASH_LOCK_LOW_512K_MID1560c8},
+    {0x1560c8, flash_unlock_mid1560c8, flash_lock_mid1560c8, FLASH_LOCK_LOW_512K_MID1560C8},
     //4M
     {0x166085, flash_unlock_mid166085, flash_lock_mid166085, FLASH_LOCK_LOW_512K_MID166085},
     {0x1660c8, flash_unlock_mid1660c8, flash_lock_mid1660c8, FLASH_LOCK_LOW_512K_MID1660C8},
@@ -102,7 +102,8 @@ const drv_flash_opt_t c_flashOptList[] = {
 #define FLASH_OPT_LIST_NUM      (sizeof(c_flashOptList) / sizeof(drv_flash_opt_t))
 #endif	/* FLASH_PROTECT_ENABLE */
 
-void flash_loadOpt(void){
+void flash_loadOpt(void)
+{
 #if FLASH_PROTECT_ENABLE
 #if defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL321X)
     g_flashOptTable.mid = flash_read_mid();

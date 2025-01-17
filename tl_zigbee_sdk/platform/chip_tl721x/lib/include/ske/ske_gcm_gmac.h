@@ -29,41 +29,35 @@
 
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
-
-
 
 
 #define SKE_LP_GCM_CPU_UPDATE_AAD_BY_STEP
 
 
-#define SKE_LP_GCM_MAX_BYTES    (16)
+#define SKE_LP_GCM_MAX_BYTES (16)
 
+    typedef struct
+    {
+        unsigned char buf[16];
+        SKE_CTX       ske_gcm_ctx[1];
+        SKE_CRYPTO    crypto;
+        unsigned int  aad_bytes;
+        unsigned int  c_bytes;
+        unsigned int  mac_bytes;
+        unsigned int  current_bytes;
+    } SKE_GCM_CTX;
 
+    typedef struct
+    {
+        SKE_GCM_CTX gcm_ctx[1];
+        SKE_MAC     mac_action;
+    } SKE_GMAC_CTX;
 
-
-typedef struct{
-    unsigned char buf[16];
-    SKE_CTX ske_gcm_ctx[1];
-    SKE_CRYPTO crypto;
-    unsigned int aad_bytes;
-    unsigned int c_bytes;
-    unsigned int mac_bytes;
-    unsigned int current_bytes;
-} SKE_GCM_CTX;
-
-
-
-typedef struct{
-    SKE_GCM_CTX gcm_ctx[1];
-    SKE_MAC mac_action;
-} SKE_GMAC_CTX;
-
-
-
-//APIs
-/**
+    //APIs
+    /**
  * @brief       ske_lp gcm mode init config(CPU style)
  * @param[in]   ctx              - SKE_CCM_CTX context pointer.
  * @param[in]   alg              - ske_lp algorithm.
@@ -87,10 +81,9 @@ typedef struct{
       -# 5.aad_bytes and c_bytes could not be zero at the same time.
   @endverbatim
  */
-unsigned int ske_lp_gcm_init(SKE_GCM_CTX *ctx, SKE_ALG alg, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx,
-        unsigned char *iv, unsigned int iv_bytes, unsigned int aad_bytes, unsigned int c_bytes, unsigned int mac_bytes);
+    unsigned int ske_lp_gcm_init(SKE_GCM_CTX *ctx, SKE_ALG alg, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx, unsigned char *iv, unsigned int iv_bytes, unsigned int aad_bytes, unsigned int c_bytes, unsigned int mac_bytes);
 
-/**
+    /**
  * @brief       ske_lp gcm mode input aad.
  * @param[in]   ctx              - SKE_GCM_CTX context pointer.
  * @param[in]   aad              - aad.
@@ -105,9 +98,9 @@ unsigned int ske_lp_gcm_init(SKE_GCM_CTX *ctx, SKE_ALG alg, SKE_CRYPTO crypto, u
        length is 65, it could be divided into 3 sections with byte length 10,47,8 respectively.
   @endverbatim
  */
-unsigned int ske_lp_gcm_update_aad(SKE_GCM_CTX *ctx, unsigned char *aad, unsigned int bytes);
+    unsigned int ske_lp_gcm_update_aad(SKE_GCM_CTX *ctx, unsigned char *aad, unsigned int bytes);
 
-/**
+    /**
  * @brief       ske_lp gcm mode input aad(one-off style).
  * @param[in]   ctx              - SKE_GCM_CTX context pointer.
  * @param[in]   aad              - aad, its length is ctx->aad_bytes, please make sure
@@ -120,9 +113,9 @@ unsigned int ske_lp_gcm_update_aad(SKE_GCM_CTX *ctx, unsigned char *aad, unsigne
       -# 3.please make sure aad is integral.
   @endverbatim
  */
-unsigned int ske_lp_gcm_aad(SKE_GCM_CTX *ctx, unsigned char *aad);
+    unsigned int ske_lp_gcm_aad(SKE_GCM_CTX *ctx, unsigned char *aad);
 
-/**
+    /**
  * @brief       ske_lp gcm mode input aad(one-off style).
  * @param[in]   ctx              - SKE_GCM_CTX context pointer.
  * @param[in]   in               - plaintext or ciphertext.
@@ -142,9 +135,9 @@ unsigned int ske_lp_gcm_aad(SKE_GCM_CTX *ctx, unsigned char *aad);
         could be divided into 3 sections with byte length 48,16,1 respectively.
   @endverbatim
  */
-unsigned int ske_lp_gcm_update_blocks(SKE_GCM_CTX *ctx, unsigned char *in, unsigned char *out, unsigned int bytes);
+    unsigned int ske_lp_gcm_update_blocks(SKE_GCM_CTX *ctx, unsigned char *in, unsigned char *out, unsigned int bytes);
 
-/**
+    /**
  * @brief       ske_lp gcm mode input aad(one-off style).
  * @param[in]   ctx              - SKE_GCM_CTX context pointer.
  * @param[in]   mac              - decryption), output(for encryption).
@@ -157,9 +150,9 @@ unsigned int ske_lp_gcm_update_blocks(SKE_GCM_CTX *ctx, unsigned char *in, unsig
  *        that means certification passed, otherwise not.
   @endverbatim
  */
-unsigned int ske_lp_gcm_final(SKE_GCM_CTX *ctx, unsigned char *mac);
+    unsigned int ske_lp_gcm_final(SKE_GCM_CTX *ctx, unsigned char *mac);
 
-/**
+    /**
  * @brief       ske_lp gcm mode init config(CPU style)
  * @param[in]   alg              - ske_lp algorithm.
  * @param[in]   crypto           - encrypting or decrypting.
@@ -193,13 +186,11 @@ unsigned int ske_lp_gcm_final(SKE_GCM_CTX *ctx, unsigned char *mac);
 
   @endverbatim
  */
-unsigned int ske_lp_gcm_crypto(SKE_ALG alg, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx, unsigned char *iv,
-        unsigned int iv_bytes, unsigned char *aad, unsigned int aad_bytes, unsigned char *in, unsigned char *out, unsigned int c_bytes,
-        unsigned char *mac, unsigned int mac_bytes);
+    unsigned int ske_lp_gcm_crypto(SKE_ALG alg, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx, unsigned char *iv, unsigned int iv_bytes, unsigned char *aad, unsigned int aad_bytes, unsigned char *in, unsigned char *out, unsigned int c_bytes, unsigned char *mac, unsigned int mac_bytes);
 
 
 #ifdef SKE_LP_DMA_FUNCTION
-/**
+    /**
  * @brief       ske_lp gcm mode init config(CPU style)
  * @param[in]   ctx              - SKE_GCM_CTX context pointer.
  * @param[in]   alg              - ske_lp algorithm.
@@ -223,10 +214,9 @@ unsigned int ske_lp_gcm_crypto(SKE_ALG alg, SKE_CRYPTO crypto, unsigned char *ke
       -# 5.aad_bytes and c_bytes could not be zero at the same time.
   @endverbatim
  */
-unsigned int ske_lp_dma_gcm_init(SKE_GCM_CTX *ctx, SKE_ALG alg, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx,
-        unsigned char *iv, unsigned int iv_bytes, unsigned int aad_bytes, unsigned int c_bytes, unsigned int mac_bytes);
+    unsigned int ske_lp_dma_gcm_init(SKE_GCM_CTX *ctx, SKE_ALG alg, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx, unsigned char *iv, unsigned int iv_bytes, unsigned int aad_bytes, unsigned int c_bytes, unsigned int mac_bytes);
 
-/**
+    /**
  * @brief       ske_lp gcm mode input aad(one-off style).
  * @param[in]   ctx              - SKE_GMAC_CTX context pointer.
  * @param[in]   aad              - aad.
@@ -243,9 +233,9 @@ unsigned int ske_lp_dma_gcm_init(SKE_GCM_CTX *ctx, SKE_ALG alg, SKE_CRYPTO crypt
         it could be divided into 3 sections with byte length 48,16,1 respectively.
   @endverbatim
  */
-unsigned int ske_lp_dma_gcm_update_aad_blocks(SKE_GCM_CTX *ctx, unsigned int *aad, unsigned int bytes, SKE_CALLBACK callback);
+    unsigned int ske_lp_dma_gcm_update_aad_blocks(SKE_GCM_CTX *ctx, unsigned int *aad, unsigned int bytes, SKE_CALLBACK callback);
 
-/**
+    /**
  * @brief       ske_lp gcm mode input aad(one-off style).
  * @param[in]   ctx              - SKE_GCM_CTX context pointer.
  * @param[in]   in               - plaintext/ciphertext.
@@ -269,10 +259,9 @@ unsigned int ske_lp_dma_gcm_update_aad_blocks(SKE_GCM_CTX *ctx, unsigned int *aa
         cover the input.
   @endverbatim
  */
-unsigned int ske_lp_dma_gcm_update_blocks(SKE_GCM_CTX *ctx, unsigned int *in, unsigned int *out, unsigned int in_bytes,
-        SKE_CALLBACK callback);
+    unsigned int ske_lp_dma_gcm_update_blocks(SKE_GCM_CTX *ctx, unsigned int *in, unsigned int *out, unsigned int in_bytes, SKE_CALLBACK callback);
 
-/**
+    /**
  * @brief       ske_lp dma gcm mode finish.
  * @param[in]   ctx              - SKE_GCM_CTX context pointer.
  * @return      0:success     other:error
@@ -281,9 +270,9 @@ unsigned int ske_lp_dma_gcm_update_blocks(SKE_GCM_CTX *ctx, unsigned int *in, un
       -# 1.this function is optional.
   @endverbatim
  */
-unsigned int ske_lp_dma_gcm_final(SKE_GCM_CTX *ctx);
+    unsigned int ske_lp_dma_gcm_final(SKE_GCM_CTX *ctx);
 
-/**
+    /**
  * @brief       ske_lp dma gcm mode encrypt/decrypt(one-off style)
  * @param[in]   alg              - ske_lp algorithm.
  * @param[in]   crypto           - encrypting or decrypting.
@@ -319,15 +308,12 @@ unsigned int ske_lp_dma_gcm_final(SKE_GCM_CTX *ctx);
         cover the input.
   @endverbatim
  */
-unsigned int ske_lp_dma_gcm_crypto(SKE_ALG alg, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx, unsigned char *iv,
-        unsigned int iv_bytes, unsigned int *aad, unsigned int aad_bytes, unsigned int *in, unsigned int *out, unsigned int c_bytes, 
-        unsigned int mac_bytes, SKE_CALLBACK callback);
+    unsigned int ske_lp_dma_gcm_crypto(SKE_ALG alg, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx, unsigned char *iv, unsigned int iv_bytes, unsigned int *aad, unsigned int aad_bytes, unsigned int *in, unsigned int *out, unsigned int c_bytes, unsigned int mac_bytes, SKE_CALLBACK callback);
 #endif
 
 
-
 #ifdef SUPPORT_SKE_MODE_GMAC
-/**
+    /**
  * @brief       ske_lp gcm mode init config(CPU style)
  * @param[in]   ctx              - SKE_GMAC_CTX context pointer.
  * @param[in]   alg              - ske_lp algorithm.
@@ -351,10 +337,9 @@ unsigned int ske_lp_dma_gcm_crypto(SKE_ALG alg, SKE_CRYPTO crypto, unsigned char
       -# 5.aad_bytes and c_bytes could not be zero at the same time.
   @endverbatim
  */
-unsigned int ske_lp_gmac_init(SKE_GMAC_CTX *ctx, SKE_ALG alg, SKE_MAC mac_action, unsigned char *key, unsigned short sp_key_idx,
-        unsigned char *iv, unsigned int iv_bytes, unsigned int aad_bytes, unsigned int c_bytes, unsigned int mac_bytes);
+    unsigned int ske_lp_gmac_init(SKE_GMAC_CTX *ctx, SKE_ALG alg, SKE_MAC mac_action, unsigned char *key, unsigned short sp_key_idx, unsigned char *iv, unsigned int iv_bytes, unsigned int aad_bytes, unsigned int c_bytes, unsigned int mac_bytes);
 
-/**
+    /**
  * @brief       ske_lp gcm mode input aad(one-off style).
  * @param[in]   ctx              - SKE_GMAC_CTX context pointer.
  * @param[in]   aad              - aad.
@@ -369,9 +354,9 @@ unsigned int ske_lp_gmac_init(SKE_GMAC_CTX *ctx, SKE_ALG alg, SKE_MAC mac_action
         length is 65, it could be divided into 3 sections with byte length 10,47,8 respectively.
   @endverbatim
  */
-unsigned int ske_lp_gmac_update_aad(SKE_GMAC_CTX *ctx, unsigned char *aad, unsigned int bytes);
+    unsigned int ske_lp_gmac_update_aad(SKE_GMAC_CTX *ctx, unsigned char *aad, unsigned int bytes);
 
-/**
+    /**
  * @brief       ske_lp gcm mode input aad(one-off style).
  * @param[in]   ctx              - SKE_GMAC_CTX context pointer.
  * @param[in]   aad              - aad.
@@ -385,9 +370,9 @@ unsigned int ske_lp_gmac_update_aad(SKE_GMAC_CTX *ctx, unsigned char *aad, unsig
         length is 65, it could be divided into 3 sections with byte length 10,47,8 respectively.
   @endverbatim
  */
-unsigned int ske_lp_gmac_aad(SKE_GMAC_CTX *ctx, unsigned char *aad);
+    unsigned int ske_lp_gmac_aad(SKE_GMAC_CTX *ctx, unsigned char *aad);
 
-/**
+    /**
  * @brief       ske_lp gcm mode input aad(one-off style).
  * @param[in]   ctx              - SKE_GMAC_CTX context pointer.
  * @param[in]   in               - message.
@@ -402,9 +387,9 @@ unsigned int ske_lp_gmac_aad(SKE_GMAC_CTX *ctx, unsigned char *aad);
         length is 65, it could be divided into 3 sections with byte length 15,49,1 respectively.
   @endverbatim
  */
-unsigned int ske_lp_gmac_update(SKE_GMAC_CTX *ctx, unsigned char *in, unsigned int bytes);
+    unsigned int ske_lp_gmac_update(SKE_GMAC_CTX *ctx, unsigned char *in, unsigned int bytes);
 
-/**
+    /**
  * @brief       ske_lp gcm mode input aad(one-off style).
  * @param[in]   ctx              - SKE_GMAC_CTX context pointer.
  * @param[in]   mac              - (for generating mac), output(for verifying mac).
@@ -417,9 +402,9 @@ unsigned int ske_lp_gmac_update(SKE_GMAC_CTX *ctx, unsigned char *in, unsigned i
         mac is input, return value SKE_SUCCESS means the mac is valid, otherwise mac is invalid.
   @endverbatim
  */
-unsigned int ske_lp_gmac_final(SKE_GMAC_CTX *ctx, unsigned char *mac);
+    unsigned int ske_lp_gmac_final(SKE_GMAC_CTX *ctx, unsigned char *mac);
 
-/**
+    /**
  * @brief       ske_lp gcm mode init config(CPU style)
  * @param[in]   alg              - ske_lp algorithm.
  * @param[in]   mac_action       - must be SKE_GENERATE_MAC or SKE_VERIFY_MAC.
@@ -449,12 +434,8 @@ unsigned int ske_lp_gmac_final(SKE_GMAC_CTX *ctx, unsigned char *mac);
  *        mac is input, return value SKE_SUCCESS means the mac is valid, otherwise mac is invalid.
   @endverbatim
  */
-unsigned int ske_lp_gmac_crypto(SKE_ALG alg, SKE_MAC mac_action, unsigned char *key, unsigned short sp_key_idx, unsigned char *iv,
-        unsigned int iv_bytes, unsigned char *aad, unsigned int aad_bytes, unsigned char *in, unsigned int c_bytes, unsigned char *mac,
-        unsigned int mac_bytes);
+    unsigned int ske_lp_gmac_crypto(SKE_ALG alg, SKE_MAC mac_action, unsigned char *key, unsigned short sp_key_idx, unsigned char *iv, unsigned int iv_bytes, unsigned char *aad, unsigned int aad_bytes, unsigned char *in, unsigned int c_bytes, unsigned char *mac, unsigned int mac_bytes);
 #endif
-
-
 
 
 #ifdef __cplusplus

@@ -25,34 +25,29 @@
 #define RSA_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 
 #include "lib/include/pke/pke.h"
 
 
-
-
-
-
 #if defined(SUPPORT_RSASSA_PSS)
-#include "lib/include/hash/hash.h"
+    #include "lib/include/hash/hash.h"
 #endif
 
 
-
 //RSA return code
-#define RSA_SUCCESS                           PKE_SUCCESS
-#define RSA_BUFFER_NULL                       (PKE_SUCCESS+0x30U)
-#define RSA_INPUT_TOO_LONG                    (PKE_SUCCESS+0x31U)
-#define RSA_INPUT_INVALID                     (PKE_SUCCESS+0x32U)
+#define RSA_SUCCESS        PKE_SUCCESS
+#define RSA_BUFFER_NULL    (PKE_SUCCESS + 0x30U)
+#define RSA_INPUT_TOO_LONG (PKE_SUCCESS + 0x31U)
+#define RSA_INPUT_INVALID  (PKE_SUCCESS + 0x32U)
 
 
+    //APIs
 
-//APIs
-
-/**
+    /**
  * @brief       out = a^e mod n.
  * @param[in]   a            - unsigned int big integer a, base number, make sure a < n.
  * @param[in]   e            - unsigned int big integer e, exponent, make sure e < n.
@@ -66,9 +61,9 @@ extern "C" {
       -# 1.a, n, and out have the same word length:((nBitLen+31)>>5); and e word length is (eBitLen+31)>>5.
   @endverbatim
  */
-unsigned int RSA_ModExp(unsigned int *a, unsigned int *e, unsigned int *n, unsigned int *out, unsigned int eBitLen, unsigned int nBitLen);
+    unsigned int RSA_ModExp(unsigned int *a, unsigned int *e, unsigned int *n, unsigned int *out, unsigned int eBitLen, unsigned int nBitLen);
 
-/**
+    /**
  * @brief        out = a^d mod n, here d represents RSA CRT private key (p,q,dp,dq,u).
  * @param[in]   a            - unsigned int big integer a, base number, make sure a < n=pq.
  * @param[in]   p            - unsigned int big integer p, prime number, one part of private key (p,q,dp,dq,u).
@@ -85,10 +80,9 @@ unsigned int RSA_ModExp(unsigned int *a, unsigned int *e, unsigned int *n, unsig
          have the same word length:((nBitLen/2+31)>>5).
   @endverbatim
  */
-unsigned int RSA_CRTModExp(unsigned int *a, unsigned int *p, unsigned int *q, unsigned int *dp, unsigned int*dq,
-        unsigned int *u, unsigned int *out,  unsigned int nBitLen);
+    unsigned int RSA_CRTModExp(unsigned int *a, unsigned int *p, unsigned int *q, unsigned int *dp, unsigned int *dq, unsigned int *u, unsigned int *out, unsigned int nBitLen);
 
-/**
+    /**
  * @brief       generate RSA key (e,d,n).
  * @param[out]  e                - unsigned int big integer, RSA public key e.
  * @param[out]  d                - unsigned int big integer, RSA private key d.
@@ -102,9 +96,9 @@ unsigned int RSA_CRTModExp(unsigned int *a, unsigned int *p, unsigned int *q, un
       -# 2.eBitLen must be larger than 1, and less than or equal to nBitLen.
   @endverbatim
  */
-unsigned int RSA_GetKey(unsigned int *e, unsigned int *d, unsigned int *n, unsigned int eBitLen, unsigned int nBitLen);
+    unsigned int RSA_GetKey(unsigned int *e, unsigned int *d, unsigned int *n, unsigned int eBitLen, unsigned int nBitLen);
 
-/**
+    /**
  * @brief       generate RSA-CRT key (e,p,q,dp,dq,u,n).
  * @param[out]  e                - unsigned int big integer, RSA public key e.
  * @param[out]  p                - unsigned int big integer, RSA private key p.
@@ -122,41 +116,37 @@ unsigned int RSA_GetKey(unsigned int *e, unsigned int *d, unsigned int *n, unsig
       -# 2.eBitLen must be larger than 1, and less than or equal to nBitLen.
   @endverbatim
  */
-unsigned int RSA_GetCRTKey(unsigned int *e, unsigned int *p, unsigned int *q, unsigned int *dp, unsigned int *dq, unsigned int *u,
-        unsigned int *n, unsigned int eBitLen, unsigned int nBitLen);
-
+    unsigned int RSA_GetCRTKey(unsigned int *e, unsigned int *p, unsigned int *q, unsigned int *dp, unsigned int *dq, unsigned int *u, unsigned int *n, unsigned int eBitLen, unsigned int nBitLen);
 
 
 #ifdef RSA_SEC
 
-//RSA return code(secure version)
-#define RSA_SUCCESS_S                         (0x3AEBA318U)
-#define RSA_ERROR_S                           (0x45DF3DAEU)
+    //RSA return code(secure version)
+    #define RSA_SUCCESS_S (0x3AEBA318U)
+    #define RSA_ERROR_S   (0x45DF3DAEU)
 
 
-unsigned int RSA_ModExp_with_pub(unsigned int *a, unsigned int *e, unsigned int *d, unsigned int *n, unsigned int *out, unsigned int eBitLen, unsigned int nBitLen);
+    unsigned int RSA_ModExp_with_pub(unsigned int *a, unsigned int *e, unsigned int *d, unsigned int *n, unsigned int *out, unsigned int eBitLen, unsigned int nBitLen);
 
-unsigned int RSA_CRTModExp_with_pub(unsigned int *a, unsigned int *p, unsigned int *q, unsigned int *dp, unsigned int*dq, unsigned int *u, unsigned int *e,
-        unsigned int *out, unsigned int eBitLen, unsigned int nBitLen);
+    unsigned int RSA_CRTModExp_with_pub(unsigned int *a, unsigned int *p, unsigned int *q, unsigned int *dp, unsigned int *dq, unsigned int *u, unsigned int *e, unsigned int *out, unsigned int eBitLen, unsigned int nBitLen);
 
 #endif
 
 
-
-
-typedef struct {
-    unsigned char *p;
-    unsigned char *q;
-    unsigned char *dp;
-    unsigned char *dq;
-    unsigned char *u;//qinv
-} RSA_CRT_PRIVATE_KEY;
+    typedef struct
+    {
+        unsigned char *p;
+        unsigned char *q;
+        unsigned char *dp;
+        unsigned char *dq;
+        unsigned char *u; //qinv
+    } RSA_CRT_PRIVATE_KEY;
 
 
 #if (defined(SUPPORT_RSASSA_PSS) || defined(SUPPORT_RSAES_OAEP))
-void rsa_pkcs1_mgf1_counter_add(unsigned char *counter, unsigned int bytes, unsigned char b);
+    void rsa_pkcs1_mgf1_counter_add(unsigned char *counter, unsigned int bytes, unsigned char b);
 
-/**
+    /**
  * @brief       RSA PKCS#1_v2.2 MGF1(a mask generation function based on a hash function)
  * @param[in]   hash_alg     - specific hash algorithm for MGF1.
  * @param[in]   seed         - seed.
@@ -171,13 +161,12 @@ void rsa_pkcs1_mgf1_counter_add(unsigned char *counter, unsigned int bytes, unsi
       -# 1.out = mask XOR in, if in is NULL, out is mask directly.
   @endverbatim
  */
-unsigned int rsa_pkcs1_mgf1_with_xor_in(HASH_ALG hash_alg, unsigned char *seed, unsigned int seed_bytes, unsigned char *in,
-        unsigned char *out, unsigned int mask_bytes);
+    unsigned int rsa_pkcs1_mgf1_with_xor_in(HASH_ALG hash_alg, unsigned char *seed, unsigned int seed_bytes, unsigned char *in, unsigned char *out, unsigned int mask_bytes);
 #endif
 
 
 #ifdef SUPPORT_RSASSA_PSS
-/**
+    /**
  * @brief       RSA PKCS#1_v2.2 RSASSA-PSS-SIGN with message digest
  * @param[in]   msg_hash_alg         - specific hash algorithm for message or Hash(message)
  * @param[in]   mgf_hash_alg         - specific hash algorithm for MGF1
@@ -197,10 +186,9 @@ unsigned int rsa_pkcs1_mgf1_with_xor_in(HASH_ALG hash_alg, unsigned char *seed, 
            it is recommended to use default value, digest length of hash algorithm msg_hash_alg or mgf_hash_alg.
   @endverbatim
  */
-unsigned int rsa_ssa_pss_sign_by_msg_digest(HASH_ALG msg_hash_alg, HASH_ALG mgf_hash_alg, unsigned char *salt, unsigned int salt_bytes,
-        unsigned char *msg_digest, unsigned char *d, unsigned char *n, unsigned int n_bits, unsigned char *signature);
+    unsigned int rsa_ssa_pss_sign_by_msg_digest(HASH_ALG msg_hash_alg, HASH_ALG mgf_hash_alg, unsigned char *salt, unsigned int salt_bytes, unsigned char *msg_digest, unsigned char *d, unsigned char *n, unsigned int n_bits, unsigned char *signature);
 
-/**
+    /**
  * @brief       RSA PKCS#1_v2.2 RSASSA-PSS-SIGN with message digest
  * @param[in]   msg_hash_alg         - specific hash algorithm for message or Hash(message)
  * @param[in]   mgf_hash_alg         - specific hash algorithm for MGF1
@@ -221,10 +209,9 @@ unsigned int rsa_ssa_pss_sign_by_msg_digest(HASH_ALG msg_hash_alg, HASH_ALG mgf_
            it is recommended to use default value, digest length of hash algorithm msg_hash_alg or mgf_hash_alg.
   @endverbatim
  */
-unsigned int rsa_ssa_pss_sign(HASH_ALG msg_hash_alg, HASH_ALG mgf_hash_alg, unsigned char *salt, unsigned int salt_bytes, unsigned char *msg,
-        unsigned int msg_bytes, unsigned char *d, unsigned char *n, unsigned int n_bits, unsigned char *signature);
+    unsigned int rsa_ssa_pss_sign(HASH_ALG msg_hash_alg, HASH_ALG mgf_hash_alg, unsigned char *salt, unsigned int salt_bytes, unsigned char *msg, unsigned int msg_bytes, unsigned char *d, unsigned char *n, unsigned int n_bits, unsigned char *signature);
 
-/**
+    /**
  * @brief       RSA PKCS#1_v2.2 RSASSA-PSS-SIGN with message digest(private key is CRT style)
  * @param[in]   msg_hash_alg         - specific hash algorithm for message or Hash(message)
  * @param[in]   mgf_hash_alg         - specific hash algorithm for MGF1
@@ -242,10 +229,9 @@ unsigned int rsa_ssa_pss_sign(HASH_ALG msg_hash_alg, HASH_ALG mgf_hash_alg, unsi
            it is recommended to use default value, digest length of hash algorithm msg_hash_alg or mgf_hash_alg.
   @endverbatim
  */
-unsigned int rsa_ssa_pss_crt_sign_by_msg_digest(HASH_ALG msg_hash_alg, HASH_ALG mgf_hash_alg, unsigned char *salt, unsigned int salt_bytes,
-        unsigned char *msg_digest, RSA_CRT_PRIVATE_KEY *d, unsigned int n_bits, unsigned char *signature);
+    unsigned int rsa_ssa_pss_crt_sign_by_msg_digest(HASH_ALG msg_hash_alg, HASH_ALG mgf_hash_alg, unsigned char *salt, unsigned int salt_bytes, unsigned char *msg_digest, RSA_CRT_PRIVATE_KEY *d, unsigned int n_bits, unsigned char *signature);
 
-/**
+    /**
  * @brief       RSA PKCS#1_v2.2 RSASSA-PSS-SIGN with message(private key is CRT style)
  * @param[in]   msg_hash_alg         - specific hash algorithm for message or Hash(message)
  * @param[in]   mgf_hash_alg         - specific hash algorithm for MGF1
@@ -265,10 +251,9 @@ unsigned int rsa_ssa_pss_crt_sign_by_msg_digest(HASH_ALG msg_hash_alg, HASH_ALG 
            it is recommended to use default value, digest length of hash algorithm msg_hash_alg or mgf_hash_alg.
   @endverbatim
  */
-unsigned int rsa_ssa_pss_crt_sign(HASH_ALG msg_hash_alg, HASH_ALG mgf_hash_alg, unsigned char *salt, unsigned int salt_bytes, unsigned char *msg,
-        unsigned int msg_bytes, RSA_CRT_PRIVATE_KEY *d, unsigned int n_bits, unsigned char *signature);
+    unsigned int rsa_ssa_pss_crt_sign(HASH_ALG msg_hash_alg, HASH_ALG mgf_hash_alg, unsigned char *salt, unsigned int salt_bytes, unsigned char *msg, unsigned int msg_bytes, RSA_CRT_PRIVATE_KEY *d, unsigned int n_bits, unsigned char *signature);
 
-/**
+    /**
  * @brief       RSA PKCS#1_v2.2 RSASSA-PSS-VERIFY with message digest
  * @param[in]   msg_hash_alg         - specific hash algorithm for message or Hash(message)
  * @param[in]   mgf_hash_alg         - specific hash algorithm for MGF1
@@ -288,10 +273,9 @@ unsigned int rsa_ssa_pss_crt_sign(HASH_ALG msg_hash_alg, HASH_ALG mgf_hash_alg, 
            if salt_bytes is not known, please set it to -1
   @endverbatim
  */
-unsigned int rsa_ssa_pss_verify_by_msg_digest(HASH_ALG msg_hash_alg, HASH_ALG mgf_hash_alg, int32_t salt_bytes,
-        unsigned char *msg_digest, unsigned char *e, unsigned int e_bits, unsigned char *n, unsigned int n_bits, unsigned char *signature);
+    unsigned int rsa_ssa_pss_verify_by_msg_digest(HASH_ALG msg_hash_alg, HASH_ALG mgf_hash_alg, int32_t salt_bytes, unsigned char *msg_digest, unsigned char *e, unsigned int e_bits, unsigned char *n, unsigned int n_bits, unsigned char *signature);
 
-/**
+    /**
  * @brief       RSA PKCS#1_v2.2 RSASSA-PSS-VERIFY with message
  * @param[in]   msg_hash_alg         - specific hash algorithm for message or Hash(message)
  * @param[in]   mgf_hash_alg         - specific hash algorithm for MGF1
@@ -312,10 +296,8 @@ unsigned int rsa_ssa_pss_verify_by_msg_digest(HASH_ALG msg_hash_alg, HASH_ALG mg
            if salt_bytes is not known, please set it to -1
   @endverbatim
  */
-unsigned int rsa_ssa_pss_verify(HASH_ALG msg_hash_alg, HASH_ALG mgf_hash_alg, int32_t salt_bytes, unsigned char *msg,
-        unsigned int msg_bytes, unsigned char *e, unsigned int e_bits, unsigned char *n, unsigned int n_bits, unsigned char *signature);
+    unsigned int rsa_ssa_pss_verify(HASH_ALG msg_hash_alg, HASH_ALG mgf_hash_alg, int32_t salt_bytes, unsigned char *msg, unsigned int msg_bytes, unsigned char *e, unsigned int e_bits, unsigned char *n, unsigned int n_bits, unsigned char *signature);
 #endif
-
 
 
 #ifdef __cplusplus
@@ -323,4 +305,3 @@ unsigned int rsa_ssa_pss_verify(HASH_ALG msg_hash_alg, HASH_ALG mgf_hash_alg, in
 #endif
 
 #endif
-

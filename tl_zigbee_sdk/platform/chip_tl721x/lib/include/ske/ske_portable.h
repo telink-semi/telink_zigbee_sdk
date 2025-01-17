@@ -27,37 +27,38 @@
 #include "ske_basic.h"
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #ifdef SKE_LP_DMA_FUNCTION
-/**
+    /**
  * @brief        get ske tx dma channel.
  * @return      hash tx dma channel
  */
-dma_chn_e ske_get_tx_dma_channel(void);
+    dma_chn_e ske_get_tx_dma_channel(void);
 
-/**
+    /**
  * @brief       get ske rx dma channel.
  * @return      ske rx dma channel
  */
-dma_chn_e ske_get_rx_dma_channel(void);
+    dma_chn_e ske_get_rx_dma_channel(void);
 
-/**
+    /**
  * @brief       set ske tx dma channel.
  * @param[in]   chn  - ske tx dma channel.
  * @return      none
  */
- void ske_set_tx_dma_channel(dma_chn_e chn);
+    void ske_set_tx_dma_channel(dma_chn_e chn);
 
-/**
+    /**
  * @brief       set hash rx dma channel.
  * @param[in]   chn  - hash rx dma channel.
  * @return      none
  */
- void ske_set_rx_dma_channel(dma_chn_e chn);
+    void ske_set_rx_dma_channel(dma_chn_e chn);
 
- /**
+    /**
   * @brief      configure the destination address and data length for ske tx dma.
   * @param[in]  chn              - dma channel.
   * @param[in]  buf_addr         - destination address.
@@ -65,9 +66,9 @@ dma_chn_e ske_get_rx_dma_channel(void);
   * @return     none
   * @note
   */
- void ske_tx_dma(dma_chn_e chn, unsigned int buf_addr, unsigned int len);
+    void ske_tx_dma(dma_chn_e chn, unsigned int buf_addr, unsigned int len);
 
- /**
+    /**
   * @brief      configure the receiving  address and data length for ske rx dma.
   * @param[in]  chn             - dma channel.
   * @param[in]  buf_addr        - receiving address.
@@ -75,51 +76,50 @@ dma_chn_e ske_get_rx_dma_channel(void);
   * @return     none
   * @note
   */
- void ske_rx_dma(dma_chn_e chn, unsigned int buf_addr, unsigned int len);
+    void ske_rx_dma(dma_chn_e chn, unsigned int buf_addr, unsigned int len);
 
-/**
+    /**
  * @brief Sets tx dma channel for ske DMA transfers.
  * @param[in]   tx_chn - The DMA channel to be used for transmit.
  * @return      none
  */
- void ske_set_tx_dma_config(dma_chn_e tx_chn);
+    void ske_set_tx_dma_config(dma_chn_e tx_chn);
 
- /**
+    /**
   * @brief Sets rx dma channel for ske DMA transfers.
   * @param[in]  rx_chn     - The DMA channel to be used for transmit.
   * @param[in]  burst_size - The burst size to be set.
   * @return     none
   */
- void ske_set_rx_dma_config(dma_chn_e rx_chn,dma_burst_size_e burst_size);
+    void ske_set_rx_dma_config(dma_chn_e rx_chn, dma_burst_size_e burst_size);
 #endif
 
- /**
+    /**
   * @brief Initialize SKE-related generic configurations.
   * @note       Only after calling this function can other SKE related functions be called.
   *             Otherwise, other SKE function settings will not take effect.
   * @return None.
   */
- void ske_dig_en(void);
+    void ske_dig_en(void);
 
- /**
+    /**
   * @brief     Resets SKE module,before using SKE, it is needed to call ske_reset() to avoid affecting the use of SKE.
   * @return    none
   */
-  static inline void ske_reset(void)
-  {
+    static inline void ske_reset(void)
+    {
+        reg_rst4 &= ~FLD_RST4_SKE;
+        reg_rst4 |= FLD_RST4_SKE;
+    }
 
-    reg_rst4 &= ~FLD_RST4_SKE;
-    reg_rst4 |= FLD_RST4_SKE;
-  }
-
- /**
+    /**
   * @brief     Enable the clock of SKE module.
   * @return    none
   */
-  static inline void ske_clk_en(void)
-  {
-    reg_clk_en4 |= FLD_CLK4_SKE_EN;
-  }
+    static inline void ske_clk_en(void)
+    {
+        reg_clk_en4 |= FLD_CLK4_SKE_EN;
+    }
 
 
 #ifdef __cplusplus

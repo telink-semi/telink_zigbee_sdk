@@ -27,31 +27,42 @@
 /*
  * analog:0x19
  */
-#define  reg_charger_vchg      0x19
-enum{
-   VCHG_TRIM =BIT_RNG(4,7),
+#define reg_charger_vchg 0x19
+
+enum
+{
+    VCHG_TRIM = BIT_RNG(4, 7),
 };
+
 /*
  * analog:0x1c
  */
-#define  reg_charger_mode     0x1c
-enum{
-  	AUTO_MANUAL_SEL = BIT(7),
-	MANUAL_MODE = BIT_RNG(4,6),
+#define reg_charger_mode 0x1c
+
+enum
+{
+    AUTO_MANUAL_SEL = BIT(7),
+    MANUAL_MODE     = BIT_RNG(4, 6),
 };
+
 /*
  * analog:0x1a
  */
-#define  reg_charger_ichg     0x1a
-enum{
-   ICHG_TRIM =BIT_RNG(0,3),
+#define reg_charger_ichg 0x1a
+
+enum
+{
+    ICHG_TRIM = BIT_RNG(0, 3),
 };
+
 /*
  * analog:0x22
  */
-#define  reg_charger_status    0x22
-enum{
-   CHG_USB_ON_OFF            = BIT(6),
+#define reg_charger_status 0x22
+
+enum
+{
+    CHG_USB_ON_OFF = BIT(6),
 };
 
 #endif /* DRIVERS_REG_INCLUDE_CHARGER_REG_H_ */

@@ -34,86 +34,93 @@
  * @note    when data protection, only enumeration items in mid136085_lock_block_e can be selected,
  *          to ensure that the values returned by the interface flash_get_lock_block_mid136085 are in the mid136085_lock_block_e.
  */
-typedef enum{
+typedef enum
+{
     //---------WPS=0, CMP bit = 0-----------------//
-    FLASH_LOCK_NONE_MID136085       =   0x0000, //000000h-000000h   //0x0020 0x407c 0x4030...
-    FLASH_LOCK_UP_64K_MID136085     =   0x0004, //070000h-07FFFFh
-    FLASH_LOCK_UP_128K_MID136085    =   0x0008, //060000h-07FFFFh
-    FLASH_LOCK_UP_256K_MID136085    =   0x000c, //040000h-07FFFFh   //0x402c
-    FLASH_LOCK_LOW_64K_MID136085    =   0x0024, //000000h-00FFFFh
-    FLASH_LOCK_LOW_128K_MID136085   =   0x0028, //000000h-01FFFFh
-    FLASH_LOCK_LOW_256K_MID136085   =   0x002c, //000000h-03FFFFh   //0x400c
-    FLASH_LOCK_UP_4K_MID136085      =   0x0044, //07F000h-07FFFFh
-    FLASH_LOCK_UP_8K_MID136085      =   0x0048, //07E000h-07FFFFh
-    FLASH_LOCK_UP_16K_MID136085     =   0x004c, //07C000h-07FFFFh
-    FLASH_LOCK_UP_32K_MID136085     =   0x0050, //078000h-07FFFFh   //0x0054 0x0058
-    FLASH_LOCK_LOW_4K_MID136085     =   0x0064, //000000h-000FFFh
-    FLASH_LOCK_LOW_8K_MID136085     =   0x0068, //000000h-001FFFh
-    FLASH_LOCK_LOW_16K_MID136085    =   0x006c, //000000h-003FFFh
-    FLASH_LOCK_LOW_32K_MID136085    =   0x0070, //000000h-007FFFh   //0x0074 0x0078
+    FLASH_LOCK_NONE_MID136085     = 0x0000, //000000h-000000h   //0x0020 0x407c 0x4030...
+    FLASH_LOCK_UP_64K_MID136085   = 0x0004, //070000h-07FFFFh
+    FLASH_LOCK_UP_128K_MID136085  = 0x0008, //060000h-07FFFFh
+    FLASH_LOCK_UP_256K_MID136085  = 0x000c, //040000h-07FFFFh   //0x402c
+    FLASH_LOCK_LOW_64K_MID136085  = 0x0024, //000000h-00FFFFh
+    FLASH_LOCK_LOW_128K_MID136085 = 0x0028, //000000h-01FFFFh
+    FLASH_LOCK_LOW_256K_MID136085 = 0x002c, //000000h-03FFFFh   //0x400c
+    FLASH_LOCK_UP_4K_MID136085    = 0x0044, //07F000h-07FFFFh
+    FLASH_LOCK_UP_8K_MID136085    = 0x0048, //07E000h-07FFFFh
+    FLASH_LOCK_UP_16K_MID136085   = 0x004c, //07C000h-07FFFFh
+    FLASH_LOCK_UP_32K_MID136085   = 0x0050, //078000h-07FFFFh   //0x0054 0x0058
+    FLASH_LOCK_LOW_4K_MID136085   = 0x0064, //000000h-000FFFh
+    FLASH_LOCK_LOW_8K_MID136085   = 0x0068, //000000h-001FFFh
+    FLASH_LOCK_LOW_16K_MID136085  = 0x006c, //000000h-003FFFh
+    FLASH_LOCK_LOW_32K_MID136085  = 0x0070, //000000h-007FFFh   //0x0074 0x0078
     //----------------WPS=0, CMP bit = 1---------------//
-    FLASH_LOCK_LOW_448K_MID136085   =   0x4004, //000000h-06FFFFh
-    FLASH_LOCK_LOW_384K_MID136085   =   0x4008, //000000h-05FFFFh
-    FLASH_LOCK_UP_448K_MID136085    =   0x4024, //010000h-07FFFFh
-    FLASH_LOCK_UP_384K_MID136085    =   0x4028, //020000h-07FFFFh
-    FLASH_LOCK_LOW_508K_MID136085   =   0x4044, //000000h-07EFFFh
-    FLASH_LOCK_LOW_504K_MID136085   =   0x4048, //000000h-07DFFFh
-    FLASH_LOCK_LOW_496K_MID136085   =   0x404c, //000000h-07BFFFh
-    FLASH_LOCK_LOW_480K_MID136085   =   0x4050, //000000h-077FFFh   //0x4054 0x4058
-    FLASH_LOCK_UP_508K_MID136085    =   0x4064, //001000h-07FFFFh
-    FLASH_LOCK_UP_504K_MID136085    =   0x4068, //002000h-07FFFFh
-    FLASH_LOCK_UP_496K_MID136085    =   0x406c, //004000h-07FFFFh
-    FLASH_LOCK_UP_480K_MID136085    =   0x4070, //008000h-07FFFFh   //0x4074 0x4078
-    FLASH_LOCK_ALL_512K_MID136085   =   0x007c, //000000h-07FFFFh   //0x4000 0x4040 0x4020 0x4060...
-}mid136085_lock_block_e;
+    FLASH_LOCK_LOW_448K_MID136085 = 0x4004, //000000h-06FFFFh
+    FLASH_LOCK_LOW_384K_MID136085 = 0x4008, //000000h-05FFFFh
+    FLASH_LOCK_UP_448K_MID136085  = 0x4024, //010000h-07FFFFh
+    FLASH_LOCK_UP_384K_MID136085  = 0x4028, //020000h-07FFFFh
+    FLASH_LOCK_LOW_508K_MID136085 = 0x4044, //000000h-07EFFFh
+    FLASH_LOCK_LOW_504K_MID136085 = 0x4048, //000000h-07DFFFh
+    FLASH_LOCK_LOW_496K_MID136085 = 0x404c, //000000h-07BFFFh
+    FLASH_LOCK_LOW_480K_MID136085 = 0x4050, //000000h-077FFFh   //0x4054 0x4058
+    FLASH_LOCK_UP_508K_MID136085  = 0x4064, //001000h-07FFFFh
+    FLASH_LOCK_UP_504K_MID136085  = 0x4068, //002000h-07FFFFh
+    FLASH_LOCK_UP_496K_MID136085  = 0x406c, //004000h-07FFFFh
+    FLASH_LOCK_UP_480K_MID136085  = 0x4070, //008000h-07FFFFh   //0x4074 0x4078
+    FLASH_LOCK_ALL_512K_MID136085 = 0x007c, //000000h-07FFFFh   //0x4000 0x4040 0x4020 0x4060...
+} mid136085_lock_block_e;
 
 /**
  * @brief   the options of qe 
  * 
  */
-typedef enum{
-    FLASH_QE_DISABLE_MID136085          =   0x0000,
-    FLASH_QE_ENABLE_MID136085           =   0x0200,
-}mid136085_qe_e;
+typedef enum
+{
+    FLASH_QE_DISABLE_MID136085 = 0x0000,
+    FLASH_QE_ENABLE_MID136085  = 0x0200,
+} mid136085_qe_e;
 
 /**
  * @brief     The starting address of the Security Registers.
  */
-typedef enum{
-    FLASH_OTP_0x001000_512B_MID136085   =   0x001000,   //001000h-0011FFh
-    FLASH_OTP_0x002000_512B_MID136085   =   0x002000,   //002000h-0021FFh
-    FLASH_OTP_0x003000_512B_MID136085   =   0x003000,   //003000h-0031FFh
-}mid136085_otp_block_e;
+typedef enum
+{
+    FLASH_OTP_0x001000_512B_MID136085 = 0x001000, //001000h-0011FFh
+    FLASH_OTP_0x002000_512B_MID136085 = 0x002000, //002000h-0021FFh
+    FLASH_OTP_0x003000_512B_MID136085 = 0x003000, //003000h-0031FFh
+} mid136085_otp_block_e;
 
 /**
  * @brief     the lock area of the Security Registers.
  */
-typedef enum{
-    FLASH_LOCK_OTP_0x001000_512B_MID136085  =   0x0800, //001000h-0011FFh
-    FLASH_LOCK_OTP_0x002000_512B_MID136085  =   0x1000, //002000h-0021FFh
-    FLASH_LOCK_OTP_0x003000_512B_MID136085  =   0x2000, //003000h-0031FFh
-}mid136085_lock_otp_e;
+typedef enum
+{
+    FLASH_LOCK_OTP_0x001000_512B_MID136085 = 0x0800, //001000h-0011FFh
+    FLASH_LOCK_OTP_0x002000_512B_MID136085 = 0x1000, //002000h-0021FFh
+    FLASH_LOCK_OTP_0x003000_512B_MID136085 = 0x2000, //003000h-0031FFh
+} mid136085_lock_otp_e;
 
 /**
  * @brief     the range of masks to be modified when writing status.
  */
-typedef enum{
-    FLASH_WRITE_STATUS_BP_MID136085     =   0x407c,//the values that can be set can refer to mid136085_lock_block_e
-    FLASH_WRITE_STATUS_QE_MID136085     =   0x0200,//the values that can be set can refer to mid136085_qe_e
-    FLASH_WRITE_STATUS_OTP_MID136085    =   0x3800,//the values that can be set can refer to mid136085_lock_otp_e
+typedef enum
+{
+    FLASH_WRITE_STATUS_BP_MID136085  = 0x407c, //the values that can be set can refer to mid136085_lock_block_e
+    FLASH_WRITE_STATUS_QE_MID136085  = 0x0200, //the values that can be set can refer to mid136085_qe_e
+    FLASH_WRITE_STATUS_OTP_MID136085 = 0x3800, //the values that can be set can refer to mid136085_lock_otp_e
 
     /*Related to flash hardware protection.When using this function, you need to pay attention.
      *If the #WP pin of the flash is grounded and the hardware protection is set at this time,
      *the status register of the flash will be locked and irreversible.*/
-    FLASH_WRITE_STATUS_SRP_MID136085    =   0x0180,
-}mid136085_write_status_mask_e;
+    FLASH_WRITE_STATUS_SRP_MID136085 = 0x0180,
+} mid136085_write_status_mask_e;
 
 /**
  * @brief     the range of bits to be modified when writing configure.
  */
-typedef enum{
-    FLASH_WRITE_CONFIGURE_WPS_MID136085     =   0x04,
-}mid136085_write_config_bit_e;
+typedef enum
+{
+    FLASH_WRITE_CONFIGURE_WPS_MID136085 = 0x04,
+} mid136085_write_config_bit_e;
+
 /**
  * @brief       This function reads the status of flash.
  * @return      the value of status.
@@ -210,7 +217,7 @@ unsigned int flash_get_lock_block_mid136085(void);
  *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
-void flash_read_otp_mid136085(unsigned long addr, unsigned long len, unsigned char* buf);
+void flash_read_otp_mid136085(unsigned long addr, unsigned long len, unsigned char *buf);
 
 /**
  * @brief       This function serves to write data to the Security Registers of the flash you choose.
@@ -291,4 +298,3 @@ void flash_lock_otp_mid136085(mid136085_lock_otp_e data);
  */
 void flash_write_config_mid136085(unsigned char data, mid136085_write_config_bit_e bit);
 #endif
-

@@ -26,57 +26,54 @@
 #define _X25519_H_
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 
 #include "pke.h"
 
 
+    extern mont_curve_t c25519[1];
 
-extern mont_curve_t c25519[1];
+    //X25519 return code
+    enum
+    {
+        X25519_SUCCESS      = PKE_SUCCESS,
+        X25519_POINTOR_NULL = PKE_SUCCESS + 0x70,
+        X25519_INVALID_INPUT,
+        X25519_INVALID_OUTPUT,
+    };
 
+    //APIs
 
-
-//X25519 return code
-enum {
-	X25519_SUCCESS = PKE_SUCCESS,
-	X25519_POINTOR_NULL = PKE_SUCCESS+0x70,
-	X25519_INVALID_INPUT,
-	X25519_INVALID_OUTPUT,
-};
-
-
-//APIs
-
-/**
- * @brief		get X25519 public key from private key.
- * @param[in]	priKey		- private key, 32 bytes, little-endian.
- * @param[out]	pubKey		- public key, 32 bytes, little-endian.
- * @return		X25519_SUCCESS(success), other(error).
+    /**
+ * @brief       get X25519 public key from private key.
+ * @param[in]   priKey      - private key, 32 bytes, little-endian.
+ * @param[out]  pubKey      - public key, 32 bytes, little-endian.
+ * @return      X25519_SUCCESS(success), other(error).
  */
-unsigned char x25519_get_pubkey_from_prikey(unsigned char prikey[32], unsigned char pubkey[32]);
+    unsigned char x25519_get_pubkey_from_prikey(unsigned char prikey[32], unsigned char pubkey[32]);
 
-/**
- * @brief		get x25519 random key pair.
- * @param[out]	priKey		- private key, 32 bytes, little-endian.
- * @param[out]	pubKey		- public key, 32 bytes, little-endian.
- * @return		X25519_SUCCESS(success), other(error).
+    /**
+ * @brief       get x25519 random key pair.
+ * @param[out]  priKey      - private key, 32 bytes, little-endian.
+ * @param[out]  pubKey      - public key, 32 bytes, little-endian.
+ * @return      X25519_SUCCESS(success), other(error).
  */
-unsigned char x25519_getkey(unsigned char prikey[32], unsigned char pubkey[32]);
+    unsigned char x25519_getkey(unsigned char prikey[32], unsigned char pubkey[32]);
 
-/**
- * @brief		X25519 key agreement.
- * @param[in]	local_prikey	- local private key, 32 bytes, little-endian.
- * @param[in]	peer_pubkey		- peer Public key, 32 bytes, little-endian.
- * @param[in]	keyByteLen		- byte length of output key.
- * @param[in]	kdf				- KDF function.
- * @param[out]	key				- derived key.
- * @return		X25519_SUCCESS(success), other(error).
- * @Caution		if no KDF function, please set kdf to be NULL.
+    /**
+ * @brief       X25519 key agreement.
+ * @param[in]   local_prikey    - local private key, 32 bytes, little-endian.
+ * @param[in]   peer_pubkey     - peer Public key, 32 bytes, little-endian.
+ * @param[in]   keyByteLen      - byte length of output key.
+ * @param[in]   kdf             - KDF function.
+ * @param[out]  key             - derived key.
+ * @return      X25519_SUCCESS(success), other(error).
+ * @Caution     if no KDF function, please set kdf to be NULL.
  */
-unsigned char x25519_compute_key(unsigned char local_prikey[32], unsigned char peer_pubkey[32], unsigned char *key, unsigned int keyByteLen,
-						   KDF_FUNC kdf);
+    unsigned char x25519_compute_key(unsigned char local_prikey[32], unsigned char peer_pubkey[32], unsigned char *key, unsigned int keyByteLen, KDF_FUNC kdf);
 
 
 #ifdef __cplusplus

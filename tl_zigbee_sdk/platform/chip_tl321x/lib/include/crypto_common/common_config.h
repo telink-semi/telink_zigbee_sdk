@@ -25,11 +25,9 @@
 #define COMMON_CONFIG_H
 
 
-#include <stdint.h>    //including definitions of int32_t, unsigned int, etc.
+#include <stdint.h> //including definitions of int32_t, unsigned int, etc.
 
-#include <string.h>    //including definition of NULL
-
-
+#include <string.h> //including definition of NULL
 
 
 /************************************************************************************
@@ -40,7 +38,7 @@
 #define UTILITY_PRINT_BUF
 
 #ifdef UTILITY_PRINT_BUF
-#include <stdio.h>
+    #include <stdio.h>
 #endif
 
 #define UTILITY_SEC
@@ -55,16 +53,13 @@
 
 //C keyword static, keep it by default, or define it empty just for some testing.
 #ifdef CONFIG_UNIT_TEST
-#define FLAG_STATIC
+    #define FLAG_STATIC
 #else
-#define FLAG_STATIC   static   //default
+    #define FLAG_STATIC static //default
 #endif
 
 
 #define SUPPORT_STATIC_ANALYSIS
 
 
-
-
 #endif
-

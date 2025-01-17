@@ -25,19 +25,17 @@
 #define PBKDF2_H
 
 
-
 #include "hmac.h"
 
 
-
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 
-
-//APIs
-/**
+    //APIs
+    /**
  * @brief       pbkdf2 function(using hmac as PRF)
  * @param[in]   hash_alg         - specific hash algorithm.
  * @param[in]   pwd              - password, as the key of hmac.
@@ -50,8 +48,7 @@ extern "C" {
  * @param[in]   out_bytes        - byte length of derived key.
  * @return      0:success     other:error
  */
-unsigned int pbkdf2_hmac(HASH_ALG hash_alg, unsigned char *pwd, unsigned short sp_key_idx, unsigned int pwd_bytes, unsigned char *salt, unsigned int salt_bytes,
-        unsigned int iter, unsigned char *out, unsigned int out_bytes);
+    unsigned int pbkdf2_hmac(HASH_ALG hash_alg, unsigned char *pwd, unsigned short sp_key_idx, unsigned int pwd_bytes, unsigned char *salt, unsigned int salt_bytes, unsigned int iter, unsigned char *out, unsigned int out_bytes);
 
 
 #ifdef __cplusplus

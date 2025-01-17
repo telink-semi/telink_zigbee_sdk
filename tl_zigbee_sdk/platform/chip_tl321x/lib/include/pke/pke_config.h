@@ -28,13 +28,10 @@
 #include "lib/include/crypto_common/common_config.h"
 
 
-
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
-
-
-
 
 
 /************************************************************************************
@@ -67,10 +64,10 @@ extern "C" {
  *function: some PKE algorithm operand maximum bit length
  *caution:
  */
-#define OPERAND_MAX_BIT_LEN                   (4096u)
-#define ECCP_MAX_BIT_LEN                      (521u)
-#define RSA_MAX_BIT_LEN                       OPERAND_MAX_BIT_LEN
-#define DH_MAX_BIT_LEN                        OPERAND_MAX_BIT_LEN
+#define OPERAND_MAX_BIT_LEN (4096u)
+#define ECCP_MAX_BIT_LEN    (521u)
+#define RSA_MAX_BIT_LEN     OPERAND_MAX_BIT_LEN
+#define DH_MAX_BIT_LEN      OPERAND_MAX_BIT_LEN
 
 
 /*
@@ -78,22 +75,22 @@ extern "C" {
  *caution:
  */
 #define SUPPORT_RSA
-//#define SUPPORT_DH
+#define SUPPORT_DH
 #define SUPPORT_ECDH
 #define SUPPORT_ECDSA
-//#define SUPPORT_ECIES
-//#define SUPPORT_SM2
-//#define SUPPORT_SM9
-//#define SUPPORT_C25519
+#define SUPPORT_ECIES
+//#define SUPPORT_SM2//hardware not support
+//#define SUPPORT_SM9//hardware not support
+#define SUPPORT_C25519
 
 
 #ifdef SUPPORT_RSA
 //#define SUPPORT_RSAES_OAEP
-//#define SUPPORT_RSASSA_PSS
+//#define SUPPORT_RSASSA_PSS //hardware not support
 #endif
 
 
-/*
+    /*
  *function: pre_mont style
  *caution:
  *     1. if close this micro, all pre_mont for modexp through hardware
@@ -101,37 +98,36 @@ extern "C" {
  *     3. depending on the compiler, there may be cases that software calc faster than hardware
  *     4. closed by default
  */
-//#define PKE_CONFIG_ALL_MODEXP_PRE_CALC_WITH_MGMR_MICROCODE
+    //#define PKE_CONFIG_ALL_MODEXP_PRE_CALC_WITH_MGMR_MICROCODE
 
 
 #ifdef PKE_SEC
 
-#ifdef SUPPORT_RSA
-#define RSA_SEC
-#endif
+    #ifdef SUPPORT_RSA
+        #define RSA_SEC
+    #endif
 
-#ifdef SUPPORT_DH
-#define DH_SEC
-#endif
+    #ifdef SUPPORT_DH
+        #define DH_SEC
+    #endif
 
-#ifdef SUPPORT_ECDH
-#define ECDH_SEC
-#endif
+    #ifdef SUPPORT_ECDH
+        #define ECDH_SEC
+    #endif
 
-#ifdef SUPPORT_ECDSA
-#define ECDSA_SEC
-#endif
+    #ifdef SUPPORT_ECDSA
+        #define ECDSA_SEC
+    #endif
 
-#ifdef SUPPORT_SM2
-#define SM2_SEC
-#endif
+    #ifdef SUPPORT_SM2
+        #define SM2_SEC
+    #endif
 
-#ifdef SUPPORT_SM9
-#define SM9_SEC
-#endif
+    #ifdef SUPPORT_SM9
+        #define SM9_SEC
+    #endif
 
 #endif
-
 
 
 #ifdef __cplusplus
@@ -140,4 +136,3 @@ extern "C" {
 
 
 #endif
-

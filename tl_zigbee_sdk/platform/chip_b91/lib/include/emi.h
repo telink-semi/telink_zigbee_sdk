@@ -21,8 +21,8 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-#ifndef  EMI_H_
-#define  EMI_H_
+#ifndef EMI_H_
+#define EMI_H_
 
 #include "lib/include/rf.h"
 
@@ -30,9 +30,9 @@
 /**********************************************************************************************************************
  *                                           global macro                                                             *
  *********************************************************************************************************************/
-#define EMI_ACCESS_ADDR                      0x140808
-#define EMI_ACCESS_CODE                      0x29417671
-#define EMI_TX_PKT_PAYLOAD                     37
+#define EMI_ACCESS_ADDR    0x140808
+#define EMI_ACCESS_CODE    0x29417671
+#define EMI_TX_PKT_PAYLOAD 37
 
 /**********************************************************************************************************************
  *                                         function declaration                                                    *
@@ -44,7 +44,7 @@
  * @param[in]  rf_chn      - the channel.
  * @return     none
  */
-void rf_emi_tx_single_tone(rf_power_level_e power_level,signed char rf_chn);
+void rf_emi_tx_single_tone(rf_power_level_e power_level, signed char rf_chn);
 
 /**
  * @brief      This function serves to set rx mode and channel
@@ -52,7 +52,7 @@ void rf_emi_tx_single_tone(rf_power_level_e power_level,signed char rf_chn);
  * @param[in]  rf_chn - the rx channel.
  * @return     none
  */
-void rf_emi_rx_setup(rf_mode_e mode,signed char rf_chn);
+void rf_emi_rx_setup(rf_mode_e mode, signed char rf_chn);
 
 /**
  * @brief    This function serves to update the number of receiving packet and the RSSI
@@ -100,7 +100,7 @@ void rf_emi_tx_continue_setup(void);
  *    -#6:0xff
  * @return     none
  */
-void rf_emi_tx_continue_update_data(rf_mode_e rf_mode,rf_power_level_e power_level,signed char rf_chn,unsigned char pkt_type);
+void rf_emi_tx_continue_update_data(rf_mode_e rf_mode, rf_power_level_e power_level, signed char rf_chn, unsigned char pkt_type);
 
 /**
  * @brief      This function serves to continue to run the CD mode
@@ -117,7 +117,7 @@ void rf_continue_mode_run(void);
  * -#2:0x55
  * @return     none
  */
-void rf_emi_tx_burst_loop(rf_mode_e rf_mode,unsigned char pkt_type);
+void rf_emi_tx_burst_loop(rf_mode_e rf_mode, unsigned char pkt_type);
 
 /**
  * @brief      This function serves to set the burst mode
@@ -130,7 +130,7 @@ void rf_emi_tx_burst_loop(rf_mode_e rf_mode,unsigned char pkt_type);
  * -#2:0x55
  * @return     none
  */
-void rf_emi_tx_burst_setup(rf_mode_e rf_mode,rf_power_level_e power_level,signed char rf_chn,unsigned char pkt_type);
+void rf_emi_tx_burst_setup(rf_mode_e rf_mode, rf_power_level_e power_level, signed char rf_chn, unsigned char pkt_type);
 
 /**
  * @brief      This function serves to generate random packets that need to be sent in burst mode
@@ -138,7 +138,7 @@ void rf_emi_tx_burst_setup(rf_mode_e rf_mode,rf_power_level_e power_level,signed
  * @param[in]  n - the number of random packets.
  * @return     none
  */
-void rf_phy_test_prbs9 (unsigned char *p, int n);
+void rf_phy_test_prbs9(unsigned char *p, int n);
 
 /**
  * @brief      This function serves to reset baseband.
@@ -159,7 +159,7 @@ unsigned int emi_pn_gen(unsigned int state);
  * @param[in]  n - the number of random packets.
  * @return     none
  */
-void rf_phy_test_prbs15 (unsigned char *p, int n);
+void rf_phy_test_prbs15(unsigned char *p, int n);
 
 
 #endif

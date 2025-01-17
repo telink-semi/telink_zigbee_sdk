@@ -25,35 +25,34 @@
 #define SHA256_H
 
 
-
 #include "hash.h"
 
 
-
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 
 #ifdef SUPPORT_HASH_SHA256
 
 
-typedef HASH_CTX SHA256_CTX;
+    typedef HASH_CTX SHA256_CTX;
 
-#ifdef HASH_DMA_FUNCTION
-typedef HASH_DMA_CTX SHA256_DMA_CTX;
-#endif
+    #ifdef HASH_DMA_FUNCTION
+    typedef HASH_DMA_CTX SHA256_DMA_CTX;
+    #endif
 
 
-//APIs
-/**
+    //APIs
+    /**
  * @brief       init sha256
  * @param[in]   ctx         - SHA256_CTX context pointer.
  * @return      0:success     other:error
  */
-unsigned int sha256_init(SHA256_CTX *ctx);
+    unsigned int sha256_init(SHA256_CTX *ctx);
 
-/**
+    /**
  * @brief       sha256 update message
  * @param[in]   ctx            - SHA256_CTX context pointer.
  * @param[in]   msg            - message.
@@ -64,9 +63,9 @@ unsigned int sha256_init(SHA256_CTX *ctx);
       -# 1.please make sure the three parameters are valid, and ctx is initialized.
   @endverbatim
  */
-unsigned int sha256_update(SHA256_CTX *ctx, const unsigned char *msg, unsigned int msg_bytes);
+    unsigned int sha256_update(SHA256_CTX *ctx, const unsigned char *msg, unsigned int msg_bytes);
 
-/**
+    /**
  * @brief       message update done, get the sha256 digest
  * @param[in]   ctx               - SHA256_CTX context pointer.
  * @param[out]  digest            - sha256 digest, 32 bytes.
@@ -76,9 +75,9 @@ unsigned int sha256_update(SHA256_CTX *ctx, const unsigned char *msg, unsigned i
       -# 1. please make sure the digest buffer is sufficient.
   @endverbatim
  */
-unsigned int sha256_final(SHA256_CTX *ctx, unsigned char *digest);
+    unsigned int sha256_final(SHA256_CTX *ctx, unsigned char *digest);
 
-/**
+    /**
  * @brief       input whole message and get its sha256 digest
  * @param[in]   msg            - message.
  * @param[in]   msg_bytes      - byte length of the input message, it could be 0.
@@ -89,19 +88,19 @@ unsigned int sha256_final(SHA256_CTX *ctx, unsigned char *digest);
       -# 1. please make sure the digest buffer is sufficient.
   @endverbatim
  */
-unsigned int sha256(unsigned char *msg, unsigned int msg_bytes, unsigned char *digest);
+    unsigned int sha256(unsigned char *msg, unsigned int msg_bytes, unsigned char *digest);
 
 
-#ifdef HASH_DMA_FUNCTION
-/**
+    #ifdef HASH_DMA_FUNCTION
+    /**
  * @brief       init dma sha256
  * @param[in]   ctx           - SHA256_DMA_CTX context pointer.
  * @param[in]   callback      - callback function pointer.
  * @return      0:success     other:error
  */
-unsigned int sha256_dma_init(SHA256_DMA_CTX *ctx, HASH_CALLBACK callback);
+    unsigned int sha256_dma_init(SHA256_DMA_CTX *ctx, HASH_CALLBACK callback);
 
-/**
+    /**
  * @brief       dma sha256 update some message blocks
  * @param[in]   ctx         - SHA256_DMA_CTX context pointer.
  * @param[in]   msg         - message blocks.
@@ -113,9 +112,9 @@ unsigned int sha256_dma_init(SHA256_DMA_CTX *ctx, HASH_CALLBACK callback);
       -# 1. please make sure the four parameters are valid, and ctx is initialized.
   @endverbatim
  */
-unsigned int sha256_dma_update_blocks(SHA256_DMA_CTX *ctx, unsigned int *msg, unsigned int msg_words);
+    unsigned int sha256_dma_update_blocks(SHA256_DMA_CTX *ctx, unsigned int *msg, unsigned int msg_words);
 
-/**
+    /**
  * @brief       dma sha256 final(input the remainder message and get the digest)
  * @param[in]   ctx               - SHA256_DMA_CTX context pointer.
  * @param[in]   remainder_msg     - remainder message.
@@ -128,9 +127,9 @@ unsigned int sha256_dma_update_blocks(SHA256_DMA_CTX *ctx, unsigned int *msg, un
       -# 1. please make sure the four parameters are valid, and ctx is initialized.
   @endverbatim
  */
-unsigned int sha256_dma_final(SHA256_DMA_CTX *ctx, unsigned int *remainder_msg, unsigned int remainder_bytes, unsigned int *digest);
+    unsigned int sha256_dma_final(SHA256_DMA_CTX *ctx, unsigned int *remainder_msg, unsigned int remainder_bytes, unsigned int *digest);
 
-/**
+    /**
  * @brief       dma sha256 digest calculate
  * @param[in]   msg           - message.
  * @param[in]   msg_bytes     - byte length of the message, it could be 0.
@@ -142,8 +141,8 @@ unsigned int sha256_dma_final(SHA256_DMA_CTX *ctx, unsigned int *remainder_msg, 
       -# 1. please make sure the four parameters are valid.
   @endverbatim
  */
-unsigned int sha256_dma(unsigned int *msg, unsigned int msg_bytes, unsigned int *digest, HASH_CALLBACK callback);
-#endif
+    unsigned int sha256_dma(unsigned int *msg, unsigned int msg_bytes, unsigned int *digest, HASH_CALLBACK callback);
+    #endif
 
 
 #endif

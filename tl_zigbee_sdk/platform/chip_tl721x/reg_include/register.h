@@ -21,8 +21,8 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-#ifndef  REGISTER_H
-#define  REGISTER_H
+#ifndef REGISTER_H
+#define REGISTER_H
 
 #include "gpio_reg.h"
 #include "soc.h"
@@ -49,6 +49,7 @@
 #include "plic_sw_reg.h"
 #include "plmt_reg.h"
 #include "otp_reg.h"
+#include "pem_reg.h"
 #include "analog_afe3v_reg.h"
 #include "analog_afe1v_reg.h"
 #include "ir_learn_reg.h"

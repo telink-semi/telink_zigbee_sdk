@@ -25,35 +25,34 @@
 #define SHA1_H
 
 
-
 #include "hash.h"
 
 
-
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 
 #ifdef SUPPORT_HASH_SHA1
 
 
-typedef HASH_CTX SHA1_CTX;
+    typedef HASH_CTX SHA1_CTX;
 
-#ifdef HASH_DMA_FUNCTION
-typedef HASH_DMA_CTX SHA1_DMA_CTX;
-#endif
+    #ifdef HASH_DMA_FUNCTION
+    typedef HASH_DMA_CTX SHA1_DMA_CTX;
+    #endif
 
 
-//APIs
-/**
+    //APIs
+    /**
  * @brief       init sha1
  * @param[in]   ctx         - SHA1_CTX context pointer.
  * @return      0:success     other:error
  */
-unsigned int sha1_init(SHA1_CTX *ctx);
+    unsigned int sha1_init(SHA1_CTX *ctx);
 
-/**
+    /**
  * @brief       sha1 update message
  * @param[in]   ctx            - SHA1_CTX context pointer.
  * @param[in]   msg            - message.
@@ -64,10 +63,11 @@ unsigned int sha1_init(SHA1_CTX *ctx);
       -# 1. please make sure the three parameters are valid, and ctx is initialized.
   @endverbatim
  */
-unsigned int sha1_update(SHA1_CTX *ctx, const unsigned char *msg, unsigned int msg_bytes);
+    unsigned int sha1_update(SHA1_CTX *ctx, unsigned char *msg, unsigned int msg_bytes);
 
-/**
+    /**
  * @brief       message update done, get the sha1 digest
+ * @param[in]   ctx            - SHA1_CTX context pointer.
  * @param[out]  digest         - sha1 digest, 20 bytes.
  * @return      0:success     other:error
  * @note
@@ -75,9 +75,9 @@ unsigned int sha1_update(SHA1_CTX *ctx, const unsigned char *msg, unsigned int m
       -# 1. please make sure the digest buffer is sufficient.
   @endverbatim
  */
-unsigned int sha1_final(SHA1_CTX *ctx, unsigned char *digest);
+    unsigned int sha1_final(SHA1_CTX *ctx, unsigned char *digest);
 
-/**
+    /**
  * @brief       input whole message and get its sha1 digest
  * @param[in]   msg            - message.
  * @param[in]   msg_bytes      - byte length of the input message, it could be 0.
@@ -88,11 +88,27 @@ unsigned int sha1_final(SHA1_CTX *ctx, unsigned char *digest);
       -# 1. please make sure the digest buffer is sufficient.
   @endverbatim
  */
-unsigned int sha1(unsigned char *msg, unsigned int msg_bytes, unsigned char *digest);
+    unsigned int sha1(unsigned char *msg, unsigned int msg_bytes, unsigned char *digest);
 
+    #ifdef SUPPORT_HASH_NODE
+    /**
+ * @brief       input whole message and get its sha1 digest(node style)
+ * @param[in]   node            - input, message node pointer
+ * @param[in]   node_num        - input, number of hash nodes, i.e. number of message segments.
+ * @param[in]   digest          - output, sha1 digest, 20 bytes
+ * @return      0: HASH_SUCCESS(success), other(error)
+ * @note
+  @verbatim
+ *     1. please make sure the digest buffer is sufficient
+ *     2. if the whole message consists of some segments, every segment is a node, a node includes
+ *        address and byte length.
+  @endverbatim
+ */
+    unsigned int sha1_node_steps(HASH_NODE *node, unsigned int node_num, unsigned char *digest);
+    #endif
 
-#ifdef HASH_DMA_FUNCTION
-/**
+    #ifdef HASH_DMA_FUNCTION
+    /**
  * @brief       init dma sha1
  * @param[in]   ctx            - SHA1_DMA_CTX context pointer.
  * @param[in]   callback       - callback function pointer.
@@ -102,13 +118,13 @@ unsigned int sha1(unsigned char *msg, unsigned int msg_bytes, unsigned char *dig
       -# 1. please make sure the digest buffer is sufficient.
   @endverbatim
  */
-unsigned int sha1_dma_init(SHA1_DMA_CTX *ctx, HASH_CALLBACK callback);
+    unsigned int sha1_dma_init(SHA1_DMA_CTX *ctx, HASH_CALLBACK callback);
 
-/**
+    /**
  * @brief       dma sha1 update some message blocks
  * @param[in]   ctx            - SHA1_DMA_CTX context pointer.
  * @param[in]   msg            - message blocks.
- * @param[in]   msg_words      - word length of the input message, must be a multiple of sha1
+ * @param[in]   msg_bytes      - word length of the input message, must be a multiple of sha1
  *                               block word length(16).
  * @return      0:success     other:error
  * @note
@@ -116,9 +132,9 @@ unsigned int sha1_dma_init(SHA1_DMA_CTX *ctx, HASH_CALLBACK callback);
       -# 1. please make sure the four parameters are valid, and ctx is initialized.
   @endverbatim
  */
-unsigned int sha1_dma_update_blocks(SHA1_DMA_CTX *ctx, unsigned int *msg, unsigned int msg_words);
+    unsigned int sha1_dma_update_blocks(SHA1_DMA_CTX *ctx, unsigned int *msg, unsigned int msg_bytes);
 
-/**
+    /**
  * @brief       dma sha1 final(input the remainder message and get the digest)
  * @param[in]   ctx               - SHA1_DMA_CTX context pointer.
  * @param[in]   remainder_msg     - remainder message.
@@ -131,9 +147,9 @@ unsigned int sha1_dma_update_blocks(SHA1_DMA_CTX *ctx, unsigned int *msg, unsign
       -# 1. please make sure the four parameters are valid, and ctx is initialized.
   @endverbatim
  */
-unsigned int sha1_dma_final(SHA1_DMA_CTX *ctx, unsigned int *remainder_msg, unsigned int remainder_bytes, unsigned int *digest);
+    unsigned int sha1_dma_final(SHA1_DMA_CTX *ctx, unsigned int *remainder_msg, unsigned int remainder_bytes, unsigned int *digest);
 
-/**
+    /**
  * @brief       dma sha1 digest calculate
  * @param[in]   msg               - message.
  * @param[in]   msg_bytes         - byte length of the message, it could be 0.
@@ -145,9 +161,28 @@ unsigned int sha1_dma_final(SHA1_DMA_CTX *ctx, unsigned int *remainder_msg, unsi
       -# 1. please make sure the four parameters are valid, and ctx is initialized.
   @endverbatim
  */
-unsigned int sha1_dma(unsigned int *msg, unsigned int msg_bytes, unsigned int *digest, HASH_CALLBACK callback);
-#endif
+    unsigned int sha1_dma(unsigned int *msg, unsigned int msg_bytes, unsigned int *digest, HASH_CALLBACK callback);
 
+        #ifdef SUPPORT_HASH_DMA_NODE
+    /**
+ * @brief       input whole message and get its sha1 digest(dma node style)
+ * @param[in]   node         - input, message node pointer
+ * @param[in]   node_num     - input, number of hash nodes, i.e. number of message segments.
+ * @param[in]   digest       - output, sha1 digest, 20 bytes
+ * @param[in]   callback     - callback function pointer
+ * @return      0: HASH_SUCCESS(success), other(error)
+ * @note
+  @verbatim
+ *     -# 1. please make sure the digest buffer is sufficient
+ *     -# 2. if the whole message consists of some segments, every segment is a node, a node includes
+ *        address and byte length.
+ *     -# 3. for every node or segment except the last, its message length must be a multiple of block length.
+  @endverbatim
+ */
+    unsigned int sha1_dma_node_steps(HASH_DMA_NODE *node, unsigned int node_num, unsigned int *digest, HASH_CALLBACK callback);
+        #endif
+
+    #endif
 
 #endif
 

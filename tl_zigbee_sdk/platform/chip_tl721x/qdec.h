@@ -41,9 +41,7 @@ typedef enum
     QDEC_CHN_PC3,
     QDEC_CHN_PD6,
     QDEC_CHN_PD7,
-}qdec_chn_e;
-
-
+} qdec_chn_e;
 
 /**
  * qedc mode
@@ -52,13 +50,14 @@ typedef enum
 {
     COMMON_MODE,
     DOUBLE_ACCURACY_MODE,
-}qdec_mode_e;
+} qdec_mode_e;
 
 /**
  *the hardware debouncing threshold
  */
-typedef enum{
-    QDEC_THRSH_P187p5us =0,
+typedef enum
+{
+    QDEC_THRSH_P187p5us = 0,
     QDEC_THRSH_P375p0us,
     QDEC_THRSH_P750p0us,
     QDEC_THRSH_P1500p0us,
@@ -66,8 +65,7 @@ typedef enum{
     QDEC_THRSH_P6000p0us,
     QDEC_THRSH_P12000p0us,
     QDEC_THRSH_P24000p0us,
-}qdec_thrsh_e;
-
+} qdec_thrsh_e;
 
 /**
  * @brief      This function servers to set input port.
@@ -75,7 +73,7 @@ typedef enum{
  * @param[in]  chn_b - input types of b channel.
  * @return     none.
  */
-void qdec_set_pin(qdec_chn_e chn_a,qdec_chn_e chn_b);
+void qdec_set_pin(qdec_chn_e chn_a, qdec_chn_e chn_b);
 
 /**
  * @brief      This function servers to set qdec mode,qdec mode:common mode and double accuracy mode.

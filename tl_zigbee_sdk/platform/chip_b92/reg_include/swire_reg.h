@@ -26,33 +26,38 @@
 #include "soc.h"
 
 
+#define SWIRE_BASE_ADDR 0x100c00
 
 
-#define    SWIRE_BASE_ADDR			        0x100c00
+#define reg_swire_data  REG_ADDR8(SWIRE_BASE_ADDR)
 
+#define reg_swire_ctl   REG_ADDR8(SWIRE_BASE_ADDR + 1)
 
-#define   reg_swire_data      		    REG_ADDR8(SWIRE_BASE_ADDR)
-
-#define   reg_swire_ctl				    REG_ADDR8(SWIRE_BASE_ADDR+1)
-enum{
-	FLD_SWIRE_WR	        	= BIT(0),
-	FLD_SWIRE_RD 	     	    = BIT(1),
-	FLD_SWIRE_CMD 		        = BIT(2),
-	FLD_SWIRE_ERR_FLAG			= BIT(3),
-	// default :FLD_SWIRE_EOP = 1: 1byte format--- 1bit cmd + 8bit data +1 clock end(0)
-	// FLD_SWIRE_EOP = 0: 1byte format--- 1bit cmd + 8bit data +1bit(1) + 1 clock end(0)
-	FLD_SWIRE_EOP     			= BIT(4),
-	FLD_SWIRE_USB_DET    	  	= BIT(6),
-	FLD_SWIRE_USB_EN      		= BIT(7),
-};
-#define   reg_swire_ctl2				 REG_ADDR8(SWIRE_BASE_ADDR+2)
-enum{
-	FLD_SWIRE_CLK_DIV	        = BIT_RNG(0,6),
+enum
+{
+    FLD_SWIRE_WR       = BIT(0),
+    FLD_SWIRE_RD       = BIT(1),
+    FLD_SWIRE_CMD      = BIT(2),
+    FLD_SWIRE_ERR_FLAG = BIT(3),
+    // default :FLD_SWIRE_EOP = 1: 1byte format--- 1bit cmd + 8bit data +1 clock end(0)
+    // FLD_SWIRE_EOP = 0: 1byte format--- 1bit cmd + 8bit data +1bit(1) + 1 clock end(0)
+    FLD_SWIRE_EOP     = BIT(4),
+    FLD_SWIRE_USB_DET = BIT(6),
+    FLD_SWIRE_USB_EN  = BIT(7),
 };
 
-#define   reg_swire_id				    REG_ADDR8(SWIRE_BASE_ADDR+3)
-enum{
-	FLD_SWIRE_ID_VALID	        = BIT_RNG(0,4),
-	FLD_SWIRE_FIFO_MODE	        = BIT(7),
+#define reg_swire_ctl2 REG_ADDR8(SWIRE_BASE_ADDR + 2)
+
+enum
+{
+    FLD_SWIRE_CLK_DIV = BIT_RNG(0, 6),
+};
+
+#define reg_swire_id REG_ADDR8(SWIRE_BASE_ADDR + 3)
+
+enum
+{
+    FLD_SWIRE_ID_VALID  = BIT_RNG(0, 4),
+    FLD_SWIRE_FIFO_MODE = BIT(7),
 };
 #endif

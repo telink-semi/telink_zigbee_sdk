@@ -21,8 +21,8 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-#ifndef  REGISTER_H
-#define  REGISTER_H
+#ifndef REGISTER_H
+#define REGISTER_H
 
 #include "gpio_reg.h"
 #include "soc.h"

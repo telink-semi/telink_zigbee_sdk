@@ -25,10 +25,10 @@
 #define CHACHA20_POLY1505_REG_H
 #include "soc.h"
 
-#define CHACHA20_POLY1305_BASE_ADDR     (0x80105000)
+#define CHACHA20_POLY1305_BASE_ADDR (0x80105000)
 
-#define reg_chacha20_fifo               (0x80100800 + 0x10)
-#define reg_chacha20_dma_en             REG_ADDR8(0x100800 + 0x14)
-#define reg_chacha20_thres              REG_ADDR8(0x100800 + 0x15)
+#define reg_chacha20_fifo           (0x80100800 + 0x10)
+#define reg_chacha20_dma_en         REG_ADDR8(0x100800 + 0x14)
+#define reg_chacha20_thres          REG_ADDR8(0x100800 + 0x15)
 
 #endif

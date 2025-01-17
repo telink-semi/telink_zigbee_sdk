@@ -21,8 +21,8 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-#ifndef     RF_BLE_H
-#define     RF_BLE_H
+#ifndef RF_BLE_H
+#define RF_BLE_H
 
 /**********************************************************************************************************************
  *                                         RF_BLE global macro                                                        *
@@ -30,22 +30,22 @@
 /**
  *  @brief Those setting of offset according to ble packet format, so this setting for ble only.
  */
-#define     RF_BLE_DMA_RFRX_LEN_HW_INFO                 0
-#define     RF_BLE_DMA_RFRX_OFFSET_HEADER               4
-#define     RF_BLE_DMA_RFRX_OFFSET_RFLEN                5
-#define     RF_BLE_DMA_RFRX_OFFSET_DATA                 6
+#define RF_BLE_DMA_RFRX_LEN_HW_INFO   0
+#define RF_BLE_DMA_RFRX_OFFSET_HEADER 4
+#define RF_BLE_DMA_RFRX_OFFSET_RFLEN  5
+#define RF_BLE_DMA_RFRX_OFFSET_DATA   6
 
 /**
  *  @brief According to the packet format find the information of packet through offset.
  */
-#define     rf_ble_dma_rx_offset_crc24(p)               (p[RF_BLE_DMA_RFRX_OFFSET_RFLEN]+6)  //data len:3
-#define     rf_ble_dma_rx_offset_time_stamp(p)          (p[RF_BLE_DMA_RFRX_OFFSET_RFLEN]+9)  //data len:4
-#define     rf_ble_dma_rx_offset_freq_offset(p)         (p[RF_BLE_DMA_RFRX_OFFSET_RFLEN]+13) //data len:2
-#define     rf_ble_dma_rx_offset_rssi(p)                (p[RF_BLE_DMA_RFRX_OFFSET_RFLEN]+15) //data len:1, signed
-#define     rf_ble_packet_length_ok(p)                  ( *((unsigned int*)p) == p[5]+13)               //dma_len must 4 byte aligned
-#define     rf_ble_packet_crc_ok(p)                     ((p[(p[5]+5 + 11)] & 0x01) == 0x0)
+#define rf_ble_dma_rx_offset_crc24(p)       (p[RF_BLE_DMA_RFRX_OFFSET_RFLEN] + 6)  //data len:3
+#define rf_ble_dma_rx_offset_time_stamp(p)  (p[RF_BLE_DMA_RFRX_OFFSET_RFLEN] + 9)  //data len:4
+#define rf_ble_dma_rx_offset_freq_offset(p) (p[RF_BLE_DMA_RFRX_OFFSET_RFLEN] + 13) //data len:2
+#define rf_ble_dma_rx_offset_rssi(p)        (p[RF_BLE_DMA_RFRX_OFFSET_RFLEN] + 15) //data len:1, signed
+#define rf_ble_packet_length_ok(p)          (*((unsigned int *)p) == p[5] + 13)    //dma_len must 4 byte aligned
+#define rf_ble_packet_crc_ok(p)             ((p[(p[5] + 5 + 11)] & 0x01) == 0x0)
 
-#define     rf_set_ble_crc_value(crc)     rf_set_crc_init_value(crc)
+#define rf_set_ble_crc_value(crc)           rf_set_crc_init_value(crc)
 
 /*********************************************************************************************************************
  *                                         RF_BLE function declaration                                               *
@@ -91,9 +91,9 @@ void rf_set_ble_125K_mode(void);
  * @brief    This function serves to set CRC advantage.
  * @return   none.
  */
-static _always_inline void rf_set_ble_crc_adv (void)
+static _always_inline void rf_set_ble_crc_adv(void)
 {
-    write_reg32 (0x170114, 0x555555);
+    write_reg32(0x170114, 0x555555);
 }
 
 /**
@@ -113,7 +113,7 @@ _attribute_ram_code_sec_noinline_ void rf_set_ble_chn(signed char chn_num);
  * @return      none
  * @note        addr:must be aligned by word (4 bytes), otherwise the program will enter an exception.
  */
-_attribute_ram_code_sec_noinline_ void rf_start_brx(void* addr, unsigned int tick);
+_attribute_ram_code_sec_noinline_ void rf_start_brx(void *addr, unsigned int tick);
 
 
 /**
@@ -126,6 +126,6 @@ _attribute_ram_code_sec_noinline_ void rf_start_brx(void* addr, unsigned int tic
  * @return      none
  * @note        addr:must be aligned by word (4 bytes), otherwise the program will enter an exception.
  */
-_attribute_ram_code_sec_noinline_ void rf_start_btx(void* addr, unsigned int tick);
+_attribute_ram_code_sec_noinline_ void rf_start_btx(void *addr, unsigned int tick);
 
 #endif

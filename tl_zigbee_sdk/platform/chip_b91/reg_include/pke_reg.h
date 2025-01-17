@@ -26,25 +26,23 @@
 #include "soc.h"
 
 
-
 /*******************************      pke registers: 0x110000      ******************************/
 
-#define PKE_BASE             (0x80110000)
-#define PKE_CTRL             (*((volatile unsigned int *)(PKE_BASE)))
-#define PKE_CONF             (*((volatile unsigned int *)(PKE_BASE+0x04)))
-typedef enum{
-	FLD_PKE_CONF_IRQ_EN			= BIT(8),
-	FLD_PKE_CONF_PARTIAL_RADIX	= BIT_RNG(16,23),
-	FLD_PKE_CONF_BASE_RADIX		= BIT_RNG(24,26),
-}pke_conf_e;
-#define PKE_MC_PTR           (*((volatile unsigned int *)(PKE_BASE+0x10)))
-#define PKE_STAT             (*((volatile unsigned int *)(PKE_BASE+0x20)))
-#define PKE_RT_CODE          (*((volatile unsigned int *)(PKE_BASE+0x24)))
-#define PKE_EXE_CONF         (*((volatile unsigned int *)(PKE_BASE+0x50)))
-#define PKE_VERSION          (*((volatile unsigned int *)(PKE_BASE+0x80)))
-#define PKE_A(a, step)       ((volatile unsigned int *)(PKE_BASE+0x0400+(a)*(step)))
-#define PKE_B(a, step)       ((volatile unsigned int *)(PKE_BASE+0x1000+(a)*(step)))
+#define PKE_BASE (0x80110000)
+#define PKE_CTRL (*((volatile unsigned int *)(PKE_BASE)))
+#define PKE_CONF (*((volatile unsigned int *)(PKE_BASE + 0x04)))
 
+typedef enum
+{
+    FLD_PKE_CONF_IRQ_EN        = BIT(8),
+    FLD_PKE_CONF_PARTIAL_RADIX = BIT_RNG(16, 23),
+    FLD_PKE_CONF_BASE_RADIX    = BIT_RNG(24, 26),
+} pke_conf_e;
 
-
-
+#define PKE_MC_PTR     (*((volatile unsigned int *)(PKE_BASE + 0x10)))
+#define PKE_STAT       (*((volatile unsigned int *)(PKE_BASE + 0x20)))
+#define PKE_RT_CODE    (*((volatile unsigned int *)(PKE_BASE + 0x24)))
+#define PKE_EXE_CONF   (*((volatile unsigned int *)(PKE_BASE + 0x50)))
+#define PKE_VERSION    (*((volatile unsigned int *)(PKE_BASE + 0x80)))
+#define PKE_A(a, step) ((volatile unsigned int *)(PKE_BASE + 0x0400 + (a) * (step)))
+#define PKE_B(a, step) ((volatile unsigned int *)(PKE_BASE + 0x1000 + (a) * (step)))

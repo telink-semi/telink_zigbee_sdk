@@ -34,21 +34,23 @@
 /**
  * @brief Supports up to 2 DMA channels.
  */
-typedef enum{
-    RF_TX_DMA=0,
+typedef enum
+{
+    RF_TX_DMA = 0,
     RF_RX_DMA,
-}rf_dma_chn_e;
+} rf_dma_chn_e;
 
 /**
  * @brief Define the peripherals of RF DMA transfer width.
  * @note <p> DMA supports the following three types of transfer bytes, For Peripheral-related DMA transfer, transfer width is only supported for DMA_WORD_WIDTH.
  *       <p> If the destination address and source address of DMA are both SRAM, either one can be chosen.
  */
-typedef enum{
-    RF_DMA_BYTE_WIDTH=1,  /**< data is transmitted in bytes. */
-    RF_DMA_HWORD_WIDTH=2, /**< data is transmitted in half word. */
-    RF_DMA_WORD_WIDTH=4,  /**< data is transmitted in word. */
-}rf_dma_transfer_width_e;
+typedef enum
+{
+    RF_DMA_BYTE_WIDTH  = 1, /**< data is transmitted in bytes. */
+    RF_DMA_HWORD_WIDTH = 2, /**< data is transmitted in half word. */
+    RF_DMA_WORD_WIDTH  = 4, /**< data is transmitted in word. */
+} rf_dma_transfer_width_e;
 
 /**
  * @brief Define RF DMA control struct.
@@ -66,24 +68,24 @@ typedef enum{
  * -# write_num_en:1- When reg_dma_size is set to the maximum value, the hardware automatically writes the length of the received data to the SRAM(4 bytes) before the destination address. 0-Hardware will not write data length to SRAM
  * -# auto_en:Only supports RF_TX_DMA. After auto_enable_en is enabled, RF_TX_DMA is automatically enabled based on the baseband generation requests.
  */
-typedef struct {
-    unsigned int :4;
-    unsigned int dst_req_sel:5;  /*DstReqSel   :8:4   */
-    unsigned int src_req_sel:5;  /*SrcReqSel   :13:9 */
-    unsigned int dst_addr_ctrl:2;/*DstAddrCtrl :15:14  */
-    unsigned int src_addr_ctrl:2;/*SrcAddrCtrl :17:16   */
-    unsigned int dstmode:1;      /*DstMode:18   */
-    unsigned int srcmode:1;     /*SrcMode :19   */
-    unsigned int dstwidth:2;  /*DstWidth :21:20 */
-    unsigned int srcwidth:2;  /*SrcWidth :23:22 */
-    unsigned int src_burst_size:3;  /*SrcBurstSize: 26:24*/
-    unsigned int vacant_bit  :1;/*vacant:27*/
-    unsigned int read_num_en:1;/*Rnum_en :28*/
-    unsigned int priority:1; /*Pri :29*/
-    unsigned int write_num_en:1;/*wnum_en : 30*/
-    unsigned int auto_en:1;  /*auto_en : 31*/
-}rf_dma_config_t;
-
+typedef struct
+{
+    unsigned int                : 4;
+    unsigned int dst_req_sel    : 5; /*DstReqSel   :8:4   */
+    unsigned int src_req_sel    : 5; /*SrcReqSel   :13:9 */
+    unsigned int dst_addr_ctrl  : 2; /*DstAddrCtrl :15:14  */
+    unsigned int src_addr_ctrl  : 2; /*SrcAddrCtrl :17:16   */
+    unsigned int dstmode        : 1; /*DstMode:18   */
+    unsigned int srcmode        : 1; /*SrcMode :19   */
+    unsigned int dstwidth       : 2; /*DstWidth :21:20 */
+    unsigned int srcwidth       : 2; /*SrcWidth :23:22 */
+    unsigned int src_burst_size : 3; /*SrcBurstSize: 26:24*/
+    unsigned int vacant_bit     : 1; /*vacant:27*/
+    unsigned int read_num_en    : 1; /*Rnum_en :28*/
+    unsigned int priority       : 1; /*Pri :29*/
+    unsigned int write_num_en   : 1; /*wnum_en : 30*/
+    unsigned int auto_en        : 1; /*auto_en : 31*/
+} rf_dma_config_t;
 
 /*********************************************************************************************************************
  *                                         RF DMA declaration                                                        *
@@ -96,9 +98,9 @@ typedef struct {
 * @return    none
 * @note      When a certain dma channel has not finished the transmission (bit 0 of reg_dma_ctr0(chn) is 1),need to disable dma before writing to the dma register.
 */
-static inline void rf_dma_config(rf_dma_chn_e chn ,rf_dma_config_t *config)
+static inline void rf_dma_config(rf_dma_chn_e chn, rf_dma_config_t *config)
 {
-    reg_bb_dma_ctrl(chn) = (reg_bb_dma_ctrl(chn)&(~BIT_RNG(4,31)))|(*(unsigned int*)config);
+    reg_bb_dma_ctrl(chn) = (reg_bb_dma_ctrl(chn) & (~BIT_RNG(4, 31))) | (*(unsigned int *)config);
 }
 
 /**
@@ -107,9 +109,9 @@ static inline void rf_dma_config(rf_dma_chn_e chn ,rf_dma_config_t *config)
 * @param[in]  src_addr - the address of source.
 * @note      When a certain dma channel has not finished the transmission (bit 0 of reg_dma_ctr0(chn) is 1),need to disable dma before writing to the dma register.
 **/
-static inline void rf_dma_set_src_address(rf_dma_chn_e chn,unsigned int src_addr)
+static inline void rf_dma_set_src_address(rf_dma_chn_e chn, unsigned int src_addr)
 {
-    reg_bb_dma_src_addr(chn)= (unsigned int)src_addr;
+    reg_bb_dma_src_addr(chn) = (unsigned int)src_addr;
 }
 
 /**
@@ -118,9 +120,9 @@ static inline void rf_dma_set_src_address(rf_dma_chn_e chn,unsigned int src_addr
 * @param[in]  dst_addr - the address of destination.
 * @note       When a certain dma channel has not finished the transmission (bit 0 of reg_dma_ctr0(chn) is 1),need to disable dma before writing to the dma register.
 **/
-static inline void rf_dma_set_dst_address(rf_dma_chn_e chn,unsigned int dst_addr)
+static inline void rf_dma_set_dst_address(rf_dma_chn_e chn, unsigned int dst_addr)
 {
-    reg_bb_dma_dst_addr(chn)= (unsigned int)dst_addr;
+    reg_bb_dma_dst_addr(chn) = (unsigned int)dst_addr;
 }
 
 /**
@@ -131,9 +133,9 @@ static inline void rf_dma_set_dst_address(rf_dma_chn_e chn,unsigned int dst_addr
 * @return    none
 * @note      When a certain dma channel has not finished the transmission (bit 0 of reg_dma_ctr0(chn) is 1),need to disable dma before writing to the dma register.
 */
-static inline void rf_dma_set_size(rf_dma_chn_e chn,unsigned int size_byte,rf_dma_transfer_width_e byte_width)
+static inline void rf_dma_set_size(rf_dma_chn_e chn, unsigned int size_byte, rf_dma_transfer_width_e byte_width)
 {
-    reg_bb_dma_size(chn) =((size_byte+byte_width-1)/byte_width)|( (size_byte % byte_width)<<22);
+    reg_bb_dma_size(chn) = ((size_byte + byte_width - 1) / byte_width) | ((size_byte % byte_width) << 22);
 }
 
 /**
@@ -143,20 +145,29 @@ static inline void rf_dma_set_size(rf_dma_chn_e chn,unsigned int size_byte,rf_dm
  */
 static _always_inline void rf_dma_reset(void)
 {
-    reg_n22_rst0 &= ~(FLD_RST0_DMA_BB);         // reset DMA_BB
-    reg_n22_rst0 |= FLD_RST0_DMA_BB;            // clear DMA_BB reset
+    reg_n22_rst0 &= ~(FLD_RST0_DMA_BB); // reset DMA_BB
+    reg_n22_rst0 |= FLD_RST0_DMA_BB;    // clear DMA_BB reset
 }
 
+/**
+ * @brief      This function servers to enable RF DMA that selected channel.
+ * @param[in] chn - rf dma channel.
+ * @return    none
+ */
 static inline void rf_dma_chn_en(rf_dma_chn_e chn)
 {
-    BM_SET(reg_bb_dma_ctr0(chn),FLD_BB_DMA_CHANNEL_ENABLE);
-    BM_SET(reg_bb_dma_ctr3(chn),FLD_BB_DMA_AUTO_ENABLE_EN);
+    BM_SET(reg_bb_dma_ctr0(chn), FLD_BB_DMA_CHANNEL_ENABLE);
+    BM_SET(reg_bb_dma_ctr3(chn), FLD_BB_DMA_AUTO_ENABLE_EN);
 }
 
+/**
+ * @brief      This function servers to disable RF DMA that selected channel.
+ * @param[in] chn - rf dma channel.
+ * @return    none
+ */
 static inline void rf_dma_chn_dis(rf_dma_chn_e chn)
 {
-    BM_CLR(reg_bb_dma_ctr0(chn),FLD_BB_DMA_CHANNEL_ENABLE);
-    BM_CLR(reg_bb_dma_ctr3(chn),FLD_BB_DMA_AUTO_ENABLE_EN);
+    BM_CLR(reg_bb_dma_ctr0(chn), FLD_BB_DMA_CHANNEL_ENABLE);
+    BM_CLR(reg_bb_dma_ctr3(chn), FLD_BB_DMA_AUTO_ENABLE_EN);
 }
-
 #endif /*_RF_DMA_H_ */

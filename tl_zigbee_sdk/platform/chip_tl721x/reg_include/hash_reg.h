@@ -25,10 +25,10 @@
 #define HASH_REG_H
 #include "soc.h"
 
-#define HASH_BASE_ADDR              (0x80102000)
+#define HASH_BASE_ADDR  (0x80102000)
 
-#define reg_hash_fifo               (0x80100800 + 0x30)
-#define reg_hash_dma_en             REG_ADDR8(0x100800 + 0x34)
-#define reg_hash_thres              REG_ADDR8(0x100800 + 0x35)
+#define reg_hash_fifo   (0x80100800 + 0x30)
+#define reg_hash_dma_en REG_ADDR8(0x100800 + 0x34)
+#define reg_hash_thres  REG_ADDR8(0x100800 + 0x35)
 
 #endif

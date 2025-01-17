@@ -25,28 +25,27 @@
 #define HMAC_MD5_H
 
 
-
 #include "hmac.h"
 
 
-
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 
 #ifdef SUPPORT_HASH_MD5
 
 
-typedef HMAC_CTX HMAC_MD5_CTX;
+    typedef HMAC_CTX HMAC_MD5_CTX;
 
-#ifdef HASH_DMA_FUNCTION
-typedef HMAC_DMA_CTX HMAC_MD5_DMA_CTX;
-#endif
+    #ifdef HASH_DMA_FUNCTION
+    typedef HMAC_DMA_CTX HMAC_MD5_DMA_CTX;
+    #endif
 
 
-//APIs
-/**
+    //APIs
+    /**
  * @brief       dma hash digest calculate
  * @param[in]   ctx            - HMAC_MD5_CTX context pointer.
  * @param[in]   key            - key.
@@ -54,9 +53,9 @@ typedef HMAC_DMA_CTX HMAC_MD5_DMA_CTX;
  * @param[in]   key_bytes      - hash digest.
  * @return      0:success     other:error
  */
-unsigned int hmac_md5_init(HMAC_MD5_CTX *ctx, unsigned char *key, unsigned short sp_key_idx, unsigned int key_bytes);
+    unsigned int hmac_md5_init(HMAC_MD5_CTX *ctx, unsigned char *key, unsigned short sp_key_idx, unsigned int key_bytes);
 
-/**
+    /**
  * @brief       hmac-md5 update message
  * @param[in]   ctx           - HMAC_MD5_CTX context pointer.
  * @param[in]   msg           - message.
@@ -67,9 +66,9 @@ unsigned int hmac_md5_init(HMAC_MD5_CTX *ctx, unsigned char *key, unsigned short
       -# 1.  please make sure the digest buffer is sufficient.
   @endverbatim
  */
-unsigned int hmac_md5_update(HMAC_MD5_CTX *ctx, const unsigned char *msg, unsigned int msg_bytes);
+    unsigned int hmac_md5_update(HMAC_MD5_CTX *ctx, const unsigned char *msg, unsigned int msg_bytes);
 
-/**
+    /**
  * @brief       message update done, get the hmac
  * @param[in]   ctx           - HMAC_CTX context pointer.
  * @param[out]  mac           - hmac.
@@ -80,9 +79,9 @@ unsigned int hmac_md5_update(HMAC_MD5_CTX *ctx, const unsigned char *msg, unsign
       -# 2. please make sure the mac buffer is sufficient.
   @endverbatim
  */
-unsigned int hmac_md5_final(HMAC_MD5_CTX *ctx, unsigned char *mac);
+    unsigned int hmac_md5_final(HMAC_MD5_CTX *ctx, unsigned char *mac);
 
-/**
+    /**
  * @brief       input key and whole message, get the hmac
  * @param[in]   key           - key.
  * @param[in]   sp_key_idx    - index of secure port key.
@@ -96,11 +95,11 @@ unsigned int hmac_md5_final(HMAC_MD5_CTX *ctx, unsigned char *mac);
       -# 1. please make sure the mac buffer is sufficient.
   @endverbatim
  */
-unsigned int hmac_md5(unsigned char *key, unsigned short sp_key_idx, unsigned int key_bytes, unsigned char *msg, unsigned int msg_bytes, unsigned char *mac);
+    unsigned int hmac_md5(unsigned char *key, unsigned short sp_key_idx, unsigned int key_bytes, unsigned char *msg, unsigned int msg_bytes, unsigned char *mac);
 
 
-#ifdef HASH_DMA_FUNCTION
-/**
+    #ifdef HASH_DMA_FUNCTION
+    /**
  * @brief       input key and whole message, get the hmac
  * @param[in]   ctx             - HMAC_MD5_DMA_CTX context pointer.
  * @param[in]   key             - ikey.
@@ -109,10 +108,9 @@ unsigned int hmac_md5(unsigned char *key, unsigned short sp_key_idx, unsigned in
  * @param[in]   callback        - callback function pointer.
  * @return      0:success     other:error
  */
-unsigned int hmac_md5_dma_init(HMAC_MD5_DMA_CTX *ctx, const unsigned char *key, unsigned short sp_key_idx, unsigned int key_bytes,
-        HASH_CALLBACK callback);
+    unsigned int hmac_md5_dma_init(HMAC_MD5_DMA_CTX *ctx, const unsigned char *key, unsigned short sp_key_idx, unsigned int key_bytes, HASH_CALLBACK callback);
 
-/**
+    /**
  * @brief       dma hmac-md5 update message
  * @param[in]   ctx           - HMAC_MD5_DMA_CTX context pointer.
  * @param[in]   msg           - message.
@@ -123,9 +121,9 @@ unsigned int hmac_md5_dma_init(HMAC_MD5_DMA_CTX *ctx, const unsigned char *key, 
       -# 1. please make sure the four parameters are valid, and ctx is initialized.
   @endverbatim
  */
-unsigned int hmac_md5_dma_update_blocks(HMAC_MD5_DMA_CTX *ctx, unsigned int *msg, unsigned int msg_words);
+    unsigned int hmac_md5_dma_update_blocks(HMAC_MD5_DMA_CTX *ctx, unsigned int *msg, unsigned int msg_words);
 
-/**
+    /**
  * @brief       dma hmac-md5 message update done, get the hmac
  * @param[in]   ctx               - HMAC_MD5_DMA_CTX context pointer.
  * @param[in]   remainder_msg     - message.
@@ -138,9 +136,9 @@ unsigned int hmac_md5_dma_update_blocks(HMAC_MD5_DMA_CTX *ctx, unsigned int *msg
       -# 1. please make sure the three parameters are valid, and ctx is initialized.
   @endverbatim
  */
-unsigned int hmac_md5_dma_final(HMAC_MD5_DMA_CTX *ctx, unsigned int *remainder_msg, unsigned int remainder_bytes, unsigned int *mac);
+    unsigned int hmac_md5_dma_final(HMAC_MD5_DMA_CTX *ctx, unsigned int *remainder_msg, unsigned int remainder_bytes, unsigned int *mac);
 
-/**
+    /**
  * @brief       dma hmac-md5 input key and message, get the hmac
  * @param[in]   key               - key.
  * @param[in]   sp_key_idx        - index of secure port key.
@@ -151,9 +149,8 @@ unsigned int hmac_md5_dma_final(HMAC_MD5_DMA_CTX *ctx, unsigned int *remainder_m
  * @param[in]   callback          - callback function pointer.
  * @return      0:success     other:error
  */
-unsigned int hmac_md5_dma(unsigned char *key, unsigned short sp_key_idx, unsigned int key_bytes, unsigned int *msg, unsigned int msg_bytes, unsigned int *mac,
-        HASH_CALLBACK callback);
-#endif
+    unsigned int hmac_md5_dma(unsigned char *key, unsigned short sp_key_idx, unsigned int key_bytes, unsigned int *msg, unsigned int msg_bytes, unsigned int *mac, HASH_CALLBACK callback);
+    #endif
 
 
 #endif

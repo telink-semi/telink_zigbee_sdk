@@ -28,18 +28,14 @@
 #include "ske.h"
 
 
-
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 
-
-
-
-
-//APIs
-/**
+    //APIs
+    /**
  * @brief       for GMAC mode to input message blocks(just for AES/SM4, block size is 16 bytes).
  * @param[in]   alg                  - ske_lp algorithm.
  * @param[in]   crypto               - SKE_CRYPTO_ENCRYPT or SKE_CRYPTO_DECRYPT.
@@ -53,31 +49,24 @@ extern "C" {
       -# 2.hw ECB must be set already.
   @endverbatim
  */
-unsigned int ske_lp_cbc_init(SKE_ALG alg, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx, unsigned char *iv);
+    unsigned int ske_lp_cbc_init(SKE_ALG alg, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx, unsigned char *iv);
 
-unsigned int ske_lp_cbc_update_blocks(unsigned char *in, unsigned char *out, unsigned int bytes);
+    unsigned int ske_lp_cbc_update_blocks(unsigned char *in, unsigned char *out, unsigned int bytes);
 
-unsigned int ske_lp_cbc_final(void);
+    unsigned int ske_lp_cbc_final(void);
 
-unsigned int ske_lp_cbc_crypto(SKE_ALG alg, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx, unsigned char *iv,
-        unsigned char *in, unsigned char *out, unsigned int bytes);
+    unsigned int ske_lp_cbc_crypto(SKE_ALG alg, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx, unsigned char *iv, unsigned char *in, unsigned char *out, unsigned int bytes);
 
 
 #ifdef SKE_LP_DMA_FUNCTION
-unsigned int ske_lp_dma_cbc_init(SKE_ALG alg, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx, unsigned char *iv);
+    unsigned int ske_lp_dma_cbc_init(SKE_ALG alg, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx, unsigned char *iv);
 
-unsigned int ske_lp_dma_cbc_update_blocks(unsigned int *in, unsigned int *out, unsigned int words, SKE_CALLBACK callback);
+    unsigned int ske_lp_dma_cbc_update_blocks(unsigned int *in, unsigned int *out, unsigned int words, SKE_CALLBACK callback);
 
-unsigned int ske_lp_dma_cbc_final(void);
+    unsigned int ske_lp_dma_cbc_final(void);
 
-unsigned int ske_lp_dma_cbc_crypto(SKE_ALG alg, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx, unsigned char *iv,
-        unsigned int *in, unsigned int *out, unsigned int words, SKE_CALLBACK callback);
+    unsigned int ske_lp_dma_cbc_crypto(SKE_ALG alg, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx, unsigned char *iv, unsigned int *in, unsigned int *out, unsigned int words, SKE_CALLBACK callback);
 #endif
-
-
-
-
-
 
 
 #ifdef __cplusplus

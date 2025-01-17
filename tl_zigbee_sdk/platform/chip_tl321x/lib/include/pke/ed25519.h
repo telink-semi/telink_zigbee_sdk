@@ -25,57 +25,52 @@
 #define Ed25519_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 
 #include "lib/include/pke/pke.h"
 
+    //extern  edward_curve_t ed25519[1];
 
 
-
-//extern  edward_curve_t ed25519[1];
-
-
-
-//Ed25519 mode
-typedef enum
-{
-    Ed25519_DEFAULT = 0,
-    Ed25519_CTX,
-    Ed25519_PH,
-    Ed25519_PH_WITH_PH_M,
-}Ed25519_MODE;
-
+    //Ed25519 mode
+    typedef enum
+    {
+        Ed25519_DEFAULT = 0,
+        Ed25519_CTX,
+        Ed25519_PH,
+        Ed25519_PH_WITH_PH_M,
+    } Ed25519_MODE;
 
 //Ed25519 return code
-#define EdDSA_SUCCESS                         PKE_SUCCESS
-#define EdDSA_POINTOR_NULL                    (PKE_SUCCESS+0x80U)
-#define EdDSA_INVALID_INPUT                   (PKE_SUCCESS+0x81U)
-#define EdDSA_VERIFY_FAIL                     (PKE_SUCCESS+0x82U)
+#define EdDSA_SUCCESS       PKE_SUCCESS
+#define EdDSA_POINTOR_NULL  (PKE_SUCCESS + 0x80U)
+#define EdDSA_INVALID_INPUT (PKE_SUCCESS + 0x81U)
+#define EdDSA_VERIFY_FAIL   (PKE_SUCCESS + 0x82U)
 
 
+    //APIs
 
-//APIs
-
-/**
+    /**
  * @brief       get Ed25519 public key from private key
  * @param[in]   prikey            - private key, 32 bytes, little-endian
  * @param[out]  pubkey            - public key, 32 bytes, little-endian
  * @return      0:success     other:error
 */
-unsigned int ed25519_get_pubkey_from_prikey( unsigned char prikey[32], unsigned char pubkey[32]);
+    unsigned int ed25519_get_pubkey_from_prikey(unsigned char prikey[32], unsigned char pubkey[32]);
 
-/**
+    /**
  * @brief       generate Ed25519 random key pair
  * @param[out]  prikey            - private key, 32 bytes, little-endian
  * @param[out]  pubkey            - public key, 32 bytes, little-endian
  * @return      0:success     other:error
  * @note
 */
-unsigned int ed25519_getkey(unsigned char prikey[32], unsigned char pubkey[32]);
+    unsigned int ed25519_getkey(unsigned char prikey[32], unsigned char pubkey[32]);
 
-/**
+    /**
  * @brief       Ed25519 sign
  * @param[in]   mode               - Ed25519 signature mode
  * @param[in]   prikey             - private key, 32 bytes, little-endian
@@ -98,10 +93,9 @@ unsigned int ed25519_getkey(unsigned char prikey[32], unsigned char pubkey[32]);
            length is 0, thus ctx could be empty
   @endverbatim
 */
-unsigned int ed25519_sign(Ed25519_MODE mode,  unsigned char prikey[32], unsigned char pubkey[32],  unsigned char *ctx, unsigned char ctxByteLen,
-         unsigned char *M, unsigned int MByteLen, unsigned char RS[64]);
+    unsigned int ed25519_sign(Ed25519_MODE mode, unsigned char prikey[32], unsigned char pubkey[32], unsigned char *ctx, unsigned char ctxByteLen, unsigned char *M, unsigned int MByteLen, unsigned char RS[64]);
 
-/**
+    /**
  * @brief       Ed25519 verify
  * @param[in]   mode               - Ed25519 signature mode
  * @param[in]   pubkey             - public key, 32 bytes, little-endian
@@ -124,9 +118,7 @@ unsigned int ed25519_sign(Ed25519_MODE mode,  unsigned char prikey[32], unsigned
            and MByteLen is not involved
   @endverbatim
 */
-unsigned int ed25519_verify(Ed25519_MODE mode, unsigned char pubkey[32],  unsigned char *ctx, unsigned char ctxByteLen,  unsigned char *M,
-        unsigned int MByteLen, unsigned char RS[64]);
-
+    unsigned int ed25519_verify(Ed25519_MODE mode, unsigned char pubkey[32], unsigned char *ctx, unsigned char ctxByteLen, unsigned char *M, unsigned int MByteLen, unsigned char RS[64]);
 
 
 #ifdef __cplusplus

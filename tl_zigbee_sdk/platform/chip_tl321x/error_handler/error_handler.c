@@ -54,10 +54,10 @@ drv_api_error_code_e drv_get_error_code(void)
  * @return    none.
  * @note      This function can be rewritten according to the application scenario.
  */
-__attribute__((weak)) void drv_timeout_handler(unsigned int error_code)
+__attribute__((weak)) void _attribute_ram_code_sec_optimize_o2_noinline_ drv_timeout_handler(unsigned int error_code)
 {
     g_error_code = error_code;
-    pm_sys_reboot_with_reason(WAIT_TIMEOUT, 0x01);
+    pm_sys_reboot_with_reason(WAIT_TIMEOUT, 0x00);
 }
 
 /**
@@ -65,6 +65,7 @@ __attribute__((weak)) void drv_timeout_handler(unsigned int error_code)
  * @param[in] timeout_us - the error timeout(us).
  * @return    none.
  */
-void drv_set_error_timeout(unsigned int timeout_us){
+void drv_set_error_timeout(unsigned int timeout_us)
+{
     g_drv_api_error_timeout_us = timeout_us;
 }

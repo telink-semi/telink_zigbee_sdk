@@ -27,16 +27,18 @@
 #include "gpio.h"
 #include "uart.h"
 #include "lib/include/stimer.h"
-#define s7816_en(uart_num)                uart_rtx_en(uart_num)
-#define s7816_set_rtx_pin(uart_num,s7816_trx_pin)  uart_set_rtx_pin(uart_num,s7816_trx_pin)
+#define s7816_en(uart_num)                         uart_rtx_en(uart_num)
+#define s7816_set_rtx_pin(uart_num, s7816_trx_pin) uart_set_rtx_pin(uart_num, s7816_trx_pin)
+
 /**
  *  @brief  Define 7816 clock.
  */
-typedef enum{
-    S7816_4MHZ=4,
-    S7816_6MHZ=6,
-    S7816_12MHZ=12,
-}s7816_clock_e;
+typedef enum
+{
+    S7816_4MHZ  = 4,
+    S7816_6MHZ  = 6,
+    S7816_12MHZ = 12,
+} s7816_clock_e;
 
 /**
  * @brief       This function is used to set the s7816 clock.
@@ -57,7 +59,7 @@ extern void s7816_set_clk(unsigned char div);
  * @param[in]   d            - the bitrate regulator of s7816.
  * @return      none.
  */
-extern void s7816_init(uart_num_e uart_num,s7816_clock_e clock,int f,int d);
+extern void s7816_init(uart_num_e uart_num, s7816_clock_e clock, int f, int d);
 
 /**
  * @brief       This function is used to active the IC card,set the trx pin and coldreset.
@@ -75,7 +77,7 @@ extern void s7816_coldreset(void);
  * @param[in]   trx_pin     - the trx pin of s7816.
  * @return      none.
  */
-extern void s7816_set_pin(gpio_pin_e rst_pin,gpio_pin_e vcc_pin,gpio_func_pin_e clk_pin,gpio_func_pin_e rtx_pin);
+extern void s7816_set_pin(gpio_pin_e rst_pin, gpio_pin_e vcc_pin, gpio_func_pin_e clk_pin, gpio_func_pin_e rtx_pin);
 
 /**
  * @brief       This function is used to release the trigger
@@ -123,4 +125,3 @@ extern void s7816_send_byte(uart_num_e uart_num, unsigned char tx_data);
 
 
 #endif /* S7816_H_ */
-

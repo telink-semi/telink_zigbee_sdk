@@ -23,6 +23,7 @@
  *******************************************************************************************************/
 
 #include "error_handler/error_handler.h"
+#include "lib/include/pm.h"
 
 /**********************************************************************************************************************
  *                                              global variable                                                       *
@@ -53,10 +54,10 @@ drv_api_error_code_e drv_get_error_code(void)
  * @return    none.
  * @note      This function can be rewritten according to the application scenario.
  */
-__attribute__((weak)) void drv_timeout_handler(unsigned int error_code)
+__attribute__((weak)) _attribute_ram_code_sec_noinline_ void drv_timeout_handler(unsigned int error_code)
 {
     g_error_code = error_code;
-    sys_reboot();
+    pm_sys_reboot_with_reason(WAIT_TIMEOUT, 0x00);
 }
 
 /**
@@ -64,6 +65,7 @@ __attribute__((weak)) void drv_timeout_handler(unsigned int error_code)
  * @param[in] timeout_us - the error timeout(us).
  * @return    none.
  */
-void drv_set_error_timeout(unsigned int timeout_us){
-	g_drv_api_error_timeout_us = timeout_us;
+void drv_set_error_timeout(unsigned int timeout_us)
+{
+    g_drv_api_error_timeout_us = timeout_us;
 }

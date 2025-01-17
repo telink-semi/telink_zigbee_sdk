@@ -26,42 +26,43 @@
 #define PKE_COMMON_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-//TRNG return code
-enum TRNG_RET_CODE
-{
-	TRNG_SUCCESS = 0,
-	TRNG_ERROR,
-};
+    //TRNG return code
+    enum TRNG_RET_CODE
+    {
+        TRNG_SUCCESS = 0,
+        TRNG_ERROR,
+    };
 
-/**
+    /**
  * @brief       copy uint32 buffer.
- * @param[out]	dst     - output word buffer.
- * @param[in]   src   	- input word value.
+ * @param[out]  dst     - output word buffer.
+ * @param[in]   src     - input word value.
  * @param[in]   wordLen - word length of buffer dst or src.
- * @return   	none.
+ * @return      none.
  */
-void uint32_copy(unsigned int *dst, unsigned int *src, unsigned int wordLen);
+    void uint32_copy(unsigned int *dst, unsigned int *src, unsigned int wordLen);
 
-/**
- * @brief       	clear uint32 buffer.
- * @param[in&out]   a   	 - word buffer a.
- * @param[in]   	aWordLen - word length of buffer a.
- * @return   		none.
+    /**
+ * @brief           clear uint32 buffer.
+ * @param[in&out]   a        - word buffer a.
+ * @param[in]       aWordLen - word length of buffer a.
+ * @return          none.
  */
-void uint32_clear(unsigned int *a, unsigned int wordLen);
+    void uint32_clear(unsigned int *a, unsigned int wordLen);
 
-/**
+    /**
  * @brief       reverse byte order in every unsigned int word.
- * @param[in]	in     	- input byte buffer.
- * @param[out]  out   	- output word buffer.
+ * @param[in]   in      - input byte buffer.
+ * @param[out]  out     - output word buffer.
  * @param[in]   byteLen - byte length of buffer in or out.
- * @return   	none.
- * @caution		byteLen must be multiple of 4.
+ * @return      none.
+ * @caution     byteLen must be multiple of 4.
  */
-void reverse_word(unsigned char *in, unsigned char *out, unsigned int bytelen);
+    void reverse_word(unsigned char *in, unsigned char *out, unsigned int bytelen);
 
 
 #ifdef __cplusplus

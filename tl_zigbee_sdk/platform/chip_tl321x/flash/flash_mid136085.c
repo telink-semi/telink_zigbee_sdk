@@ -23,7 +23,6 @@
  *******************************************************************************************************/
 #include "flash_type.h"
 
-
 /**
  * @brief       This function reads the status of flash.
  * @return      the value of status.
@@ -39,7 +38,7 @@
  */
 unsigned short flash_read_status_mid136085(void)
 {
-    unsigned char status_low = flash_read_status(FLASH_READ_STATUS_CMD_LOWBYTE);
+    unsigned char status_low  = flash_read_status(FLASH_READ_STATUS_CMD_LOWBYTE);
     unsigned char status_high = flash_read_status(FLASH_READ_STATUS_CMD_HIGHBYTE);
     return (status_low | (status_high << 8));
 }
@@ -61,20 +60,18 @@ unsigned short flash_read_status_mid136085(void)
  */
 unsigned char flash_write_status_mid136085(unsigned short data, unsigned int mask)
 {
-    if (0 != (data & ~mask))
-    {
+    if (0 != (data & ~mask)) {
         return 2;
     }
 
     unsigned short status = flash_read_status_mid136085();
-    if(data != (status & mask)) //To reduce the operation of the status register.
+    if (data != (status & mask)) //To reduce the operation of the status register.
     {
         status = data | (status & ~(mask));
         flash_write_status(FLASH_TYPE_16BIT_STATUS_ONE_CMD, status);
         status = flash_read_status_mid136085();
     }
-    if(data == (status & mask))
-    {
+    if (data == (status & mask)) {
         return 1;
     }
     return 0;
@@ -96,7 +93,7 @@ unsigned char flash_write_status_mid136085(unsigned short data, unsigned int mas
  */
 unsigned char flash_lock_mid136085(unsigned int data)
 {
-    flash_write_config_mid136085(0x00,FLASH_WRITE_CONFIGURE_WPS_MID136085);
+    flash_write_config_mid136085(0x00, FLASH_WRITE_CONFIGURE_WPS_MID136085);
     return flash_write_status_mid136085(data, FLASH_WRITE_STATUS_BP_MID136085);
 }
 
@@ -115,7 +112,7 @@ unsigned char flash_lock_mid136085(unsigned int data)
  */
 unsigned char flash_unlock_mid136085(void)
 {
-    flash_write_config_mid136085(0x00,FLASH_WRITE_CONFIGURE_WPS_MID136085);
+    flash_write_config_mid136085(0x00, FLASH_WRITE_CONFIGURE_WPS_MID136085);
     return flash_write_status_mid136085(FLASH_LOCK_NONE_MID136085, FLASH_WRITE_STATUS_BP_MID136085);
 }
 
@@ -134,7 +131,7 @@ unsigned char flash_unlock_mid136085(void)
  */
 unsigned int flash_get_lock_block_mid136085(void)
 {
-    return flash_read_status_mid136085()&FLASH_WRITE_STATUS_BP_MID136085;
+    return flash_read_status_mid136085() & FLASH_WRITE_STATUS_BP_MID136085;
 }
 
 /**
@@ -156,7 +153,7 @@ unsigned int flash_get_lock_block_mid136085(void)
  *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
-void flash_read_otp_mid136085(unsigned long addr, unsigned long len, unsigned char* buf)
+void flash_read_otp_mid136085(unsigned long addr, unsigned long len, unsigned char *buf)
 {
     flash_read_otp(addr, len, buf);
 }
@@ -250,7 +247,7 @@ void flash_lock_otp_mid136085(mid136085_lock_otp_e data)
 void flash_write_config_mid136085(unsigned char data, mid136085_write_config_bit_e bit)
 {
     unsigned char config = 0;
-    config=flash_read_config(0,FLASH_READ_CONFIGURE_CMD);
+    config               = flash_read_config(0, FLASH_READ_CONFIGURE_CMD);
     data |= (config & ~(bit));
     flash_write_config(0, FLASH_WRITE_CONFIGURE_CMD_2, data);
 }

@@ -25,22 +25,18 @@
 #define PKE_COMMON_H
 
 
-
 #include "lib/include/pke/pke_config.h"
 #include "reg_include/pke_reg.h"
 
 
-
-
 //ECC point conversion form
-#define POINT_COMPRESSED          (0x02U)   //pc||x, pc = 0x02|LSB(y)
-#define POINT_UNCOMPRESSED        (0x04U)   //pc||x||y, pc=0x04
+#define POINT_COMPRESSED   (0x02U) //pc||x, pc = 0x02|LSB(y)
+#define POINT_UNCOMPRESSED (0x04U) //pc||x||y, pc=0x04
 typedef unsigned char EC_POINT_FORM;
 
 
-
 //define KDF
-typedef void *(*KDF_FUNC)(const void *input, unsigned int byteLen, unsigned char *key, unsigned int keyByteLen);
+typedef void *(*KDF_FUNC)(void *input, unsigned int byteLen, unsigned char *key, unsigned int keyByteLen);
 
 
 //APIs
@@ -49,16 +45,16 @@ typedef void *(*KDF_FUNC)(const void *input, unsigned int byteLen, unsigned char
  * @brief       load input operand to baseaddr
  * @param[out]  baseaddr     - destination data
  * @param[in]   data         - source data
- * @param[in]   wordlen      - word length of data
+ * @param[in]   wordLen      - word length of data
  * @return      0:success     other:error
  */
-void pke_load_operand(unsigned int *baseaddr, const unsigned int *data, unsigned int wordLen);
+void pke_load_operand(unsigned int *baseaddr, unsigned int *data, unsigned int wordLen);
 
 /**
  * @brief       get result operand from baseaddr
  * @param[out]  baseaddr     - source data
  * @param[in]   data         - destination data
- * @param[in]   wordlen      - word length of data
+ * @param[in]   wordLen      - word length of data
  * @return      0:success     other:error
  * @note
   @verbatim
@@ -74,7 +70,7 @@ void pke_read_operand(unsigned int *baseaddr, unsigned int *data, unsigned int w
  * @param[in]   byteLen      - byte length of data
  * @return      0:success     other:error
  */
-void pke_load_operand_U8(unsigned int *baseaddr, const unsigned char *data, unsigned int byteLen);
+void pke_load_operand_U8(unsigned int *baseaddr, unsigned char *data, unsigned int byteLen);
 /**
  * @brief       get result operand(U8 big-endian) from baseaddr
  * @param[in]   baseaddr     - source data
@@ -98,6 +94,13 @@ void pke_read_operand_U8(unsigned int *baseaddr, unsigned char *data, unsigned i
 void pke_set_operand_uint32_value(unsigned int *baseaddr, unsigned int wordLen, unsigned int b);
 
 
+/**
+ * @brief     decode X25519 scalar for point multiplication
+ * @param[in]  k                - null.
+ * @param[out] out              - big scalar in little-endian
+ * @param[in]  bytes            - byte length of k and out
+ * @return     none
+ */
+void x25519_decode_scalar(unsigned char *k, unsigned char *out, unsigned int bytes);
 
 #endif
-

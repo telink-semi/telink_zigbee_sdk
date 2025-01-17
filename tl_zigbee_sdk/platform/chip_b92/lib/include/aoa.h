@@ -24,28 +24,29 @@
 #ifndef AOA_H_
 #define AOA_H_
 
-typedef enum{
-	BYTE_NUM_2P5	 = 0,
-	BYTE_NUM_4		 = 1,
-}TypeDefByteNum;
+typedef enum
+{
+    BYTE_NUM_2P5 = 0,
+    BYTE_NUM_4   = 1,
+} TypeDefByteNum;
 
 /**
- * @brief		This function servers to find the average of a set of numbers
- * @param[in]  	data - the  data.
- * @param[in] 	bytenum   - the type of data.
- * @return     	abs.
+ * @brief       This function servers to find the average of a set of numbers
+ * @param[in]   data - the  data.
+ * @param[in]   bytenum   - the type of data.
+ * @return      abs.
  */
 unsigned int abs_value(unsigned int data, TypeDefByteNum bytenum);
 
 /**
- * @brief		This function is used to convert 20bit to 8bit data
- * @param[in]  	*data_src 				- the ddr of data.
- * @param[in] 	*data_has_amplitude  	- the data with amplitude.
- * @param[in]	*data_no_amplitude		- the data without amplitude.
- * @return     	none.
+ * @brief       This function is used to convert 20bit to 8bit data
+ * @param[in]   *data_src               - the ddr of data.
+ * @param[in]   *data_has_amplitude     - the data with amplitude.
+ * @param[in]   *data_no_amplitude      - the data without amplitude.
+ * @return      none.
  */
 void frond_end(unsigned char *data_src, unsigned char *data_has_amplitude, unsigned char *data_no_amplitude);
 
-void rf_hadm_frond_end(unsigned char *data_src, int *data_has_amplitude,unsigned int len);
+void rf_hadm_frond_end(unsigned char *data_src, int *data_has_amplitude, unsigned int len);
 
 #endif /* DRIVERS_LIB_INCLUDE_AOA_H_ */

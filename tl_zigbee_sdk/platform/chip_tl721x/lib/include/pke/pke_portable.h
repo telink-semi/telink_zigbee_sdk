@@ -27,35 +27,36 @@
 
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-/**
+    /**
  * @brief Initialize PKE-related generic configurations.
  * @note        Only after calling this function can other PKE related functions be called.
  *              Otherwise, other PKE function settings will not take effect.
  * @return None.
  */
-void pke_dig_en(void);
+    void pke_dig_en(void);
 
-/**
+    /**
  * @brief     Resets PKE module,before using PKE, it is needed to call pke_reset() to avoid affecting the use of PKE.
  * @return    none
  */
-static inline void pke_reset(void)
-{
-    reg_rst1 &= ~FLD_RST1_PKE;
-    reg_rst1 |= FLD_RST1_PKE;
-}
+    static inline void pke_reset(void)
+    {
+        reg_rst1 &= ~FLD_RST1_PKE;
+        reg_rst1 |= FLD_RST1_PKE;
+    }
 
-/**
+    /**
  * @brief     Enable the clock of PKE module.
  * @return    none
  */
-static inline void pke_clk_en(void)
-{
-    reg_clk_en1 |= FLD_CLK1_PKE_EN;
-}
+    static inline void pke_clk_en(void)
+    {
+        reg_clk_en1 |= FLD_CLK1_PKE_EN;
+    }
 
 #ifdef __cplusplus
 }

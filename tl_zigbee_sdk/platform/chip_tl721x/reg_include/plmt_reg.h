@@ -31,12 +31,12 @@
  * @brief The compiler supports the long long (64bit) type, but since the CPU is 32bit, it is operated separately in assembly, so need to pay attention to synchronization when reading this register
  * 
  */
-#define reg_mtime                  (*(volatile unsigned long long*)(0xc6000000))
-#define reg_mtime_low              (*(volatile unsigned long*)(0xc6000000))
-#define reg_mtime_high             (*(volatile unsigned long*)(0xc6000004))
+#define reg_mtime         (*(volatile unsigned long long *)(0xc6000000))
+#define reg_mtime_low     (*(volatile unsigned long *)(0xc6000000))
+#define reg_mtime_high    (*(volatile unsigned long *)(0xc6000004))
 
-#define reg_mtimecmp               (*(volatile unsigned long long*)(0xc6000008))
-#define reg_mtimecmp_low           (*(volatile unsigned long*)(0xc6000008))
-#define reg_mtimecmp_high          (*(volatile unsigned long*)(0xc600000c))
+#define reg_mtimecmp      (*(volatile unsigned long long *)(0xc6000008))
+#define reg_mtimecmp_low  (*(volatile unsigned long *)(0xc6000008))
+#define reg_mtimecmp_high (*(volatile unsigned long *)(0xc600000c))
 
 #endif /* end of __PLMT_REG_H_ */

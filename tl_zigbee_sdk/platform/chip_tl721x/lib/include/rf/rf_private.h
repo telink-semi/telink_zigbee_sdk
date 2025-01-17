@@ -21,8 +21,8 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-#ifndef     RF_PRIVATE_H
-#define     RF_PRIVATE_H
+#ifndef RF_PRIVATE_H
+#define RF_PRIVATE_H
 
 /**********************************************************************************************************************
  *                                         RF_PRIVATE global macro                                                    *
@@ -33,18 +33,18 @@
 /**
  *  @brief Those setting of offset according to private tpll packet format, so this setting for ble only.
  */
-#define     RF_PRI_TPLL_DMA_RFRX_OFFSET_RFLEN               4
+#define RF_PRI_TPLL_DMA_RFRX_OFFSET_RFLEN 4
 
 /**
  *  @brief According to the packet format find the information of packet through offset.
  */
-#define     rf_pri_tpll_dma_rx_offset_crc(p)                    (p[RF_PRI_TPLL_DMA_RFRX_OFFSET_RFLEN]+5)  //data len:2
-#define     rf_pri_tpll_dma_rx_offset_time_stamp(p)             (p[RF_PRI_TPLL_DMA_RFRX_OFFSET_RFLEN]+7)  //data len:4
-#define     rf_pri_tpll_dma_rx_offset_freq_offset(p)            (p[RF_PRI_TPLL_DMA_RFRX_OFFSET_RFLEN]+11) //data len:2
-#define     rf_pri_tpll_dma_rx_offset_rssi(p)                   (p[RF_PRI_TPLL_DMA_RFRX_OFFSET_RFLEN]+13) //data len:1, signed
-#define     rf_pri_tpll_packet_crc_ok(p)                        ((p[((p[4] & 0x3f) + 11+3)] & 0x01) == 0x00)
-#define     rf_pri_sb_packet_crc_ok(p)                          ((p[(reg_rf_sblen & 0x3f)+4+9] & 0x01) == 0x00)
-#define     rf_ant_packet_crc_ok(p)                             ((p[(reg_rf_sblen & 0x3f)+4+9] & 0x01) == 0x00)
+#define rf_pri_tpll_dma_rx_offset_crc(p)         (p[RF_PRI_TPLL_DMA_RFRX_OFFSET_RFLEN] + 5)  //data len:2
+#define rf_pri_tpll_dma_rx_offset_time_stamp(p)  (p[RF_PRI_TPLL_DMA_RFRX_OFFSET_RFLEN] + 7)  //data len:4
+#define rf_pri_tpll_dma_rx_offset_freq_offset(p) (p[RF_PRI_TPLL_DMA_RFRX_OFFSET_RFLEN] + 11) //data len:2
+#define rf_pri_tpll_dma_rx_offset_rssi(p)        (p[RF_PRI_TPLL_DMA_RFRX_OFFSET_RFLEN] + 13) //data len:1, signed
+#define rf_pri_tpll_packet_crc_ok(p)             ((p[((p[4] & 0x3f) + 11 + 3)] & 0x01) == 0x00)
+#define rf_pri_sb_packet_crc_ok(p)               ((p[(reg_rf_sblen & 0x3f) + 4 + 9] & 0x01) == 0x00)
+#define rf_ant_packet_crc_ok(p)                  ((p[(reg_rf_sblen & 0x3f) + 4 + 9] & 0x01) == 0x00)
 
 /*********************************************************************************************************************
  *                                         RF_PRIVATE function declaration                                           *
@@ -128,7 +128,7 @@ void rf_set_pipe_access_code(unsigned int pipe_id, unsigned char *addr);
  * @return    none.
  * @note      Attention:The sum of the sizes (in bits) of H0, LENGTH and H1 must be an integer multiple of 8 bits.
  */
-void rf_set_pri_generic_header_size(unsigned char h0_size,unsigned char length_size,unsigned char h1_size);
+void rf_set_pri_generic_header_size(unsigned char h0_size, unsigned char length_size, unsigned char h1_size);
 
 /**
  * @brief     This function is used to set a fixed offset for the extracted length field.

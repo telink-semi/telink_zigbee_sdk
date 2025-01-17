@@ -28,7 +28,8 @@
 /**
  * define input IO.
  */
-typedef enum{
+typedef enum
+{
     LPC_INPUT_PB1 = 1,
     LPC_INPUT_PB2 = 2,
     LPC_INPUT_PB3 = 3,
@@ -36,44 +37,43 @@ typedef enum{
     LPC_INPUT_PB5 = 5,
     LPC_INPUT_PB6 = 6,
     LPC_INPUT_PB7 = 7,
-}lpc_input_channel_e;
+} lpc_input_channel_e;
 
 /**
  * define work mode.
  */
-typedef enum{
+typedef enum
+{
     LPC_NORMAL = 0,
     LPC_LOWPOWER,
-}lpc_mode_e;
+} lpc_mode_e;
 
 /**
  * define Reference voltage.
  * When BG or UVLO is enabled, the same value in the register represents a different vref value.
  * Default is UVLO Vref.
  */
-typedef enum{
-    LPC_REF_974MV  = 1,
-    LPC_UVLO_REF_1088MV = 1,
-    LPC_REF_923MV  = 2,
-    LPC_UVLO_REF_1036MV = 2,
-    LPC_REF_872MV  = 3,
-    LPC_UVLO_REF_983MV  = 3,
-    LPC_REF_820MV  = 4,
-    LPC_UVLO_REF_931MV  = 4,
-    LPC_REF_PB0    = 5,
-    LPC_REF_PB3    = 6,
-}lpc_reference_e;
+typedef enum
+{
+    LPC_REF_974MV = 1,
+    LPC_REF_923MV = 2,
+    LPC_REF_872MV = 3,
+    LPC_REF_820MV = 4,
+    LPC_REF_PB0   = 5,
+    LPC_REF_PB3   = 6,
+} lpc_reference_e;
 
 /**
  * define scale.
  * The input voltage is multiplied by the voltage divider factor and then compared to the reference voltage.
  */
-typedef enum{
-    LPC_SCALING_PER25  = 0,// 1/4
-    LPC_SCALING_PER50  = 1,// 2/4
-    LPC_SCALING_PER75  = 2,// 3/4
-    LPC_SCALING_PER100 = 3,// 4/4
-}lpc_scaling_e;
+typedef enum
+{
+    LPC_SCALING_PER25  = 0, // 1/4
+    LPC_SCALING_PER50  = 1, // 2/4
+    LPC_SCALING_PER75  = 2, // 3/4
+    LPC_SCALING_PER100 = 3, // 4/4
+} lpc_scaling_e;
 
 /**
  * @brief       This function servers to powers down low power comparator.
@@ -81,7 +81,7 @@ typedef enum{
  */
 static inline void lpc_power_down(void)
 {
-    analog_write_reg8(0x06,(analog_read_reg8(0x06))|0x02);
+    analog_write_reg8(areg_aon_0x06, analog_read_reg8(areg_aon_0x06) | FLD_PD_LC_COMP_3V);
 }
 
 /**
@@ -90,7 +90,9 @@ static inline void lpc_power_down(void)
  */
 static inline void lpc_power_on(void)
 {
-    analog_write_reg8(0x06,analog_read_reg8(0x06) & 0xfd);
+    analog_write_reg8(areg_aon_0x06, analog_read_reg8(areg_aon_0x06) & ~(FLD_PD_LC_COMP_3V));
+
+    analog_write_reg8(0x0e, analog_read_reg8(0x0e) | 0x08);
 }
 
 /**
@@ -100,7 +102,7 @@ static inline void lpc_power_on(void)
  */
 static inline void lpc_set_input_chn(lpc_input_channel_e pin)
 {
-    analog_write_reg8(0x0d,(analog_read_reg8(0x0d) & 0xf8) | pin);
+    analog_write_reg8(0x0d, (analog_read_reg8(0x0d) & 0xf8) | pin);
 }
 
 /**
@@ -110,7 +112,7 @@ static inline void lpc_set_input_chn(lpc_input_channel_e pin)
  */
 static inline void lpc_set_scaling_coeff(lpc_scaling_e divider)
 {
-    analog_write_reg8(0x0b,(analog_read_reg8(0x0b)&0xcf)|(divider<<4));
+    analog_write_reg8(0x0b, (analog_read_reg8(0x0b) & 0xcf) | (divider << 4));
 }
 
 /**
@@ -119,25 +121,11 @@ static inline void lpc_set_scaling_coeff(lpc_scaling_e divider)
  */
 static inline unsigned char lpc_get_result(void)
 {
-    return ((analog_read_reg8(0x88)&0x40)>>6);
-}
-
-/**
- * @brief       This function serves to set the low power comparator diff mode.
- * @return      none
- */
-static inline void lpc_set_diff_mode(void)
-{
-    analog_write_reg8(0x0c, analog_read_reg8(0x0c) & 0xf7); //ana_0x0c[3]
-}
-
-/**
- * @brief       This function serves to set the low power comparator single mode.
- * @return      none
- */
-static inline void lpc_set_single_mode(void)
-{
-    analog_write_reg8(0x0c, analog_read_reg8(0x0c) | 0x08); //ana_0x0c[3]
+    if (g_chip_version == CHIP_VERSION_A1) {
+        return (!(analog_read_reg8(0x88) & 0x01));
+    } else {
+        return ((analog_read_reg8(0x88) & 0x01));
+    }
 }
 
 /**
@@ -147,5 +135,3 @@ static inline void lpc_set_single_mode(void)
  * @return      none.
  */
 void lpc_set_input_ref(lpc_mode_e mode, lpc_reference_e ref);
-
-

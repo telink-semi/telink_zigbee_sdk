@@ -25,8 +25,7 @@
 
 #include "reg_include/charger_reg.h"
 #include "compiler.h"
-#include "analog.h"
-
+#include "lib/include/analog.h"
 
 /**
  * @brief     open charger 1p0v.
@@ -34,7 +33,7 @@
  */
 static inline void charger_open(void)
 {
-	analog_write_reg8(0x22, analog_read_reg8(0x22) | 0x08);	//<3> pm_chg_en_1p0v 1:open charge 0:close charge
+    analog_write_reg8(0x22, analog_read_reg8(0x22) | 0x08); //<3> pm_chg_en_1p0v 1:open charge 0:close charge
 }
 
 /**
@@ -43,13 +42,11 @@ static inline void charger_open(void)
  */
 static inline void charger_close(void)
 {
-	analog_write_reg8(0x22, analog_read_reg8(0x22) & 0xf7);	//<3> pm_chg_en_1p0v 1:open charge 0:close charge
+    analog_write_reg8(0x22, analog_read_reg8(0x22) & 0xf7); //<3> pm_chg_en_1p0v 1:open charge 0:close charge
 }
 
 /**
- * @brief	This function serves the initialization of charger module charging function.
- * @return	none
+ * @brief   This function serves the initialization of charger module charging function.
+ * @return  none
  */
 void charger_init(void);
-
-

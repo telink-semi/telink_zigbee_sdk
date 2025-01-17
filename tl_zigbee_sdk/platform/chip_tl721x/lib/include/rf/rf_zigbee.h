@@ -21,8 +21,8 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-#ifndef     RF_ZIGBEE_H
-#define     RF_ZIGBEE_H
+#ifndef RF_ZIGBEE_H
+#define RF_ZIGBEE_H
 
 /*********************************************************************************************************************
  *                                         RF_ZIGBEE  global macro                                                   *
@@ -32,28 +32,28 @@
  *  @brief This is the setting of old data path of zigbee, write 1 to enable it.
  *  @note TODO:zigbee old path Currently only validated in FPGA, not in chip; available after subsequent validation
  */
-#define     RF_ZIGBEE_OLD_DATA_PATH                     0
+#define RF_ZIGBEE_OLD_DATA_PATH 0
 
 /**
  *  @brief Those setting of offset according to zigbee packet format, so this setting for zigbee only.
  */
-#define     RF_ZIGBEE_DMA_RFRX_OFFSET_RFLEN             4
+#define RF_ZIGBEE_DMA_RFRX_OFFSET_RFLEN 4
 
 /**
  *  @brief According to the packet format find the information of packet through offset.
  */
-#define     rf_zigbee_dma_rx_offset_crc(p)                  (p[RF_ZIGBEE_DMA_RFRX_OFFSET_RFLEN]+3)  //data len:2
-#define     rf_zigbee_dma_rx_offset_time_stamp(p)           (p[RF_ZIGBEE_DMA_RFRX_OFFSET_RFLEN]+5)  //data len:4
-#define     rf_zigbee_dma_rx_offset_freq_offset(p)          (p[RF_ZIGBEE_DMA_RFRX_OFFSET_RFLEN]+9) //data len:2
-#define     rf_zigbee_dma_rx_offset_rssi(p)                 (p[RF_ZIGBEE_DMA_RFRX_OFFSET_RFLEN]+11) //data len:1, signed
-#define     rf_zigbee_packet_crc_ok(p)                      ((p[(p[4]+9+3)] & 0x51) == 0x0)
-#define     rf_zigbee_get_payload_len(p)                    (p[4])
-#define     rf_zigbee_packet_length_ok(p)                   (1)
+#define rf_zigbee_dma_rx_offset_crc(p)         (p[RF_ZIGBEE_DMA_RFRX_OFFSET_RFLEN] + 3)  //data len:2
+#define rf_zigbee_dma_rx_offset_time_stamp(p)  (p[RF_ZIGBEE_DMA_RFRX_OFFSET_RFLEN] + 5)  //data len:4
+#define rf_zigbee_dma_rx_offset_freq_offset(p) (p[RF_ZIGBEE_DMA_RFRX_OFFSET_RFLEN] + 9)  //data len:2
+#define rf_zigbee_dma_rx_offset_rssi(p)        (p[RF_ZIGBEE_DMA_RFRX_OFFSET_RFLEN] + 11) //data len:1, signed
+#define rf_zigbee_packet_crc_ok(p)             ((p[(p[4] + 9 + 3)] & 0x51) == 0x0)
+#define rf_zigbee_get_payload_len(p)           (p[4])
+#define rf_zigbee_packet_length_ok(p)          (1)
 
 /**
  *  @brief According to different packet format find the crc check digit.
  */
-#define     rf_hybee_packet_crc_ok(p)                       ((p[(p[4]+9+3)] & 0x51) == 0x0)
+#define rf_hybee_packet_crc_ok(p) ((p[(p[4] + 9 + 3)] & 0x51) == 0x0)
 
 /*********************************************************************************************************************
  *                                         RF_ZIGBEE function declaration                                            *

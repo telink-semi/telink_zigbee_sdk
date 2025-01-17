@@ -27,6 +27,8 @@
 #include "lib/include/crypto_common/utility.h"
 #include "lib/include/crypto_common/eccp_curve.h"
 #include "lib/include/pke/pke_portable.h"
+#include "ed25519.h"
+#include "x25519.h"
 #include "ecdh.h"
 #include "ecdsa.h"
 #include "pke.h"

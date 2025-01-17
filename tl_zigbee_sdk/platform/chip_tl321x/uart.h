@@ -188,9 +188,9 @@ typedef enum
  */
 typedef enum
 {
-    UART_STOP_BIT_ONE = 0,
+    UART_STOP_BIT_ONE          = 0,
     UART_STOP_BIT_ONE_DOT_FIVE = BIT(4),
-    UART_STOP_BIT_TWO = BIT(5),
+    UART_STOP_BIT_TWO          = BIT(5),
 } uart_stop_bit_e;
 
 /**
@@ -205,27 +205,28 @@ typedef enum
 /**
  *  @brief  Define UART IRQ MASK.
  */
-typedef enum{
-    UART_RX_IRQ_MASK  = BIT(2),/**< When the number of rxfifo reaches the set threshold(uart_rx_irq_trig_level), an interrupt is generated, and the interrupt flag is automatically cleared. */
-    UART_TX_IRQ_MASK  = BIT(3),/**< When the number of txfifo is less than or equal to the set threshold(uart_tx_irq_trig_level), an interrupt is generated and the interrupt flag is automatically cleared. */
-    UART_RXDONE_MASK  = BIT(4),/**< When no data is received in rx_timeout, rx_done is generated. If uart_auto_clr_rx_fifo_ptr is enabled, the interrupt flag is automatically cleared. If uart_auto_clr_rx_fifo_ptr is disabled, the interrupt flag must be manually cleared. */
-    UART_TXDONE_MASK  = BIT(5),/**< When there is no data in the tx_fifo, tx_done is generated, and the interrupt flag bit needs to be manually cleared.*/
-    UART_ERR_IRQ_MASK = BIT(6),/**< When the UART receives data incorrectly(such as a parity error or a stop bit error), the interrupt is generated,the interrupt flag bit needs to be manually cleared. */
-}uart_irq_mask_e;
+typedef enum
+{
+    UART_RX_IRQ_MASK  = BIT(2), /**< When the number of rxfifo reaches the set threshold(uart_rx_irq_trig_level), an interrupt is generated, and the interrupt flag is automatically cleared. */
+    UART_TX_IRQ_MASK  = BIT(3), /**< When the number of txfifo is less than or equal to the set threshold(uart_tx_irq_trig_level), an interrupt is generated and the interrupt flag is automatically cleared. */
+    UART_RXDONE_MASK  = BIT(4), /**< When no data is received in rx_timeout, rx_done is generated. If uart_auto_clr_rx_fifo_ptr is enabled, the interrupt flag is automatically cleared. If uart_auto_clr_rx_fifo_ptr is disabled, the interrupt flag must be manually cleared. */
+    UART_TXDONE_MASK  = BIT(5), /**< When there is no data in the tx_fifo, tx_done is generated, and the interrupt flag bit needs to be manually cleared.*/
+    UART_ERR_IRQ_MASK = BIT(6), /**< When the UART receives data incorrectly(such as a parity error or a stop bit error), the interrupt is generated,the interrupt flag bit needs to be manually cleared. */
+} uart_irq_mask_e;
 
 /**
  * @brief  Define UART IRQ bit status and explain what needs to be done in the interrupt.
  */
 typedef enum
 {
-    UART_RXBUF_IRQ_STATUS = BIT(2), /**<
+    UART_RXBUF_IRQ_STATUS = BIT(2),  /**<
                                         get interrupt status:uart_get_irq_status(), clr interrupt status: automatically cleared.
                                     <p>
                                         in nodma mode,the received data is read by uart_get_rxfifo_num() / uart_read_byte().
                                     <p>
                                         in dma mode,dma does not need this interrupt.
                                      */
-    UART_TXBUF_IRQ_STATUS = BIT(3), /**<
+    UART_TXBUF_IRQ_STATUS = BIT(3),  /**<
                                         in general, this interrupt is not required, and data is sent in nodma by polling,in dma mode,dma does not need this interrupt.
                                       */
 
@@ -241,7 +242,7 @@ typedef enum
     UART_TXDONE_IRQ_STATUS = BIT(5), /**<
                                         get interrupt status:uart_get_irq_status(),clr interrupt status:uart_clr_irq_status().
                                        */
-    UART_RX_ERR = BIT(6),            /**<
+    UART_RX_ERR            = BIT(6), /**<
                                          in nodma:get interrupt status:uart_get_irq_status(),clr interrupt status:uart_clr_irq_status() : UART_RXBUF_IRQ_STATUS to clear data in rxfifo.
                                       <p>
                                          in dma:When obtaining UART_RXDONE_IRQ_STATUS, by the uart_get_irq_status() to obtain the status and check whether an exception occurs. Clear UART_RXDONE_IRQ_STATUS to clear UART_RX_ERR.
@@ -251,22 +252,22 @@ typedef enum
 typedef enum
 {
     UART_NO_DMA_MODE = 0,
-    UART_DMA_MODE = 1,
+    UART_DMA_MODE    = 1,
 } uart_rxdone_sel_e;
 
 // uart api error code
 typedef enum
 {
-    UART_API_ERROR_TIMEOUT_NONE = 0x00,
-    UART_API_ERROR_TIMEOUT_SEND_BYTE = 0x01,
+    UART_API_ERROR_TIMEOUT_NONE       = 0x00,
+    UART_API_ERROR_TIMEOUT_SEND_BYTE  = 0x01,
     UART_API_ERROR_TIMEOUT_SEND_HWORD = 0x02,
-    UART_API_ERROR_TIMEOUT_SEND_WORD = 0x03,
+    UART_API_ERROR_TIMEOUT_SEND_WORD  = 0x03,
 } uart_api_error_timeout_code_e;
 
 typedef struct
 {
-    unsigned int g_uart_error_timeout_us;                             // uart_x error timeout(us),a large value is set by default,can set it by uart_set_error_timeout();
-    timeout_handler_fp uart_timeout_handler;                          // uartx_timeout_handler;
+    unsigned int                           g_uart_error_timeout_us;   // uart_x error timeout(us),a large value is set by default,can set it by uart_set_error_timeout();
+    timeout_handler_fp                     uart_timeout_handler;      // uartx_timeout_handler;
     volatile uart_api_error_timeout_code_e g_uart_error_timeout_code; // record uart_x error timeout code, can obtain the value through the uart_get_error_timeout_code() interface;
 } uart_timeout_error_t;
 
@@ -275,6 +276,7 @@ extern uart_timeout_error_t g_uart_timeout_error[3];
 #define uart_rtx_pin_tx_trig(uart_num) uart_clr_irq_status(uart_num, UART_TXDONE_IRQ_STATUS)
 // for compatibility
 #define uart_reset uart_hw_fsm_reset
+
 /**********************************************************************************************************************
  *                                          Internal interface                                             *
  *********************************************************************************************************************/
@@ -290,12 +292,9 @@ extern uart_timeout_error_t g_uart_timeout_error[3];
  */
 static inline void uart_rxdone_sel(uart_num_e uart_num, uart_rxdone_sel_e sel)
 {
-    if (sel == UART_NO_DMA_MODE)
-    {
+    if (sel == UART_NO_DMA_MODE) {
         reg_uart_ctrl0(uart_num) |= FLD_UART_NDMA_RXDONE_EN;
-    }
-    else if (sel == UART_DMA_MODE)
-    {
+    } else if (sel == UART_DMA_MODE) {
         reg_uart_ctrl0(uart_num) &= ~FLD_UART_NDMA_RXDONE_EN;
     }
 }
@@ -341,8 +340,7 @@ static inline unsigned char uart_get_txfifo_num(uart_num_e uart_num)
  */
 static inline void uart_clk_en(uart_num_e uart_num)
 {
-    switch (uart_num)
-    {
+    switch (uart_num) {
     case UART0:
         reg_clk_en0 |= FLD_CLK0_UART0_EN;
         break;
@@ -367,15 +365,13 @@ static inline void uart_clk_en(uart_num_e uart_num)
  */
 static inline void uart_auto_clr_rx_fifo_ptr(uart_num_e uart_num, unsigned char en)
 {
-    if (en == 1)
-    {
+    if (en == 1) {
         reg_uart_ctrl0(uart_num) |= FLD_UART_RX_CLR_EN;
-    }
-    else if (en == 0)
-    {
+    } else if (en == 0) {
         reg_uart_ctrl0(uart_num) &= ~FLD_UART_RX_CLR_EN;
     }
 }
+
 /**
  * @brief     Configure the trigger level of the UART_RXBUF_IRQ_STATUS interrupt. When the number of rx_fifo is greater than or equal to the trigger level, UART_RXBUF_IRQ_STATUS interrupt rises.
  * @param[in] uart_num  - UART0/UART1/UART2.
@@ -463,8 +459,7 @@ static inline void uart_clr_tx_index(uart_num_e uart_num)
  */
 static inline void uart_hw_fsm_reset(uart_num_e uart_num)
 {
-    switch (uart_num)
-    {
+    switch (uart_num) {
     case UART0:
         BM_CLR(reg_rst0, FLD_RST0_UART0);
         BM_SET(reg_rst0, FLD_RST0_UART0);
@@ -484,6 +479,7 @@ static inline void uart_hw_fsm_reset(uart_num_e uart_num)
     uart_clr_rx_index(uart_num);
     g_uart_timeout_error[uart_num].g_uart_error_timeout_code = UART_API_ERROR_TIMEOUT_NONE;
 }
+
 /**
  * @brief     Get the irq status of UART.
  * @param[in] uart_num  - UART0/UART1/UART2.
@@ -513,13 +509,11 @@ static inline void uart_clr_irq_status(uart_num_e uart_num, uart_irq_status_e st
      * the purpose of judging the status of the rx_buff interrupt:
      *  Because the state of the err needs to be cleared by the clearing rx_buff when an err interrupt is generated, the software pointer needs to be cleared.
      */
-    if (status == UART_RXDONE_IRQ_STATUS)
-    {
+    if (status == UART_RXDONE_IRQ_STATUS) {
         reg_uart_irq(uart_num) = UART_RXBUF_IRQ_STATUS;
         uart_clr_rx_index(uart_num); // clear software pointer
     }
-    if (status == UART_RXBUF_IRQ_STATUS)
-    {
+    if (status == UART_RXBUF_IRQ_STATUS) {
         uart_clr_rx_index(uart_num); // clear software pointer
     }
     reg_uart_irq(uart_num) = status;
@@ -576,6 +570,7 @@ static inline void uart_rts_trig_level_auto_mode(uart_num_e uart_num, unsigned c
     reg_uart_ctrl2(uart_num) &= (~FLD_UART_RTS_TRIQ_LEV);
     reg_uart_ctrl2(uart_num) |= (level & FLD_UART_RTS_TRIQ_LEV);
 }
+
 /**
  * @brief       Get the remain count of rxfifo,the range is 0~3, to get the rx_fifo current pointer position when rxfifo received data less than 1 word.
  * @param[in]   uart_num  - UART0/UART1/UART2.
@@ -584,9 +579,10 @@ static inline void uart_rts_trig_level_auto_mode(uart_num_e uart_num, unsigned c
 static inline unsigned char uart_get_rxfifo_rem_cnt(uart_num_e uart_num)
 {
     unsigned char rx_cnt = 0;
-    rx_cnt = (reg_uart_irq(uart_num)&FLD_UART_RX_MEM_CNT);
+    rx_cnt               = (reg_uart_irq(uart_num) & FLD_UART_RX_MEM_CNT);
     return rx_cnt;
 }
+
 /**
  * @brief      This function serves to set uart rts auto mode,flow control generation condition 1. rx_fifo number is greater than or equal to the set threshold 2. rx_done signal generation (if uart_rxdone_rts_en enable)).
  * @param[in]  uart_num  - UART0/UART1/UART2.
@@ -614,7 +610,7 @@ static inline void uart_rts_manual_mode(uart_num_e uart_num)
  */
 static inline void uart_rtx_en(uart_num_e chn)
 {
-    reg_uart_ctrl0(chn)|=FLD_UART_S7816_EN;
+    reg_uart_ctrl0(chn) |= FLD_UART_S7816_EN;
 }
 
 /**
@@ -757,7 +753,7 @@ void uart_cal_div_and_bwpc(unsigned int baudrate, unsigned int sysclk, unsigned 
  * @param[in]  rxtimeout_exp   - the power exponent of mul.
  * @return     none
  */
-void uart_set_rx_timeout(uart_num_e uart_num, unsigned char bwpc, unsigned char bit_cnt, uart_timeout_mul_e mul, unsigned char rxtimeout_exp);
+void uart_set_rx_timeout_with_exp(uart_num_e uart_num, unsigned char bwpc, unsigned char bit_cnt, uart_timeout_mul_e mul, unsigned char rxtimeout_exp);
 
 /**
  * @brief      Send UART data by byte in no_dma mode.
@@ -937,7 +933,7 @@ void uart_cts_config(uart_num_e uart_num, gpio_func_pin_e cts_pin, unsigned char
  */
 void uart_rts_config(uart_num_e uart_num, gpio_func_pin_e rts_pin, unsigned char rts_parity, unsigned char auto_mode_en);
 
- /*
+/*
   * @brief      Configure DMA head node.
  * @param[in]  uart_num - UART0/UART1/UART2.
   * @param[in]  chn         - DMA channel.

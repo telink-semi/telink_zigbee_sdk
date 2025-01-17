@@ -27,19 +27,20 @@
 #include <stdint.h>
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 
-
 //1:use hardware;  2:use software
-#define BIGINT_DIV_CHOICE     (2U)
+#define BIGINT_DIV_CHOICE (2U)
 
 #if (BIGINT_DIV_CHOICE == 1U)
-typedef struct {
-    unsigned int low;
-    unsigned int high;
-}double_uint32_t;
+    typedef struct
+    {
+        unsigned int low;
+        unsigned int high;
+    } double_uint32_t;
 #elif (BIGINT_DIV_CHOICE == 2U)
 typedef unsigned int double_uint32_t;
 //#define BIGINT_DIV_UINT32
@@ -50,24 +51,23 @@ typedef unsigned int double_uint32_t;
 #define PRIMALITY_TEST_CHOICE (1U)
 
 #if (PRIMALITY_TEST_CHOICE == 1U)
-#define FERMAT_ROUND          (3U)
+    #define FERMAT_ROUND (3U)
 #elif (PRIMALITY_TEST_CHOICE == 2U)
-#define MILLER_RABIN_ROUND    (3U)
+    #define MILLER_RABIN_ROUND (3U)
 #endif
 
 
 //prime table level(total number of small prime numbers)
-#define PTL_MAX               (400U)   //the max PTL value
-#define PTL_512               (400U)   //the best PTL value for prime bit length 512 (RSA1024)
-#define PTL_1024              (400U)   //the best PTL value for prime bit length 1024 (RSA2048)
+#define PTL_MAX     (400U) //the max PTL value
+#define PTL_512     (400U) //the best PTL value for prime bit length 512 (RSA1024)
+#define PTL_1024    (400U) //the best PTL value for prime bit length 1024 (RSA2048)
 
 
-#define NOT_PRIME             (0xFFFFFFFFU)
-#define MAYBE_PRIME           (0U)
+#define NOT_PRIME   (0xFFFFFFFFU)
+#define MAYBE_PRIME (0U)
 
 
-
-unsigned int get_prime(unsigned int p[], unsigned int pBitLen);
+    unsigned int get_prime(unsigned int p[], unsigned int pBitLen);
 
 
 #ifdef __cplusplus
@@ -75,4 +75,3 @@ unsigned int get_prime(unsigned int p[], unsigned int pBitLen);
 #endif
 
 #endif
-

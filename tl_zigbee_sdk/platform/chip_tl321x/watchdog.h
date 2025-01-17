@@ -55,23 +55,23 @@
 #include "lib/include/clock.h"
 #include "compiler.h"
 
-#define wd_clear_cnt        wd_clear
+#define wd_clear_cnt wd_clear
 
 /**
  * @brief     start watchdog.
  * @return    none
  */
-static inline void wd_start(void){
-
+static inline void wd_start(void)
+{
     BM_SET(reg_tmr_wd_en, FLD_TMR_WD_EN);
 }
-
 
 /**
  * @brief     stop watchdog.
  * @return    none
  */
-static inline void wd_stop(void){
+static inline void wd_stop(void)
+{
     BM_CLR(reg_tmr_wd_en, FLD_TMR_WD_EN);
 }
 
@@ -119,8 +119,8 @@ static inline void wd_clear(void)
 static inline void wd_set_interval_ms(unsigned int period_ms)
 {
     static unsigned int tmp_period_ms = 0;
-    tmp_period_ms=period_ms*sys_clk.pclk*1000;
-    reg_wt_target=tmp_period_ms;
+    tmp_period_ms                     = period_ms * sys_clk.pclk * 1000;
+    reg_wt_target                     = tmp_period_ms;
 }
 
 /**

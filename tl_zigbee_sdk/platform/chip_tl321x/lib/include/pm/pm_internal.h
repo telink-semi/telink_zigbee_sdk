@@ -38,7 +38,7 @@
 
 //When the watchdog comes back, the Eagle chip does not clear 0x7f[0]. To avoid this problem, this macro definition is added.
 #ifndef WDT_REBOOT_RESET_ANA7F_WORK_AROUND
-#define WDT_REBOOT_RESET_ANA7F_WORK_AROUND  1
+    #define WDT_REBOOT_RESET_ANA7F_WORK_AROUND 1
 #endif
 
 /********************************************************************************************************
@@ -48,29 +48,29 @@
 /*
  * @note    This is for internal stability debugging use only.
  */
-#define PM_DEBUG                        0
+#define PM_DEBUG 0
 //1 PB4, 2 PB5
-#define PM_SUSPEND_WHILE_DEBUG          0
-#define PM_SUSPEND_WHILE_DEBUG_2        0
-#define PM_MIN_CODE_DEBUG               0
-#define PM_START_CODE_DEBUG             0
-#define PM_XTAL_READY_DEBUG             0
+#define PM_SUSPEND_WHILE_DEBUG   0
+#define PM_SUSPEND_WHILE_DEBUG_2 0
+#define PM_MIN_CODE_DEBUG        0
+#define PM_START_CODE_DEBUG      0
+#define PM_XTAL_READY_DEBUG      0
 
 //TODO:The A2 chip changes the default values of some analog registers to commonly configured values,
 //which saves the time of configuring registers during initialization.
-#define PM_A0_1_ANA_DEFAULT             1
+#define PM_A0_1_ANA_DEFAULT 1
 
 //system timer clock source is constant 24M, never change
 //NOTICE:We think that the external 32k crystal clk is very accurate, does not need to read through TIMER_32K_LAT_CAL.
 //register, the conversion error(use 32k:64 cycle, count 24M sys tmr's ticks), at least the introduction of 64ppm.
-#define STIMER_CLOCK_16M                    1
-#define STIMER_CLOCK_24M                    2
-#define STIMER_CLOCK                    STIMER_CLOCK_24M
+#define STIMER_CLOCK_16M 1
+#define STIMER_CLOCK_24M 2
+#define STIMER_CLOCK     STIMER_CLOCK_24M
 
-#if(STIMER_CLOCK == STIMER_CLOCK_16M)
-#define CRYSTAL32768_TICK_PER_32CYCLE   15625
-#elif(STIMER_CLOCK == STIMER_CLOCK_24M)
-#define CRYSTAL32768_TICK_PER_64CYCLE   46875
+#if (STIMER_CLOCK == STIMER_CLOCK_16M)
+    #define CRYSTAL32768_TICK_PER_32CYCLE 15625
+#elif (STIMER_CLOCK == STIMER_CLOCK_24M)
+    #define CRYSTAL32768_TICK_PER_64CYCLE 46875
 #endif
 
 
@@ -83,7 +83,8 @@ extern _attribute_data_retention_sec_ unsigned char g_pm_long_suspend;
  * @brief dcdc trim soc out
  * 
  */
-typedef enum{
+typedef enum
+{
     TRIM_1P25V_TO_1P050V = 0x0,
     TRIM_1P25V_TO_1P065V,
     TRIM_1P25V_TO_1P080V,
@@ -100,13 +101,14 @@ typedef enum{
     TRIM_1P25V_TO_1P27V,
     TRIM_1P25V_TO_1P29V,
     TRIM_1P25V_TO_1P31V,
-}pm_trim_1p25v_e;
+} pm_trim_1p25v_e;
 
 /**
  * @brief trim dig ldo
  * 
  */
-typedef enum {
+typedef enum
+{
     DIG_LDO_TRIM_0P735V = 0,
     DIG_LDO_TRIM_0P760V,
     DIG_LDO_TRIM_0P785V,
@@ -129,7 +131,8 @@ typedef enum {
  * @brief trim suspend LDO
  *
  */
-typedef enum {
+typedef enum
+{
     SPD_LDO_TRIM_0P75V = 0,
     SPD_LDO_TRIM_0P80V,
     SPD_LDO_TRIM_0P85V,
@@ -144,7 +147,8 @@ typedef enum {
  * @brief trim deep retention LDO
  *
  */
-typedef enum {
+typedef enum
+{
     RET_LDO_TRIM_0P55V = 0,
     RET_LDO_TRIM_0P60V,
     RET_LDO_TRIM_0P65V,
@@ -161,8 +165,9 @@ typedef enum {
  */
 _always_inline void sys_reset_all(void)
 {
-#if(PM_DEBUG)
-    while(1);
+#if (PM_DEBUG)
+    while (1)
+        ;
 #endif
     reg_pwdn_en = 0x20;
 }
@@ -272,7 +277,7 @@ static _always_inline void pm_set_delay_cycle(unsigned char xtal_delay, unsigned
  */
 static _always_inline void pm_set_reboot_reason(pm_sw_reboot_reason_e reboot_reason)
 {
-    analog_write_reg8(PM_ANA_REG_POWER_ON_CLR_BUF0, REBOOT_FLAG | (reboot_reason<<1));
+    analog_write_reg8(PM_ANA_REG_POWER_ON_CLR_BUF0, REBOOT_FLAG | (reboot_reason << 1));
 }
 
 /**
@@ -297,9 +302,8 @@ static _always_inline void pm_trigger_sleep(void)
  */
 static _always_inline void pm_24mrc_power_up(void)
 {
-    if(!g_24m_rc_is_used)
-    {
-        analog_write_reg8(areg_aon_0x05, analog_read_reg8(areg_aon_0x05) & ~(FLD_24M_RC_PD));//power on 24M RC
+    if (!g_24m_rc_is_used) {
+        analog_write_reg8(areg_aon_0x05, analog_read_reg8(areg_aon_0x05) & ~(FLD_24M_RC_PD)); //power on 24M RC
 
         /*
          * the calibration of 24m RC should wait for 1us if just power it up.
@@ -321,9 +325,8 @@ static _always_inline void pm_24mrc_power_up(void)
  */
 static _always_inline void pm_24mrc_power_down_if_unused(void)
 {
-    if(!g_24m_rc_is_used)
-    {
-        analog_write_reg8(areg_aon_0x05, analog_read_reg8(areg_aon_0x05) | FLD_24M_RC_PD);//power down 24M RC
+    if (!g_24m_rc_is_used) {
+        analog_write_reg8(areg_aon_0x05, analog_read_reg8(areg_aon_0x05) | FLD_24M_RC_PD); //power down 24M RC
     }
 }
 
@@ -367,4 +370,3 @@ _attribute_ram_code_sec_noinline_ unsigned char pm_clr_all_irq_status(void);
  * @return      none.
  */
 _attribute_ram_code_sec_noinline_ void pm_stimer_recover(void);
-

@@ -25,35 +25,34 @@
 #define SHA224_H
 
 
-
 #include "hash.h"
 
 
-
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 
 #ifdef SUPPORT_HASH_SHA224
 
 
-typedef HASH_CTX SHA224_CTX;
+    typedef HASH_CTX SHA224_CTX;
 
-#ifdef HASH_DMA_FUNCTION
-typedef HASH_DMA_CTX SHA224_DMA_CTX;
-#endif
+    #ifdef HASH_DMA_FUNCTION
+    typedef HASH_DMA_CTX SHA224_DMA_CTX;
+    #endif
 
 
-//APIs
-/**
+    //APIs
+    /**
  * @brief       init sha224
  * @param[in]   ctx         - SHA224_CTX context pointer.
  * @return      0:success     other:error
  */
-unsigned int sha224_init(SHA224_CTX *ctx);
+    unsigned int sha224_init(SHA224_CTX *ctx);
 
-/**
+    /**
  * @brief       sha224 update message
  * @param[in]   ctx            - SHA224_CTX context pointer.
  * @param[in]   msg            - message.
@@ -64,9 +63,9 @@ unsigned int sha224_init(SHA224_CTX *ctx);
       -# 1. please make sure the three parameters are valid, and ctx is initialized.
   @endverbatim
  */
-unsigned int sha224_update(SHA224_CTX *ctx, const unsigned char *msg, unsigned int msg_bytes);
+    unsigned int sha224_update(SHA224_CTX *ctx, const unsigned char *msg, unsigned int msg_bytes);
 
-/**
+    /**
  * @brief       message update done, get the sha224 digest
  * @param[in]   ctx               - SHA224_CTX context pointer.
  * @param[out]  digest            - sha224 digest, 28 bytes.
@@ -76,9 +75,9 @@ unsigned int sha224_update(SHA224_CTX *ctx, const unsigned char *msg, unsigned i
       -# 1. please make sure the digest buffer is sufficient.
   @endverbatim
  */
-unsigned int sha224_final(SHA224_CTX *ctx, unsigned char *digest);
+    unsigned int sha224_final(SHA224_CTX *ctx, unsigned char *digest);
 
-/**
+    /**
  * @brief       input whole message and get its sha224 digest
  * @param[in]   msg            - message.
  * @param[in]   msg_bytes      - byte length of the input message, it could be 0.
@@ -89,19 +88,19 @@ unsigned int sha224_final(SHA224_CTX *ctx, unsigned char *digest);
       -# 1. please make sure the digest buffer is sufficient.
   @endverbatim
  */
-unsigned int sha224(unsigned char *msg, unsigned int msg_bytes, unsigned char *digest);
+    unsigned int sha224(unsigned char *msg, unsigned int msg_bytes, unsigned char *digest);
 
 
-#ifdef HASH_DMA_FUNCTION
-/**
+    #ifdef HASH_DMA_FUNCTION
+    /**
  * @brief       init dma sha224
  * @param[in]   ctx           - SHA224_DMA_CTX context pointer.
  * @param[in]   callback      - callback function pointer.
  * @return      0:success     other:error
  */
-unsigned int sha224_dma_init(SHA224_DMA_CTX *ctx, HASH_CALLBACK callback);
+    unsigned int sha224_dma_init(SHA224_DMA_CTX *ctx, HASH_CALLBACK callback);
 
-/**
+    /**
  * @brief       dma sha224 update some message blocks
  * @param[in]   ctx         - SHA224_DMA_CTX context pointer.
  * @param[in]   msg         - message blocks.
@@ -113,9 +112,9 @@ unsigned int sha224_dma_init(SHA224_DMA_CTX *ctx, HASH_CALLBACK callback);
       -# 1. please make sure the four parameters are valid, and ctx is initialized.
   @endverbatim
  */
-unsigned int sha224_dma_update_blocks(SHA224_DMA_CTX *ctx, unsigned int *msg, unsigned int msg_words);
+    unsigned int sha224_dma_update_blocks(SHA224_DMA_CTX *ctx, unsigned int *msg, unsigned int msg_words);
 
-/**
+    /**
  * @brief       dma sha224 final(input the remainder message and get the digest)
  * @param[in]   ctx               - SHA224_DMA_CTX context pointer.
  * @param[in]   remainder_msg     - remainder message.
@@ -128,9 +127,9 @@ unsigned int sha224_dma_update_blocks(SHA224_DMA_CTX *ctx, unsigned int *msg, un
       -# 1. please make sure the four parameters are valid, and ctx is initialized.
   @endverbatim
  */
-unsigned int sha224_dma_final(SHA224_DMA_CTX *ctx, unsigned int *remainder_msg, unsigned int remainder_bytes, unsigned int *digest);
+    unsigned int sha224_dma_final(SHA224_DMA_CTX *ctx, unsigned int *remainder_msg, unsigned int remainder_bytes, unsigned int *digest);
 
-/**
+    /**
  * @brief       dma sha224 digest calculate
  * @param[in]   msg           - message.
  * @param[in]   msg_bytes     - byte length of the message, it could be 0.
@@ -142,8 +141,8 @@ unsigned int sha224_dma_final(SHA224_DMA_CTX *ctx, unsigned int *remainder_msg, 
       -# 1. please make sure the four parameters are valid.
   @endverbatim
  */
-unsigned int sha224_dma(unsigned int *msg, unsigned int msg_bytes, unsigned int *digest, HASH_CALLBACK callback);
-#endif
+    unsigned int sha224_dma(unsigned int *msg, unsigned int msg_bytes, unsigned int *digest, HASH_CALLBACK callback);
+    #endif
 
 
 #endif

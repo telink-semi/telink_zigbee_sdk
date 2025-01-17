@@ -21,15 +21,15 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-/**	@page TRNG
+/** @page TRNG
  *
- *	Introduction
- *	===============
- *	B92 supports hardware trng.
+ *  Introduction
+ *  ===============
+ *  B92 supports hardware trng.
  *
- *	API Reference
- *	===============
- *	Header File: trng.h
+ *  API Reference
+ *  ===============
+ *  Header File: trng.h
  */
 #ifndef TRNG_H_
 #define TRNG_H_
@@ -89,7 +89,7 @@ void trng_set_error_timeout(unsigned int timeout_us);
  *            if record the details of the reason, can implement it by yourself,trng_hw_reset must be called,the.c static library, shown here is the drive implementation part of the interface:
  *            __attribute__((weak)) void trng_timeout_handler(unsigned int trng_error_timeout_code)
  *            {
- *	             (void)trng_error_timeout_code;
+ *               (void)trng_error_timeout_code;
  *               trng_hw_reset();
  *            }
  *

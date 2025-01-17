@@ -183,3 +183,33 @@ void drv_calibration(void)
     }
 #endif
 }
+
+bool drv_get_primary_ieee_addr(u8 *addr)
+{
+#if defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+    u8 addr_zero[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    u8 addr_invalid[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+    u8 buf[8];
+
+#if defined(MCU_CORE_TL721X)
+    /* xx xx xx 28 22 38 xx xx */
+    extern void otp_get_ieee_addr(unsigned char *buf);
+    otp_get_ieee_addr(buf); //get IEEE address from OTP
+#else
+    /* xx xx xx C7 A3 C0 xx xx */
+    efuse_get_ieee_addr(buf);
+#endif
+
+    if (!memcmp(buf, addr_zero, 8) || !memcmp(buf, addr_invalid, 8)) {
+        return FALSE;
+    } else {
+        memcpy(addr + 2, buf, 6);
+        memcpy(addr, buf + 6, 2);
+
+        return TRUE;
+    }
+#else
+	/* no primary IEEE */
+    return FALSE;
+#endif
+}

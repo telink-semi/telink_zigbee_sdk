@@ -30,79 +30,72 @@
 #include "driver.h"
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 
-
-
-
 //TRNG register address
-#define TRNG_CR             (*(volatile unsigned int *)(TRNG_BASE_ADDR + 0x0000))
-#define TRNG_MSEL           (*(volatile unsigned int *)(TRNG_BASE_ADDR + 0x0004))
-#define TRNG_SR             (*(volatile unsigned int *)(TRNG_BASE_ADDR + 0x0008))
-#define TRNG_DR             (*(volatile unsigned int *)(TRNG_BASE_ADDR + 0x000C))
-#define TRNG_VERSION        (*(volatile unsigned int *)(TRNG_BASE_ADDR + 0x0010))
-#define TRNG_RESEED         (*(volatile unsigned int *)(TRNG_BASE_ADDR + 0x0040))
-#define TRNG_HT_CR          (*(volatile unsigned int *)(TRNG_BASE_ADDR + 0x0060))
-#define TRNG_HT_SR          (*(volatile unsigned int *)(TRNG_BASE_ADDR + 0x0070))
-#define RO_SRC_EN1          (*(volatile unsigned int *)(TRNG_BASE_ADDR + 0x0080))
-#define RO_SRC_EN2          (*(volatile unsigned int *)(TRNG_BASE_ADDR + 0x0084))
-#define SCLK_FREQ           (*(volatile unsigned int *)(TRNG_BASE_ADDR + 0x0088))
+#define TRNG_CR      (*(volatile unsigned int *)(TRNG_BASE_ADDR + 0x0000))
+#define TRNG_MSEL    (*(volatile unsigned int *)(TRNG_BASE_ADDR + 0x0004))
+#define TRNG_SR      (*(volatile unsigned int *)(TRNG_BASE_ADDR + 0x0008))
+#define TRNG_DR      (*(volatile unsigned int *)(TRNG_BASE_ADDR + 0x000C))
+#define TRNG_VERSION (*(volatile unsigned int *)(TRNG_BASE_ADDR + 0x0010))
+#define TRNG_RESEED  (*(volatile unsigned int *)(TRNG_BASE_ADDR + 0x0040))
+#define TRNG_HT_CR   (*(volatile unsigned int *)(TRNG_BASE_ADDR + 0x0060))
+#define TRNG_HT_SR   (*(volatile unsigned int *)(TRNG_BASE_ADDR + 0x0070))
+#define RO_SRC_EN1   (*(volatile unsigned int *)(TRNG_BASE_ADDR + 0x0080))
+#define RO_SRC_EN2   (*(volatile unsigned int *)(TRNG_BASE_ADDR + 0x0084))
+#define SCLK_FREQ    (*(volatile unsigned int *)(TRNG_BASE_ADDR + 0x0088))
 
-#define TERO_CR             (*(volatile unsigned int *)(TRNG_BASE_ADDR + 0x00B0))
-#define TERO_THOLD          (*(volatile unsigned int *)(TRNG_BASE_ADDR + 0x00B4))
-#define TERO_CNT(i)         (*(volatile unsigned int *)(TRNG_BASE_ADDR + 0x00C0 + 4*i))
-#define TERO_SR             (*(volatile unsigned int *)(TRNG_BASE_ADDR + 0x00D0))
-#define TERO_DR             (*(volatile unsigned int *)(TRNG_BASE_ADDR + 0x00D4))
-#define TERO_RCR(i)         (*(volatile unsigned int *)(TRNG_BASE_ADDR + 0x00E0 + 4*i))
+#define TERO_CR      (*(volatile unsigned int *)(TRNG_BASE_ADDR + 0x00B0))
+#define TERO_THOLD   (*(volatile unsigned int *)(TRNG_BASE_ADDR + 0x00B4))
+#define TERO_CNT(i)  (*(volatile unsigned int *)(TRNG_BASE_ADDR + 0x00C0 + 4 * i))
+#define TERO_SR      (*(volatile unsigned int *)(TRNG_BASE_ADDR + 0x00D0))
+#define TERO_DR      (*(volatile unsigned int *)(TRNG_BASE_ADDR + 0x00D4))
+#define TERO_RCR(i)  (*(volatile unsigned int *)(TRNG_BASE_ADDR + 0x00E0 + 4 * i))
 
 
 //TRNG freq config
-#define TRNG_RO_FREQ_4      (0)
-#define TRNG_RO_FREQ_8      (1)
-#define TRNG_RO_FREQ_16     (2)
-#define TRNG_RO_FREQ_32     (3)     //default
+#define TRNG_RO_FREQ_4  (0)
+#define TRNG_RO_FREQ_8  (1)
+#define TRNG_RO_FREQ_16 (2)
+#define TRNG_RO_FREQ_32 (3) //default
 
 
 //TRNG action offset
-#define TRNG_GLOBAL_INT_OFFSET          (24)
-#define TRNG_READ_EMPTY_INT_OFFSET      (17)
-#define TRNG_DATA_INT_OFFSET            (16)
-#define TRNG_RO_ENTROPY_OFFSET          (4)
-#define TRNG_TERO_THRESHOLD_OFFSET      (24)
-#define TRNG_TERO_ENTROPY_OFFSET        (8)
+#define TRNG_GLOBAL_INT_OFFSET     (24)
+#define TRNG_READ_EMPTY_INT_OFFSET (17)
+#define TRNG_DATA_INT_OFFSET       (16)
+#define TRNG_RO_ENTROPY_OFFSET     (4)
+#define TRNG_TERO_THRESHOLD_OFFSET (24)
+#define TRNG_TERO_ENTROPY_OFFSET   (8)
 
+    //TRNG return code
+    enum TRNG_RET_CODE
+    {
+        TRNG_SUCCESS = 0,
+        TRNG_BUFFER_NULL,
+        TRNG_INVALID_INPUT,
+        TRNG_INVALID_CONFIG,
+        TRNG_HT_ERROR,
+        TRNG_ERROR
+    };
 
-//TRNG return code
-enum TRNG_RET_CODE
-{
-    TRNG_SUCCESS = 0,
-    TRNG_BUFFER_NULL,
-    TRNG_INVALID_INPUT,
-    TRNG_INVALID_CONFIG,
-    TRNG_HT_ERROR,
-    TRNG_ERROR
-};
-
-
-
-
-
-//API
-/**
+    //API
+    /**
  * @brief       TRNG global interruption enable
  * @return      none
  */
-void trng_global_int_enable(void);
+    void trng_global_int_enable(void);
 
-/**
+    /**
  * @brief       TRNG global interruption disable
  * @return      none
  */
-void trng_global_int_disable(void);
+    void trng_global_int_disable(void);
 
-/**
+    /**
  * @brief       TRNG empty-read interruption enable.
  * @return      none
  * @note
@@ -110,15 +103,15 @@ void trng_global_int_disable(void);
       -# 1. works when global interruption is enabled.
   @endverbatim
  */
-void trng_empty_read_int_enable(void);
+    void trng_empty_read_int_enable(void);
 
-/**
+    /**
  * @brief       TRNG global interruption disable
  * @return      none
  */
-void trng_empty_read_int_disable(void);
+    void trng_empty_read_int_disable(void);
 
-/**
+    /**
  * @brief       TRNG data interruption enable.
  * @return      none
  * @note
@@ -126,27 +119,27 @@ void trng_empty_read_int_disable(void);
       -# 1. works when global interruption is enabled.
   @endverbatim
  */
-void trng_data_int_enable(void);
+    void trng_data_int_enable(void);
 
-/**
+    /**
  * @brief       TRNG data interruption disable
  * @return      none
  */
-void trng_data_int_disable(void);
+    void trng_data_int_disable(void);
 
-/**
+    /**
  * @brief       TRNG enable
  * @return      none
  */
-void trng_enable(void);
+    void trng_enable(void);
 
-/**
+    /**
  * @brief       TRNG enable
  * @return      none
  */
-void trng_disable(void);
+    void trng_disable(void);
 
-/**
+    /**
  * @brief       set RO entropy config
  * @param[in]   cfg       - RO entropy config, only the low 4 bits are valid, every bit,indicates one RO entropy, the MSB is RO 0, and LSB is RO 3.
  * @return      TRNG_SUCCESS(success), other(error)
@@ -159,17 +152,17 @@ void trng_disable(void);
             of the trng module will also increase..
   @endverbatim
  */
-unsigned int trng_ro_entropy_config(unsigned char cfg);
+    unsigned int trng_ro_entropy_config(unsigned char cfg);
 
-/**
+    /**
  * @brief       set sub RO entropy config
  * @param[in]   sn        - RO entropy source series number, must be in [0,3].
  * @param[in]   cfg       - the config value of RO sn.
  * @return      TRNG_SUCCESS(success), other(error)
  */
-unsigned int trng_ro_sub_entropy_config(unsigned char sn, unsigned short cfg);
+    unsigned int trng_ro_sub_entropy_config(unsigned char sn, unsigned short cfg);
 
-/**
+    /**
  * @brief       set sub RO entropy config
  * @param[in]   with_post_processing       - 0:no,  other:yes
  * @return      none
@@ -178,9 +171,9 @@ unsigned int trng_ro_sub_entropy_config(unsigned char sn, unsigned short cfg);
       -# 1. True random mode when set to 0, pseudo-random mode when set to a non-zero value.
   @endverbatim
  */
-void trng_set_mode(unsigned char with_post_processing);
+    void trng_set_mode(unsigned char with_post_processing);
 
-/**
+    /**
  * @brief       reseed TRNG(works when DRBG is enabled)
  * @return      none
  * @note
@@ -188,9 +181,9 @@ void trng_set_mode(unsigned char with_post_processing);
       -# 1. used for DRBG
   @endverbatim
  */
-void trng_reseed(void);
+    void trng_reseed(void);
 
-/**
+    /**
  * @brief       TRNG set frequency
  * @param[in]   freq       frequency config, must be in [0,3], and
  *                                  0: 1/4 of input frequency, the lower the sample frequency, the better the randomization performance,
@@ -199,9 +192,9 @@ void trng_reseed(void);
  *                                  3: 1/32 ...,
  * @return      TRNG_SUCCESS(success), other(error)
  */
-unsigned int trng_set_freq(unsigned char freq);
+    unsigned int trng_set_freq(unsigned char freq);
 
-/**
+    /**
  * @brief       get rand(for internal test)
  * @param[in]   rand                byte buffer rand
  * @param[in]   bytes               byte length of rand
@@ -214,9 +207,9 @@ unsigned int trng_set_freq(unsigned char freq);
             if you get the pseudo-random please use get_rand.
   @endverbatim
  */
-unsigned int get_rand_internal(unsigned char *a, unsigned int bytes);
+    unsigned int get_rand_internal(unsigned char *a, unsigned int bytes);
 
-/**
+    /**
  * @brief       get rand(without entropy reducing)
  * @param[in]   rand                byte buffer rand
  * @param[in]   bytes               byte length of rand
@@ -227,29 +220,29 @@ unsigned int get_rand_internal(unsigned char *a, unsigned int bytes);
       -# 2. After the call the mode configuration is changed to post-processing mode.
   @endverbatim
  */
-unsigned int get_rand(unsigned char *rand, unsigned int bytes);
+    unsigned int get_rand(unsigned char *rand, unsigned int bytes);
 
 
-/**
+    /**
  * @brief       TERO RNG enable
  * @return      none
  */
-void tero_enable(void);
+    void tero_enable(void);
 
-/**
+    /**
  * @brief       TERO RNG disable
  * @return      none
  */
-void tero_disable(void);
+    void tero_disable(void);
 
-/**
+    /**
  * @brief       TERO RNG set the system cycle threshold of the TERO counter kept
  * @param[in]   threshold_value                 threshold value
  * @return      none
  */
-unsigned int tero_set_stop_threshold(unsigned char threshold_value);
+    unsigned int tero_set_stop_threshold(unsigned char threshold_value);
 
-/**
+    /**
  * @brief       set TERO entropy config
  * @param[in]   cfg       random words
  * @return      TRNG_SUCCESS(success), other(error)
@@ -258,52 +251,48 @@ unsigned int tero_set_stop_threshold(unsigned char threshold_value);
       -# 1. please make sure the two parameters are valid
   @endverbatim
  */
-unsigned int tero_entropy_config(unsigned char cfg);
+    unsigned int tero_entropy_config(unsigned char cfg);
 
-/**
+    /**
  * @brief       TERO RNG set output as rng
  * @return      none
  */
-void tero_set_output_rng(void);
+    void tero_set_output_rng(void);
 
-/**
+    /**
  * @brief       TERO RNG set output as oscillation times
  * @return      none
  */
-void tero_set_output_osc_times(void);
+    void tero_set_output_osc_times(void);
 
-/**
+    /**
  * @brief       select TREO 1&2 or TERO 3&4 when output is oscillation times
  * @param[in]   cfg       random words
  * @return      none
  */
-void tero_set_osc_sel(unsigned char cfg);
+    void tero_set_osc_sel(unsigned char cfg);
 
-/**
+    /**
  * @brief       set lower limit of oscillation times
  * @param[in]   value       lower limit value
  * @return      none
  */
-void tero_set_osc_times_lower_limit(unsigned short value);
+    void tero_set_osc_times_lower_limit(unsigned short value);
 
-/**
+    /**
  * @brief       set upper limit of oscillation times
  * @param[in]   value       lower limit value
  * @return      none
  */
-void tero_set_osc_times_upper_limit(unsigned short value);
+    void tero_set_osc_times_upper_limit(unsigned short value);
 
-/**
+    /**
  * @brief       get tero rand
  * @param[in]   a       byte buffer a
  * @param[in]   bytes   byte length of rand
  * @return      none
  */
-unsigned int get_tero_rand(unsigned char *a, unsigned int bytes);
-
-
-
-
+    unsigned int get_tero_rand(unsigned char *a, unsigned int bytes);
 
 
 #ifdef __cplusplus
@@ -312,4 +301,3 @@ unsigned int get_tero_rand(unsigned char *a, unsigned int bytes);
 
 
 #endif
-

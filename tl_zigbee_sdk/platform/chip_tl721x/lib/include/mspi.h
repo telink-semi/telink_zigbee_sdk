@@ -30,33 +30,35 @@
 
 extern unsigned int g_slave_base_addr[4];
 
-
 /**
  * @brief  Define the number of the slave device.
  */
-typedef enum{
+typedef enum
+{
     SLAVE0 = 0,
     SLAVE1 = 1,
     SLAVE2 = 2,
     SLAVE3 = 3,
     SLAVE_CNT,
-}mspi_slave_device_num_e;
+} mspi_slave_device_num_e;
 
 /**
  * @brief  Define the size of the slave device.
  */
-typedef enum{
+typedef enum
+{
     SLAVE_SIZE_NONE = 0,
     SLAVE_SIZE_16M  = 1,
     SLAVE_SIZE_32M  = 2,
     SLAVE_SIZE_48M  = 3,
     SLAVE_SIZE_64M  = 4,
-}mspi_slave_size_e;
+} mspi_slave_size_e;
 
 /**
  * @brief  Define the MSPI work mode.
  */
-typedef enum{
+typedef enum
+{
     MSPI_MODE0 = 0,
     MSPI_MODE2,
     MSPI_MODE1,
@@ -66,62 +68,68 @@ typedef enum{
 /**
  * @brief  Define the mode for SPI io mode.
  */
-typedef enum{
-    MSPI_SINGLE_MODE    = 1,
-    MSPI_DUAL_MODE      = 2,
-    MSPI_QUAD_MODE      = 4,
-    MSPI_3_LINE_MODE    = 3,
+typedef enum
+{
+    MSPI_SINGLE_MODE = 1,
+    MSPI_DUAL_MODE   = 2,
+    MSPI_QUAD_MODE   = 4,
+    MSPI_3_LINE_MODE = 3,
 } mspi_io_mode_e;
 
-typedef enum{
+typedef enum
+{
     MSPI_NORMAL = 0,
-    MSPI_3LINE = 3,
+    MSPI_3LINE  = 3,
 } mspi_normal_3line_mode_e;
-
 
 /**
  * @brief  Define the SPI command & translate mode.
  */
-typedef enum{
-    MSPI_MODE_WRITE_AND_READ = 0,//write and read at the same.must enable CmdEn
-    MSPI_MODE_WRITE_ONLY,//write
-    MSPI_MODE_READ_ONLY,// read must enable CmdEn
-    MSPI_MODE_WRITE_READ,//write_ read
-    MSPI_MODE_READ_WRITE,//read_write
-    MSPI_MODE_WRITE_DUMMY_READ,//write_dummy_read
-    MSPI_MODE_READ_DUMMY_WRITE,//read_ dummy_write must enable CmdEn
-    MSPI_MODE_NONE_DATA,//must enable CmdEn
-    MSPI_MODE_DUMMY_WRITE,//dummy_write
-    MSPI_MODE_DUMMY_READ,//dummy_read
+typedef enum
+{
+    MSPI_MODE_WRITE_AND_READ = 0, //write and read at the same.must enable CmdEn
+    MSPI_MODE_WRITE_ONLY,         //write
+    MSPI_MODE_READ_ONLY,          // read must enable CmdEn
+    MSPI_MODE_WRITE_READ,         //write_ read
+    MSPI_MODE_READ_WRITE,         //read_write
+    MSPI_MODE_WRITE_DUMMY_READ,   //write_dummy_read
+    MSPI_MODE_READ_DUMMY_WRITE,   //read_ dummy_write must enable CmdEn
+    MSPI_MODE_NONE_DATA,          //must enable CmdEn
+    MSPI_MODE_DUMMY_WRITE,        //dummy_write
+    MSPI_MODE_DUMMY_READ,         //dummy_read
     MSPI_MODE_RESERVED,
-}mspi_tans_mode_e;
+} mspi_tans_mode_e;
 
-typedef enum{
-    MSPI_MODE_WR_WRITE_ONLY  = 1,//write
-    MSPI_MODE_WR_DUMMY_WRITE = 8,//dummy_write
-}mspi_wr_tans_mode_e;
+typedef enum
+{
+    MSPI_MODE_WR_WRITE_ONLY  = 1, //write
+    MSPI_MODE_WR_DUMMY_WRITE = 8, //dummy_write
+} mspi_wr_tans_mode_e;
 
-typedef enum{
-    MSPI_MODE_RD_READ_ONLY  = 2,//must enable CmdEn
-    MSPI_MODE_RD_DUMMY_READ = 9,//dummy_read
-}mspi_rd_tans_mode_e;
+typedef enum
+{
+    MSPI_MODE_RD_READ_ONLY  = 2, //must enable CmdEn
+    MSPI_MODE_RD_DUMMY_READ = 9, //dummy_read
+} mspi_rd_tans_mode_e;
 
-typedef enum{
-    MSPI_MODE_WR_RD          = 3,//must enable CmdEn
-    MSPI_MODE_WR_DUMMY_RD = 5,//write_dummy_read
-}mspi_wr_rd_tans_mode_e;
+typedef enum
+{
+    MSPI_MODE_WR_RD       = 3, //must enable CmdEn
+    MSPI_MODE_WR_DUMMY_RD = 5, //write_dummy_read
+} mspi_wr_rd_tans_mode_e;
 
+typedef enum
+{
+    MSPI_RC_24M_CLK = 0,
+    MSPI_PLL_CLK    = 1,
+} mspi_src_e;
 
-typedef enum{
-    MSPI_RC_24M_CLK    = 0,
-    MSPI_PLL_CLK       = 1,
-}mspi_src_e;
-
-typedef enum{
-    MSPI_WRITE      = 0,
-    MSPI_READ       = 1,
-    MSPI_ERASE      = 2,
-}mspi_func_e;
+typedef enum
+{
+    MSPI_WRITE = 0,
+    MSPI_READ  = 1,
+    MSPI_ERASE = 2,
+} mspi_func_e;
 
 /********************************************************************************************************
  *                                          internal
@@ -138,7 +146,6 @@ typedef enum{
 _attribute_ram_code_sec_ static _always_inline bool mspi_busy(void)
 {
     return reg_mspi_status & FLD_MSPI_BUSY;
-
 }
 
 /**
@@ -146,7 +153,7 @@ _attribute_ram_code_sec_ static _always_inline bool mspi_busy(void)
  * @param[in]   none.
  * @return      none.
  */
-#define mspi_wait()   wait_condition_fails_or_timeout(mspi_busy,g_drv_api_error_timeout_us,drv_timeout_handler,(unsigned int)DRV_API_ERROR_TIMEOUT_MSPI_WAIT);
+#define mspi_wait() wait_condition_fails_or_timeout(mspi_busy, g_drv_api_error_timeout_us, drv_timeout_handler, (unsigned int)DRV_API_ERROR_TIMEOUT_MSPI_WAIT);
 
 /********************************************************************************************************
  *                                          external
@@ -192,7 +199,7 @@ _attribute_ram_code_sec_ static _always_inline void mspi_set_reg_ctrl0(unsigned 
  */
 _attribute_ram_code_sec_ static _always_inline void mspi_cmd_en(void)
 {
-    BM_SET( reg_mspi_ctrl1, FLD_MSPI_CMD_EN);
+    BM_SET(reg_mspi_ctrl1, FLD_MSPI_CMD_EN);
 }
 
 /**
@@ -202,7 +209,6 @@ _attribute_ram_code_sec_ static _always_inline void mspi_cmd_en(void)
  */
 _attribute_ram_code_sec_ static _always_inline void mspi_cmd_dis(void)
 {
-
     BM_CLR(reg_mspi_ctrl1, FLD_MSPI_CMD_EN);
 }
 
@@ -213,7 +219,7 @@ _attribute_ram_code_sec_ static _always_inline void mspi_cmd_dis(void)
  */
 _attribute_ram_code_sec_ static _always_inline void mspi_cmd_fmt_en(void)
 {
-    BM_SET( reg_mspi_ctrl1, FLD_MSPI_CMD_FMT);
+    BM_SET(reg_mspi_ctrl1, FLD_MSPI_CMD_FMT);
 }
 
 /**
@@ -294,7 +300,6 @@ _attribute_ram_code_sec_ static _always_inline void mspi_3line_mode_dis(void)
 _attribute_ram_code_sec_ static _always_inline void mspi_addr_fmt_en(void)
 {
     BM_SET(reg_mspi_ctrl1, FLD_MSPI_ADDR_FMT);
-
 }
 
 /**
@@ -304,8 +309,7 @@ _attribute_ram_code_sec_ static _always_inline void mspi_addr_fmt_en(void)
  */
 _attribute_ram_code_sec_ static _always_inline void mspi_addr_fmt_dis(void)
 {
-    BM_CLR( reg_mspi_ctrl1, FLD_MSPI_ADDR_FMT);
-
+    BM_CLR(reg_mspi_ctrl1, FLD_MSPI_ADDR_FMT);
 }
 
 /**
@@ -389,7 +393,6 @@ _attribute_ram_code_sec_ static _always_inline void mspi_rx_cnt(unsigned int cnt
 _attribute_ram_code_sec_ static _always_inline void mspi_tx_cnt(unsigned int cnt)
 {
     reg_mspi_tx_cnt = (cnt - 1) & 0xffffff;
-
 }
 
 /**
@@ -451,7 +454,8 @@ _attribute_ram_code_sec_ static _always_inline void mspi_stop_xip(void)
 {
     mspi_set_xip_stop(1);
 
-    while(0 != (reg_mspi_status & 0x30));
+    while (0 != (reg_mspi_status & 0x30))
+        ;
 
     mspi_wait();
     mspi_set_xip_dis();
@@ -465,7 +469,7 @@ _attribute_ram_code_sec_ static _always_inline void mspi_stop_xip(void)
  */
 _attribute_ram_code_sec_ static _always_inline void mspi_set_xip_page_mode(mspi_slave_device_num_e device_num, unsigned char en)
 {
-    reg_mspi_xip_rd_ctrl0(device_num) |= ((en <<5 ) & FLD_XIP_PAGE_MODE_EN);
+    reg_mspi_xip_rd_ctrl0(device_num) |= ((en << 5) & FLD_XIP_PAGE_MODE_EN);
 }
 
 /**
@@ -557,9 +561,9 @@ _attribute_ram_code_sec_ static _always_inline unsigned char mspi_txfifo_is_empt
 _attribute_ram_code_sec_ static _always_inline void mspi_soft_reset(void)
 {
     reg_mspi_status = FLD_MSPI_SOFT_RESET;
-    while(FLD_MSPI_SOFT_RESET == (reg_mspi_status & FLD_MSPI_SOFT_RESET) );
+    while (FLD_MSPI_SOFT_RESET == (reg_mspi_status & FLD_MSPI_SOFT_RESET))
+        ;
 }
-
 
 /**
  * @brief       This function clear tx_fifo.
@@ -569,7 +573,8 @@ _attribute_ram_code_sec_ static _always_inline void mspi_soft_reset(void)
 _attribute_ram_code_sec_ static _always_inline void mspi_tx_fifo_clr(void)
 {
     BM_SET(reg_mspi_status, FLD_MSPI_TXFIFO_CLR_LEVEL);
-    while(FLD_MSPI_TXFIFO_CLR_LEVEL == (reg_mspi_status & FLD_MSPI_TXFIFO_CLR_LEVEL));
+    while (FLD_MSPI_TXFIFO_CLR_LEVEL == (reg_mspi_status & FLD_MSPI_TXFIFO_CLR_LEVEL))
+        ;
 }
 
 /**
@@ -580,9 +585,9 @@ _attribute_ram_code_sec_ static _always_inline void mspi_tx_fifo_clr(void)
 _attribute_ram_code_sec_ static _always_inline void mspi_rx_fifo_clr(void)
 {
     BM_SET(reg_mspi_status, FLD_MSPI_RXFIFO_CLR_LEVEL);
-    while(FLD_MSPI_RXFIFO_CLR_LEVEL == (reg_mspi_status & FLD_MSPI_RXFIFO_CLR_LEVEL));
+    while (FLD_MSPI_RXFIFO_CLR_LEVEL == (reg_mspi_status & FLD_MSPI_RXFIFO_CLR_LEVEL))
+        ;
 }
-
 
 /**
  * @brief       This function servers to set dummy cycle cnt.
@@ -591,10 +596,9 @@ _attribute_ram_code_sec_ static _always_inline void mspi_rx_fifo_clr(void)
  */
 _attribute_ram_code_sec_ static _always_inline void mspi_set_dummy_cnt(unsigned char dummy_cnt)
 {
-    reg_mspi_ctrl2 = (reg_mspi_ctrl2 & (~FLD_MSPI_DUMMY)) | (((dummy_cnt - 1)&0x0f) & FLD_MSPI_DUMMY);
-    reg_mspi_ctrl4 = (reg_mspi_ctrl4 & (~FLD_MSPI_DUMMY_CNT_ADD)) | (((dummy_cnt - 1)&0xf0) & FLD_MSPI_DUMMY_CNT_ADD);
+    reg_mspi_ctrl2 = (reg_mspi_ctrl2 & (~FLD_MSPI_DUMMY)) | (((dummy_cnt - 1) & 0x0f) & FLD_MSPI_DUMMY);
+    reg_mspi_ctrl4 = (reg_mspi_ctrl4 & (~FLD_MSPI_DUMMY_CNT_ADD)) | (((dummy_cnt - 1) & 0xf0) & FLD_MSPI_DUMMY_CNT_ADD);
 }
-
 
 /**
  * @brief       This function servers to set spi transfer mode.
@@ -640,7 +644,7 @@ _attribute_ram_code_sec_ static _always_inline void mspi_set_normal_mode(void)
  */
 _attribute_ram_code_sec_ static _always_inline void mspi_set_dual_mode(void)
 {
-    mspi_dual_mode_en();//quad  precede over dual
+    mspi_dual_mode_en(); //quad  precede over dual
     mspi_3line_mode_dis();
     mspi_quad_mode_dis();
 }
@@ -677,20 +681,19 @@ _attribute_ram_code_sec_ static _always_inline void mspi_set_3line_mode(void)
   */
 _attribute_ram_code_sec_ static _always_inline void mspi_set_io_mode(mspi_io_mode_e mode)
 {
-    switch (mode)
-    {
-        case MSPI_SINGLE_MODE:
-            mspi_set_normal_mode();
-            break;
-        case MSPI_DUAL_MODE:
-            mspi_set_dual_mode();
-            break;
-        case MSPI_QUAD_MODE:
-            mspi_set_quad_mode();
-            break;
-        case MSPI_3_LINE_MODE:
-            mspi_set_3line_mode();
-            break;
+    switch (mode) {
+    case MSPI_SINGLE_MODE:
+        mspi_set_normal_mode();
+        break;
+    case MSPI_DUAL_MODE:
+        mspi_set_dual_mode();
+        break;
+    case MSPI_QUAD_MODE:
+        mspi_set_quad_mode();
+        break;
+    case MSPI_3_LINE_MODE:
+        mspi_set_3line_mode();
+        break;
     }
 }
 
@@ -700,7 +703,7 @@ _attribute_ram_code_sec_ static _always_inline void mspi_set_io_mode(mspi_io_mod
  * @param[in]   len     - write length.
  * @return      none
  */
-_attribute_ram_code_sec_noinline_  void mspi_write(unsigned char *data, unsigned int len);
+_attribute_ram_code_sec_noinline_ void mspi_write(unsigned char *data, unsigned int len);
 
 /**
  * @brief       This function servers to read mspi fifo.
@@ -708,7 +711,7 @@ _attribute_ram_code_sec_noinline_  void mspi_write(unsigned char *data, unsigned
  * @param[in]   len     - write length.
  * @return      none
  */
-_attribute_ram_code_sec_noinline_  void mspi_read(unsigned char *data, unsigned int len);
+_attribute_ram_code_sec_noinline_ void mspi_read(unsigned char *data, unsigned int len);
 
 /**
  * @brief       This function is used to allocate address space to multiple mspi slaves, the chip can allocate address space is 64MB,
@@ -722,4 +725,3 @@ _attribute_ram_code_sec_noinline_  void mspi_read(unsigned char *data, unsigned 
  * @return      0: The address is incorrectly assigned. 1: The address is assigned successfully.
  */
 unsigned char mspi_slave_device_addr_space_config(mspi_slave_size_e slave0_size, mspi_slave_size_e slave1_size, mspi_slave_size_e slave2_size, mspi_slave_size_e slave3_size);
-

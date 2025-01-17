@@ -137,54 +137,54 @@ extern _attribute_data_retention_sec_ volatile unsigned char g_plic_preempt_en;
  * @brief Defines the number of each interrupt in the system and its corresponding handler function.
  */
 
-#define IRQ_SYSTIMER                1  /* STIMER_IRQ: system timer interrupt, - stimer_irq_handler */
-#define IRQ_ALG                     2  /* ALGM_IRQ: analog register master interface interrupt, - analog_irq_handler */
-#define IRQ_TIMER1                  3  /* TIMER1_IRQ, - timer1_irq_handler */
-#define IRQ_TIMER0                  4  /* TIMER0_IRQ, - timer0_irq_handler */
-#define IRQ_DMA                     5  /* DMA_IRQ_IRQ, - dma_irq_handler */
-#define IRQ_BMC                     6  /* BMC_IRQ: ahb bus matrix controller interrupt, - bmc_irq_handler */
-#define IRQ_USB_CTRL_EP_SETUP       7  /* USB_SETUP_IRQ: USB setup interrupt, - usb_ctrl_ep_setup_irq_handler */
-#define IRQ_USB_CTRL_EP_DATA        8  /* USB_DATA_IRQ: USB data interrupt, - usb_ctrl_ep_data_irq_handler */
-#define IRQ_USB_CTRL_EP_STATUS      9  /* USB_STATUS_IRQ: USB status interrupt, - usb_ctrl_ep_status_irq_handler */
-#define IRQ_USB_CTRL_EP_SETINF      10 /* USB_SETINF_IRQ: USB set interface interrupt, - usb_ctrl_ep_setinf_irq_handler */
-#define IRQ_USB_ENDPOINT            11 /* USB_EDP_IRQ: USB edp (1-8) interrupt, - usb_endpoint_irq_handler */
+#define IRQ_SYSTIMER           1  /* STIMER_IRQ: system timer interrupt, - stimer_irq_handler */
+#define IRQ_ALG                2  /* ALGM_IRQ: analog register master interface interrupt, - analog_irq_handler */
+#define IRQ_TIMER1             3  /* TIMER1_IRQ, - timer1_irq_handler */
+#define IRQ_TIMER0             4  /* TIMER0_IRQ, - timer0_irq_handler */
+#define IRQ_DMA                5  /* DMA_IRQ_IRQ, - dma_irq_handler */
+#define IRQ_BMC                6  /* BMC_IRQ: ahb bus matrix controller interrupt, - bmc_irq_handler */
+#define IRQ_USB_CTRL_EP_SETUP  7  /* USB_SETUP_IRQ: USB setup interrupt, - usb_ctrl_ep_setup_irq_handler */
+#define IRQ_USB_CTRL_EP_DATA   8  /* USB_DATA_IRQ: USB data interrupt, - usb_ctrl_ep_data_irq_handler */
+#define IRQ_USB_CTRL_EP_STATUS 9  /* USB_STATUS_IRQ: USB status interrupt, - usb_ctrl_ep_status_irq_handler */
+#define IRQ_USB_CTRL_EP_SETINF 10 /* USB_SETINF_IRQ: USB set interface interrupt, - usb_ctrl_ep_setinf_irq_handler */
+#define IRQ_USB_ENDPOINT       11 /* USB_EDP_IRQ: USB edp (1-8) interrupt, - usb_endpoint_irq_handler */
 
-#define IRQ_ZB_RT                   15 /* ZB_BLE_TL_IRQ: BLE (TL) sub-system interrupt, - rf_irq_handler */
-#define IRQ_PWM                     16 /* PWM_IRQ, - pwm_irq_handler */
-#define IRQ_PKE                     17 /* PKE_IRQ, - pke_irq_handler */
-#define IRQ_UART1                   18 /* UART1_IRQ, - uart1_irq_handler */
-#define IRQ_UART0                   19 /* UART0_IRQ, - uart0_irq_handler */
-#define IRQ_DFIFO                   20 /* DFIFO_IRQ: audio dma fifo interrupt, - audio_irq_handler */
-#define IRQ_I2C                     21 /* I2C_IRQ, - i2c_irq_handler */
+#define IRQ_ZB_RT              15 /* ZB_BLE_TL_IRQ: BLE (TL) sub-system interrupt, - rf_irq_handler */
+#define IRQ_PWM                16 /* PWM_IRQ, - pwm_irq_handler */
+#define IRQ_PKE                17 /* PKE_IRQ, - pke_irq_handler */
+#define IRQ_UART1              18 /* UART1_IRQ, - uart1_irq_handler */
+#define IRQ_UART0              19 /* UART0_IRQ, - uart0_irq_handler */
+#define IRQ_DFIFO              20 /* DFIFO_IRQ: audio dma fifo interrupt, - audio_irq_handler */
+#define IRQ_I2C                21 /* I2C_IRQ, - i2c_irq_handler */
 
-#define IRQ_GSPI                    23 /* GSPI_IRQ, - gspi_irq_handler */
-#define IRQ_USB_PWDN                24 /* USB_PWDN_IRQ: USB suspend interrupt, - usb_pwdn_irq_handler */
+#define IRQ_GSPI               23 /* GSPI_IRQ, - gspi_irq_handler */
+#define IRQ_USB_PWDN           24 /* USB_PWDN_IRQ: USB suspend interrupt, - usb_pwdn_irq_handler */
 
-#define IRQ_SOFT                    28 /* SOFT_IRQ: software interrupt, - soft_irq_handler */
-#define IRQ_MSPI                    29 /* MSPI_IRQ, - mspi_irq_handler */
-#define IRQ_USB_RESET               30 /* USB_RESET_IRQ: USB reset interrupt, - usb_reset_irq_handler */
-#define IRQ_USB_250US_OR_SOF        31 /* USB_250US_OR_SOF_IRQ: USB 250us or SOF interrupt, - usb_250us_or_sof_irq_handler */
-#define IRQ_IR_LEARN                32 /* IR_LEARN_IRQ - ir_learn_irq_handler */
-#define IRQ_QDEC                    33 /* QDEC_IRQ, - qdec_irq_handler */
-#define IRQ_GPIO_IRQ0               34 /* GPIO_IRQ0, - gpio_irq0_handler */
-#define IRQ_GPIO_IRQ1               35 /* GPIO_IRQ1, - gpio_irq1_handler */
-#define IRQ_GPIO_IRQ2               36 /* GPIO_IRQ2, - gpio_irq2_handler */
-#define IRQ_GPIO_IRQ3               37 /* GPIO_IRQ3, - gpio_irq3_handler */
-#define IRQ_GPIO_IRQ4               38 /* GPIO_IRQ4, - gpio_irq4_handler */
-#define IRQ_GPIO_IRQ5               39 /* GPIO_IRQ5, - gpio_irq5_handler */
-#define IRQ_GPIO_IRQ6               40 /* GPIO_IRQ6, - gpio_irq6_handler */
-#define IRQ_GPIO_IRQ7               41 /* GPIO_IRQ7, - gpio_irq7_handler */
-#define IRQ_TRNG                    42 /* TRNG_IRQ, - trng_irq_handler */
-#define IRQ_HASH                    43 /* HASH_IRQ, - hash_irq_handler */
-#define IRQ_PM_LVL                  44 /* PM_LVL_IRQ: PM level interrupt, - pm_level_irq_handler */
-#define IRQ_PM_IRQ                  45 /* PM_MIX_IRQ: PM mixed interrupt, - pm_irq_handler */
+#define IRQ_SOFT               28 /* SOFT_IRQ: software interrupt, - soft_irq_handler */
+#define IRQ_MSPI               29 /* MSPI_IRQ, - mspi_irq_handler */
+#define IRQ_USB_RESET          30 /* USB_RESET_IRQ: USB reset interrupt, - usb_reset_irq_handler */
+#define IRQ_USB_250US_OR_SOF   31 /* USB_250US_OR_SOF_IRQ: USB 250us or SOF interrupt, - usb_250us_or_sof_irq_handler */
+#define IRQ_IR_LEARN           32 /* IR_LEARN_IRQ - ir_learn_irq_handler */
+#define IRQ_QDEC               33 /* QDEC_IRQ, - qdec_irq_handler */
+#define IRQ_GPIO_IRQ0          34 /* GPIO_IRQ0, - gpio_irq0_handler */
+#define IRQ_GPIO_IRQ1          35 /* GPIO_IRQ1, - gpio_irq1_handler */
+#define IRQ_GPIO_IRQ2          36 /* GPIO_IRQ2, - gpio_irq2_handler */
+#define IRQ_GPIO_IRQ3          37 /* GPIO_IRQ3, - gpio_irq3_handler */
+#define IRQ_GPIO_IRQ4          38 /* GPIO_IRQ4, - gpio_irq4_handler */
+#define IRQ_GPIO_IRQ5          39 /* GPIO_IRQ5, - gpio_irq5_handler */
+#define IRQ_GPIO_IRQ6          40 /* GPIO_IRQ6, - gpio_irq6_handler */
+#define IRQ_GPIO_IRQ7          41 /* GPIO_IRQ7, - gpio_irq7_handler */
+#define IRQ_TRNG               42 /* TRNG_IRQ, - trng_irq_handler */
+#define IRQ_HASH               43 /* HASH_IRQ, - hash_irq_handler */
+#define IRQ_PM_LVL             44 /* PM_LVL_IRQ: PM level interrupt, - pm_level_irq_handler */
+#define IRQ_PM_IRQ             45 /* PM_MIX_IRQ: PM mixed interrupt, - pm_irq_handler */
 
-#define IRQ_SKE                     47 /* SKE_IRQ, - ske_irq_handler */
-#define IRQ_UART2                   48 /* UART2_IRQ, - uart2_irq_handler */
-#define IRQ_KEY_SCAN                49 /* KEY_SCAN_IRQ, - key_scan_irq_handler */
+#define IRQ_SKE                47 /* SKE_IRQ, - ske_irq_handler */
+#define IRQ_UART2              48 /* UART2_IRQ, - uart2_irq_handler */
+#define IRQ_KEY_SCAN           49 /* KEY_SCAN_IRQ, - key_scan_irq_handler */
 
-#define IRQ_SARADC_RX               51 /* SARADC_RX_IRQ: sar adc interrupt, - saradc_rx_irq_handler */
-#define IRQ_RZ                      52 /* RZ_IRQ, - rz_irq_handler */
+#define IRQ_SARADC_RX          51 /* SARADC_RX_IRQ: sar adc interrupt, - saradc_rx_irq_handler */
+#define IRQ_RZ                 52 /* RZ_IRQ, - rz_irq_handler */
 /**
  * @}
  */
@@ -210,11 +210,12 @@ extern _attribute_data_retention_sec_ volatile unsigned char g_plic_preempt_en;
  *      - The code in the interrupt service handler should be as simple as possible, and if you can do it without function calls, you can reduce the number of registers on the stack, \n
  *        thus reducing the code size and speeding up the interrupt response.
  */
-#define PLIC_ISR_REGISTER(isr, irq_num)                                                                                                     \
-_attribute_ram_code_sec_noinline_ void ISR_ENTRY_NAME(irq_num)(void) __attribute__ ((interrupt ("machine") , aligned(4)));                  \
-void ISR_ENTRY_NAME(irq_num)(void) {                                                                                                        \
-    plic_isr(isr, irq_num);                                                                                                                 \
-}
+#define PLIC_ISR_REGISTER(isr, irq_num)                                                                                     \
+    _attribute_ram_code_sec_noinline_ void ISR_ENTRY_NAME(irq_num)(void) __attribute__((interrupt("machine"), aligned(4))); \
+    void                                   ISR_ENTRY_NAME(irq_num)(void)                                                    \
+    {                                                                                                                       \
+        plic_isr(isr, irq_num);                                                                                             \
+    }
 
 /**
  * @brief Interrupt source priority. The larger the value, the higher the priority. The default priority value is 1.
@@ -296,7 +297,7 @@ static _always_inline void plic_set_threshold(irq_threshold_e threshold)
     /*The priority number in the threshold register will be saved to a preempted priority stack and the new priority number of the claimed interrupt will be written to the threshold register.
     when the mcu sends an interrupt completion message to the PLIC (plic_interrupt_complete()), the PLIC will restore(Hardware automatic operation) the highest priority number in the preempted priority stack back to the priority threshold register.
     it is possible that when hardware and software write threshold registers at the same time, there is a risk of software write failure, so turn off the global interrupt before software writes, and resume after writing*/
-    unsigned int r = core_interrupt_disable();
+    unsigned int r    = core_interrupt_disable();
     reg_irq_threshold = threshold;
     fence_iorw; /* Hardware may change this value, fence IO ensures that software changes are valid. */
     core_restore_interrupt(r);
@@ -382,7 +383,7 @@ static _always_inline unsigned int plic_interrupt_claim(void)
  *                - Return the value of the mstatus.MIE bit in other cases.
  * @note    plic_enter_critical_sec and plic_exit_critical_sec must be used in pairs.
  */
-_attribute_ram_code_sec_noinline_ unsigned int plic_enter_critical_sec(unsigned char preempt_en, unsigned char threshold);
+_attribute_ram_code_sec_optimize_o2_noinline_ unsigned int plic_enter_critical_sec(unsigned char preempt_en, unsigned char threshold);
 
 /**
  * @brief    This function serves to restore interrupt threshold or mstatus.MIE to exit the critical section, such as calling some flash interface to exit some function.
@@ -393,7 +394,7 @@ _attribute_ram_code_sec_noinline_ unsigned int plic_enter_critical_sec(unsigned 
  *                 - The value of mstatus.MIE or threshold to restore when exit critical section, it must be the value returned by the plic_enter_critical_sec function.
  * @return  none
  */
-_attribute_ram_code_sec_noinline_ void plic_exit_critical_sec(unsigned char preempt_en, unsigned int r);
+_attribute_ram_code_sec_optimize_o2_noinline_ void plic_exit_critical_sec(unsigned char preempt_en, unsigned int r);
 
 /**
  * @brief       This function serves to execute the interrupt service routine. you can call this function when an interrupt occurs.
@@ -414,7 +415,7 @@ _attribute_ram_code_sec_ void plic_isr(func_isr_t func, unsigned int src);
  *          - When global interrupt is disabled, the application needs to call this interface to ensure that all PLIC interrupt requests have been processed.
  *          - When global interrupt is enabled, the application does not need to call this interface, the hardware and interrupt service routine handle interrupt requests.
  */
-_attribute_ram_code_sec_noinline_ int plic_clr_all_request(void);
+_attribute_ram_code_sec_optimize_o2_noinline_ int plic_clr_all_request(void);
 
 /**
  * @brief      This function serves to save and disable all PLIC interrupt sources.

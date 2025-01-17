@@ -31,10 +31,11 @@
     #define ADC_SAMPLE_NUM                      8
     #define ADC_SAMPLE_FREQ                     ADC_SAMPLE_FREQ_96K
     #define ADC_SAMPLE_NDMA_DELAY_TIME          ((1000 / ( 6 * (2 << (ADC_SAMPLE_FREQ)))) + 1)//delay 2 sample
+    #define ADC_PRESCALE                        ADC_PRESCALE_1F4
 #if defined(MCU_CORE_TL721X)
-    #define ADC_PRESCALE						ADC_PRESCALE_1F8
+    #define ADC_VREF                            ADC_VREF_GPIO_1P2V
 #else//b91/b92/tl321x
-    #define ADC_PRESCALE						ADC_PRESCALE_1F4
+    #define ADC_VREF                            ADC_VREF_1P2V
 #endif
 #endif
 
@@ -179,7 +180,7 @@ void drv_adc_mode_pin_set(drv_adc_mode_e mode, GPIO_PinTypeDef pin)
 void drv_adc_mode_pin_set(drv_adc_mode_e mode, adc_input_pin_def_e pin)
 {
     if (mode == DRV_ADC_BASE_MODE) {
-		adc_gpio_sample_init(pin, ADC_VREF_1P2V, ADC_PRESCALE, ADC_SAMPLE_FREQ);
+        adc_gpio_sample_init(pin, ADC_VREF, ADC_PRESCALE, ADC_SAMPLE_FREQ);
     } else if (mode == DRV_ADC_VBAT_MODE) {
         /* The battery voltage sample range is 1.8~3.5V,
          * and must set sys_init() function with the mode for battery voltage less than 3.6V.
@@ -190,11 +191,11 @@ void drv_adc_mode_pin_set(drv_adc_mode_e mode, adc_input_pin_def_e pin)
     }
 }
 #elif defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
-void drv_adc_mode_pin_set(drv_adc_mode_e mode, adc_input_pin_e pin)
+void drv_adc_mode_pin_set(drv_adc_mode_e mode, adc_input_pin_def_e pin)
 {
     if (mode == DRV_ADC_BASE_MODE) {
         adc_gpio_cfg_t adc_gpio_cfg_m;
-        adc_gpio_cfg_m.v_ref = ADC_VREF_1P2V;
+        adc_gpio_cfg_m.v_ref = ADC_VREF;
         adc_gpio_cfg_m.pre_scale = ADC_PRESCALE;
         adc_gpio_cfg_m.sample_freq = ADC_SAMPLE_FREQ;
         adc_gpio_cfg_m.pin = pin;
@@ -226,7 +227,7 @@ void drv_adc_enable(bool enable)
     if (enable) {
         adc_power_on();
 #if defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
-		delay_us(30);//Wait >30us after adc_power_on() for ADC to be stable.
+        delay_us(100);//Wait >100us after adc_power_on() for ADC to be stable.
 #endif
     } else {
         adc_power_off();

@@ -25,10 +25,10 @@
 #define SKE_REG_H
 #include "soc.h"
 
-#define SKE_LP_BASE_ADDR            (0x80104000)
+#define SKE_LP_BASE_ADDR (0x80104000)
 
-#define reg_ske_fifo                (0x80100800 + 0x20)
-#define reg_ske_dma_en              REG_ADDR8(0x100800 + 0x24)
-#define reg_ske_thres               REG_ADDR8(0x100800 + 0x25)
+#define reg_ske_fifo     (0x80100800 + 0x20)
+#define reg_ske_dma_en   REG_ADDR8(0x100800 + 0x24)
+#define reg_ske_thres    REG_ADDR8(0x100800 + 0x25)
 
 #endif

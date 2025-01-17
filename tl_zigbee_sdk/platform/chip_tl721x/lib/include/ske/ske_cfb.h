@@ -28,43 +28,32 @@
 #include "ske.h"
 
 
-
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 
+    //APIs
 
+    unsigned int ske_lp_cfb_init(SKE_ALG alg, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx, unsigned char *iv);
 
+    unsigned int ske_lp_cfb_update_blocks(unsigned char *in, unsigned char *out, unsigned int bytes);
 
+    unsigned int ske_lp_cfb_final(void);
 
-//APIs
-
-unsigned int ske_lp_cfb_init(SKE_ALG alg, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx, unsigned char *iv);
-
-unsigned int ske_lp_cfb_update_blocks(unsigned char *in, unsigned char *out, unsigned int bytes);
-
-unsigned int ske_lp_cfb_final(void);
-
-unsigned int ske_lp_cfb_crypto(SKE_ALG alg, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx, unsigned char *iv,
-        unsigned char *in, unsigned char *out, unsigned int bytes);
+    unsigned int ske_lp_cfb_crypto(SKE_ALG alg, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx, unsigned char *iv, unsigned char *in, unsigned char *out, unsigned int bytes);
 
 
 #ifdef SKE_LP_DMA_FUNCTION
-unsigned int ske_lp_dma_cfb_init(SKE_ALG alg, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx, unsigned char *iv);
+    unsigned int ske_lp_dma_cfb_init(SKE_ALG alg, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx, unsigned char *iv);
 
-unsigned int ske_lp_dma_cfb_update_blocks(unsigned int *in, unsigned int *out, unsigned int words, SKE_CALLBACK callback);
+    unsigned int ske_lp_dma_cfb_update_blocks(unsigned int *in, unsigned int *out, unsigned int words, SKE_CALLBACK callback);
 
-unsigned int ske_lp_dma_cfb_final(void);
+    unsigned int ske_lp_dma_cfb_final(void);
 
-unsigned int ske_lp_dma_cfb_crypto(SKE_ALG alg, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx, unsigned char *iv,
-        unsigned int *in, unsigned int *out, unsigned int words, SKE_CALLBACK callback);
+    unsigned int ske_lp_dma_cfb_crypto(SKE_ALG alg, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx, unsigned char *iv, unsigned int *in, unsigned int *out, unsigned int words, SKE_CALLBACK callback);
 #endif
-
-
-
-
-
 
 
 #ifdef __cplusplus

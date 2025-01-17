@@ -25,13 +25,16 @@
 #define __FLASH_TYPE_H__
 
 #include "flash.h"
-#include "flash_mid146085.h"    // P25Q80SU
-#include "flash_mid136085.h"    // P25Q40SU
-#include "flash_mid156085.h"    // P25Q16SU
-#include "flash_mid166085.h"    // P25Q32SU
+#include "flash_mid146085.h" // P25Q80SU
+#include "flash_mid136085.h" // P25Q40SU
+#include "flash_mid156085.h" // P25Q16SU
+#include "flash_mid166085.h" // P25Q32SU
+#include "flash_mid1460c8.h" // GD25LE80E(untest)
+#include "flash_mid1560c8.h" // GD25LE16E(untest)
+
 /**
  * @brief       This function reads the status of flash.
- * @param[in]   cmd  - the cmd of read status. FLASH_READ_STATUS_CMD_LOWBYTE or FLASH_READ_STATUS_CMD_HIGHBYTE.
+ * @param[in]   cmd     - the cmd of read status. FLASH_READ_STATUS_CMD_LOWBYTE or FLASH_READ_STATUS_CMD_HIGHBYTE.
  * @return      the value of status.
  * @note        Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
  *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.
@@ -78,7 +81,7 @@ void flash_write_status(flash_status_typedef_e type, unsigned short data);
  *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
-void flash_read_otp(unsigned long addr, unsigned long len, unsigned char* buf);
+void flash_read_otp(unsigned long addr, unsigned long len, unsigned char *buf);
 
 /**
  * @brief       This function serves to write data to the Security Registers of the flash you choose.
@@ -120,8 +123,6 @@ void flash_erase_otp(unsigned long addr);
  * @param[in]   addr    - the flash configure address.
  * @param[in]   cmd     - the write command.
  * @param[in]   data    - the start address of the data buffer.
- * @param[in]   w_en_cmd- the flash write enable cmd.
- * @param[in]   busy_cmd- the flash read status cmd.
  * @return      none.
  * @note        important:  "data" must not reside at flash, such as constant string.If that case, pls copy to memory first before write.
  *              Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
@@ -152,6 +153,4 @@ _attribute_text_sec_ void flash_write_config(unsigned long addr, unsigned int cm
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
 _attribute_text_sec_ unsigned char flash_read_config(unsigned long addr, unsigned int cmd);
-
 #endif
-

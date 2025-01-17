@@ -25,7 +25,10 @@
 #define __FLASH_TYPE_H__
 
 #include "flash.h"
-#include "flash_mid156085.h"    // P25Q16SU
+#include "flash_mid146085.h" // P25Q80SU (untest)
+#include "flash_mid156085.h" // P25Q16SU
+#include "flash_mid1460c8.h" // GD25LE80E(untest)
+#include "flash_mid1560c8.h" // GD25LE16E(untest)
 
 
 /**
@@ -80,7 +83,7 @@ void flash_write_status(mspi_slave_device_num_e device_num, flash_status_typedef
  *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
-void flash_read_otp(mspi_slave_device_num_e device_num, unsigned long addr, unsigned long len, unsigned char* buf);
+void flash_read_otp(mspi_slave_device_num_e device_num, unsigned long addr, unsigned long len, unsigned char *buf);
 
 /**
  * @brief       This function serves to write data to the Security Registers of the flash you choose.
@@ -160,4 +163,3 @@ _attribute_text_sec_ void flash_write_config(mspi_slave_device_num_e device_num,
 _attribute_text_sec_ unsigned char flash_read_config(mspi_slave_device_num_e device_num, unsigned long addr, unsigned int cmd);
 
 #endif
-

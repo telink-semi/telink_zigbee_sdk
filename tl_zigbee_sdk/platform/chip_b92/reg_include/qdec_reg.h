@@ -27,49 +27,62 @@
 /*******************************      qdec registers: 0x140240      ******************************/
 
 
-#define 	REG_QDEC_BASE		    0x140240
+#define REG_QDEC_BASE    0x140240
 
-#define reg_qdec_count0        REG_ADDR8(REG_QDEC_BASE+0x00)
+#define reg_qdec_count0  REG_ADDR8(REG_QDEC_BASE + 0x00)
 
-#define reg_qdec_dbntime       REG_ADDR8(REG_QDEC_BASE+0x01)
-enum{
-	FLD_QDEC_DBNTIME  = BIT_RNG(0,2),
-	FLD_QDEC_POLA     = BIT(4),
-	FLS_QDEC_SHUTTLE0 = BIT(5),
+#define reg_qdec_dbntime REG_ADDR8(REG_QDEC_BASE + 0x01)
+
+enum
+{
+    FLD_QDEC_DBNTIME  = BIT_RNG(0, 2),
+    FLD_QDEC_POLA     = BIT(4),
+    FLS_QDEC_SHUTTLE0 = BIT(5),
 };
 
-#define reg_qdec_channel_a     REG_ADDR8(REG_QDEC_BASE+0x02)
-enum{
-	FLD_QDEC_CHANNEL_A   = BIT_RNG(0,2),
-};
-#define reg_qdec_channel_b     REG_ADDR8(REG_QDEC_BASE+0x03)
-enum{
-	FLD_QDEC_CHANNEL_B   = BIT_RNG(0,2),
+#define reg_qdec_channel_a REG_ADDR8(REG_QDEC_BASE + 0x02)
+
+enum
+{
+    FLD_QDEC_CHANNEL_A = BIT_RNG(0, 2),
 };
 
-#define reg_qdec_mask     REG_ADDR8(REG_QDEC_BASE+0x04)
-enum{
-	FLD_QDEC_MASK       = BIT(0),
+#define reg_qdec_channel_b REG_ADDR8(REG_QDEC_BASE + 0x03)
+
+enum
+{
+    FLD_QDEC_CHANNEL_B = BIT_RNG(0, 2),
 };
 
-#define reg_qdec_int0     REG_ADDR8(REG_QDEC_BASE+0x05)
-enum{
-	FLD_QDEC_INT0     = BIT(0),
+#define reg_qdec_mask REG_ADDR8(REG_QDEC_BASE + 0x04)
+
+enum
+{
+    FLD_QDEC_MASK = BIT(0),
 };
 
+#define reg_qdec_int0 REG_ADDR8(REG_QDEC_BASE + 0x05)
 
-#define reg_qdec_reset         REG_ADDR8(REG_QDEC_BASE+0x06)
-
-#define reg_qdec_mode          REG_ADDR8(REG_QDEC_BASE+0x07)
-enum{
-	FLD_QDEC_DOUBLE0   = BIT(0),
+enum
+{
+    FLD_QDEC_INT0 = BIT(0),
 };
 
-#define reg_qdec_load 	       REG_ADDR8(REG_QDEC_BASE+0x08)
-enum{
-	FLD_QDEC_COUNT0_RELOAD   = BIT(0),
+#define reg_qdec_reset REG_ADDR8(REG_QDEC_BASE + 0x06)
+
+#define reg_qdec_mode  REG_ADDR8(REG_QDEC_BASE + 0x07)
+
+enum
+{
+    FLD_QDEC_DOUBLE0 = BIT(0),
 };
 
+#define reg_qdec_load REG_ADDR8(REG_QDEC_BASE + 0x08)
+
+enum
+{
+    FLD_QDEC_COUNT0_RELOAD = BIT(0),
+};
 
 
 #endif

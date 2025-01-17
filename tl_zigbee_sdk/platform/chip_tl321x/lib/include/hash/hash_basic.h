@@ -27,49 +27,25 @@
 
 #include "reg_include/hash_reg.h"
 #include "dma.h"
+#include "lib/include/hash/hash_config.h"
 
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 
-
-
-#define SUPPORT_HASH_SM3
-#define SUPPORT_HASH_MD5
-#define SUPPORT_HASH_SHA256
-#define SUPPORT_HASH_SHA384
-#define SUPPORT_HASH_SHA512
-#define SUPPORT_HASH_SHA1
-#define SUPPORT_HASH_SHA224
-#define SUPPORT_HASH_SHA512_224
-#define SUPPORT_HASH_SHA512_256
-//#define SUPPORT_HASH_SHA3_224
-//#define SUPPORT_HASH_SHA3_256
-//#define SUPPORT_HASH_SHA3_384
-//#define SUPPORT_HASH_SHA3_512
-
-
-
-//#define HASH_CPU_BIG_ENDIAN        //endian choice.
-
-
-#define HASH_DMA_FUNCTION
-
-
-//#define HMAC_SECURE_PORT_FUNCTION
 #ifdef HMAC_SECURE_PORT_FUNCTION
-#define HMAC_MAX_KEY_IDX                             (8)   //if key is from secure port, the max key index(or the number of keys)
-#define HMAC_MAX_SP_KEY_SIZE                         (64)  //for secure port key, max bytes of one key
+    #define HMAC_MAX_KEY_IDX     (8)  //if key is from secure port, the max key index(or the number of keys)
+    #define HMAC_MAX_SP_KEY_SIZE (64) //for secure port key, max bytes of one key
 #endif
-
 
 
 //some register offset
-#define HASH_LAST_OFFSET                             (24)
-#define HASH_DMA_OFFSET                              (17)
-#define HASH_INTERRUPTION_OFFSET                     (16)
+#define HASH_LAST_OFFSET         (24)
+#define HASH_DMA_OFFSET          (17)
+#define HASH_INTERRUPTION_OFFSET (16)
 
 
 #if 0
@@ -93,148 +69,134 @@ typedef struct {
 } HASH_REG;
 #else
 
-#define rHASH_CTRL         (*((volatile unsigned int *)(HASH_BASE_ADDR)))                  /* Offset: 0x000 (W1S)  Control register */
-#define rHASH_CFG          (*((volatile unsigned int *)(HASH_BASE_ADDR+0x004)))            /* Offset: 0x004 (R/W)  Config register */
-#define rHASH_SR1          (*((volatile unsigned int *)(HASH_BASE_ADDR+0x008)))            /* Offset: 0x008 (R)    Status register 1 */
-#define rHASH_SR2          (*((volatile unsigned int *)(HASH_BASE_ADDR+0x00C)))            /* Offset: 0x00C (W1C)  Status register 2 */
-#define rHASH_PCR_LEN(i)   (*((volatile unsigned int *)(HASH_BASE_ADDR+0x020+((i)<<2))))   /* Offset: 0x020 (R/W)  message length register, 4 words */
-#define rHASH_OUT(i)       (*((volatile unsigned int *)(HASH_BASE_ADDR+0x030+((i)<<2))))   /* Offset: 0x030 (R)    Output register, 16 words */
-#define rHASH_IN(i)        (*((volatile unsigned int *)(HASH_BASE_ADDR+0x070+((i)<<2))))   /* Offset: 0x070 (W)    Hash iterator Input register, 16 words */
-#define rHASH_VERSION      (*((volatile unsigned int *)(HASH_BASE_ADDR+0x0B0)))            /* Offset: 0x0B0 (R)    Version register */
-#define rHASH_M_DIN(i)     (*((volatile unsigned int *)(HASH_BASE_ADDR+0x100+((i)<<2))))   /* Offset: 0x100 (R/W)  Hash message Input register, 32 words */
-#define rHASH_DMA_SA       (*((volatile unsigned int *)(HASH_BASE_ADDR+0x180)))            /* Offset: 0x180 (R/W)  DMA Source Address register */
-#define rHASH_DMA_DA       (*((volatile unsigned int *)(HASH_BASE_ADDR+0x184)))            /* Offset: 0x184 (R/W)  DMA Destination Address register */
-#define rHASH_DMA_RLEN     (*((volatile unsigned int *)(HASH_BASE_ADDR+0x188)))            /* Offset: 0x188 (R/W)  DMA Input Length register */
-#define rHASH_DMA_WLEN     (*((volatile unsigned int *)(HASH_BASE_ADDR+0x18C)))            /* Offset: 0x18C (R/W)  DMA Output Length register */
+    #define rHASH_CTRL       (*((volatile unsigned int *)(HASH_BASE_ADDR)))                      /* Offset: 0x000 (W1S)  Control register */
+    #define rHASH_CFG        (*((volatile unsigned int *)(HASH_BASE_ADDR + 0x004)))              /* Offset: 0x004 (R/W)  Config register */
+    #define rHASH_SR1        (*((volatile unsigned int *)(HASH_BASE_ADDR + 0x008)))              /* Offset: 0x008 (R)    Status register 1 */
+    #define rHASH_SR2        (*((volatile unsigned int *)(HASH_BASE_ADDR + 0x00C)))              /* Offset: 0x00C (W1C)  Status register 2 */
+    #define rHASH_PCR_LEN(i) (*((volatile unsigned int *)(HASH_BASE_ADDR + 0x020 + ((i) << 2)))) /* Offset: 0x020 (R/W)  message length register, 4 words */
+    #define rHASH_OUT(i)     (*((volatile unsigned int *)(HASH_BASE_ADDR + 0x030 + ((i) << 2)))) /* Offset: 0x030 (R)    Output register, 16 words */
+    #define rHASH_IN(i)      (*((volatile unsigned int *)(HASH_BASE_ADDR + 0x070 + ((i) << 2)))) /* Offset: 0x070 (W)    Hash iterator Input register, 16 words */
+    #define rHASH_VERSION    (*((volatile unsigned int *)(HASH_BASE_ADDR + 0x0B0)))              /* Offset: 0x0B0 (R)    Version register */
+    #define rHASH_M_DIN(i)   (*((volatile unsigned int *)(HASH_BASE_ADDR + 0x100 + ((i) << 2)))) /* Offset: 0x100 (R/W)  Hash message Input register, 32 words */
+    #define rHASH_DMA_SA     (*((volatile unsigned int *)(HASH_BASE_ADDR + 0x180)))              /* Offset: 0x180 (R/W)  DMA Source Address register */
+    #define rHASH_DMA_DA     (*((volatile unsigned int *)(HASH_BASE_ADDR + 0x184)))              /* Offset: 0x184 (R/W)  DMA Destination Address register */
+    #define rHASH_DMA_RLEN   (*((volatile unsigned int *)(HASH_BASE_ADDR + 0x188)))              /* Offset: 0x188 (R/W)  DMA Input Length register */
+    #define rHASH_DMA_WLEN   (*((volatile unsigned int *)(HASH_BASE_ADDR + 0x18C)))              /* Offset: 0x18C (R/W)  DMA Output Length register */
 
 #endif
 
 
 //HASH max length
-#if (defined(SUPPORT_HASH_SHA384) || defined(SUPPORT_HASH_SHA512) ||defined(SUPPORT_HASH_SHA512_224) ||defined(SUPPORT_HASH_SHA512_256))
-#define HASH_DIGEST_MAX_WORD_LEN       (16)
-#define HASH_BLOCK_MAX_WORD_LEN        (32)
-#define HASH_TOTAL_LEN_MAX_WORD_LEN    (4)
+#if (defined(SUPPORT_HASH_SHA384) || defined(SUPPORT_HASH_SHA512) || defined(SUPPORT_HASH_SHA512_224) || defined(SUPPORT_HASH_SHA512_256))
+    #define HASH_DIGEST_MAX_WORD_LEN    (16)
+    #define HASH_BLOCK_MAX_WORD_LEN     (32)
+    #define HASH_TOTAL_LEN_MAX_WORD_LEN (4)
 #else
-#define HASH_DIGEST_MAX_WORD_LEN       (8)
-#define HASH_BLOCK_MAX_WORD_LEN        (16)
-#define HASH_TOTAL_LEN_MAX_WORD_LEN    (2)
+    #define HASH_DIGEST_MAX_WORD_LEN    (8)
+    #define HASH_BLOCK_MAX_WORD_LEN     (16)
+    #define HASH_TOTAL_LEN_MAX_WORD_LEN (2)
 #endif
 
-#define HASH_ITERATOR_MAX_WORD_LEN     HASH_DIGEST_MAX_WORD_LEN
-#define HASH_BLOCK_MAX_BYTE_LEN        (HASH_BLOCK_MAX_WORD_LEN<<2)
+#define HASH_ITERATOR_MAX_WORD_LEN HASH_DIGEST_MAX_WORD_LEN
+#define HASH_BLOCK_MAX_BYTE_LEN    (HASH_BLOCK_MAX_WORD_LEN << 2)
 
-
-//HASH algorithm definition
-typedef enum {
+    //HASH algorithm definition
+    typedef enum
+    {
 #ifdef SUPPORT_HASH_SM3
-    HASH_SM3                      = 0,
+        HASH_SM3 = 0,
 #endif
 
 #ifdef SUPPORT_HASH_MD5
-    HASH_MD5                      = 1,
+        HASH_MD5 = 1,
 #endif
 
 #ifdef SUPPORT_HASH_SHA256
-    HASH_SHA256                   = 2,
+        HASH_SHA256 = 2,
 #endif
 
 #ifdef SUPPORT_HASH_SHA384
-    HASH_SHA384                   = 3,
+        HASH_SHA384 = 3,
 #endif
 
 #ifdef SUPPORT_HASH_SHA512
-    HASH_SHA512                   = 4,
+        HASH_SHA512 = 4,
 #endif
 
 #ifdef SUPPORT_HASH_SHA1
-    HASH_SHA1                     = 5,
+        HASH_SHA1 = 5,
 #endif
 
 #ifdef SUPPORT_HASH_SHA224
-    HASH_SHA224                   = 6,
+        HASH_SHA224 = 6,
 #endif
 
 #ifdef SUPPORT_HASH_SHA512_224
-    HASH_SHA512_224               = 7,
+        HASH_SHA512_224 = 7,
 #endif
 
 #ifdef SUPPORT_HASH_SHA512_256
-    HASH_SHA512_256               = 8,
+        HASH_SHA512_256 = 8,
 #endif
 
 #ifdef SUPPORT_HASH_SHA3_224
-    HASH_SHA3_224                 = 9,
+        HASH_SHA3_224 = 9,
 #endif
 
 #ifdef SUPPORT_HASH_SHA3_256
-    HASH_SHA3_256                 = 10,
+        HASH_SHA3_256 = 10,
 #endif
 
 #ifdef SUPPORT_HASH_SHA3_384
-    HASH_SHA3_384                 = 11,
+        HASH_SHA3_384 = 11,
 #endif
 
 #ifdef SUPPORT_HASH_SHA3_512
-    HASH_SHA3_512                 = 12,
+        HASH_SHA3_512 = 12,
 #endif
-} HASH_ALG;
+    } HASH_ALG;
 
 
-//HASH return code
-enum HASH_RET_CODE
-{
-    HASH_SUCCESS = 0,
-    HASH_BUFFER_NULL,
-    HASH_CONFIG_INVALID,
-    HASH_INPUT_INVALID,
-    HASH_LEN_OVERFLOW,
-    HASH_ERROR,
-};
+    //HASH return code
+    enum HASH_RET_CODE
+    {
+        HASH_SUCCESS = 0,
+        HASH_BUFFER_NULL,
+        HASH_CONFIG_INVALID,
+        HASH_INPUT_INVALID,
+        HASH_LEN_OVERFLOW,
+        HASH_OUTPUT_ZERO_ALL,
+        HASH_ERROR,
+    };
+
+    //hash callback function type
+    typedef void (*HASH_CALLBACK)(void);
 
 
-//hash callback function type
-typedef void (*HASH_CALLBACK)(void);
-
-
-#ifndef   NULL
-#define   NULL              0
+#ifndef NULL
+    #define NULL 0
 #endif
 
-//APIs
-/**
- * @brief       set hash tx dma channel.
- * @param[in]   chn  - hash tx dma channel.
- * @return      none
- */
- void hash_set_tx_dma_channel(dma_chn_e chn);
-
- /**
-  * @brief          set hash rx dma channel.
-  * @param[in]  chn  - hash rx dma channel.
-  * @return         none
-  */
-  void hash_set_rx_dma_channel(dma_chn_e chn);
-
-/**
+    //APIs
+    /**
  * @brief       get HFE IP version.
  * @return      HFE IP version
  */
-unsigned int hash_get_version(void);
+    unsigned int hash_get_version(void);
 
-/**
+    /**
  * @brief       set hash to be CPU mode.
  * @return      none
  */
-void hash_set_cpu_mode(void);
+    void hash_set_cpu_mode(void);
 
-/**
+    /**
  * @brief       set hash to be DMA mode.
  * @return      none
  */
-void hash_set_dma_mode(void);
+    void hash_set_dma_mode(void);
 
-/**
+    /**
  * @brief       set the specific hash algorithm.
  * @param[in]   hash_alg   - specific hash algorithm.
  * @return      none
@@ -243,21 +205,21 @@ void hash_set_dma_mode(void);
       -# 1. please make sure hash_alg is valid.
   @endverbatim
  */
-void hash_set_alg(HASH_ALG hash_alg);
+    void hash_set_alg(HASH_ALG hash_alg);
 
-/**
+    /**
  * @brief       enable hash interruption in CPU mode or DMA mode.
  * @return      none
  */
-void hash_enable_interruption(void);
+    void hash_enable_interruption(void);
 
-/**
+    /**
  * @brief       disable hash interruption in CPU mode or DMA mode.
  * @return      none
  */
-void hash_disable_interruption(void);
+    void hash_disable_interruption(void);
 
-/**
+    /**
  * @brief       set the tag whether current block is the last message block or not.
  * @param[in]   tag  - 0(no), other(yes).
  * @return      none
@@ -267,17 +229,17 @@ void hash_disable_interruption(void);
  *        then the hardware will do the padding and post-processing.
   @endverbatim
  */
-void hash_set_last_block(unsigned int tag);
+    void hash_set_last_block(unsigned int tag);
 
-/**
+    /**
  * @brief       get current HASH iterator value.
  * @param[in]   iterator  - current hash iterator.
  * @param[in]   iterator word length.
  * @return      none
  */
-void hash_get_iterator(unsigned char *iterator, unsigned int hash_iterator_words);
+    void hash_get_iterator(unsigned char *iterator, unsigned int hash_iterator_words);
 
-/**
+    /**
  * @brief       input current iterator value.
  * @param[in]   iterator             - hash iterator value.
  * @param[in]   hash_iterator_words  - iterator word length.
@@ -287,45 +249,51 @@ void hash_get_iterator(unsigned char *iterator, unsigned int hash_iterator_words
       -# 1. iterator must be word aligned.
   @endverbatim
  */
-void hash_set_iterator(const unsigned int *iterator, unsigned int hash_iterator_words);
+    void hash_set_iterator(const unsigned int *iterator, unsigned int hash_iterator_words);
 
-/**
+    /**
  * @brief       clear rHASH_PCR_LEN.
  * @return      none
  */
-void hash_clear_msg_len(void);
+    void hash_clear_msg_len(void);
 
-/**
+    /**
  * @brief       set the total byte length of the whole message.
  * @param[in]   msg_total_bytes             - total byte length of the whole message.
  * @param[in]   words                       - word length of array msg_total_bytes.
  * @return      none
  */
-void hash_set_msg_total_byte_len(unsigned int *msg_total_bytes, unsigned int words);
+    void hash_set_msg_total_byte_len(unsigned int *msg_total_bytes, unsigned int words);
 
-/**
+    /**
  * @brief       start HASH iteration calc.
  * @return      none
  */
-void hash_start(void);
+    void hash_start(void);
 
-/**
+    /**
  * @brief       wait till done.
  * @return      none
  */
-void hash_wait_till_done(void);
+    void hash_wait_till_done(void);
 
-/**
+    /**
+ * @brief       DMA wait till done.
+ * @param[in]   callback             - callback function pointer.
+ * @return      none
+ */
+    void hash_dma_wait_till_done(HASH_CALLBACK callback);
+    /**
  * @brief       set dma output bytes length.
  * @param[in]   bytes             - byte length of the written data for hash hardware.
  * @return      none
  */
-void hash_set_dma_output_len(unsigned int bytes);
+    void hash_set_dma_output_len(unsigned int bytes);
 
-/**
+    /**
  * @brief       input message.
  * @param[in]   msg             - message.
- * @param[in]   msg_words       - word length of msg.
+ * @param[in]   msg_bytes       - word length of msg.
  * @return      none
  * @note
   @verbatim
@@ -333,10 +301,15 @@ void hash_set_dma_output_len(unsigned int bytes);
         hash block word length.
   @endverbatim
  */
-void hash_input_msg(const unsigned char *msg, unsigned int msg_words);
+    void hash_input_msg_u8(const unsigned char *msg, unsigned int msg_bytes);
 
 #ifdef HASH_DMA_FUNCTION
-/**
+    #ifdef CONFIG_HASH_SUPPORT_ADDRESS_HIGH_LOW
+
+    void hash_dma_operate(unsigned int in_h, unsigned int in_l, unsigned int out_h, unsigned int out_l, unsigned int inByteLen, HASH_CALLBACK callback);
+    #else
+
+    /**
  * @brief       input message.
  * @param[in]   in             - message of some blocks, or message including the last byte(last block).
  * @param[out]  out            - hash digest or hmac.
@@ -351,15 +324,13 @@ void hash_input_msg(const unsigned char *msg, unsigned int msg_words);
         if to get the digest or hmac, para out can not be NULL, and please set WLEN to be digest length.
   @endverbatim
  */
-void hash_dma_operate(unsigned int *in, unsigned int *out, unsigned int inByteLen, HASH_CALLBACK callback);
+    void hash_dma_operate(unsigned int *in, unsigned int *out, unsigned int inByteLen, HASH_CALLBACK callback);
+    #endif
 #endif
-
-
 
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif 
-
+#endif

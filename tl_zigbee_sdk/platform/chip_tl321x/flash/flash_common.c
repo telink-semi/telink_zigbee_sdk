@@ -34,6 +34,8 @@
     |              | P25Q40SU   |   0x4b  | 0x136085 |  PUYA   |           8us                   |                   30ms               |
     |              | P25Q16SU   |   0x4b  | 0x156085 |  PUYA   |           8us                   |                   30ms               |
     |              | P25Q32SU   |   0x4b  | 0x166085 |  PUYA   |           8us                   |                   30ms               |
+    |              | GD25LQ16E  |   0x4b  | 0x1560c8 |    GD   |           20us                  | 300ms/500ms(85 Celsius/125 Celsius)  |
+    |              | GD25LQ80E  |   0x4b  | 0x1460c8 |    GD   |           20us                  | 600ms/1000ms(85 Celsius/125 Celsius) |
     +--------------+------------+---------+----------+---------+---------------------------------+--------------------------------------+
 
     Note:
@@ -42,17 +44,17 @@
  **/
 const flash_hal_handler_t flash_list[] = {
     //512K
-    {0x136085,flash_get_lock_block_mid136085, flash_unlock_mid136085, flash_lock_mid136085,FLASH_LOCK_LOW_256K_MID136085,flash_write_status_mid136085,FLASH_WRITE_STATUS_QE_MID136085,FLASH_QE_ENABLE_MID136085,FLASH_QE_DISABLE_MID136085},
+    {0x136085, flash_get_lock_block_mid136085, flash_unlock_mid136085, flash_lock_mid136085, FLASH_LOCK_LOW_256K_MID136085, flash_write_status_mid136085, FLASH_WRITE_STATUS_QE_MID136085, FLASH_QE_ENABLE_MID136085, FLASH_QE_DISABLE_MID136085},
     //1M
-    {0x146085,flash_get_lock_block_mid146085, flash_unlock_mid146085, flash_lock_mid146085,FLASH_LOCK_LOW_512K_MID146085,flash_write_status_mid146085,FLASH_WRITE_STATUS_QE_MID146085,FLASH_QE_ENABLE_MID146085,FLASH_QE_DISABLE_MID146085},
+    {0x146085, flash_get_lock_block_mid146085, flash_unlock_mid146085, flash_lock_mid146085, FLASH_LOCK_LOW_512K_MID146085, flash_write_status_mid146085, FLASH_WRITE_STATUS_QE_MID146085, FLASH_QE_ENABLE_MID146085, FLASH_QE_DISABLE_MID146085},
+    {0x1460c8, flash_get_lock_block_mid1460c8, flash_unlock_mid1460c8, flash_lock_mid1460c8, FLASH_LOCK_LOW_512K_MID1460C8, flash_write_status_mid1460c8, FLASH_WRITE_STATUS_QE_MID1460C8, FLASH_QE_ENABLE_MID1460C8, FLASH_QE_DISABLE_MID1460C8},
     //2M
-    {0x156085,flash_get_lock_block_mid156085, flash_unlock_mid156085, flash_lock_mid156085,FLASH_LOCK_LOW_1M_MID156085,flash_write_status_mid156085,FLASH_WRITE_STATUS_QE_MID156085,FLASH_QE_ENABLE_MID156085,FLASH_QE_DISABLE_MID156085},
+    {0x156085, flash_get_lock_block_mid156085, flash_unlock_mid156085, flash_lock_mid156085, FLASH_LOCK_LOW_1M_MID156085,   flash_write_status_mid156085, FLASH_WRITE_STATUS_QE_MID156085, FLASH_QE_ENABLE_MID156085, FLASH_QE_DISABLE_MID156085},
+    {0x1560c8, flash_get_lock_block_mid1560c8, flash_unlock_mid1560c8, flash_lock_mid1560c8, FLASH_LOCK_LOW_1M_MID1560C8,   flash_write_status_mid1560c8, FLASH_WRITE_STATUS_QE_MID1560C8, FLASH_QE_ENABLE_MID1560C8, FLASH_QE_DISABLE_MID1560C8},
     //4M
-    {0x166085,flash_get_lock_block_mid166085, flash_unlock_mid166085, flash_lock_mid166085,FLASH_LOCK_LOW_2M_MID166085,flash_write_status_mid166085,FLASH_WRITE_STATUS_QE_MID166085,FLASH_QE_ENABLE_MID166085,FLASH_QE_DISABLE_MID166085},
+    {0x166085, flash_get_lock_block_mid166085, flash_unlock_mid166085, flash_lock_mid166085, FLASH_LOCK_LOW_2M_MID166085,   flash_write_status_mid166085, FLASH_WRITE_STATUS_QE_MID166085, FLASH_QE_ENABLE_MID166085, FLASH_QE_DISABLE_MID166085},
 };
-const unsigned int FLASH_CNT = sizeof(flash_list)/sizeof(flash_hal_handler_t);
-
-
+const unsigned int FLASH_CNT = sizeof(flash_list) / sizeof(flash_hal_handler_t);
 
 /**
  * @brief       This function serves to read flash mid and uid,and check the correctness of mid and uid.
@@ -69,31 +71,31 @@ const unsigned int FLASH_CNT = sizeof(flash_list)/sizeof(flash_hal_handler_t);
  *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
-_attribute_text_sec_ int flash_read_mid_uid_with_check(unsigned int *flash_mid ,unsigned char *flash_uid)
+_attribute_text_sec_ int flash_read_mid_uid_with_check(unsigned int *flash_mid, unsigned char *flash_uid)
 {
-    unsigned char no_uid[16]={0x51,0x01,0x51,0x01,0x51,0x01,0x51,0x01,0x51,0x01,0x51,0x01,0x51,0x01,0x51,0x01};
-    unsigned int i,f_cnt=0;
+    unsigned char no_uid[16] = {0x51, 0x01, 0x51, 0x01, 0x51, 0x01, 0x51, 0x01, 0x51, 0x01, 0x51, 0x01, 0x51, 0x01, 0x51, 0x01};
+    unsigned int  i, f_cnt = 0;
     *flash_mid = flash_read_mid();
 
-    for(i=0; i<FLASH_CNT; i++){
-        if(flash_list[i].mid == *flash_mid){
-            flash_read_uid(((FLASH_READ_UID_CMD_GD_PUYA_ZB_TH>>16)&0xff), (unsigned char *)flash_uid);
+    for (i = 0; i < FLASH_CNT; i++) {
+        if (flash_list[i].mid == *flash_mid) {
+            flash_read_uid(((FLASH_READ_UID_CMD_GD_PUYA_ZB_TH >> 24) & 0xff), (unsigned char *)flash_uid);
             break;
         }
     }
-    if(i == FLASH_CNT){
+    if (i == FLASH_CNT) {
         return 0;
     }
 
-    for(i=0; i<16; i++){
-        if(flash_uid[i] == no_uid[i]){
+    for (i = 0; i < 16; i++) {
+        if (flash_uid[i] == no_uid[i]) {
             f_cnt++;
         }
     }
 
-    if(f_cnt == 16){    //no uid flash
+    if (f_cnt == 16) { //no uid flash
         return 0;
-    }else{
+    } else {
         return 1;
     }
 }
@@ -105,10 +107,10 @@ _attribute_text_sec_ int flash_read_mid_uid_with_check(unsigned int *flash_mid ,
  */
 unsigned char flash_4line_en(unsigned int flash_mid)
 {
-    unsigned int i=0;
+    unsigned int i = 0;
 
-    for(i=0; i<FLASH_CNT; i++){
-        if(flash_list[i].mid == flash_mid){
+    for (i = 0; i < FLASH_CNT; i++) {
+        if (flash_list[i].mid == flash_mid) {
             return flash_list[i].flash_write_status(flash_list[i].qe_en, flash_list[i].flash_qe_mask);
         }
     }
@@ -122,10 +124,10 @@ unsigned char flash_4line_en(unsigned int flash_mid)
  */
 unsigned char flash_4line_dis(unsigned int flash_mid)
 {
-    unsigned int i=0;
+    unsigned int i = 0;
 
-    for(i=0; i<FLASH_CNT; i++){
-        if(flash_list[i].mid == flash_mid){
+    for (i = 0; i < FLASH_CNT; i++) {
+        if (flash_list[i].mid == flash_mid) {
             return flash_list[i].flash_write_status(flash_list[i].qe_dis, flash_list[i].flash_qe_mask);
         }
     }

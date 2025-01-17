@@ -21,8 +21,8 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-#ifndef     RF_INTERNAL_H
-#define     RF_INTERNAL_H
+#ifndef RF_INTERNAL_H
+#define RF_INTERNAL_H
 
 #include "lib/include/sys.h"
 #include "lib/include/rf/rf_dma.h"
@@ -30,19 +30,19 @@
 #include "gpio.h"
 #include "lib/include/stimer.h"
 
-#if(0)
-/******************************************************FOR HADM************************************************************/
+#if (0)
+    /******************************************************FOR HADM************************************************************/
 
-/**
+    /**
  *  @brief This macro is used to enable interfaces related to HADM
  */
-#define     RF_HADM_EN              0
+    #define RF_HADM_EN 0
 
-/**********************************************************************************************************************
+    /**********************************************************************************************************************
  *                                       RF global data type                                                          *
  *********************************************************************************************************************/
 
-#if RF_HADM_EN
+    #if RF_HADM_EN
 /**
  * @brief   Select how you want to start IQ sampling.
  */
@@ -50,7 +50,7 @@ typedef enum
 {
     RF_HADM_IQ_SAMPLE_SYNC_MODE,
     RF_HADM_IQ_SAMPLE_RXEN_MODE
-}rf_hadm_iq_sample_mode_e;
+} rf_hadm_iq_sample_mode_e;
 
 /**
  * @brief   Select whether the antenna clock is normally open or turned on when the antenna is switched.
@@ -59,33 +59,36 @@ typedef enum
 {
     RF_HADM_ANT_CLK_ALWAYS_ON_MODE,
     RF_HADM_ANT_CLK_SWITCH_ON_MODE
-}rf_hadm_ant_clk_mode_e;
-#endif
+} rf_hadm_ant_clk_mode_e;
+    #endif
 
 /**
  * @brief   select baseband transmission unit
  */
-typedef enum{
+typedef enum
+{
     RF_WORLD_WIDTH  = 0,
     RF_DWORLD_WIDTH = 1,
     RF_QWORLD_WIDTH = 2,
-}rf_trans_unit_e;
+} rf_trans_unit_e;
 
-typedef enum{
+typedef enum
+{
     RF_NORMAL_LENGTH_PACKET     = 0,
     RF_HYPER_LENGTH_PACKET      = 1,
     RF_ADV1_HYPER_LENGTH_PACKET = 2,
     RF_ADV2_HYPER_LENGTH_PACKET = 3
-}rf_pkt_len_mode_e;
+} rf_pkt_len_mode_e;
 
-#if RF_HADM_EN
-typedef enum{
-    RF_RX_ACL_AOA_AOD_EN  = BIT(0),
-    RF_RX_ADV_AOA_AOD_EN  = BIT(1),
-    RF_TX_ACL_AOA_AOD_EN  = BIT(2),
-    RF_TX_ADV_AOA_AOD_EN  = BIT(3),
-    RF_AOA_AOD_OFF        = 0
-}rf_aoa_aod_mode_e;
+    #if RF_HADM_EN
+typedef enum
+{
+    RF_RX_ACL_AOA_AOD_EN = BIT(0),
+    RF_RX_ADV_AOA_AOD_EN = BIT(1),
+    RF_TX_ACL_AOA_AOD_EN = BIT(2),
+    RF_TX_ADV_AOA_AOD_EN = BIT(3),
+    RF_AOA_AOD_OFF       = 0
+} rf_aoa_aod_mode_e;
 
 /*
  * @brief  Data length type of AOA/AOD sampling.
@@ -94,15 +97,14 @@ typedef enum{
  * |     <15:8>      |          <7:0>          |
  * |   IQ byte len   |   iq data bit num mode  |
  */
-typedef enum{
-    IQ_8_BIT_MODE           = 0x0200,
-    IQ_16_BIT_MODE          = 0x0401,
-    IQ_16_BIT_LOW_MODE      = 0x0402,
-    IQ_16_BIT_HIGH_MODE     = 0x0403,
-    IQ_20_BIT_MODE          = 0x0504
-}rf_iq_data_mode_e;
-
-
+typedef enum
+{
+    IQ_8_BIT_MODE       = 0x0200,
+    IQ_16_BIT_MODE      = 0x0401,
+    IQ_16_BIT_LOW_MODE  = 0x0402,
+    IQ_16_BIT_HIGH_MODE = 0x0403,
+    IQ_20_BIT_MODE      = 0x0504
+} rf_iq_data_mode_e;
 
 /*
  * @brief  AOA/AOD sample interval time type enumeration.
@@ -110,42 +112,44 @@ typedef enum{
  *         In normal mode, the sampling interval of AOA is 4us, and AOD will judge whether the sampling interval is 4us or 2us according to
  *         CTE info.
  */
-typedef enum{
-    SAMPLE_NORMAL_INTERVAL      = 0,//In this case sample interval of aoa is 4us, and aod will judge sample interval is 4us or 2us according to CTE info.
-    SAMPLE_2US_INTERVAL         = 3,
-    SAMPLE_1US_INTERVAL         = 4,
-    SAMPLE_0P5US_INTERVAL       = 5,
-    SAMPLE_0P25US_INTERVAL      = 6
-}rf_aoa_aod_sample_interval_time_e;
-#endif
+typedef enum
+{
+    SAMPLE_NORMAL_INTERVAL = 0, //In this case sample interval of aoa is 4us, and aod will judge sample interval is 4us or 2us according to CTE info.
+    SAMPLE_2US_INTERVAL    = 3,
+    SAMPLE_1US_INTERVAL    = 4,
+    SAMPLE_0P5US_INTERVAL  = 5,
+    SAMPLE_0P25US_INTERVAL = 6
+} rf_aoa_aod_sample_interval_time_e;
+    #endif
 
 /**
  *  @brief  set the modulation index.
  */
-typedef enum {
-    RF_MI_P0p00 = 0,          /**< MI = 0 */
-    RF_MI_P0p076 = 76,          /**< MI = 0.076 */
-    RF_MI_P0p32 = 320,          /**< MI = 0.32 */
-    RF_MI_P0p50 = 500,          /**< MI = 0.5 */
-    RF_MI_P0p60 = 600,          /**< MI = 0.6 */
-    RF_MI_P0p70 = 700,          /**< MI = 0.7 */
-    RF_MI_P0p80 = 800,          /**< MI = 0.8 */
-    RF_MI_P0p90 = 900,          /**< MI = 0.9 */
-    RF_MI_P1p20 = 1200,     /**< MI = 1.2 */
-    RF_MI_P1p30 = 1300,     /**< MI = 1.3 */
-    RF_MI_P1p40 = 1400,     /**< MI = 1.4 */
-}rf_mi_value_e;
+typedef enum
+{
+    RF_MI_P0p00  = 0,    /**< MI = 0 */
+    RF_MI_P0p076 = 76,   /**< MI = 0.076 */
+    RF_MI_P0p32  = 320,  /**< MI = 0.32 */
+    RF_MI_P0p50  = 500,  /**< MI = 0.5 */
+    RF_MI_P0p60  = 600,  /**< MI = 0.6 */
+    RF_MI_P0p70  = 700,  /**< MI = 0.7 */
+    RF_MI_P0p80  = 800,  /**< MI = 0.8 */
+    RF_MI_P0p90  = 900,  /**< MI = 0.9 */
+    RF_MI_P1p20  = 1200, /**< MI = 1.2 */
+    RF_MI_P1p30  = 1300, /**< MI = 1.3 */
+    RF_MI_P1p40  = 1400, /**< MI = 1.4 */
+} rf_mi_value_e;
 
-#if RF_HADM_EN
+    #if RF_HADM_EN
 /**
  * @brief   Define function to set tx channel or rx channel.
  */
 typedef enum
 {
-    TX_CHANNEL      = 0,
-    RX_CHANNEL      = 1,
-}rf_trx_chn_e;
-#endif
+    TX_CHANNEL = 0,
+    RX_CHANNEL = 1,
+} rf_trx_chn_e;
+    #endif
 
 /**
  * @brief   RF packet filtering parameters
@@ -159,16 +163,16 @@ typedef enum
  *          rf_pkt_mask_high  - Set mask to match the higher 4bytes of the match value
  * TODO:This function interface is not available at this time, and will be updated in subsequent releases.(unverified)
  */
-typedef struct{
+typedef struct
+{
     unsigned char rf_pkt_flt_start;
     unsigned char rf_pkt_flt_end;
     unsigned char rf_pkt_match_threshold;
-    unsigned int rf_pkt_match_low;
-    unsigned int rf_pkt_match_high;
-    unsigned int rf_pkt_mask_low;
-    unsigned int rf_pkt_mask_high;
-}rf_pkt_flt_t;
-
+    unsigned int  rf_pkt_match_low;
+    unsigned int  rf_pkt_match_high;
+    unsigned int  rf_pkt_mask_low;
+    unsigned int  rf_pkt_mask_high;
+} rf_pkt_flt_t;
 
 /**********************************************************************************************************************
  *                                         RF function declaration                                                    *
@@ -243,9 +247,9 @@ static inline void rf_bb_timer_set_tick(unsigned int tick)
  */
 static inline void rf_ldot_ldo_rxtxlf_bypass_en(void)
 {
-    write_reg8(0x17074e,0x45);//CBPF_TRIM_I && CBPF_TRIM_Q
-    write_reg8(0x17074c,0x02);//LNA_ITRIM=0x01(default)(change to 0x02[TBD])
-    write_reg8(0x1706e4,read_reg8(0x1706e4)|BIT(1));
+    write_reg8(0x17074e, 0x45); //CBPF_TRIM_I && CBPF_TRIM_Q
+    write_reg8(0x17074c, 0x02); //LNA_ITRIM=0x01(default)(change to 0x02[TBD])
+    write_reg8(0x1706e4, read_reg8(0x1706e4) | BIT(1));
 }
 
 /**
@@ -256,9 +260,9 @@ static inline void rf_ldot_ldo_rxtxlf_bypass_en(void)
  */
 static inline void rf_ldot_ldo_rxtxlf_bypass_dis(void)
 {
-    write_reg8(0x17074e,0x40);//CBPF_TRIM_I && CBPF_TRIM_Q
-    write_reg8(0x17074c,0x11);//LNA_ITRIM=0x01(default)(change to 0x02[TBD])
-    write_reg8(0x1706e4,read_reg8(0x1706e4)&(~BIT(1)));
+    write_reg8(0x17074e, 0x40); //CBPF_TRIM_I && CBPF_TRIM_Q
+    write_reg8(0x17074c, 0x11); //LNA_ITRIM=0x01(default)(change to 0x02[TBD])
+    write_reg8(0x1706e4, read_reg8(0x1706e4) & (~BIT(1)));
 }
 
 /**
@@ -281,10 +285,12 @@ static inline void rf_ldot_ldo_rxtxlf_bypass_dis(void)
 
 static inline void rf_set_rxpara(void)
 {
-    unsigned char reg_calibration=0;
-    reg_calibration = ((read_reg8(0x1706ed)&0xf)<<2)|((read_reg8(0x1706ec)&0xc0)>>6);
-    if(reg_calibration>10)  reg_calibration -= 10;
-    write_reg8(0x1706e5,(read_reg8(0x1706e5)&0xc0)|reg_calibration);
+    unsigned char reg_calibration = 0;
+    reg_calibration               = ((read_reg8(0x1706ed) & 0xf) << 2) | ((read_reg8(0x1706ec) & 0xc0) >> 6);
+    if (reg_calibration > 10) {
+        reg_calibration -= 10;
+    }
+    write_reg8(0x1706e5, (read_reg8(0x1706e5) & 0xc0) | reg_calibration);
 }
 
 /**
@@ -295,7 +301,7 @@ static inline void rf_set_rxpara(void)
  */
 static inline unsigned short rf_get_state_machine_status(state_machine_status_e status)
 {
-    return  status == read_reg8(0x170224);
+    return status == read_reg8(0x170224);
 }
 
 /**
@@ -304,7 +310,7 @@ static inline unsigned short rf_get_state_machine_status(state_machine_status_e 
  */
 static inline unsigned char rf_get_ptx_pid(void)
 {
-    return ((reg_rf_ll_ctrl_1 & 0xc0)>>6);
+    return ((reg_rf_ll_ctrl_1 & 0xc0) >> 6);
 }
 
 /**
@@ -313,9 +319,9 @@ static inline unsigned char rf_get_ptx_pid(void)
  * @return      none.
  * @note        Attention:In ble mode, this interface is not required to configure PN
  */
-static inline void rf_set_pn_length(unsigned char  rf_pn_length)
+static inline void rf_set_pn_length(unsigned char rf_pn_length)
 {
-    reg_rf_pn_cfg = ((reg_rf_pn_cfg&(~FLD_RF_PN_LENGTH))|rf_pn_length);
+    reg_rf_pn_cfg = ((reg_rf_pn_cfg & (~FLD_RF_PN_LENGTH)) | rf_pn_length);
 }
 
 /**
@@ -326,9 +332,9 @@ static inline void rf_set_pn_length(unsigned char  rf_pn_length)
  */
 static inline void rf_set_pn_init_value(unsigned int pn_value)
 {
-     write_reg8(0x17012c,pn_value&0xff);
-     write_reg8(0x17012d,(pn_value>>8)&0xff);
-     write_reg8(0x17012e, (pn_value>>16)&0xff);
+    write_reg8(0x17012c, pn_value & 0xff);
+    write_reg8(0x17012d, (pn_value >> 8) & 0xff);
+    write_reg8(0x17012e, (pn_value >> 16) & 0xff);
 }
 
 /**
@@ -342,9 +348,9 @@ static inline void rf_set_pn_init_value(unsigned int pn_value)
  */
 static inline void rf_set_pn_poly(unsigned int pn_poly)
 {
-    write_reg8(0x170129,pn_poly&0xff);
-    write_reg8(0x17012a,(pn_poly>>8)&0xff);
-    write_reg8(0x17012b,(pn_poly>>16)&0xff);
+    write_reg8(0x170129, pn_poly & 0xff);
+    write_reg8(0x17012a, (pn_poly >> 8) & 0xff);
+    write_reg8(0x17012b, (pn_poly >> 16) & 0xff);
 }
 
 /**
@@ -355,9 +361,8 @@ static inline void rf_pn_enable(void)
 {
     reg_rf_tx_mode2 |= FLD_RF_ZB_PN_EN;
     reg_rf_tx_mode2 |= FLD_RF_V_PN_EN;
-    reg_rf_format  |= FLD_RF_BLE_WT;
+    reg_rf_format |= FLD_RF_BLE_WT;
 }
-
 
 /**
  * @brief       This function serves to set CRC start byte for RF.
@@ -369,12 +374,13 @@ static inline void rf_pn_enable(void)
  */
 static inline void rf_set_pn_start_byte(unsigned char pn_start_byte)
 {
-    write_reg8(0x17012f,pn_start_byte);
+    write_reg8(0x17012f, pn_start_byte);
 }
 
-typedef struct {
-    unsigned int pn_value;
-    unsigned int pn_poly;
+typedef struct
+{
+    unsigned int  pn_value;
+    unsigned int  pn_poly;
     unsigned char rf_pn_length;
     unsigned char pn_start_byte;
 } rf_pn_config_t;
@@ -558,11 +564,9 @@ void rf_set_rx_modulation_index(rf_mi_value_e mi_value);
 void rf_set_tx_modulation_index(rf_mi_value_e mi_value);
 
 
-
 /****************************************************************************************************************************************
  *                                         RF : Private generic configuration interface function                                                                *
  ****************************************************************************************************************************************/
-
 
 
 /**
@@ -701,7 +705,7 @@ void rf_set_ptx_retry(unsigned char retry_times, unsigned short retry_delay);
  */
 static inline void rf_set_ptx_init_pid(unsigned char tx_pid)
 {
-    reg_rf_ll_ctrl_1 |= ((tx_pid&0x03) << 6);
+    reg_rf_ll_ctrl_1 |= ((tx_pid & 0x03) << 6);
 }
 
 /**
@@ -711,7 +715,7 @@ static inline void rf_set_ptx_init_pid(unsigned char tx_pid)
  */
 static inline void rf_set_prx_init_pid(unsigned char rx_pid)
 {
-    reg_rf_ll_ctrl_1 |= ((rx_pid&0x03) << 4);
+    reg_rf_ll_ctrl_1 |= ((rx_pid & 0x03) << 4);
 }
 
 /****************************************************************************************************************************************
@@ -744,20 +748,20 @@ void rf_ble_crypt_en(void);
  *  @param[in]  *rxccmpktcnt - 40 bit rx ccm packet cnt
  *  @return      none.
  */
-void rf_ble_crypt_setup(unsigned char* skey, unsigned char* iv);
+void rf_ble_crypt_setup(unsigned char *skey, unsigned char *iv);
 
 /**
 *  @brief      This function serves to set ble crypt tx cnt
 *  @param[in]  *txccmpktcnt - 40 bit tx ccm packet cnt
 *  @param[in]  *rxccmpktcnt - 40 bit rx ccm packet cnt
 */
-void rf_set_ble_crypt_tx_cnt(unsigned char* txccmpktcnt);
+void rf_set_ble_crypt_tx_cnt(unsigned char *txccmpktcnt);
 
 /**
 *  @brief      This function serves to set ble crypt rx cnt
 *  @param[in]  *rxccmpktcnt - 40 bit rx ccm packet cnt
 */
-void rf_set_ble_crypt_rx_cnt(unsigned char* rxccmpktcnt);
+void rf_set_ble_crypt_rx_cnt(unsigned char *rxccmpktcnt);
 
 /**
  *  @brief   This function serves to disable the tx ccm packet count auto-update feature
@@ -797,7 +801,7 @@ void rf_set_fcal_chn_group_range_ctn(unsigned char *fcal_chn_range);
  * @param[in]   chn1 -That you want to set the channel1 as 2402+chn*2.
  * @return      none.
  */
-void rf_zigbee_set_rx_dual_chn(signed char chn,signed char chn1);
+void rf_zigbee_set_rx_dual_chn(signed char chn, signed char chn1);
 
 
 /**********************************************************************************************************************
@@ -826,7 +830,7 @@ void rf_set_pkt_filter(rf_pkt_flt_t rf_pkt_flt);
  */
 static inline void rf_ble1m_no_pn_tx_customer_mode_en(void)
 {
-    BM_SET(reg_rf_tx_mode2,FLD_RF_R_CUSTOM_MADE);
+    BM_SET(reg_rf_tx_mode2, FLD_RF_R_CUSTOM_MADE);
 }
 
 /**
@@ -842,7 +846,7 @@ static inline void rf_ble1m_no_pn_tx_customer_mode_en(void)
  */
 static inline void rf_ble1m_no_pn_tx_customer_mode_dis(void)
 {
-    BM_CLR(reg_rf_tx_mode2,FLD_RF_R_CUSTOM_MADE);
+    BM_CLR(reg_rf_tx_mode2, FLD_RF_R_CUSTOM_MADE);
 }
 
 /**
@@ -857,7 +861,7 @@ static inline void rf_ble1m_no_pn_tx_customer_mode_dis(void)
  */
 static inline void rf_tx_hw_crc_en(void)
 {
-    BM_SET(reg_rf_tx_mode1,FLD_RF_CRC_EN);
+    BM_SET(reg_rf_tx_mode1, FLD_RF_CRC_EN);
 }
 
 /**
@@ -873,10 +877,8 @@ static inline void rf_tx_hw_crc_en(void)
  */
 static inline void rf_tx_hw_crc_dis(void)
 {
-    BM_CLR(reg_rf_tx_mode1,FLD_RF_CRC_EN);
+    BM_CLR(reg_rf_tx_mode1, FLD_RF_CRC_EN);
 }
-
-
 
 /****************************************************************************************************************************************
  *                                         RF : functions used by hyperlength                                                           *
@@ -907,9 +909,8 @@ static inline void rf_set_tx_pkt_len_mode(rf_pkt_len_mode_e mode)
  */
 static inline void rf_set_rx_pkt_len_mode(rf_pkt_len_mode_e mode)
 {
-    reg_rf_burst_size = ((reg_rf_burst_size & (~FLD_RF_RX_HLEN_MODE))|(mode << 2));
+    reg_rf_burst_size = ((reg_rf_burst_size & (~FLD_RF_RX_HLEN_MODE)) | (mode << 2));
 }
-
 
 /**
  * @brief       This function is mainly used to enable the sending and receiving of BIS/CIS format packets.After initializing the RF,
@@ -922,7 +923,7 @@ static inline void rf_set_rx_pkt_len_mode(rf_pkt_len_mode_e mode)
  */
 static inline void rf_set_bis_cis_en(void)
 {
-    BM_SET(reg_rf_rxtmaxlen1,FLD_RF_RX_ISO_PDU);
+    BM_SET(reg_rf_rxtmaxlen1, FLD_RF_RX_ISO_PDU);
 }
 
 /**
@@ -935,10 +936,10 @@ static inline void rf_set_bis_cis_en(void)
  */
 static inline void rf_set_bis_cis_dis(void)
 {
-    BM_CLR(reg_rf_rxtmaxlen1,FLD_RF_RX_ISO_PDU);
+    BM_CLR(reg_rf_rxtmaxlen1, FLD_RF_RX_ISO_PDU);
 }
 
-#if RF_HADM_EN
+    #if RF_HADM_EN
 /****************************************************************************************************************************************
  *                                         RF : AOA/AOD related functions                                                               *
  ****************************************************************************************************************************************/
@@ -979,7 +980,6 @@ static inline void rf_aoa_aod_sample_point_adjust(unsigned char samp_locate)
 {
     reg_rf_samp_offset = samp_locate;
 }
-
 
 /**
  * @brief       This function is used to set the position of the first antenna switch after the reference.The default is in the middle of the
@@ -1043,7 +1043,7 @@ void rf_aoa_aod_iq_data_mode(rf_iq_data_mode_e mode);
  * @param[in]   sample_mode - IQ sampling starts after syncing packets or after the rx_en is pulled up.
  * @return      none.
  */
-void rf_hadm_iq_sample_init(unsigned short samp_num,unsigned char interval,unsigned char start_point,rf_iq_data_mode_e suppmode,rf_hadm_iq_sample_mode_e sample_mode);
+void rf_hadm_iq_sample_init(unsigned short samp_num, unsigned char interval, unsigned char start_point, rf_iq_data_mode_e suppmode, rf_hadm_iq_sample_mode_e sample_mode);
 
 
 /**
@@ -1062,7 +1062,7 @@ void rf_hadm_sample_interval_time(unsigned char interval);
  * @param[in]   ant_txoffset- Adjust the switching start point of the tx-side antenna,(ant_rxoffset + 1)*0.125us.
  * @return      none.
  */
-void rf_hadm_ant_init(rf_hadm_ant_clk_mode_e clk_mode,unsigned char ant_interval,unsigned char ant_rxoffset,unsigned char ant_txoffset);
+void rf_hadm_ant_init(rf_hadm_ant_clk_mode_e clk_mode, unsigned char ant_interval, unsigned char ant_rxoffset, unsigned char ant_txoffset);
 
 /**
  * @brief       This function is mainly used to set the antenna switching interval.
@@ -1142,7 +1142,7 @@ void rf_iq_sample_disable(void);
  * @param[in]   data_len    - The data length of the sample point in the packet.
  * @return      Returns the Sync flag information in the packet.
  */
-unsigned char rf_hadm_sync_flag(unsigned char *p,unsigned short sample_num,rf_iq_data_mode_e data_len);
+unsigned char rf_hadm_sync_flag(unsigned char *p, unsigned short sample_num, rf_iq_data_mode_e data_len);
 
 /**
  * @brief       This function is mainly used to obtain the packet quality indicator from the packet, which is
@@ -1152,7 +1152,7 @@ unsigned char rf_hadm_sync_flag(unsigned char *p,unsigned short sample_num,rf_iq
  * @param[in]   data_len    - The data length of the sample point in the packet.
  * @return      Returns the packet quality information in the packet.
  */
-unsigned char rf_hadm_get_packet_quality_indicator(unsigned char *p,unsigned short sample_num,rf_iq_data_mode_e data_len);
+unsigned char rf_hadm_get_packet_quality_indicator(unsigned char *p, unsigned short sample_num, rf_iq_data_mode_e data_len);
 
 /**
  * @brief       This function is mainly used to get the timestamp information from the packet that is
@@ -1162,7 +1162,7 @@ unsigned char rf_hadm_get_packet_quality_indicator(unsigned char *p,unsigned sho
  * @param[in]   data_len    - The data length of the sample point in the packet.
  * @return      Returns the Sync timestamp information in the packet.
  */
-unsigned int rf_hadm_get_pkt_rx_sync_timestamp(unsigned char *p,unsigned short sample_num,rf_iq_data_mode_e data_len);
+unsigned int rf_hadm_get_pkt_rx_sync_timestamp(unsigned char *p, unsigned short sample_num, rf_iq_data_mode_e data_len);
 
 /**
  * @brief       This function is mainly used to obtain the timestamp information of the tx_pos from the packet.
@@ -1171,7 +1171,7 @@ unsigned int rf_hadm_get_pkt_rx_sync_timestamp(unsigned char *p,unsigned short s
  * @param[in]   data_len    - The data length of the sample point in the packet.
  * @return      Returns the timestamp information in the packet.
  */
-unsigned int rf_hadm_get_pkt_tx_pos_timestamp(unsigned char *p,unsigned short sample_num,rf_iq_data_mode_e data_len);
+unsigned int rf_hadm_get_pkt_tx_pos_timestamp(unsigned char *p, unsigned short sample_num, rf_iq_data_mode_e data_len);
 
 /**
  * @brief       This function is mainly used to obtain the timestamp information of the tx_neg from the packet.
@@ -1180,7 +1180,7 @@ unsigned int rf_hadm_get_pkt_tx_pos_timestamp(unsigned char *p,unsigned short sa
  * @param[in]   data_len    - The data length of the sample point in the packet.
  * @return      Returns the timestamp information in the packet.
  */
-unsigned int rf_hadm_get_pkt_tx_neg_timestamp(unsigned char *p,unsigned short sample_num,rf_iq_data_mode_e data_len);
+unsigned int rf_hadm_get_pkt_tx_neg_timestamp(unsigned char *p, unsigned short sample_num, rf_iq_data_mode_e data_len);
 
 /**
  * @brief       This function is mainly used to obtain the timestamp information of the iq_start from the packet.
@@ -1189,7 +1189,7 @@ unsigned int rf_hadm_get_pkt_tx_neg_timestamp(unsigned char *p,unsigned short sa
  * @param[in]   data_len    - The data length of the sample point in the packet.
  * @return      Returns the timestamp information in the packet.
  */
-unsigned int rf_hadm_get_pkt_iq_start_timestamp(unsigned char *p,unsigned short sample_num,rf_iq_data_mode_e data_len);
+unsigned int rf_hadm_get_pkt_iq_start_timestamp(unsigned char *p, unsigned short sample_num, rf_iq_data_mode_e data_len);
 
 /**
  * @brief       This function is mainly used to obtain the rssi information from the packet.
@@ -1198,7 +1198,7 @@ unsigned int rf_hadm_get_pkt_iq_start_timestamp(unsigned char *p,unsigned short 
  * @param[in]   data_len    - The data length of the sample point in the packet.
  * @return      Returns the rssi information in the packet.
  */
-signed char rf_hadm_get_pkt_rssi_value(unsigned char *p,unsigned short sample_num,rf_iq_data_mode_e data_len);
+signed char rf_hadm_get_pkt_rssi_value(unsigned char *p, unsigned short sample_num, rf_iq_data_mode_e data_len);
 
 /**
  * @brief       This function serves to set RF's channel.The step of this function is in KHz.
@@ -1210,7 +1210,7 @@ signed char rf_hadm_get_pkt_rssi_value(unsigned char *p,unsigned short sample_nu
  * @param[in]   trx_mode - Defines the frequency point setting of tx mode or rx mode.
  * @return      none.
  */
-void rf_set_channel_k_step(signed char chn_m,unsigned int chn_k,rf_trx_chn_e trx_mode);//general
+void rf_set_channel_k_step(signed char chn_m, unsigned int chn_k, rf_trx_chn_e trx_mode); //general
 
 /**
  * @brief       This function is mainly used for frezee agc.
@@ -1231,7 +1231,7 @@ void rf_fast_settle_sequence_set(void);
  */
 static inline void rf_adc_pup_auto(void)
 {
-    write_reg8(0x17078c,read_reg8(0x17078c)&0x7f);
+    write_reg8(0x17078c, read_reg8(0x17078c) & 0x7f);
 }
 
 /**
@@ -1240,7 +1240,7 @@ static inline void rf_adc_pup_auto(void)
  */
 static inline void rf_tx_pa_pup_auto(void)
 {
-    write_reg8(0x170778,read_reg8(0x170778)&(~BIT(5)));
+    write_reg8(0x170778, read_reg8(0x170778) & (~BIT(5)));
 }
 
 /**
@@ -1250,7 +1250,7 @@ static inline void rf_tx_pa_pup_auto(void)
  */
 static inline unsigned char rf_get_gain_lat_value(void)
 {
-    return ((reg_rf_max_match1>>4)&0x07);
+    return ((reg_rf_max_match1 >> 4) & 0x07);
 }
 
 /**
@@ -1270,7 +1270,7 @@ static inline unsigned char rf_get_ldo_cal_trim_value(void)
  */
 static inline unsigned char rf_get_ldo_rxtxhf_trim_value(void)
 {
-    return (read_reg8(0x1706ec)&0x3f);
+    return (read_reg8(0x1706ec) & 0x3f);
 }
 
 /**
@@ -1310,7 +1310,7 @@ static inline unsigned char rf_get_ldo_vco_trim_value(void)
  */
 static inline unsigned short rf_get_fcal_dcap_value(void)
 {
-    write_reg8(0x1706c3,(read_reg8(0x1706c3)&0xc3)|(0x0b<<2));
+    write_reg8(0x1706c3, (read_reg8(0x1706c3) & 0xc3) | (0x0b << 2));
     return (read_reg16(0x1706c0));
 }
 
@@ -1370,8 +1370,8 @@ static inline unsigned short rf_get_dcoc_offset_code_value(void)
  */
 static inline void rf_lna_pup(void)
 {
-    write_reg8(0x17077a,read_reg8(0x17077a)|BIT(0));
-    write_reg8(0x170778,read_reg8(0x170778)|BIT(0));
+    write_reg8(0x17077a, read_reg8(0x17077a) | BIT(0));
+    write_reg8(0x170778, read_reg8(0x170778) | BIT(0));
 }
 
 /**
@@ -1380,8 +1380,8 @@ static inline void rf_lna_pup(void)
  */
 static inline void rf_lna_pup_off(void)
 {
-    write_reg8(0x17077a,read_reg8(0x17077a)&(~BIT(0)));
-    write_reg8(0x170778,read_reg8(0x170778)|BIT(0));
+    write_reg8(0x17077a, read_reg8(0x17077a) & (~BIT(0)));
+    write_reg8(0x170778, read_reg8(0x170778) | BIT(0));
 }
 
 /**
@@ -1476,7 +1476,8 @@ static inline unsigned int rf_get_hadm_iq_start_timestamp(void)
  */
 static inline void rf_wait_ll_sm_idle(void)
 {
-    while(reg_rf_ll_2d_sclk != FLD_RF_STATE_MACHINE_IDLE);
+    while (reg_rf_ll_2d_sclk != FLD_RF_STATE_MACHINE_IDLE)
+        ;
 }
 
 /**
@@ -1535,7 +1536,7 @@ void rf_dis_rccal_trim(void);
  */
 void rf_dis_fcal_trim(void);
 
-#endif
+    #endif
 #endif
 
 #endif

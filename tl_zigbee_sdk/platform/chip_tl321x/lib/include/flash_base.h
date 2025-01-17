@@ -52,7 +52,7 @@ _attribute_ram_code_sec_ void flash_reg_access_restore(void);
  * @return      none.
  * @note       _always_inline : make it harder to crack encrypted data, so this interface is not allowed to be modified.
  */
-_attribute_ram_code_sec_ void flash_mspi_wr_ram(unsigned int cmd,unsigned long addr, unsigned char *data,unsigned long data_len,unsigned char is_encrypt,mspi_func_e mspi_wr,unsigned int w_en_cmd,unsigned int busy_cmd);
+_attribute_ram_code_sec_ void flash_mspi_wr_ram(unsigned int cmd, unsigned long addr, unsigned char *data, unsigned long data_len, unsigned char is_encrypt, mspi_func_e mspi_wr, unsigned int w_en_cmd, unsigned int busy_cmd);
 
 /**
  * @brief       This function reads the content from a page to the buf.
@@ -62,7 +62,7 @@ _attribute_ram_code_sec_ void flash_mspi_wr_ram(unsigned int cmd,unsigned long a
  * @param[in]   data_len- the length(in byte) of content needs to read out from the page.
  * @return      none.
  */
-_attribute_ram_code_sec_noinline_ void flash_mspi_read_ram(unsigned int cmd,unsigned long addr, unsigned char *data,unsigned long data_len);
+_attribute_ram_code_sec_noinline_ void flash_mspi_read_ram(unsigned int cmd, unsigned long addr, unsigned char *data, unsigned long data_len);
 
 /**
  * @brief       This function serves to decrypt the read data from the flash at the specified address and compare it with the plain text in dual read mode.
@@ -73,7 +73,7 @@ _attribute_ram_code_sec_noinline_ void flash_mspi_read_ram(unsigned int cmd,unsi
  * @return      0: check pass; 1: check fail.
  * @note        the purpose the interface is all in ramcode : make it harder to crack encrypted data, so this interface is not allowed to be modified.
  */
-_attribute_ram_code_sec_noinline_ unsigned char flash_mspi_read_decrypt_check_ram(unsigned int cmd,unsigned long addr, unsigned char *data,unsigned long data_len);
+_attribute_ram_code_sec_noinline_ unsigned char flash_mspi_read_decrypt_check_ram(unsigned int cmd, unsigned long addr, unsigned char *data, unsigned long data_len);
 
 /**
  * @brief       This function serves to write write data to flash(include erase,write status).
@@ -85,7 +85,9 @@ _attribute_ram_code_sec_noinline_ unsigned char flash_mspi_read_decrypt_check_ra
  * @param[in]   busy_cmd- the flash read status cmd.
  * @return      none.
  */
-_attribute_ram_code_sec_noinline_ void flash_mspi_write_ram(unsigned int cmd,unsigned long addr, unsigned char *data, unsigned long data_len,unsigned int w_en_cmd,unsigned int busy_cmd);
+
+_attribute_ram_code_sec_optimize_o2_noinline_ void flash_mspi_write_ram(unsigned int cmd,unsigned long addr, unsigned char *data, unsigned long data_len,unsigned int w_en_cmd,unsigned int busy_cmd);
+
 
 /**
  * @brief       This function serves to write write data to flash(include erase,write status) in encrypt mode.
@@ -97,7 +99,7 @@ _attribute_ram_code_sec_noinline_ void flash_mspi_write_ram(unsigned int cmd,uns
  * @param[in]   busy_cmd- the flash read status cmd.
  * @return      none.
  */
-_attribute_ram_code_sec_noinline_ void flash_mspi_write_encrypt_ram(unsigned int cmd,unsigned long addr, unsigned char *data, unsigned long data_len,unsigned int w_en_cmd,unsigned int busy_cmd);
+_attribute_ram_code_sec_noinline_ void flash_mspi_write_encrypt_ram(unsigned int cmd, unsigned long addr, unsigned char *data, unsigned long data_len, unsigned int w_en_cmd, unsigned int busy_cmd);
 
 /**
  * @brief       This function serves to set flash write command.This function interface is only used internally by flash,
@@ -106,7 +108,7 @@ _attribute_ram_code_sec_noinline_ void flash_mspi_write_encrypt_ram(unsigned int
  * @param[in]   cmd - set command.
  * @return      none.
  */
-_attribute_ram_code_sec_noinline_ void flash_send_cmd(unsigned int cmd);
+_attribute_ram_code_sec_optimize_o2_noinline_ void flash_send_cmd(unsigned int cmd);
 
 /**
  * @brief       This function is used to update the read configuration parameters of xip(eXecute In Place),
@@ -124,4 +126,3 @@ _attribute_ram_code_sec_noinline_ void flash_set_rd_xip_config_sram(unsigned int
  * @return none
  */
 _attribute_ram_code_sec_noinline_ void flash_set_wr_xip_config_sram(flash_wr_xip_config_t config);
-

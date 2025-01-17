@@ -50,45 +50,46 @@ typedef uint32_t AxonMatrixMultBuffer[32];
  * - Must be 8 byte aligned if 16 bit ACOR operations occur.
  */
 #define ACOR_BUFFER_LEN (1024)
-typedef union {
-  int32_t as32[ACOR_BUFFER_LEN];
-  int16_t as16[ACOR_BUFFER_LEN*2];
-  int8_t as8[ACOR_BUFFER_LEN*4];
+
+typedef union
+{
+    int32_t as32[ACOR_BUFFER_LEN];
+    int16_t as16[ACOR_BUFFER_LEN * 2];
+    int8_t  as8[ACOR_BUFFER_LEN * 4];
 } AxonAcorrBuffer;
 
 /*
  * Structure populated by the host before initializing the driver.
  */
-typedef struct {
-  char * log_buffer;           /**< buffer for storing formatted log messages. If NULL, some log messages will not be formatted */
-  uint16_t log_buffer_size;    /**< size (in chars) of log_buffer. Should be 0 if log_buffer is NULL */
-  uint16_t internal_buffer_size; /**< size in AxonInternalBuffer's of internal_buffers. Must be at least 1 */
-  uint16_t matrix_mult_buffer_size; /**< size of matrix_mult_buffers. Must be at least 1 to support matrix multiply. No more than 16 are needed. */
-  uint16_t mm_line_buffer_size;          /**< size of mm_line_buffer measured in words (32-bit values)  */
-  uint32_t *base_address;      /**< base address of the axon instance's registers space */
-  AxonInternalBuffer *internal_buffers; /**< 1 or more internal buffers for axon to use. This memory must be available while axon is executing */
-  AxonAcorrBuffer *acorr_buffer; /**< needed to support acorr operation */
-  AxonMatrixMultBuffer *matrix_mult_buffer; /**< needed to support matrix multiply operation */
-  uint32_t *mm_line_buffer;       /**< buffer for holding filter rows during within matrix multiply op. Must be sized to hold at least 2 rows of the largest matrix, with each row padded out to the next aligned index */
-}AxonInstanceHostProvidedStruct;
+typedef struct
+{
+    char                 *log_buffer;              /**< buffer for storing formatted log messages. If NULL, some log messages will not be formatted */
+    uint16_t              log_buffer_size;         /**< size (in chars) of log_buffer. Should be 0 if log_buffer is NULL */
+    uint16_t              internal_buffer_size;    /**< size in AxonInternalBuffer's of internal_buffers. Must be at least 1 */
+    uint16_t              matrix_mult_buffer_size; /**< size of matrix_mult_buffers. Must be at least 1 to support matrix multiply. No more than 16 are needed. */
+    uint16_t              mm_line_buffer_size;     /**< size of mm_line_buffer measured in words (32-bit values)  */
+    uint32_t             *base_address;            /**< base address of the axon instance's registers space */
+    AxonInternalBuffer   *internal_buffers;        /**< 1 or more internal buffers for axon to use. This memory must be available while axon is executing */
+    AxonAcorrBuffer      *acorr_buffer;            /**< needed to support acorr operation */
+    AxonMatrixMultBuffer *matrix_mult_buffer;      /**< needed to support matrix multiply operation */
+    uint32_t             *mm_line_buffer;          /**< buffer for holding filter rows during within matrix multiply op. Must be sized to hold at least 2 rows of the largest matrix, with each row padded out to the next aligned index */
+} AxonInstanceHostProvidedStruct;
 
 /**
  * Other memory used internally by the driver.
  */
 typedef uint32_t AxonDriverUseBuffer[16];
 
-
 /**
  * Axon driver instance structure. This structure is provided to the driver and maintained by the driver.
  * - Must be "permanent" (not a stack variable).
  * - Must be allocated from retained memory.
  */
-typedef struct {
-  AxonInstanceHostProvidedStruct host_provided; /**< host populates this before calling AxonInitInstance() */
-  AxonDriverUseBuffer driver_use;         /**< for internal use by the driver */
+typedef struct
+{
+    AxonInstanceHostProvidedStruct host_provided; /**< host populates this before calling AxonInitInstance() */
+    AxonDriverUseBuffer            driver_use;    /**< for internal use by the driver */
 } AxonInstanceStruct;
-
-
 
 /**
  * Console logging function implemented by host.
@@ -169,9 +170,9 @@ uint32_t AxonHostGetTime();
  * AxonHostEnableInterrupts), so the host need not worry if the state upon entry was with interrupts already
  * disabled.
  */
-void AxonHostWfi();
+void     AxonHostWfi();
 uint32_t AxonHostDisableInterrupts();
-void AxonHostRestoreInterrupts(uint32_t restore_value);
+void     AxonHostRestoreInterrupts(uint32_t restore_value);
 // void AxonHostEnableInterrupts();
 /**
  * host function for enabling axon by powering it up and providing a clock.

@@ -22,15 +22,15 @@
  *
  *******************************************************************************************************/
 /*******************************      analog control registers: 0xb8      ******************************/
-/**	@page ANALOG
+/** @page ANALOG
  *
- *	Introduction
- *	===============
+ *  Introduction
+ *  ===============
  *  analog support dma and normal mode, in each mode, support byte/halfword/word/buffer write and read.
  *
- *	API Reference
- *	===============
- *	Header File: analog.h
+ *  API Reference
+ *  ===============
+ *  Header File: analog.h
  */
 #pragma once
 
@@ -48,6 +48,7 @@
 /**********************************************************************************************************************
  *                                           global macro                                                             *
  *********************************************************************************************************************/
+#define ANALOG_TIMEOUT 0
 
 /**********************************************************************************************************************
  *                                         global data type                                                           *
@@ -67,7 +68,7 @@
  * it will interrupt the previous DMA reading and writing the analog register, creating an unknown risk.
  * Therefore, it is not recommended to use DMA to read and write analog registers.
  */
-#define ANALOG_DMA		0
+#define ANALOG_DMA 0
 
 /**
  * @brief      This function serves to analog register read by byte.
@@ -106,7 +107,7 @@ _attribute_ram_code_sec_optimize_o2_ void analog_write_reg16(unsigned char addr,
  */
 _attribute_ram_code_sec_optimize_o2_ unsigned int analog_read_reg32(unsigned char addr);
 
- /**
+/**
   * @brief      This function serves to analog register write by word.
   * @param[in]  addr - address need to be write.
   * @param[in]  data - the value need to be write.
@@ -148,7 +149,7 @@ void analog_write_reg32_dma(dma_chn_e chn, unsigned char addr, void *pdat);
  * @param[out] pdat - the buffer ptr to store read data.
  * @return     none.
  */
-void analog_read_reg32_dma(dma_chn_e chn, unsigned char addr,void *pdat);
+void analog_read_reg32_dma(dma_chn_e chn, unsigned char addr, void *pdat);
 
 /**
  * @brief      This function write buffer to analog register by dma channel.
@@ -165,11 +166,11 @@ void analog_write_buff_dma(dma_chn_e chn, unsigned char addr, unsigned char *pda
  * @param[in]  chn  - the dma channel.
  * @param[in]  addr - address need to be read from.
  * @param[out] pdat - the buffer ptr to store read data.
- * 			   note: The size of array pdat must be a multiple of 4.
- * 			  	 	For example, if you just need read 5 byte by dma, you should
- * 			  	 	define the size of array pdat to be greater than 8 other than 5.
- * 			  	 	Because the dma would return 4 byte data every time, 5 byte is
- * 			  	 	not enough to store them.
+ *             note: The size of array pdat must be a multiple of 4.
+ *                  For example, if you just need read 5 byte by dma, you should
+ *                  define the size of array pdat to be greater than 8 other than 5.
+ *                  Because the dma would return 4 byte data every time, 5 byte is
+ *                  not enough to store them.
  * @param[in]  len  - the length of read data.
  * @return     none.
  */
@@ -179,54 +180,62 @@ void analog_read_buff_dma(dma_chn_e chn, unsigned char addr, unsigned char *pdat
  * @brief      This function write buffer to analog register by dma channel.
  * @param[in]  chn  - the dma channel.
  * @param[in]  pdat - the buffer(addr & data) ptr need to be write,
- * 			   note: The array pdat should look like this,
- * 			   |  pdat     |            |        |
- * 			   |  :------  | :----------|  :---- |
- * 			   |  pdat[0]  |   address  |  0x3a  |
- * 			   |  pdat[1]  |    data    |  0x11  |
- * 			   |  pdat[2]  |   address  |  0x3b  |
- *			   |  pdat[3]  |    data    |  0x22  |
- *			   |  ......   |            |        |
- * 				It means write data 0x11 to address 0x3a,
- * 						 write data 0x22 to address 0x3b,
- * 						 ......
+ *             note: The array pdat should look like this,
+ *             |  pdat     |            |        |
+ *             |  :------  | :----------|  :---- |
+ *             |  pdat[0]  |   address  |  0x3a  |
+ *             |  pdat[1]  |    data    |  0x11  |
+ *             |  pdat[2]  |   address  |  0x3b  |
+ *             |  pdat[3]  |    data    |  0x22  |
+ *             |  ......   |            |        |
+ *              It means write data 0x11 to address 0x3a,
+ *                       write data 0x22 to address 0x3b,
+ *                       ......
  * @param[in]  len - the length of read data.
  * @return     none.
  */
 void analog_write_addr_data_dma(dma_chn_e chn, void *pdat, int len);
 #endif
 
+/**
+ * @brief   This function servers to set dcdc 1.4V ldo 2.0V.
+ * @return  none.
+ * @note    The A3 chip has an issue (A4 does not have): If there is a 1.4V dcdc inductor component on the hardware board and a 1.8V GPIO is used,
+ *          it is necessary to set 1P4V to DCDC mode as soon as possible after the chip is powered on.
+ *          Otherwise, there is a voltage pulse on vdd1v2 and vddo3, and this interface is used to solve this problem.
+ */
+void sys_set_dcdc_1pP4_ldo_2p0(void);
+
 
 /********************************************************************************************************
- *											internal
+ *                                          internal
  *******************************************************************************************************/
 
 /********************************************************************************************************
- * 				this is only internal interface, customers do not need to care.
+ *              this is only internal interface, customers do not need to care.
  *******************************************************************************************************/
+#if ANALOG_TIMEOUT
 /**
  * @brief      This function serves to judge whether analog Tx buffer is empty.
  * @return     0:not empty      1: empty
  */
-_attribute_ram_code_sec_optimize_o2_  bool analog_txbuf_no_empty(void);
+_attribute_ram_code_sec_optimize_o2_ bool analog_txbuf_no_empty(void);
 
 /**
  * @brief      This function serves to judge whether analog is busy.
  * @return     0: not busy  1:busy
  */
-_attribute_ram_code_sec_optimize_o2_  bool analog_busy(void);
+_attribute_ram_code_sec_optimize_o2_ bool analog_busy(void);
 
-/**
+    /**
  * @brief      This function serves to judge whether analog write/read is busy .
  * @return     none.
  */
-#define analog_wait()                  wait_condition_fails_or_timeout(analog_busy,g_drv_api_error_timeout_us,drv_timeout_handler,(unsigned int)DRV_API_ERROR_TIMEOUT_ANALOG_WAIT)
+    #define analog_wait() wait_condition_fails_or_timeout(analog_busy, g_drv_api_error_timeout_us, drv_timeout_handler, (unsigned int)DRV_API_ERROR_TIMEOUT_ANALOG_WAIT)
 
-/**
+    /**
  * @brief      This function serves to judge whether analog Tx buffer is empty.
  * @return     none.
  */
-#define analog_wait_txbuf_no_empty()  wait_condition_fails_or_timeout(analog_txbuf_no_empty,g_drv_api_error_timeout_us,drv_timeout_handler,(unsigned int)DRV_API_ERROR_TIMEOUT_ANA_TX_BUFCNT)
-
-
-
+    #define analog_wait_txbuf_no_empty() wait_condition_fails_or_timeout(analog_txbuf_no_empty, g_drv_api_error_timeout_us, drv_timeout_handler, (unsigned int)DRV_API_ERROR_TIMEOUT_ANA_TX_BUFCNT)
+#endif

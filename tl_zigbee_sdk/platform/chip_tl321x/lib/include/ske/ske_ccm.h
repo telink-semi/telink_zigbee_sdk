@@ -29,34 +29,29 @@
 
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
-
 
 
 #define SKE_LP_CCM_CPU_UPDATE_AAD_BY_STEP
 
+    typedef struct
+    {
+        unsigned char buf[16];
+        SKE_CTX       ske_ccm_ctx[1];
+        SKE_CRYPTO    crypto;
+        unsigned int  aad_bytes;
+        unsigned int  c_bytes;
+        unsigned int  current_bytes;
+        unsigned char b1_aad_start_offset;
+        unsigned char b1_aad_end_offset;
+        unsigned char M;
+        unsigned char L;
+    } SKE_CCM_CTX;
 
-
-
-typedef struct{
-    unsigned char buf[16];
-    SKE_CTX ske_ccm_ctx[1];
-    SKE_CRYPTO crypto;
-    unsigned int aad_bytes;
-    unsigned int c_bytes;
-    unsigned int current_bytes;
-    unsigned char b1_aad_start_offset;
-    unsigned char b1_aad_end_offset;
-    unsigned char M;
-    unsigned char L;
-} SKE_CCM_CTX;
-
-
-
-
-//APIs
-/**
+    //APIs
+    /**
  * @brief       ske_lp ccm mode init config.
  * @param[in]   ctx              - SKE_CCM_CTX context pointer.
  * @param[in]   alg              - ske_lp algorithm.
@@ -79,9 +74,8 @@ typedef struct{
       -# 5.aad_bytes and c_bytes could not be zero at the same time due to hardware implementation.
   @endverbatim
  */
-unsigned int ske_lp_ccm_init(SKE_CCM_CTX *ctx, SKE_ALG alg, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx,
-        unsigned char *nonce, unsigned char M, unsigned char L, unsigned int aad_bytes, unsigned int c_bytes);
-/**
+    unsigned int ske_lp_ccm_init(SKE_CCM_CTX *ctx, SKE_ALG alg, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx, unsigned char *nonce, unsigned char M, unsigned char L, unsigned int aad_bytes, unsigned int c_bytes);
+    /**
  * @brief       ske_lp ccm mode input aad(multiple step style).
  * @param[in]   ctx              - SKE_GCM_CTX context pointer.
  * @param[in]   aad              - aad.
@@ -96,9 +90,9 @@ unsigned int ske_lp_ccm_init(SKE_CCM_CTX *ctx, SKE_ALG alg, SKE_CRYPTO crypto, u
         length is 65, it could be divided into 3 sections with byte length 10,47,8 respectively.
   @endverbatim
  */
-unsigned int ske_lp_ccm_update_aad(SKE_CCM_CTX *ctx, unsigned char *aad, unsigned int bytes);
+    unsigned int ske_lp_ccm_update_aad(SKE_CCM_CTX *ctx, unsigned char *aad, unsigned int bytes);
 
-/**
+    /**
  * @brief       ske_lp ccm mode input aad(one-off style).
  * @param[in]   ctx              - SKE_GCM_CTX context pointer.
  * @param[in]   aad              - aad, its length is ctx->aad_bytes, please make sure
@@ -110,9 +104,9 @@ unsigned int ske_lp_ccm_update_aad(SKE_CCM_CTX *ctx, unsigned char *aad, unsigne
       -# 2.if there is no aad, this function could be omitted.
   @endverbatim
  */
-unsigned int ske_lp_ccm_aad(SKE_CCM_CTX *ctx, unsigned char *aad);
+    unsigned int ske_lp_ccm_aad(SKE_CCM_CTX *ctx, unsigned char *aad);
 
-/**
+    /**
  * @brief       ske_lp ccm mode input plaintext/ciphertext.
  * @param[in]   ctx              - SKE_CCM_CTX context pointer.
  * @param[in]   in               - plaintext or ciphertext.
@@ -132,9 +126,9 @@ unsigned int ske_lp_ccm_aad(SKE_CCM_CTX *ctx, unsigned char *aad);
           could be divided into 3 sections with byte length 32,16,17 respectively..
   @endverbatim
  */
-unsigned int ske_lp_ccm_update_blocks(SKE_CCM_CTX *ctx, unsigned char *in, unsigned char *out, unsigned int bytes);
+    unsigned int ske_lp_ccm_update_blocks(SKE_CCM_CTX *ctx, unsigned char *in, unsigned char *out, unsigned int bytes);
 
-/**
+    /**
  * @brief       ske_lp ccm mode input plaintext/ciphertext.
  * @param[in]   ctx              - SKE_CCM_CTX context pointer.
  * @param[in]   mac              - (for decryption), output(for encryption).
@@ -152,9 +146,9 @@ unsigned int ske_lp_ccm_update_blocks(SKE_CCM_CTX *ctx, unsigned char *in, unsig
           could be divided into 3 sections with byte length 32,16,17 respectively.
   @endverbatim
  */
-unsigned int ske_lp_ccm_final(SKE_CCM_CTX *ctx, unsigned char *mac);
+    unsigned int ske_lp_ccm_final(SKE_CCM_CTX *ctx, unsigned char *mac);
 
-/**
+    /**
  * @brief       ske_lp ccm mode encrypt/decrypt(one-off style).
  * @param[in]   alg              - ske_lp algorithm.
  * @param[in]   crypto           - encrypting or decrypting.
@@ -186,13 +180,11 @@ unsigned int ske_lp_ccm_final(SKE_CCM_CTX *ctx, unsigned char *mac);
  *        that means certification passed, otherwise not.
   @endverbatim
  */
-unsigned int ske_lp_ccm_crypto(SKE_ALG alg, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx, unsigned char *nonce,
-        unsigned char M, unsigned char L, unsigned char *aad, unsigned int aad_bytes, unsigned char *in, unsigned char *out, unsigned int c_bytes,
-        unsigned char *mac);
+    unsigned int ske_lp_ccm_crypto(SKE_ALG alg, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx, unsigned char *nonce, unsigned char M, unsigned char L, unsigned char *aad, unsigned int aad_bytes, unsigned char *in, unsigned char *out, unsigned int c_bytes, unsigned char *mac);
 
 
 #ifdef SKE_LP_DMA_FUNCTION
-/**
+    /**
  * @brief       ske_lp dma ccm mode init config.
  * @param[in]   ctx              - SKE_CCM_CTX context pointer.
  * @param[in]   alg              - ske_lp algorithm.
@@ -216,10 +208,9 @@ unsigned int ske_lp_ccm_crypto(SKE_ALG alg, SKE_CRYPTO crypto, unsigned char *ke
       -# 5.aad_bytes and c_bytes could not be zero at the same time due to hardware implementation.
   @endverbatim
  */
-unsigned int ske_lp_dma_ccm_init(SKE_CCM_CTX *ctx, SKE_ALG alg, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx,
-        unsigned char *nonce, unsigned char M, unsigned char L, unsigned int aad_bytes, unsigned int c_bytes);
+    unsigned int ske_lp_dma_ccm_init(SKE_CCM_CTX *ctx, SKE_ALG alg, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx, unsigned char *nonce, unsigned char M, unsigned char L, unsigned int aad_bytes, unsigned int c_bytes);
 
-/**
+    /**
  * @brief       to get B0 block, please make sure all parameters are valid.
  * @param[in]   nonce           - pointer to the nonce value.
  * @param[in]   M               - number of message authentication bits (tag length).
@@ -229,9 +220,9 @@ unsigned int ske_lp_dma_ccm_init(SKE_CCM_CTX *ctx, SKE_ALG alg, SKE_CRYPTO crypt
  * @param[out]  out             - pointer to the output B0 block
  * @return      0:success     other:error
  */
-void ske_lp_ccm_get_B0(unsigned char *nonce, unsigned char M, unsigned char L, unsigned int aad_bytes, unsigned int c_bytes, unsigned char out[16]);
+    void ske_lp_ccm_get_B0(unsigned char *nonce, unsigned char M, unsigned char L, unsigned int aad_bytes, unsigned int c_bytes, unsigned char out[16]);
 
-/**
+    /**
  * @brief       ske_lp dma ccm mode update B0(multiple steps style).
  * @param[in]   ctx              - SKE_CCM_CTX context pointer.
  * @param[in]   B0               - ske_lp algorithm.
@@ -243,9 +234,9 @@ void ske_lp_ccm_get_B0(unsigned char *nonce, unsigned char M, unsigned char L, u
       -# 2.this function must be called after calling ske_lp_dma_ccm_init().
   @endverbatim
  */
-unsigned int ske_lp_dma_ccm_update_B0_block(SKE_CCM_CTX *ctx, unsigned int B0[4], SKE_CALLBACK callback);
+    unsigned int ske_lp_dma_ccm_update_B0_block(SKE_CCM_CTX *ctx, unsigned int B0[4], SKE_CALLBACK callback);
 
-/**
+    /**
  * @brief       to get B1 block(if aad exists), please make sure all parameters are valid.
  * @param[in]   aad              -
  * @param[in]   aad_bytes        -
@@ -258,9 +249,9 @@ unsigned int ske_lp_dma_ccm_update_B0_block(SKE_CCM_CTX *ctx, unsigned int B0[4]
       -# 2.this function is common part for ske_lp_ccm_init() and ske_lp_dma_ccm_init().
   @endverbatim
  */
-void ske_lp_ccm_get_B1(unsigned char *aad, unsigned int aad_bytes, unsigned int *aad_offset, unsigned char out[16]);
+    void ske_lp_ccm_get_B1(unsigned char *aad, unsigned int aad_bytes, unsigned int *aad_offset, unsigned char out[16]);
 
-/**
+    /**
  * @brief       ske_lp dma ccm mode update aad(multiple steps style).
  * @param[in]   ctx              - SKE_CCM_CTX context pointer.
  * @param[in]   aad              - aad.
@@ -281,9 +272,9 @@ void ske_lp_ccm_get_B1(unsigned char *aad, unsigned int aad_bytes, unsigned int 
          aad byte length is 65, it could be divided into 3 sections with byte length 48,16,1 respectively.
   @endverbatim
  */
-unsigned int ske_lp_dma_ccm_update_aad_blocks(SKE_CCM_CTX *ctx, unsigned int *aad, unsigned int bytes, SKE_CALLBACK callback);
+    unsigned int ske_lp_dma_ccm_update_aad_blocks(SKE_CCM_CTX *ctx, unsigned int *aad, unsigned int bytes, SKE_CALLBACK callback);
 
-/**
+    /**
  * @brief       ske_lp dma ccm mode input plaintext/ciphertext, get ciphertext/plaintext or
  *              ciphertext/plaintext+mac(multiple steps style).
  * @param[in]   ctx              - SKE_CCM_CTX context pointer.
@@ -308,10 +299,9 @@ unsigned int ske_lp_dma_ccm_update_aad_blocks(SKE_CCM_CTX *ctx, unsigned int *aa
        cover the input.
   @endverbatim
  */
-unsigned int ske_lp_dma_ccm_update_blocks(SKE_CCM_CTX *ctx, unsigned int *in, unsigned int *out, unsigned int in_bytes,
-        SKE_CALLBACK callback);
+    unsigned int ske_lp_dma_ccm_update_blocks(SKE_CCM_CTX *ctx, unsigned int *in, unsigned int *out, unsigned int in_bytes, SKE_CALLBACK callback);
 
-/**
+    /**
  * @brief       ske_lp dma ccm mode finish.
  * @param[in]   ctx              - SKE_CCM_CTX context pointer.
  * @return      0:success     other:error
@@ -320,9 +310,9 @@ unsigned int ske_lp_dma_ccm_update_blocks(SKE_CCM_CTX *ctx, unsigned int *in, un
       -# 1.this function is optional.
   @endverbatim
  */
-unsigned int ske_lp_dma_ccm_final(SKE_CCM_CTX *ctx);
+    unsigned int ske_lp_dma_ccm_final(SKE_CCM_CTX *ctx);
 
-/**
+    /**
  * @brief       ske_lp ccm mode encrypt/decrypt(one-off style).
  * @param[in]   alg              - ske_lp algorithm.
  * @param[in]   crypto           - encrypting or decrypting.
@@ -358,13 +348,8 @@ unsigned int ske_lp_dma_ccm_final(SKE_CCM_CTX *ctx);
         cover the input.
   @endverbatim
  */
-unsigned int ske_lp_dma_ccm_crypto(SKE_ALG alg, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx, unsigned char *nonce,
-        unsigned char M, unsigned char L, unsigned int aad_bytes, unsigned int *in, unsigned int *out, unsigned int c_bytes, SKE_CALLBACK callback);
+    unsigned int ske_lp_dma_ccm_crypto(SKE_ALG alg, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx, unsigned char *nonce, unsigned char M, unsigned char L, unsigned int aad_bytes, unsigned int *in, unsigned int *out, unsigned int c_bytes, SKE_CALLBACK callback);
 #endif
-
-
-
-
 
 
 #ifdef __cplusplus

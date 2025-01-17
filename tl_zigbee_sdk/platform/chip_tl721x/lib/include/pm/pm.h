@@ -27,179 +27,217 @@
 #include "compiler.h"
 #include "gpio.h"
 #include "lib/include/clock.h"
+#include "dma.h"
 
 
 /**
  * @brief these analog register can store data in deep sleep mode or deep sleep with SRAM retention mode.
  *        Reset these analog registers by watchdog, software reboot (sys_reboot()), RESET Pin, power cycle, 32k watchdog, vbus detect.
  */
-#define PM_ANA_REG_WD_CLR_BUF1          0x36 // initial value 0x00.
-#define PM_ANA_REG_WD_CLR_BUF2          0x37 // initial value 0x00.
-#define PM_ANA_REG_WD_CLR_BUF3          0x38 // initial value 0x00.
-#define PM_ANA_REG_WD_CLR_BUF4          0x39 // initial value 0x00.
+#define PM_ANA_REG_WD_CLR_BUF1 0x36 // initial value 0x00.
+#define PM_ANA_REG_WD_CLR_BUF2 0x37 // initial value 0x00.
+#define PM_ANA_REG_WD_CLR_BUF3 0x38 // initial value 0x00.
+#define PM_ANA_REG_WD_CLR_BUF4 0x39 // initial value 0x00.
 
 /**
  * @brief analog register below can store information when MCU in deep sleep mode or deep sleep with SRAM retention mode.
  *        Reset these analog registers by power cycle, 32k watchdog, RESET Pin,vbus detect.
  */
-#define PM_ANA_REG_POWER_ON_CLR_BUF1    0x3b // initial value 0x00.
-#define PM_ANA_REG_POWER_ON_CLR_BUF2    0x3c // initial value 0xff.
+#define PM_ANA_REG_POWER_ON_CLR_BUF1 0x3b // initial value 0x00.
+#define PM_ANA_REG_POWER_ON_CLR_BUF2 0x3c // initial value 0xff.
 
 /**
  * @brief   gpio wakeup level definition
  */
-typedef enum{
-    WAKEUP_LEVEL_LOW        = 0,
-    WAKEUP_LEVEL_HIGH       = 1,
-}pm_gpio_wakeup_level_e;
+typedef enum
+{
+    WAKEUP_LEVEL_LOW  = 0,
+    WAKEUP_LEVEL_HIGH = 1,
+} pm_gpio_wakeup_level_e;
 
 /**
  * @brief   wakeup tick type definition
  */
-typedef enum {
-     PM_TICK_STIMER         = 0,    // 24M
-     PM_TICK_32K            = 1,
-}pm_wakeup_tick_type_e;
+typedef enum
+{
+    PM_TICK_STIMER = 0, // 24M
+    PM_TICK_32K    = 1,
+} pm_wakeup_tick_type_e;
 
 /**
  * @brief   sleep mode.
  */
-typedef enum {
+typedef enum
+{
     //available mode for customer
-    SUSPEND_MODE                        = 0x00,
-    DEEPSLEEP_MODE                      = 0xf0, //when use deep mode pad wakeup(low or high level), if the high(low) level always in the pad,
-                                                //system will not enter sleep and go to below of pm API, will reboot by core_6f = 0x20.
-                                                //deep retention also had this issue, but not to reboot.
-    DEEPSLEEP_MODE_RET_SRAM_LOW32K      = 0x01, //for boot from sram
-    DEEPSLEEP_MODE_RET_SRAM_LOW64K      = 0x03, //for boot from sram
-    DEEPSLEEP_MODE_RET_SRAM_LOW128K     = 0x07, //for boot from sram
-    DEEPSLEEP_MODE_RET_SRAM_LOW256K     = 0x0f, //for boot from sram
+    SUSPEND_MODE   = 0x00,
+    DEEPSLEEP_MODE = 0xf0,                  //when use deep mode pad wakeup(low or high level), if the high(low) level always in the pad,
+                                            //system will not enter sleep and go to below of pm API, will reboot by core_6f = 0x20.
+                                            //deep retention also had this issue, but not to reboot.
+    DEEPSLEEP_MODE_RET_SRAM_LOW32K  = 0x01, //for boot from sram
+    DEEPSLEEP_MODE_RET_SRAM_LOW64K  = 0x03, //for boot from sram
+    DEEPSLEEP_MODE_RET_SRAM_LOW128K = 0x07, //for boot from sram
+    DEEPSLEEP_MODE_RET_SRAM_LOW256K = 0x0f, //for boot from sram
     //not available mode
-    DEEPSLEEP_RETENTION_FLAG            = 0x0F,
-}pm_sleep_mode_e;
+    DEEPSLEEP_RETENTION_FLAG = 0x0F,
+} pm_sleep_mode_e;
 
 /**
  * @brief   available wake-up source for customer
  */
-typedef enum {
-     PM_WAKEUP_PAD          = BIT(0),
-     PM_WAKEUP_CORE         = BIT(1),
-     PM_WAKEUP_TIMER        = BIT(2),
-     PM_WAKEUP_COMPARATOR   = BIT(3),   /**<
+typedef enum
+{
+    PM_WAKEUP_PAD        = BIT(0),
+    PM_WAKEUP_CORE       = BIT(1),
+    PM_WAKEUP_TIMER      = BIT(2),
+    PM_WAKEUP_COMPARATOR = BIT(3), /**<
                                             There are two things to note when using LPC wake up:
                                             1.After the LPC is configured, you need to wait 100 microseconds before go to sleep because the LPC need 1-2 32k tick to calculate the result.
                                               If you enter the sleep function at this time, you may not be able to sleep normally because the data in the result register is abnormal.
 
                                             2.When entering sleep, keep the input voltage and reference voltage difference must be greater than 30mV, otherwise can not enter sleep normally, crash occurs.
                                           */
-//   PM_WAKEUP_SHUTDOWN     = BIT(7),
-}pm_sleep_wakeup_src_e;
+    //   PM_WAKEUP_SHUTDOWN     = BIT(7),
+} pm_sleep_wakeup_src_e;
 
 /**
  * @brief   wakeup status
  */
-typedef enum {
-    WAKEUP_STATUS_PAD            = FLD_WAKEUP_STATUS_PAD,
-    WAKEUP_STATUS_CORE           = FLD_WAKEUP_STATUS_CORE,
-    WAKEUP_STATUS_TIMER          = FLD_WAKEUP_STATUS_TIMER,
-    WAKEUP_STATUS_COMPARATOR     = FLD_WAKEUP_STATUS_COMPARATOR,
-    WAKEUP_STATUS_ALL            = FLD_WAKEUP_STATUS_ALL,
-    WAKEUP_STATUS_INUSE_ALL      = FLD_WAKEUP_STATUS_INUSE_ALL,
+typedef enum
+{
+    WAKEUP_STATUS_PAD        = FLD_WAKEUP_STATUS_PAD,
+    WAKEUP_STATUS_CORE       = FLD_WAKEUP_STATUS_CORE,
+    WAKEUP_STATUS_TIMER      = FLD_WAKEUP_STATUS_TIMER,
+    WAKEUP_STATUS_COMPARATOR = FLD_WAKEUP_STATUS_COMPARATOR,
+    WAKEUP_STATUS_ALL        = FLD_WAKEUP_STATUS_ALL,
+    WAKEUP_STATUS_INUSE_ALL  = FLD_WAKEUP_STATUS_INUSE_ALL,
 
-    STATUS_GPIO_ERR_NO_ENTER_PM  = BIT(8), /**<Bit8 is used to determine whether the wake source is normal.*/
-    STATUS_EXCEED_MAX            = BIT(27),
-    STATUS_EXCEED_MIN            = BIT(28),
-    STATUS_CLEAR_FAIL            = BIT(29),
-    STATUS_ENTER_SUSPEND         = BIT(30),
-}pm_suspend_wakeup_status_e;
+    STATUS_GPIO_ERR_NO_ENTER_PM = BIT(8), /**<Bit8 is used to determine whether the wake source is normal.*/
+    STATUS_EXCEED_MAX           = BIT(27),
+    STATUS_EXCEED_MIN           = BIT(28),
+    STATUS_CLEAR_FAIL           = BIT(29),
+    STATUS_ENTER_SUSPEND        = BIT(30),
+} pm_suspend_wakeup_status_e;
 
 /**
  * @brief   mcu status
  */
-typedef enum{
-    MCU_POWER_ON                 = BIT(0),/**< power on, vbus detect or reset pin */
+typedef enum
+{
+    MCU_POWER_ON = BIT(0), /**< power on, vbus detect or reset pin */
     //BIT(1) RSVD
-    MCU_SW_REBOOT_BACK           = BIT(2),/**< Clear the watchdog status flag in time, otherwise, the system reboot may be wrongly judged as the watchdog.*/
+    MCU_SW_REBOOT_BACK           = BIT(2), /**< Clear the watchdog status flag in time, otherwise, the system reboot may be wrongly judged as the watchdog.*/
     MCU_DEEPRET_BACK             = BIT(3),
     MCU_DEEP_BACK                = BIT(4),
-    MCU_HW_REBOOT_TIMER_WATCHDOG = BIT(5),/**< If determine whether is 32k watchdog/timer watchdog,can also use the interface wd_32k_get_status()/wd_get_status() to determine. */
-    MCU_HW_REBOOT_32K_WATCHDOG   = BIT(6),/**< - When the 32k watchdog/timer watchdog status is set to 1, if it is not cleared:
+    MCU_HW_REBOOT_TIMER_WATCHDOG = BIT(5), /**< If determine whether is 32k watchdog/timer watchdog,can also use the interface wd_32k_get_status()/wd_get_status() to determine. */
+    MCU_HW_REBOOT_32K_WATCHDOG   = BIT(6), /**< - When the 32k watchdog/timer watchdog status is set to 1, if it is not cleared:
                                               - power cyele/vbus detect/reset pin come back, the status is lost;
                                               - but software reboot(sys_reboot())/deep/deepretation/32k watchdog come back,the status remains;
                                               */
 
-    MCU_STATUS_POWER_ON          = MCU_POWER_ON,
-    MCU_STATUS_REBOOT_BACK       = MCU_SW_REBOOT_BACK,
-    MCU_STATUS_DEEPRET_BACK      = MCU_DEEPRET_BACK,
-    MCU_STATUS_DEEP_BACK         = MCU_DEEP_BACK,
-}pm_mcu_status;
+    MCU_STATUS_POWER_ON     = MCU_POWER_ON,
+    MCU_STATUS_REBOOT_BACK  = MCU_SW_REBOOT_BACK,
+    MCU_STATUS_DEEPRET_BACK = MCU_DEEPRET_BACK,
+    MCU_STATUS_DEEP_BACK    = MCU_DEEP_BACK,
+} pm_mcu_status;
 
 /**
  * @brief power sel
  * 
  */
-typedef enum{
-    PM_POWER_UP         = 0,
-    PM_POWER_DOWN       = 1,
-}pm_power_sel_e;
+typedef enum
+{
+    PM_POWER_UP   = 0,
+    PM_POWER_DOWN = 1,
+} pm_power_sel_e;
 
 /**
  * @brief voltage select
  *
  */
-typedef enum {
-    VDD_BASEBAND    =   0x01,
-    VDD_BB_PLL      =   0x02,
-    VDD_CORE        =   0x03,
-    VDD_RETRAM      =   0x04,
-    VDD_ISO         =   0x05,
-    VDD_RAM         =   0x06,
-}pm_vol_mux_sel_e;
+typedef enum
+{
+    VDD_BASEBAND = 0x01,
+    VDD_BB_PLL   = 0x02,
+    VDD_CORE     = 0x03,
+    VDD_RETRAM   = 0x04,
+    VDD_ISO      = 0x05,
+    VDD_RAM      = 0x06,
+} pm_vol_mux_sel_e;
 
 /**
  * @brief Selection of optimization options
  *
  */
-typedef enum{
-    PM_OPTIMIZE_O2      = 0,
-    PM_OPTIMIZE_OS      = 1,
-}pm_optimize_sel_e;
+typedef enum
+{
+    PM_OPTIMIZE_O2 = 0,
+    PM_OPTIMIZE_OS = 1,
+} pm_optimize_sel_e;
+
+typedef enum
+{
+    CAL_0P94V_TO_0P95V,
+    CAL_0P94V_TO_1P05V,
+} pm_cal_0p94v_e;
+
+/**
+ * @brief   active mode CORE/SRAM output trim definition
+ * @note    The voltage values of the following gears are all theoretical values, and there may be deviations between the actual and theoretical values.
+ *          The CORE_0P7V_SRAM_0P8V_BB_0P7V is not opened to user after evaluate. 
+ *          As we know, reducing voltage can reduce power consumption in some extent, but for this gear, the benefits may not be significant. 
+ *          At this gear, it will takes nearly 150us more time to enter sleep mode, which is unacceptable in most scenarios.
+ */
+typedef enum
+{
+    // CORE_0P7V_SRAM_0P8V_BB_0P7V = 0,/**< multi ldo mode  0.94V-LDO/DCDC 0.7V_CORE 0.8V_SRAM 0.7V BB*/
+    CORE_0P8V_SRAM_0P8V_BB_0P8V = 0, /**< dig ldo mode  0.94V-LDO/DCDC 0.8V_CORE 0.8V_SRAM 0.8V BB (default value)*/
+    CORE_0P9V_SRAM_0P9V_BB_0P9V,     /**< dig ldo mode  1.05V-LDO/DCDC 0.9V_CORE 0.9V_SRAM 0.9V BB*/
+} pm_power_cfg_e;
+
+extern unsigned int g_dvdd_vol;
 
 /**
  * @brief   early wakeup time
  */
-typedef struct {
-    unsigned short  suspend_early_wakeup_time_us;   /**< suspend_early_wakeup_time_us = deep_ret_r_delay_us + xtal_stable_time + early_time*/
-    unsigned short  deep_ret_early_wakeup_time_us;  /**< deep_ret_early_wakeup_time_us = deep_ret_r_delay_us + early_time*/
-    unsigned short  deep_early_wakeup_time_us;      /**< deep_early_wakeup_time_us = suspend_ret_r_delay_us*/
-    unsigned short  sleep_min_time_us;              /**< sleep_min_time_us = suspend_early_wakeup_time_us + 200*/
-}pm_early_wakeup_time_us_s;
+typedef struct
+{
+    unsigned short suspend_early_wakeup_time_us;  /**< suspend_early_wakeup_time_us = deep_ret_r_delay_us + xtal_stable_time + early_time*/
+    unsigned short deep_ret_early_wakeup_time_us; /**< deep_ret_early_wakeup_time_us = deep_ret_r_delay_us + early_time*/
+    unsigned short deep_early_wakeup_time_us;     /**< deep_early_wakeup_time_us = suspend_ret_r_delay_us*/
+    unsigned short sleep_min_time_us;             /**< sleep_min_time_us = suspend_early_wakeup_time_us + 200*/
+} pm_early_wakeup_time_us_s;
+
 extern volatile pm_early_wakeup_time_us_s g_pm_early_wakeup_time_us;
 
 /**
  * @brief   hardware delay time
  */
-typedef struct {
-    unsigned short  deep_r_delay_cycle ;            /**< hardware delay time ,deep_ret_r_delay_us = deep_r_delay_cycle * 1/16k */
-    unsigned short  suspend_ret_r_delay_cycle ;     /**< hardware delay time ,suspend_ret_r_delay_us = suspend_ret_r_delay_cycle * 1/16k */
-    unsigned short  deep_xtal_delay_cycle ;         /**< hardware delay time ,deep_ret_xtal_delay_us = deep_xtal_delay_cycle * 1/16k */
-    unsigned short  suspend_ret_xtal_delay_cycle ;  /**< hardware delay time ,suspend_ret_xtal_delay_us = suspend_ret_xtal_delay_cycle * 1/16k */
-}pm_r_delay_cycle_s;
+typedef struct
+{
+    unsigned short deep_r_delay_cycle;           /**< hardware delay time ,deep_ret_r_delay_us = deep_r_delay_cycle * 1/16k */
+    unsigned short suspend_ret_r_delay_cycle;    /**< hardware delay time ,suspend_ret_r_delay_us = suspend_ret_r_delay_cycle * 1/16k */
+    unsigned short deep_xtal_delay_cycle;        /**< hardware delay time ,deep_ret_xtal_delay_us = deep_xtal_delay_cycle * 1/16k */
+    unsigned short suspend_ret_xtal_delay_cycle; /**< hardware delay time ,suspend_ret_xtal_delay_us = suspend_ret_xtal_delay_cycle * 1/16k */
+} pm_r_delay_cycle_s;
+
 extern volatile pm_r_delay_cycle_s g_pm_r_delay_cycle;
 
 /**
  * @brief   deep sleep wakeup status
  */
-typedef struct{
+typedef struct
+{
     unsigned char is_pad_wakeup;
-    unsigned char wakeup_src;   //The pad pin occasionally wakes up abnormally in A0. The core wakeup flag will be incorrectly set in A0.
+    unsigned char wakeup_src; //The pad pin occasionally wakes up abnormally in A0. The core wakeup flag will be incorrectly set in A0.
     unsigned char mcu_status;
     unsigned char rsvd;
-}pm_status_info_s;
+} pm_status_info_s;
+
 extern _attribute_aligned_(4) pm_status_info_s g_pm_status_info;
 
 extern _attribute_data_retention_sec_ unsigned char g_pm_vbat_v;
-extern unsigned char g_areg_aon_7f;
+extern unsigned char                                g_areg_aon_7f;
 
 /**
  * @brief       This function serves to get wakeup source.
@@ -344,6 +382,28 @@ pm_sw_reboot_reason_e pm_get_sw_reboot_event(void);
 _attribute_ram_code_sec_optimize_o2_noinline_ void pm_set_dig_module_power_switch(pm_pd_module_e module, pm_power_sel_e power_sel);
 
 /**
+ * @brief       This function serves to set dvdd
+ * @param[in]   vol      - CORE_0P8V_SRAM_0P8V_BB_0P8V /CORE_0P9V_SRAM_0P9V_BB_0P9V.
+ *                       - the 0.8v/0.9v confirms which of the pm_core_sram_bb_voltage_e enumeration is configured, and then assigns the value to the macro CORE_0P8V_SRAM_0P8V_BB_0P8V_CONFG/CORE_0P9V_SRAM_0P9V_BB_0P9V_CONFG.
+ * @param[in]   chn      - dma channel.
+ * @param[in]   dma_timeout_us - wait dma all chn complete timeout.
+ * @return      DRV_API_SUCCESS - successful;
+ *              DRV_API_INVALID_PARAM - equal to the current voltage configuration or dvdd1_dvdd2_vol error;
+ *              DRV_API_FAILURE - core error(need contains all the cores used);
+ *              DRV_API_TIMEOUT - wait for dma all chn idle timeout to exit;
+ *              DRV_API_OTHER_ERROR - clear all interrupt requests failed;
+ * @note        1.If the voltage goes up, after calling the interface first, then adjust the frequency;
+ *                If the voltage goes down, adjust the frequency first, then call the interface;
+ *              2.When adjusting this voltage, no access ram operation is allowed, so it will wait for dma idle in this interface,
+ *                modifying dma_timeout_us won't work if there are dma chains working all the time, and needs to be turned off by the upper layers themselves depending on the situation.
+ *              3.When adjusting this voltage, the mcu will be stalled because the ram cannot be operated, use the dma method to modify the dvdd configuration and wake up the d25f with this dma interrupt,
+ *                so will turns off the general interrupt and clears all interrupt requests.
+ *              4.When adjusting this voltage, no access ram operation is allowed, disable swire.
+ *              5.If the check configuration fails, reboot.
+ */
+drv_api_status_e pm_set_dvdd(pm_power_cfg_e vol, dma_chn_e chn, unsigned int dma_timeout_us);
+
+/**
  * @brief       This function serves to test different voltages from pd3.
  * @param[in]   mux_sel - select different voltages from pd3.
  * @return      none.
@@ -377,6 +437,20 @@ _attribute_ram_code_sec_noinline_ void pm_update_status_info(unsigned char clr_e
  */
 _attribute_ram_code_sec_noinline_ void pm_set_power_mode(power_mode_e power_mode);
 
+/**
+ * @brief      This function serves to update vdd0p94 and vddo1p8 current value current from global variable.
+ * @return     pm_cal_0p94v_e - the vdd 0.94 current voltage level.
+ * @note       This function must call after sys_init, otherwise the return value may be incorrect.
+ */
+pm_cal_0p94v_e pm_get_vdd0p94_level(void);
+
+/**
+ * @brief       This function serves to trim dcdc/ldo 0.94v.
+ * @param[in]   value - the voltage to be set.
+ * @return      none
+ */
+_attribute_ram_code_sec_noinline_ void pm_set_vdd0p94(pm_cal_0p94v_e value);
+
 /********************************************************************************************************
  *                                          internal
  *******************************************************************************************************/
@@ -390,4 +464,3 @@ _attribute_ram_code_sec_noinline_ void pm_set_power_mode(power_mode_e power_mode
  * @return      none.
  */
 _attribute_ram_code_sec_optimize_o2_noinline_ void pm_sys_reboot_with_reason(pm_sw_reboot_reason_e reboot_reason, unsigned char all_ramcode_en);
-

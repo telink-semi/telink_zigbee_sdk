@@ -21,11 +21,11 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-#ifndef  NPE_H_
-#define  NPE_H_
+#ifndef NPE_H_
+#define NPE_H_
 #include "reg_include/npe_reg.h"
 
 void npe_set_reg(void);
-void npe_set_config(unsigned int desc_pointer );
+void npe_set_config(unsigned int desc_pointer);
 
 #endif

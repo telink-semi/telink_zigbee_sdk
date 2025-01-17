@@ -27,38 +27,39 @@
 
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-/**
+    /**
  * @brief       get hash tx dma channel.
  * @return      hash tx dma channel
  */
-dma_chn_e hash_get_tx_dma_channel(void);
+    dma_chn_e hash_get_tx_dma_channel(void);
 
 
-/**
+    /**
  * @brief       get hash rx dma channel.
  * @return      hash rx dma channel
  */
-dma_chn_e hash_get_rx_dma_channel(void);
+    dma_chn_e hash_get_rx_dma_channel(void);
 
 
-/**
+    /**
  * @brief       set hash tx dma channel.
  * @param[in]   chn  - hash tx dma channel.
  * @return      none
  */
-void hash_set_tx_dma_channel(dma_chn_e chn);
+    void hash_set_tx_dma_channel(dma_chn_e chn);
 
-/**
+    /**
  * @brief       set hash rx dma channel.
  * @param[in]   chn  - hash rx dma channel.
  * @return      none
  */
-void hash_set_rx_dma_channel(dma_chn_e chn);
+    void hash_set_rx_dma_channel(dma_chn_e chn);
 
-/**
+    /**
  * @brief       configure the destination address and data length for hash tx dma.
  * @param[in]   chn              - hash tx dma channel.
  * @param[in]   buf_addr         - destination address.
@@ -66,9 +67,9 @@ void hash_set_rx_dma_channel(dma_chn_e chn);
  * @return      none
  * @note
  */
-void hash_tx_dma(dma_chn_e chn, unsigned int buf_addr, unsigned int len);
+    void hash_tx_dma(dma_chn_e chn, unsigned int buf_addr, unsigned int len);
 
-/**
+    /**
  * @brief       configure the receiving  address and data length for hash rx dma.
  * @param[in]   chn              - hash rx dma channel.
  * @param[in]   buf_addr         - receiving address.
@@ -76,50 +77,50 @@ void hash_tx_dma(dma_chn_e chn, unsigned int buf_addr, unsigned int len);
  * @return      none
  * @note
  */
-void hash_rx_dma(dma_chn_e chn, unsigned int buf_addr, unsigned int len);
+    void hash_rx_dma(dma_chn_e chn, unsigned int buf_addr, unsigned int len);
 
-/**
+    /**
  * @brief Sets tx dma channel for hash DMA transfers.
  * @param[in]  tx_chn - The DMA channel to be used for transmit.
  * @return      none
  */
- void hash_set_tx_dma_config(dma_chn_e tx_chn);
+    void hash_set_tx_dma_config(dma_chn_e tx_chn);
 
-/**
+    /**
  * @brief Sets rx dma channel for hash DMA transfers.
  * @param[in]  rx_chn     - The DMA channel to be used for transmit.
  * @param[in]  burst_size - The burst size to be set.
  * @return     none
  */
- void hash_set_rx_dma_config(dma_chn_e rx_chn,dma_burst_size_e burst_size);
+    void hash_set_rx_dma_config(dma_chn_e rx_chn, dma_burst_size_e burst_size);
 
- /**
+    /**
   * @brief Initialize HASH-related generic configurations.
   * @note       Only after calling this function can other HASH related functions be called.
   *             Otherwise, other HASH function settings will not take effect.
   * @return None.
   *
   */
- void hash_dig_en(void);
+    void hash_dig_en(void);
 
-/**
+    /**
  * @brief     Resets HASH module,before using HASH, it is needed to call hash_reset() to avoid affecting the use of HASH.
  * @return    none
  */
-static inline void hash_reset(void)
-{
-    reg_rst4 &= ~FLD_RST4_HASH;
-    reg_rst4 |= FLD_RST4_HASH;
-}
+    static inline void hash_reset(void)
+    {
+        reg_rst4 &= ~FLD_RST4_HASH;
+        reg_rst4 |= FLD_RST4_HASH;
+    }
 
-/**
+    /**
  * @brief     Enable the clock of HASH module.
  * @return    none
  */
-static inline void hash_clk_en(void)
-{
-    reg_clk_en4 |= FLD_CLK4_HASH_EN;
-}
+    static inline void hash_clk_en(void)
+    {
+        reg_clk_en4 |= FLD_CLK4_HASH_EN;
+    }
 
 #ifdef __cplusplus
 }

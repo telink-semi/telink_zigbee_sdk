@@ -28,14 +28,13 @@
 #include "ske_basic.h"
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 
-
-
-//APIs
-/**
+    //APIs
+    /**
  * @brief       a=a+b.
  * @param[in]   a            - big integer a in bytes, big-endian.
  * @param[in]   a_bytes      - byte length of a.
@@ -46,9 +45,9 @@ extern "C" {
       -# 1.for CTR/CCM counter addition(big-endian).
   @endverbatim
  */
-void ske_lp_big_endian_add_uint8(unsigned char *a, unsigned int a_bytes, unsigned char b);
+    void ske_lp_big_endian_add_uint8(unsigned char *a, unsigned int a_bytes, unsigned char b);
 
-/**
+    /**
  * @brief       get key byte length for specific ske_lp alg.
  * @param[in]   a                   - ske_lp algorithm.
  * @param[in]   a_words             - word length of buffer a.
@@ -59,9 +58,9 @@ void ske_lp_big_endian_add_uint8(unsigned char *a, unsigned int a_bytes, unsigne
       -# 1. please make sure the inputs are valid.
   @endverbatim
  */
-void ske_lp_little_endian_add_uint32(unsigned int *a, unsigned int a_words, unsigned int b);
+    void ske_lp_little_endian_add_uint32(unsigned int *a, unsigned int a_words, unsigned int b);
 
-/**
+    /**
  * @brief       get key byte length for specific ske_lp alg.
  * @param[in]   ske_alg              - ske_lp algorithm.
  * @return      key byte length for ske_lp alg
@@ -70,9 +69,9 @@ void ske_lp_little_endian_add_uint32(unsigned int *a, unsigned int a_words, unsi
       -# 1. please make sure the inputs are valid.
   @endverbatim
  */
-unsigned char ske_lp_get_key_byte_len(SKE_ALG ske_alg);
+    unsigned char ske_lp_get_key_byte_len(SKE_ALG ske_alg);
 
-/**
+    /**
  * @brief       get block byte length for specific ske_lp alg.
  * @param[in]   ske_alg              - ske_lp algorithm.
  * @return      block byte length for ske_lp alg
@@ -81,9 +80,9 @@ unsigned char ske_lp_get_key_byte_len(SKE_ALG ske_alg);
       -# 1. please make sure ske_alg is valid.
   @endverbatim
  */
-unsigned char ske_lp_get_block_byte_len(SKE_ALG ske_alg);
+    unsigned char ske_lp_get_block_byte_len(SKE_ALG ske_alg);
 
-/**
+    /**
  * @brief       set ske_lp iv.
  * @param[in]   iv               - initial vector.
  * @param[in]   block_bytes      - byte length of current ske_lp block.
@@ -93,9 +92,9 @@ unsigned char ske_lp_get_block_byte_len(SKE_ALG ske_alg);
       -# 1. please make sure ske_alg is valid.
   @endverbatim
  */
-void ske_lp_set_iv(unsigned char *iv, unsigned int block_bytes);
+    void ske_lp_set_iv(unsigned char *iv, unsigned int block_bytes);
 
-/**
+    /**
  * @brief       ske_lp setting key
  * @param[in]   alg              - ske_lp algorithm.
  * @param[in]   key              - key in word buffer.
@@ -111,14 +110,14 @@ void ske_lp_set_iv(unsigned char *iv, unsigned int block_bytes);
         otherwise, key is from secure port, and (sp_key_idx & 0x7FFF) must be in [1,SKE_MAX_KEY_IDX].
   @endverbatim
  */
-void ske_lp_set_key(SKE_ALG alg, const unsigned char *key, unsigned short key_bytes, unsigned short key_idx);
+    void ske_lp_set_key(SKE_ALG alg, const unsigned char *key, unsigned short key_bytes, unsigned short key_idx);
 
 
-unsigned int ske_lp_update_blocks_internal_(SKE_CTX *ctx, unsigned char *in, unsigned char *out, unsigned int bytes);
+    unsigned int ske_lp_update_blocks_internal_(SKE_CTX *ctx, unsigned char *in, unsigned char *out, unsigned int bytes);
 
-unsigned int ske_lp_update_blocks_no_output_(SKE_CTX *ctx, unsigned char *in, unsigned int bytes);
+    unsigned int ske_lp_update_blocks_no_output_(SKE_CTX *ctx, unsigned char *in, unsigned int bytes);
 
-/**
+    /**
  * @brief       ske_lp init config
  * @param[in]   ctx              - SKE_CTX context pointer.
  * @param[in]   alg              - ske_lp algorithm.
@@ -139,10 +138,9 @@ unsigned int ske_lp_update_blocks_no_output_(SKE_CTX *ctx, unsigned char *in, un
         otherwise, key is from secure port, and (sp_key_idx & 0x7FFF) must be in [1,SKE_MAX_KEY_IDX].
   @endverbatim
  */
-unsigned int ske_lp_init_internal(SKE_CTX *ctx, SKE_ALG alg, SKE_MODE mode, SKE_CRYPTO crypto, const unsigned char *key,
-        unsigned short sp_key_idx, unsigned char *iv , unsigned int dma_en);
+    unsigned int ske_lp_init_internal(SKE_CTX *ctx, SKE_ALG alg, SKE_MODE mode, SKE_CRYPTO crypto, const unsigned char *key, unsigned short sp_key_idx, unsigned char *iv, unsigned int dma_en);
 
-/**
+    /**
  * @brief       ske_lp init config(CPU style)
  * @param[in]   alg              - ske_lp algorithm.
  * @param[in]   mode             - ske_lp algorithm operation mode, like ECB,CBC,OFB,etc.
@@ -160,9 +158,9 @@ unsigned int ske_lp_init_internal(SKE_CTX *ctx, SKE_ALG alg, SKE_MODE mode, SKE_
         otherwise, key is from secure port, and (sp_key_idx & 0x7FFF) must be in [1,SKE_MAX_KEY_IDX].
   @endverbatim
  */
-unsigned int ske_lp_init(SKE_ALG alg, SKE_MODE mode, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx, unsigned char *iv);
+    unsigned int ske_lp_init(SKE_ALG alg, SKE_MODE mode, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx, unsigned char *iv);
 
-/**
+    /**
  * @brief       ske 3des encryption or decryption(CPU style)
  * @param[in]   in               - plaintext or ciphertext.
  * @param[out]  out              - ciphertext or plaintext.
@@ -176,9 +174,9 @@ unsigned int ske_lp_init(SKE_ALG alg, SKE_MODE mode, SKE_CRYPTO crypto, unsigned
       -# 3.bytes must be a multiple of block byte length.
   @endverbatim
  */
-unsigned int ske_lp_update_blocks(unsigned char *in, unsigned char *out, unsigned int bytes);
+    unsigned int ske_lp_update_blocks(unsigned char *in, unsigned char *out, unsigned int bytes);
 
-/**
+    /**
  * @brief       ske_lp finish.
  * @return      0:success     other:error
  * @note
@@ -186,9 +184,9 @@ unsigned int ske_lp_update_blocks(unsigned char *in, unsigned char *out, unsigne
       -# 1.if encryption or decryption is done, please call this(optional).
   @endverbatim
  */
-unsigned int ske_lp_final(void);
+    unsigned int ske_lp_final(void);
 
-/**
+    /**
  * @brief       ske_lp encrypting or decrypting(CPU style, one-off style)
  * @param[in]   alg              - ske_lp algorithm.
  * @param[in]   mode             - ske_lp algorithm operation mode, like ECB,CBC,OFB,etc.
@@ -212,12 +210,11 @@ unsigned int ske_lp_final(void);
       -# 5.bytes must be a multiple of block byte length.
   @endverbatim
  */
-unsigned int ske_lp_crypto(SKE_ALG alg, SKE_MODE mode, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx, unsigned char *iv,
-        unsigned char *in, unsigned char *out, unsigned int bytes);
+    unsigned int ske_lp_crypto(SKE_ALG alg, SKE_MODE mode, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx, unsigned char *iv, unsigned char *in, unsigned char *out, unsigned int bytes);
 
 
 #ifdef SKE_LP_DMA_FUNCTION
-/**
+    /**
  * @brief       ske_lp init config(DMA style)
  * @param[in]   alg              - ske_lp algorithm.
  * @param[in]   mode             - ske_lp algorithm operation mode, like ECB,CBC,OFB,etc.
@@ -235,9 +232,9 @@ unsigned int ske_lp_crypto(SKE_ALG alg, SKE_MODE mode, SKE_CRYPTO crypto, unsign
         otherwise, key is from secure port, and (sp_key_idx & 0x7FFF) must be in [1,SKE_MAX_KEY_IDX].
   @endverbatim
  */
-unsigned int ske_lp_dma_init(SKE_ALG alg, SKE_MODE mode, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx, unsigned char *iv);
+    unsigned int ske_lp_dma_init(SKE_ALG alg, SKE_MODE mode, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx, unsigned char *iv);
 
-/**
+    /**
  * @brief       ske_lp encryption or decryption(DMA style)
  * @param[in]   in               - plaintext or ciphertext.
  * @param[out]  out              - ciphertext or plaintext.
@@ -252,9 +249,9 @@ unsigned int ske_lp_dma_init(SKE_ALG alg, SKE_MODE mode, SKE_CRYPTO crypto, unsi
       -# 3.words must be a multiple of block word length.
   @endverbatim
  */
-unsigned int ske_lp_dma_update_blocks(unsigned int *in, unsigned int *out, unsigned int words, SKE_CALLBACK callback);
+    unsigned int ske_lp_dma_update_blocks(unsigned int *in, unsigned int *out, unsigned int words, SKE_CALLBACK callback);
 
-/**
+    /**
  * @brief       ske_lp finish(DMA style)
  * @return      0:success     other:error
  * @note
@@ -262,9 +259,9 @@ unsigned int ske_lp_dma_update_blocks(unsigned int *in, unsigned int *out, unsig
       -# 1.if encryption or decryption is done, please call this(optional).
   @endverbatim
  */
-unsigned int ske_lp_dma_final(void);
+    unsigned int ske_lp_dma_final(void);
 
-/**
+    /**
  * @brief       ske_lp encryption or decryption(DMA style)
  * @param[in]   alg              - ske_lp algorithm.
  * @param[in]   mode             - ske_lp algorithm operation mode, like ECB,CBC,OFB,etc.
@@ -289,11 +286,8 @@ unsigned int ske_lp_dma_final(void);
       -# 5.words must be a multiple of block word length.
   @endverbatim
  */
-unsigned int ske_lp_dma_crypto(SKE_ALG alg, SKE_MODE mode, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx, unsigned char *iv,
-        unsigned int *in, unsigned int *out, unsigned int words, SKE_CALLBACK callback);
+    unsigned int ske_lp_dma_crypto(SKE_ALG alg, SKE_MODE mode, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx, unsigned char *iv, unsigned int *in, unsigned int *out, unsigned int words, SKE_CALLBACK callback);
 #endif
-
-
 
 
 #ifdef __cplusplus

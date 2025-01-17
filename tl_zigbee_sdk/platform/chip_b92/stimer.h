@@ -21,15 +21,15 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-/**	@page STIMER
+/** @page STIMER
  *
- *	Introduction
- *	===============
- *	B92 stimer use 16M clock count, have stimer irq.
+ *  Introduction
+ *  ===============
+ *  B92 stimer use 16M clock count, have stimer irq.
  *
- *	API Reference
- *	===============
- *	Header File: uart.h
+ *  API Reference
+ *  ===============
+ *  Header File: uart.h
  */
 #ifndef STIMER_H_
 #define STIMER_H_
@@ -46,7 +46,7 @@
  *                                           global macro                                                             *
  *********************************************************************************************************************/
 #ifndef SYS_TIMER_AUTO_MODE
-#define SYS_TIMER_AUTO_MODE     			1
+    #define SYS_TIMER_AUTO_MODE 1
 #endif
 
 /**********************************************************************************************************************
@@ -55,37 +55,39 @@
 /**
  * @brief define system clock tick per us/ms/s.
  */
-enum{
-	SYSTEM_TIMER_TICK_1US 		= 24,
-	SYSTEM_TIMER_TICK_1MS 		= 24000,
-	SYSTEM_TIMER_TICK_1S 		= 24000000,
+enum
+{
+    SYSTEM_TIMER_TICK_1US = 24,
+    SYSTEM_TIMER_TICK_1MS = 24000,
+    SYSTEM_TIMER_TICK_1S  = 24000000,
 
-	SYSTEM_TIMER_TICK_625US  	= 15000,  //625*24
-	SYSTEM_TIMER_TICK_1250US 	= 30000,  //1250*24
+    SYSTEM_TIMER_TICK_625US  = 15000, //625*24
+    SYSTEM_TIMER_TICK_1250US = 30000, //1250*24
 };
 
 /**
- * @brief	This enumeration defines how many 32k ticks are reached, update the tick value of the increased system timer into the register.
- * 			//32k_cnt = 2^(16-(cal_32k_mode>>4)), system_timer_cnt = 750*32k_cnt.(system timer is 24M).
+ * @brief   This enumeration defines how many 32k ticks are reached, update the tick value of the increased system timer into the register.
+ *          //32k_cnt = 2^(16-(cal_32k_mode>>4)), system_timer_cnt = 750*32k_cnt.(system timer is 24M).
  */
-typedef enum{
-	STIMER_TRACK_32KCNT_2		= 0xf0, /* 2 32k ticks, corresponds 0x5dc system timer ticks. */
-	STIMER_TRACK_32KCNT_4		= 0xe0, /* 4 32k ticks, corresponds 0xbb8 system timer ticks. */
-	STIMER_TRACK_32KCNT_8		= 0xd0, /* 8 32k ticks, corresponds 0x1770 system timer ticks. */
-	STIMER_TRACK_32KCNT_16		= 0xc0, /* 16 32k ticks, corresponds 0x2ee0 system timer ticks. */
-	STIMER_TRACK_32KCNT_32		= 0xb0, /* 32 32k ticks, corresponds 0x5dc0 system timer ticks. */
-	STIMER_TRACK_32KCNT_64		= 0xa0, /* 64 32k ticks, corresponds 0xbb80 system timer ticks. */
-	STIMER_TRACK_32KCNT_128		= 0x90, /* 128 32k ticks, corresponds 0x17700 system timer ticks. */
-	STIMER_TRACK_32KCNT_256		= 0x80, /* 256 32k ticks, corresponds 0x2ee00 system timer ticks. */
-	STIMER_TRACK_32KCNT_512		= 0x70, /* 512 32k ticks, corresponds 0x5dc00 system timer ticks. */
-	STIMER_TRACK_32KCNT_1024	= 0x60, /* 1024 32k ticks, corresponds 0xbb800 system timer ticks. */
-	STIMER_TRACK_32KCNT_2048	= 0x50, /* 2048 32k ticks, corresponds 0x177000 system timer ticks. */
-	STIMER_TRACK_32KCNT_4096	= 0x40, /* 4096 32k ticks, corresponds 0x2ee000 system timer ticks. */
-	STIMER_TRACK_32KCNT_8192	= 0x30, /* 8192 32k ticks, corresponds 0x5dc000 system timer ticks. */
-	STIMER_TRACK_32KCNT_16384	= 0x20, /* 16384 32k ticks, corresponds 0xbb8000 system timer ticks. */
-	STIMER_TRACK_32KCNT_32768	= 0x10, /* 32768 32k ticks, corresponds 0x1770000 system timer ticks. */
-	STIMER_TRACK_32KCNT_65536	= 0x00, /* 65536 32k ticks, corresponds 0x2ee0000 system timer ticks. */
-}stimer_track_cnt_e;
+typedef enum
+{
+    STIMER_TRACK_32KCNT_2     = 0xf0, /* 2 32k ticks, corresponds 0x5dc system timer ticks. */
+    STIMER_TRACK_32KCNT_4     = 0xe0, /* 4 32k ticks, corresponds 0xbb8 system timer ticks. */
+    STIMER_TRACK_32KCNT_8     = 0xd0, /* 8 32k ticks, corresponds 0x1770 system timer ticks. */
+    STIMER_TRACK_32KCNT_16    = 0xc0, /* 16 32k ticks, corresponds 0x2ee0 system timer ticks. */
+    STIMER_TRACK_32KCNT_32    = 0xb0, /* 32 32k ticks, corresponds 0x5dc0 system timer ticks. */
+    STIMER_TRACK_32KCNT_64    = 0xa0, /* 64 32k ticks, corresponds 0xbb80 system timer ticks. */
+    STIMER_TRACK_32KCNT_128   = 0x90, /* 128 32k ticks, corresponds 0x17700 system timer ticks. */
+    STIMER_TRACK_32KCNT_256   = 0x80, /* 256 32k ticks, corresponds 0x2ee00 system timer ticks. */
+    STIMER_TRACK_32KCNT_512   = 0x70, /* 512 32k ticks, corresponds 0x5dc00 system timer ticks. */
+    STIMER_TRACK_32KCNT_1024  = 0x60, /* 1024 32k ticks, corresponds 0xbb800 system timer ticks. */
+    STIMER_TRACK_32KCNT_2048  = 0x50, /* 2048 32k ticks, corresponds 0x177000 system timer ticks. */
+    STIMER_TRACK_32KCNT_4096  = 0x40, /* 4096 32k ticks, corresponds 0x2ee000 system timer ticks. */
+    STIMER_TRACK_32KCNT_8192  = 0x30, /* 8192 32k ticks, corresponds 0x5dc000 system timer ticks. */
+    STIMER_TRACK_32KCNT_16384 = 0x20, /* 16384 32k ticks, corresponds 0xbb8000 system timer ticks. */
+    STIMER_TRACK_32KCNT_32768 = 0x10, /* 32768 32k ticks, corresponds 0x1770000 system timer ticks. */
+    STIMER_TRACK_32KCNT_65536 = 0x00, /* 65536 32k ticks, corresponds 0x2ee0000 system timer ticks. */
+} stimer_track_cnt_e;
 
 /**********************************************************************************************************************
  *                                     global variable declaration                                                    *
@@ -98,32 +100,32 @@ extern unsigned int g_track_32kcnt;
 
 /**
  * @brief This function servers to set stimer irq mask.
- * @param[in]	mask - the irq mask.
- * @return  	none.
+ * @param[in]   mask - the irq mask.
+ * @return      none.
  */
 static inline void stimer_set_irq_mask(stimer_irq_e mask)
 {
-	reg_system_irq_mask |= mask;
+    reg_system_irq_mask |= mask;
 }
 
 /**
  * @brief This function servers to clear stimer irq mask.
- * @param[in] 	mask - the irq mask.
- * @return  	none.
+ * @param[in]   mask - the irq mask.
+ * @return      none.
  */
 static inline void stimer_clr_irq_mask(stimer_irq_e mask)
 {
-	reg_system_irq_mask &= (~mask);
+    reg_system_irq_mask &= (~mask);
 }
 
 /**
  * @brief This function servers to clear stimer irq status.
- * @param[in] 	status - the irq status.
- * @return  	none.
+ * @param[in]   status - the irq status.
+ * @return      none.
  */
 static inline void stimer_clr_irq_status(stimer_irq_e status)
 {
-	reg_system_cal_irq = (status);
+    reg_system_cal_irq = (status);
 }
 
 /**
@@ -134,7 +136,7 @@ static inline void stimer_clr_irq_status(stimer_irq_e status)
  */
 static inline unsigned char stimer_get_irq_status(stimer_irq_e status)
 {
-	return (reg_system_cal_irq & status);
+    return (reg_system_cal_irq & status);
 }
 
 /**
@@ -144,7 +146,7 @@ static inline unsigned char stimer_get_irq_status(stimer_irq_e status)
  */
 static inline void stimer_set_irq_capture(unsigned int tick)
 {
-	reg_system_irq_level = (tick);
+    reg_system_irq_level = (tick);
 }
 
 /**
@@ -154,7 +156,7 @@ static inline void stimer_set_irq_capture(unsigned int tick)
  */
 static inline void stimer_set_tick(unsigned int tick)
 {
-	reg_system_tick = (tick);
+    reg_system_tick = (tick);
 }
 
 /*
@@ -163,8 +165,7 @@ static inline void stimer_set_tick(unsigned int tick)
 **/
 static _always_inline unsigned int stimer_get_tick(void)
 {
-
-	return reg_system_tick;
+    return reg_system_tick;
 }
 
 /**
@@ -175,44 +176,45 @@ static _always_inline unsigned int stimer_get_tick(void)
  */
 static _always_inline bool clock_time_exceed(unsigned int ref, unsigned int us)
 {
-	return ((unsigned int)(stimer_get_tick() - ref) > us * SYSTEM_TIMER_TICK_1US);
+    return ((unsigned int)(stimer_get_tick() - ref) > us * SYSTEM_TIMER_TICK_1US);
 }
+
 /**
  * @brief     This function performs to set delay time by us.
  * @param[in] microsec - need to delay.
  * @return    none
  */
-_attribute_ram_code_sec_noinline_   void delay_us(unsigned int microsec);
+_attribute_ram_code_sec_noinline_ void delay_us(unsigned int microsec);
 
 /**
  * @brief     This function performs to set delay time by ms.
  * @param[in] millisec - need to delay.
  * @return    none
  */
-_attribute_ram_code_sec_noinline_  void  delay_ms(unsigned int millisec);
+_attribute_ram_code_sec_noinline_ void delay_ms(unsigned int millisec);
 
 /**********************************************************************************************************************
  *                          Internal interface, provided only for driver use.                                         *
  *********************************************************************************************************************/
 
 /**
- * @brief	This interface is used to configure the 32k track mode.
- * 			(2^(16-(cnt>>4)))cycles of 32k clock indicates the tick number of the system timer.
- * @return	none.
+ * @brief   This interface is used to configure the 32k track mode.
+ *          (2^(16-(cnt>>4)))cycles of 32k clock indicates the tick number of the system timer.
+ * @return  none.
  */
 static inline void stimer_set_32k_track_cnt(stimer_track_cnt_e cnt)
 {
-	reg_system_ctrl = (reg_system_ctrl & 0x0f) | cnt;
-	g_track_32kcnt = (1 << (16 - (cnt >> 4)));
+    reg_system_ctrl = (reg_system_ctrl & 0x0f) | cnt;
+    g_track_32kcnt  = (1 << (16 - (cnt >> 4)));
 }
 
 /**
- * @brief	This interface is used to obtain 32k track count.
- * @return	32k track count.
+ * @brief   This interface is used to obtain 32k track count.
+ * @return  32k track count.
  */
 static inline unsigned char stimer_get_32k_track_cnt(void)
 {
-	return g_track_32kcnt;
+    return g_track_32kcnt;
 }
 
 /**
@@ -221,7 +223,7 @@ static inline unsigned char stimer_get_32k_track_cnt(void)
  */
 static inline unsigned int stimer_get_tracking_32k_value(void)
 {
-	return reg_system_cal_latch_32k;
+    return reg_system_cal_latch_32k;
 }
 
 

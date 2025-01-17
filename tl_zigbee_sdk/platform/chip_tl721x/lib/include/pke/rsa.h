@@ -25,30 +25,24 @@
 #define RSA_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 
 #include "pke.h"
 
+    //RSA return code
+    enum RSA_RET_CODE
+    {
+        RSA_SUCCESS     = PKE_SUCCESS,
+        RSA_BUFFER_NULL = PKE_SUCCESS + 0x30,
+        RSA_INPUT_TOO_LONG,
+        RSA_INPUT_INVALID,
+    };
 
-
-
-
-
-
-//RSA return code
-enum RSA_RET_CODE
-{
-    RSA_SUCCESS = PKE_SUCCESS,
-    RSA_BUFFER_NULL = PKE_SUCCESS+0x30,
-    RSA_INPUT_TOO_LONG,
-    RSA_INPUT_INVALID,
-};
-
-
-//APIs
-/**
+    //APIs
+    /**
  * @brief       out = a^e mod n.
  * @param[in]   a            - unsigned int big integer a, base number, make sure a < n.
  * @param[in]   e            - unsigned int big integer e, exponent, make sure e < n.
@@ -62,9 +56,9 @@ enum RSA_RET_CODE
       -# 1.a, n, and out have the same word length:((nBitLen+31)>>5); and e word length is (eBitLen+31)>>5.
   @endverbatim
  */
-unsigned int RSA_ModExp(unsigned int *a, unsigned int *e, unsigned int *n, unsigned int *out, unsigned int eBitLen, unsigned int nBitLen);
+    unsigned int RSA_ModExp(unsigned int *a, unsigned int *e, unsigned int *n, unsigned int *out, unsigned int eBitLen, unsigned int nBitLen);
 
-/**
+    /**
  * @brief        out = a^d mod n, here d represents RSA CRT private key (p,q,dp,dq,u).
  * @param[in]   a            - unsigned int big integer a, base number, make sure a < n=pq.
  * @param[in]   p            - unsigned int big integer p, prime number, one part of private key (p,q,dp,dq,u).
@@ -81,10 +75,9 @@ unsigned int RSA_ModExp(unsigned int *a, unsigned int *e, unsigned int *n, unsig
          have the same word length:((nBitLen/2+31)>>5).
   @endverbatim
  */
-unsigned int RSA_CRTModExp(unsigned int *a, unsigned int *p, unsigned int *q, unsigned int *dp, unsigned int*dq,
-        unsigned int *u, unsigned int *out,  unsigned int nBitLen);
+    unsigned int RSA_CRTModExp(unsigned int *a, unsigned int *p, unsigned int *q, unsigned int *dp, unsigned int *dq, unsigned int *u, unsigned int *out, unsigned int nBitLen);
 
-/**
+    /**
  * @brief       generate RSA key (e,d,n).
  * @param[out]  e                - unsigned int big integer, RSA public key e.
  * @param[out]  d                - unsigned int big integer, RSA private key d.
@@ -98,9 +91,9 @@ unsigned int RSA_CRTModExp(unsigned int *a, unsigned int *p, unsigned int *q, un
       -# 2.eBitLen must be larger than 1, and less than or equal to nBitLen.
   @endverbatim
  */
-unsigned int RSA_GetKey(unsigned int *e, unsigned int *d, unsigned int *n, unsigned int eBitLen, unsigned int nBitLen);
+    unsigned int RSA_GetKey(unsigned int *e, unsigned int *d, unsigned int *n, unsigned int eBitLen, unsigned int nBitLen);
 
-/**
+    /**
  * @brief       generate RSA-CRT key (e,p,q,dp,dq,u,n).
  * @param[out]  e                - unsigned int big integer, RSA public key e.
  * @param[out]  p                - unsigned int big integer, RSA private key p.
@@ -118,9 +111,7 @@ unsigned int RSA_GetKey(unsigned int *e, unsigned int *d, unsigned int *n, unsig
       -# 2.eBitLen must be larger than 1, and less than or equal to nBitLen.
   @endverbatim
  */
-unsigned int RSA_GetCRTKey(unsigned int *e, unsigned int *p, unsigned int *q, unsigned int *dp, unsigned int *dq, unsigned int *u,
-        unsigned int *n, unsigned int eBitLen, unsigned int nBitLen);
-
+    unsigned int RSA_GetCRTKey(unsigned int *e, unsigned int *p, unsigned int *q, unsigned int *dp, unsigned int *dq, unsigned int *u, unsigned int *n, unsigned int eBitLen, unsigned int nBitLen);
 
 
 #ifdef __cplusplus

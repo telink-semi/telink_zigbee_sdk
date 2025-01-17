@@ -29,35 +29,37 @@
 #include "lib/include/sys.h"
 
 #ifdef STD_GCC
-#define DISABLE_BTB __asm__("csrci %0,8" :: "i" (mmisc_ctl))
-#define ENABLE_BTB  __asm__("csrsi %0,8" :: "i" (mmisc_ctl))
+    #define DISABLE_BTB __asm__("csrci %0,8" ::"i"(mmisc_ctl))
+    #define ENABLE_BTB  __asm__("csrsi %0,8" ::"i"(mmisc_ctl))
 #else
-#define DISABLE_BTB __asm__("csrci mmisc_ctl,8")
-#define ENABLE_BTB  __asm__("csrsi mmisc_ctl,8")
+    #define DISABLE_BTB __asm__("csrci mmisc_ctl,8")
+    #define ENABLE_BTB  __asm__("csrsi mmisc_ctl,8")
 #endif
 
 /**
  * @brief Machine mode MHSP_CTL
  */
-typedef enum {
-    MHSP_CTL_OVF_EN     = BIT(0), /**< Enable bit for the stack overflow protection and recording mechanism. */
-    MHSP_CTL_UDF_EN     = BIT(1), /**< Enable bit for the stack underflow protection mechanism. */
-    MHSP_CTL_SCHM_SEL   = BIT(2), /**< 0-Stack overflow/underflow,1-Top-of-stack recording. */
-    MHSP_CTL_U_EN       = BIT(3), /**< Enables the SP protection and recording mechanism in User mode. */
-    MHSP_CTL_S_EN       = BIT(4), /**< Enables the SP protection and recording mechanism in Supervisor mode. */
-    MHSP_CTL_M_EN       = BIT(5), /**< Enables the SP protection and recording mechanism in Machine mode. */
+typedef enum
+{
+    MHSP_CTL_OVF_EN   = BIT(0), /**< Enable bit for the stack overflow protection and recording mechanism. */
+    MHSP_CTL_UDF_EN   = BIT(1), /**< Enable bit for the stack underflow protection mechanism. */
+    MHSP_CTL_SCHM_SEL = BIT(2), /**< 0-Stack overflow/underflow,1-Top-of-stack recording. */
+    MHSP_CTL_U_EN     = BIT(3), /**< Enables the SP protection and recording mechanism in User mode. */
+    MHSP_CTL_S_EN     = BIT(4), /**< Enables the SP protection and recording mechanism in Supervisor mode. */
+    MHSP_CTL_M_EN     = BIT(5), /**< Enables the SP protection and recording mechanism in Machine mode. */
 } mhsp_ctl_e;
 
 typedef enum
 {
-    FLD_MSTATUS_MIE = BIT(3),//M-mode interrupt enable bit
-}mstatus_e;
+    FLD_MSTATUS_MIE = BIT(3), //M-mode interrupt enable bit
+} mstatus_e;
+
 typedef enum
 {
-    FLD_MIE_MSIE     = BIT(3),//M-mode software interrupt enable bit.
-    FLD_MIE_MTIE     = BIT(7),//M-mode timer interrupt enable bit
-    FLD_MIE_MEIE     = BIT(11),//M-mode external interrupt enable bit
-}mie_e;
+    FLD_MIE_MSIE = BIT(3),  //M-mode software interrupt enable bit.
+    FLD_MIE_MTIE = BIT(7),  //M-mode timer interrupt enable bit
+    FLD_MIE_MEIE = BIT(11), //M-mode external interrupt enable bit
+} mie_e;
 
 /**
  * @brief MEI, MSI, and MTI interrupt nesting priorities.
@@ -67,33 +69,33 @@ typedef enum
  *          - MEI, MSI and MTI occur simultaneously, they are handled under the following order:MEI > MSI > MTI.
  *          - Other cases as described in core_preempt_pri_e below.
  */
-typedef enum {
+typedef enum
+{
     CORE_PREEMPT_PRI_MODE0 = FLD_MIE_MSIE | FLD_MIE_MTIE, /**< MTI and MSI cannot interrupt MEI, MSI and MTI can be nested within each other. */
     CORE_PREEMPT_PRI_MODE1 = FLD_MIE_MTIE,                /**< MTI cannot interrupt MEI, MSI and MTI can be nested within each other, MSI and MEI can be nested within each other. */
     CORE_PREEMPT_PRI_MODE2 = FLD_MIE_MSIE,                /**< MSI cannot interrupt MEI, MSI and MTI can be nested within each other, MTI and MEI can be nested within each other. */
     CORE_PREEMPT_PRI_MODE3 = BIT(1),                      /**< MEI, MSI and MTI can be nested within each other(MIE register bit1 is an invalid bit). */
-}core_preempt_pri_e;
+} core_preempt_pri_e;
 
-#define read_csr(reg) ({ unsigned long __tmp; \
+#define read_csr(reg)         ({ unsigned long __tmp; \
   __asm__ volatile ("csrr %0, %1" : "=r"(__tmp) : "i" (reg)); \
   __tmp; })
 
-#define write_csr(reg, val) ({ \
-  __asm__ volatile ("csrw %0, %1" :: "i" (reg), "rK"(val)); })
+#define write_csr(reg, val)   ({ __asm__ volatile("csrw %0, %1" ::"i"(reg), "rK"(val)); })
 
-#define swap_csr(reg, val) ({ unsigned long __tmp; \
+#define swap_csr(reg, val)    ({ unsigned long __tmp; \
   __asm__ volatile ("csrrw %0, %1, %2" : "=r"(__tmp) : "i" (reg), "rK"(val)); \
   __tmp; })
 
-#define set_csr(reg, bit) ({ unsigned long __tmp; \
+#define set_csr(reg, bit)     ({ unsigned long __tmp; \
   __asm__ volatile ("csrrs %0, %1, %2" : "=r"(__tmp) : "i" (reg), "rK"(bit)); \
   __tmp; })
 
-#define clear_csr(reg, bit) ({ unsigned long __tmp; \
+#define clear_csr(reg, bit)   ({ unsigned long __tmp; \
   __asm__ volatile ("csrrc %0, %1, %2" : "=r"(__tmp) : "i" (reg), "rK"(bit)); \
   __tmp; })
 
-#define fence_iorw               __asm__ volatile ("fence" : : : "memory")
+#define fence_iorw            __asm__ volatile("fence" : : : "memory")
 
 #define core_get_current_sp() ({ unsigned long __tmp; \
   __asm__ volatile ("mv %0, sp" : "=r"(__tmp)); \
@@ -103,34 +105,33 @@ typedef enum {
  * Inline nested interrupt entry/exit macros
  */
 /* Save/Restore macro */
-#define save_csr(r)             long __##r = read_csr(r);
-#define restore_csr(r)           write_csr(r, __##r);
+#define save_csr(r)    long __##r = read_csr(r);
+#define restore_csr(r) write_csr(r, __##r);
 /* Support PowerBrake (Performance Throttling) feature */
 
 
-#define save_mxstatus()         save_csr(NDS_MXSTATUS)
-#define restore_mxstatus()      restore_csr(NDS_MXSTATUS)
+#define save_mxstatus()    save_csr(NDS_MXSTATUS)
+#define restore_mxstatus() restore_csr(NDS_MXSTATUS)
 
- /* Nested IRQ entry macro : Save CSRs and enable global interrupt. */
-#define core_save_nested_context()                              \
-     save_csr(NDS_MEPC)                              \
-     save_csr(NDS_MSTATUS)                           \
-     save_mxstatus()                                 \
-     set_csr(NDS_MSTATUS, FLD_MSTATUS_MIE);
+/* Nested IRQ entry macro : Save CSRs and enable global interrupt. */
+#define core_save_nested_context() \
+    save_csr(NDS_MEPC)             \
+        save_csr(NDS_MSTATUS)      \
+            save_mxstatus()        \
+                set_csr(NDS_MSTATUS, FLD_MSTATUS_MIE);
 
 /* Nested IRQ exit macro : Restore CSRs */
-#define core_restore_nested_context()                               \
-     clear_csr(NDS_MSTATUS, FLD_MSTATUS_MIE);            \
-     restore_csr(NDS_MSTATUS)                        \
-     restore_csr(NDS_MEPC)                           \
-     restore_mxstatus()
+#define core_restore_nested_context()        \
+    clear_csr(NDS_MSTATUS, FLD_MSTATUS_MIE); \
+    restore_csr(NDS_MSTATUS)                 \
+        restore_csr(NDS_MEPC)                \
+            restore_mxstatus()
 
-typedef enum{
+typedef enum
+{
     FLD_FEATURE_PREEMPT_PRIORITY_INT_EN = BIT(0),
     FLD_FEATURE_VECTOR_MODE_EN          = BIT(1),
-}
-feature_e;
-
+} feature_e;
 
 /**
  * @brief Disable interrupts globally in the system.
@@ -138,12 +139,12 @@ feature_e;
  * @note  this function must be used when the system wants to disable all the interrupt.
  * @return     none
  */
-static _always_inline unsigned int core_interrupt_disable(void){
-    unsigned int r = read_csr (NDS_MSTATUS)&FLD_MSTATUS_MIE;
-    if(r)
-    {
-        clear_csr(NDS_MSTATUS,FLD_MSTATUS_MIE);//global interrupts disable
-        fence_iorw; /* Hardware may change this value, fence IO ensures that software changes are valid. */
+static _always_inline unsigned int core_interrupt_disable(void)
+{
+    unsigned int r = read_csr(NDS_MSTATUS) & FLD_MSTATUS_MIE;
+    if (r) {
+        clear_csr(NDS_MSTATUS, FLD_MSTATUS_MIE); //global interrupts disable
+        fence_iorw;                              /* Hardware may change this value, fence IO ensures that software changes are valid. */
     }
     return r;
 }
@@ -155,11 +156,11 @@ static _always_inline unsigned int core_interrupt_disable(void){
  * @return     0
  * @note this function must be used when the system wants to restore all the interrupt.
  */
-static _always_inline unsigned int core_restore_interrupt(unsigned int en){
-    if(en)
-    {
-        set_csr(NDS_MSTATUS,en);//global interrupts enable
-        fence_iorw; /* Hardware may change this value, fence IO ensures that software changes are valid. */
+static _always_inline unsigned int core_restore_interrupt(unsigned int en)
+{
+    if (en) {
+        set_csr(NDS_MSTATUS, en); //global interrupts enable
+        fence_iorw;               /* Hardware may change this value, fence IO ensures that software changes are valid. */
     }
     return 0;
 }
@@ -204,9 +205,9 @@ static _always_inline void core_mie_restore(unsigned int mie_value)
  */
 static _always_inline void core_interrupt_enable(void)
 {
-    set_csr(NDS_MSTATUS, FLD_MSTATUS_MIE);//global interrupts enable
-    fence_iorw; /* Hardware may change this value, fence IO ensures that software changes are valid. */
-    core_mie_enable(FLD_MIE_MEIE);//machine interrupt enable selectively
+    set_csr(NDS_MSTATUS, FLD_MSTATUS_MIE); //global interrupts enable
+    fence_iorw;                            /* Hardware may change this value, fence IO ensures that software changes are valid. */
+    core_mie_enable(FLD_MIE_MEIE);         //machine interrupt enable selectively
 }
 
 /**
@@ -350,9 +351,10 @@ __attribute__((always_inline)) static _always_inline unsigned long long rdmcycle
         unsigned long hi = read_csr(NDS_MCYCLEH);
         unsigned long lo = read_csr(NDS_MCYCLE);
 
-        if (hi == read_csr(NDS_MCYCLEH))
+        if (hi == read_csr(NDS_MCYCLEH)) {
             return ((unsigned long long)hi << 32) | lo;
-    } while(1);
+        }
+    } while (1);
 #else
     return read_csr(NDS_MCYCLE);
 #endif
@@ -366,7 +368,7 @@ __attribute__((always_inline)) static _always_inline unsigned long long rdmcycle
  */
 static _always_inline bool core_cclk_time_exceed(unsigned long long ref, unsigned int us)
 {
-    return ((unsigned long long)(rdmcycle() - ref) > us *  sys_clk.cclk);
+    return ((unsigned long long)(rdmcycle() - ref) > us * sys_clk.cclk);
 }
 
 /**
@@ -435,7 +437,7 @@ typedef void (*timeout_handler_fp)(unsigned int err_code);
  *                   only define the enumeration xxx_api_error_timeout_code_e, no need to define the global variable
  *                   g_xxx_error_timeout_code, and the interface xxx_get_error_timeout_code(refer to aes);
  */
-unsigned int wait_condition_fails_or_timeout(condition_fp condition,unsigned int timeout_us,timeout_handler_fp func,unsigned int  err_code);
+unsigned int wait_condition_fails_or_timeout(condition_fp condition, unsigned int timeout_us, timeout_handler_fp func, unsigned int err_code);
 
 /**
  * @brief       provides a unified timeout interface(condition with parameter)(for internal calls only).
@@ -493,6 +495,6 @@ unsigned int wait_condition_fails_or_timeout(condition_fp condition,unsigned int
  *                   only define the enumeration xxx_api_error_timeout_code_e, no need to define the global variable
  *                   g_xxx_error_timeout_code, and the interface xxx_get_error_timeout_code(refer to aes);
  */
-unsigned int wait_condition_fails_or_timeout_with_param(condition_fp_with_param condition,unsigned int cdt_param,unsigned int timeout_us,timeout_handler_fp func,unsigned int  err_code);
+unsigned int wait_condition_fails_or_timeout_with_param(condition_fp_with_param condition, unsigned int cdt_param, unsigned int timeout_us, timeout_handler_fp func, unsigned int err_code);
 
 #endif

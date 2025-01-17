@@ -21,15 +21,15 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-/**	@page TRNG
+/** @page TRNG
  *
- *	Introduction
- *	===============
- *	B91 supports hardware trng.
+ *  Introduction
+ *  ===============
+ *  B91 supports hardware trng.
  *
- *	API Reference
- *	===============
- *	Header File: trng.h
+ *  API Reference
+ *  ===============
+ *  Header File: trng.h
  */
 #ifndef TRNG_H_
 #define TRNG_H_

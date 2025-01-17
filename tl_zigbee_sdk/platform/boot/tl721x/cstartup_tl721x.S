@@ -456,12 +456,25 @@ _MSPI_WAIT_2:
     sb      t1, 0x78c(t0)       //xip_enable        :0xA3FFFF1c = 0x0a
 
     /*flash wakeup need delay about 20us */
-    /*efuse load need delay about 0us */
+    /*efuse load need delay about 44us */
     li      t0, 0
     li      t1, EFUSE_LOAD_AND_FLASH_WAKEUP_LOOP_NUM
 _WAIT_EFUSE_LOAD_AND_FLASH_WAKEUP_FINISH:
     addi    t0, t0, 1
     bgeu    t1, t0, _WAIT_EFUSE_LOAD_AND_FLASH_WAKEUP_FINISH
+
+    lui     t0, 0x80140
+    lb      t2, 0x307(t0)      //0x80140307[bit0]:OTP_STATUS-busy
+    andi    t2, t2, 0x01
+    li      t1, 0x00
+    beq     t1, t2, _WAIT_EFUSE_LOAD_AND_FLASH_WAKEUP_FINISH_END
+
+    li      t0, 0
+    li      t1, EFUSE_LOAD_AND_FLASH_WAKEUP_LOOP_NUM
+_WAIT_EFUSE_LOAD_AND_FLASH_WAKEUP_FINISH_2:
+    addi    t0, t0, 1
+    bgeu    t1, t0, _WAIT_EFUSE_LOAD_AND_FLASH_WAKEUP_FINISH_2
+_WAIT_EFUSE_LOAD_AND_FLASH_WAKEUP_FINISH_END:
 
 _MULTI_ADDRESS_BEGIN:
     lui     t0, 0xA3FFF

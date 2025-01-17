@@ -24,7 +24,9 @@
 #ifndef HASH_ALGORITHM_H
 #define HASH_ALGORITHM_H
 
+#include <lib/include/hash/hash_kdf.h>
 #include "lib/include/crypto_common/utility.h"
+#include "hash_portable.h"
 #include "hash.h"
 #include "hash_basic.h"
 #include "hmac.h"
@@ -38,7 +40,6 @@
 #include "hmac_sha512_256.h"
 #include "hmac_sm3.h"
 #include "md5.h"
-#include "pbkdf2.h"
 #include "sha1.h"
 #include "sha224.h"
 #include "sha256.h"

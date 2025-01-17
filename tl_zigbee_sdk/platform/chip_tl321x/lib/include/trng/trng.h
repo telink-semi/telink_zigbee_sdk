@@ -25,16 +25,15 @@
 #define TRNG_H
 
 
-
 #include "lib/include/trng/trng_basic.h"
 
 
-
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-/**
+    /**
  * @brief       get rand(for internal test)
  * @param[in]   rand                byte buffer rand
  * @param[in]   bytes               byte length of rand
@@ -47,21 +46,21 @@ extern "C" {
             if you get the pseudo-random please use get_rand.
   @endverbatim
  */
-unsigned int get_rand_internal(unsigned char *rand, unsigned int bytes);
+    unsigned int get_rand_internal(unsigned char *rand, unsigned int bytes);
 
-/**
+    /**
  * @brief       get rand with fast speed(with entropy reducing, for such as clearing tmp buffer)
  * @param[in]   rand                byte buffer rand
  * @param[in]   bytes               byte length of rand
  * @return      TRNG_SUCCESS(success), other(error)
  */
-unsigned int get_rand_fast(unsigned char *rand, unsigned int bytes);
+    unsigned int get_rand_fast(unsigned char *rand, unsigned int bytes);
 
 #ifndef CONFIG_TRNG_GENERATE_BY_HARDWARE
-unsigned int get_rand_register(void);
+    unsigned int get_rand_register(void);
 #endif
 
-/**
+    /**
  * @brief       get rand(without entropy reducing)
  * @param[in]   rand                byte buffer rand
  * @param[in]   bytes               byte length of rand
@@ -72,7 +71,7 @@ unsigned int get_rand_register(void);
       -# 2. After the call the mode configuration is changed to post-processing mode.
   @endverbatim
  */
-unsigned int get_rand(unsigned char *rand, unsigned int bytes);
+    unsigned int get_rand(unsigned char *rand, unsigned int bytes);
 
 #ifdef __cplusplus
 }

@@ -124,6 +124,11 @@ void otp_initial_margin_read(unsigned int addr, unsigned int word_len, unsigned 
 void otp_check_protection_code(unsigned char sdk_version);
 
 /**
+ * @brief       This function serves to read vdd0p94 and vddo1p8 calibration data from OTP.
+ * @return      res 0: ok, 1: vdd0p94 invalid, 2: vddo1p8 invalid, 3: vdd0p94 and vddo1p8 all invalid
+ */
+_attribute_ram_code_sec_noinline_ unsigned char otp_get_vdd0p94_vddo1p8_calib_value(void);
+/**
  * @}
  */
 

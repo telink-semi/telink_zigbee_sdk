@@ -40,52 +40,54 @@
 #include "reg_include/register.h"
 
 #ifndef INTERNAL_TEST_FUNC_EN
-#define INTERNAL_TEST_FUNC_EN            0//only for internal test
+    #define INTERNAL_TEST_FUNC_EN 0 //only for internal test
 #endif
 
 extern unsigned char g_adc_rx_fifo_index;
 
-typedef enum{
-    ADC_VREF_0P9V = 0x01,//Only for internal testing,not recommended.
-    ADC_VREF_1P2V = 0x02,
-}adc_ref_vol_e;
+typedef enum
+{
+    ADC_VREF_GPIO_1P2V = 0x01,
+    ADC_VREF_VBAT_1P2V = 0x02,
+} adc_ref_vol_e;
 
-typedef enum{
+typedef enum
+{
     ADC_VBAT_DIV_OFF = 0,
     ADC_VBAT_DIV_1F4 = 0x01,
-}adc_vbat_div_e;
+} adc_vbat_div_e;
 
-typedef enum {
-    NOINPUTN = 0,
-    ADC_GPIO_PB0N = 0x01,
-    ADC_GPIO_PB1N = 0x02,
-    ADC_GPIO_PB2N = 0x03,
-    ADC_GPIO_PB3N = 0x04,
-    ADC_GPIO_PB4N = 0x05,
-    ADC_GPIO_PB5N = 0x06,
-    ADC_GPIO_PB6N = 0x07,
-    ADC_GPIO_PB7N = 0x08,
-    ADC_GPIO_PD0N = 0x09,
-    ADC_GPIO_PD1N = 0x0a,
+typedef enum
+{
+    NOINPUTN           = 0,
+    ADC_GPIO_PB1N      = 0x02,
+    ADC_GPIO_PB2N      = 0x03,
+    ADC_GPIO_PB3N      = 0x04,
+    ADC_GPIO_PB4N      = 0x05,
+    ADC_GPIO_PB5N      = 0x06,
+    ADC_GPIO_PB6N      = 0x07,
+    ADC_GPIO_PB7N      = 0x08,
+    ADC_GPIO_PD0N      = 0x09,//PD0, PD1 not recommended, sampling bias at 50-100mv, still in debug.
+    ADC_GPIO_PD1N      = 0x0a,
     ADC_TEMPSENSORN_EE = 0x0e,
-    GND = 0x0f,
-}adc_input_nch_e;
+    GND                = 0x0f,
+} adc_input_nch_e;
 
-typedef enum {
-    NOINPUTP = 0,
-    ADC_GPIO_PB0P = 0x01,
-    ADC_GPIO_PB1P = 0x02,
-    ADC_GPIO_PB2P = 0x03,
-    ADC_GPIO_PB3P = 0x04,
-    ADC_GPIO_PB4P = 0x05,
-    ADC_GPIO_PB5P = 0x06,
-    ADC_GPIO_PB6P = 0x07,
-    ADC_GPIO_PB7P = 0x08,
-    ADC_GPIO_PD0P = 0x09,
-    ADC_GPIO_PD1P = 0x0a,
+typedef enum
+{
+    NOINPUTP           = 0,
+    ADC_GPIO_PB1P      = 0x02,
+    ADC_GPIO_PB2P      = 0x03,
+    ADC_GPIO_PB3P      = 0x04,
+    ADC_GPIO_PB4P      = 0x05,
+    ADC_GPIO_PB5P      = 0x06,
+    ADC_GPIO_PB6P      = 0x07,
+    ADC_GPIO_PB7P      = 0x08,
+    ADC_GPIO_PD0P      = 0x09,//PD0, PD1 not recommended, sampling bias at 50-100mv, still in debug.
+    ADC_GPIO_PD1P      = 0x0a,
     ADC_TEMPSENSORP_EE = 0x0e,
-    ADC_VBAT = 0x0f,
-}adc_input_pch_e;
+    ADC_VBAT           = 0x0f,
+} adc_input_pch_e;
 
 /**
  * @brief adc input pin type
@@ -94,23 +96,24 @@ typedef enum {
  * |   <15:12> |    <11:0>    |
  * |adc channel|    gpio pin  |
  */
-typedef enum{
-    ADC_GPIO_PB0 = GPIO_PB0 | (0x1<<12),
-    ADC_GPIO_PB1 = GPIO_PB1 | (0x2<<12),
-    ADC_GPIO_PB2 = GPIO_PB2 | (0x3<<12),
-    ADC_GPIO_PB3 = GPIO_PB3 | (0x4<<12),
-    ADC_GPIO_PB4 = GPIO_PB4 | (0x5<<12),
-    ADC_GPIO_PB5 = GPIO_PB5 | (0x6<<12),
-    ADC_GPIO_PB6 = GPIO_PB6 | (0x7<<12),
-    ADC_GPIO_PB7 = GPIO_PB7 | (0x8<<12),
-    ADC_GPIO_PD0 = GPIO_PD0 | (0x9<<12),
-    ADC_GPIO_PD1 = GPIO_PD1 | (0xa<<12),
-}adc_input_pin_e;
+typedef enum
+{
+    ADC_GPIO_PB1 = GPIO_PB1 | (0x2 << 12),
+    ADC_GPIO_PB2 = GPIO_PB2 | (0x3 << 12),
+    ADC_GPIO_PB3 = GPIO_PB3 | (0x4 << 12),
+    ADC_GPIO_PB4 = GPIO_PB4 | (0x5 << 12),
+    ADC_GPIO_PB5 = GPIO_PB5 | (0x6 << 12),
+    ADC_GPIO_PB6 = GPIO_PB6 | (0x7 << 12),
+    ADC_GPIO_PB7 = GPIO_PB7 | (0x8 << 12),
+    ADC_GPIO_PD0 = GPIO_PD0 | (0x9 << 12),//PD0, PD1 not recommended, sampling bias at 50-100mv, still in debug.
+    ADC_GPIO_PD1 = GPIO_PD1 | (0xa << 12),
+} adc_input_pin_def_e;
 
-typedef enum{
+typedef enum
+{
     ADC_GPIO_MODE,
     ADC_VBAT_MODE,
-}adc_input_pin_mode_e;
+} adc_input_pin_mode_e;
 
 /**
  * @brief adc sample channel type.
@@ -119,11 +122,12 @@ typedef enum{
  *  #2 When using one channels in DMA mode, only M channel can be selected.
  *  #3 When using two channels in DMA mode, only M and L channels can be selected.
  */
-typedef enum{
+typedef enum
+{
     ADC_M_CHANNEL,
     ADC_L_CHANNEL,
     ADC_R_CHANNEL,
-}adc_sample_chn_e;
+} adc_sample_chn_e;
 
 /**
  * @brief adc channel cnt type.
@@ -132,12 +136,13 @@ typedef enum{
 *|   <7:4>     |    <3:0>    |
 *|transfer_mode| channel_cnt |
 **/
-typedef enum{
+typedef enum
+{
     NDMA_M_CHN    = 1 | (0 << 4),
     DMA_M_CHN     = 1 | (1 << 4),
     DMA_M_L_CHN   = 2 | (1 << 4),
     DMA_M_L_R_CHN = 3 | (1 << 4),
-}adc_chn_cnt_e;
+} adc_chn_cnt_e;
 
 /**
  * @brief enumeration of adc resolutions.
@@ -148,13 +153,15 @@ typedef enum{
  *           If ADC_RES12 is set, the sign bit of adc code is bit11 and bit0-10 are valid bits (default)
  *        #3 Regardless of the set resolution, the final output code value is always 16bit.
  */
-typedef enum{
-    ADC_RES8 = 0,
+typedef enum
+{
+    ADC_RES8  = 0,
     ADC_RES10 = 0x01,
     ADC_RES12 = 0x02,
-}adc_res_e;
+} adc_res_e;
 
-typedef enum{
+typedef enum
+{
     ADC_SAMPLE_CYC_3,
     ADC_SAMPLE_CYC_6,
     ADC_SAMPLE_CYC_9,
@@ -171,7 +178,8 @@ typedef enum{
     ADC_SAMPLE_CYC_42,
     ADC_SAMPLE_CYC_45,
     ADC_SAMPLE_CYC_48,
-}adc_sample_cycle_e;
+} adc_sample_cycle_e;
+
 /**
  * @brief adc sample frequency type.
  * |         |           |             |             |
@@ -180,45 +188,49 @@ typedef enum{
  * |  flag   |  capture  | sample_cycle|     set     |
  *
  */
-typedef enum{
+typedef enum
+{
     /**
      * In NDMA mode, configure the sample cycle corresponding to each sampling frequency to the maximum value and delay >30us after adc power on to wait for adc to stabilize,
      * to solve the problem of the first code abnormality after adc power on.(jira:TER-48) (Confirmed by haitao.gu, added by xiaobin.huang at 20240903)
      */
-    ADC_SAMPLE_FREQ_23K = (0<<24) |(1023<<8) |(ADC_SAMPLE_CYC_48<<4) | 15,
-    ADC_SAMPLE_FREQ_48K = (1<<24) |(490<<8)  |(ADC_SAMPLE_CYC_48<<4) | 10,
-    ADC_SAMPLE_FREQ_96K = (2<<24) |(240<<8)  |(ADC_SAMPLE_CYC_27<<4) | 10,
-    ADC_SAMPLE_FREQ_192K= (3<<24) |(115<<8)  |(ADC_SAMPLE_CYC_6<<4)  | 10,
-}adc_sample_freq_e;
+    ADC_SAMPLE_FREQ_23K  = (0 << 24) | (1023 << 8) | (ADC_SAMPLE_CYC_48 << 4) | 15,
+    ADC_SAMPLE_FREQ_48K  = (1 << 24) | (490 << 8) | (ADC_SAMPLE_CYC_48 << 4) | 10,
+    ADC_SAMPLE_FREQ_96K  = (2 << 24) | (240 << 8) | (ADC_SAMPLE_CYC_27 << 4) | 10,
+    ADC_SAMPLE_FREQ_192K = (3 << 24) | (115 << 8) | (ADC_SAMPLE_CYC_6 << 4) | 10,
+} adc_sample_freq_e;
 
-typedef enum{
-    ADC_PRESCALE_1   = 0x00,
-//  ADC_PRESCALE_1F2 = 0x01,//Only for internal testing
-//  ADC_PRESCALE_1F4 = 0x02,//Only for internal testing
-    ADC_PRESCALE_1F8 = 0x03,
-}adc_pre_scale_e;
+typedef enum
+{
+    ADC_PRESCALE_1 = 0x00, //Only used for vbat sampling
+                           //  ADC_PRESCALE_1F2 = 0x01,//Only for internal testing
+    ADC_PRESCALE_1F4 = 0x02,
+    //  ADC_PRESCALE_1F8 = 0x03,//Only for internal testing
+} adc_pre_scale_e;
 
-typedef struct{
-    adc_vbat_div_e divider;
-    adc_ref_vol_e v_ref;
-    adc_pre_scale_e pre_scale;
+typedef struct
+{
+    adc_vbat_div_e    divider;
+    adc_ref_vol_e     v_ref;
+    adc_pre_scale_e   pre_scale;
     adc_sample_freq_e sample_freq;
-    adc_input_pch_e input_p;
-    adc_input_nch_e input_n;
-}adc_chn_cfg_t;
+    adc_input_pch_e   input_p;
+    adc_input_nch_e   input_n;
+} adc_chn_cfg_t;
 
-typedef struct{
-    adc_ref_vol_e v_ref;
-    adc_pre_scale_e pre_scale;
-    adc_sample_freq_e sample_freq;
-    adc_input_pin_e pin;
-}adc_gpio_cfg_t;
+typedef struct
+{
+    adc_ref_vol_e       v_ref;
+    adc_pre_scale_e     pre_scale;
+    adc_sample_freq_e   sample_freq;
+    adc_input_pin_def_e pin;
+} adc_gpio_cfg_t;
 
-typedef enum{
+typedef enum
+{
     DMA,
     NDMA,
-}adc_transfer_mode_e;
-
+} adc_transfer_mode_e;
 
 /**********************************************************************************************************************
  *                                         DMA and NDMA common interface                                              *
@@ -236,6 +248,7 @@ void adc_power_on(void);
  * @return     none
  */
 void adc_power_off(void);
+
 /**
  * @brief This function serves to set input channel in differential_mode.
  * @param[in]  chn - enum variable of ADC sample channel.
@@ -243,18 +256,19 @@ void adc_power_off(void);
  * @param[in]  n_ain - enum variable of ADC analog negative input pin.
  * @return none
  */
-static inline void adc_set_diff_input(adc_sample_chn_e chn,adc_input_pch_e p_ain, adc_input_nch_e n_ain)
+static inline void adc_set_diff_input(adc_sample_chn_e chn, adc_input_pch_e p_ain, adc_input_nch_e n_ain)
 {
     analog_write_reg8(areg_adc_res_m, analog_read_reg8(areg_adc_res_m) | FLD_ADC_EN_DIFF_CHN_M);
-    reg_adc_r_mux(chn) = (p_ain | (n_ain<<4)) ;
+    reg_adc_r_mux(chn) = (p_ain | (n_ain << 4));
 }
+
 /**
  * @brief This function is used to set IO port for ADC supply or ADC IO port voltage sampling.
  * @param[in]  mode - ADC gpio pin sample mode
- * @param[in]  pin - adc_input_pin_e ADC input gpio pin
+ * @param[in]  pin - adc_input_pin_def_e ADC input gpio pin
  * @return none
  */
-void adc_pin_config(adc_input_pin_mode_e mode ,adc_input_pin_e pin);
+void adc_pin_config(adc_input_pin_mode_e mode, adc_input_pin_def_e pin);
 /**
  * @brief This function is used to set two IO port configuration and set it as input channel of ADC difference IO port voltage sampling.
  * @param[in]  chn - enum variable of ADC sample channel.
@@ -262,7 +276,7 @@ void adc_pin_config(adc_input_pin_mode_e mode ,adc_input_pin_e pin);
  * @param[in]  n_pin - enum variable of ADC analog negative input IO.
  * @return none
  */
-void adc_set_diff_pin(adc_sample_chn_e chn,adc_input_pin_e p_pin, adc_input_pin_e n_pin);
+void adc_set_diff_pin(adc_sample_chn_e chn, adc_input_pin_def_e p_pin, adc_input_pin_def_e n_pin);
 
 /**
  * @brief      This function serves to select Vbat voltage division factor.
@@ -270,7 +284,7 @@ void adc_set_diff_pin(adc_sample_chn_e chn,adc_input_pin_e p_pin, adc_input_pin_
  * @param[in]  vbat_div - enum variable of Vbat division factor.
  * @return     none
  */
-void adc_set_vbat_divider(adc_sample_chn_e chn,adc_vbat_div_e vbat_div);
+void adc_set_vbat_divider(adc_sample_chn_e chn, adc_vbat_div_e vbat_div);
 
 /**
  * @brief This function is used to initialize the ADC.
@@ -288,13 +302,22 @@ void adc_init(adc_chn_cnt_e channel_cnt);
  * @param[in]  cfg -structure for configuring ADC channel.
  * @return none
  */
-void adc_gpio_sample_init(adc_sample_chn_e chn , adc_gpio_cfg_t cfg);
+void adc_gpio_sample_init(adc_sample_chn_e chn, adc_gpio_cfg_t cfg);
 /**
  * @brief This function is used to initialize the ADC for vbat sampling.
  * @param[in]  chn -structure for configuring ADC channel.
  * @return none
  */
 void adc_vbat_sample_init(adc_sample_chn_e chn);
+
+/**
+ * @brief  This function is used to initialize the ADC for gpio sampling to indirectly sample the vbat voltage.
+ * @param[in]  chn -the channel to be configured.
+ * @param[in]  cfg -structure for configuring ADC channel.
+ * @return none
+ * @attention Only for 1.9V ~ 3.6V vbat power supply, if the vbat power supply > 3.6V, ADC_VBAT_SAMPLE must be selected.
+ */
+void adc_gpio_sample_vbat_init(adc_sample_chn_e chn, adc_gpio_cfg_t cfg);
 #if INTERNAL_TEST_FUNC_EN
 /**
  * @brief This function is used to initialize the ADC for Temperature Sensor sampling.
@@ -317,7 +340,7 @@ unsigned short adc_calculate_temperature(unsigned short adc_code);
  * @param[in]   adc_code    - the adc sample code.
  * @return      adc_vol_mv  - the average value of adc voltage value.
  */
-unsigned short adc_calculate_voltage(adc_sample_chn_e chn,unsigned short adc_code);
+unsigned short adc_calculate_voltage(adc_sample_chn_e chn, unsigned short adc_code);
 
 /**
  * @brief       This function sets the threshold that triggers the DMA IRQ or SAR ADC RX IRQ.
@@ -335,6 +358,22 @@ static inline void adc_set_rx_fifo_trig_cnt(unsigned char trig_num)
 {
     reg_adc_rxfifo_trig_num = ((reg_adc_rxfifo_trig_num & (~FLD_RXFIFO_TRIG_NUM)) | trig_num);
 }
+
+/**
+ * @brief This function is used to calib ADC 1.2V vref for GPIO.
+ * @param[in] vref - GPIO sampling calibration value.
+ * @param[in] offset - GPIO sampling two-point calibration value offset.
+ * @return none
+ */
+void adc_set_gpio_calib_vref(unsigned short vref, signed char offset);
+
+/**
+ * @brief This function is used to calib ADC 1.2V vref for Vbat.
+ * @param[in] vref - Vbat channel sampling calibration value.
+ * @param[in] offset - Vbat channel sampling two-point calibration value offset.
+ * @return none
+ */
+void adc_set_vbat_calib_vref(unsigned short vref, signed char offset);
 /**********************************************************************************************************************
  *                                                DMA only interface                                                  *
  **********************************************************************************************************************/
@@ -355,7 +394,7 @@ void adc_set_dma_config(dma_chn_e chn);
  *            so the arrangement after dma handling is also M: L: R.
  * @return    none
  */
-void adc_start_sample_dma(unsigned short *adc_data_buf,unsigned int data_byte_len);
+void adc_start_sample_dma(unsigned short *adc_data_buf, unsigned int data_byte_len);
 /**
  * @brief     This function serves to get adc DMA irq status.
  * @return    0: the sample is in progress.
@@ -369,7 +408,6 @@ _attribute_ram_code_sec_noinline_ unsigned char adc_get_irq_status_dma(void);
  * @note      The code is placed in the ram code section, in order to shorten the time.
  */
 _attribute_ram_code_sec_noinline_ void adc_clr_irq_status_dma(void);
-
 
 
 /**********************************************************************************************************************
@@ -422,7 +460,7 @@ void adc_stop_sample_nodma(void);
  */
 static inline unsigned char adc_get_rxfifo_cnt(void)
 {
-    return ((reg_adc_rxfifo_trig_num & FLD_BUF_CNT)>>4);
+    return ((reg_adc_rxfifo_trig_num & FLD_BUF_CNT) >> 4);
 }
 
 /**
@@ -443,4 +481,3 @@ static inline void adc_clr_rx_fifo_cnt(void)
     reg_soft_control |= FLD_FIFO_CLR;
     adc_clr_rx_index();
 }
-
