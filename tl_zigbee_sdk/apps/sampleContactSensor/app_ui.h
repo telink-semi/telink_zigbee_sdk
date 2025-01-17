@@ -22,24 +22,23 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #ifndef _APP_UI_H_
 #define _APP_UI_H_
 
 /**********************************************************************
  * CONSTANT
  */
-#define LED_ON						1
-#define LED_OFF						0
+#define LED_ON          1
+#define LED_OFF         0
 
 
 /**********************************************************************
  * TYPEDEFS
  */
-enum{
-	APP_STATE_NORMAL,
-	APP_FACTORY_NEW_SET_CHECK,
-	APP_FACTORY_NEW_DOING
+enum {
+    APP_STATE_NORMAL,
+    APP_FACTORY_NEW_SET_CHECK,
+    APP_FACTORY_NEW_DOING
 };
 
 

@@ -24,14 +24,14 @@
  *******************************************************************************************************/
 #pragma once
 
-typedef struct{
-	u16 year;
-	u8 month;
-	u8 day;
-	u8 hour;
-	u8 min;
-	u8 sec;
-}utcTime_t;
+typedef struct {
+    u16 year;
+    u8 month;
+    u8 day;
+    u8 hour;
+    u8 min;
+    u8 sec;
+} utcTime_t;
 
 void ev_rtc_update(u32 updateTime);
 

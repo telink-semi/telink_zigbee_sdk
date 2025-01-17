@@ -22,10 +22,8 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #ifndef _BOOTLOADER_H_
 #define _BOOTLOADER_H_
-
 
 void bootloader_init(bool isBoot);
 void bootloader_loop(void);

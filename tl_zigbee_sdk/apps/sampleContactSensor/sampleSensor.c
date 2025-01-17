@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #if (__PROJECT_TL_CONTACT_SENSOR__)
 
 /**********************************************************************
@@ -61,48 +60,46 @@ extern ota_callBack_t sampleSensor_otaCb;
 
 //running code firmware information
 ota_preamble_t sampleSensor_otaInfo = {
-	.fileVer 			= FILE_VERSION,
-	.imageType 			= IMAGE_TYPE,
-	.manufacturerCode 	= MANUFACTURER_CODE_TELINK,
+    .fileVer          = FILE_VERSION,
+    .imageType        = IMAGE_TYPE,
+    .manufacturerCode = MANUFACTURER_CODE_TELINK,
 };
 #endif
 
-
 //Must declare the application call back function which used by ZDO layer
 const zdo_appIndCb_t appCbLst = {
-	bdb_zdoStartDevCnf,//start device cnf cb
-	NULL,//reset cnf cb
-	NULL,//device announce indication cb
-	sampleSensor_leaveIndHandler,//leave ind cb
-	sampleSensor_leaveCnfHandler,//leave cnf cb
-	NULL,//nwk update ind cb
-	NULL,//permit join ind cb
-	NULL,//nlme sync cnf cb
-	NULL,//tc join ind cb
-	NULL,//tc detects that the frame counter is near limit
+    bdb_zdoStartDevCnf,                 //start device cnf cb
+    NULL,                               //reset cnf cb
+    NULL,                               //device announce indication cb
+    sampleSensor_leaveIndHandler,       //leave ind cb
+    sampleSensor_leaveCnfHandler,       //leave cnf cb
+    NULL,                               //nwk update ind cb
+    NULL,                               //permit join ind cb
+    NULL,                               //nlme sync cnf cb
+    NULL,                               //tc join ind cb
+    NULL,                               //tc detects that the frame counter is near limit
 };
-
 
 /**
  *  @brief Definition for bdb commissioning setting
  */
 bdb_commissionSetting_t g_bdbCommissionSetting = {
-	.linkKey.tcLinkKey.keyType = SS_GLOBAL_LINK_KEY,
-	.linkKey.tcLinkKey.key = (u8 *)tcLinkKeyCentralDefault,       		//can use unique link key stored in NV
+    .linkKey.tcLinkKey.keyType = SS_GLOBAL_LINK_KEY,
+    .linkKey.tcLinkKey.key     = (u8 *)tcLinkKeyCentralDefault,         //can use unique link key stored in NV
 
-	.linkKey.distributeLinkKey.keyType = MASTER_KEY,
-	.linkKey.distributeLinkKey.key = (u8 *)linkKeyDistributedMaster,  	//use linkKeyDistributedCertification before testing
+    .linkKey.distributeLinkKey.keyType = MASTER_KEY,
+    .linkKey.distributeLinkKey.key     = (u8 *)linkKeyDistributedMaster,//use linkKeyDistributedCertification before testing
 
-	.linkKey.touchLinkKey.keyType = MASTER_KEY,
-	.linkKey.touchLinkKey.key = (u8 *)touchLinkKeyMaster,   			//use touchLinkKeyCertification before testing
+    .linkKey.touchLinkKey.keyType = MASTER_KEY,
+    .linkKey.touchLinkKey.key     = (u8 *)touchLinkKeyMaster,           //use touchLinkKeyCertification before testing
 
 #if TOUCHLINK_SUPPORT
-	.touchlinkEnable = 1,												/* enable touch-link */
+    .touchlinkEnable = 1,                /* enable touch-link */
 #else
-	.touchlinkEnable = 0,												/* disable touch-link */
+    .touchlinkEnable = 0,                /* disable touch-link */
 #endif
-	.touchlinkChannel = DEFAULT_CHANNEL, 								/* touch-link default operation channel for target */
-	.touchlinkLqiThreshold = 0xA0,			   							/* threshold for touch-link scan req/resp command */
+    .touchlinkChannel = DEFAULT_CHANNEL, /* touch-link default operation channel for target */
+    .touchlinkLqiThreshold = 0xA0,       /* threshold for touch-link scan req/resp command */
 };
 
 #if PM_ENABLE
@@ -110,16 +107,17 @@ bdb_commissionSetting_t g_bdbCommissionSetting = {
  *  @brief Definition for wakeup source and level for PM
  */
 drv_pm_pinCfg_t g_sensorPmCfg[] = {
-	{
-		BUTTON1,
-		PM_WAKEUP_LEVEL
-	},
-	{
-		BUTTON2,
-		PM_WAKEUP_LEVEL
-	}
+    {
+        BUTTON1,
+        PM_WAKEUP_LEVEL
+    },
+    {
+        BUTTON2,
+        PM_WAKEUP_LEVEL
+    }
 };
 #endif
+
 /**********************************************************************
  * LOCAL VARIABLES
  */
@@ -141,8 +139,8 @@ drv_pm_pinCfg_t g_sensorPmCfg[] = {
  */
 void stack_init(void)
 {
-	zb_init();
-	zb_zdoCbRegister((zdo_appIndCb_t *)&appCbLst);
+    zb_init();
+    zb_zdoCbRegister((zdo_appIndCb_t *)&appCbLst);
 }
 
 /*********************************************************************
@@ -157,20 +155,20 @@ void stack_init(void)
 void user_app_init(void)
 {
 #if ZCL_POLL_CTRL_SUPPORT
-	af_powerDescPowerModeUpdate(POWER_MODE_RECEIVER_COMES_PERIODICALLY);
+    af_powerDescPowerModeUpdate(POWER_MODE_RECEIVER_COMES_PERIODICALLY);
 #else
-	af_powerDescPowerModeUpdate(POWER_MODE_RECEIVER_COMES_WHEN_STIMULATED);
+    af_powerDescPowerModeUpdate(POWER_MODE_RECEIVER_COMES_WHEN_STIMULATED);
 #endif
 
     /* Initialize ZCL layer */
-	/* Register Incoming ZCL Foundation command/response messages */
-	zcl_init(sampleSensor_zclProcessIncomingMsg);
+    /* Register Incoming ZCL Foundation command/response messages */
+    zcl_init(sampleSensor_zclProcessIncomingMsg);
 
-	/* Register endPoint */
-	af_endpointRegister(SAMPLE_SENSOR_ENDPOINT, (af_simple_descriptor_t *)&sampleSensor_simpleDesc, zcl_rx_handler, NULL);
+    /* Register endPoint */
+    af_endpointRegister(SAMPLE_SENSOR_ENDPOINT, (af_simple_descriptor_t *)&sampleSensor_simpleDesc, zcl_rx_handler, NULL);
 
-	/* Register ZCL specific cluster information */
-	zcl_register(SAMPLE_SENSOR_ENDPOINT, SAMPLE_SENSOR_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_sampleSensorClusterList);
+    /* Register ZCL specific cluster information */
+    zcl_register(SAMPLE_SENSOR_ENDPOINT, SAMPLE_SENSOR_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_sampleSensorClusterList);
 
 #if ZCL_OTA_SUPPORT
     ota_init(OTA_TYPE_CLIENT, (af_simple_descriptor_t *)&sampleSensor_simpleDesc, &sampleSensor_otaInfo, &sampleSensor_otaCb);
@@ -179,32 +177,32 @@ void user_app_init(void)
 
 void led_init(void)
 {
-	light_init();
+    light_init();
 }
 
 void app_task(void)
 {
-	app_key_handler();
+    app_key_handler();
 
-	if(bdb_isIdle()){
+    if (bdb_isIdle()) {
 #if PM_ENABLE
-		app_key_handler();
-		if(!g_sensorAppCtx.keyPressed){
-			drv_pm_lowPowerEnter();
-		}
+        app_key_handler();
+        if (!g_sensorAppCtx.keyPressed) {
+            drv_pm_lowPowerEnter();
+        }
 #endif
 
-		report_handler();
-	}
+        report_handler();
+    }
 }
 
 static void sampleSensorSysException(void)
 {
 #if 1
-	SYSTEM_RESET();
+    SYSTEM_RESET();
 #else
-	light_on();
-	while(1);
+    light_on();
+    while(1);
 #endif
 }
 
@@ -219,50 +217,50 @@ static void sampleSensorSysException(void)
  */
 void user_init(bool isRetention)
 {
-	/* Initialize LEDs*/
-	led_init();
+    /* Initialize LEDs*/
+    led_init();
 
 #if PA_ENABLE
-	rf_paInit(PA_TX, PA_RX);
+    rf_paInit(PA_TX, PA_RX);
 #endif
 
 #if ZBHCI_EN
-	zbhciInit();
+    zbhciInit();
 #endif
 
 #if PM_ENABLE
-	drv_pm_wakeupPinConfig(g_sensorPmCfg, sizeof(g_sensorPmCfg)/sizeof(drv_pm_pinCfg_t));
+    drv_pm_wakeupPinConfig(g_sensorPmCfg, sizeof(g_sensorPmCfg)/sizeof(drv_pm_pinCfg_t));
 #endif
 
-	if(!isRetention){
-		/* Initialize Stack */
-		stack_init();
+    if (!isRetention) {
+        /* Initialize Stack */
+        stack_init();
 
-		/* Initialize user application */
-		user_app_init();
+        /* Initialize user application */
+        user_app_init();
 
-		/* Register except handler for test */
-		sys_exceptHandlerRegister(sampleSensorSysException);
+        /* Register except handler for test */
+        sys_exceptHandlerRegister(sampleSensorSysException);
 
-		/* User's Task */
+        /* User's Task */
 #if ZBHCI_EN
-		ev_on_poll(EV_POLL_HCI, zbhciTask);
+        ev_on_poll(EV_POLL_HCI, zbhciTask);
 #endif
-		ev_on_poll(EV_POLL_IDLE, app_task);
+        ev_on_poll(EV_POLL_IDLE, app_task);
 
-		/* Load the pre-install code from flash */
-		if(bdb_preInstallCodeLoad(&g_sensorAppCtx.tcLinkKey.keyType, g_sensorAppCtx.tcLinkKey.key) == RET_OK){
-			g_bdbCommissionSetting.linkKey.tcLinkKey.keyType = g_sensorAppCtx.tcLinkKey.keyType;
-			g_bdbCommissionSetting.linkKey.tcLinkKey.key = g_sensorAppCtx.tcLinkKey.key;
-		}
+        /* Load the pre-install code from flash */
+        if (bdb_preInstallCodeLoad(&g_sensorAppCtx.tcLinkKey.keyType, g_sensorAppCtx.tcLinkKey.key) == RET_OK) {
+            g_bdbCommissionSetting.linkKey.tcLinkKey.keyType = g_sensorAppCtx.tcLinkKey.keyType;
+            g_bdbCommissionSetting.linkKey.tcLinkKey.key = g_sensorAppCtx.tcLinkKey.key;
+        }
 
-		/* Initialize BDB */
-		u8 repower = drv_pm_deepSleep_flag_get() ? 0 : 1;
-		bdb_init((af_simple_descriptor_t *)&sampleSensor_simpleDesc, &g_bdbCommissionSetting, &g_zbDemoBdbCb, repower);
-	}else{
-		/* Re-config phy when system recovery from deep sleep with retention */
-		mac_phyReconfig();
-	}
+        /* Initialize BDB */
+        u8 repower = drv_pm_deepSleep_flag_get() ? 0 : 1;
+        bdb_init((af_simple_descriptor_t *)&sampleSensor_simpleDesc, &g_bdbCommissionSetting, &g_zbDemoBdbCb, repower);
+    } else {
+        /* Re-config phy when system recovery from deep sleep with retention */
+        mac_phyReconfig();
+    }
 }
 
 #endif  /* __PROJECT_TL_CONTACT_SENSOR__ */

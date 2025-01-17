@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #if (__PROJECT_TL_GW__)
 
 /**********************************************************************
@@ -51,212 +50,216 @@
  */
 void led_on(u32 pin)
 {
-	drv_gpio_write(pin, LED_ON);
+    drv_gpio_write(pin, LED_ON);
 }
 
 void led_off(u32 pin)
 {
-	drv_gpio_write(pin, LED_OFF);
+    drv_gpio_write(pin, LED_OFF);
 }
 
 void light_on(void)
 {
-	led_on(LED_POWER);
+    led_on(LED_POWER);
 }
 
 void light_off(void)
 {
-	led_off(LED_POWER);
+    led_off(LED_POWER);
 }
 
 void light_init(void)
 {
-	led_on(LED_POWER);
+    led_on(LED_POWER);
 }
 
 s32 zclLightTimerCb(void *arg)
 {
-	u32 interval = 0;
+    u32 interval = 0;
 
-	if(g_appGwCtx.sta == g_appGwCtx.oriSta){
-		g_appGwCtx.times--;
-		if(g_appGwCtx.times <= 0){
-			g_appGwCtx.timerLedEvt = NULL;
-			return -1;
-		}
-	}
+    if (g_appGwCtx.sta == g_appGwCtx.oriSta) {
+        g_appGwCtx.times--;
+        if (g_appGwCtx.times <= 0) {
+            g_appGwCtx.timerLedEvt = NULL;
+            return -1;
+        }
+    }
 
-	g_appGwCtx.sta = !g_appGwCtx.sta;
-	if(g_appGwCtx.sta){
-		light_on();
-		interval = g_appGwCtx.ledOnTime;
-	}else{
-		light_off();
-		interval = g_appGwCtx.ledOffTime;
-	}
+    g_appGwCtx.sta = !g_appGwCtx.sta;
+    if (g_appGwCtx.sta) {
+        light_on();
+        interval = g_appGwCtx.ledOnTime;
+    } else {
+        light_off();
+        interval = g_appGwCtx.ledOffTime;
+    }
 
-	return interval;
+    return interval;
 }
 
 void light_blink_start(u8 times, u16 ledOnTime, u16 ledOffTime)
 {
-	u32 interval = 0;
-	g_appGwCtx.times = times;
+    u32 interval = 0;
+    g_appGwCtx.times = times;
 
-	if(!g_appGwCtx.timerLedEvt){
-		if(g_appGwCtx.oriSta){
-			light_off();
-			g_appGwCtx.sta = 0;
-			interval = ledOffTime;
-		}else{
-			light_on();
-			g_appGwCtx.sta = 1;
-			interval = ledOnTime;
-		}
-		g_appGwCtx.ledOnTime = ledOnTime;
-		g_appGwCtx.ledOffTime = ledOffTime;
+    if (!g_appGwCtx.timerLedEvt) {
+        if (g_appGwCtx.oriSta) {
+            light_off();
+            g_appGwCtx.sta = 0;
+            interval = ledOffTime;
+        } else {
+            light_on();
+            g_appGwCtx.sta = 1;
+            interval = ledOnTime;
+        }
 
-		g_appGwCtx.timerLedEvt = TL_ZB_TIMER_SCHEDULE(zclLightTimerCb, NULL, interval);
-	}
+        g_appGwCtx.ledOnTime = ledOnTime;
+        g_appGwCtx.ledOffTime = ledOffTime;
+        g_appGwCtx.timerLedEvt = TL_ZB_TIMER_SCHEDULE(zclLightTimerCb, NULL, interval);
+    }
 }
 
 void light_blink_stop(void)
 {
-	if(g_appGwCtx.timerLedEvt){
-		TL_ZB_TIMER_CANCEL(&g_appGwCtx.timerLedEvt);
+    if (g_appGwCtx.timerLedEvt) {
+        TL_ZB_TIMER_CANCEL(&g_appGwCtx.timerLedEvt);
 
-		g_appGwCtx.times = 0;
-		if(g_appGwCtx.oriSta){
-			light_on();
-		}else{
-			light_off();
-		}
-	}
+        g_appGwCtx.times = 0;
+        if (g_appGwCtx.oriSta) {
+            light_on();
+        } else {
+            light_off();
+        }
+    }
 }
 
+void buttonKeepPressed(u8 btNum)
+{
+    if (btNum == VK_SW1) {
+        //zb_factoryReset();
+    } else if (btNum == VK_SW2) {
 
-void buttonKeepPressed(u8 btNum){
-	if(btNum == VK_SW1){
-		//zb_factoryReset();
-	}else if(btNum == VK_SW2){
-
-	}
+    }
 }
 
 ev_timer_event_t *brc_toggleEvt = NULL;
 s32 brc_toggleCb(void *arg)
 {
-	static bool toggle = 0;
+    static bool toggle = 0;
 
-	epInfo_t dstEpInfo;
-	TL_SETSTRUCTCONTENT(dstEpInfo, 0);
+    epInfo_t dstEpInfo;
+    TL_SETSTRUCTCONTENT(dstEpInfo, 0);
 
-	dstEpInfo.dstAddrMode = APS_SHORT_DSTADDR_WITHEP;
-	dstEpInfo.dstEp = SAMPLE_GW_ENDPOINT;
-	dstEpInfo.dstAddr.shortAddr = 0xffff;
-	dstEpInfo.profileId = HA_PROFILE_ID;
-	dstEpInfo.txOptions = 0;
-	dstEpInfo.radius = 0;
+    dstEpInfo.dstAddrMode = APS_SHORT_DSTADDR_WITHEP;
+    dstEpInfo.dstEp = SAMPLE_GW_ENDPOINT;
+    dstEpInfo.dstAddr.shortAddr = 0xffff;
+    dstEpInfo.profileId = HA_PROFILE_ID;
+    dstEpInfo.txOptions = 0;
+    dstEpInfo.radius = 0;
 
-	//zcl_onOff_toggleCmd(SAMPLE_GW_ENDPOINT, &dstEpInfo, FALSE);
-	toggle = !toggle;
-	if(toggle){
-		zcl_onOff_onCmd(SAMPLE_GW_ENDPOINT, &dstEpInfo, FALSE);
-	}else{
-		zcl_onOff_offCmd(SAMPLE_GW_ENDPOINT, &dstEpInfo, FALSE);
-	}
+    //zcl_onOff_toggleCmd(SAMPLE_GW_ENDPOINT, &dstEpInfo, FALSE);
+    toggle = !toggle;
+    if (toggle) {
+        zcl_onOff_onCmd(SAMPLE_GW_ENDPOINT, &dstEpInfo, FALSE);
+    } else {
+        zcl_onOff_offCmd(SAMPLE_GW_ENDPOINT, &dstEpInfo, FALSE);
+    }
 
-	return 0;
+    return 0;
 }
 
 void brc_toggle(void)
 {
-	if(!brc_toggleEvt){
-		brc_toggleEvt = TL_ZB_TIMER_SCHEDULE(brc_toggleCb, NULL, 1000);
-	}else{
-		TL_ZB_TIMER_CANCEL(&brc_toggleEvt);
-	}
+    if (!brc_toggleEvt) {
+        brc_toggleEvt = TL_ZB_TIMER_SCHEDULE(brc_toggleCb, NULL, 1000);
+    } else {
+        TL_ZB_TIMER_CANCEL(&brc_toggleEvt);
+    }
 }
 
-void buttonShortPressed(u8 btNum){
-	if(btNum == VK_SW1){
-		if(zb_isDeviceJoinedNwk()){
+void buttonShortPressed(u8 btNum)
+{
+    if (btNum == VK_SW1) {
+        if (zb_isDeviceJoinedNwk()) {
 #if POLL_CTRL_SUPPORT
-			sampleGW_zclFastPollStopCmdSend();
+            sampleGW_zclFastPollStopCmdSend();
 #else
 #if 0
-			epInfo_t dstEpInfo;
-			TL_SETSTRUCTCONTENT(dstEpInfo, 0);
+            epInfo_t dstEpInfo;
+            TL_SETSTRUCTCONTENT(dstEpInfo, 0);
 
-			dstEpInfo.dstAddrMode = APS_SHORT_DSTADDR_WITHEP;
-			dstEpInfo.dstEp = SAMPLE_GW_ENDPOINT;
-			dstEpInfo.dstAddr.shortAddr = 0xffff;
-			dstEpInfo.profileId = HA_PROFILE_ID;
-			dstEpInfo.txOptions = 0;
-			dstEpInfo.radius = 0;
+            dstEpInfo.dstAddrMode = APS_SHORT_DSTADDR_WITHEP;
+            dstEpInfo.dstEp = SAMPLE_GW_ENDPOINT;
+            dstEpInfo.dstAddr.shortAddr = 0xffff;
+            dstEpInfo.profileId = HA_PROFILE_ID;
+            dstEpInfo.txOptions = 0;
+            dstEpInfo.radius = 0;
 
-			zcl_onOff_toggleCmd(SAMPLE_GW_ENDPOINT, &dstEpInfo, FALSE);
+            zcl_onOff_toggleCmd(SAMPLE_GW_ENDPOINT, &dstEpInfo, FALSE);
 #else
-			brc_toggle();
+            brc_toggle();
 #endif
 #endif
-		}
-	}else if(btNum == VK_SW2){
-		if(zb_isDeviceJoinedNwk()){
-			u8 duration = zb_getMacAssocPermit() ? 0 : 180;
+        }
+    } else if (btNum == VK_SW2) {
+        if (zb_isDeviceJoinedNwk()) {
+            u8 duration = zb_getMacAssocPermit() ? 0 : 180;
 #if 0
-			/* toggle local permit Joining */
-			zb_nlmePermitJoiningRequest(duration);
+            /* toggle local permit Joining */
+            zb_nlmePermitJoiningRequest(duration);
 #else
-			/* broadcast a Mgmt_permit_join_req is batter */
-			u8 sn = 0;
-			zb_mgmtPermitJoinReq(0xfffc, duration, 0x01, &sn, NULL);
+            /* broadcast a Mgmt_permit_join_req is batter */
+            u8 sn = 0;
+            zb_mgmtPermitJoinReq(0xfffc, duration, 0x01, &sn, NULL);
 #endif
-			gpsCommissionModeInvork();
-		}
-	}
+            gpsCommissionModeInvork();
+        }
+    }
 }
 
-void keyScan_keyPressedCB(kb_data_t *kbEvt){
-//	u8 toNormal = 0;
-	u8 keyCode = kbEvt->keycode[0];
-//	static u8 lastKeyCode = 0xff;
+void keyScan_keyPressedCB(kb_data_t *kbEvt)
+{
+    //u8 toNormal = 0;
+    u8 keyCode = kbEvt->keycode[0];
+    //static u8 lastKeyCode = 0xff;
 
-	buttonShortPressed(keyCode);
+    buttonShortPressed(keyCode);
 
-	if(keyCode == VK_SW1){
-		g_appGwCtx.keyPressedTime = clock_time();
-		g_appGwCtx.state = APP_FACTORY_NEW_SET_CHECK;
-	}
+    if (keyCode == VK_SW1) {
+        g_appGwCtx.keyPressedTime = clock_time();
+        g_appGwCtx.state = APP_FACTORY_NEW_SET_CHECK;
+    }
 }
 
-
-void keyScan_keyReleasedCB(u8 keyCode){
+void keyScan_keyReleasedCB(u8 keyCode)
+{
 	g_appGwCtx.state = APP_STATE_NORMAL;
 }
 
 volatile u8 T_keyPressedNum = 0;
-void app_key_handler(void){
-	static u8 valid_keyCode = 0xff;
+void app_key_handler(void)
+{
+    static u8 valid_keyCode = 0xff;
 
-	if(g_appGwCtx.state == APP_FACTORY_NEW_SET_CHECK){
-		if(clock_time_exceed(g_appGwCtx.keyPressedTime, 5*1000*1000)){
-			buttonKeepPressed(VK_SW1);
-		}
-	}
+    if (g_appGwCtx.state == APP_FACTORY_NEW_SET_CHECK) {
+        if (clock_time_exceed(g_appGwCtx.keyPressedTime, 5 * 1000 * 1000)) {
+            buttonKeepPressed(VK_SW1);
+        }
+    }
 
-	if(kb_scan_key(0 , 1)){
-		T_keyPressedNum++;
-		if(kb_event.cnt){
-			keyScan_keyPressedCB(&kb_event);
-			if(kb_event.cnt == 1){
-				valid_keyCode = kb_event.keycode[0];
-			}
-		}else{
-			keyScan_keyReleasedCB(valid_keyCode);
-			valid_keyCode = 0xff;
-		}
-	}
+    if (kb_scan_key(0, 1)) {
+        T_keyPressedNum++;
+
+        if (kb_event.cnt) {
+            keyScan_keyPressedCB(&kb_event);
+            if (kb_event.cnt == 1) {
+                valid_keyCode = kb_event.keycode[0];
+            }
+        } else {
+            keyScan_keyReleasedCB(valid_keyCode);
+            valid_keyCode = 0xff;
+        }
+    }
 }
 
 #endif  /* __PROJECT_TL_GW__ */

@@ -22,32 +22,30 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #include "zb_common.h"
-
 
 /*
  * main:
  * */
-int main(void){
-	startup_state_e state = drv_platform_init();
+int main(void)
+{
+    startup_state_e state = drv_platform_init();
 
-	u8 isRetention = (state == SYSTEM_DEEP_RETENTION) ? 1 : 0;
+    u8 isRetention = (state == SYSTEM_DEEP_RETENTION) ? 1 : 0;
 
-	os_init(isRetention);
+    os_init(isRetention);
 
 #if 0
-	extern void moduleTest_start(void);
-	moduleTest_start();
+    extern void moduleTest_start(void);
+    moduleTest_start();
 #else
+    extern void user_init(bool isRetention);
+    user_init(isRetention);
 
-	extern void user_init(bool isRetention);
-	user_init(isRetention);
-
-	drv_enable_irq();
+    drv_enable_irq();
 
 #if (MODULE_WATCHDOG_ENABLE)
-	drv_wd_setInterval(600);
+    drv_wd_setInterval(600);
     drv_wd_start();
 #endif
 
@@ -55,34 +53,31 @@ int main(void){
     u32 tick = clock_time();
 #endif
 
-	while(1){
+    while (1) {
 #if VOLTAGE_DETECT_ENABLE
-		if(clock_time_exceed(tick, 200 * 1000)){
-			voltage_detect(0);
-			tick = clock_time();
-		}
+        if (clock_time_exceed(tick, 200 * 1000)) {
+            voltage_detect(0);
+            tick = clock_time();
+        }
 #endif
 
 #if defined(MCU_CORE_B92)
-		drv_vbusWatchdogClose();
+        drv_vbusWatchdogClose();
 #endif
 
-    	ev_main();
+        ev_main();
 
 #if (MODULE_WATCHDOG_ENABLE)
-		drv_wd_clear();
+        drv_wd_clear();
 #endif
 
-		tl_zbTaskProcedure();
+        tl_zbTaskProcedure();
 
-#if	(MODULE_WATCHDOG_ENABLE)
-		drv_wd_clear();
+#if (MODULE_WATCHDOG_ENABLE)
+        drv_wd_clear();
 #endif
-	}
-
+    }
 #endif
 
-	return 0;
+    return 0;
 }
-
-

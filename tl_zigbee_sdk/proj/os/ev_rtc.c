@@ -25,74 +25,74 @@
 #include "../tl_common.h"
 #include "ev_rtc.h"
 
-#define	START_YEAR				2000 	//UTC started at 00:00:00 January 1, 2000
-#define	DAY_SECONDS      		86400	//24 hours * 60 minutes * 60 seconds
+#define	START_YEAR              2000  //UTC started at 00:00:00 January 1, 2000
+#define	DAY_SECONDS             86400 //24 hours * 60 minutes * 60 seconds
 
-#define	IS_LEAP_YEAR(year)		(!((year) % 400) || (((year) % 100) && !((year) % 4)))
-#define	YEAR_LENGTH_GET(year)	((u16)(IS_LEAP_YEAR(year) ? 366 : 365))
+#define	IS_LEAP_YEAR(year)      (!((year) % 400) || (((year) % 100) && !((year) % 4)))
+#define	YEAR_LENGTH_GET(year)   ((u16)(IS_LEAP_YEAR(year) ? 366 : 365))
 
 static u32 rtcRemainingMs;
 static u32 rtcSeconds;
 
 static u8 monthLengthGet(bool isLeapYear, u8 month)
 {
-	u8 days = 31;
+    u8 days = 31;
 
-	if(month == 1){
-		days = 28 + (isLeapYear ? 1 : 0);
-	}else{
-		if(month > 6){
-			month--;
-		}
-		if(month & 1){
-			days = 30;
-		}
-	}
+    if (month == 1) {
+        days = 28 + (isLeapYear ? 1 : 0);
+    } else {
+        if (month > 6) {
+            month--;
+        }
+        if (month & 1) {
+            days = 30;
+        }
+    }
 
-	return days;
+    return days;
 }
 
 void ev_rtc_second2utc(utcTime_t *time, UTCTime utcSeconds)
 {
-	u16 days = utcSeconds / DAY_SECONDS;
-	u32 seconds = utcSeconds % DAY_SECONDS;
+    u16 days = utcSeconds / DAY_SECONDS;
+    u32 seconds = utcSeconds % DAY_SECONDS;
 
-	time->hour = seconds / 3600;
-	time->min = (seconds % 3600) / 60;
-	time->sec = seconds % 60;
+    time->hour = seconds / 3600;
+    time->min = (seconds % 3600) / 60;
+    time->sec = seconds % 60;
 
-	time->year = START_YEAR;
-	while(days >= YEAR_LENGTH_GET(time->year)){
-		days -= YEAR_LENGTH_GET(time->year);
-		time->year++;
-	}
+    time->year = START_YEAR;
+    while (days >= YEAR_LENGTH_GET(time->year)) {
+        days -= YEAR_LENGTH_GET(time->year);
+        time->year++;
+    }
 
-	time->month = 0;
-	while(days >= monthLengthGet(IS_LEAP_YEAR(time->year), time->month)){
-		days -= monthLengthGet(IS_LEAP_YEAR(time->year), time->month);
-		time->month++;
-	}
+    time->month = 0;
+    while (days >= monthLengthGet(IS_LEAP_YEAR(time->year), time->month)) {
+        days -= monthLengthGet(IS_LEAP_YEAR(time->year), time->month);
+        time->month++;
+    }
 
-	time->day = (u8)days;
+    time->day = (u8)days;
 
-	time->month++;
-	time->day++;
+    time->month++;
+    time->day++;
 }
 
 UTCTime ev_rtc_utc2Second(utcTime_t *time)
 {
-	u32 seconds = (((time->hour * 60) + time->min) * 60) + time->sec;
+    u32 seconds = (((time->hour * 60) + time->min) * 60) + time->sec;
 
-	u16 days = time->day - 1;
+    u16 days = time->day - 1;
 
-	s8 month = time->month - 1;
-	while(--month >= 0){
-		days += monthLengthGet(IS_LEAP_YEAR(time->year), month);
-	}
+    s8 month = time->month - 1;
+    while (--month >= 0) {
+        days += monthLengthGet(IS_LEAP_YEAR(time->year), month);
+    }
 
-	u16 year = time->year;
-    while(--year >= START_YEAR){
-      days += YEAR_LENGTH_GET(year);
+    u16 year = time->year;
+    while (--year >= START_YEAR) {
+        days += YEAR_LENGTH_GET(year);
     }
 
     seconds += (days * DAY_SECONDS);
@@ -102,20 +102,19 @@ UTCTime ev_rtc_utc2Second(utcTime_t *time)
 
 void ev_rtc_secondsSet(UTCTime seconds)
 {
-	rtcSeconds = seconds;
+    rtcSeconds = seconds;
 }
 
 UTCTime ev_rtc_secondsGet(void)
 {
-	return rtcSeconds;
+    return rtcSeconds;
 }
 
 void ev_rtc_update(u32 updateTime)
 {
-	rtcRemainingMs += updateTime;
-	if(rtcRemainingMs >= 1000){
-		rtcSeconds += rtcRemainingMs / 1000;
-		rtcRemainingMs = rtcRemainingMs % 1000;
-	}
+    rtcRemainingMs += updateTime;
+    if (rtcRemainingMs >= 1000) {
+        rtcSeconds += rtcRemainingMs / 1000;
+        rtcRemainingMs = rtcRemainingMs % 1000;
+    }
 }
-

@@ -22,66 +22,69 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #include "tl_common.h"
 #include "factory_reset.h"
 #include "zb_api.h"
 
-#define FACTORY_RESET_POWER_CNT_THRESHOLD		10	//times
-#define FACTORY_RESET_TIMEOUT					2	//second
+#define FACTORY_RESET_POWER_CNT_THRESHOLD       10 //times
+#define FACTORY_RESET_TIMEOUT                   2  //second
 
 ev_timer_event_t *factoryRst_timerEvt = NULL;
 u8 factoryRst_powerCnt = 0;
 bool factoryRst_exist = FALSE;
 
-nv_sts_t factoryRst_powerCntSave(void){
-	nv_sts_t st = NV_SUCC;
+nv_sts_t factoryRst_powerCntSave(void)
+{
+    nv_sts_t st = NV_SUCC;
 #if NV_ENABLE
-	st = nv_flashWriteNew(1, NV_MODULE_APP, NV_ITEM_APP_POWER_CNT, 1, &factoryRst_powerCnt);
+    st = nv_flashWriteNew(1, NV_MODULE_APP, NV_ITEM_APP_POWER_CNT, 1, &factoryRst_powerCnt);
 #else
-	st = NV_ENABLE_PROTECT_ERROR;
+    st = NV_ENABLE_PROTECT_ERROR;
 #endif
-	return st;
+    return st;
 }
 
-nv_sts_t factoryRst_powerCntRestore(void){
-	nv_sts_t st = NV_SUCC;
+nv_sts_t factoryRst_powerCntRestore(void)
+{
+    nv_sts_t st = NV_SUCC;
 #if NV_ENABLE
-	st = nv_flashReadNew(1, NV_MODULE_APP, NV_ITEM_APP_POWER_CNT, 1, &factoryRst_powerCnt);
+    st = nv_flashReadNew(1, NV_MODULE_APP, NV_ITEM_APP_POWER_CNT, 1, &factoryRst_powerCnt);
 #else
-	st = NV_ENABLE_PROTECT_ERROR;
+    st = NV_ENABLE_PROTECT_ERROR;
 #endif
-	return st;
+    return st;
 }
 
-static s32 factoryRst_timerCb(void *arg){
-	if(factoryRst_powerCnt >= FACTORY_RESET_POWER_CNT_THRESHOLD){
-		/* here is just a mark, wait for device announce and then perform factory reset. */
-		factoryRst_exist = TRUE;
-	}
+static s32 factoryRst_timerCb(void *arg)
+{
+    if (factoryRst_powerCnt >= FACTORY_RESET_POWER_CNT_THRESHOLD) {
+        /* here is just a mark, wait for device announce and then perform factory reset. */
+        factoryRst_exist = TRUE;
+    }
 
-	factoryRst_powerCnt = 0;
-	factoryRst_powerCntSave();
+    factoryRst_powerCnt = 0;
+    factoryRst_powerCntSave();
 
-	factoryRst_timerEvt = NULL;
-	return -1;
+    factoryRst_timerEvt = NULL;
+    return -1;
 }
 
-void factoryRst_handler(void){
-	if(factoryRst_exist){
-		factoryRst_exist = FALSE;
-		zb_factoryReset();
-	}
+void factoryRst_handler(void)
+{
+    if (factoryRst_exist) {
+        factoryRst_exist = FALSE;
+        zb_factoryReset();
+    }
 }
 
-void factoryRst_init(void){
-	factoryRst_powerCntRestore();
-	factoryRst_powerCnt++;
-	factoryRst_powerCntSave();
+void factoryRst_init(void)
+{
+    factoryRst_powerCntRestore();
+    factoryRst_powerCnt++;
+    factoryRst_powerCntSave();
 
-	if(factoryRst_timerEvt){
-		TL_ZB_TIMER_CANCEL(&factoryRst_timerEvt);
-	}
-	factoryRst_timerEvt = TL_ZB_TIMER_SCHEDULE(factoryRst_timerCb, NULL, FACTORY_RESET_TIMEOUT * 1000);
+    if (factoryRst_timerEvt) {
+        TL_ZB_TIMER_CANCEL(&factoryRst_timerEvt);
+    }
+    factoryRst_timerEvt = TL_ZB_TIMER_SCHEDULE(factoryRst_timerCb, NULL, FACTORY_RESET_TIMEOUT * 1000);
 }
-

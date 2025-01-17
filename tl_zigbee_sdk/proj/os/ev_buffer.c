@@ -22,21 +22,19 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #include "../tl_common.h"
 #include "ev_buffer.h"
 
 
-#define DEFAULT_BUFFER_GROUP_NUM                 4
+#define DEFAULT_BUFFER_GROUP_NUM        4
 
 /**************************** Private Variable Definitions *******************/
 typedef struct {
-	mem_pool_t *qHead;
-	u16 size;
-	u8 availBufNum;
-	u8 reserved;
+    mem_pool_t *qHead;
+    u16 size;
+    u8 availBufNum;
+    u8 reserved;
 } ev_buf_groups_t;
-
 
 typedef struct bufm_vars {
     ev_buf_groups_t bufGroups[DEFAULT_BUFFER_GROUP_NUM];
@@ -67,8 +65,8 @@ u8 ev_buf_isExisted(u8 index, mem_block_t *block)
     mem_pool_t *pool = (mem_pool_t *)ev_buf_v->bufGroups[index].qHead;
     mem_block_t *curBlock = pool->free_list;
 
-    while(curBlock){
-        if(block == curBlock){
+    while (curBlock) {
+        if (block == curBlock) {
             return TRUE;
         } 
         curBlock = curBlock->next_block;
@@ -81,7 +79,6 @@ u8 *ev_buf_retrieveMempoolHeader(u8 *pd)
 {
     return pd - (OFFSETOF(ev_bufItem_t, data) - OFFSETOF(mem_block_t, data));
 }
-
 
 /*********************************************************************
  * @fn      ev_buf_reset
@@ -102,7 +99,7 @@ void ev_buf_reset(void)
     memset((u8 *)ev_buf_v, 0, sizeof(ev_buf_vars_t));
 
     /* reinitialize available buffer */
-    for(u8 i = 0; i < DEFAULT_BUFFER_GROUP_NUM; i++){
+    for (u8 i = 0; i < DEFAULT_BUFFER_GROUP_NUM; i++) {
         ev_buf_v->bufGroups[i].availBufNum = buffCnt[i];
         ev_buf_v->bufGroups[i].qHead = mempool_init(memPool[i], mem[i], size[i], buffCnt[i]);
         ev_buf_v->bufGroups[i].size = size[i];
@@ -142,7 +139,7 @@ u8 *my_ev_buf_allocate(u16 size, u16 line)
 u8 *ev_buf_allocate(u16 size)
 #endif
 {
-    if((size == 0) || (size > MAX_BUFFER_SIZE)){
+    if ((size == 0) || (size > MAX_BUFFER_SIZE)) {
         /* the size parameter is wrong */
         return NULL;
     }
@@ -150,19 +147,19 @@ u8 *ev_buf_allocate(u16 size)
     u8 index = U8_MAX;
 
     /* find related the buffer blocks */
-    for(u8 i = 0; i < DEFAULT_BUFFER_GROUP_NUM; i++){
-        if((size <= ev_buf_v->bufGroups[i].size - OFFSETOF(ev_bufItem_t, data)) && ev_buf_v->bufGroups[i].availBufNum){
+    for (u8 i = 0; i < DEFAULT_BUFFER_GROUP_NUM; i++) {
+        if ((size <= ev_buf_v->bufGroups[i].size - OFFSETOF(ev_bufItem_t, data)) && ev_buf_v->bufGroups[i].availBufNum) {
             index = i;
             break;
         }
     }
-    if((index == U8_MAX ) || (!ev_buf_v->bufGroups[index].availBufNum)){
+    if ((index == U8_MAX ) || (!ev_buf_v->bufGroups[index].availBufNum)) {
         /* no available buffer */
     	drv_restore_irq(r);
         return NULL;
     }
     u8 *temp = (u8 *)mempool_alloc(ev_buf_v->bufGroups[index].qHead);
-    if(!temp){
+    if (!temp) {
     	drv_restore_irq(r);
     	return NULL;
     }
@@ -178,8 +175,9 @@ u8 *ev_buf_allocate(u16 size)
     return pNewBuf->data;
 }
 
-u8 *long_ev_buf_get(void){
-	return ev_buf_allocate(MAX_BUFFER_SIZE);
+u8 *long_ev_buf_get(void)
+{
+    return ev_buf_allocate(MAX_BUFFER_SIZE);
 }
 
 /*********************************************************************
@@ -201,26 +199,25 @@ buf_sts_t ev_buf_free(u8 *pBuf)
 {
     u32 r = drv_disable_irq();
 
-    if(!is_ev_buf(pBuf)){
+    if (!is_ev_buf(pBuf)) {
 #if EV_BUFFER_DEBUG
-    	T_DBG_evFreeBuf = (u32)pBuf;
-    	T_DBG_evFreeBufLine = line;
+        T_DBG_evFreeBuf = (u32)pBuf;
+        T_DBG_evFreeBufLine = line;
 #endif
 
-    	ZB_EXCEPTION_POST(SYS_EXCEPTTION_EV_BUFFER_EXCEPTION_FREE_OVERFLON);
+        ZB_EXCEPTION_POST(SYS_EXCEPTTION_EV_BUFFER_EXCEPTION_FREE_OVERFLON);
     }
 
     ev_bufItem_t *pDelBuf = ev_buf_getHead(pBuf);
 
     /* check whether the buffer is duplicated release */
-    if(ev_buf_isExisted(pDelBuf->groupIndex, (mem_block_t *)pDelBuf)){
-
+    if (ev_buf_isExisted(pDelBuf->groupIndex, (mem_block_t *)pDelBuf)) {
 #if EV_BUFFER_DEBUG
-    	T_DBG_evFreeBuf = (u32)pBuf;
-    	T_DBG_evFreeBufLine = line;
+        T_DBG_evFreeBuf = (u32)pBuf;
+        T_DBG_evFreeBufLine = line;
 #endif
 
-    	ZB_EXCEPTION_POST(SYS_EXCEPTTION_EV_BUFFER_EXCEPTION_FREE_MULTI);
+        ZB_EXCEPTION_POST(SYS_EXCEPTTION_EV_BUFFER_EXCEPTION_FREE_MULTI);
 
     	drv_restore_irq(r);
         return BUFFER_DUPLICATE_FREE;
@@ -264,37 +261,36 @@ ev_bufItem_t *ev_buf_getHead(u8 *pd)
  */
 u8 *ev_buf_getTail(u8 *pd, int offsetToTail)
 {
-	u32 index;
-	u16 size[DEFAULT_BUFFER_GROUP_NUM] = {BUFFER_GROUP_0, BUFFER_GROUP_1, BUFFER_GROUP_2};
+    u32 index;
+    u16 size[DEFAULT_BUFFER_GROUP_NUM] = {BUFFER_GROUP_0, BUFFER_GROUP_1, BUFFER_GROUP_2};
 
-	memcpy((u8*)&index, pd - 4, 4);
-	assert((index < 3) && (index >= 0));
-	return (u8*)(pd - 8 + size[index] - offsetToTail);
+    memcpy((u8*)&index, pd - 4, 4);
+    assert((index < 3) && (index >= 0));
+    return (u8*)(pd - 8 + size[index] - offsetToTail);
 }
 
-u8 is_ev_buf(void *arg){
-	 if( ((u32)arg >= (u32)(size_0_mem) && (u32)arg < ((u32)(size_0_mem) + sizeof(size_0_mem))) ||
-		 ((u32)arg >= (u32)(size_1_mem) && (u32)arg < ((u32)(size_1_mem) + sizeof(size_1_mem))) ||
-		 ((u32)arg >= (u32)(size_2_mem) && (u32)arg < ((u32)(size_2_mem) + sizeof(size_2_mem))) ||
-		 ((u32)arg >= (u32)(size_3_mem) && (u32)arg < ((u32)(size_3_mem) + sizeof(size_3_mem))) ){
-		 return 1;
-	 }
-	 return 0;
+u8 is_ev_buf(void *arg)
+{
+    if (((u32)arg >= (u32)(size_0_mem) && (u32)arg < ((u32)(size_0_mem) + sizeof(size_0_mem))) ||
+        ((u32)arg >= (u32)(size_1_mem) && (u32)arg < ((u32)(size_1_mem) + sizeof(size_1_mem))) ||
+        ((u32)arg >= (u32)(size_2_mem) && (u32)arg < ((u32)(size_2_mem) + sizeof(size_2_mem))) ||
+        ((u32)arg >= (u32)(size_3_mem) && (u32)arg < ((u32)(size_3_mem) + sizeof(size_3_mem)))) {
+        return 1;
+    }
+    return 0;
 }
 
 u16 ev_buf_getFreeMaxSize(void)
 {
-	u16 size = 0;
+    u16 size = 0;
 
-	for(u8 i = 0; i < DEFAULT_BUFFER_GROUP_NUM; i++){
-		if(ev_buf_v->bufGroups[i].availBufNum){
-			if((ev_buf_v->bufGroups[i].size - OFFSETOF(ev_bufItem_t, data)) > size){
-				size = ev_buf_v->bufGroups[i].size - OFFSETOF(ev_bufItem_t, data);
-			}
-		}
-	}
+    for (u8 i = 0; i < DEFAULT_BUFFER_GROUP_NUM; i++) {
+        if (ev_buf_v->bufGroups[i].availBufNum) {
+            if ((ev_buf_v->bufGroups[i].size - OFFSETOF(ev_bufItem_t, data)) > size) {
+                size = ev_buf_v->bufGroups[i].size - OFFSETOF(ev_bufItem_t, data);
+            }
+        }
+    }
 
-	return size;
+    return size;
 }
-
-

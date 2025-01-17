@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #ifndef _SAMPLE_GW_H_
 #define _SAMPLE_GW_H_
 
@@ -31,51 +30,50 @@
  * CONSTANT
  */
 #define SAMPLE_GW_ENDPOINT      0x01
-#define SAMPLE_TEST_ENDPOINT	0x02
+#define SAMPLE_TEST_ENDPOINT    0x02
 
 /**********************************************************************
  * TYPEDEFS
  */
-typedef struct{
-	ev_timer_event_t *timerLedEvt;
-	u32 keyPressedTime;
+typedef struct {
+    ev_timer_event_t *timerLedEvt;
+    u32 keyPressedTime;
 
-	u16 ledOnTime;
-	u16 ledOffTime;
-	u8 	oriSta;		//original state before blink
-	u8 	sta;		//current state in blink
-	u8 	times;		//blink times
-	u8  state;
-	u8	keyPressed;
-}app_ctx_t;
+    u16 ledOnTime;
+    u16 ledOffTime;
+    u8  oriSta;		//original state before blink
+    u8  sta;		//current state in blink
+    u8  times;		//blink times
+    u8  state;
+    u8  keyPressed;
+} app_ctx_t;
 
 /**
  *  @brief Defined for basic cluster attributes
  */
-typedef struct{
-	u8 	zclVersion;
-	u8	appVersion;
-	u8	stackVersion;
-	u8	hwVersion;
-	u8	manuName[ZCL_BASIC_MAX_LENGTH];
-	u8	modelId[ZCL_BASIC_MAX_LENGTH];
-	u8	powerSource;
-	u8	deviceEnable;
-}zcl_basicAttr_t;
+typedef struct {
+    u8 zclVersion;
+    u8 appVersion;
+    u8 stackVersion;
+    u8 hwVersion;
+    u8 manuName[ZCL_BASIC_MAX_LENGTH];
+    u8 modelId[ZCL_BASIC_MAX_LENGTH];
+    u8 powerSource;
+    u8 deviceEnable;
+} zcl_basicAttr_t;
 
 /**
  *  @brief Defined for identify cluster attributes
  */
-typedef struct{
-	u16	identifyTime;
-}zcl_identifyAttr_t;
+typedef struct {
+    u16 identifyTime;
+} zcl_identifyAttr_t;
 
 
 /**********************************************************************
  * GLOBAL VARIABLES
  */
 extern app_ctx_t g_appGwCtx;
-
 extern bdb_appCb_t g_zbDemoBdbCb;
 
 extern u8 SAMPLE_GW_CB_CLUSTER_NUM;

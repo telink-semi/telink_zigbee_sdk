@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #pragma once
 
 void drv_aes_encrypt(u8 *key, u8 *plain, u8 *result);

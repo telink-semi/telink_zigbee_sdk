@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #pragma once
 
 /* Enable C linkage for C++ Compilers: */
@@ -31,57 +30,58 @@ extern "C" {
 #endif
 
 // BUTTON
-#define BUTTON1               		GPIO_PE7//SW1
-#define PE7_FUNC			  		AS_GPIO
-#define PE7_OUTPUT_ENABLE	  		0
-#define PE7_INPUT_ENABLE	  		1
-#define	PULL_WAKEUP_SRC_PE7	  		GPIO_PIN_PULLUP_1M//GPIO_PIN_PULLUP_10K
+#define BUTTON1                 GPIO_PF7//SW1
+#define PF7_FUNC                AS_GPIO
+#define PF7_OUTPUT_ENABLE       0
+#define PF7_INPUT_ENABLE        1
+#define	PULL_WAKEUP_SRC_PF7     GPIO_PIN_PULLUP_1M//GPIO_PIN_PULLUP_10K
 
-#define BUTTON2               		GPIO_PF5//SW2
-#define PF5_FUNC			  		AS_GPIO
-#define PF5_OUTPUT_ENABLE	  		0
-#define PF5_INPUT_ENABLE	  		1
-#define	PULL_WAKEUP_SRC_PF5	  		GPIO_PIN_PULLUP_1M//GPIO_PIN_PULLUP_10K
+#define BUTTON2                 GPIO_PF2//SW2
+#define PF2_FUNC                AS_GPIO
+#define PF2_OUTPUT_ENABLE       0
+#define PF2_INPUT_ENABLE        1
+#define	PULL_WAKEUP_SRC_PF2     GPIO_PIN_PULLUP_1M//GPIO_PIN_PULLUP_10K
 
 // LED
-#define LED_Y     					GPIO_PA2//D3
-#define PA2_FUNC					AS_GPIO
-#define PA2_OUTPUT_ENABLE			1
-#define PA2_INPUT_ENABLE			0
+#define LED_Y                   GPIO_PF3//D3
+#define PF3_FUNC                AS_GPIO
+#define PF3_OUTPUT_ENABLE       1
+#define PF3_INPUT_ENABLE        0
 
-#define LED_R     					GPIO_PA1//D2
-#define PA1_FUNC					AS_GPIO
-#define PA1_OUTPUT_ENABLE			1
-#define PA1_INPUT_ENABLE			0
+#define LED_R                   GPIO_PF1//D2
+#define PF1_FUNC                AS_GPIO
+#define PF1_OUTPUT_ENABLE       1
+#define PF1_INPUT_ENABLE        0
 
-#define LED_G     					GPIO_PF6//D1
-#define PF6_FUNC					AS_GPIO
-#define PF6_OUTPUT_ENABLE			1
-#define PF6_INPUT_ENABLE			0
+#define LED_G                   GPIO_PF0//D1
+#define PF0_FUNC                AS_GPIO
+#define PF0_OUTPUT_ENABLE       1
+#define PF0_INPUT_ENABLE        0
 
-#define LED_B     					GPIO_PA3//D4
-#define PA3_FUNC					AS_GPIO
-#define PA3_OUTPUT_ENABLE			1
-#define PA3_INPUT_ENABLE			0
+#define LED_B                   GPIO_PF4//D4
+#define PF4_FUNC                AS_GPIO
+#define PF4_OUTPUT_ENABLE       1
+#define PF4_INPUT_ENABLE        0
 
-#define LED_W     					GPIO_PA4//D5
-#define PA4_FUNC					AS_GPIO
-#define PA4_OUTPUT_ENABLE			1
-#define PA4_INPUT_ENABLE			0
+#define LED_W                   GPIO_PF5//D5
+#define PF5_FUNC                AS_GPIO
+#define PF5_OUTPUT_ENABLE       1
+#define PF5_INPUT_ENABLE        0
 
-#define LED_O     					GPIO_PD4//D6
-#define PD4_FUNC					AS_GPIO
-#define PD4_OUTPUT_ENABLE			1
-#define PD4_INPUT_ENABLE			0
+#define LED_O                   GPIO_PF6//D6
+#define PF6_FUNC                AS_GPIO
+#define PF6_OUTPUT_ENABLE       1
+#define PF6_INPUT_ENABLE        0
 
-#define LED_POWER					LED_R
-#define LED_PERMIT					LED_G
+#define LED_POWER               LED_R
+#define LED_PERMIT              LED_G
 
-#define	PM_WAKEUP_LEVEL		  		PM_WAKEUP_LEVEL_LOW
+#define	PM_WAKEUP_LEVEL         PM_WAKEUP_LEVEL_LOW
 
 // ADC
 #if VOLTAGE_DETECT_ENABLE
-#define VOLTAGE_DETECT_ADC_PIN		ADC_GPIO_PB7//todo
+#warning "TL721X Dongle does not support."
+#undef VOLTAGE_DETECT_ENABLE
 #endif
 
 // UART
@@ -91,24 +91,24 @@ extern "C" {
 
 // DEBUG
 #if UART_PRINTF_MODE
-#define	DEBUG_INFO_TX_PIN	    	GPIO_PC0//print
+#define	DEBUG_INFO_TX_PIN       GPIO_PC4//print
 #endif
 
-enum{
-	VK_SW1 = 0x01,
-	VK_SW2 = 0x02,
+enum {
+    VK_SW1 = 0x01,
+    VK_SW2 = 0x02,
 };
 
-#define	KB_MAP_NORMAL	{\
-		{VK_SW1,}, \
-		{VK_SW2,}, }
+#define	KB_MAP_NORMAL           { \
+                                    {VK_SW1,}, \
+                                    {VK_SW2,}, \
+                                }
 
-#define	KB_MAP_NUM		KB_MAP_NORMAL
-#define	KB_MAP_FN		KB_MAP_NORMAL
+#define	KB_MAP_NUM              KB_MAP_NORMAL
+#define	KB_MAP_FN               KB_MAP_NORMAL
 
-#define KB_DRIVE_PINS  	{0}
-#define KB_SCAN_PINS   	{BUTTON1, BUTTON2}
-
+#define KB_DRIVE_PINS           {0}
+#define KB_SCAN_PINS            {BUTTON1, BUTTON2}
 
 
 /* Disable C linkage for C++ Compilers: */

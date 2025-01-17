@@ -22,55 +22,52 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #include "../tl_common.h"
 #include "ev.h"
 
 sys_exception_cb_t g_sysExceptCallback = NULL;
-
-
 volatile u16 T_evtExcept[4] = {0};
+
 u8 sys_exceptionPost(u16 line, u8 evt)
 {
-	T_evtExcept[0] = line;
-	T_evtExcept[1] = evt;
+    T_evtExcept[0] = line;
+    T_evtExcept[1] = evt;
 
-	/* TODO: some information stored in NV */
-	if(g_sysExceptCallback){
-		g_sysExceptCallback();
-	}
+    /* TODO: some information stored in NV */
+    if (g_sysExceptCallback) {
+        g_sysExceptCallback();
+    }
 
-	return 0;
+    return 0;
 }
 
 void sys_stackStatusCheck(void)
 {
-	extern u32 _end_bss_;
-	u8 *stackEnd = (u8*)&_end_bss_;
-	u8 stackOverflown = 0;
-	for(s32 i = 0; i < 4; i++){
-		if(stackEnd[i] != 0xff){
-			/* stack overflown */
-			stackOverflown = 1;
-			break;
-		}
-	}
+    extern u32 _end_bss_;
+    u8 *stackEnd = (u8*)&_end_bss_;
+    u8 stackOverflown = 0;
+    for (s32 i = 0; i < 4; i++) {
+        if (stackEnd[i] != 0xff) {
+            /* stack overflown */
+            stackOverflown = 1;
+            break;
+        }
+    }
 
-	if(stackOverflown){
-		ZB_EXCEPTION_POST(SYS_EXCEPTTION_COMMON_STACK_OVERFLOWN);
-	}
+    if (stackOverflown) {
+        ZB_EXCEPTION_POST(SYS_EXCEPTTION_COMMON_STACK_OVERFLOWN);
+    }
 }
 
 void sys_exceptHandlerRegister(sys_exception_cb_t cb)
 {
-	g_sysExceptCallback = cb;
+    g_sysExceptCallback = cb;
 }
 
 void ev_main(void)
 {
-	ev_timer_process();
+    ev_timer_process();
     ev_poll_process();
 
-	//sys_stackStatusCheck();
+    //sys_stackStatusCheck();
 }
-

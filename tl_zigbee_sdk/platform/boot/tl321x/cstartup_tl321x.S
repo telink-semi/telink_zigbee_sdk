@@ -418,7 +418,7 @@ _MSPI_WAIT_2:
     sb      t1, 0x78c(t0)       //xip_enable        :0xA3FFFF1c = 0x0a
 
     /*flash wakeup need delay about 20us */
-    /*efuse load need delay about 0us */
+    /*efuse load need delay about 6us */
     li      t0, 0
     li      t1, EFUSE_LOAD_AND_FLASH_WAKEUP_LOOP_NUM
 _WAIT_EFUSE_LOAD_AND_FLASH_WAKEUP_FINISH:

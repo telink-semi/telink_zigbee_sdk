@@ -22,16 +22,13 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #pragma once
-
-
 
 
 /** @addtogroup  TELINK_COMMON_MODULE TELINK Common Module
  *  @{
  */
-#define EV_BUFFER_DEBUG						0
+#define EV_BUFFER_DEBUG         0
 
 /** @addtogroup  EV_BUFFER EV Buffer
  *  @{
@@ -46,28 +43,28 @@
  * Definition the length of each buffer group
  * @{
  */
-#define BUFFER_GROUP_0                   	24
-#define BUFFER_GROUP_1                   	60
-#define BUFFER_GROUP_2                   	152
-#define BUFFER_GROUP_3                   	512
-#define MAX_BUFFER_SIZE                  	(BUFFER_GROUP_3 - OFFSETOF(ev_bufItem_t, data))
+#define BUFFER_GROUP_0          24
+#define BUFFER_GROUP_1          60
+#define BUFFER_GROUP_2          152
+#define BUFFER_GROUP_3          512
+#define MAX_BUFFER_SIZE         (BUFFER_GROUP_3 - OFFSETOF(ev_bufItem_t, data))
 
 /** @} end of group ev_buffer_groups */
 
 /**
  * @brief Default buffer number in each group
  */
-#define BUFFER_NUM_IN_GROUP0             	8
-#define BUFFER_NUM_IN_GROUP1             	8
-#define BUFFER_NUM_IN_GROUP2             	8
-#define BUFFER_NUM_IN_GROUP3             	2
+#define BUFFER_NUM_IN_GROUP0    8
+#define BUFFER_NUM_IN_GROUP1    8
+#define BUFFER_NUM_IN_GROUP2    8
+#define BUFFER_NUM_IN_GROUP3    2
 
 /** @addtogroup ev_buffer_typical_size EV Buffer Typical Application Size
  * Definition default buffer size for different typical usage
  * @{
  */
-#define SMALL_BUFFER                     	(BUFFER_GROUP_0 - 8)
-#define LARGE_BUFFER                     	(BUFFER_GROUP_3 - 8)
+#define SMALL_BUFFER            (BUFFER_GROUP_0 - 8)
+#define LARGE_BUFFER            (BUFFER_GROUP_3 - 8)
 
 
 /** @} end of group ev_buffer_typical_size */
@@ -99,7 +96,7 @@ typedef struct ev_bufItem {
  */
 typedef enum buf_sts_e {
     // SUCCESS always be ZERO
-	BUFFER_SUCC,
+    BUFFER_SUCC,
     BUFFER_INVALID_PARAMETER = 1,  //!< Invalid parameter passed to the buffer API
     BUFFER_DUPLICATE_FREE          //!< The same buffer is freed more than once
 } buf_sts_t;
@@ -142,7 +139,7 @@ void ev_buf_init(void);
  */
 #if EV_BUFFER_DEBUG
 u8 *my_ev_buf_allocate(u16 size, u16 line);
-#define ev_buf_allocate(size)	my_ev_buf_allocate(size, __LINE__)
+#define ev_buf_allocate(size)   my_ev_buf_allocate(size, __LINE__)
 #else
 u8 *ev_buf_allocate(u16 size);
 #endif
@@ -156,7 +153,7 @@ u8 *ev_buf_allocate(u16 size);
  */
 #if EV_BUFFER_DEBUG
 buf_sts_t my_ev_buf_free(u8 *pBuf, u16 line);
-#define ev_buf_free(pBuf)	my_ev_buf_free(pBuf, __LINE__)
+#define ev_buf_free(pBuf)       my_ev_buf_free(pBuf, __LINE__)
 #else
 buf_sts_t ev_buf_free(u8 *pBuf);
 #endif

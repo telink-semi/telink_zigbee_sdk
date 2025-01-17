@@ -22,15 +22,14 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #pragma once
 
 
 /**
  *  @brief Definition for timer event
  */
-#define TIMER_EVENT_NUM				(24)
-#define TIMER_EVENT_ENOUGH_NUM		(TIMER_EVENT_NUM - 4)
+#define TIMER_EVENT_NUM         (24)
+#define TIMER_EVENT_ENOUGH_NUM  (TIMER_EVENT_NUM - 4)
 
 /**
  *  @brief Type definition for timer callback function
@@ -41,21 +40,21 @@ typedef int (*ev_timer_callback_t)(void *data);
  *  @brief Type definition for timer event
  */
 typedef struct ev_timer_event_t {
-	struct ev_timer_event_t *next;  //!< Used internal
+    struct ev_timer_event_t *next;      //!< Used internal
 
-    ev_timer_callback_t     cb;     //!< Callback function when expire, this must be specified
-    void *data;         			//!< Callback function arguments.
-    u32 timeout;             		//!< In millisecond
-    u32 period;      				//!< Used internal
-    u32 curSysTick;					//!< Used internal, system tick when registering
-	u8 resv;
-	u8 isBusy;						//!< Used internal
-	u8 isRunning;					//!< Used internal
-    u8 used;						//!< Used internal
+    ev_timer_callback_t cb;             //!< Callback function when expire, this must be specified
+    void *data;                         //!< Callback function arguments.
+    u32 timeout;                        //!< In millisecond
+    u32 period;                         //!< Used internal
+    u32 curSysTick;                     //!< Used internal, system tick when registering
+    u8 resv;
+    u8 isBusy;                          //!< Used internal
+    u8 isRunning;                       //!< Used internal
+    u8 used;                            //!< Used internal
 } ev_timer_event_t;
 
 typedef struct ev_timer_event_pool_s {
-	ev_timer_event_t evt[TIMER_EVENT_NUM];
+    ev_timer_event_t evt[TIMER_EVENT_NUM];
     u32 used_num;
 } ev_timer_event_pool_t;
 
@@ -92,56 +91,56 @@ void ev_timer_process(void);
 ev_timer_event_t *ev_timer_nearestGet(void);
 
 /**
-  * @brief       Check whether a specified timer exist or not
-  *
-  * @param[in]   evt  - The specified timer event
-  *
-  * @return      True indicating the timer is already exist. <BR>
-  *              False indicating the timer is not exist. <BR>
-  */
+ * @brief       Check whether a specified timer exist or not
+ *
+ * @param[in]   evt  - The specified timer event
+ *
+ * @return      True indicating the timer is already exist. <BR>
+ *              False indicating the timer is not exist. <BR>
+ */
 bool ev_timer_exist(ev_timer_event_t *evt);
 
 /**
-  * @brief       Set a new timer
-  *
-  * @param[in]   evt  		- The timer event including the callback function
-  * @param[in]   timeout 	- Timeout in millisecond
-  *
-  * @return      None
-  */
+ * @brief       Set a new timer
+ *
+ * @param[in]   evt  		- The timer event including the callback function
+ * @param[in]   timeout 	- Timeout in millisecond
+ *
+ * @return      None
+ */
 void ev_on_timer(ev_timer_event_t *evt, u32 timeout);
 
 /**
-  * @brief       Cancel an existed timer
-  *
-  * @param[in]   e  - The existed timer event
-  *
-  * @return      None
-  */
+ * @brief       Cancel an existed timer
+ *
+ * @param[in]   e  - The existed timer event
+ *
+ * @return      None
+ */
 void ev_unon_timer(ev_timer_event_t *evt);
 
 /**
-  * @brief       push timer task to task list
-  *
-  * @param[in]   func - the callback of the timer event
-  *
-  * @param[in]   arg - the parameter to the callback
-  *
-  * @param		 cycle - the timer interval
-  *
-  * @return      the status
-  */
+ * @brief       push timer task to task list
+ *
+ * @param[in]   func - the callback of the timer event
+ *
+ * @param[in]   arg - the parameter to the callback
+ *
+ * @param		 cycle - the timer interval
+ *
+ * @return      the status
+ */
 ev_timer_event_t *ev_timer_taskPost(ev_timer_callback_t func, void *arg, u32 t_ms);
-#define TL_ZB_TIMER_SCHEDULE(cb, arg, timeout) 	(ev_timer_taskPost((cb), (arg), (timeout)))
+#define TL_ZB_TIMER_SCHEDULE(cb, arg, timeout)  (ev_timer_taskPost((cb), (arg), (timeout)))
 
 /**
-  * @brief       cancel timer task from task list
-  * 			 In the timer callback function, 'return -1' should be used instead of
-  * 			 calling ev_timer_taskCancel() to cancel the timer event itself.
-  *
-  * @param[in]   evt - the pointer to the the timer event pointer
-  *
-  * @return      the status
-  */
+ * @brief       cancel timer task from task list
+ *              In the timer callback function, 'return -1' should be used instead of
+ *              calling ev_timer_taskCancel() to cancel the timer event itself.
+ *
+ * @param[in]   evt - the pointer to the the timer event pointer
+ *
+ * @return      the status
+ */
 u8 ev_timer_taskCancel(ev_timer_event_t **evt);
-#define TL_ZB_TIMER_CANCEL(evt)	(ev_timer_taskCancel(evt))
+#define TL_ZB_TIMER_CANCEL(evt)  (ev_timer_taskCancel(evt))

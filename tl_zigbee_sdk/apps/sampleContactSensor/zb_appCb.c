@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #if (__PROJECT_TL_CONTACT_SENSOR__)
 
 /**********************************************************************
@@ -57,18 +56,16 @@ void zbdemo_bdbIdentifyCb(u8 endpoint, u16 srcAddr, u16 identifyTime);
 /**********************************************************************
  * LOCAL VARIABLES
  */
-bdb_appCb_t g_zbDemoBdbCb = 
-{
-	zbdemo_bdbInitCb, 
-	zbdemo_bdbCommissioningCb, 
-	zbdemo_bdbIdentifyCb, 
-	NULL
+bdb_appCb_t g_zbDemoBdbCb = {
+    zbdemo_bdbInitCb,
+    zbdemo_bdbCommissioningCb,
+    zbdemo_bdbIdentifyCb,
+    NULL
 };
 
 #ifdef ZCL_OTA
-ota_callBack_t sampleSensor_otaCb =
-{
-	sampleSensor_otaProcessMsgHandler,
+ota_callBack_t sampleSensor_otaCb = {
+    sampleSensor_otaProcessMsgHandler,
 };
 #endif
 
@@ -77,11 +74,12 @@ ev_timer_event_t *steerTimerEvt = NULL;
 /**********************************************************************
  * FUNCTIONS
  */
-s32 sampleSensor_bdbNetworkSteerStart(void *arg){
-	bdb_networkSteerStart();
+s32 sampleSensor_bdbNetworkSteerStart(void *arg)
+{
+    bdb_networkSteerStart();
 
-	steerTimerEvt = NULL;
-	return -1;
+    steerTimerEvt = NULL;
+    return -1;
 }
 
 /*********************************************************************
@@ -95,42 +93,43 @@ s32 sampleSensor_bdbNetworkSteerStart(void *arg){
  *
  * @return  None
  */
-void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
-	if(status == BDB_INIT_STATUS_SUCCESS){
-		/*
-		 * for non-factory-new device:
-		 * 		load zcl data from NV, start poll rate, start ota query, bdb_networkSteerStart
-		 *
-		 * for factory-new device:
-		 * 		steer a network
-		 *
-		 */
-		if(joinedNetwork){
-			zb_setPollRate(POLL_RATE);
+void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork)
+{
+    if (status == BDB_INIT_STATUS_SUCCESS) {
+        /*
+         * for non-factory-new device:
+         * load zcl data from NV, start poll rate, start ota query, bdb_networkSteerStart
+         *
+         * for factory-new device:
+         * steer a network
+         *
+         */
+        if (joinedNetwork) {
+            zb_setPollRate(POLL_RATE);
 
 #ifdef ZCL_OTA
-			ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
+            ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
 #endif
 
 #ifdef ZCL_POLL_CTRL
-			sampleSensor_zclCheckInStart();
+            sampleSensor_zclCheckInStart();
 #endif
-		}else{
-			u16 jitter = 0;
-			do{
-				jitter = zb_random() % 0x0fff;
-			}while(jitter == 0);
+        } else {
+            u16 jitter = 0;
+            do {
+                jitter = zb_random() % 0x0fff;
+            } while(jitter == 0);
 
-			if(steerTimerEvt){
-				TL_ZB_TIMER_CANCEL(&steerTimerEvt);
-			}
-			steerTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSensor_bdbNetworkSteerStart, NULL, jitter);
-		}
-	}else{
-		if(joinedNetwork){
-			zb_rejoinReqWithBackOff(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
-		}
-	}
+            if (steerTimerEvt) {
+                TL_ZB_TIMER_CANCEL(&steerTimerEvt);
+            }
+            steerTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSensor_bdbNetworkSteerStart, NULL, jitter);
+        }
+    } else {
+        if (joinedNetwork) {
+            zb_rejoinReqWithBackOff(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
+        }
+    }
 }
 
 /*********************************************************************
@@ -144,92 +143,91 @@ void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
  *
  * @return  None
  */
-void zbdemo_bdbCommissioningCb(u8 status, void *arg){
-	switch(status){
-		case BDB_COMMISSION_STA_SUCCESS:
-			light_blink_start(2, 200, 200);
+void zbdemo_bdbCommissioningCb(u8 status, void *arg)
+{
+    switch (status) {
+    case BDB_COMMISSION_STA_SUCCESS:
+        light_blink_start(2, 200, 200);
 
-			zb_setPollRate(POLL_RATE);
+        zb_setPollRate(POLL_RATE);
 
-			if(steerTimerEvt){
-				TL_ZB_TIMER_CANCEL(&steerTimerEvt);
-			}
+        if (steerTimerEvt) {
+            TL_ZB_TIMER_CANCEL(&steerTimerEvt);
+        }
 
 #ifdef ZCL_POLL_CTRL
-			sampleSensor_zclCheckInStart();
+        sampleSensor_zclCheckInStart();
 #endif
 #ifdef ZCL_OTA
-			ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
+        ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
 #endif
-			break;
-		case BDB_COMMISSION_STA_IN_PROGRESS:
-			break;
-		case BDB_COMMISSION_STA_NOT_AA_CAPABLE:
-			break;
-		case BDB_COMMISSION_STA_NO_NETWORK:
-		case BDB_COMMISSION_STA_TCLK_EX_FAILURE:
-		case BDB_COMMISSION_STA_TARGET_FAILURE:
-			{
-				u16 jitter = 0;
-				do{
-					jitter = zb_random() % 0x0fff;
-				}while(jitter == 0);
+        break;
+    case BDB_COMMISSION_STA_IN_PROGRESS:
+        break;
+    case BDB_COMMISSION_STA_NOT_AA_CAPABLE:
+        break;
+    case BDB_COMMISSION_STA_NO_NETWORK:
+    case BDB_COMMISSION_STA_TCLK_EX_FAILURE:
+    case BDB_COMMISSION_STA_TARGET_FAILURE:
+        {
+            u16 jitter = 0;
+            do {
+                jitter = zb_random() % 0x0fff;
+            } while(jitter == 0);
 
-				if(steerTimerEvt){
-					TL_ZB_TIMER_CANCEL(&steerTimerEvt);
-				}
-				steerTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSensor_bdbNetworkSteerStart, NULL, jitter);
-			}
-			break;
-		case BDB_COMMISSION_STA_FORMATION_FAILURE:
-			break;
-		case BDB_COMMISSION_STA_NO_IDENTIFY_QUERY_RESPONSE:
-			break;
-		case BDB_COMMISSION_STA_BINDING_TABLE_FULL:
-			break;
-		case BDB_COMMISSION_STA_NO_SCAN_RESPONSE:
-			break;
-		case BDB_COMMISSION_STA_NOT_PERMITTED:
-			break;
-		case BDB_COMMISSION_STA_PARENT_LOST:
-			//zb_rejoinSecModeSet(REJOIN_INSECURITY);
-			zb_rejoinReq(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
-			break;
-		case BDB_COMMISSION_STA_REJOIN_FAILURE:
-			break;
-		default:
-			break;
-	}
+            if (steerTimerEvt) {
+                TL_ZB_TIMER_CANCEL(&steerTimerEvt);
+            }
+            steerTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSensor_bdbNetworkSteerStart, NULL, jitter);
+        }
+        break;
+    case BDB_COMMISSION_STA_FORMATION_FAILURE:
+        break;
+    case BDB_COMMISSION_STA_NO_IDENTIFY_QUERY_RESPONSE:
+        break;
+    case BDB_COMMISSION_STA_BINDING_TABLE_FULL:
+        break;
+    case BDB_COMMISSION_STA_NO_SCAN_RESPONSE:
+        break;
+    case BDB_COMMISSION_STA_NOT_PERMITTED:
+        break;
+    case BDB_COMMISSION_STA_PARENT_LOST:
+        //zb_rejoinSecModeSet(REJOIN_INSECURITY);
+        zb_rejoinReq(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
+        break;
+    case BDB_COMMISSION_STA_REJOIN_FAILURE:
+        break;
+    default:
+        break;
+    }
 }
-
 
 extern void sampleSensor_zclIdentifyCmdHandler(u8 endpoint, u16 srcAddr, u16 identifyTime);
-void zbdemo_bdbIdentifyCb(u8 endpoint, u16 srcAddr, u16 identifyTime){
-	sampleSensor_zclIdentifyCmdHandler(endpoint, srcAddr, identifyTime);
+void zbdemo_bdbIdentifyCb(u8 endpoint, u16 srcAddr, u16 identifyTime)
+{
+    sampleSensor_zclIdentifyCmdHandler(endpoint, srcAddr, identifyTime);
 }
-
-
 
 #ifdef ZCL_OTA
 void sampleSensor_otaProcessMsgHandler(u8 evt, u8 status)
 {
-	if(evt == OTA_EVT_START){
-		if(status == ZCL_STA_SUCCESS){
-			zb_setPollRate(QUEUE_POLL_RATE);
-		}else{
+    if (evt == OTA_EVT_START) {
+        if (status == ZCL_STA_SUCCESS) {
+            zb_setPollRate(QUEUE_POLL_RATE);
+        } else {
 
-		}
-	}else if(evt == OTA_EVT_COMPLETE){
-		zb_setPollRate(POLL_RATE);
+        }
+    } else if (evt == OTA_EVT_COMPLETE) {
+        zb_setPollRate(POLL_RATE);
 
-		if(status == ZCL_STA_SUCCESS){
-			ota_mcuReboot();
-		}else{
-			ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
-		}
-	}else if(evt == OTA_EVT_IMAGE_DONE){
-		zb_setPollRate(POLL_RATE);
-	}
+        if (status == ZCL_STA_SUCCESS) {
+            ota_mcuReboot();
+        } else {
+            ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
+        }
+    } else if (evt == OTA_EVT_IMAGE_DONE) {
+        zb_setPollRate(POLL_RATE);
+    }
 }
 #endif
 
@@ -244,7 +242,7 @@ void sampleSensor_otaProcessMsgHandler(u8 evt, u8 status)
  */
 void sampleSensor_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf)
 {
-    if(pLeaveCnf->status == SUCCESS){
+    if (pLeaveCnf->status == SUCCESS) {
     	//SYSTEM_RESET();
     }
 }
@@ -263,6 +261,5 @@ void sampleSensor_leaveIndHandler(nlme_leave_ind_t *pLeaveInd)
     //printf("sampleSensor_leaveIndHandler, rejoin = %d\n", pLeaveInd->rejoin);
     //printfArray(pLeaveInd->device_address, 8);
 }
-
 
 #endif  /* __PROJECT_TL_CONTACT_SENSOR__ */

@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #if (__PROJECT_TL_CONTACT_SENSOR__)
 
 /**********************************************************************
@@ -87,40 +86,39 @@ static ev_timer_event_t *identifyTimerEvt = NULL;
  */
 void sampleSensor_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg)
 {
-	u16 cluster = pInHdlrMsg->msg->indInfo.cluster_id;
-	switch(pInHdlrMsg->hdr.cmd)
-	{
+    u16 cluster = pInHdlrMsg->msg->indInfo.cluster_id;
+    switch (pInHdlrMsg->hdr.cmd) {
 #ifdef ZCL_READ
-		case ZCL_CMD_READ_RSP:
-			sampleSensor_zclReadRspCmd(cluster, pInHdlrMsg->attrCmd);
-			break;
+    case ZCL_CMD_READ_RSP:
+        sampleSensor_zclReadRspCmd(cluster, pInHdlrMsg->attrCmd);
+        break;
 #endif
 #ifdef ZCL_WRITE
-		case ZCL_CMD_WRITE_RSP:
-			sampleSensor_zclWriteRspCmd(cluster, pInHdlrMsg->attrCmd);
-			break;
-		case ZCL_CMD_WRITE:
-		case ZCL_CMD_WRITE_NO_RSP:
-			sampleSensor_zclWriteReqCmd(cluster, pInHdlrMsg->attrCmd);
-			break;
+    case ZCL_CMD_WRITE_RSP:
+        sampleSensor_zclWriteRspCmd(cluster, pInHdlrMsg->attrCmd);
+        break;
+    case ZCL_CMD_WRITE:
+    case ZCL_CMD_WRITE_NO_RSP:
+        sampleSensor_zclWriteReqCmd(cluster, pInHdlrMsg->attrCmd);
+        break;
 #endif
 #ifdef ZCL_REPORT
-		case ZCL_CMD_CONFIG_REPORT:
-			sampleSensor_zclCfgReportCmd(cluster, pInHdlrMsg->attrCmd);
-			break;
-		case ZCL_CMD_CONFIG_REPORT_RSP:
-			sampleSensor_zclCfgReportRspCmd(cluster, pInHdlrMsg->attrCmd);
-			break;
-		case ZCL_CMD_REPORT:
-			sampleSensor_zclReportCmd(cluster, pInHdlrMsg->attrCmd);
-			break;
+    case ZCL_CMD_CONFIG_REPORT:
+        sampleSensor_zclCfgReportCmd(cluster, pInHdlrMsg->attrCmd);
+        break;
+    case ZCL_CMD_CONFIG_REPORT_RSP:
+        sampleSensor_zclCfgReportRspCmd(cluster, pInHdlrMsg->attrCmd);
+        break;
+    case ZCL_CMD_REPORT:
+        sampleSensor_zclReportCmd(cluster, pInHdlrMsg->attrCmd);
+        break;
 #endif
-		case ZCL_CMD_DEFAULT_RSP:
-			sampleSensor_zclDfltRspCmd(cluster, pInHdlrMsg->attrCmd);
-			break;
-		default:
-			break;
-	}
+    case ZCL_CMD_DEFAULT_RSP:
+        sampleSensor_zclDfltRspCmd(cluster, pInHdlrMsg->attrCmd);
+        break;
+    default:
+        break;
+    }
 }
 
 #ifdef ZCL_READ
@@ -136,7 +134,6 @@ void sampleSensor_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg)
 static void sampleSensor_zclReadRspCmd(u16 clusterId, zclReadRspCmd_t *pReadRspCmd)
 {
     //printf("sampleSensor_zclReadRspCmd\n");
-
 }
 #endif	/* ZCL_READ */
 
@@ -153,7 +150,6 @@ static void sampleSensor_zclReadRspCmd(u16 clusterId, zclReadRspCmd_t *pReadRspC
 static void sampleSensor_zclWriteRspCmd(u16 clusterId, zclWriteRspCmd_t *pWriteRspCmd)
 {
     //printf("sampleSensor_zclWriteRspCmd\n");
-
 }
 
 /*********************************************************************
@@ -168,21 +164,20 @@ static void sampleSensor_zclWriteRspCmd(u16 clusterId, zclWriteRspCmd_t *pWriteR
 static void sampleSensor_zclWriteReqCmd(u16 clusterId, zclWriteCmd_t *pWriteReqCmd)
 {
 #ifdef ZCL_POLL_CTRL
-	u8 numAttr = pWriteReqCmd->numAttr;
-	zclWriteRec_t *attr = pWriteReqCmd->attrList;
+    u8 numAttr = pWriteReqCmd->numAttr;
+    zclWriteRec_t *attr = pWriteReqCmd->attrList;
 
-	if(clusterId == ZCL_CLUSTER_GEN_POLL_CONTROL){
-		for(s32 i = 0; i < numAttr; i++){
-			if(attr[i].attrID == ZCL_ATTRID_CHK_IN_INTERVAL){
-				sampleSensor_zclCheckInStart();
-				return;
-			}
-		}
-	}
+    if (clusterId == ZCL_CLUSTER_GEN_POLL_CONTROL) {
+        for (s32 i = 0; i < numAttr; i++) {
+            if (attr[i].attrID == ZCL_ATTRID_CHK_IN_INTERVAL) {
+                sampleSensor_zclCheckInStart();
+                return;
+            }
+        }
+    }
 #endif
 }
 #endif	/* ZCL_WRITE */
-
 
 /*********************************************************************
  * @fn      sampleSensor_zclDfltRspCmd
@@ -196,7 +191,6 @@ static void sampleSensor_zclWriteReqCmd(u16 clusterId, zclWriteCmd_t *pWriteReqC
 static void sampleSensor_zclDfltRspCmd(u16 clusterId, zclDefaultRspCmd_t *pDftRspCmd)
 {
     //printf("sampleSensor_zclDfltRspCmd\n");
-
 }
 
 #ifdef ZCL_REPORT
@@ -212,7 +206,6 @@ static void sampleSensor_zclDfltRspCmd(u16 clusterId, zclDefaultRspCmd_t *pDftRs
 static void sampleSensor_zclCfgReportCmd(u16 clusterId, zclCfgReportCmd_t *pCfgReportCmd)
 {
     //printf("sampleSensor_zclCfgReportCmd\n");
-
 }
 
 /*********************************************************************
@@ -227,7 +220,6 @@ static void sampleSensor_zclCfgReportCmd(u16 clusterId, zclCfgReportCmd_t *pCfgR
 static void sampleSensor_zclCfgReportRspCmd(u16 clusterId, zclCfgReportRspCmd_t *pCfgReportRspCmd)
 {
     //printf("sampleSensor_zclCfgReportRspCmd\n");
-
 }
 
 /*********************************************************************
@@ -242,7 +234,6 @@ static void sampleSensor_zclCfgReportRspCmd(u16 clusterId, zclCfgReportRspCmd_t 
 static void sampleSensor_zclReportCmd(u16 clusterId, zclReportCmd_t *pReportCmd)
 {
     //printf("sampleSensor_zclReportCmd\n");
-
 }
 #endif	/* ZCL_REPORT */
 
@@ -260,31 +251,31 @@ static void sampleSensor_zclReportCmd(u16 clusterId, zclReportCmd_t *pReportCmd)
  */
 status_t sampleSensor_basicCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
 {
-	if(cmdId == ZCL_CMD_BASIC_RESET_FAC_DEFAULT){
-		//Reset all the attributes of all its clusters to factory defaults
-		//zcl_nv_attr_reset();
-	}
+    if (cmdId == ZCL_CMD_BASIC_RESET_FAC_DEFAULT) {
+        //Reset all the attributes of all its clusters to factory defaults
+        //zcl_nv_attr_reset();
+    }
 
-	return ZCL_STA_SUCCESS;
+    return ZCL_STA_SUCCESS;
 }
 #endif	/* ZCL_BASIC */
 
 #ifdef ZCL_IDENTIFY
 s32 sampleSensor_zclIdentifyTimerCb(void *arg)
 {
-	if(g_zcl_identifyAttrs.identifyTime <= 0){
-		identifyTimerEvt = NULL;
-		return -1;
-	}
-	g_zcl_identifyAttrs.identifyTime--;
-	return 0;
+    if (g_zcl_identifyAttrs.identifyTime <= 0) {
+        identifyTimerEvt = NULL;
+        return -1;
+    }
+    g_zcl_identifyAttrs.identifyTime--;
+    return 0;
 }
 
 void sampleSensor_zclIdentifyTimerStop(void)
 {
-	if(identifyTimerEvt){
-		TL_ZB_TIMER_CANCEL(&identifyTimerEvt);
-	}
+    if (identifyTimerEvt) {
+        TL_ZB_TIMER_CANCEL(&identifyTimerEvt);
+    }
 }
 
 /*********************************************************************
@@ -300,17 +291,17 @@ void sampleSensor_zclIdentifyTimerStop(void)
  */
 void sampleSensor_zclIdentifyCmdHandler(u8 endpoint, u16 srcAddr, u16 identifyTime)
 {
-	g_zcl_identifyAttrs.identifyTime = identifyTime;
+    g_zcl_identifyAttrs.identifyTime = identifyTime;
 
-	if(identifyTime == 0){
-		sampleSensor_zclIdentifyTimerStop();
-		light_blink_stop();
-	}else{
-		if(!identifyTimerEvt){
-			light_blink_start(identifyTime, 500, 500);
-			identifyTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSensor_zclIdentifyTimerCb, NULL, 1000);
-		}
-	}
+    if (identifyTime == 0) {
+        sampleSensor_zclIdentifyTimerStop();
+        light_blink_stop();
+    } else {
+        if (!identifyTimerEvt) {
+            light_blink_start(identifyTime, 500, 500);
+            identifyTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSensor_zclIdentifyTimerCb, NULL, 1000);
+        }
+    }
 }
 
 /*********************************************************************
@@ -324,31 +315,31 @@ void sampleSensor_zclIdentifyCmdHandler(u8 endpoint, u16 srcAddr, u16 identifyTi
  */
 static void sampleSensor_zcltriggerCmdHandler(zcl_triggerEffect_t *pTriggerEffect)
 {
-	u8 effectId = pTriggerEffect->effectId;
-	//u8 effectVariant = pTriggerEffect->effectVariant;
+    u8 effectId = pTriggerEffect->effectId;
+    //u8 effectVariant = pTriggerEffect->effectVariant;
 
-	switch(effectId){
-		case IDENTIFY_EFFECT_BLINK:
-			light_blink_start(1, 500, 500);
-			break;
-		case IDENTIFY_EFFECT_BREATHE:
-			light_blink_start(15, 300, 700);
-			break;
-		case IDENTIFY_EFFECT_OKAY:
-			light_blink_start(2, 250, 250);
-			break;
-		case IDENTIFY_EFFECT_CHANNEL_CHANGE:
-			light_blink_start(1, 500, 7500);
-			break;
-		case IDENTIFY_EFFECT_FINISH_EFFECT:
-			light_blink_start(1, 300, 700);
-			break;
-		case IDENTIFY_EFFECT_STOP_EFFECT:
-			light_blink_stop();
-			break;
-		default:
-			break;
-	}
+    switch (effectId) {
+    case IDENTIFY_EFFECT_BLINK:
+        light_blink_start(1, 500, 500);
+        break;
+    case IDENTIFY_EFFECT_BREATHE:
+        light_blink_start(15, 300, 700);
+        break;
+    case IDENTIFY_EFFECT_OKAY:
+        light_blink_start(2, 250, 250);
+        break;
+    case IDENTIFY_EFFECT_CHANNEL_CHANGE:
+        light_blink_start(1, 500, 7500);
+        break;
+    case IDENTIFY_EFFECT_FINISH_EFFECT:
+        light_blink_start(1, 300, 700);
+        break;
+    case IDENTIFY_EFFECT_STOP_EFFECT:
+        light_blink_stop();
+        break;
+    default:
+        break;
+    }
 }
 
 /*********************************************************************
@@ -365,13 +356,13 @@ static void sampleSensor_zcltriggerCmdHandler(zcl_triggerEffect_t *pTriggerEffec
 static void sampleSensor_zclIdentifyQueryRspCmdHandler(u8 endpoint, u16 srcAddr, zcl_identifyRspCmd_t *identifyRsp)
 {
 #if FIND_AND_BIND_SUPPORT
-	if(identifyRsp->timeout){
-		findBindDst_t dstInfo;
-		dstInfo.addr = srcAddr;
-		dstInfo.endpoint = endpoint;
+    if (identifyRsp->timeout) {
+        findBindDst_t dstInfo;
+        dstInfo.addr = srcAddr;
+        dstInfo.endpoint = endpoint;
 
-		bdb_addIdentifyActiveEpForFB(dstInfo);
-	}
+        bdb_addIdentifyActiveEpForFB(dstInfo);
+    }
 #endif
 }
 
@@ -388,26 +379,26 @@ static void sampleSensor_zclIdentifyQueryRspCmdHandler(u8 endpoint, u16 srcAddr,
  */
 status_t sampleSensor_identifyCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
 {
-	if(pAddrInfo->dstEp == SAMPLE_SENSOR_ENDPOINT){
-		if(pAddrInfo->dirCluster == ZCL_FRAME_CLIENT_SERVER_DIR){
-			switch(cmdId){
-				case ZCL_CMD_IDENTIFY:
-					sampleSensor_zclIdentifyCmdHandler(pAddrInfo->dstEp, pAddrInfo->srcAddr, ((zcl_identifyCmd_t *)cmdPayload)->identifyTime);
-					break;
-				case ZCL_CMD_TRIGGER_EFFECT:
-					sampleSensor_zcltriggerCmdHandler((zcl_triggerEffect_t *)cmdPayload);
-					break;
-				default:
-					break;
-			}
-		}else{
-			if(cmdId == ZCL_CMD_IDENTIFY_QUERY_RSP){
-				sampleSensor_zclIdentifyQueryRspCmdHandler(pAddrInfo->dstEp, pAddrInfo->srcAddr, (zcl_identifyRspCmd_t *)cmdPayload);
-			}
-		}
-	}
+    if (pAddrInfo->dstEp == SAMPLE_SENSOR_ENDPOINT) {
+        if (pAddrInfo->dirCluster == ZCL_FRAME_CLIENT_SERVER_DIR) {
+            switch (cmdId) {
+            case ZCL_CMD_IDENTIFY:
+                sampleSensor_zclIdentifyCmdHandler(pAddrInfo->dstEp, pAddrInfo->srcAddr, ((zcl_identifyCmd_t *)cmdPayload)->identifyTime);
+                break;
+            case ZCL_CMD_TRIGGER_EFFECT:
+                sampleSensor_zcltriggerCmdHandler((zcl_triggerEffect_t *)cmdPayload);
+                break;
+            default:
+                break;
+            }
+        } else {
+            if (cmdId == ZCL_CMD_IDENTIFY_QUERY_RSP) {
+                sampleSensor_zclIdentifyQueryRspCmdHandler(pAddrInfo->dstEp, pAddrInfo->srcAddr, (zcl_identifyRspCmd_t *)cmdPayload);
+            }
+        }
+    }
 
-	return ZCL_STA_SUCCESS;
+    return ZCL_STA_SUCCESS;
 }
 #endif	/* ZCL_IDENTIFY */
 
@@ -437,9 +428,9 @@ static void sampleSensor_zclIasZoneEnrollRspCmdHandler(zoneEnrollRsp_t *pZoneEnr
  */
 static status_t sampleSensor_zclIasZoneInitNormalOperationModeCmdHandler(void)
 {
-	u8 status = ZCL_STA_FAILURE;
+    u8 status = ZCL_STA_FAILURE;
 
-	return status;
+    return status;
 }
 
 /*********************************************************************
@@ -453,9 +444,9 @@ static status_t sampleSensor_zclIasZoneInitNormalOperationModeCmdHandler(void)
  */
 static status_t sampleSensor_zclIasZoneInitTestModeCmdHandler(zoneInitTestMode_t *pZoneInitTestMode)
 {
-	u8 status = ZCL_STA_FAILURE;
+    u8 status = ZCL_STA_FAILURE;
 
-	return status;
+    return status;
 }
 
 /*********************************************************************
@@ -471,27 +462,27 @@ static status_t sampleSensor_zclIasZoneInitTestModeCmdHandler(zoneInitTestMode_t
  */
 status_t sampleSensor_iasZoneCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
 {
-	status_t status = ZCL_STA_SUCCESS;
+    status_t status = ZCL_STA_SUCCESS;
 
-	if(pAddrInfo->dstEp == SAMPLE_SENSOR_ENDPOINT){
-		if(pAddrInfo->dirCluster == ZCL_FRAME_CLIENT_SERVER_DIR){
-			switch(cmdId){
-				case ZCL_CMD_ZONE_ENROLL_RSP:
-					sampleSensor_zclIasZoneEnrollRspCmdHandler((zoneEnrollRsp_t *)cmdPayload);
-					break;
-				case ZCL_CMD_INIT_NORMAL_OPERATION_MODE:
-					sampleSensor_zclIasZoneInitNormalOperationModeCmdHandler();
-					break;
-				case ZCL_CMD_INIT_TEST_MODE:
-					sampleSensor_zclIasZoneInitTestModeCmdHandler((zoneInitTestMode_t *)cmdPayload);
-					break;
-				default:
-					break;
-			}
-		}
-	}
+    if (pAddrInfo->dstEp == SAMPLE_SENSOR_ENDPOINT) {
+        if (pAddrInfo->dirCluster == ZCL_FRAME_CLIENT_SERVER_DIR) {
+            switch (cmdId) {
+            case ZCL_CMD_ZONE_ENROLL_RSP:
+                sampleSensor_zclIasZoneEnrollRspCmdHandler((zoneEnrollRsp_t *)cmdPayload);
+                break;
+            case ZCL_CMD_INIT_NORMAL_OPERATION_MODE:
+                sampleSensor_zclIasZoneInitNormalOperationModeCmdHandler();
+                break;
+            case ZCL_CMD_INIT_TEST_MODE:
+                sampleSensor_zclIasZoneInitTestModeCmdHandler((zoneInitTestMode_t *)cmdPayload);
+                break;
+            default:
+                break;
+            }
+        }
+    }
 
-	return status;
+    return status;
 }
 #endif  /* ZCL_IAS_ZONE */
 
@@ -502,140 +493,143 @@ static bool isFastPollMode = FALSE;
 
 void sampleSensor_zclCheckInCmdSend(void)
 {
-	epInfo_t dstEpInfo;
-	TL_SETSTRUCTCONTENT(dstEpInfo, 0);
+    epInfo_t dstEpInfo;
+    TL_SETSTRUCTCONTENT(dstEpInfo, 0);
 
-	dstEpInfo.dstAddrMode = APS_DSTADDR_EP_NOTPRESETNT;
-	dstEpInfo.dstEp = SAMPLE_SENSOR_ENDPOINT;
-	dstEpInfo.profileId = HA_PROFILE_ID;
+    dstEpInfo.dstAddrMode = APS_DSTADDR_EP_NOTPRESETNT;
+    dstEpInfo.dstEp = SAMPLE_SENSOR_ENDPOINT;
+    dstEpInfo.profileId = HA_PROFILE_ID;
 
-	zcl_pollCtrl_checkInCmd(SAMPLE_SENSOR_ENDPOINT, &dstEpInfo, TRUE);
+    zcl_pollCtrl_checkInCmd(SAMPLE_SENSOR_ENDPOINT, &dstEpInfo, TRUE);
 }
 
 s32 sampleSensor_zclCheckInTimerCb(void *arg)
 {
-	zcl_pollCtrlAttr_t *pPollCtrlAttr = zcl_pollCtrlAttrGet();
+    zcl_pollCtrlAttr_t *pPollCtrlAttr = zcl_pollCtrlAttrGet();
 
-	if(!pPollCtrlAttr->chkInInterval){
-		zclCheckInTimerEvt = NULL;
-		return -1;
-	}
+    if (!pPollCtrlAttr->chkInInterval) {
+        zclCheckInTimerEvt = NULL;
+        return -1;
+    }
 
-	sampleSensor_zclCheckInCmdSend();
+    sampleSensor_zclCheckInCmdSend();
 
-	return 0;
+    return 0;
 }
 
 void sampleSensor_zclCheckInStart(void)
 {
-	if(zb_bindingTblSearched(ZCL_CLUSTER_GEN_POLL_CONTROL, SAMPLE_SENSOR_ENDPOINT)){
-		zcl_pollCtrlAttr_t *pPollCtrlAttr = zcl_pollCtrlAttrGet();
+    if (zb_bindingTblSearched(ZCL_CLUSTER_GEN_POLL_CONTROL, SAMPLE_SENSOR_ENDPOINT)) {
+        zcl_pollCtrlAttr_t *pPollCtrlAttr = zcl_pollCtrlAttrGet();
 
-		if(!zclCheckInTimerEvt){
-			zclCheckInTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSensor_zclCheckInTimerCb, NULL, pPollCtrlAttr->chkInInterval * POLL_RATE_QUARTERSECONDS);
+        if (!zclCheckInTimerEvt) {
+            zclCheckInTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSensor_zclCheckInTimerCb, NULL, pPollCtrlAttr->chkInInterval * POLL_RATE_QUARTERSECONDS);
 
-			if(pPollCtrlAttr->chkInInterval){
-				sampleSensor_zclCheckInCmdSend();
-			}
-		}
-	}
+            if (pPollCtrlAttr->chkInInterval) {
+                sampleSensor_zclCheckInCmdSend();
+            }
+        }
+    }
 }
 
 void sampleSensor_zclSetFastPollMode(bool fastPollMode)
 {
-	zcl_pollCtrlAttr_t *pPollCtrlAttr = zcl_pollCtrlAttrGet();
+    zcl_pollCtrlAttr_t *pPollCtrlAttr = zcl_pollCtrlAttrGet();
 
-	isFastPollMode = fastPollMode;
-	u32 pollRate = fastPollMode ? pPollCtrlAttr->shortPollInterval : pPollCtrlAttr->longPollInterval;
+    isFastPollMode = fastPollMode;
+    u32 pollRate = fastPollMode ? pPollCtrlAttr->shortPollInterval : pPollCtrlAttr->longPollInterval;
 
-	zb_setPollRate(pollRate * POLL_RATE_QUARTERSECONDS);
+    zb_setPollRate(pollRate * POLL_RATE_QUARTERSECONDS);
 }
 
 s32 sampleSensor_zclFastPollTimeoutCb(void *arg)
 {
-	sampleSensor_zclSetFastPollMode(FALSE);
+    sampleSensor_zclSetFastPollMode(FALSE);
 
-	zclFastPollTimeoutTimerEvt = NULL;
-	return -1;
+    zclFastPollTimeoutTimerEvt = NULL;
+    return -1;
 }
 
 static status_t sampleSensor_zclPollCtrlChkInRspCmdHandler(zcl_chkInRsp_t *pCmd)
 {
-	zcl_pollCtrlAttr_t *pPollCtrlAttr = zcl_pollCtrlAttrGet();
+    zcl_pollCtrlAttr_t *pPollCtrlAttr = zcl_pollCtrlAttrGet();
 
-	if(pCmd->startFastPolling){
-		u32 fastPollTimeoutCnt = 0;
+    if (pCmd->startFastPolling) {
+        u32 fastPollTimeoutCnt = 0;
 
-		if(pCmd->fastPollTimeout){
-			if(pCmd->fastPollTimeout > pPollCtrlAttr->fastPollTimeoutMax){
-				return ZCL_STA_INVALID_FIELD;
-			}
+        if (pCmd->fastPollTimeout) {
+            if (pCmd->fastPollTimeout > pPollCtrlAttr->fastPollTimeoutMax) {
+                return ZCL_STA_INVALID_FIELD;
+            }
 
-			fastPollTimeoutCnt = pCmd->fastPollTimeout;
+            fastPollTimeoutCnt = pCmd->fastPollTimeout;
 
-			if(zclFastPollTimeoutTimerEvt){
-				TL_ZB_TIMER_CANCEL(&zclFastPollTimeoutTimerEvt);
-			}
-		}else{
-			if(!zclFastPollTimeoutTimerEvt){
-				fastPollTimeoutCnt = pPollCtrlAttr->fastPollTimeout;
-			}
-		}
+            if (zclFastPollTimeoutTimerEvt) {
+                TL_ZB_TIMER_CANCEL(&zclFastPollTimeoutTimerEvt);
+            }
+        } else {
+            if (!zclFastPollTimeoutTimerEvt) {
+                fastPollTimeoutCnt = pPollCtrlAttr->fastPollTimeout;
+            }
+        }
 
-		if(!zclFastPollTimeoutTimerEvt && fastPollTimeoutCnt){
-			sampleSensor_zclSetFastPollMode(TRUE);
+        if (!zclFastPollTimeoutTimerEvt && fastPollTimeoutCnt) {
+            sampleSensor_zclSetFastPollMode(TRUE);
 
-			zclFastPollTimeoutTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSensor_zclFastPollTimeoutCb, NULL, fastPollTimeoutCnt * POLL_RATE_QUARTERSECONDS);
-		}
-	}else{
-		//continue in normal operation and not required to go into fast poll mode.
-	}
+            zclFastPollTimeoutTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSensor_zclFastPollTimeoutCb, NULL, fastPollTimeoutCnt * POLL_RATE_QUARTERSECONDS);
+        }
+    } else {
+        //continue in normal operation and not required to go into fast poll mode.
+    }
 
-	return ZCL_STA_SUCCESS;
+    return ZCL_STA_SUCCESS;
 }
 
 static status_t sampleSensor_zclPollCtrlFastPollStopCmdHandler(void)
 {
-	if(!isFastPollMode){
-		return ZCL_STA_ACTION_DENIED;
-	}else{
-		if(zclFastPollTimeoutTimerEvt){
-			TL_ZB_TIMER_CANCEL(&zclFastPollTimeoutTimerEvt);
-		}
-		sampleSensor_zclSetFastPollMode(FALSE);
-	}
+    if (!isFastPollMode) {
+        return ZCL_STA_ACTION_DENIED;
+    } else {
+        if (zclFastPollTimeoutTimerEvt) {
+            TL_ZB_TIMER_CANCEL(&zclFastPollTimeoutTimerEvt);
+        }
+        sampleSensor_zclSetFastPollMode(FALSE);
+    }
 
-	return ZCL_STA_SUCCESS;
+    return ZCL_STA_SUCCESS;
 }
 
 static status_t sampleSensor_zclPollCtrlSetLongPollIntervalCmdHandler(zcl_setLongPollInterval_t *pCmd)
 {
-	zcl_pollCtrlAttr_t *pPollCtrlAttr = zcl_pollCtrlAttrGet();
+    zcl_pollCtrlAttr_t *pPollCtrlAttr = zcl_pollCtrlAttrGet();
 
-	if((pCmd->newLongPollInterval >= 0x04) && (pCmd->newLongPollInterval <= 0x6E0000)
-		&& (pCmd->newLongPollInterval <= pPollCtrlAttr->chkInInterval) && (pCmd->newLongPollInterval >= pPollCtrlAttr->shortPollInterval)){
-		pPollCtrlAttr->longPollInterval = pCmd->newLongPollInterval;
-		zb_setPollRate(pCmd->newLongPollInterval * POLL_RATE_QUARTERSECONDS);
-	}else{
-		return ZCL_STA_INVALID_VALUE;
-	}
+    if ((pCmd->newLongPollInterval >= 0x04) &&
+        (pCmd->newLongPollInterval <= 0x6E0000) &&
+        (pCmd->newLongPollInterval <= pPollCtrlAttr->chkInInterval) &&
+        (pCmd->newLongPollInterval >= pPollCtrlAttr->shortPollInterval)) {
+        pPollCtrlAttr->longPollInterval = pCmd->newLongPollInterval;
+        zb_setPollRate(pCmd->newLongPollInterval * POLL_RATE_QUARTERSECONDS);
+    } else {
+        return ZCL_STA_INVALID_VALUE;
+    }
 
-	return ZCL_STA_SUCCESS;
+    return ZCL_STA_SUCCESS;
 }
 
 static status_t sampleSensor_zclPollCtrlSetShortPollIntervalCmdHandler(zcl_setShortPollInterval_t *pCmd)
 {
-	zcl_pollCtrlAttr_t *pPollCtrlAttr = zcl_pollCtrlAttrGet();
+    zcl_pollCtrlAttr_t *pPollCtrlAttr = zcl_pollCtrlAttrGet();
 
-	if((pCmd->newShortPollInterval >= 0x01) && (pCmd->newShortPollInterval <= 0xff)
-		&& (pCmd->newShortPollInterval <= pPollCtrlAttr->longPollInterval)){
-		pPollCtrlAttr->shortPollInterval = pCmd->newShortPollInterval;
-		zb_setPollRate(pCmd->newShortPollInterval * POLL_RATE_QUARTERSECONDS);
-	}else{
-		return ZCL_STA_INVALID_VALUE;
-	}
+    if ((pCmd->newShortPollInterval >= 0x01) &&
+        (pCmd->newShortPollInterval <= 0xff) &&
+        (pCmd->newShortPollInterval <= pPollCtrlAttr->longPollInterval)) {
+        pPollCtrlAttr->shortPollInterval = pCmd->newShortPollInterval;
+        zb_setPollRate(pCmd->newShortPollInterval * POLL_RATE_QUARTERSECONDS);
+    } else {
+        return ZCL_STA_INVALID_VALUE;
+    }
 
-	return ZCL_STA_SUCCESS;
+    return ZCL_STA_SUCCESS;
 }
 
 /*********************************************************************
@@ -651,32 +645,31 @@ static status_t sampleSensor_zclPollCtrlSetShortPollIntervalCmdHandler(zcl_setSh
  */
 status_t sampleSensor_pollCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
 {
-	status_t status = ZCL_STA_SUCCESS;
+    status_t status = ZCL_STA_SUCCESS;
 
-	if(pAddrInfo->dstEp == SAMPLE_SENSOR_ENDPOINT){
-		if(pAddrInfo->dirCluster == ZCL_FRAME_CLIENT_SERVER_DIR){
-			switch(cmdId){
-				case ZCL_CMD_CHK_IN_RSP:
-					status = sampleSensor_zclPollCtrlChkInRspCmdHandler((zcl_chkInRsp_t *)cmdPayload);
-					break;
-				case ZCL_CMD_FAST_POLL_STOP:
-					status = sampleSensor_zclPollCtrlFastPollStopCmdHandler();
-					break;
-				case ZCL_CMD_SET_LONG_POLL_INTERVAL:
-					status = sampleSensor_zclPollCtrlSetLongPollIntervalCmdHandler((zcl_setLongPollInterval_t *)cmdPayload);
-					break;
-				case ZCL_CMD_SET_SHORT_POLL_INTERVAL:
-					status = sampleSensor_zclPollCtrlSetShortPollIntervalCmdHandler((zcl_setShortPollInterval_t *)cmdPayload);
-					break;
-				default:
-					break;
-			}
-		}
-	}
+    if (pAddrInfo->dstEp == SAMPLE_SENSOR_ENDPOINT) {
+        if (pAddrInfo->dirCluster == ZCL_FRAME_CLIENT_SERVER_DIR) {
+            switch (cmdId) {
+            case ZCL_CMD_CHK_IN_RSP:
+                status = sampleSensor_zclPollCtrlChkInRspCmdHandler((zcl_chkInRsp_t *)cmdPayload);
+                break;
+            case ZCL_CMD_FAST_POLL_STOP:
+                status = sampleSensor_zclPollCtrlFastPollStopCmdHandler();
+                break;
+            case ZCL_CMD_SET_LONG_POLL_INTERVAL:
+                status = sampleSensor_zclPollCtrlSetLongPollIntervalCmdHandler((zcl_setLongPollInterval_t *)cmdPayload);
+                break;
+            case ZCL_CMD_SET_SHORT_POLL_INTERVAL:
+                status = sampleSensor_zclPollCtrlSetShortPollIntervalCmdHandler((zcl_setShortPollInterval_t *)cmdPayload);
+                break;
+            default:
+                break;
+            }
+        }
+    }
 
-	return status;
+    return status;
 }
 #endif	/* ZCL_POLL_CTRL */
-
 
 #endif  /* __PROJECT_TL_CONTACT_SENSOR__ */

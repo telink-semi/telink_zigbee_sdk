@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #if (__PROJECT_TL_DIMMABLE_LIGHT__)
 
 /**********************************************************************
@@ -39,7 +38,7 @@
 /**********************************************************************
  * LOCAL CONSTANTS
  */
-#define DEBUG_HEART		0
+#define DEBUG_HEART     0
 
 /**********************************************************************
  * TYPEDEFS
@@ -53,16 +52,19 @@ void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork);
 void zbdemo_bdbCommissioningCb(u8 status, void *arg);
 void zbdemo_bdbIdentifyCb(u8 endpoint, u16 srcAddr, u16 identifyTime);
 
-
 /**********************************************************************
  * GLOBAL VARIABLES
  */
-bdb_appCb_t g_zbDemoBdbCb = {zbdemo_bdbInitCb, zbdemo_bdbCommissioningCb, zbdemo_bdbIdentifyCb, NULL};
+bdb_appCb_t g_zbDemoBdbCb = {
+    zbdemo_bdbInitCb,
+    zbdemo_bdbCommissioningCb,
+    zbdemo_bdbIdentifyCb,
+    NULL
+};
 
 #ifdef ZCL_OTA
-ota_callBack_t sampleLight_otaCb =
-{
-	sampleLight_otaProcessMsgHandler,
+ota_callBack_t sampleLight_otaCb = {
+    sampleLight_otaProcessMsgHandler,
 };
 #endif
 
@@ -80,30 +82,33 @@ ev_timer_event_t *steerTimerEvt = NULL;
  * FUNCTIONS
  */
 #if DEBUG_HEART
-static s32 heartTimerCb(void *arg){
-	if(heartInterval == 0){
-		heartTimerEvt = NULL;
-		return -1;
-	}
+static s32 heartTimerCb(void *arg)
+{
+    if (heartInterval == 0) {
+        heartTimerEvt = NULL;
+        return -1;
+    }
 
-	gpio_toggle(LED_POWER);
+    gpio_toggle(LED_POWER);
 
-	return heartInterval;
+    return heartInterval;
 }
 #endif
 
-s32 sampleLight_bdbNetworkSteerStart(void *arg){
-	bdb_networkSteerStart();
+s32 sampleLight_bdbNetworkSteerStart(void *arg)
+{
+    bdb_networkSteerStart();
 
-	steerTimerEvt = NULL;
-	return -1;
+    steerTimerEvt = NULL;
+    return -1;
 }
 
 #if FIND_AND_BIND_SUPPORT
-s32 sampleLight_bdbFindAndBindStart(void *arg){
-	bdb_findAndBindStart(BDB_COMMISSIONING_ROLE_TARGET);
+s32 sampleLight_bdbFindAndBindStart(void *arg)
+{
+    bdb_findAndBindStart(BDB_COMMISSIONING_ROLE_TARGET);
 
-	return -1;
+    return -1;
 }
 #endif
 
@@ -118,43 +123,44 @@ s32 sampleLight_bdbFindAndBindStart(void *arg){
  *
  * @return  None
  */
-void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
-//	printf("bdbInitCb: sta = %x, joined = %x\n", status, joinedNetwork);
+void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork)
+{
+    //printf("bdbInitCb: sta = %x, joined = %x\n", status, joinedNetwork);
 
-	if(status == BDB_INIT_STATUS_SUCCESS){
-		/*
-		 * start bdb commissioning
-		 * */
-		if(joinedNetwork){
-			heartInterval = 1000;
+    if (status == BDB_INIT_STATUS_SUCCESS) {
+        /*
+         * start bdb commissioning
+         * */
+        if (joinedNetwork) {
+            heartInterval = 1000;
 
 #ifdef ZCL_OTA
-			ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
+            ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
 #endif
-		}else{
-			heartInterval = 500;
+        } else {
+            heartInterval = 500;
 
-#if	(!ZBHCI_EN)
-			u16 jitter = 0;
-			do{
-				jitter = zb_random() % 0x0fff;
-			}while(jitter == 0);
+#if (!ZBHCI_EN)
+            u16 jitter = 0;
+            do {
+                jitter = zb_random() % 0x0fff;
+            } while (jitter == 0);
 
-			if(steerTimerEvt){
-				TL_ZB_TIMER_CANCEL(&steerTimerEvt);
-			}
-			steerTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_bdbNetworkSteerStart, NULL, jitter);
+            if (steerTimerEvt) {
+                TL_ZB_TIMER_CANCEL(&steerTimerEvt);
+            }
+            steerTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_bdbNetworkSteerStart, NULL, jitter);
 #endif
-		}
-	}else{
-		heartInterval = 200;
-	}
+        }
+    } else {
+        heartInterval = 200;
+    }
 
 #if DEBUG_HEART
-	if(heartTimerEvt){
-		TL_ZB_TIMER_CANCEL(&heartTimerEvt);
-	}
-	heartTimerEvt = TL_ZB_TIMER_SCHEDULE(heartTimerCb, NULL, heartInterval);
+    if (heartTimerEvt) {
+        TL_ZB_TIMER_CANCEL(&heartTimerEvt);
+    }
+    heartTimerEvt = TL_ZB_TIMER_SCHEDULE(heartTimerCb, NULL, heartInterval);
 #endif
 }
 
@@ -169,102 +175,105 @@ void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
  *
  * @return  None
  */
-void zbdemo_bdbCommissioningCb(u8 status, void *arg){
-//	printf("bdbCommCb: sta = %x\n", status);
+void zbdemo_bdbCommissioningCb(u8 status, void *arg)
+{
+    //printf("bdbCommCb: sta = %x\n", status);
 
-	switch(status){
-		case BDB_COMMISSION_STA_SUCCESS:
-			heartInterval = 1000;
+    switch (status) {
+    case BDB_COMMISSION_STA_SUCCESS:
+        heartInterval = 1000;
 
-			light_blink_start(2, 200, 200);
+        light_blink_start(2, 200, 200);
 
-			if(steerTimerEvt){
-				TL_ZB_TIMER_CANCEL(&steerTimerEvt);
-			}
+        if (steerTimerEvt) {
+            TL_ZB_TIMER_CANCEL(&steerTimerEvt);
+        }
 
 #ifdef ZCL_OTA
-	    	ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
+        ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
 #endif
 
 #if FIND_AND_BIND_SUPPORT
-			if(!gLightCtx.bdbFindBindFlg){
-				gLightCtx.bdbFindBindFlg = TRUE;
-				TL_ZB_TIMER_SCHEDULE(sampleLight_bdbFindAndBindStart, NULL, 1000);
-			}
+        if (!gLightCtx.bdbFindBindFlg) {
+            gLightCtx.bdbFindBindFlg = TRUE;
+            TL_ZB_TIMER_SCHEDULE(sampleLight_bdbFindAndBindStart, NULL, 1000);
+        }
 #endif
-			break;
-		case BDB_COMMISSION_STA_IN_PROGRESS:
-			break;
-		case BDB_COMMISSION_STA_NOT_AA_CAPABLE:
-			break;
-		case BDB_COMMISSION_STA_NO_NETWORK:
-		case BDB_COMMISSION_STA_TCLK_EX_FAILURE:
-		case BDB_COMMISSION_STA_TARGET_FAILURE:
-			{
-				u16 jitter = 0;
-				do{
-					jitter = zb_random() % 0x2710;
-				}while(jitter < 5000);
+        break;
+    case BDB_COMMISSION_STA_IN_PROGRESS:
+        break;
+    case BDB_COMMISSION_STA_NOT_AA_CAPABLE:
+        break;
+    case BDB_COMMISSION_STA_NO_NETWORK:
+    case BDB_COMMISSION_STA_TCLK_EX_FAILURE:
+    case BDB_COMMISSION_STA_TARGET_FAILURE:
+        {
+            u16 jitter = 0;
+            do {
+                jitter = zb_random() % 0x2710;
+            } while (jitter < 5000);
 
-				if(steerTimerEvt){
-					TL_ZB_TIMER_CANCEL(&steerTimerEvt);
-				}
-				steerTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_bdbNetworkSteerStart, NULL, jitter);
-			}
-			break;
-		case BDB_COMMISSION_STA_FORMATION_FAILURE:
-			break;
-		case BDB_COMMISSION_STA_NO_IDENTIFY_QUERY_RESPONSE:
-			break;
-		case BDB_COMMISSION_STA_BINDING_TABLE_FULL:
-			break;
-		case BDB_COMMISSION_STA_NO_SCAN_RESPONSE:
-			break;
-		case BDB_COMMISSION_STA_NOT_PERMITTED:
-			break;
-		case BDB_COMMISSION_STA_REJOIN_FAILURE:
-			zb_rejoinReq(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
-			break;
-		case BDB_COMMISSION_STA_FORMATION_DONE:
+            if (steerTimerEvt) {
+                TL_ZB_TIMER_CANCEL(&steerTimerEvt);
+            }
+            steerTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_bdbNetworkSteerStart, NULL, jitter);
+        }
+        break;
+    case BDB_COMMISSION_STA_FORMATION_FAILURE:
+        break;
+    case BDB_COMMISSION_STA_NO_IDENTIFY_QUERY_RESPONSE:
+        break;
+    case BDB_COMMISSION_STA_BINDING_TABLE_FULL:
+        break;
+    case BDB_COMMISSION_STA_NO_SCAN_RESPONSE:
+        break;
+    case BDB_COMMISSION_STA_NOT_PERMITTED:
+        break;
+    case BDB_COMMISSION_STA_REJOIN_FAILURE:
+        zb_rejoinReq(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
+        break;
+    case BDB_COMMISSION_STA_FORMATION_DONE:
 #ifndef ZBHCI_EN
-			tl_zbMacChannelSet(DEFAULT_CHANNEL);  //set default channel
+        tl_zbMacChannelSet(DEFAULT_CHANNEL);  //set default channel
 #endif
-			break;
-		default:
-			break;
-	}
+        break;
+    default:
+        break;
+    }
 }
 
-void zbdemo_bdbIdentifyCb(u8 endpoint, u16 srcAddr, u16 identifyTime){
+void zbdemo_bdbIdentifyCb(u8 endpoint, u16 srcAddr, u16 identifyTime)
+{
 #if FIND_AND_BIND_SUPPORT
-	extern void sampleLight_zclIdentifyCmdHandler(u8 endpoint, u16 srcAddr, u16 identifyTime);
-	sampleLight_zclIdentifyCmdHandler(endpoint, srcAddr, identifyTime);
+    extern void sampleLight_zclIdentifyCmdHandler(u8 endpoint, u16 srcAddr, u16 identifyTime);
+    sampleLight_zclIdentifyCmdHandler(endpoint, srcAddr, identifyTime);
 #endif
 }
 
 #ifdef ZCL_OTA
 void sampleLight_otaProcessMsgHandler(u8 evt, u8 status)
 {
-	if(evt == OTA_EVT_START){
-		if(status == ZCL_STA_SUCCESS){
+    if (evt == OTA_EVT_START) {
+        if (status == ZCL_STA_SUCCESS) {
 
-		}else{
+        } else {
 
-		}
-	}else if(evt == OTA_EVT_COMPLETE){
-		if(status == ZCL_STA_SUCCESS){
-			ota_mcuReboot();
-		}else{
-			ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
-		}
-	}
+        }
+    } else if (evt == OTA_EVT_COMPLETE) {
+        if (status == ZCL_STA_SUCCESS) {
+            ota_mcuReboot();
+        } else {
+            ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
+        }
+    }
 }
 #endif
 
-s32 sampleLight_softReset(void *arg){
-	SYSTEM_RESET();
+s32 sampleLight_softReset(void *arg)
+{
+    SYSTEM_RESET();
 
-	return -1;
+    return -1;
 }
 
 /*********************************************************************
@@ -301,7 +310,7 @@ void sampleLight_leaveIndHandler(nlme_leave_ind_t *pLeaveInd)
 }
 
 bool sampleLight_nwkUpdateIndicateHandler(nwkCmd_nwkUpdate_t *pNwkUpdate){
-	return FAILURE;
+    return FAILURE;
 }
 
 #endif  /* __PROJECT_TL_DIMMABLE_LIGHT__ */

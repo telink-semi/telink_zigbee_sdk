@@ -22,9 +22,7 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #include "../tl_common.h"
-
 
 
 /*********************************************************************
@@ -38,7 +36,7 @@
  *
  * @return  Status
  */
-ev_queue_sts_t ev_queue_rawPush( ev_queue_t* q, queue_item_t* newElement )
+ev_queue_sts_t ev_queue_rawPush(ev_queue_t *q, queue_item_t *newElement)
 {
     queue_item_t* previous;
     queue_item_t* current;
@@ -50,7 +48,7 @@ ev_queue_sts_t ev_queue_rawPush( ev_queue_t* q, queue_item_t* newElement )
     u32 r = drv_disable_irq();
 
     /* if the Q was empty, then update the head */
-    if (NULL==q->head) {
+    if (NULL == q->head) {
         q->head = newElement;
         q->tail = newElement;
         newElement->next = NULL;
@@ -67,9 +65,9 @@ ev_queue_sts_t ev_queue_rawPush( ev_queue_t* q, queue_item_t* newElement )
         newElement->next = NULL;
         q->tail = newElement;
     } else { /* if priority is used, insert at the end */
-        while (current!=NULL) {
+        while (current != NULL) {
             /* Here, a small priority value has a higher priority */
-            if(q->priFunc((arg_t)(newElement)) < q->priFunc((arg_t)(current))) {
+            if (q->priFunc((arg_t)(newElement)) < q->priFunc((arg_t)(current))) {
                 break;
             } else {
                 previous = current;
@@ -77,13 +75,13 @@ ev_queue_sts_t ev_queue_rawPush( ev_queue_t* q, queue_item_t* newElement )
             }
         }
         /* insert between previous and current */
-        if(NULL==previous) { /* insert at the head */
+        if (NULL == previous) { /* insert at the head */
             q->head = newElement;
         } else {
             previous->next = newElement;
         }
         newElement->next = current;
-        if (NULL==current){
+        if (NULL==current) {
             q->tail = newElement;
         }
     }
@@ -102,14 +100,14 @@ ev_queue_sts_t ev_queue_rawPush( ev_queue_t* q, queue_item_t* newElement )
  *
  * @return  Pointer to first element in the queue
  */
-queue_item_t* ev_queue_rawPop(ev_queue_t* q)
+queue_item_t *ev_queue_rawPop(ev_queue_t *q)
 {
     queue_item_t* oldHead;
 
     u32 r = drv_disable_irq();
 
     oldHead = q->head;
-    if (NULL!=oldHead){
+    if (NULL != oldHead) {
         if (oldHead == q->tail) {
             q->tail = NULL;
         }
@@ -118,10 +116,10 @@ queue_item_t* ev_queue_rawPop(ev_queue_t* q)
         q->curNum--;
     }
 
-	if ( q->curNum == 0 ) {
-		q->head = q->tail = NULL;
-	}
-	drv_restore_irq(r);
+    if (q->curNum == 0) {
+        q->head = q->tail = NULL;
+    }
+    drv_restore_irq(r);
     return oldHead;
 }
 
@@ -135,7 +133,7 @@ queue_item_t* ev_queue_rawPop(ev_queue_t* q)
  *
  * @return  Status
  */
-ev_queue_sts_t ev_queue_rawDelete(ev_queue_t* q, queue_item_t* delElement)
+ev_queue_sts_t ev_queue_rawDelete(ev_queue_t *q, queue_item_t *delElement)
 {
     queue_item_t* previous;
     queue_item_t* current;
@@ -153,7 +151,7 @@ ev_queue_sts_t ev_queue_rawDelete(ev_queue_t* q, queue_item_t* delElement)
 
     if (q->head == delElement) {
         q->head = q->head->next;
-        if (NULL == q->head){
+        if (NULL == q->head) {
             q->tail = NULL;
         }
         q->curNum--;
@@ -165,7 +163,7 @@ ev_queue_sts_t ev_queue_rawDelete(ev_queue_t* q, queue_item_t* delElement)
     previous = NULL;
     current = q->head;
 
-    while(current != delElement && current) {
+    while (current != delElement && current) {
         previous = current;
         current = current->next;
     }
@@ -177,8 +175,7 @@ ev_queue_sts_t ev_queue_rawDelete(ev_queue_t* q, queue_item_t* delElement)
             q->tail = previous;
         }
         q->curNum--;
-    }
-    else {
+    } else {
         /* element not in the Queue */
     	drv_restore_irq(r);
         return QUEUE_NOT_FOUND;
@@ -188,8 +185,6 @@ ev_queue_sts_t ev_queue_rawDelete(ev_queue_t* q, queue_item_t* delElement)
     drv_restore_irq(r);
     return QUEUE_SUCC;
 }
-
-
 
 /*********************************************************************
  * @fn      ev_queue_init
@@ -202,17 +197,16 @@ ev_queue_sts_t ev_queue_rawDelete(ev_queue_t* q, queue_item_t* delElement)
  *
  * @return  Status
  */
-ev_queue_sts_t ev_queue_init( ev_queue_t *q, ev_priFunc_t priFunc)
+ev_queue_sts_t ev_queue_init(ev_queue_t *q, ev_priFunc_t priFunc)
 {
     if (NULL == q) {
         return QUEUE_INVALID_PARAMETER;
     }
 
-    memset((u8*)q, 0 , sizeof(ev_queue_t));
+    memset((u8 *)q, 0 , sizeof(ev_queue_t));
     q->priFunc = priFunc;
     return QUEUE_SUCC;
 }
-
 
 /*********************************************************************
  * @fn      ev_queue_push
@@ -224,10 +218,10 @@ ev_queue_sts_t ev_queue_init( ev_queue_t *q, ev_priFunc_t priFunc)
  *
  * @return  Status
  */
-ev_queue_sts_t ev_queue_push( ev_queue_t* q, u8* payload )
+ev_queue_sts_t ev_queue_push(ev_queue_t *q, u8 *payload)
 {
-    queue_item_t* newElement;
-    newElement = (queue_item_t*)ev_buf_getHead(payload);
+    queue_item_t *newElement;
+    newElement = (queue_item_t *)ev_buf_getHead(payload);
     return ev_queue_rawPush(q, newElement);
 }
 
@@ -241,14 +235,14 @@ ev_queue_sts_t ev_queue_push( ev_queue_t* q, u8* payload )
  *
  * @return  Pointer to data part of the @ev_bufItem_t
  */
-u8* ev_queue_pop( ev_queue_t* q )
+u8 *ev_queue_pop(ev_queue_t *q)
 {
-    queue_item_t* oneItem = ev_queue_rawPop(q);
+    queue_item_t *oneItem = ev_queue_rawPop(q);
 
-    if (NULL==oneItem) {
+    if (NULL == oneItem) {
         return NULL;
     } else {
-        return ((ev_bufItem_t*)oneItem)->data;
+        return ((ev_bufItem_t *)oneItem)->data;
     }
 }
 
@@ -262,12 +256,11 @@ u8* ev_queue_pop( ev_queue_t* q )
  *
  * @return  Status
  */
-ev_queue_sts_t ev_queue_delete( ev_queue_t* q, u8* payload )
+ev_queue_sts_t ev_queue_delete(ev_queue_t *q, u8 *payload)
 {
-    queue_item_t* delElement = (queue_item_t*)ev_buf_getHead(payload);
+    queue_item_t *delElement = (queue_item_t *)ev_buf_getHead(payload);
     return ev_queue_rawDelete(q, delElement);
 }
-
 
 /*********************************************************************
  * @fn      ev_queue_freeQ
@@ -278,7 +271,7 @@ ev_queue_sts_t ev_queue_delete( ev_queue_t* q, u8* payload )
  *
  * @return  Status
  */
-ev_queue_sts_t ev_queue_freeQ( ev_queue_t *q )
+ev_queue_sts_t ev_queue_freeQ(ev_queue_t *q)
 {
     u8 *buffer_ptr;
     if (NULL == q) { /* invalid q or newElement */
@@ -291,5 +284,3 @@ ev_queue_sts_t ev_queue_freeQ( ev_queue_t *q )
 
     return QUEUE_SUCC;
 }
-
-

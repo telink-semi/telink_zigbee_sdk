@@ -22,72 +22,73 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #include "drv_putchar.h"
 
 
 #if UART_PRINTF_MODE
+#if !defined(CONSOLE_UART_ENABLE) || (CONSOLE_UART_ENABLE == 0)
 _attribute_ram_code_ void soft_uart_putc(unsigned char byte)
 {
-	u8 j = 0;
-	u32 t1 = 0, t2 = 0;
+    u8 j = 0;
+    u32 t1 = 0, t2 = 0;
 
 #if defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
-	u16 tmp_bit0 = (DEBUG_INFO_TX_PIN & 0xff)<<8;
-	u16 tmp_bit1 = DEBUG_INFO_TX_PIN & 0xff;
-	u16 bit[10] = {0};
+    u16 tmp_bit0 = (DEBUG_INFO_TX_PIN & 0xff)<<8;
+    u16 tmp_bit1 = DEBUG_INFO_TX_PIN & 0xff;
+    u16 bit[10] = {0};
 #else
-	u8 tmp_bit0 = TX_PIN_OUTPUT_REG & (~(DEBUG_INFO_TX_PIN & 0xff));
-	u8 tmp_bit1 = TX_PIN_OUTPUT_REG | (DEBUG_INFO_TX_PIN & 0xff);
-	u8 bit[10] = {0};
+    u8 tmp_bit0 = TX_PIN_OUTPUT_REG & (~(DEBUG_INFO_TX_PIN & 0xff));
+    u8 tmp_bit1 = TX_PIN_OUTPUT_REG | (DEBUG_INFO_TX_PIN & 0xff);
+    u8 bit[10] = {0};
 #endif
 
-	bit[0] = tmp_bit0;
-	bit[1] = (byte & 0x01) ? tmp_bit1 : tmp_bit0;
-	bit[2] = ((byte >> 1) & 0x01) ? tmp_bit1 : tmp_bit0;
-	bit[3] = ((byte >> 2) & 0x01) ? tmp_bit1 : tmp_bit0;
-	bit[4] = ((byte >> 3) & 0x01) ? tmp_bit1 : tmp_bit0;
-	bit[5] = ((byte >> 4) & 0x01) ? tmp_bit1 : tmp_bit0;
-	bit[6] = ((byte >> 5) & 0x01) ? tmp_bit1 : tmp_bit0;
-	bit[7] = ((byte >> 6) & 0x01) ? tmp_bit1 : tmp_bit0;
-	bit[8] = ((byte >> 7) & 0x01) ? tmp_bit1 : tmp_bit0;
-	bit[9] = tmp_bit1;
-	//u32 r = drv_disable_irq();// enable this may disturb time sequence, but if disable unrecognizable code will show
-	t1 = clock_time();
-	for(j = 0; j < 10; j++){
-		t2 = t1;
+    bit[0] = tmp_bit0;
+    bit[1] = (byte & 0x01) ? tmp_bit1 : tmp_bit0;
+    bit[2] = ((byte >> 1) & 0x01) ? tmp_bit1 : tmp_bit0;
+    bit[3] = ((byte >> 2) & 0x01) ? tmp_bit1 : tmp_bit0;
+    bit[4] = ((byte >> 3) & 0x01) ? tmp_bit1 : tmp_bit0;
+    bit[5] = ((byte >> 4) & 0x01) ? tmp_bit1 : tmp_bit0;
+    bit[6] = ((byte >> 5) & 0x01) ? tmp_bit1 : tmp_bit0;
+    bit[7] = ((byte >> 6) & 0x01) ? tmp_bit1 : tmp_bit0;
+    bit[8] = ((byte >> 7) & 0x01) ? tmp_bit1 : tmp_bit0;
+    bit[9] = tmp_bit1;
+    //u32 r = drv_disable_irq();// enable this may disturb time sequence, but if disable unrecognizable code will show
+    t1 = clock_time();
+    for (j = 0; j < 10; j++) {
+        t2 = t1;
 
-		while(t1 - t2 < BIT_INTERVAL){
-			t1 = clock_time();
-		}
+        while (t1 - t2 < BIT_INTERVAL) {
+            t1 = clock_time();
+        }
 
-		TX_PIN_OUTPUT_REG = bit[j];       //send bit0
-	}
-	//drv_restore_irq(r);
+        TX_PIN_OUTPUT_REG = bit[j]; //send bit0
+    }
+    //drv_restore_irq(r);
 }
+#endif
 
 #elif USB_PRINTF_MODE
 
-#define USB_PRINT_TIMEOUT	 10		//  about 10us at 30MHz
+#define USB_PRINT_TIMEOUT       10 //  about 10us at 30MHz
 
 static int usb_putc(unsigned char c)
 {
-	int i = 0;
-	while(i ++ < USB_PRINT_TIMEOUT){
-		if(!(reg_usb_ep8_fifo_mode & FLD_USB_ENP8_FULL_FLAG)){
-			reg_usb_ep8_dat = c;
-			return c;
-		}
-	}
-	return -1;
+    int i = 0;
+    while (i ++ < USB_PRINT_TIMEOUT) {
+        if (!(reg_usb_ep8_fifo_mode & FLD_USB_ENP8_FULL_FLAG)) {
+            reg_usb_ep8_dat = c;
+            return c;
+        }
+    }
+    return -1;
 }
 
 static int hw_usb_putc(unsigned char c)
 {
-	if(reg_usb_host_conn){
-		return usb_putc(c);
-	}
-	return -1;
+    if (reg_usb_host_conn) {
+        return usb_putc(c);
+    }
+    return -1;
 }
 
 #endif
@@ -95,9 +96,12 @@ static int hw_usb_putc(unsigned char c)
 void drv_putchar(unsigned char byte)
 {
 #if UART_PRINTF_MODE
-	soft_uart_putc(byte);
+#if CONSOLE_UART_ENABLE
+    drv_console_write(byte);
+#else
+    soft_uart_putc(byte);
+#endif
 #elif USB_PRINTF_MODE
-	hw_usb_putc(byte);
+    hw_usb_putc(byte);
 #endif
 }
-

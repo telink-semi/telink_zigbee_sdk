@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #pragma once
 
 /* Enable C linkage for C++ Compilers: */
@@ -30,61 +29,60 @@
 extern "C" {
 #endif
 
-
 // BUTTON
-#define BUTTON1               		GPIO_PB2//SW2
-#define PB2_FUNC			  		AS_GPIO
-#define PB2_OUTPUT_ENABLE	  		0
-#define PB2_INPUT_ENABLE	  		1
-#define	PULL_WAKEUP_SRC_PB2	  		GPIO_PIN_PULLUP_10K
+#define BUTTON1                 GPIO_PB2//SW2
+#define PB2_FUNC                AS_GPIO
+#define PB2_OUTPUT_ENABLE       0
+#define PB2_INPUT_ENABLE        1
+#define	PULL_WAKEUP_SRC_PB2     GPIO_PIN_PULLUP_10K
 
-#define BUTTON2               		GPIO_PB3//SW7
-#define PB3_FUNC			  		AS_GPIO
-#define PB3_OUTPUT_ENABLE	  		0
-#define PB3_INPUT_ENABLE	  		1
-#define	PULL_WAKEUP_SRC_PB3	  		GPIO_PIN_PULLUP_10K
+#define BUTTON2                 GPIO_PB3//SW7
+#define PB3_FUNC                AS_GPIO
+#define PB3_OUTPUT_ENABLE       0
+#define PB3_INPUT_ENABLE        1
+#define	PULL_WAKEUP_SRC_PB3     GPIO_PIN_PULLUP_10K
 
 // LED
-#define LED_Y     					GPIO_PB5//D7
-#define PB5_FUNC					AS_GPIO
-#define PB5_OUTPUT_ENABLE			1
-#define PB5_INPUT_ENABLE			0
+#define LED_Y                   GPIO_PB5//D7
+#define PB5_FUNC                AS_GPIO
+#define PB5_OUTPUT_ENABLE       1
+#define PB5_INPUT_ENABLE        0
 
-#define LED_R     					GPIO_PB4//D9
-#define PB4_FUNC					AS_GPIO
-#define PB4_OUTPUT_ENABLE			1
-#define PB4_INPUT_ENABLE			0
+#define LED_R                   GPIO_PB4//D9
+#define PB4_FUNC                AS_GPIO
+#define PB4_OUTPUT_ENABLE       1
+#define PB4_INPUT_ENABLE        0
 
-#define LED_G     					GPIO_PB0//D6
-#define PB0_FUNC					AS_GPIO
-#define PB0_OUTPUT_ENABLE			1
-#define PB0_INPUT_ENABLE			0
+#define LED_G                   GPIO_PB0//D6
+#define PB0_FUNC                AS_GPIO
+#define PB0_OUTPUT_ENABLE       1
+#define PB0_INPUT_ENABLE        0
 
-#define LED_B1     					GPIO_PB7//D8
-#define PB7_FUNC					AS_GPIO
-#define PB7_OUTPUT_ENABLE			1
-#define PB7_INPUT_ENABLE			0
+#define LED_B1                  GPIO_PB7//D8
+#define PB7_FUNC                AS_GPIO
+#define PB7_OUTPUT_ENABLE       1
+#define PB7_INPUT_ENABLE        0
 
-#define LED_B2     					GPIO_PB1//D10
-#define PB1_FUNC					AS_GPIO
-#define PB1_OUTPUT_ENABLE			1
-#define PB1_INPUT_ENABLE			0
+#define LED_B2                  GPIO_PB1//D10
+#define PB1_FUNC                AS_GPIO
+#define PB1_OUTPUT_ENABLE       1
+#define PB1_INPUT_ENABLE        0
 
-#define LED_B3     					GPIO_PE3//D11
-#define PE3_FUNC					AS_GPIO
-#define PE3_OUTPUT_ENABLE			1
-#define PE3_INPUT_ENABLE			0
-
-
-#define LED1						LED_G
-#define LED_POWER					LED_R
+#define LED_B3                  GPIO_PE3//D11
+#define PE3_FUNC                AS_GPIO
+#define PE3_OUTPUT_ENABLE       1
+#define PE3_INPUT_ENABLE        0
 
 
-#define	PM_WAKEUP_LEVEL		  		PM_WAKEUP_LEVEL_LOW
+#define LED1                    LED_G
+#define LED_POWER               LED_R
+
+
+#define	PM_WAKEUP_LEVEL         PM_WAKEUP_LEVEL_LOW
 
 // ADC
 #if VOLTAGE_DETECT_ENABLE
-#define VOLTAGE_DETECT_ADC_PIN		ADC_GPIO_PB6
+#define VOLTAGE_DETECT_ADC_PIN  ADC_GPIO_PB6
 #endif
 
 // UART
@@ -94,25 +92,25 @@ extern "C" {
 
 // DEBUG
 #if UART_PRINTF_MODE
-#define	DEBUG_INFO_TX_PIN	    	GPIO_PC1//print
+#define	DEBUG_INFO_TX_PIN       GPIO_PC1//print
 #endif
 
 
-enum{
-	VK_SW1 = 0x01,
-	VK_SW2 = 0x02,
+enum {
+    VK_SW1 = 0x01,
+    VK_SW2 = 0x02,
 };
 
-#define	KB_MAP_NORMAL	{\
-		{VK_SW1,}, \
-		{VK_SW2,}, }
+#define	KB_MAP_NORMAL           { \
+                                    {VK_SW1,}, \
+                                    {VK_SW2,}, \
+                                }
 
-#define	KB_MAP_NUM		KB_MAP_NORMAL
-#define	KB_MAP_FN		KB_MAP_NORMAL
+#define	KB_MAP_NUM              KB_MAP_NORMAL
+#define	KB_MAP_FN               KB_MAP_NORMAL
 
-#define KB_DRIVE_PINS  	{0}
-#define KB_SCAN_PINS   	{BUTTON1, BUTTON2}
-
+#define KB_DRIVE_PINS           {0}
+#define KB_SCAN_PINS            {BUTTON1, BUTTON2}
 
 
 /* Disable C linkage for C++ Compilers: */

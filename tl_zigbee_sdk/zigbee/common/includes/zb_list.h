@@ -22,52 +22,51 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #ifndef ZB_LIST_H
 #define ZB_LIST_H
 
-enum{
-	ZB_LIST_ACTIVE,
-	ZB_LIST_FREE,
+enum {
+    ZB_LIST_ACTIVE,
+    ZB_LIST_FREE,
 };
 
 
-#define ZB_LIST_ADD(listName, head, ele)	do{	\
-												if(listName == ZB_LIST_FREE){	\
-													(ele)->freeNext = head;		\
-												}else{							\
-													(ele)->activeNext = head;	\
-												}								\
-												head = ele;						\
-											}while(0)
+#define ZB_LIST_ADD(listName, head, ele)        do{ \
+                                                    if (listName == ZB_LIST_FREE) { \
+                                                        (ele)->freeNext = head; \
+                                                    } else { \
+                                                        (ele)->activeNext = head; \
+                                                    } \
+                                                    head = ele; \
+                                                }while(0)
 
 
-#define ZB_LIST_DELETE(listName, head, ele)	do{	\
-												__typeof(head) list;											\
-												list = head;													\
-												if(listName == ZB_LIST_FREE){									\
-													if(ele == head){											\
-														head = (head)->freeNext; 								\
-													}else{ 														\
-														while(list->freeNext && (list->freeNext != (ele))){		\
-															list = list->freeNext;								\
-														}														\
-														if(list->freeNext){										\
-															list->freeNext = ele->freeNext;						\
-														}														\
-													}															\
-												}else{															\
-													if(ele == head){											\
-														head = (head)->activeNext; 								\
-													}else{ 														\
-														while(list->activeNext && (list->activeNext != (ele))){	\
-															list = list->activeNext;							\
-														}														\
-														if(list->activeNext){									\
-															list->activeNext = ele->activeNext;					\
-														}														\
-													}															\
-												}																\
-											}while(0)
+#define ZB_LIST_DELETE(listName, head, ele)     do{ \
+                                                    __typeof(head) list; \
+                                                    list = head; \
+                                                    if (listName == ZB_LIST_FREE) { \
+                                                        if (ele == head) { \
+                                                            head = (head)->freeNext; \
+                                                        } else { \
+                                                            while (list->freeNext && (list->freeNext != (ele))) { \
+                                                                list = list->freeNext; \
+                                                            } \
+                                                            if (list->freeNext) { \
+                                                                list->freeNext = ele->freeNext; \
+                                                            } \
+                                                        } \
+                                                    } else { \
+                                                        if (ele == head) { \
+                                                            head = (head)->activeNext; \
+                                                        } else { \
+                                                            while (list->activeNext && (list->activeNext != (ele))) { \
+                                                                list = list->activeNext; \
+                                                            } \
+                                                            if (list->activeNext) { \
+                                                                list->activeNext = ele->activeNext; \
+                                                            } \
+                                                        } \
+                                                    } \
+                                                }while(0)
 
 #endif /* ZB_LIST_H */

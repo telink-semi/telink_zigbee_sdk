@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #if (__PROJECT_TL_DIMMABLE_LIGHT__)
 
 /**********************************************************************
@@ -66,48 +65,46 @@ extern ota_callBack_t sampleLight_otaCb;
 
 //running code firmware information
 ota_preamble_t sampleLight_otaInfo = {
-	.fileVer 			= FILE_VERSION,
-	.imageType 			= IMAGE_TYPE,
-	.manufacturerCode 	= MANUFACTURER_CODE_TELINK,
+    .fileVer          = FILE_VERSION,
+    .imageType        = IMAGE_TYPE,
+    .manufacturerCode = MANUFACTURER_CODE_TELINK,
 };
 #endif
 
-
 //Must declare the application call back function which used by ZDO layer
 const zdo_appIndCb_t appCbLst = {
-	bdb_zdoStartDevCnf,//start device cnf cb
-	NULL,//reset cnf cb
-	NULL,//device announce indication cb
-	sampleLight_leaveIndHandler,//leave ind cb
-	sampleLight_leaveCnfHandler,//leave cnf cb
-	sampleLight_nwkUpdateIndicateHandler,//nwk update ind cb
-	NULL,//permit join ind cb
-	NULL,//nlme sync cnf cb
-	NULL,//tc join ind cb
-	NULL,//tc detects that the frame counter is near limit
+    bdb_zdoStartDevCnf,                 //start device cnf cb
+    NULL,                               //reset cnf cb
+    NULL,                               //device announce indication cb
+    sampleLight_leaveIndHandler,        //leave ind cb
+    sampleLight_leaveCnfHandler,        //leave cnf cb
+    sampleLight_nwkUpdateIndicateHandler,//nwk update ind cb
+    NULL,                               //permit join ind cb
+    NULL,                               //nlme sync cnf cb
+    NULL,                               //tc join ind cb
+    NULL,                               //tc detects that the frame counter is near limit
 };
-
 
 /**
  *  @brief Definition for bdb commissioning setting
  */
 bdb_commissionSetting_t g_bdbCommissionSetting = {
-	.linkKey.tcLinkKey.keyType = SS_GLOBAL_LINK_KEY,
-	.linkKey.tcLinkKey.key = (u8 *)tcLinkKeyCentralDefault,       		//can use unique link key stored in NV
+    .linkKey.tcLinkKey.keyType = SS_GLOBAL_LINK_KEY,
+    .linkKey.tcLinkKey.key     = (u8 *)tcLinkKeyCentralDefault,         //can use unique link key stored in NV
 
-	.linkKey.distributeLinkKey.keyType = MASTER_KEY,
-	.linkKey.distributeLinkKey.key = (u8 *)linkKeyDistributedMaster,  	//use linkKeyDistributedCertification before testing
+    .linkKey.distributeLinkKey.keyType = MASTER_KEY,
+    .linkKey.distributeLinkKey.key     = (u8 *)linkKeyDistributedMaster,//use linkKeyDistributedCertification before testing
 
-	.linkKey.touchLinkKey.keyType = MASTER_KEY,
-	.linkKey.touchLinkKey.key = (u8 *)touchLinkKeyMaster,   			//use touchLinkKeyCertification before testing
+    .linkKey.touchLinkKey.keyType = MASTER_KEY,
+    .linkKey.touchLinkKey.key     = (u8 *)touchLinkKeyMaster,           //use touchLinkKeyCertification before testing
 
 #if TOUCHLINK_SUPPORT
-	.touchlinkEnable = 1,												/* enable touch-link */
+    .touchlinkEnable = 1,                       /* enable touch-link */
 #else
-	.touchlinkEnable = 0,												/* disable touch-link */
+    .touchlinkEnable = 0,                       /* disable touch-link */
 #endif
-	.touchlinkChannel = DEFAULT_CHANNEL, 								/* touch-link default operation channel for target */
-	.touchlinkLqiThreshold = 0xA0,			   							/* threshold for touch-link scan req/resp command */
+    .touchlinkChannel = DEFAULT_CHANNEL,        /* touch-link default operation channel for target */
+    .touchlinkLqiThreshold = 0xA0,              /* threshold for touch-link scan req/resp command */
 };
 
 /**********************************************************************
@@ -132,10 +129,10 @@ ev_timer_event_t *sampleLightAttrsStoreTimerEvt = NULL;
  */
 void stack_init(void)
 {
-	/* Initialize ZB stack */
-	zb_init();
+    /* Initialize ZB stack */
+    zb_init();
 
-	/* Register stack CB */
+    /* Register stack CB */
     zb_zdoCbRegister((zdo_appIndCb_t *)&appCbLst);
 }
 
@@ -150,33 +147,33 @@ void stack_init(void)
  */
 void user_app_init(void)
 {
-	af_nodeDescManuCodeUpdate(MANUFACTURER_CODE_TELINK);
+    af_nodeDescManuCodeUpdate(MANUFACTURER_CODE_TELINK);
 
     /* Initialize ZCL layer */
-	/* Register Incoming ZCL Foundation command/response messages */
+    /* Register Incoming ZCL Foundation command/response messages */
     zcl_init(sampleLight_zclProcessIncomingMsg);
 
-	/* Register endPoint */
-	af_endpointRegister(SAMPLE_LIGHT_ENDPOINT, (af_simple_descriptor_t *)&sampleLight_simpleDesc, zcl_rx_handler, NULL);
+    /* Register endPoint */
+    af_endpointRegister(SAMPLE_LIGHT_ENDPOINT, (af_simple_descriptor_t *)&sampleLight_simpleDesc, zcl_rx_handler, NULL);
 #if AF_TEST_ENABLE
-	/* A sample of AF data handler. */
-	af_endpointRegister(SAMPLE_TEST_ENDPOINT, (af_simple_descriptor_t *)&sampleTestDesc, afTest_rx_handler, afTest_dataSendConfirm);
+    /* A sample of AF data handler. */
+    af_endpointRegister(SAMPLE_TEST_ENDPOINT, (af_simple_descriptor_t *)&sampleTestDesc, afTest_rx_handler, afTest_dataSendConfirm);
 #endif
 
-	/* Initialize or restore attributes, this must before 'zcl_register()' */
-	zcl_sampleLightAttrsInit();
-	zcl_reportingTabInit();
+    /* Initialize or restore attributes, this must before 'zcl_register()' */
+    zcl_sampleLightAttrsInit();
+    zcl_reportingTabInit();
 
-	/* Register ZCL specific cluster information */
-	zcl_register(SAMPLE_LIGHT_ENDPOINT, SAMPLELIGHT_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_sampleLightClusterList);
+    /* Register ZCL specific cluster information */
+    zcl_register(SAMPLE_LIGHT_ENDPOINT, SAMPLELIGHT_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_sampleLightClusterList);
 
 #if ZCL_GP_SUPPORT
-	/* Initialize GP */
-	gp_init(SAMPLE_LIGHT_ENDPOINT);
+    /* Initialize GP */
+    gp_init(SAMPLE_LIGHT_ENDPOINT);
 #endif
 
 #if ZCL_OTA_SUPPORT
-	/* Initialize OTA */
+    /* Initialize OTA */
     ota_init(OTA_TYPE_CLIENT, (af_simple_descriptor_t *)&sampleLight_simpleDesc, &sampleLight_otaInfo, &sampleLight_otaCb);
 #endif
 
@@ -186,58 +183,56 @@ void user_app_init(void)
 #endif
 }
 
-
-
 s32 sampleLightAttrsStoreTimerCb(void *arg)
 {
-	zcl_onOffAttr_save();
-	zcl_levelAttr_save();
-	zcl_colorCtrlAttr_save();
+    zcl_onOffAttr_save();
+    zcl_levelAttr_save();
+    zcl_colorCtrlAttr_save();
 
-	sampleLightAttrsStoreTimerEvt = NULL;
-	return -1;
+    sampleLightAttrsStoreTimerEvt = NULL;
+    return -1;
 }
 
 void sampleLightAttrsStoreTimerStart(void)
 {
-	if(sampleLightAttrsStoreTimerEvt){
-		TL_ZB_TIMER_CANCEL(&sampleLightAttrsStoreTimerEvt);
-	}
-	sampleLightAttrsStoreTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLightAttrsStoreTimerCb, NULL, 200);
+    if (sampleLightAttrsStoreTimerEvt) {
+        TL_ZB_TIMER_CANCEL(&sampleLightAttrsStoreTimerEvt);
+    }
+    sampleLightAttrsStoreTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLightAttrsStoreTimerCb, NULL, 200);
 }
 
 void sampleLightAttrsChk(void)
 {
-	if(gLightCtx.lightAttrsChanged){
-		gLightCtx.lightAttrsChanged = FALSE;
-		if(zb_isDeviceJoinedNwk()){
-			sampleLightAttrsStoreTimerStart();
-		}
-	}
+    if (gLightCtx.lightAttrsChanged) {
+        gLightCtx.lightAttrsChanged = FALSE;
+        if (zb_isDeviceJoinedNwk()) {
+            sampleLightAttrsStoreTimerStart();
+        }
+    }
 }
 
 void app_task(void)
 {
-	app_key_handler();
-	localPermitJoinState();
-	if(BDB_STATE_GET() == BDB_STATE_IDLE){
-		//factoryRst_handler();
+    app_key_handler();
+    localPermitJoinState();
+    if (BDB_STATE_GET() == BDB_STATE_IDLE) {
+        //factoryRst_handler();
 
-		report_handler();
+        report_handler();
 
 #if 1/* NOTE: If set to '1', the latest status of lighting will be stored. */
-		sampleLightAttrsChk();
+        sampleLightAttrsChk();
 #endif
-	}
+    }
 }
 
 static void sampleLightSysException(void)
 {
 #if 1
-	SYSTEM_RESET();
+    SYSTEM_RESET();
 #else
-	led_on(LED_POWER);
-	while(1);
+    led_on(LED_POWER);
+    while(1);
 #endif
 }
 
@@ -252,75 +247,74 @@ static void sampleLightSysException(void)
  */
 void user_init(bool isRetention)
 {
-	(void)isRetention;
+    (void)isRetention;
 
-	/* Register except handler for test */
-	sys_exceptHandlerRegister(sampleLightSysException);
+    /* Register except handler for test */
+    sys_exceptHandlerRegister(sampleLightSysException);
 
-	/* Initialize LEDs*/
-	led_init();
+    /* Initialize LEDs*/
+    led_init();
 	
-	light_init();
+    light_init();
 
-	//factoryRst_init();
+    //factoryRst_init();
 
-	/* Initialize Stack */
-	stack_init();
+    /* Initialize Stack */
+    stack_init();
 
-	/* Initialize user application */
-	user_app_init();
+    /* Initialize user application */
+    user_app_init();
 
-	/* Adjust light state to default attributes*/
-	light_adjust();
+    /* Adjust light state to default attributes*/
+    light_adjust();
 
-	/* User's Task */
+    /* User's Task */
 #if ZBHCI_EN
-	zbhciInit();
-	ev_on_poll(EV_POLL_HCI, zbhciTask);
+    zbhciInit();
+    ev_on_poll(EV_POLL_HCI, zbhciTask);
 #endif
-	ev_on_poll(EV_POLL_IDLE, app_task);
+    ev_on_poll(EV_POLL_IDLE, app_task);
 
     /* Read the pre-install code from NV */
-	if(bdb_preInstallCodeLoad(&gLightCtx.tcLinkKey.keyType, gLightCtx.tcLinkKey.key) == RET_OK){
-		g_bdbCommissionSetting.linkKey.tcLinkKey.keyType = gLightCtx.tcLinkKey.keyType;
-		g_bdbCommissionSetting.linkKey.tcLinkKey.key = gLightCtx.tcLinkKey.key;
-	}
+    if (bdb_preInstallCodeLoad(&gLightCtx.tcLinkKey.keyType, gLightCtx.tcLinkKey.key) == RET_OK) {
+        g_bdbCommissionSetting.linkKey.tcLinkKey.keyType = gLightCtx.tcLinkKey.keyType;
+        g_bdbCommissionSetting.linkKey.tcLinkKey.key = gLightCtx.tcLinkKey.key;
+    }
 
     /* Set default reporting configuration */
-	u8 reportableChange[2] = {0x00, 0x00};
+    u8 reportableChange[2] = {0x00, 0x00};
     bdb_defaultReportingCfg(SAMPLE_LIGHT_ENDPOINT, HA_PROFILE_ID,
-    						ZCL_CLUSTER_GEN_ON_OFF, ZCL_ATTRID_ONOFF,
-    						1, 120, (u8 *)&reportableChange);//min = 1s, max = 120s
+                            ZCL_CLUSTER_GEN_ON_OFF, ZCL_ATTRID_ONOFF,
+                            1, 120, (u8 *)&reportableChange);//min = 1s, max = 120s
 #if ZCL_LEVEL_CTRL_SUPPORT
     bdb_defaultReportingCfg(SAMPLE_LIGHT_ENDPOINT, HA_PROFILE_ID,
-    						ZCL_CLUSTER_GEN_LEVEL_CONTROL, ZCL_ATTRID_LEVEL_CURRENT_LEVEL,
-    						1, 120, (u8 *)&reportableChange);
+                            ZCL_CLUSTER_GEN_LEVEL_CONTROL, ZCL_ATTRID_LEVEL_CURRENT_LEVEL,
+                            1, 120, (u8 *)&reportableChange);
 #endif
 #if COLOR_RGB_SUPPORT
     bdb_defaultReportingCfg(SAMPLE_LIGHT_ENDPOINT, HA_PROFILE_ID,
-    						ZCL_CLUSTER_LIGHTING_COLOR_CONTROL, ZCL_ATTRID_CURRENT_HUE,
-							1, 120, (u8 *)&reportableChange);
+                            ZCL_CLUSTER_LIGHTING_COLOR_CONTROL, ZCL_ATTRID_CURRENT_HUE,
+                            1, 120, (u8 *)&reportableChange);
     bdb_defaultReportingCfg(SAMPLE_LIGHT_ENDPOINT, HA_PROFILE_ID,
-    						ZCL_CLUSTER_LIGHTING_COLOR_CONTROL, ZCL_ATTRID_CURRENT_SATURATION,
-							1, 120, (u8 *)&reportableChange);
+                            ZCL_CLUSTER_LIGHTING_COLOR_CONTROL, ZCL_ATTRID_CURRENT_SATURATION,
+                            1, 120, (u8 *)&reportableChange);
 #ifndef COLOR_X_Y_DISABLE
     bdb_defaultReportingCfg(SAMPLE_LIGHT_ENDPOINT, HA_PROFILE_ID,
-    						ZCL_CLUSTER_LIGHTING_COLOR_CONTROL, ZCL_ATTRID_CURRENT_X,
-							1, 120, (u8 *)&reportableChange);
+                            ZCL_CLUSTER_LIGHTING_COLOR_CONTROL, ZCL_ATTRID_CURRENT_X,
+                            1, 120, (u8 *)&reportableChange);
     bdb_defaultReportingCfg(SAMPLE_LIGHT_ENDPOINT, HA_PROFILE_ID,
-    						ZCL_CLUSTER_LIGHTING_COLOR_CONTROL, ZCL_ATTRID_CURRENT_Y,
-							1, 120, (u8 *)&reportableChange);
+                            ZCL_CLUSTER_LIGHTING_COLOR_CONTROL, ZCL_ATTRID_CURRENT_Y,
+                            1, 120, (u8 *)&reportableChange);
 #endif
 #endif
 #if COLOR_CCT_SUPPORT
     bdb_defaultReportingCfg(SAMPLE_LIGHT_ENDPOINT, HA_PROFILE_ID,
-    						ZCL_CLUSTER_LIGHTING_COLOR_CONTROL, ZCL_ATTRID_COLOR_TEMPERATURE_MIREDS,
-							1, 120, (u8 *)&reportableChange);
+                            ZCL_CLUSTER_LIGHTING_COLOR_CONTROL, ZCL_ATTRID_COLOR_TEMPERATURE_MIREDS,
+                            1, 120, (u8 *)&reportableChange);
 #endif
 
     /* Initialize BDB */
-	bdb_init((af_simple_descriptor_t *)&sampleLight_simpleDesc, &g_bdbCommissionSetting, &g_zbDemoBdbCb, 1);
+    bdb_init((af_simple_descriptor_t *)&sampleLight_simpleDesc, &g_bdbCommissionSetting, &g_zbDemoBdbCb, 1);
 }
 
 #endif  /* __PROJECT_TL_DIMMABLE_LIGHT__ */
-

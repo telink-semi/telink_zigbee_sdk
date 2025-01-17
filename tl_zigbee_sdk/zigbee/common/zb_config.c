@@ -36,14 +36,14 @@ sys_diagnostics_t g_sysDiags;
  * ZDO_COORD to use this value as its PAN ID and
  * Routers and end devices to join PAN with this ID
  */
-#define DEFAULT_PANID		MAC_INVALID_PANID
+#define DEFAULT_PANID   MAC_INVALID_PANID
 u16 TL_ZB_ASSOCJOIN_PERMIT_PANID = DEFAULT_PANID;
 
 /*
  * Setting this to a value other than MAC_INVALID_PANID (0xFFFF) causes
  * Routers and end devices to filter the PAN ID when associate join a network
  */
-#define FILTER_PANID		MAC_INVALID_PANID
+#define FILTER_PANID    MAC_INVALID_PANID
 u16 TL_ZB_ASSOCJOIN_FILTER_PANID = FILTER_PANID;
 
 /* APS data fragmentation setting */
@@ -165,151 +165,165 @@ u32 LONG_UPTIME_THRESHOLD = 86400;
 //default network key
 /* If all zero, will generate 16-bytes network key randomly. */
 #if 1
-const u8 nwkKeyDefault[] = {0, 0, 0, 0, 0, 0, 0, 0,
-							0, 0, 0, 0, 0, 0, 0, 0};
+const u8 nwkKeyDefault[] = {
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0
+};
 #else
-const u8 nwkKeyDefault[] = {0x12, 0x23, 0x34, 0x45, 0x56, 0x67, 0x78, 0x89,
-			  	  	  	    0x9a, 0xab, 0xbc, 0xcd, 0xde, 0xef, 0xf0, 0x01};
+const u8 nwkKeyDefault[] = {
+    0x12, 0x23, 0x34, 0x45, 0x56, 0x67, 0x78, 0x89,
+    0x9a, 0xab, 0xbc, 0xcd, 0xde, 0xef, 0xf0, 0x01
+};
 #endif
 
-
 //Global trust center link key which used in centralized security network
-const u8 tcLinkKeyCentralDefault[] = {0x5a, 0x69, 0x67, 0x42, 0x65, 0x65, 0x41, 0x6c,
-  	   	 	 	 	 	 	 	 	  0x6c, 0x69, 0x61, 0x6e, 0x63, 0x65, 0x30, 0x39};
-
+const u8 tcLinkKeyCentralDefault[] = {
+    0x5a, 0x69, 0x67, 0x42, 0x65, 0x65, 0x41, 0x6c,
+    0x6c, 0x69, 0x61, 0x6e, 0x63, 0x65, 0x30, 0x39
+};
 
 //certification link key for distributed network
-const u8 linkKeyDistributedCertification[] = {0xd0, 0xd1, 0xd2, 0xd3, 0xd4, 0xd5, 0xd6, 0xd7,
-										      0xd8, 0xd9, 0xda, 0xdb, 0xdc, 0xdd, 0xde, 0xdf};
+const u8 linkKeyDistributedCertification[] = {
+    0xd0, 0xd1, 0xd2, 0xd3, 0xd4, 0xd5, 0xd6, 0xd7,
+    0xd8, 0xd9, 0xda, 0xdb, 0xdc, 0xdd, 0xde, 0xdf
+};
 
 /* touch-link link key */
-const u8 touchLinkKeyCertification[] = {0xc0, 0xc1, 0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7,
-        								0xc8, 0xc9, 0xca, 0xcb, 0xcc, 0xcd, 0xce, 0xcf};
+const u8 touchLinkKeyCertification[] = {
+    0xc0, 0xc1, 0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7,
+    0xc8, 0xc9, 0xca, 0xcb, 0xcc, 0xcd, 0xce, 0xcf
+};
 
 /* Default PIB settings for MAC layer. */
 const tl_zb_mac_pib_t macPibDefault = {
-	.ackWaitDuration = (ZB_MAC_UNIT_BACKOFF_PERIOD + ZB_PHY_TURNROUNDTIME + ZB_PHY_SHR_DURATION + (u16)(6 * ZB_PHY_SYMBOLS_PER_OCTET)),
-	.frameRetryNum = ZB_MAC_FRAME_RETRIES_MAX,
-	.transactionPersistenceTime = 0x01f4,
-	.panId = DEFAULT_PANID,
-	.shortAddress = MAC_SHORT_ADDR_BROADCAST,
-	.respWaitTime = ZB_MAC_WAIT_RESP_TIME_DEFAULT,
-	.phyChannelCur = DEFAULT_CHANNEL,
-	.autoReq = 0,
+    .ackWaitDuration                    = (ZB_MAC_UNIT_BACKOFF_PERIOD + ZB_PHY_TURNROUNDTIME
+                                        + ZB_PHY_SHR_DURATION + (u16)(6 * ZB_PHY_SYMBOLS_PER_OCTET)),
+    .frameRetryNum                      = ZB_MAC_FRAME_RETRIES_MAX,
+    .transactionPersistenceTime         = 0x01f4,
+    .panId                              = DEFAULT_PANID,
+    .shortAddress                       = MAC_SHORT_ADDR_BROADCAST,
+    .respWaitTime                       = ZB_MAC_WAIT_RESP_TIME_DEFAULT,
+    .phyChannelCur                      = DEFAULT_CHANNEL,
+    .autoReq                            = 0,
 #if ZB_ED_ROLE
-	.minBe = 0,
+    .minBe                              = 0,
 #else
-	.minBe = 5,
+    .minBe                              = 5,
 #endif
-	.maxBe = 8,
-	.beaconOrder = 15,
-	.superframeOrder = 0,
-	.maxCsmaBackoffs = 4,
-	.associationPermit = 0,
-	.coordShortAddress = 0xffff,
+    .maxBe                              = 8,
+    .beaconOrder                        = 15,
+    .superframeOrder                    = 0,
+    .maxCsmaBackoffs                    = 4,
+    .associationPermit                  = 0,
+    .coordShortAddress                  = 0xffff,
 #if ZB_ED_ROLE
-	.rxOnWhenIdle = ZB_MAC_RX_ON_WHEN_IDLE,
+    .rxOnWhenIdle                       = ZB_MAC_RX_ON_WHEN_IDLE,
 #else
-	.rxOnWhenIdle = 1,
+    .rxOnWhenIdle                       = 1,
 #endif
 };
 
 /* Default NIB settings for NWK layer. */
 const nwk_nib_t nwkNibDefault = {
 #if defined ZB_NWK_DISTRIBUTED_ADDRESS_ASSIGN && defined ZB_ROUTER_ROLE
-	.maxRouters = NWK_MAX_ROUTERS,
-	.addrAlloc = NWK_ADDRESS_ALLOC_METHOD_DISTRIBUTED,
+    .maxRouters                         = NWK_MAX_ROUTERS,
+    .addrAlloc                          = NWK_ADDRESS_ALLOC_METHOD_DISTRIBUTED,
 #else
-	.addrAlloc = NWK_ADDRESS_ALLOC_METHOD_STOCHASTIC,
+    .addrAlloc                          = NWK_ADDRESS_ALLOC_METHOD_STOCHASTIC,
 #endif
-	.maxDepth = NWK_MAX_DEPTH,
-	.stackProfile = ZB_STACK_PROFILE,
+    .maxDepth                           = NWK_MAX_DEPTH,
+    .stackProfile                       = ZB_STACK_PROFILE,
 #ifdef ZB_ROUTER_ROLE
-	.maxChildren = DEFAULT_MAX_CHILDREN,
-	.maxBroadcastRetries = NWK_MAX_BROADCAST_RETRIES,
-	.passiveAckTimeout = NWK_PASSIVE_ACK_TIMEOUT,
-	.nwkBroadcastDeliveryTime = NWK_BROADCAST_DELIVERY_TIME,
- 	.linkStatusPeriod = ZB_NWK_LINK_STATUS_PERIOD_DEFAULT,//45
-	.routerAgeLimit = 3,
-	.maxSourceRoute = NWK_MAX_SOURCE_ROUTE,
-	.concentratorRadius = 0,
-	.concentratorDiscoveryTime = 120,//120s
-	.symLink = 1,
-	.reportConstantCost = 0,
+    .maxChildren                        = DEFAULT_MAX_CHILDREN,
+    .maxBroadcastRetries                = NWK_MAX_BROADCAST_RETRIES,
+    .passiveAckTimeout                  = NWK_PASSIVE_ACK_TIMEOUT,
+    .nwkBroadcastDeliveryTime           = NWK_BROADCAST_DELIVERY_TIME,
+    .linkStatusPeriod                   = ZB_NWK_LINK_STATUS_PERIOD_DEFAULT,//45
+    .routerAgeLimit                     = 3,
+    .maxSourceRoute                     = NWK_MAX_SOURCE_ROUTE,
+    .concentratorRadius                 = 0,
+    .concentratorDiscoveryTime          = 120,//120s
+    .symLink                            = 1,
+    .reportConstantCost                 = 0,
 #ifdef ZB_COORDINATOR_ROLE
-	.depth = 0,
-	.isConcentrator = 1,
+    .depth                              = 0,
+    .isConcentrator                     = 1,
 #else
-	.depth = 1,
-	.isConcentrator = 0,
+    .depth                              = 1,
+    .isConcentrator                     = 0,
 #endif
 #endif
-	.managerAddr = 0x0000,
-    .leaveReqAllowed = 1,
-    .useMulticast = 0,
-    .panId = DEFAULT_PANID,
-    .nwkAddr = NWK_BROADCAST_RESERVED,
-    .uniqueAddr = 0,
-    .parentInfo = 0,
-    .endDevTimeoutDefault = NWK_ENDDEV_TIMEOUT_DEFAULT,
-    .leaveReqWithoutRejoinAllowed = 1,
+    .managerAddr                        = 0x0000,
+    .leaveReqAllowed                    = 1,
+    .useMulticast                       = 0,
+    .panId                              = DEFAULT_PANID,
+    .nwkAddr                            = NWK_BROADCAST_RESERVED,
+    .uniqueAddr                         = 0,
+    .parentInfo                         = 0,
+    .endDevTimeoutDefault               = NWK_ENDDEV_TIMEOUT_DEFAULT,
+    .leaveReqWithoutRejoinAllowed       = 1,
 };
 
 /* ZDO default configuration attributes. */
 const zdo_attrCfg_t zdoCfgAttrDefault = {
-	.config_nwk_indirectPollRate 		= 0,
-	.config_parent_link_retry_threshold = ZDO_MAX_PARENT_THRESHOLD_RETRY,
-	.config_nwk_scan_attempts 			= ZDO_NWK_SCAN_ATTEMPTS,
-	.config_nwk_time_btwn_scans			= ZDO_NWK_TIME_BTWN_SCANS,
-	.config_permit_join_duration 		= ZDO_PERMIT_JOIN_DURATION,
-	.config_rejoin_times				= ZDO_REJOIN_TIMES,
-	.config_rejoin_duration 			= ZDO_REJOIN_DURATION,
-	.config_rejoin_backoff_time			= ZDO_REJOIN_BACKOFF_TIME,
-	.config_max_rejoin_backoff_time		= ZDO_MAX_REJOIN_BACKOFF_TIME,
-	.config_rejoin_backoff_iteration	= ZDO_REJOIN_BACKOFF_ITERATION,
+    .config_nwk_indirectPollRate        = 0,
+    .config_parent_link_retry_threshold = ZDO_MAX_PARENT_THRESHOLD_RETRY,
+    .config_nwk_scan_attempts           = ZDO_NWK_SCAN_ATTEMPTS,
+    .config_nwk_time_btwn_scans         = ZDO_NWK_TIME_BTWN_SCANS,
+    .config_permit_join_duration        = ZDO_PERMIT_JOIN_DURATION,
+    .config_rejoin_times                = ZDO_REJOIN_TIMES,
+    .config_rejoin_duration             = ZDO_REJOIN_DURATION,
+    .config_rejoin_backoff_time         = ZDO_REJOIN_BACKOFF_TIME,
+    .config_max_rejoin_backoff_time     = ZDO_MAX_REJOIN_BACKOFF_TIME,
+    .config_rejoin_backoff_iteration	= ZDO_REJOIN_BACKOFF_ITERATION,
 };
-
 
 #if ZB_ROUTER_ROLE
 /*
- * @brief:		get record entry for broadcasting record table
+ * @brief: get record entry for broadcasting record table
  */
-nwk_brcTransRecordEntry_t *brcTransRecordEntryGet(u8 idx){
-	return &g_brcTransTab[idx];
+nwk_brcTransRecordEntry_t *brcTransRecordEntryGet(u8 idx)
+{
+    return &g_brcTransTab[idx];
 }
 
 /*
- * @brief:		get the size of the broadcasting record table
+ * @brief: get the size of the broadcasting record table
  */
-u32 brcTransRecordTblSizeGet(void){
-	return (sizeof(g_brcTransTab));
+u32 brcTransRecordTblSizeGet(void)
+{
+    return (sizeof(g_brcTransTab));
 }
 #endif
 
 /*
- * @brief:		get the entry of the mapping table of the binding list
+ * @brief: get the entry of the mapping table of the binding list
  */
-aps_binding_entry_t *bindTblEntryGet(void){
-	return &g_apsBindingTbl[0];
+aps_binding_entry_t *bindTblEntryGet(void)
+{
+    return &g_apsBindingTbl[0];
 }
 
 /*
- * @brief:		get the size of zigbee buffer
+ * @brief: get the size of zigbee buffer
  */
-u32 zbBufferSizeGet(void){
-	return (sizeof(g_mPool));
+u32 zbBufferSizeGet(void)
+{
+    return (sizeof(g_mPool));
 }
 
 /*
- * @brief:		get the size of the neighbor table
+ * @brief: get the size of the neighbor table
  */
-u32 neighborTblSizeGet(void){
-	return (sizeof(tl_zb_neighbor_entry_t));
+u32 neighborTblSizeGet(void)
+{
+    return (sizeof(tl_zb_neighbor_entry_t));
 }
 
 /*
- * @brief:		get the size of the address mapping table
+ * @brief: get the size of the address mapping table
  */
-u32 addrMapTblSizeGet(void){
-	return (sizeof(tl_zb_addr_map_t));
+u32 addrMapTblSizeGet(void)
+{
+    return (sizeof(tl_zb_addr_map_t));
 }

@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #ifndef ZB_API_H
 #define ZB_API_H
 
@@ -35,22 +34,23 @@
 /**        
  *  @brief Structure for parameter of apsdeDataInd callback function
  */
-typedef struct apsdeDataInd_s{
-	aps_data_ind_t indInfo;
+typedef struct apsdeDataInd_s {
+    aps_data_ind_t indInfo;
     u16 asduLen;
     u8  asdu[];
-}apsdeDataInd_t;
+} apsdeDataInd_t;
 
 
-static inline void zb_resetDevice(void){
-	SYSTEM_RESET();
+static inline void zb_resetDevice(void)
+{
+    SYSTEM_RESET();
 }
 
 /***********************************************************************//**
  * @brief       Factory reset.
- * 				This interface should be called by Router or End-Device.
- * 				If it is a not factory new device, it will broadcast
- * 				a Leave Command before factory new reset.
+ *              This interface should be called by Router or End-Device.
+ *              If it is a not factory new device, it will broadcast
+ *              a Leave Command before factory new reset.
  *
  * @param       None
  *
@@ -61,12 +61,12 @@ void zb_factoryReset(void);
 
 /***********************************************************************//**
  * @brief       Reset device to factory new.
- * 				This interface could be called by Coordinator, Router or End-Device.
- * 				If coordinator:
- * 					It will erase all NV information and reset all layer settings.
- * 				if router or end device:
- * 					If it is a not factory new device, it will broadcast
- * 					a Leave Command before factory new reset.
+ *              This interface could be called by Coordinator, Router or End-Device.
+ *              If coordinator:
+ *              It will erase all NV information and reset all layer settings.
+ *              if router or end device:
+ *              If it is a not factory new device, it will broadcast
+ *              a Leave Command before factory new reset.
  *
  * @param       None
  *
@@ -158,7 +158,7 @@ aps_status_t zb_apsChannelMaskSet(u32 mask);
 /***********************************************************************//**
  * @brief       Get channel mask from APS_IB.
  *
- * @param		None
+ * @param       None
  *
  * @return  	channel mask
  *
@@ -171,9 +171,9 @@ u32 zb_apsChannelMaskGet(void);
  * @param       None
  *
  * @return      device type (nwk_deviceType_t)
- * 				0 - Coordinator
- * 				1 - Router
- * 				2 - EndDevice
+ *              0 - Coordinator
+ *              1 - Router
+ *              2 - EndDevice
  *
  **************************************************************************/
 device_type_t zb_getDeviceType(void);
@@ -232,7 +232,7 @@ u8 zb_getExtAddrByNwkAddr(u16 nwkAddr, addrExt_t extAddr);
 
 /***********************************************************************//**
  * @brief       Set the period time of the network layer link status command.
- * 				Only for Coordinator and Router.
+ *              Only for Coordinator and Router.
  *
  * @param[in]   periodInSec - Time between two link status commands (in seconds)
  *
@@ -244,9 +244,9 @@ void zb_nlmeSetLinkStsPeriod(u8 periodInSec);
 /***********************************************************************//**
  * @brief      	Send data request manually, only for End-Device.
  *
- * @param		None
+ * @param       None
  *
- * @return		RET_ILLEGAL_REQUEST or zdo_status_t
+ * @return      RET_ILLEGAL_REQUEST or zdo_status_t
  *
  **************************************************************************/
 u8 zb_endDeviceSyncReq(void);
@@ -256,24 +256,24 @@ u8 zb_endDeviceSyncReq(void);
  *
  * @param[in]	newRate - in millisecond
  *
- * @return		RET_ILLEGAL_REQUEST or zdo_status_t
+ * @return      RET_ILLEGAL_REQUEST or zdo_status_t
  *
  **************************************************************************/
 u8 zb_setPollRate(u32 newRate);
 
 /***********************************************************************//**
- * @brief		Get poll rate, only for End-Device.
+ * @brief       Get poll rate, only for End-Device.
  *
  * @param
  *
- * @return		in millisecond
+ * @return      in millisecond
  *
  **************************************************************************/
 u32 zb_getPollRate(void);
 
 /***********************************************************************//**
  * @brief       Perform network formation request.
- * 				Only for Coordinator and Router.
+ *              Only for Coordinator and Router.
  *
  * @param[in]	scanChannels
  * @param[in]	scanDuration
@@ -285,18 +285,18 @@ u8 zb_nwkFormation(u32 scanChannels, u8 scanDuration);
 
 /***********************************************************************//**
  * @brief   	Perform router start to recover network.
- * 				Only for Coordinator and Router.
+ *              Only for Coordinator and Router.
  *
  * @param   	None
  *
- * @return		RET_ILLEGAL_REQUEST or zdo_status_t
+ * @return      RET_ILLEGAL_REQUEST or zdo_status_t
  *
  **************************************************************************/
 u8 zb_routerStart(void);
 
 /***********************************************************************//**
  * @brief       Perform network discovery request.
- * 				Only for Router and End Device.
+ *              Only for Router and End Device.
  *
  * @param[in]   scanChannels
  * @param[in]   scanDuration
@@ -309,7 +309,7 @@ u8 zb_nwkDiscovery(u32 scanChannels, u8 scanDuration, nwkDiscoveryUserCb_t cb);
 
 /***********************************************************************//**
  * @brief       Cancel network discovery request.
- * 				Only for Router and End Device.
+ *              Only for Router and End Device.
  *
  * @param[in]   None
  *
@@ -320,7 +320,7 @@ void zb_nwkDiscoveryStop(void);
 
 /***********************************************************************//**
  * @brief       Perform associate join request.
- * 				Only for Router and End Device.
+ *              Only for Router and End Device.
  *
  * @param[in]   none
  *
@@ -331,27 +331,27 @@ u8 zb_assocJoinReq(void);
 
 /***********************************************************************//**
  * @brief       Perform rejoin request.
- * 				Only for Router and End Device.
+ *              Only for Router and End Device.
  *
  * @param[in]   scanChannels
  * @param[in]   scanDuration
  *
- * @return		RET_ILLEGAL_REQUEST or zdo_status_t
+ * @return      RET_ILLEGAL_REQUEST or zdo_status_t
  *
  **************************************************************************/
 u8 zb_rejoinReq(u32 scanChannels, u8 scanDuration);
 
 /***********************************************************************//**
  * @brief       Perform rejoin request with backoff timer.
- * 				Only for Router and End Device.
- * 				NOTE: Please refer to the related definition of
- * 					  zdo_cfg_attributes for the parameter configuration
- * 					  of backoff, in zdo_api.h
+ *              Only for Router and End Device.
+ *              NOTE: Please refer to the related definition of
+ *                    zdo_cfg_attributes for the parameter configuration
+ *                    of backoff, in zdo_api.h
  *
  * @param[in]   scanChannels
  * @param[in]   scanDuration
  *
- * @return		RET_ILLEGAL_REQUEST or zdo_status_t
+ * @return      RET_ILLEGAL_REQUEST or zdo_status_t
  *
  **************************************************************************/
 u8 zb_rejoinReqWithBackOff(u32 scanChannels, u8 scanDuration);
@@ -361,27 +361,27 @@ u8 zb_rejoinReqWithBackOff(u32 scanChannels, u8 scanDuration);
  *
  * @param[in]   mode: REJOIN_INSECURITY or REJOIN_SECURITY
  *
- * @return		None
+ * @return      None
  *
  **************************************************************************/
 void zb_rejoinSecModeSet(u8 mode);
 
 /***********************************************************************//**
  * @brief       Perform direct join request.
- * 				Only for Router and End Device.
+ *              Only for Router and End Device.
  *
  * @param[in]   scanChannels
  * @param[in]   scanDuration
  *
- * @return		RET_ILLEGAL_REQUEST or zdo_status_t
+ * @return      RET_ILLEGAL_REQUEST or zdo_status_t
  *
  **************************************************************************/
 u8 zb_directJoinReq(u32 scanChannels, u8 scanDuration);
 
 /***********************************************************************//**
  * @brief   	Accept a remote device as a child node,
- * 				who will join the network through direct join mode.
- * 				Only for Coordinator and Router.
+ *              who will join the network through direct join mode.
+ *              Only for Coordinator and Router.
  *
  * @param[in]   req - the remote device information
  *
@@ -392,7 +392,7 @@ u8 zb_nwkDirectJoinAccept(nlme_directJoin_req_t *pReq);
 
 /***********************************************************************//**
  * @brief       Set local permit join duration.
- * 				Only for Coordinator and Router.
+ *              Only for Coordinator and Router.
  *
  * @param[in]   permitDuration - The time allowed for new device to join (in seconds).
  *
@@ -403,7 +403,7 @@ u8 zb_nlmePermitJoiningRequest(u8 permitDuration);
 
 /***********************************************************************//**
  * @brief       Perform route discovery request.
- * 				Only for Coordinator and Router.
+ *              Only for Coordinator and Router.
  *
  * @param[in]   pRouteDiscReq
  *
@@ -425,10 +425,10 @@ u8 zb_nlmeLeaveReq(nlme_leave_req_t *pLeaveReq);
 /***********************************************************************//**
  * @brief       Send address request to target device for short address.
  *
- * @param[in]   dstNwkAddr	- this command will be send to
- * 				pReq    	- parameter of network address request
- * 				seqNo		- the sequence number used by this command
- * 				indCb		- network address response call back function
+ * @param[in]   dstNwkAddr - this command will be send to
+ *              pReq       - parameter of network address request
+ *              seqNo      - the sequence number used by this command
+ *              indCb      - network address response call back function
  *
  * @return      Status
  *
@@ -438,10 +438,10 @@ zdo_status_t zb_zdoNwkAddrReq(u16 dstNwkAddr, zdo_nwk_addr_req_t *pReq, u8 *seqN
 /***********************************************************************//**
  * @brief       Send address request to target device for IEEE address.
  *
- * @param[in]   dstNwkAddr	- this command will be send to
- * 				pReq    	- parameter of IEEE address request
- * 				seqNo		- the sequence number used by this command
- * 				indCb		- IEEE address response call back function
+ * @param[in]   dstNwkAddr - this command will be send to
+ *              pReq       - parameter of IEEE address request
+ *              seqNo      - the sequence number used by this command
+ *              indCb      - IEEE address response call back function
  *
  * @return      Status
  *
@@ -451,10 +451,10 @@ zdo_status_t zb_zdoIeeeAddrReq(u16 dstNwkAddr, zdo_ieee_addr_req_t *pReq, u8 *se
 /***********************************************************************//**
  * @brief       Send simple descriptor request.
  *
- * @param[in]   dstNwkAddr	- this command will be send to
- * 				pReq        - parameter of simple descriptor request
- * 				seqNo		- the sequence number used by this command
- * 				indCb		- simple descriptor response call back function
+ * @param[in]   dstNwkAddr - this command will be send to
+ *              pReq       - parameter of simple descriptor request
+ *              seqNo      - the sequence number used by this command
+ *              indCb      - simple descriptor response call back function
  *
  * @return      Status
  *
@@ -464,10 +464,10 @@ zdo_status_t zb_zdoSimpleDescReq(u16 dstNwkAddr, zdo_simple_descriptor_req_t *pR
 /***********************************************************************//**
  * @brief       Send node descriptor request.
  *
- * @param[in]   dstNwkAddr	- this command will be send to
- * 				pReq        - parameter of node descriptor request
- * 				seqNo		- the sequence number used by this command
- * 				indCb		- node descriptor response call back function
+ * @param[in]   dstNwkAddr - this command will be send to
+ *              pReq       - parameter of node descriptor request
+ *              seqNo      - the sequence number used by this command
+ *              indCb      - node descriptor response call back function
  *
  * @return      Status
  *
@@ -477,10 +477,10 @@ zdo_status_t zb_zdoNodeDescReq(u16 dstNwkAddr, zdo_node_descriptor_req_t *pReq, 
 /***********************************************************************//**
  * @brief       Send power descriptor request.
  *
- * @param[in]   dstNwkAddr	- this command will be send to
- * 				pReq        - parameter of power descriptor request
- * 				seqNo		- the sequence number used by this command
- * 				indCb		- power descriptor response call back function
+ * @param[in]   dstNwkAddr - this command will be send to
+ *              pReq       - parameter of power descriptor request
+ *              seqNo      - the sequence number used by this command
+ *              indCb      - power descriptor response call back function
  *
  * @return      Status
  *
@@ -490,10 +490,10 @@ zdo_status_t zb_zdoPowerDescReq(u16 dstNwkAddr, zdo_power_descriptor_req_t *pReq
 /***********************************************************************//**
  * @brief       Send active endpoint request.
  *
- * @param[in]	dstNwkAddr	- this command will be send to
- *  			pReq        - parameter of active endpoint request
- *  			seqNo		- the sequence number used by this command
- * 				indCb		- active endpoint response call back function
+ * @param[in]	dstNwkAddr - this command will be send to
+ *              pReq       - parameter of active endpoint request
+ *              seqNo      - the sequence number used by this command
+ *              indCb      - active endpoint response call back function
  *
  * @return      Status
  *
@@ -503,10 +503,10 @@ zdo_status_t zb_zdoActiveEpReq(u16 dstNwkAddr, zdo_active_ep_req_t *pReq, u8 *se
 /***********************************************************************//**
  * @brief       Send match descriptor request.
  *
- * @param[in]   dstNwkAddr	- this command will be send to
- * 				pReq        - parameter of match descriptor request
- * 				seqNo		- the sequence number used by this command
- * 				indCb		- match descriptor response call back function
+ * @param[in]   dstNwkAddr - this command will be send to
+ *              pReq       - parameter of match descriptor request
+ *              seqNo      - the sequence number used by this command
+ *              indCb      - match descriptor response call back function
  *
  * @return      Status
  *
@@ -516,10 +516,10 @@ zdo_status_t zb_zdoMatchDescReq(u16 dstNwkAddr, zdo_match_descriptor_req_t *pReq
 /***********************************************************************//**
  * @brief       Send complex descriptor request.
  *
- * @param[in]   dstNwkAddr	- this command will be send to
- * 				pReq        - parameter of complex descriptor request
- * 				seqNo		- the sequence number used by this command
- * 				indCb		- complex descriptor response call back function
+ * @param[in]   dstNwkAddr - this command will be send to
+ *              pReq       - parameter of complex descriptor request
+ *              seqNo      - the sequence number used by this command
+ *              indCb      - complex descriptor response call back function
  *
  * @return      Status
  *
@@ -529,10 +529,10 @@ zdo_status_t zb_zdoComplexDescReq(u16 dstNwkAddr, zdo_complex_descriptor_req_t *
 /***********************************************************************//**
  * @brief       Send user descriptor request.
  *
- * @param[in]   dstNwkAddr	- this command will be send to
- * 				pReq        - parameter of user descriptor request
- * 				seqNo		- the sequence number used by this command
- * 				indCb		- user escriptor response call back function
+ * @param[in]   dstNwkAddr - this command will be send to
+ *              pReq       - parameter of user descriptor request
+ *              seqNo      - the sequence number used by this command
+ *              indCb      - user escriptor response call back function
  *
  * @return      Status
  *
@@ -543,8 +543,8 @@ zdo_status_t zb_zdoUserDescReq(u16 dstNwkAddr, zdo_user_descriptor_req_t *pReq, 
  * @brief       Send zdo system server discovery request, broadcasting to 0xfffd
  *
  ** @param[in]  serverMask  - server mask bit assignment
- * 				seqNo		- the sequence number used by this command
- * 				indCb		- system server discovery response call back function
+ *              seqNo       - the sequence number used by this command
+ *              indCb       - system server discovery response call back function
  *
  * @return      Status
  *
@@ -554,10 +554,10 @@ zdo_status_t zb_zdoSystemServerDiscoveryReq(u16 serverMask, u8 *seqNo, zdo_callb
 /***********************************************************************//**
  * @brief       Send bind request, destination address is based on the srcAddr in the request command
  *
- * @param[in]   isBinding	- 1:bind, 0:unbind
- * 				pReq        - parameter of bind/unbind request
- *  			seqNo		- the sequence number used by this command
- * 				indCb		- bind/unbind response call back function
+ * @param[in]   isBinding - 1:bind, 0:unbind
+ *              pReq      - parameter of bind/unbind request
+ *              seqNo     - the sequence number used by this command
+ *              indCb     - bind/unbind response call back function
  *
  * @return      Status
  *
@@ -567,9 +567,9 @@ zdo_status_t zb_zdoBindUnbindReq(bool isBinding, zdo_bind_req_t *pReq, u8 *seqNo
 /***********************************************************************//**
  * @brief       Send end device bind request.
  *
- * @param[in]   pReq        - parameter of end device bind request
- * 				seqNo		- the sequence number used by this command
- * 				indCb		- end device bind response call back function
+ * @param[in]   pReq  - parameter of end device bind request
+ *              seqNo - the sequence number used by this command
+ *              indCb - end device bind response call back function
  *
  * @return      Status
  *
@@ -579,11 +579,11 @@ zdo_status_t zb_zdoEndDeviceBindReq(zdo_edBindReq_t *pReq, u8 *seqNo, zdo_callba
 /***********************************************************************//**
  * @brief       Send the command of mgmt_permitJoin_req.
  *
- * @param[in]   dstNwkAddr            - Short address of the target device
- * @param[in]   permitJoinDuration    - Time in seconds during which the device allows to join
- * @param[in]   tcSignificance        - tc significance
- * @param[in]   seqNo				  - the sequence number used by this command
- * @param[in]   indCb				  - mgmtPermitJoin.confirm callback
+ * @param[in]   dstNwkAddr         - Short address of the target device
+ * @param[in]   permitJoinDuration - Time in seconds during which the device allows to join
+ * @param[in]   tcSignificance     - tc significance
+ * @param[in]   seqNo              - the sequence number used by this command
+ * @param[in]   indCb              - mgmtPermitJoin.confirm callback
  *
  * @return      Status
  *
@@ -593,12 +593,12 @@ zdo_status_t zb_mgmtPermitJoinReq(u16 dstNwkAddr, u8 permitJoinDuration, u8 tcSi
 /***********************************************************************//**
  * @brief	Send the command of mgmt_leave_req.
  *
- * @param[in]	dstNwkAddr:	- target address to receive this cmd
- * @param[in]   pReq        - parameter of mgmt_leave_req
- * @param[in]   seqNo  		- the sequence number used by this command
- * @param[in]   indCb		- the indicate callback for mgmt_leave_rsp
+ * @param[in]	dstNwkAddr - target address to receive this cmd
+ * @param[in]   pReq       - parameter of mgmt_leave_req
+ * @param[in]   seqNo      - the sequence number used by this command
+ * @param[in]   indCb      - the indicate callback for mgmt_leave_rsp
  *
- * @return		Status
+ * @return      Status
  *
  **************************************************************************/
 zdo_status_t zb_mgmtLeaveReq(u16 dstNwkAddr, zdo_mgmt_leave_req_t *pReq, u8 *seqNo, zdo_callback indCb);
@@ -606,9 +606,9 @@ zdo_status_t zb_mgmtLeaveReq(u16 dstNwkAddr, zdo_mgmt_leave_req_t *pReq, u8 *seq
 /***********************************************************************//**
  * @brief       Send the command of mgmt_network_update_req.
  *
- * @param[in]	dstNwkAddr	- destination address of the request
- * @param[in]   pReq        - parameter of mgmt_network_update_req
- * @param[in]   seqNo		- the sequence number used by this command
+ * @param[in]	dstNwkAddr - destination address of the request
+ * @param[in]   pReq       - parameter of mgmt_network_update_req
+ * @param[in]   seqNo      - the sequence number used by this command
  *
  * @return      Status
  *
@@ -618,10 +618,10 @@ zdo_status_t zb_mgmtNwkUpdateReq(u16 dstNwkAddr, zdo_mgmt_nwk_update_req_t *pReq
 /***********************************************************************//**
  * @brief       Send the command of mgmt_lqi_req.
  *
- * @param[in]	dstNwkAddr	- destination address of the request
- * @param[in]   pReq        - parameter of mgmt_lqi_req
- * @param[in]   seqNo	 	- the sequence number used by this command
- * @param[in]   indCb		- the indicate callback for mgmt_lqi_rsp
+ * @param[in]	dstNwkAddr - destination address of the request
+ * @param[in]   pReq       - parameter of mgmt_lqi_req
+ * @param[in]   seqNo      - the sequence number used by this command
+ * @param[in]   indCb      - the indicate callback for mgmt_lqi_rsp
  *
  * @return      Status
  *
@@ -631,10 +631,10 @@ zdo_status_t zb_mgmtLqiReq(u16 dstNwkAddr, zdo_mgmt_lqi_req_t *pReq, u8 *seqNo, 
 /***********************************************************************//**
  * @brief       Send the command mgmt_bind_req.
  *
- * @param[in]	dstNwkAddr	- destination address of the request
- * @param[in]   pReq        - parameter of mgmt_bind_req
- * param[in]    seqNo	 	- the sequence number used by this command
- * @param[in]   indCb		- the indicate callback for mgmt_bind_rsp
+ * @param[in]	dstNwkAddr - destination address of the request
+ * @param[in]   pReq       - parameter of mgmt_bind_req
+ * param[in]    seqNo      - the sequence number used by this command
+ * @param[in]   indCb      - the indicate callback for mgmt_bind_rsp
  *
  * @return      Status
  *
@@ -642,52 +642,52 @@ zdo_status_t zb_mgmtLqiReq(u16 dstNwkAddr, zdo_mgmt_lqi_req_t *pReq, u8 *seqNo, 
 zdo_status_t zb_mgmtBindReq(u16 dstNwkAddr, zdo_mgmt_bind_req_t *pReq, u8 *seqNo, zdo_callback indCb);
 
 /***********************************************************************//**
- * @brief		Remove device request command.
+ * @brief       Remove device request command.
  *
  * @param[in]	pRemoveDevReq
  *
- * @return		Status
+ * @return      Status
  *
  **************************************************************************/
 u8 zb_apsmeRemoveDevReq(ss_apsmeRemoveDeviceReq_t *pRemoveDevReq);
 
 /***********************************************************************//**
- * @brief		APSME request key command.
+ * @brief       APSME request key command.
  *
  * @param[in]	pRequestKeyReq
  *
- * @return		Status
+ * @return      Status
  *
  **************************************************************************/
 u8 zb_apsmeRequestKeyReq(ss_apsmeRequestKeyReq_t *pRequestKeyReq);
 
 /***********************************************************************//**
- * @brief		APSME transport key command.
+ * @brief       APSME transport key command.
  *
  * @param[in]	pTransportKeyReq
  *
- * @return		Status
+ * @return      Status
  *
  **************************************************************************/
 u8 zb_apsmeTransportKeyReq(ss_apsmeTransportKeyReq_t *pTransportKeyReq);
 
 /***********************************************************************//**
- * @brief		APSME switch key command.
+ * @brief       APSME switch key command.
  *
  * @param[in]	pSwitchKeyReq
  *
- * @return		Status
+ * @return      Status
  *
  **************************************************************************/
 u8 zb_apsmeSwitchKeyReq(ss_apsmeSwitchKeyReq_t *pSwitchKeyReq);
 
 /***********************************************************************//**
- * @brief		API for Trust center to update NWK key.
+ * @brief       API for Trust center to update NWK key.
  *
  * @param[in]	pTcUpdateNwkKey
- * 				dstAddr all zero means broadcast.
+ *              dstAddr all zero means broadcast.
  *
- * @return		Status
+ * @return      Status
  *
  **************************************************************************/
 u8 zb_tcUpdateNwkKey(ss_tcUpdateNwkKey_t *pTcUpdateNwkKey);
@@ -726,7 +726,7 @@ void zb_zdoSendParentAnnce(void);
 /***********************************************************************//**
  * @brief       Register MAC layer callback function.
 
- * @param[in]   cb      	- Callback functions
+ * @param[in]   cb  - Callback functions
  *
  * @return      None
  *
@@ -736,7 +736,7 @@ void zb_macCbRegister(mac_appIndCb_t *cb);
 /***********************************************************************//**
  * @brief       Register ZDO layer callback function.
 
- * @param[in]   cb      	- Callback functions
+ * @param[in]   cb  - Callback functions
  *
  * @return      None
  *
@@ -746,13 +746,13 @@ void zb_zdoCbRegister(zdo_appIndCb_t *cb);
 /***********************************************************************//**
  * @brief       Force join a fixed network.
  *
- * @param[in]   channel		- operation channel
- * @param[in]   panId		- the network panID
- * @param[in]   shortAddr	- network address allocated by itself
- * @param[in]   extPanId	- external panID of the network
- * @param[in]   nwkKey		- the network key of the network
- * @param[in]   tcAddr		- the trust center's address of the network, only for central network, normally it's same with extPanId
- *                            NULL for distribute network
+ * @param[in]   channel	  - operation channel
+ * @param[in]   panId	  - the network panID
+ * @param[in]   shortAddr - network address allocated by itself
+ * @param[in]   extPanId  - external panID of the network
+ * @param[in]   nwkKey	  - the network key of the network
+ * @param[in]   tcAddr	  - the trust center's address of the network, only for central network, normally it's same with extPanId
+ *                          NULL for distribute network
  *
  * @return      None
  *
@@ -762,7 +762,7 @@ void zb_joinAFixedNetwork(u8 channel, u16 panId, u16 shortAddr, u8 *extPanId, u8
 /***********************************************************************//**
  * @brief       Extend PAN ID rejoin. Only for the factory new device.
  *
- * @param[in]   extPanId	- extend PAN ID
+ * @param[in]   extPanId - extend PAN ID
  *
  * @return      None
  *
@@ -771,11 +771,11 @@ void zb_extPanIdRejoin(extPANId_t extPanId);
 
 /***********************************************************************//**
  * @brief       Pre-configure network key. Only for the factory new device.
- * 				Called after the bdb_init() function.
+ *              Called after the bdb_init() function.
  *
- * @param[in]	nwkKey      - the pre-configured network key
- * @param[in]	enTransKey	- 0: join network once receiving associate response
- * 							  1: join network follow the standard flow (need process transport key)
+ * @param[in]	nwkKey     - the pre-configured network key
+ * @param[in]	enTransKey - 0: join network once receiving associate response
+ *                           1: join network follow the standard flow (need process transport key)
  *
  * @return      None
  *
@@ -783,9 +783,9 @@ void zb_extPanIdRejoin(extPANId_t extPanId);
 void zb_preConfigNwkKey(u8 *nwkKey, bool enTransKey);
 
 /***********************************************************************//**
- * @brief		Shift to and save the logic channel.
+ * @brief       Shift to and save the logic channel.
  *
- * @param[in]	ch			- 11 ~ 26
+ * @param[in]	ch - 11 ~ 26
  *
  * @return	none
  *

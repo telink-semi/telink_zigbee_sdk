@@ -22,27 +22,26 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #pragma once
 
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || \
-	defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
-typedef enum{
-	GPIO_IRQ_INVALID,
-	GPIO_IRQ_MODE,
-	GPIO_IRQ_RISC0_MODE,
-	GPIO_IRQ_RISC1_MODE,
-}drv_gpioIrqMode_e;
+    defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
+typedef enum {
+    GPIO_IRQ_INVALID,
+    GPIO_IRQ_MODE,
+    GPIO_IRQ_RISC0_MODE,
+    GPIO_IRQ_RISC1_MODE,
+} drv_gpioIrqMode_e;
 #elif defined(MCU_CORE_TL321X)
 typedef gpio_irq_num_e drv_gpioIrqMode_e;
 #endif
 
-typedef enum{
-	RISING_EDGE,
-	FALLING_EDGE,
-	HIGH_LEVEL,	/* Only for b91 platform. */
-	LOW_LEVEL,	/* Only for b91 platform. */
-}drv_gpioPoll_e;
+typedef enum {
+    GPIO_RISING_EDGE,
+    GPIO_FALLING_EDGE,
+    GPIO_HIGH_LEVEL, /* Only for b91 platform. */
+    GPIO_LOW_LEVEL,  /* Only for b91 platform. */
+} drv_gpioPoll_e;
 
 typedef void (*irq_callback)(void);
 
@@ -57,7 +56,7 @@ typedef void (*irq_callback)(void);
 int drv_gpio_irq_config(drv_gpioIrqMode_e mode, u32 pin, drv_gpioPoll_e polarity, irq_callback gpio_irq_callback);
 
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || \
-	defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
+    defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
 void drv_gpio_irq_handler(void);
 #elif defined(MCU_CORE_TL321X)
 void drv_gpio_irq_handler(gpio_irq_num_e irq);

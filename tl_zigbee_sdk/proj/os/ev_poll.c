@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #include "../tl_common.h"
 #include "ev_poll.h"
 
@@ -40,8 +39,8 @@ ev_poll_t ev_poll[EV_POLL_MAX];
  */
 void ev_on_poll(ev_poll_e e, ev_poll_callback_t cb)
 {
-	ev_poll[e].cb = cb;
-	ev_poll[e].valid = 1;
+    ev_poll[e].cb = cb;
+    ev_poll[e].valid = 1;
 }
 
 /**
@@ -53,7 +52,7 @@ void ev_on_poll(ev_poll_e e, ev_poll_callback_t cb)
  */
 void ev_enable_poll(ev_poll_e e)
 {
-	ev_poll[e].valid = 1;
+    ev_poll[e].valid = 1;
 }
 
 /**
@@ -65,7 +64,7 @@ void ev_enable_poll(ev_poll_e e)
  */
 void ev_disable_poll(ev_poll_e e)
 {
-	ev_poll[e].valid = 0;
+    ev_poll[e].valid = 0;
 }
 
 /**
@@ -75,11 +74,11 @@ void ev_disable_poll(ev_poll_e e)
  *
  * @return      None
  */
-void ev_poll_process(void){
-    for(u8 i = 0; i < EV_POLL_MAX; i++){
-        if(ev_poll[i].valid){
+void ev_poll_process(void)
+{
+    for (u8 i = 0; i < EV_POLL_MAX; i++) {
+        if (ev_poll[i].valid) {
         	ev_poll[i].cb();
         }
     }
 }
-

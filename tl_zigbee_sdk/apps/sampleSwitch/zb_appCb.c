@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #if (__PROJECT_TL_SWITCH__)
 
 /**********************************************************************
@@ -58,18 +57,16 @@ void zbdemo_bdbFindBindSuccessCb(findBindDst_t *pDstInfo);
 /**********************************************************************
  * LOCAL VARIABLES
  */
-bdb_appCb_t g_zbDemoBdbCb =
-{
-	zbdemo_bdbInitCb,
-	zbdemo_bdbCommissioningCb,
-	zbdemo_bdbIdentifyCb,
-	zbdemo_bdbFindBindSuccessCb
+bdb_appCb_t g_zbDemoBdbCb = {
+    zbdemo_bdbInitCb,
+    zbdemo_bdbCommissioningCb,
+    zbdemo_bdbIdentifyCb,
+    zbdemo_bdbFindBindSuccessCb
 };
 
 #ifdef ZCL_OTA
-ota_callBack_t sampleSwitch_otaCb =
-{
-	sampleSwitch_otaProcessMsgHandler,
+ota_callBack_t sampleSwitch_otaCb = {
+    sampleSwitch_otaProcessMsgHandler,
 };
 #endif
 
@@ -79,30 +76,33 @@ ev_timer_event_t *switchRejoinBackoffTimerEvt = NULL;
 /**********************************************************************
  * FUNCTIONS
  */
-s32 sampleSwitch_bdbNetworkSteerStart(void *arg){
-	bdb_networkSteerStart();
+s32 sampleSwitch_bdbNetworkSteerStart(void *arg)
+{
+    bdb_networkSteerStart();
 
-	steerTimerEvt = NULL;
-	return -1;
+    steerTimerEvt = NULL;
+    return -1;
 }
 
 #if FIND_AND_BIND_SUPPORT
-s32 sampleSwitch_bdbFindAndBindStart(void *arg){
-	BDB_ATTR_GROUP_ID_SET(0x1234);//only for initiator
-	bdb_findAndBindStart(BDB_COMMISSIONING_ROLE_INITIATOR);
+s32 sampleSwitch_bdbFindAndBindStart(void *arg)
+{
+    BDB_ATTR_GROUP_ID_SET(0x1234);//only for initiator
+    bdb_findAndBindStart(BDB_COMMISSIONING_ROLE_INITIATOR);
 
-	g_switchAppCtx.bdbFBTimerEvt = NULL;
-	return -1;
+    g_switchAppCtx.bdbFBTimerEvt = NULL;
+    return -1;
 }
 #endif
 
-s32 sampleSwitch_rejoinBacckoff(void *arg){
-	if(zb_isDeviceFactoryNew()){
-		switchRejoinBackoffTimerEvt = NULL;
-		return -1;
-	}
+s32 sampleSwitch_rejoinBacckoff(void *arg)
+{
+    if (zb_isDeviceFactoryNew()) {
+        switchRejoinBackoffTimerEvt = NULL;
+        return -1;
+    }
 
-	zb_rejoinReq(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
+    zb_rejoinReq(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
     return 0;
 }
 
@@ -117,47 +117,48 @@ s32 sampleSwitch_rejoinBacckoff(void *arg){
  *
  * @return  None
  */
-void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
-//	printf("bdbInitCb: sta = %x, joined = %x\n", status, joinedNetwork);
+void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork)
+{
+    //printf("bdbInitCb: sta = %x, joined = %x\n", status, joinedNetwork);
 
-	if(status == BDB_INIT_STATUS_SUCCESS){
-		/*
-		 * for non-factory-new device:
-		 * 		load zcl data from NV, start poll rate, start ota query, bdb_networkSteerStart
-		 *
-		 * for factory-new device:
-		 * 		steer a network
-		 *
-		 */
-		if(joinedNetwork){
-			zb_setPollRate(POLL_RATE * 3);
+    if (status == BDB_INIT_STATUS_SUCCESS) {
+        /*
+         * for non-factory-new device:
+         * load zcl data from NV, start poll rate, start ota query, bdb_networkSteerStart
+         *
+         * for factory-new device:
+         * steer a network
+         *
+         */
+        if (joinedNetwork) {
+            zb_setPollRate(POLL_RATE * 3);
 
 #ifdef ZCL_OTA
-			ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
+            ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
 #endif
 
 #ifdef ZCL_POLL_CTRL
-			sampleSwitch_zclCheckInStart();
+            sampleSwitch_zclCheckInStart();
 #endif
-		}else{
-			u16 jitter = 0;
-			do{
-				jitter = zb_random() % 0x0fff;
-			}while(jitter == 0);
+        } else {
+            u16 jitter = 0;
+            do {
+                jitter = zb_random() % 0x0fff;
+            } while(jitter == 0);
 
-			if(steerTimerEvt){
-				TL_ZB_TIMER_CANCEL(&steerTimerEvt);
-			}
-			steerTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSwitch_bdbNetworkSteerStart, NULL, jitter);
-		}
-	}else{
-		if(joinedNetwork){
-//			zb_rejoinReqWithBackOff(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
-			if(!switchRejoinBackoffTimerEvt){
-				switchRejoinBackoffTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSwitch_rejoinBacckoff, NULL, 60 * 1000);
-			}
-		}
-	}
+            if (steerTimerEvt) {
+                TL_ZB_TIMER_CANCEL(&steerTimerEvt);
+            }
+            steerTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSwitch_bdbNetworkSteerStart, NULL, jitter);
+        }
+    } else {
+        if (joinedNetwork) {
+            //zb_rejoinReqWithBackOff(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
+            if (!switchRejoinBackoffTimerEvt) {
+                switchRejoinBackoffTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSwitch_rejoinBacckoff, NULL, 60 * 1000);
+            }
+        }
+    }
 }
 
 /*********************************************************************
@@ -171,88 +172,91 @@ void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork){
  *
  * @return  None
  */
-void zbdemo_bdbCommissioningCb(u8 status, void *arg){
-//	printf("bdbCommCb: sta = %x\n", status);
+void zbdemo_bdbCommissioningCb(u8 status, void *arg)
+{
+    //printf("bdbCommCb: sta = %x\n", status);
 
-	switch(status){
-		case BDB_COMMISSION_STA_SUCCESS:
-			light_blink_start(2, 200, 200);
+    switch (status) {
+    case BDB_COMMISSION_STA_SUCCESS:
+        light_blink_start(2, 200, 200);
 
-			zb_setPollRate(POLL_RATE * 3);
+        zb_setPollRate(POLL_RATE * 3);
 
-			if(steerTimerEvt){
-				TL_ZB_TIMER_CANCEL(&steerTimerEvt);
-			}
+        if (steerTimerEvt) {
+            TL_ZB_TIMER_CANCEL(&steerTimerEvt);
+        }
 
-			if(switchRejoinBackoffTimerEvt){
-				TL_ZB_TIMER_CANCEL(&switchRejoinBackoffTimerEvt);
-			}
-			if(!g_zbNwkCtx.joined){
-				zb_rejoinReq(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
-			}
+        if (switchRejoinBackoffTimerEvt) {
+            TL_ZB_TIMER_CANCEL(&switchRejoinBackoffTimerEvt);
+        }
+
+        if (!g_zbNwkCtx.joined) {
+            zb_rejoinReq(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
+        }
 
 #ifdef ZCL_POLL_CTRL
-			sampleSwitch_zclCheckInStart();
+        sampleSwitch_zclCheckInStart();
 #endif
 #ifdef ZCL_OTA
-			ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
+        ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
 #endif
 #if FIND_AND_BIND_SUPPORT
-			//start Finding & Binding
-			if(!g_switchAppCtx.bdbFBTimerEvt){
-				g_switchAppCtx.bdbFBTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSwitch_bdbFindAndBindStart, NULL, 50);
-			}
+        //start Finding & Binding
+        if (!g_switchAppCtx.bdbFBTimerEvt) {
+            g_switchAppCtx.bdbFBTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSwitch_bdbFindAndBindStart, NULL, 50);
+        }
 #endif
-			break;
-		case BDB_COMMISSION_STA_IN_PROGRESS:
-			break;
-		case BDB_COMMISSION_STA_NOT_AA_CAPABLE:
-			break;
-		case BDB_COMMISSION_STA_NO_NETWORK:
-		case BDB_COMMISSION_STA_TCLK_EX_FAILURE:
-		case BDB_COMMISSION_STA_TARGET_FAILURE:
-			{
-				u16 jitter = 0;
-				do{
-					jitter = zb_random() % 0x0fff;
-				}while(jitter == 0);
+        break;
+    case BDB_COMMISSION_STA_IN_PROGRESS:
+        break;
+    case BDB_COMMISSION_STA_NOT_AA_CAPABLE:
+        break;
+    case BDB_COMMISSION_STA_NO_NETWORK:
+    case BDB_COMMISSION_STA_TCLK_EX_FAILURE:
+    case BDB_COMMISSION_STA_TARGET_FAILURE:
+        {
+            u16 jitter = 0;
+            do {
+                jitter = zb_random() % 0x0fff;
+            } while(jitter == 0);
 
-				if(steerTimerEvt){
-					TL_ZB_TIMER_CANCEL(&steerTimerEvt);
-				}
-				steerTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSwitch_bdbNetworkSteerStart, NULL, jitter);
-			}
-			break;
-		case BDB_COMMISSION_STA_FORMATION_FAILURE:
-			break;
-		case BDB_COMMISSION_STA_NO_IDENTIFY_QUERY_RESPONSE:
-			break;
-		case BDB_COMMISSION_STA_BINDING_TABLE_FULL:
-			break;
-		case BDB_COMMISSION_STA_NO_SCAN_RESPONSE:
-			break;
-		case BDB_COMMISSION_STA_NOT_PERMITTED:
-			break;
-		case BDB_COMMISSION_STA_PARENT_LOST:
-			//zb_rejoinSecModeSet(REJOIN_INSECURITY);
-			zb_rejoinReq(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
-//			zb_rejoinReqWithBackOff(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
-			break;
-		case BDB_COMMISSION_STA_REJOIN_FAILURE:
-			if(!switchRejoinBackoffTimerEvt){
-				switchRejoinBackoffTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSwitch_rejoinBacckoff, NULL, 60 * 1000);
-			}
-			break;
-		default:
-			break;
-	}
+            if (steerTimerEvt) {
+                TL_ZB_TIMER_CANCEL(&steerTimerEvt);
+            }
+            steerTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSwitch_bdbNetworkSteerStart, NULL, jitter);
+        }
+        break;
+    case BDB_COMMISSION_STA_FORMATION_FAILURE:
+        break;
+    case BDB_COMMISSION_STA_NO_IDENTIFY_QUERY_RESPONSE:
+        break;
+    case BDB_COMMISSION_STA_BINDING_TABLE_FULL:
+        break;
+    case BDB_COMMISSION_STA_NO_SCAN_RESPONSE:
+        break;
+    case BDB_COMMISSION_STA_NOT_PERMITTED:
+        break;
+    case BDB_COMMISSION_STA_PARENT_LOST:
+        //zb_rejoinSecModeSet(REJOIN_INSECURITY);
+        zb_rejoinReq(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
+        //zb_rejoinReqWithBackOff(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
+        break;
+    case BDB_COMMISSION_STA_REJOIN_FAILURE:
+        if (!switchRejoinBackoffTimerEvt) {
+            switchRejoinBackoffTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSwitch_rejoinBacckoff, NULL, 60 * 1000);
+        }
+        break;
+    default:
+        break;
+    }
 }
 
-void zbdemo_bdbIdentifyCb(u8 endpoint, u16 srcAddr, u16 identifyTime){
+void zbdemo_bdbIdentifyCb(u8 endpoint, u16 srcAddr, u16 identifyTime)
+{
 #if FIND_AND_BIND_SUPPORT
-	extern void sampleSwitch_zclIdentifyCmdHandler(u8 endpoint, u16 srcAddr, u16 identifyTime);
+    extern void sampleSwitch_zclIdentifyCmdHandler(u8 endpoint, u16 srcAddr, u16 identifyTime);
 
-	sampleSwitch_zclIdentifyCmdHandler(endpoint, srcAddr, identifyTime);
+    sampleSwitch_zclIdentifyCmdHandler(endpoint, srcAddr, identifyTime);
 #endif
 }
 
@@ -265,43 +269,42 @@ void zbdemo_bdbIdentifyCb(u8 endpoint, u16 srcAddr, u16 identifyTime){
  *
  * @return  None
  */
-void zbdemo_bdbFindBindSuccessCb(findBindDst_t *pDstInfo){
+void zbdemo_bdbFindBindSuccessCb(findBindDst_t *pDstInfo)
+{
 #if FIND_AND_BIND_SUPPORT
-	epInfo_t dstEpInfo;
-	TL_SETSTRUCTCONTENT(dstEpInfo, 0);
+    epInfo_t dstEpInfo;
+    TL_SETSTRUCTCONTENT(dstEpInfo, 0);
 
-	dstEpInfo.dstAddrMode = APS_SHORT_DSTADDR_WITHEP;
-	dstEpInfo.dstAddr.shortAddr = pDstInfo->addr;
-	dstEpInfo.dstEp = pDstInfo->endpoint;
-	dstEpInfo.profileId = HA_PROFILE_ID;
+    dstEpInfo.dstAddrMode = APS_SHORT_DSTADDR_WITHEP;
+    dstEpInfo.dstAddr.shortAddr = pDstInfo->addr;
+    dstEpInfo.dstEp = pDstInfo->endpoint;
+    dstEpInfo.profileId = HA_PROFILE_ID;
 
-	zcl_identify_identifyCmd(SAMPLE_SWITCH_ENDPOINT, &dstEpInfo, FALSE, 0, 0);
+    zcl_identify_identifyCmd(SAMPLE_SWITCH_ENDPOINT, &dstEpInfo, FALSE, 0, 0);
 #endif
 }
-
-
 
 #ifdef ZCL_OTA
 void sampleSwitch_otaProcessMsgHandler(u8 evt, u8 status)
 {
-	//printf("sampleSwitch_otaProcessMsgHandler: status = %x\n", status);
-	if(evt == OTA_EVT_START){
-		if(status == ZCL_STA_SUCCESS){
-			zb_setPollRate(QUEUE_POLL_RATE);
-		}else{
+    //printf("sampleSwitch_otaProcessMsgHandler: status = %x\n", status);
+    if (evt == OTA_EVT_START) {
+        if (status == ZCL_STA_SUCCESS) {
+            zb_setPollRate(QUEUE_POLL_RATE);
+        } else {
 
-		}
-	}else if(evt == OTA_EVT_COMPLETE){
-		zb_setPollRate(POLL_RATE * 3);
+        }
+    } else if (evt == OTA_EVT_COMPLETE) {
+        zb_setPollRate(POLL_RATE * 3);
 
-		if(status == ZCL_STA_SUCCESS){
-			ota_mcuReboot();
-		}else{
-			ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
-		}
-	}else if(evt == OTA_EVT_IMAGE_DONE){
-		zb_setPollRate(POLL_RATE * 3);
-	}
+        if (status == ZCL_STA_SUCCESS) {
+            ota_mcuReboot();
+        } else {
+            ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
+        }
+    } else if (evt == OTA_EVT_IMAGE_DONE) {
+        zb_setPollRate(POLL_RATE * 3);
+    }
 }
 #endif
 
@@ -319,9 +322,9 @@ void sampleSwitch_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf)
     if(pLeaveCnf->status == SUCCESS){
     	//SYSTEM_RESET();
 
-		if(switchRejoinBackoffTimerEvt){
-			TL_ZB_TIMER_CANCEL(&switchRejoinBackoffTimerEvt);
-		}
+        if (switchRejoinBackoffTimerEvt) {
+            TL_ZB_TIMER_CANCEL(&switchRejoinBackoffTimerEvt);
+        }
     }
 }
 
@@ -339,6 +342,5 @@ void sampleSwitch_leaveIndHandler(nlme_leave_ind_t *pLeaveInd)
     //printf("sampleSwitch_leaveIndHandler, rejoin = %d\n", pLeaveInd->rejoin);
     //printfArray(pLeaveInd->device_address, 8);
 }
-
 
 #endif  /* __PROJECT_TL_SWITCH__ */

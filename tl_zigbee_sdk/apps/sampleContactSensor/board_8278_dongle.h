@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #pragma once
 
 /* Enable C linkage for C++ Compilers: */
@@ -31,41 +30,41 @@ extern "C" {
 #endif
 
 //KEY
-#define	BUTTON1 					GPIO_PD6
-#define PD6_FUNC					AS_GPIO
-#define PD6_OUTPUT_ENABLE			0
-#define PD6_INPUT_ENABLE			1
-#define	PULL_WAKEUP_SRC_PD6			PM_PIN_PULLUP_10K
+#define	BUTTON1                 GPIO_PD6
+#define PD6_FUNC                AS_GPIO
+#define PD6_OUTPUT_ENABLE       0
+#define PD6_INPUT_ENABLE        1
+#define	PULL_WAKEUP_SRC_PD6     PM_PIN_PULLUP_10K
 
-#define	BUTTON2 					GPIO_PD5
-#define PD5_FUNC					AS_GPIO
-#define PD5_OUTPUT_ENABLE			0
-#define PD5_INPUT_ENABLE			1
-#define	PULL_WAKEUP_SRC_PD5			PM_PIN_PULLUP_10K
+#define	BUTTON2                 GPIO_PD5
+#define PD5_FUNC                AS_GPIO
+#define PD5_OUTPUT_ENABLE       0
+#define PD5_INPUT_ENABLE        1
+#define	PULL_WAKEUP_SRC_PD5     PM_PIN_PULLUP_10K
 
 //LED
-#define LED1						GPIO_PA2
-#define PA2_FUNC					AS_GPIO
-#define PA2_OUTPUT_ENABLE			1
-#define PA2_INPUT_ENABLE			0
+#define LED1                    GPIO_PA2
+#define PA2_FUNC                AS_GPIO
+#define PA2_OUTPUT_ENABLE       1
+#define PA2_INPUT_ENABLE        0
 
-#define LED3						GPIO_PA3
-#define PA3_FUNC					AS_GPIO
-#define PA3_OUTPUT_ENABLE			1
-#define PA3_INPUT_ENABLE			0
+#define LED3                    GPIO_PA3
+#define PA3_FUNC                AS_GPIO
+#define PA3_OUTPUT_ENABLE       1
+#define PA3_INPUT_ENABLE        0
 
-#define LED4						GPIO_PA4
-#define PA4_FUNC					AS_GPIO
-#define PA4_OUTPUT_ENABLE			1
-#define PA4_INPUT_ENABLE			0
+#define LED4                    GPIO_PA4
+#define PA4_FUNC                AS_GPIO
+#define PA4_OUTPUT_ENABLE       1
+#define PA4_INPUT_ENABLE        0
 
-#define LED_POWER					LED3
+#define LED_POWER               LED3
 
-#define	PM_WAKEUP_LEVEL		  		PM_WAKEUP_LEVEL_LOW
+#define	PM_WAKEUP_LEVEL         PM_WAKEUP_LEVEL_LOW
 
 // ADC
 #if VOLTAGE_DETECT_ENABLE
-#define VOLTAGE_DETECT_ADC_PIN		GPIO_PC5
+#define VOLTAGE_DETECT_ADC_PIN  GPIO_PC5
 #endif
 
 // UART
@@ -75,24 +74,25 @@ extern "C" {
 
 // DEBUG
 #if UART_PRINTF_MODE
-#define	DEBUG_INFO_TX_PIN	    	GPIO_PC6//print
+#define	DEBUG_INFO_TX_PIN       GPIO_PC6//print
 #endif
 
 
-enum{
-	VK_SW1 = 0x01,
-	VK_SW2 = 0x02
+enum {
+    VK_SW1 = 0x01,
+    VK_SW2 = 0x02
 };
 
-#define	KB_MAP_NORMAL	{\
-		{VK_SW1,}, \
-		{VK_SW2,}, }
+#define	KB_MAP_NORMAL           { \
+                                    {VK_SW1,}, \
+                                    {VK_SW2,}, \
+                                }
 
-#define	KB_MAP_NUM		KB_MAP_NORMAL
-#define	KB_MAP_FN		KB_MAP_NORMAL
+#define	KB_MAP_NUM              KB_MAP_NORMAL
+#define	KB_MAP_FN               KB_MAP_NORMAL
 
-#define KB_DRIVE_PINS	{0}
-#define KB_SCAN_PINS	{BUTTON1, BUTTON2}
+#define KB_DRIVE_PINS           {0}
+#define KB_SCAN_PINS            {BUTTON1, BUTTON2}
 
 
 /* Disable C linkage for C++ Compilers: */

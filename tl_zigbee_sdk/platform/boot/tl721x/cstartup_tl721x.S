@@ -330,6 +330,7 @@ _IRESET_ENTRY:
     j       _ISTART
 
     .org 0x22
+
 _ISTART:
 #if 0
     // add debug, PB4 output 1
@@ -338,7 +339,7 @@ _ISTART:
     li      t1, 0xef
     li      t2, 0x10
     sb      t1, 0x482(t0)       //0x80140c12  PB oen     =  0xef
-    sb      t2, 0x48c(t0)       //0x80140c1c  PB output  =  0x10
+    sb      t2, 0x48c(t0)       //0x80140c1c  PB set     =  0x10
 #endif
 
     /* timer rst enable. */

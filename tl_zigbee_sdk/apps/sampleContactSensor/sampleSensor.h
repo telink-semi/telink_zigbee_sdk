@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #ifndef _SAMPLE_CONTACT_SENSOR_H_
 #define _SAMPLE_CONTACT_SENSOR_H_
 
@@ -35,72 +34,72 @@
 /**********************************************************************
  * TYPEDEFS
  */
-typedef struct{
-	u8 keyType; /* ERTIFICATION_KEY or MASTER_KEY key for touch-link or distribute network
+typedef struct {
+    u8 keyType; /* ERTIFICATION_KEY or MASTER_KEY key for touch-link or distribute network
 	 	 	 	 SS_UNIQUE_LINK_KEY or SS_GLOBAL_LINK_KEY for distribute network */
-	u8 key[16];	/* the key used */
-}app_linkKey_info_t;
+    u8 key[16];	/* the key used */
+} app_linkKey_info_t;
 
-typedef struct{
-	ev_timer_event_t *timerLedEvt;
-	u32 keyPressedTime;
+typedef struct {
+    ev_timer_event_t *timerLedEvt;
+    u32 keyPressedTime;
 
-	u16 ledOnTime;
-	u16 ledOffTime;
-	u8 	oriSta;		//original state before blink
-	u8 	sta;		//current state in blink
-	u8 	times;		//blink times
-	u8  state;
+    u16 ledOnTime;
+    u16 ledOffTime;
+    u8 	oriSta;		//original state before blink
+    u8 	sta;		//current state in blink
+    u8 	times;		//blink times
+    u8  state;
 
-	u8  keyPressed;
+    u8  keyPressed;
 
-	app_linkKey_info_t tcLinkKey;
-}app_ctx_t;
+    app_linkKey_info_t tcLinkKey;
+} app_ctx_t;
 
 /**
  *  @brief Defined for basic cluster attributes
  */
-typedef struct{
-	u8 	zclVersion;
-	u8	appVersion;
-	u8	stackVersion;
-	u8	hwVersion;
-	u8	manuName[ZCL_BASIC_MAX_LENGTH];
-	u8	modelId[ZCL_BASIC_MAX_LENGTH];
-	u8	powerSource;
-	u8	deviceEnable;
-}zcl_basicAttr_t;
+typedef struct {
+    u8 zclVersion;
+    u8 appVersion;
+    u8 stackVersion;
+    u8 hwVersion;
+    u8 manuName[ZCL_BASIC_MAX_LENGTH];
+    u8 modelId[ZCL_BASIC_MAX_LENGTH];
+    u8 powerSource;
+    u8 deviceEnable;
+} zcl_basicAttr_t;
 
 /**
  *  @brief Defined for identify cluster attributes
  */
-typedef struct{
-	u16	identifyTime;
-}zcl_identifyAttr_t;
+typedef struct {
+    u16	identifyTime;
+} zcl_identifyAttr_t;
 
 /**
  *  @brief Defined for ias zone cluster attributes
  */
 typedef struct {
-	u8  zoneState;
-	u16 zoneType;
-	u16 zoneStatus;
-	extAddr_t  iasCieAddr;
-	u8  zoneId;
-}zcl_iasZoneAttr_t;
+    u8  zoneState;
+    u16 zoneType;
+    u16 zoneStatus;
+    extAddr_t iasCieAddr;
+    u8  zoneId;
+} zcl_iasZoneAttr_t;
 
 /**
  *  @brief  Defined for poll control cluster attributes
  */
-typedef struct{
-	u32	chkInInterval;
-	u32	longPollInterval;
-	u32	chkInIntervalMin;
-	u32	longPollIntervalMin;
-	u16	shortPollInterval;
-	u16	fastPollTimeout;
-	u16	fastPollTimeoutMax;
-}zcl_pollCtrlAttr_t;
+typedef struct {
+    u32	chkInInterval;
+    u32	longPollInterval;
+    u32	chkInIntervalMin;
+    u32	longPollIntervalMin;
+    u16	shortPollInterval;
+    u16	fastPollTimeout;
+    u16	fastPollTimeoutMax;
+} zcl_pollCtrlAttr_t;
 
 /**********************************************************************
  * GLOBAL VARIABLES
@@ -121,8 +120,8 @@ extern zcl_identifyAttr_t g_zcl_identifyAttrs;
 extern zcl_iasZoneAttr_t g_zcl_iasZoneAttrs;
 extern zcl_pollCtrlAttr_t g_zcl_pollCtrlAttrs;
 
-#define zcl_iasZoneAttrGet()	&g_zcl_iasZoneAttrs
-#define zcl_pollCtrlAttrGet()	&g_zcl_pollCtrlAttrs
+#define zcl_iasZoneAttrGet()    &g_zcl_iasZoneAttrs
+#define zcl_pollCtrlAttrGet()   &g_zcl_pollCtrlAttrs
 
 /**********************************************************************
  * FUNCTIONS
@@ -138,6 +137,5 @@ void sampleSensor_zclCheckInStart(void);
 void sampleSensor_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf);
 void sampleSensor_leaveIndHandler(nlme_leave_ind_t *pLeaveInd);
 void sampleSensor_otaProcessMsgHandler(u8 evt, u8 status);
-
 
 #endif /* _SAMPLE_CONTACT_SENSOR_H_ */

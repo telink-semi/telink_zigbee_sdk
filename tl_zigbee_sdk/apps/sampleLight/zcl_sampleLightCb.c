@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #if (__PROJECT_TL_DIMMABLE_LIGHT__)
 
 /**********************************************************************
@@ -93,41 +92,40 @@ void sampleLight_zclIdentifyCmdHandler(u8 endpoint, u16 srcAddr, u16 identifyTim
  */
 void sampleLight_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg)
 {
-//	printf("sampleLight_zclProcessIncomingMsg\n");
+    //printf("sampleLight_zclProcessIncomingMsg\n");
 
-	switch(pInHdlrMsg->hdr.cmd)
-	{
+    switch (pInHdlrMsg->hdr.cmd) {
 #ifdef ZCL_READ
-		case ZCL_CMD_READ_RSP:
-			sampleLight_zclReadRspCmd(pInHdlrMsg->attrCmd);
-			break;
+    case ZCL_CMD_READ_RSP:
+        sampleLight_zclReadRspCmd(pInHdlrMsg->attrCmd);
+        break;
 #endif
 #ifdef ZCL_WRITE
-		case ZCL_CMD_WRITE:
-		case ZCL_CMD_WRITE_NO_RSP:
-			sampleLight_zclWriteReqCmd(pInHdlrMsg->msg->indInfo.cluster_id, pInHdlrMsg->attrCmd);
-			break;
-		case ZCL_CMD_WRITE_RSP:
-			sampleLight_zclWriteRspCmd(pInHdlrMsg->attrCmd);
-			break;
+    case ZCL_CMD_WRITE:
+    case ZCL_CMD_WRITE_NO_RSP:
+        sampleLight_zclWriteReqCmd(pInHdlrMsg->msg->indInfo.cluster_id, pInHdlrMsg->attrCmd);
+        break;
+    case ZCL_CMD_WRITE_RSP:
+        sampleLight_zclWriteRspCmd(pInHdlrMsg->attrCmd);
+        break;
 #endif
 #ifdef ZCL_REPORT
-		case ZCL_CMD_CONFIG_REPORT:
-			sampleLight_zclCfgReportCmd(pInHdlrMsg->attrCmd);
-			break;
-		case ZCL_CMD_CONFIG_REPORT_RSP:
-			sampleLight_zclCfgReportRspCmd(pInHdlrMsg->attrCmd);
-			break;
-		case ZCL_CMD_REPORT:
-			sampleLight_zclReportCmd(pInHdlrMsg->attrCmd);
-			break;
+    case ZCL_CMD_CONFIG_REPORT:
+        sampleLight_zclCfgReportCmd(pInHdlrMsg->attrCmd);
+        break;
+    case ZCL_CMD_CONFIG_REPORT_RSP:
+        sampleLight_zclCfgReportRspCmd(pInHdlrMsg->attrCmd);
+        break;
+    case ZCL_CMD_REPORT:
+        sampleLight_zclReportCmd(pInHdlrMsg->attrCmd);
+        break;
 #endif
-		case ZCL_CMD_DEFAULT_RSP:
-			sampleLight_zclDfltRspCmd(pInHdlrMsg->attrCmd);
-			break;
-		default:
-			break;
-	}
+    case ZCL_CMD_DEFAULT_RSP:
+        sampleLight_zclDfltRspCmd(pInHdlrMsg->attrCmd);
+        break;
+    default:
+        break;
+    }
 }
 
 #ifdef ZCL_READ
@@ -142,8 +140,7 @@ void sampleLight_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg)
  */
 static void sampleLight_zclReadRspCmd(zclReadRspCmd_t *pReadRspCmd)
 {
-//    printf("sampleLight_zclReadRspCmd\n");
-
+    //printf("sampleLight_zclReadRspCmd\n");
 }
 #endif
 
@@ -159,34 +156,34 @@ static void sampleLight_zclReadRspCmd(zclReadRspCmd_t *pReadRspCmd)
  */
 static void sampleLight_zclWriteReqCmd(u16 clusterId, zclWriteCmd_t *pWriteReqCmd)
 {
-	u8 numAttr = pWriteReqCmd->numAttr;
-	zclWriteRec_t *attr = pWriteReqCmd->attrList;
+    u8 numAttr = pWriteReqCmd->numAttr;
+    zclWriteRec_t *attr = pWriteReqCmd->attrList;
 
-	if(clusterId == ZCL_CLUSTER_GEN_ON_OFF){
-		for(u8 i = 0; i < numAttr; i++){
-			if(attr[i].attrID == ZCL_ATTRID_START_UP_ONOFF){
-				zcl_onOffAttr_save();
-			}
-		}
-	}else if(clusterId == ZCL_CLUSTER_GEN_LEVEL_CONTROL){
-		for(u8 i = 0; i < numAttr; i++){
-			if(attr[i].attrID == ZCL_ATTRID_LEVEL_START_UP_CURRENT_LEVEL){
-				zcl_levelAttr_save();
-			}
-		}
-	}else if(clusterId == ZCL_CLUSTER_LIGHTING_COLOR_CONTROL){
-		for(u8 i = 0; i < numAttr; i++){
-			if(attr[i].attrID == ZCL_ATTRID_START_UP_COLOR_TEMPERATURE_MIREDS){
-				zcl_colorCtrlAttr_save();
-			}
-		}
-	}else if(clusterId == ZCL_CLUSTER_GEN_IDENTIFY){
-		for(u8 i = 0; i < numAttr; i++){
-			if(attr[i].attrID == ZCL_ATTRID_IDENTIFY_TIME){
-				sampleLight_zclIdentifyCmdHandler(SAMPLE_LIGHT_ENDPOINT, 0xFFFE, g_zcl_identifyAttrs.identifyTime);
-			}
-		}
-	}
+    if (clusterId == ZCL_CLUSTER_GEN_ON_OFF) {
+        for (u8 i = 0; i < numAttr; i++) {
+            if (attr[i].attrID == ZCL_ATTRID_START_UP_ONOFF) {
+                zcl_onOffAttr_save();
+            }
+        }
+    } else if (clusterId == ZCL_CLUSTER_GEN_LEVEL_CONTROL) {
+        for (u8 i = 0; i < numAttr; i++) {
+            if (attr[i].attrID == ZCL_ATTRID_LEVEL_START_UP_CURRENT_LEVEL) {
+                zcl_levelAttr_save();
+            }
+        }
+    } else if (clusterId == ZCL_CLUSTER_LIGHTING_COLOR_CONTROL) {
+        for (u8 i = 0; i < numAttr; i++) {
+            if (attr[i].attrID == ZCL_ATTRID_START_UP_COLOR_TEMPERATURE_MIREDS) {
+                zcl_colorCtrlAttr_save();
+            }
+        }
+    } else if (clusterId == ZCL_CLUSTER_GEN_IDENTIFY) {
+        for (u8 i = 0; i < numAttr; i++) {
+            if (attr[i].attrID == ZCL_ATTRID_IDENTIFY_TIME) {
+                sampleLight_zclIdentifyCmdHandler(SAMPLE_LIGHT_ENDPOINT, 0xFFFE, g_zcl_identifyAttrs.identifyTime);
+            }
+        }
+    }
 }
 
 /*********************************************************************
@@ -200,8 +197,7 @@ static void sampleLight_zclWriteReqCmd(u16 clusterId, zclWriteCmd_t *pWriteReqCm
  */
 static void sampleLight_zclWriteRspCmd(zclWriteRspCmd_t *pWriteRspCmd)
 {
-//    printf("sampleLight_zclWriteRspCmd\n");
-
+    //printf("sampleLight_zclWriteRspCmd\n");
 }
 #endif
 
@@ -217,14 +213,14 @@ static void sampleLight_zclWriteRspCmd(zclWriteRspCmd_t *pWriteRspCmd)
  */
 static void sampleLight_zclDfltRspCmd(zclDefaultRspCmd_t *pDftRspCmd)
 {
-//  printf("sampleLight_zclDfltRspCmd\n");
+    //printf("sampleLight_zclDfltRspCmd\n");
 #ifdef ZCL_OTA
-	if( (pDftRspCmd->commandID == ZCL_CMD_OTA_UPGRADE_END_REQ) &&
-		(pDftRspCmd->statusCode == ZCL_STA_ABORT) ){
-		if(zcl_attr_imageUpgradeStatus == IMAGE_UPGRADE_STATUS_DOWNLOAD_COMPLETE){
-			ota_upgradeAbort();
-		}
-	}
+    if ((pDftRspCmd->commandID == ZCL_CMD_OTA_UPGRADE_END_REQ) &&
+        (pDftRspCmd->statusCode == ZCL_STA_ABORT)) {
+        if (zcl_attr_imageUpgradeStatus == IMAGE_UPGRADE_STATUS_DOWNLOAD_COMPLETE) {
+            ota_upgradeAbort();
+        }
+    }
 #endif
 }
 
@@ -240,8 +236,7 @@ static void sampleLight_zclDfltRspCmd(zclDefaultRspCmd_t *pDftRspCmd)
  */
 static void sampleLight_zclCfgReportCmd(zclCfgReportCmd_t *pCfgReportCmd)
 {
-//    printf("sampleLight_zclCfgReportCmd\n");
-
+    //printf("sampleLight_zclCfgReportCmd\n");
 }
 
 /*********************************************************************
@@ -255,8 +250,7 @@ static void sampleLight_zclCfgReportCmd(zclCfgReportCmd_t *pCfgReportCmd)
  */
 static void sampleLight_zclCfgReportRspCmd(zclCfgReportRspCmd_t *pCfgReportRspCmd)
 {
-//    printf("sampleLight_zclCfgReportRspCmd\n");
-
+    //printf("sampleLight_zclCfgReportRspCmd\n");
 }
 
 /*********************************************************************
@@ -270,8 +264,7 @@ static void sampleLight_zclCfgReportRspCmd(zclCfgReportRspCmd_t *pCfgReportRspCm
  */
 static void sampleLight_zclReportCmd(zclReportCmd_t *pReportCmd)
 {
-//    printf("sampleLight_zclReportCmd\n");
-
+    //printf("sampleLight_zclReportCmd\n");
 }
 #endif
 
@@ -289,34 +282,34 @@ static void sampleLight_zclReportCmd(zclReportCmd_t *pReportCmd)
  */
 status_t sampleLight_basicCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
 {
-	if(cmdId == ZCL_CMD_BASIC_RESET_FAC_DEFAULT){
-		//Reset all the attributes of all its clusters to factory defaults
-		//zcl_nv_attr_reset();
-	}
+    if (cmdId == ZCL_CMD_BASIC_RESET_FAC_DEFAULT) {
+        //Reset all the attributes of all its clusters to factory defaults
+        //zcl_nv_attr_reset();
+    }
 
-	//return ZCL_STA_SUCCESS;
-	return ZCL_STA_UNSUP_CLUSTER_COMMAND;
+    //return ZCL_STA_SUCCESS;
+    return ZCL_STA_UNSUP_CLUSTER_COMMAND;
 }
 #endif
 
 #ifdef ZCL_IDENTIFY
 s32 sampleLight_zclIdentifyTimerCb(void *arg)
 {
-	if(g_zcl_identifyAttrs.identifyTime <= 0){
-		light_blink_stop();
+    if (g_zcl_identifyAttrs.identifyTime <= 0) {
+        light_blink_stop();
 
-		identifyTimerEvt = NULL;
-		return -1;
-	}
-	g_zcl_identifyAttrs.identifyTime--;
-	return 0;
+        identifyTimerEvt = NULL;
+        return -1;
+    }
+    g_zcl_identifyAttrs.identifyTime--;
+    return 0;
 }
 
 void sampleLight_zclIdentifyTimerStop(void)
 {
-	if(identifyTimerEvt){
-		TL_ZB_TIMER_CANCEL(&identifyTimerEvt);
-	}
+    if (identifyTimerEvt) {
+        TL_ZB_TIMER_CANCEL(&identifyTimerEvt);
+    }
 }
 
 /*********************************************************************
@@ -332,17 +325,17 @@ void sampleLight_zclIdentifyTimerStop(void)
  */
 void sampleLight_zclIdentifyCmdHandler(u8 endpoint, u16 srcAddr, u16 identifyTime)
 {
-	g_zcl_identifyAttrs.identifyTime = identifyTime;
+    g_zcl_identifyAttrs.identifyTime = identifyTime;
 
-	if(identifyTime == 0){
-		sampleLight_zclIdentifyTimerStop();
-		light_blink_stop();
-	}else{
-		if(!identifyTimerEvt){
-			light_blink_start(identifyTime, 500, 500);
-			identifyTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_zclIdentifyTimerCb, NULL, 1000);
-		}
-	}
+    if (identifyTime == 0) {
+        sampleLight_zclIdentifyTimerStop();
+        light_blink_stop();
+    } else {
+        if (!identifyTimerEvt) {
+            light_blink_start(identifyTime, 500, 500);
+            identifyTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_zclIdentifyTimerCb, NULL, 1000);
+        }
+    }
 }
 
 /*********************************************************************
@@ -356,31 +349,31 @@ void sampleLight_zclIdentifyCmdHandler(u8 endpoint, u16 srcAddr, u16 identifyTim
  */
 static void sampleLight_zcltriggerCmdHandler(zcl_triggerEffect_t *pTriggerEffect)
 {
-	u8 effectId = pTriggerEffect->effectId;
-//	u8 effectVariant = pTriggerEffect->effectVariant;
+    u8 effectId = pTriggerEffect->effectId;
+    //u8 effectVariant = pTriggerEffect->effectVariant;
 
-	switch(effectId){
-		case IDENTIFY_EFFECT_BLINK:
-			light_blink_start(1, 500, 500);
-			break;
-		case IDENTIFY_EFFECT_BREATHE:
-			light_blink_start(15, 300, 700);
-			break;
-		case IDENTIFY_EFFECT_OKAY:
-			light_blink_start(2, 250, 250);
-			break;
-		case IDENTIFY_EFFECT_CHANNEL_CHANGE:
-			light_blink_start(1, 500, 7500);
-			break;
-		case IDENTIFY_EFFECT_FINISH_EFFECT:
-			light_blink_start(1, 300, 700);
-			break;
-		case IDENTIFY_EFFECT_STOP_EFFECT:
-			light_blink_stop();
-			break;
-		default:
-			break;
-	}
+    switch (effectId) {
+    case IDENTIFY_EFFECT_BLINK:
+        light_blink_start(1, 500, 500);
+        break;
+    case IDENTIFY_EFFECT_BREATHE:
+        light_blink_start(15, 300, 700);
+        break;
+    case IDENTIFY_EFFECT_OKAY:
+        light_blink_start(2, 250, 250);
+        break;
+    case IDENTIFY_EFFECT_CHANNEL_CHANGE:
+        light_blink_start(1, 500, 7500);
+        break;
+    case IDENTIFY_EFFECT_FINISH_EFFECT:
+        light_blink_start(1, 300, 700);
+        break;
+    case IDENTIFY_EFFECT_STOP_EFFECT:
+        light_blink_stop();
+        break;
+    default:
+        break;
+    }
 }
 
 /*********************************************************************
@@ -396,25 +389,23 @@ static void sampleLight_zcltriggerCmdHandler(zcl_triggerEffect_t *pTriggerEffect
  */
 status_t sampleLight_identifyCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
 {
-	if(pAddrInfo->dstEp == SAMPLE_LIGHT_ENDPOINT){
-		if(pAddrInfo->dirCluster == ZCL_FRAME_CLIENT_SERVER_DIR){
-			switch(cmdId){
-				case ZCL_CMD_IDENTIFY:
-					sampleLight_zclIdentifyCmdHandler(pAddrInfo->dstEp, pAddrInfo->srcAddr, ((zcl_identifyCmd_t *)cmdPayload)->identifyTime);
-					break;
-				case ZCL_CMD_TRIGGER_EFFECT:
-					sampleLight_zcltriggerCmdHandler((zcl_triggerEffect_t *)cmdPayload);
-					break;
-				default:
-					break;
-			}
-		}
-	}
+    if (pAddrInfo->dstEp == SAMPLE_LIGHT_ENDPOINT) {
+        if (pAddrInfo->dirCluster == ZCL_FRAME_CLIENT_SERVER_DIR) {
+            switch (cmdId) {
+            case ZCL_CMD_IDENTIFY:
+                sampleLight_zclIdentifyCmdHandler(pAddrInfo->dstEp, pAddrInfo->srcAddr, ((zcl_identifyCmd_t *)cmdPayload)->identifyTime);
+                break;
+            case ZCL_CMD_TRIGGER_EFFECT:
+                sampleLight_zcltriggerCmdHandler((zcl_triggerEffect_t *)cmdPayload);
+                break;
+            default:
+                break;
+            }
+        }
+    }
 
-	return ZCL_STA_SUCCESS;
+    return ZCL_STA_SUCCESS;
 }
 #endif
 
 #endif  /* __PROJECT_TL_DIMMABLE_LIGHT__ */
-
-

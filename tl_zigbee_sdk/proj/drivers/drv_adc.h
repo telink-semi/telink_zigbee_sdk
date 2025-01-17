@@ -22,14 +22,13 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #pragma once
 
 
-typedef enum{
-	DRV_ADC_BASE_MODE,
-	DRV_ADC_VBAT_MODE,
-}drv_adc_mode_e;
+typedef enum {
+    DRV_ADC_BASE_MODE,
+    DRV_ADC_VBAT_MODE,
+} drv_adc_mode_e;
 
 /****
 * brief: ADC initiate function

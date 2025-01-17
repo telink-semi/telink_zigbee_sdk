@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #if (__PROJECT_TL_DIMMABLE_LIGHT__)
 
 /**********************************************************************
@@ -34,6 +33,8 @@
 #include "sampleLight.h"
 #include "app_ui.h"
 #include "gp.h"
+
+
 /**********************************************************************
  * LOCAL CONSTANTS
  */
@@ -52,99 +53,108 @@
 /**********************************************************************
  * LOCAL FUNCTIONS
  */
-void led_on(u32 pin){
-	drv_gpio_write(pin, LED_ON);
+void led_on(u32 pin)
+{
+    drv_gpio_write(pin, LED_ON);
 }
 
-void led_off(u32 pin){
-	drv_gpio_write(pin, LED_OFF);
+void led_off(u32 pin)
+{
+    drv_gpio_write(pin, LED_OFF);
 }
 
-void led_init(void){
-	led_off(LED_POWER);
-	led_off(LED_PERMIT);
+void led_init(void)
+{
+    led_off(LED_POWER);
+    led_off(LED_PERMIT);
 }
 
-void localPermitJoinState(void){
-	static bool assocPermit = 0;
-	if(assocPermit != zb_getMacAssocPermit()){
-		assocPermit = zb_getMacAssocPermit();
-		if(assocPermit){
-			led_on(LED_PERMIT);
-		}else{
-			led_off(LED_PERMIT);
-		}
-	}
+void localPermitJoinState(void)
+{
+    static bool assocPermit = 0;
+    if (assocPermit != zb_getMacAssocPermit()) {
+        assocPermit = zb_getMacAssocPermit();
+        if (assocPermit) {
+            led_on(LED_PERMIT);
+        } else {
+            led_off(LED_PERMIT);
+        }
+    }
 }
 
-void buttonKeepPressed(u8 btNum){
-	if(btNum == VK_SW1){
-		gLightCtx.state = APP_FACTORY_NEW_DOING;
-		zb_factoryReset();
-	}else if(btNum == VK_SW2){
+void buttonKeepPressed(u8 btNum)
+{
+    if (btNum == VK_SW1) {
+        gLightCtx.state = APP_FACTORY_NEW_DOING;
+        zb_factoryReset();
+    } else if (btNum == VK_SW2) {
 
-	}
+    }
 }
 
-void buttonShortPressed(u8 btNum){
-	if(btNum == VK_SW1){
-		if(zb_isDeviceJoinedNwk()){
-			gLightCtx.sta = !gLightCtx.sta;
-			if(gLightCtx.sta){
-				sampleLight_onOffUpdate(ZCL_ONOFF_STATUS_ON);
-			}else{
-				sampleLight_onOffUpdate(ZCL_ONOFF_STATUS_OFF);
-			}
-		}
-	}else if(btNum == VK_SW2){
-		/* toggle local permit Joining */
-		u8 duration = zb_getMacAssocPermit() ? 0 : 180;
-		zb_nlmePermitJoiningRequest(duration);
+void buttonShortPressed(u8 btNum)
+{
+    if (btNum == VK_SW1) {
+        if (zb_isDeviceJoinedNwk()) {
+            gLightCtx.sta = !gLightCtx.sta;
+            if (gLightCtx.sta) {
+                sampleLight_onOffUpdate(ZCL_ONOFF_STATUS_ON);
+            } else {
+                sampleLight_onOffUpdate(ZCL_ONOFF_STATUS_OFF);
+            }
+        }
+    } else if (btNum == VK_SW2) {
+        /* toggle local permit Joining */
+        u8 duration = zb_getMacAssocPermit() ? 0 : 180;
+        zb_nlmePermitJoiningRequest(duration);
 
-		gpsCommissionModeInvork();
-	}
+        gpsCommissionModeInvork();
+    }
 }
 
-void keyScan_keyPressedCB(kb_data_t *kbEvt){
-//	u8 toNormal = 0;
-	u8 keyCode = kbEvt->keycode[0];
-//	static u8 lastKeyCode = 0xff;
+void keyScan_keyPressedCB(kb_data_t *kbEvt)
+{
+    //u8 toNormal = 0;
+    u8 keyCode = kbEvt->keycode[0];
+    //static u8 lastKeyCode = 0xff;
 
-	buttonShortPressed(keyCode);
+    buttonShortPressed(keyCode);
 
-	if(keyCode == VK_SW1){
-		gLightCtx.keyPressedTime = clock_time();
-		gLightCtx.state = APP_FACTORY_NEW_SET_CHECK;
-	}
+    if (keyCode == VK_SW1) {
+        gLightCtx.keyPressedTime = clock_time();
+        gLightCtx.state = APP_FACTORY_NEW_SET_CHECK;
+    }
 }
 
-
-void keyScan_keyReleasedCB(u8 keyCode){
-	gLightCtx.state = APP_STATE_NORMAL;
+void keyScan_keyReleasedCB(u8 keyCode)
+{
+    gLightCtx.state = APP_STATE_NORMAL;
 }
 
 volatile u8 T_keyPressedNum = 0;
-void app_key_handler(void){
-	static u8 valid_keyCode = 0xff;
+void app_key_handler(void)
+{
+    static u8 valid_keyCode = 0xff;
 
-	if(gLightCtx.state == APP_FACTORY_NEW_SET_CHECK){
-		if(clock_time_exceed(gLightCtx.keyPressedTime, 5*1000*1000)){
-			buttonKeepPressed(VK_SW1);
-		}
-	}
+    if (gLightCtx.state == APP_FACTORY_NEW_SET_CHECK) {
+        if (clock_time_exceed(gLightCtx.keyPressedTime, 5 * 1000 * 1000)) {
+            buttonKeepPressed(VK_SW1);
+        }
+    }
 
-	if(kb_scan_key(0 , 1)){
-		T_keyPressedNum++;
-		if(kb_event.cnt){
-			keyScan_keyPressedCB(&kb_event);
-			if(kb_event.cnt == 1){
-				valid_keyCode = kb_event.keycode[0];
-			}
-		}else{
-			keyScan_keyReleasedCB(valid_keyCode);
-			valid_keyCode = 0xff;
-		}
-	}
+    if (kb_scan_key(0 , 1)) {
+        T_keyPressedNum++;
+
+        if (kb_event.cnt) {
+            keyScan_keyPressedCB(&kb_event);
+            if (kb_event.cnt == 1) {
+                valid_keyCode = kb_event.keycode[0];
+            }
+        } else {
+            keyScan_keyReleasedCB(valid_keyCode);
+            valid_keyCode = 0xff;
+        }
+    }
 }
 
 #endif  /* __PROJECT_TL_DIMMABLE_LIGHT__ */

@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #if (__PROJECT_TL_DIMMABLE_LIGHT__)
 
 /**********************************************************************
@@ -66,81 +65,80 @@ u16 g_afTest_rcvReqCnt = 0;
  */
 static void afTest_testReqPrc(apsdeDataInd_t *pApsdeInd)
 {
-	epInfo_t dstEp;
-	TL_SETSTRUCTCONTENT(dstEp, 0);
+    epInfo_t dstEp;
+    TL_SETSTRUCTCONTENT(dstEp, 0);
 
-	dstEp.dstEp = pApsdeInd->indInfo.src_ep;
-	dstEp.profileId = pApsdeInd->indInfo.profile_id;
-	dstEp.dstAddrMode = APS_SHORT_DSTADDR_WITHEP;
-	dstEp.dstAddr.shortAddr = pApsdeInd->indInfo.src_short_addr;
+    dstEp.dstEp = pApsdeInd->indInfo.src_ep;
+    dstEp.profileId = pApsdeInd->indInfo.profile_id;
+    dstEp.dstAddrMode = APS_SHORT_DSTADDR_WITHEP;
+    dstEp.dstAddr.shortAddr = pApsdeInd->indInfo.src_short_addr;
 
-	u8 dataLen = 50;
-	u8 *pBuf = (u8 *)ev_buf_allocate(dataLen);
-	if(pBuf){
-		u8 *pData = pBuf;
+    u8 dataLen = 50;
+    u8 *pBuf = (u8 *)ev_buf_allocate(dataLen);
+    if (pBuf) {
+        u8 *pData = pBuf;
 
-		*pData++ = LO_UINT16(g_afTest_rcvReqCnt);
-		*pData++ = HI_UINT16(g_afTest_rcvReqCnt);
+        *pData++ = LO_UINT16(g_afTest_rcvReqCnt);
+        *pData++ = HI_UINT16(g_afTest_rcvReqCnt);
 
-		for(u8 i = 0; i < dataLen - 2; i++){
-			*pData++ = i;
-		}
+        for (u8 i = 0; i < dataLen - 2; i++) {
+                *pData++ = i;
+        }
 
-		u8 apsCnt = 0;
+        u8 apsCnt = 0;
 #if ZBHCI_EN
-		zbhciTx(ZCL_CLUSTER_TELINK_SDK_TEST_RSP, pApsdeInd->asduLen, (u8 *)pApsdeInd->asdu);
+        zbhciTx(ZCL_CLUSTER_TELINK_SDK_TEST_RSP, pApsdeInd->asduLen, (u8 *)pApsdeInd->asdu);
 #else
-		af_dataSend(pApsdeInd->indInfo.dst_ep, &dstEp, ZCL_CLUSTER_TELINK_SDK_TEST_RSP, dataLen, pBuf, &apsCnt);
+        af_dataSend(pApsdeInd->indInfo.dst_ep, &dstEp, ZCL_CLUSTER_TELINK_SDK_TEST_RSP, dataLen, pBuf, &apsCnt);
 #endif
 
-		ev_buf_free(pBuf);
-	}
+        ev_buf_free(pBuf);
+    }
 }
 
 static void afTest_testClearReqPrc(apsdeDataInd_t *pApsdeInd)
 {
-	epInfo_t dstEp;
-	TL_SETSTRUCTCONTENT(dstEp, 0);
+    epInfo_t dstEp;
+    TL_SETSTRUCTCONTENT(dstEp, 0);
 
-	dstEp.dstEp = pApsdeInd->indInfo.src_ep;
-	dstEp.profileId = pApsdeInd->indInfo.profile_id;
-	dstEp.dstAddrMode = APS_SHORT_DSTADDR_WITHEP;
-	dstEp.dstAddr.shortAddr = pApsdeInd->indInfo.src_short_addr;
+    dstEp.dstEp = pApsdeInd->indInfo.src_ep;
+    dstEp.profileId = pApsdeInd->indInfo.profile_id;
+    dstEp.dstAddrMode = APS_SHORT_DSTADDR_WITHEP;
+    dstEp.dstAddr.shortAddr = pApsdeInd->indInfo.src_short_addr;
 
-	u8 st = SUCCESS;
+    u8 st = SUCCESS;
 
-	u8 apsCnt = 0;
-	af_dataSend(pApsdeInd->indInfo.dst_ep, &dstEp, ZCL_CLUSTER_TELINK_SDK_TEST_CLEAR_RSP, 1, &st, &apsCnt);
+    u8 apsCnt = 0;
+    af_dataSend(pApsdeInd->indInfo.dst_ep, &dstEp, ZCL_CLUSTER_TELINK_SDK_TEST_CLEAR_RSP, 1, &st, &apsCnt);
 }
 
 void afTest_rx_handler(void *arg)
 {
-	apsdeDataInd_t *pApsdeInd = (apsdeDataInd_t *)arg;
+    apsdeDataInd_t *pApsdeInd = (apsdeDataInd_t *)arg;
 
-	switch(pApsdeInd->indInfo.cluster_id){
-		case ZCL_CLUSTER_TELINK_SDK_TEST_CLEAR_REQ:
-			g_afTest_rcvReqCnt = 0;
-			afTest_testClearReqPrc(pApsdeInd);
-			break;
-		case ZCL_CLUSTER_TELINK_SDK_TEST_REQ:
-			g_afTest_rcvReqCnt++;
-			afTest_testReqPrc(pApsdeInd);
-			break;
-		case ZCL_CLUSTER_TELINK_SDK_TEST_RSP:
+    switch (pApsdeInd->indInfo.cluster_id) {
+    case ZCL_CLUSTER_TELINK_SDK_TEST_CLEAR_REQ:
+        g_afTest_rcvReqCnt = 0;
+        afTest_testClearReqPrc(pApsdeInd);
+        break;
+    case ZCL_CLUSTER_TELINK_SDK_TEST_REQ:
+        g_afTest_rcvReqCnt++;
+        afTest_testReqPrc(pApsdeInd);
+        break;
+    case ZCL_CLUSTER_TELINK_SDK_TEST_RSP:
 
-			break;
-		default:
-			break;
-	}
+        break;
+    default:
+        break;
+    }
 
-	/* Must be free here. */
-	ev_buf_free((u8 *)arg);
+    /* Must be free here. */
+    ev_buf_free((u8 *)arg);
 }
 
 void afTest_dataSendConfirm(void *arg)
 {
-//	apsdeDataConf_t *pApsDataCnf = (apsdeDataConf_t *)arg;
-
+    //apsdeDataConf_t *pApsDataCnf = (apsdeDataConf_t *)arg;
 }
 
 #endif	/* AF_TEST_ENABLE */

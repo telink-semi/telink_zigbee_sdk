@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #pragma once
 
 /* Enable C linkage for C++ Compilers: */
@@ -30,75 +29,75 @@
 extern "C" {
 #endif
 
-
 // BUTTON
-#define BUTTON1               		GPIO_PB2
-#define PB2_FUNC			  		AS_GPIO
-#define PB2_OUTPUT_ENABLE	  		0
-#define PB2_INPUT_ENABLE	  		1
-#define	PULL_WAKEUP_SRC_PB2	  		PM_PIN_PULLUP_10K
+#define BUTTON1                 GPIO_PB2
+#define PB2_FUNC                AS_GPIO
+#define PB2_OUTPUT_ENABLE       0
+#define PB2_INPUT_ENABLE        1
+#define	PULL_WAKEUP_SRC_PB2     PM_PIN_PULLUP_10K
 
-#define BUTTON2               		GPIO_PB3
-#define PB3_FUNC			  		AS_GPIO
-#define PB3_OUTPUT_ENABLE	  		0
-#define PB3_INPUT_ENABLE	  		1
-#define	PULL_WAKEUP_SRC_PB3	  		PM_PIN_PULLUP_10K
+#define BUTTON2                 GPIO_PB3
+#define PB3_FUNC                AS_GPIO
+#define PB3_OUTPUT_ENABLE       0
+#define PB3_INPUT_ENABLE        1
+#define	PULL_WAKEUP_SRC_PB3     PM_PIN_PULLUP_10K
 
 //LED
 //LED_R and LED_G as GPIO.
-#define LED_G						GPIO_PD3
-#define PD3_FUNC					AS_GPIO
-#define PD3_OUTPUT_ENABLE			1
-#define PD3_INPUT_ENABLE			0
+#define LED_G                   GPIO_PD3
+#define PD3_FUNC                AS_GPIO
+#define PD3_OUTPUT_ENABLE       1
+#define PD3_INPUT_ENABLE        0
 
-#define LED_R						GPIO_PD5
-#define PD5_FUNC					AS_GPIO
-#define PD5_OUTPUT_ENABLE			1
-#define PD5_INPUT_ENABLE			0
+#define LED_R                   GPIO_PD5
+#define PD5_FUNC                AS_GPIO
+#define PD5_OUTPUT_ENABLE       1
+#define PD5_INPUT_ENABLE        0
 
-#define LED_POWER					LED_R
-#define LED_PERMIT					LED_G
+#define LED_POWER               LED_R
+#define LED_PERMIT              LED_G
 
 // ADC
 #if VOLTAGE_DETECT_ENABLE
-#define VOLTAGE_DETECT_ADC_PIN		GPIO_PC5
+#define VOLTAGE_DETECT_ADC_PIN  GPIO_PC5
 #endif
 
 // UART
 #if ZBHCI_UART
-#define UART_TX_PIN         		UART_TX_PD0
-#define UART_RX_PIN         		UART_RX_PD6
+#define UART_TX_PIN             UART_TX_PD0
+#define UART_RX_PIN             UART_RX_PD6
 
-#define UART_PIN_CFG()				uart_gpio_set(UART_TX_PIN, UART_RX_PIN);// uart tx/rx pin set
+#define UART_PIN_CFG()          uart_gpio_set(UART_TX_PIN, UART_RX_PIN);//uart tx/rx pin set
 #endif
 
 // DEBUG
 #if UART_PRINTF_MODE
-#define	DEBUG_INFO_TX_PIN	    	GPIO_PA2//print
+#define	DEBUG_INFO_TX_PIN       GPIO_PA2//print
 #endif
 
 // USB
 #if ZBHCI_USB_PRINT || ZBHCI_USB_CDC || ZBHCI_USB_HID
-#define HW_USB_CFG()				do{ \
-										usb_set_pin_en();	\
-									}while(0)
+#define HW_USB_CFG()            do{ \
+                                    usb_set_pin_en(); \
+                                }while(0)
 #endif
 
 
-enum{
-	VK_SW1 = 0x01,
-	VK_SW2 = 0x02
+enum {
+    VK_SW1 = 0x01,
+    VK_SW2 = 0x02
 };
 
-#define	KB_MAP_NORMAL	{\
-		{VK_SW1,}, \
-		{VK_SW2,}, }
+#define	KB_MAP_NORMAL           { \
+                                    {VK_SW1,}, \
+                                    {VK_SW2,}, \
+                                }
 
-#define	KB_MAP_NUM		KB_MAP_NORMAL
-#define	KB_MAP_FN		KB_MAP_NORMAL
+#define	KB_MAP_NUM              KB_MAP_NORMAL
+#define	KB_MAP_FN               KB_MAP_NORMAL
 
-#define KB_DRIVE_PINS	{0}
-#define KB_SCAN_PINS	{BUTTON1, BUTTON2}
+#define KB_DRIVE_PINS           {0}
+#define KB_SCAN_PINS            {BUTTON1, BUTTON2}
 
 /* Disable C linkage for C++ Compilers: */
 #if defined(__cplusplus)

@@ -22,20 +22,19 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #ifdef MCU_CORE_B91
 
 #include "version_cfg.h"
 
  /**
- * @brief	Set "DP_THROUGH_SWIRE_DIS" as "1" to disable the "dp_through_swire" function. Set "DP_THROUGH_SWIRE_DIS" as "0" to enable the "dp_through_swire" function.
- *			Risk description:
- *	        The "dp_through_swire" function is enabled by default.When DP and DM pin are used as GPIO function and trigger "dp_through_swire" timing,
- *	        there may be a problem of miswriting the chip through swire to cause the chip to crash. Therefore, disable the "dp_through_swire" function in this startup file.(set "DP_THROUGH_SWIRE_DIS" as "1").
- *	        If the chip has only dp pin but no sws pin, using the above scheme (set "DP_THROUGH_SWIRE_DIS" as "1") will cause the following problems.
- *	        1. During fixture production, burning a firmware program that disables the "dp_through_swire"function into unprogrammed chip will cause the problem that chip can not be burned again due to swire communication failure.
- *	        2. Burning a firmware program that disables the "dp_through_swire" function with BDT tool may result in failure of debugging due to swire communication failure.
- *	        If developers evaluate that the above scheme (set "DP_THROUGH_SWIRE_DIS" as "1") cannot be used, they can only set "DP_THROUGH_SWIRE_DIS" to "0" to enable the "dp_through_swire" function. However, be careful not to make DP and DM pin trigger "dp_through_swire" timing.
+ * @brief   Set "DP_THROUGH_SWIRE_DIS" as "1" to disable the "dp_through_swire" function. Set "DP_THROUGH_SWIRE_DIS" as "0" to enable the "dp_through_swire" function.
+ *          Risk description:
+ *          The "dp_through_swire" function is enabled by default.When DP and DM pin are used as GPIO function and trigger "dp_through_swire" timing,
+ *          there may be a problem of miswriting the chip through swire to cause the chip to crash. Therefore, disable the "dp_through_swire" function in this startup file.(set "DP_THROUGH_SWIRE_DIS" as "1").
+ *          If the chip has only dp pin but no sws pin, using the above scheme (set "DP_THROUGH_SWIRE_DIS" as "1") will cause the following problems.
+ *          1. During fixture production, burning a firmware program that disables the "dp_through_swire"function into unprogrammed chip will cause the problem that chip can not be burned again due to swire communication failure.
+ *          2. Burning a firmware program that disables the "dp_through_swire" function with BDT tool may result in failure of debugging due to swire communication failure.
+ *          If developers evaluate that the above scheme (set "DP_THROUGH_SWIRE_DIS" as "1") cannot be used, they can only set "DP_THROUGH_SWIRE_DIS" to "0" to enable the "dp_through_swire" function. However, be careful not to make DP and DM pin trigger "dp_through_swire" timing.
  *          In USB applications, 1. calling the usb_set_pin(1) interface (equivalent to usb_set_pin_en) will re-enable the dp_through_swire function 2. calling the usb_set_pin(0) interface will disable the dp_through_swire function.
  */
 #ifndef DP_THROUGH_SWIRE_DIS
@@ -53,15 +52,15 @@
 //According to the current internal seal flash model of B91m, the maximum time between the flash awakening and the operating flash is 20us, which leaves some margin and is set to 25us.
 //When adding flash later, if tRES1 is greater than 25us, this waiting time needs to be updated. (flash tRES1, which can be viewed in the comments of the variable flash_support_mid.)
 //(add by weihua.zhang 20230811)
-#define EFUSE_LOAD_AND_FLASH_WAKEUP_LOOP_NUM		320	//25us
+#define EFUSE_LOAD_AND_FLASH_WAKEUP_LOOP_NUM        320 //25us
 
     .section .vectors, "ax"
 
     //.org  and linker's relaxation (-flto) cannot be used at the same time
     //Pop corresponds to push. Before using .option norelax, use push to save the current .option configuration
     //and then modify .option. After using norelax, use pop to restore
-	.option push
-	.option norelax
+    .option push
+    .option norelax
     .org 0x0
 
     .extern FILE_VERSION
@@ -69,12 +68,12 @@
     .extern IMAGE_TYPE
 
     .global _RESET_ENTRY
- 	.type _RESET_ENTRY,@function
+    .type _RESET_ENTRY,@function
 
     .align 2
 _RESET_ENTRY:
-	j 		 _START
-	//free the 6th ~ 7th byte to store the crc type of the bin file
+    j        _START
+    //free the 6th ~ 7th byte to store the crc type of the bin file
 
     .word (FILE_VERSION)
     .org 0x12
@@ -98,15 +97,15 @@ _RESET_ENTRY:
 
 _START:
 #if 0
-	// add debug, PB4 output 1
-	lui		t0, 0x80140 		//0x8014030a
-	li		t1, 0xef
-	li		t2, 0x10
-	sb		t1, 0x30a(t0)		//0x8014030a  PB oen     =  0xef
-	sb		t2, 0x30b(t0)		//0x8014030b  PB output  =  0x10
+    // add debug, PB4 output 1
+    lui     t0, 0x80140         //0x8014030a
+    li      t1, 0xef
+    li      t2, 0x10
+    sb      t1, 0x30a(t0)       //0x8014030a  PB oen     =  0xef
+    sb      t2, 0x30b(t0)       //0x8014030b  PB output  =  0x10
 #endif
 
-	/* Initialize global pointer */
+    /* Initialize global pointer */
     .option push
     .option norelax
     la     gp, __global_pointer$
@@ -118,22 +117,22 @@ _START:
     li      t1, 0x00
     sb      t1, 0x501(t0)  //0x80100c01 -> 0x00  <7>: 0 swire_usb_dis 
 #endif
-	/* Initialize stack pointer */
+    /* Initialize stack pointer */
     la     t0, _STACK_TOP
     mv     sp, t0
 
 #ifdef __nds_execit
-	/* Initialize EXEC.IT table */
-	la t0, _ITB_BASE_
-	csrw uitb, t0
+    /* Initialize EXEC.IT table */
+    la t0, _ITB_BASE_
+    csrw uitb, t0
 #endif
 
 #ifdef __riscv_flen
-	/* Enable FPU */
-	li t0, 0x00006000
-	csrrs t0, mstatus, t0
-	/* Initialize FCSR */
-	fscsr zero
+    /* Enable FPU */
+    li t0, 0x00006000
+    csrrs t0, mstatus, t0
+    /* Initialize FCSR */
+    fscsr zero
 #endif
 
     /* Initial machine trap-vector Base */
@@ -143,10 +142,10 @@ _START:
     /* Enable vectored external plic interrupt */
     csrsi  mmisc_ctl, 2
 
-	/*vector mode enable bit (VECTORED) of the Feature Enable Register */
-    lui		t0, 0xe4000
-	li		t1, 0x02
-	sw		t1, 0x0(t0)		 //(*(volatile unsigned long*)(0xe4000000))= 0x02
+    /*vector mode enable bit (VECTORED) of the Feature Enable Register */
+    lui     t0, 0xe4000
+    li      t1, 0x02
+    sw      t1, 0x0(t0)      //(*(volatile unsigned long*)(0xe4000000))= 0x02
 
     /* Enable I/D-Cache */
     csrr   t0,  mcache_ctl
@@ -154,7 +153,7 @@ _START:
     ori    t0,  t0,  2  #/D-Cache
     csrw   mcache_ctl,  t0
     fence.i
-	/* Move retention reset from flash to sram */
+    /* Move retention reset from flash to sram */
 _RETENTION_RESET_INIT:
 
     la     t1, _RETENTION_RESET_LMA_START
@@ -168,7 +167,7 @@ _RETENTION_RESET_BEGIN:
     addi   t2, t2, 4
     j      _RETENTION_RESET_BEGIN
 
-	/* Zero .aes section in sram */
+    /* Zero .aes section in sram */
 _ZERO_AES:
     lui    t0, 0
     la     t2, _AES_VMA_START
@@ -180,7 +179,7 @@ _ZERO_AES_BEGIN:
     j      _ZERO_AES_BEGIN
 
 #if 0
-	/* Move retention from flash to sram */
+    /* Move retention from flash to sram */
 _RETENTION_DATA_INIT:
 
     la     t1, _RETENTION_DATA_LMA_START
@@ -195,7 +194,7 @@ _RETENTION_DATA_INIT_BEGIN:
     j      _RETENTION_DATA_INIT_BEGIN
 #endif
 
-	/* Move ramcode from flash to sram */
+    /* Move ramcode from flash to sram */
 _RAMCODE_INIT:
 
     la     t1, _RAMCODE_LMA_START
@@ -223,7 +222,7 @@ _DATA_INIT_BEGIN:
     j      _DATA_INIT_BEGIN
 
 
-	/* Zero .bss section in sram */
+    /* Zero .bss section in sram */
 _ZERO_BSS:
     lui    t0, 0
     la     t2, _BSS_VMA_START
@@ -234,7 +233,7 @@ _ZERO_BSS_BEGIN:
     addi   t2, t2, 4
     j      _ZERO_BSS_BEGIN
 
-	/* Fill the remaining section in sram */
+    /* Fill the remaining section in sram */
 _FILL_STK:
 #if 0
     lui    t0, 0x55555
@@ -247,7 +246,7 @@ _FILL_STK_BEGIN:
     addi   t2, t2, 4
     j      _FILL_STK_BEGIN
 #endif
-	/* Jump to the main function */
+    /* Jump to the main function */
 _MAIN_FUNC:
     nop
 
@@ -267,25 +266,25 @@ _END:
     .option push
     .option norelax
     .global _IRESET_ENTRY
- 	.type _IRESET_ENTRY,@function
+    .type _IRESET_ENTRY,@function
 
     .align 2
 _IRESET_ENTRY:
-	/* Decide whether this is an NMI or cold reset */
-	j 		_ISTART
+    /* Decide whether this is an NMI or cold reset */
+    j       _ISTART
 
-	.org 0x22
+    .org 0x22
 _ISTART:
 #if 0
-	// add debug, PB4 output 1
-	lui		t0, 0x80140 		//0x8014030a
-	li		t1, 0xef
-	li		t2, 0x10
-	sb		t1, 0x30a(t0)		//0x8014030a  PB oen     =  0xef
-	sb		t2, 0x30b(t0)		//0x8014030b  PB output  =  0x10
+    // add debug, PB4 output 1
+    lui     t0, 0x80140         //0x8014030a
+    li      t1, 0xef
+    li      t2, 0x10
+    sb      t1, 0x30a(t0)       //0x8014030a  PB oen     =  0xef
+    sb      t2, 0x30b(t0)       //0x8014030b  PB output  =  0x10
 #endif
 
-	/* Initialize global pointer */
+    /* Initialize global pointer */
     la     gp, __global_pointer$
     .option pop
 
@@ -294,27 +293,27 @@ _ISTART:
 * to do something unexcept when toggle dp pin
 */
 _ISWS_USB_DIS:
-	lui		t0, 0x80100
-	addi	t0 , t0 , 0x700
-	li		t1, 0x40
-	sb		t1, 0x501(t0)  //0x80100c01 -> 0x40  <7>: 0 swire_usb_dis
+    lui     t0, 0x80100
+    addi    t0 , t0 , 0x700
+    li      t1, 0x40
+    sb      t1, 0x501(t0)  //0x80100c01 -> 0x40  <7>: 0 swire_usb_dis
 
-	/* Initialize stack pointer */
+    /* Initialize stack pointer */
     la     t0, _STACK_TOP
     mv     sp, t0
 
 #ifdef __nds_execit
-	/* Initialize EXEC.IT table */
-	la t0, _ITB_BASE_
-	csrw uitb, t0
+    /* Initialize EXEC.IT table */
+    la t0, _ITB_BASE_
+    csrw uitb, t0
 #endif
 
 #ifdef __riscv_flen
-	/* Enable FPU */
-	li t0, 0x00006000
-	csrrs t0, mstatus, t0
-	/* Initialize FCSR */
-	fscsr zero
+    /* Enable FPU */
+    li t0, 0x00006000
+    csrrs t0, mstatus, t0
+    /* Initialize FCSR */
+    fscsr zero
 #endif
 
     /* Initial machine trap-vector Base */
@@ -324,10 +323,10 @@ _ISWS_USB_DIS:
     /* Enable vectored external plic interrupt */
     csrsi  mmisc_ctl, 2
 
-	/*vector mode enable bit (VECTORED) of the Feature Enable Register */
-    lui		t0, 0xe4000
-	li		t1, 0x02
-	sw		t1, 0x0(t0)		 //(*(volatile unsigned long*)(0xe4000000))= 0x02
+    /*vector mode enable bit (VECTORED) of the Feature Enable Register */
+    lui     t0, 0xe4000
+    li      t1, 0x02
+    sw      t1, 0x0(t0)      //(*(volatile unsigned long*)(0xe4000000))= 0x02
 
     /* Enable I/D-Cache */
     csrr   t0,  mcache_ctl
@@ -339,50 +338,50 @@ _ISWS_USB_DIS:
 
 /* flash wakeup */
 _WAKEUP_FLASH:
-	lui		t0 , 0x80140
-	li		t1 , 0xff
-	li		t2 , 0x0
-	li		t3 , 0xab
-	sb		t1 , 0x329(t0)			 //mspi ie enable	:0x140329:0x1f
-	sb		t2 , 0x101(t0)			 //cs_low			:0x140101:0x00
-	sb		t3 , 0x100(t0)			 //wakeup_cmd		:0x140100:0xab
+    lui     t0 , 0x80140
+    li      t1 , 0xff
+    li      t2 , 0x0
+    li      t3 , 0xab
+    sb      t1 , 0x329(t0)           //mspi ie enable   :0x140329:0x1f
+    sb      t2 , 0x101(t0)           //cs_low           :0x140101:0x00
+    sb      t3 , 0x100(t0)           //wakeup_cmd       :0x140100:0xab
 _MSPI_WAIT:
-	lui		t0 , 0x80140
-	lb		t2 , 0x102(t0)			//read reg_mspi_status FLD_MSPI_BUSY(bit0)
-	li		t3 , 0x1
-	li		t4 , 0x10
-	beq 	t3 , t2 ,_MSPI_WAIT
-	sb		t4 , 0x101(t0)			//cs_high			:0x140101:0x10
+    lui     t0 , 0x80140
+    lb      t2 , 0x102(t0)          //read reg_mspi_status FLD_MSPI_BUSY(bit0)
+    li      t3 , 0x1
+    li      t4 , 0x10
+    beq     t3 , t2 ,_MSPI_WAIT
+    sb      t4 , 0x101(t0)          //cs_high           :0x140101:0x10
 
 #if 0
-	// add debug, PB4 output 1
-	lui		t0, 0x80140 			//0x8014030a
-	li		t1, 0x00
-	sb		t1, 0x30b(t0)		 	//0x8014030b  PB output  =  0x00
+    // add debug, PB4 output 1
+    lui     t0, 0x80140         //0x8014030a
+    li      t1, 0x00
+    sb      t1, 0x30b(t0)       //0x8014030b  PB output  =  0x00
 #endif
 
-	/*flash wakeup need delay about 20us */
-	/*efuse load need delay about 18us */
-	li		t0, 0
-	li		t1, EFUSE_LOAD_AND_FLASH_WAKEUP_LOOP_NUM
+    /*flash wakeup need delay about 20us */
+    /*efuse load need delay about 18us */
+    li      t0, 0
+    li      t1, EFUSE_LOAD_AND_FLASH_WAKEUP_LOOP_NUM
 _WAIT_EFUSE_LOAD_AND_FLASH_WAKEUP_FINISH:
-	addi 	t0, t0 , 1
-	bgeu 	t1, t0 , _WAIT_EFUSE_LOAD_AND_FLASH_WAKEUP_FINISH
+    addi    t0, t0 , 1
+    bgeu    t1, t0 , _WAIT_EFUSE_LOAD_AND_FLASH_WAKEUP_FINISH
 
 #if 0
-	// add debug, PB4 output 1
-	lui		t0, 0x80140 			//0x8014030a
-	li		t1, 0x10
-	sb		t1, 0x30b(t0)		 //0x8014030b  PB output  =  0x00
+    // add debug, PB4 output 1
+    lui     t0, 0x80140         //0x8014030a
+    li      t1, 0x10
+    sb      t1, 0x30b(t0)       //0x8014030b  PB output  =  0x00
 #endif
 
 _MULTI_ADDRESS_BEGIN:
-	lui		t0, 0x80140
-	la		t1, g_pm_mspi_cfg
-	lw		t2, 0(t1)
-	sw		t2, 0x104(t0)			 //g_pm_mspi_cfg->0x80140104
+    lui     t0, 0x80140
+    la      t1, g_pm_mspi_cfg
+    lw      t2, 0(t1)
+    sw      t2, 0x104(t0)            //g_pm_mspi_cfg->0x80140104
 
-	/* Zero .aes section in sram */
+    /* Zero .aes section in sram */
 _IZERO_AES:
     lui    t0, 0
     la     t2, _AES_VMA_START
@@ -394,9 +393,8 @@ _IZERO_AES_BEGIN:
     j      _IZERO_AES_BEGIN
 
 #if 0
-	/* Move ramcode from flash to sram */
+    /* Move ramcode from flash to sram */
 _IRAMCODE_INIT:
-
     la     t1, _RAMCODE_LMA_START
     la     t2, _RAMCODE_VMA_START
     la     t3, _RAMCODE_VMA_END
@@ -409,7 +407,7 @@ _IRAMCODE_INIT_BEGIN:
     j      _IRAMCODE_INIT_BEGIN
 #endif
 
-	/* Move Data from flash to sram */
+    /* Move Data from flash to sram */
 _IDATA_INIT:
 #if 0
     la     t1, _DATA_LMA_START
@@ -423,7 +421,7 @@ _IDATA_INIT_BEGIN:
     addi   t2, t2, 4
     j      _IDATA_INIT_BEGIN
 
-	/* Zero .bss section in sram */
+    /* Zero .bss section in sram */
 _IZERO_BSS:
     lui    t0, 0
     la     t2, _BSS_VMA_START
@@ -435,7 +433,7 @@ _IZERO_BSS_BEGIN:
     j      _IZERO_BSS_BEGIN
 #endif
 
-	/* Fill the remaining section in sram */
+    /* Fill the remaining section in sram */
 _IFILL_STK:
 #if 0
     lui    t0, 0x55555
@@ -448,7 +446,7 @@ _IFILL_STK_BEGIN:
     addi   t2, t2, 4
     j      _IFILL_STK_BEGIN
 #endif
-	/* Jump to the main function */
+    /* Jump to the main function */
 _IMAIN_FUNC:
     nop
 
@@ -465,41 +463,41 @@ _IEND:
 
 
 .text
-	.global default_irq_entry
-	.align 2
+    .global default_irq_entry
+    .align 2
 
 default_irq_entry:
-1:	j 1b
+1:  j 1b
 
        .weak trap_handler
 
  trap_handler:
-1:	j 1b
+1:  j 1b
 
-	.macro INTERRUPT num
-	.weak entry_irq\num
-	.set entry_irq\num, default_irq_entry
-	.long entry_irq\num
-	.endm
+    .macro INTERRUPT num
+    .weak entry_irq\num
+    .set entry_irq\num, default_irq_entry
+    .long entry_irq\num
+    .endm
 
 #define VECTOR_NUMINTRS         63
 
-   	.section .ram_code, "ax"
+    .section .ram_code, "ax"
 
-	.global __vectors
-	.balign 256
+    .global __vectors
+    .balign 256
 
 
 __vectors:
-	/* Trap vector */
-	.long trap_entry
+    /* Trap vector */
+    .long trap_entry
 
-	/* PLIC interrupt vector */
-	.altmacro
-	.set irqno, 1
-	.rept VECTOR_NUMINTRS/*  .rept  .endr  */
-	INTERRUPT %irqno
-	.set irqno, irqno+1
-	.endr
+    /* PLIC interrupt vector */
+    .altmacro
+    .set irqno, 1
+    .rept VECTOR_NUMINTRS/*  .rept  .endr  */
+    INTERRUPT %irqno
+    .set irqno, irqno+1
+    .endr
 
 #endif /* MCU_CORE_B91 */

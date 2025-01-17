@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #ifndef _FIRMWARE_ENCRYPT_CHECK_H_
 #define _FIRMWARE_ENCRYPT_CHECK_H_
 

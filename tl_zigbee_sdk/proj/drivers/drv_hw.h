@@ -22,22 +22,21 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #pragma once
 
-#define BATTERY_SAFETY_THRESHOLD	2200//2.2v
+#define BATTERY_SAFETY_THRESHOLD        2200//2.2v
 
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-	#define SYSTEM_RESET()			mcu_reset()
+    #define SYSTEM_RESET()              mcu_reset()
 #elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
-	#define SYSTEM_RESET()			sys_reboot()
+    #define SYSTEM_RESET()              sys_reboot()
 #endif
 
-typedef enum{
-	SYSTEM_BOOT,			//power on or boot
-	SYSTEM_DEEP_RETENTION,	//deep with retention back
-	SYSTEM_DEEP,			//deep back
-}startup_state_e;
+typedef enum {
+    SYSTEM_BOOT,                //power on or boot
+    SYSTEM_DEEP_RETENTION,      //deep with retention back
+    SYSTEM_DEEP,                //deep back
+} startup_state_e;
 
 extern u32 sysTimerPerUs;
 

@@ -22,17 +22,16 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #pragma once
 
 
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-	#define SPI_CLOCK_SOURCE			CLOCK_SYS_CLOCK_HZ
+    #define SPI_CLOCK_SOURCE    CLOCK_SYS_CLOCK_HZ
 #elif defined(MCU_CORE_B91)
-	/* PCLK provides clock source for PSPI module. */
-	#define SPI_CLOCK_SOURCE			(sys_clk.pclk * 1000 * 1000)
+    /* PCLK provides clock source for PSPI module. */
+    #define SPI_CLOCK_SOURCE    (sys_clk.pclk * 1000 * 1000)
 #elif defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
-	#define SPI_CLOCK_SOURCE			(sys_clk.pll_clk * 1000 * 1000)
+    #define SPI_CLOCK_SOURCE    (sys_clk.pll_clk * 1000 * 1000)
 #endif
 
 /**
@@ -43,7 +42,7 @@ typedef enum {
     SPI_MODE_2,
     SPI_MODE_1,
     SPI_MODE_3,
-}drv_spi_mode_e;
+} drv_spi_mode_e;
 
 
 
@@ -68,7 +67,7 @@ void drv_spi_slave_init(drv_spi_mode_e mode);
  * @param[in] Pin Group or Pins
  * @return    none
  */
-#if	defined(MCU_CORE_826x)
+#if defined(MCU_CORE_826x)
 void drv_spi_master_pin_select(SPI_PinTypeDef pinGroup);
 #elif defined(MCU_CORE_8258)
 void drv_spi_master_pin_select(SPI_GPIO_GroupTypeDef pinGroup);
@@ -85,7 +84,7 @@ void drv_spi_master_pin_select(gpio_pin_e sclk_pin, gpio_pin_e cs_pin, gpio_pin_
  * @param[in] Pin Group or Pins
  * @return    none
  */
-#if	defined(MCU_CORE_826x)
+#if defined(MCU_CORE_826x)
 void drv_spi_slave_pin_select(SPI_PinTypeDef pinGroup);
 #elif defined(MCU_CORE_8258)
 void drv_spi_slave_pin_select(SPI_GPIO_GroupTypeDef pinGroup);

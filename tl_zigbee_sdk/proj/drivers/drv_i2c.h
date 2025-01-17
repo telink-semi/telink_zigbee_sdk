@@ -22,15 +22,14 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #pragma once
 
 
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-	#define I2C_CLOCK_SOURCE			CLOCK_SYS_CLOCK_HZ
+    #define I2C_CLOCK_SOURCE            CLOCK_SYS_CLOCK_HZ
 #elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
-	/* PCLK provides clock source for I2C module. */
-	#define I2C_CLOCK_SOURCE			(sys_clk.pclk * 1000 * 1000)
+    /* PCLK provides clock source for I2C module. */
+    #define I2C_CLOCK_SOURCE            (sys_clk.pclk * 1000 * 1000)
 #endif
 
 
@@ -98,7 +97,7 @@ void drv_i2c_read_series(u8 slaveID, u32 addr, u32 addrLen, u8 *dataBuf, int dat
  * @param[in]  Pin Group or Pins
  * @return     none
  */
-#if	defined(MCU_CORE_826x) || defined(MCU_CORE_8258)
+#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258)
 void drv_i2c_gpio_set(I2C_GPIO_GroupTypeDef i2c_pin_group);
 #elif defined(MCU_CORE_8278)
 void drv_i2c_gpio_set(I2C_GPIO_SdaTypeDef sda_pin, I2C_GPIO_SclTypeDef scl_pin);

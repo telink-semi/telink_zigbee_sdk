@@ -22,9 +22,7 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #pragma once
-
 
 
 /**
@@ -36,8 +34,8 @@ typedef void (*ev_poll_callback_t)(void);
  *  @brief Definition for each poll item 
  */
 typedef struct ev_poll_s {
-    ev_poll_callback_t  cb;                 //!< Callback of the poll task
-    u32                 valid;              //!< Indicate the poll task is used or not
+    ev_poll_callback_t cb;                 //!< Callback of the poll task
+    u32                valid;              //!< Indicate the poll task is used or not
 } ev_poll_t; 
 
 

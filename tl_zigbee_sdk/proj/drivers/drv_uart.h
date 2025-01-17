@@ -22,36 +22,36 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #pragma once
 
 
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-	#define UART_CLOCK_SOURCE			CLOCK_SYS_CLOCK_HZ
+    #define UART_CLOCK_SOURCE           CLOCK_SYS_CLOCK_HZ
 #elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
-	/* PCLK provides clock source for UART module. */
-	#define UART_CLOCK_SOURCE			(sys_clk.pclk * 1000 * 1000)
-
-	#define UART_IDX					UART0
-	#define UART_DMA_CHANNEL_RX			DMA2
-	#define UART_DMA_CHANNEL_TX			DMA3
+    /* PCLK provides clock source for UART module. */
+    #define UART_CLOCK_SOURCE           (sys_clk.pclk * 1000 * 1000)
+    #ifndef UART_IDX
+        #define UART_IDX                UART0
+    #endif
+    #define UART_DMA_CHANNEL_RX         DMA2
+    #define UART_DMA_CHANNEL_TX         DMA3
 #endif
 
-enum{
-	UART_STA_IDLE,
-	UART_STA_TX_DOING,
-	UART_STA_TX_DONE,
-	UART_STA_RX_DONE,
+enum {
+    UART_STA_IDLE,
+    UART_STA_TX_DOING,
+    UART_STA_TX_DONE,
+    UART_STA_RX_DONE,
 };
 
 typedef void (*uart_irq_callback)(void);
 typedef u8 (*uart_data_send)(u8 *data);
 
-typedef struct{
-	uart_irq_callback recvCb;
-	uart_data_send send;
-	volatile u8 status;
-}drv_uart_t;
+typedef struct {
+    uart_irq_callback recvCb;
+    uart_data_send send;
+    volatile u8 status;
+} drv_uart_t;
 
 
 /****************************************************************************************
