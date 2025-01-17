@@ -48,7 +48,7 @@
 /**********************************************************************
  * LOCAL FUNCTIONS
  */
-status_t zcl_electricalMeasure_cmdHandler(zclIncoming_t *pInMsg);
+static status_t zcl_electricalMeasure_cmdHandler(zclIncoming_t *pInMsg);
 
 
 _CODE_ZCL_ status_t zcl_electricalMeasure_register(u8 endpoint, u16 manuCode, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb)

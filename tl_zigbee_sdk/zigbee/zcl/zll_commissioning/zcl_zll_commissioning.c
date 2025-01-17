@@ -482,7 +482,7 @@ _CODE_ZCL_ static u8 zcl_touchLinkClientCmdHandler(zclIncoming_t *pInMsg){
 		{
 			u32 transId = 0xFFFFFFFF;
 			memcpy(&transId, pInMsg->pData, sizeof(u32));
-			if(transId == g_zllTouchLink.transId){
+			if((g_zllTouchLink.transId != 0) && (transId == g_zllTouchLink.transId)){
 				if(!is_device_factory_new()){
 					if(ss_securityModeIsDistributed()){
 						nlme_leave_req_t leaveReq;
