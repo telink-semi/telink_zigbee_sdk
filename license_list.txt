@@ -307,7 +307,6 @@
 ./tl_zigbee_sdk/platform/chip_b91/watchdog.h			TELINK_APACHE  
 ./tl_zigbee_sdk/platform/chip_b92/adc.h			TELINK_APACHE  
 ./tl_zigbee_sdk/platform/chip_b92/aes.h			TELINK_APACHE  
-./tl_zigbee_sdk/platform/chip_b92/analog.h			TELINK_APACHE  
 ./tl_zigbee_sdk/platform/chip_b92/audio.h			TELINK_APACHE  
 ./tl_zigbee_sdk/platform/chip_b92/charger.h		TELINK_APACHE  
 ./tl_zigbee_sdk/platform/chip_b92/charger_bin.h		TELINK_APACHE  
@@ -339,6 +338,7 @@
 ./tl_zigbee_sdk/platform/chip_b92/gpio.h			TELINK_APACHE  
 ./tl_zigbee_sdk/platform/chip_b92/gpio_default.h			TELINK_APACHE  
 ./tl_zigbee_sdk/platform/chip_b92/i2c.h			TELINK_APACHE  
+./tl_zigbee_sdk/platform/chip_b92/lib/include/analog.h			TELINK_APACHE  
 ./tl_zigbee_sdk/platform/chip_b92/lib/include/aoa.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_b92/lib/include/emi.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_b92/lib/include/emi_internal.h			TELINK_APACHE 
@@ -445,7 +445,6 @@
 ./tl_zigbee_sdk/platform/chip_tl321x/lib/include/hash/hmac_sha512_256.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_tl321x/lib/include/hash/hmac_sm3.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_tl321x/lib/include/hash/md5.h			TELINK_APACHE 
-./tl_zigbee_sdk/platform/chip_tl321x/lib/include/hash/pbkdf2.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_tl321x/lib/include/hash/sha1.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_tl321x/lib/include/hash/sha224.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_tl321x/lib/include/hash/sha256.h			TELINK_APACHE 
@@ -467,7 +466,6 @@
 ./tl_zigbee_sdk/platform/chip_tl321x/lib/include/pke/pke_config.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_tl321x/lib/include/pke/pke_portable.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_tl321x/lib/include/pke/pke_prime.h			TELINK_APACHE 
-./tl_zigbee_sdk/platform/chip_tl321x/lib/include/pke/pke_utility.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_tl321x/lib/include/pke/rsa.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_tl321x/lib/include/pke/sm2.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_tl321x/lib/include/pke/sm9.h			TELINK_APACHE 
