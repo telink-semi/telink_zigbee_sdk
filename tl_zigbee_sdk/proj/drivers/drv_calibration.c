@@ -120,7 +120,7 @@ static void drv_calib_freq_offset(void)
 
 	flash_read(CFG_FREQUENCY_OFFSET, 1, &freq_offset_value);
 
-	if((freq_offset_value != 0xff) && (freq_offset_value <= 63)){
+	if(freq_offset_value != 0xff){
 		rf_update_internal_cap(freq_offset_value);
 	}
 }
@@ -144,7 +144,7 @@ static void drv_calib_freq_offset(void)
 
 	flash_read(CFG_FREQUENCY_OFFSET, 1, &freq_offset_value);
 
-	if((freq_offset_value != 0xff) && (freq_offset_value <= 63)){
+	if(freq_offset_value != 0xff){
 		rf_update_internal_cap(freq_offset_value);
 	}
 }
