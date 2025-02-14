@@ -4108,6 +4108,9 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_4.addWidget(self.progressBar_hciOta)
 
+        self.checkBox_hciOta = QCheckBox(self.hciOta)
+        self.checkBox_hciOta.setObjectName(u"checkBox_hciOta")
+        self.horizontalLayout_4.addWidget(self.checkBox_hciOta)
 
         self.gridLayout_24.addLayout(self.horizontalLayout_4, 1, 0, 1, 1)
 
@@ -5765,6 +5768,7 @@ class Ui_MainWindow(object):
         self.lineEdit_hciOtaFilePath.setPlaceholderText(QCoreApplication.translate("MainWindow", u"HCI OTA file path", None))
         self.pushButton_hciOtaStart.setText(QCoreApplication.translate("MainWindow", u"Start OTA", None))
         self.label_hciotaPercent.setText(QCoreApplication.translate("MainWindow", u"OTA Progress Bar", None))
+        self.checkBox_hciOta.setText(QCoreApplication.translate("MainWindow", u"LocalBinFile", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.hciOta), QCoreApplication.translate("MainWindow", u"HCI OTA", None))
         self.label_analyzeAddr.setText(QCoreApplication.translate("MainWindow", u"Address:", None))
         self.lineEdit_analyzeAddr.setPlaceholderText(QCoreApplication.translate("MainWindow", u"dev_addr", None))

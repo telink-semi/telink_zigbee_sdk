@@ -397,7 +397,7 @@ class Pyside6Serial(QtWidgets.QMainWindow, Ui_MainWindow):
                     else:
                         break
         except IndexError:
-            print('index error....')
+            # print('index error....')
             return
 
     def serial_data_receive(self):
@@ -411,14 +411,14 @@ class Pyside6Serial(QtWidgets.QMainWindow, Ui_MainWindow):
         if num > 0:
             recv_data = self.serial.read(num)
             pktLen = len(recv_data)
-        # print('recv num:%d' % num)
+            # print('recv num:%d' % num)
             
             if pktLen > 0:            
                 if not self.checkBox_thread.isChecked():  # hex发送
                     if self.bleHci_enable is True:
                         if recv_data[0] ==0x04 and recv_data[1] != 0xff:
-                            #print('recv ble data...')
-                            #print(recv_data)
+                            # print('recv ble data...')
+                            # print(recv_data)
                             dt = datetime.now()
                             timestr = dt.strftime('%y-%m-%d %H:%M:%S.%f')
                             
@@ -429,7 +429,7 @@ class Pyside6Serial(QtWidgets.QMainWindow, Ui_MainWindow):
                                 recv_data_str += hhex + ' '
 
                             #print("recv_data_str")
-                            #print(recv_data_str)
+                            # print(recv_data_str)
                             self.listWidget_commandData.addItem(timestr + ' recv<--:' + recv_data_str)
                         else:
                             self.ring_buffer.ring_buffer_write(recv_data)
@@ -2064,6 +2064,8 @@ class Pyside6Serial(QtWidgets.QMainWindow, Ui_MainWindow):
                 payloadLen = len(send_data)
                 packet_data: bytes = struct.pack("!4B", hcicmd, hciOgd, hciOfd, payloadLen)
                 packet_data += send_data
+                # print('packet_data:')
+                # print(packet_data)
                 self.serial.write(packet_data)
             else:
                 self.serial.write(send_data)
