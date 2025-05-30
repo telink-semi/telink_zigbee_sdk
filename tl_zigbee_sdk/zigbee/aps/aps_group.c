@@ -47,24 +47,29 @@ _CODE_APS_ u8 aps_groupTblNvInit(void){
 	return ret;
 }
 
-static void aps_groupEntryDel(aps_group_tbl_ent_t *p){
-	aps_group_tbl_ent_t *p0 = &aps_group_tbl[0];
-	u8 sn = p - p0;
-	u8 num = aps_group_entry_num;
+static void aps_groupEntryDel(aps_group_tbl_ent_t *p)
+{
+    aps_group_tbl_ent_t *p0 = &aps_group_tbl[0];
+    u8 sn = p - p0;
+    u8 num = aps_group_entry_num;
 
-	if(p){
-		p->group_addr = APS_INVALID_GRP_ADDR;
-		aps_group_entry_num--;
+    if (p) {
+        p->group_addr = APS_INVALID_GRP_ADDR;
+        aps_group_entry_num--;
 
 #if 1  //fill the invalid entry with the valid one
-		if(sn < (num - 1)){
-			memcpy((u8 *)p, (u8 *)(p+1), (num - 1 - sn) * sizeof(aps_group_tbl_ent_t));
-		}
+        if (sn < (num - 1)) {
+            memcpy((u8 *)p, (u8 *)(p+1), (num - 1 - sn) * sizeof(aps_group_tbl_ent_t));
+        }
 
-		p0 += (num - 1);
-		p0->group_addr = APS_INVALID_GRP_ADDR;
+        p0 += (num - 1);
+        p0->group_addr = APS_INVALID_GRP_ADDR;
+        p0->n_endpoints = 0;
+        for (u8 j = 0; j < APS_EP_NUM_IN_GROUP_TBL; j++) {
+            p0->endpoints[j] = APS_GROUP_EP_INVALID;
+        }
 #endif
-	}
+    }
 }
 
 _CODE_APS_ aps_group_tbl_ent_t *aps_group_search_by_addr(u16 group_addr)
@@ -278,62 +283,67 @@ _CODE_APS_ void aps_groupTblReset(void){
 	}
 }
 
-_CODE_APS_ aps_status_t aps_me_group_delete_all_req(u8 ep){
-	aps_status_t status = APS_STATUS_SUCCESS;
-	aps_group_tbl_ent_t *pEntry;
-	u8 *pEndpoint;
-	u8 i = 0;
-	u8 index = 0;
-	if((ep < 0x01) || (ep > 0xfe)){
-		status = APS_STATUS_INVALID_PARAMETER;
-		return status;
-	}
+_CODE_APS_ aps_status_t aps_me_group_delete_all_req(u8 ep)
+{
+    aps_status_t status = APS_STATUS_SUCCESS;
+    aps_group_tbl_ent_t *pEntry;
+    u8 *pEndpoint;
+    u8 i = 0;
+    u8 index = 0;
+    u8 group_num = aps_group_entry_num;
+    u8 delete_group_entry = 0;
 
-	while(i <= aps_group_entry_num){
-		//skip the empty group
-		if(aps_group_tbl[index].group_addr == APS_INVALID_GRP_ADDR){
-			index++;
-			if (index >= APS_GROUP_TABLE_SIZE){
-				i++;
-				index = 0;
-			}
-			continue;
-		}
-		pEntry = &aps_group_tbl[index];
-		pEndpoint = aps_group_ep_find(pEntry,ep);
+    if ((ep < 0x01) || (ep > 0xfe)) {
+        status = APS_STATUS_INVALID_PARAMETER;
+        return status;
+    }
 
-		if(pEndpoint){
-			*pEndpoint = APS_GROUP_EP_INVALID;
-			pEntry->n_endpoints--;
-		}
+    while ((i < group_num) && (index < APS_GROUP_TABLE_SIZE)) {
+        //skip the empty group
+        if (aps_group_tbl[index].group_addr == APS_INVALID_GRP_ADDR) {
+            index++;
+            continue;
+        }
+        pEntry = &aps_group_tbl[index];
+        pEndpoint = aps_group_ep_find(pEntry,ep);
 
-		//If the endpoints already empty, clear the group entry
-		if(pEntry->n_endpoints == 0){
-			//todo Before deleting a group, remove all associated scene entries.
-			//zcl_scene_removeScenesWithGroup(pEntry->group_addr);
-			aps_groupEntryDel(pEntry);
-			//pEntry->group_addr = APS_INVALID_GRP_ADDR;
-		}else{
-			//move the valid data to the first positions
-			u8 validEp[APS_EP_NUM_IN_GROUP_TBL];
-			memset(validEp, APS_GROUP_EP_INVALID, APS_EP_NUM_IN_GROUP_TBL);
-			u8 validCnt = 0;
-			for(u8 m = 0; m < APS_EP_NUM_IN_GROUP_TBL; m++){
-				if(pEntry->endpoints[m] != APS_GROUP_EP_INVALID){
-					validEp[validCnt++] = pEntry->endpoints[m];
-				}
-			}
-			memcpy(pEntry->endpoints, validEp, APS_EP_NUM_IN_GROUP_TBL);
-		}
+        if (pEndpoint) {
+            *pEndpoint = APS_GROUP_EP_INVALID;
+            pEntry->n_endpoints--;
 
-		//search next group
-		index++;
-		i++;
-	}//end while
+            //If the endpoints already empty, clear the group entry
+            if (pEntry->n_endpoints == 0) {
+                //todo Before deleting a group, remove all associated scene entries.
+                //zcl_scene_removeScenesWithGroup(pEntry->group_addr);
+                aps_groupEntryDel(pEntry);
+                delete_group_entry = 1;
+            } else {
+                //move the valid data to the first positions
+                u8 validEp[APS_EP_NUM_IN_GROUP_TBL];
+                memset(validEp, APS_GROUP_EP_INVALID, APS_EP_NUM_IN_GROUP_TBL);
+                u8 validCnt = 0;
+                for (u8 m = 0; m < APS_EP_NUM_IN_GROUP_TBL; m++) {
+                    if (pEntry->endpoints[m] != APS_GROUP_EP_INVALID) {
+                        validEp[validCnt++] = pEntry->endpoints[m];
+                    }
+                }
+                memcpy(pEntry->endpoints, validEp, APS_EP_NUM_IN_GROUP_TBL);
+            }
+        }
 
-	aps_groupTblReset();
-	TL_SCHEDULE_TASK(aps_groupTblSave2Flash, NULL);
-	return status;
+        //search next group
+        if (!delete_group_entry) {
+            index++;
+        } else {
+            delete_group_entry = 0;
+        }
+        i++;
+    }//end while
+
+//    aps_groupTblReset();
+    TL_SCHEDULE_TASK(aps_groupTblSave2Flash, NULL);
+
+    return status;
 }
 
 _CODE_APS_ u8 aps_group_entry_num_get(void){
