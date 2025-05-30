@@ -47,7 +47,7 @@ typedef struct {
  */
 zb_hciCmdInfo_t g_hciCmd;
 
-zbhci_afTestReq_t g_afTestReq;
+zbhci_afTest_t g_afTest;
 
 #if ZB_COORDINATOR_ROLE
 ev_timer_event_t *g_nodeTestTimer = NULL;
@@ -374,44 +374,12 @@ static void zbhciMgmtUpdateNotifyPush(void *arg)
     zbhciTx(ZBHCI_CMD_MGMT_NWK_UPDATE_NOTIFY, pBuf - array, array);
 }
 
-s32 rxtx_performance_result_start(void *arg)
-{
-    txrx_performce_test_rsp_t rsp;
-
-    COPY_BUFFERTOU16_BE(rsp.dstAddr, (u8 *)&g_afTestReq.dstAddr);
-    COPY_BUFFERTOU16_BE(rsp.sendCnt, (u8 *)&g_afTestReq.sendTotalCnt); //sendSuccessCnt);
-    COPY_BUFFERTOU16_BE(rsp.ackCnt, (u8 *)&g_afTestReq.rcvTotalCnt);
-
-    zbhciTx(ZBHCI_CMD_TXRX_PERFORMANCE_TEST_RSP, sizeof(txrx_performce_test_rsp_t), (u8 *)&rsp);
-
-    memset((u8 *)&g_afTestReq, 0, sizeof(zbhci_afTestReq_t));
-
-    g_afTestReq.performanceTestTmrEvt = NULL;
-    return -1;
-}
-
-void zbhciAfDataPerformanceResultPush(void)
-{
-#if AF_TEST_ENABLE
-    if (!g_afTestReq.performanceTest) {
-        return;
-    }
-
-    g_afTestReq.rcvTotalCnt++;
-
-    if (g_afTestReq.performanceTestTmrEvt) {
-        TL_ZB_TIMER_CANCEL(&g_afTestReq.performanceTestTmrEvt);
-    }
-    g_afTestReq.performanceTestTmrEvt = TL_ZB_TIMER_SCHEDULE(rxtx_performance_result_start, NULL, 1000);
-#endif
-}
-
 void zbhciAfDataRcvIndPush(void *arg)
 {
 #if AF_TEST_ENABLE
     apsdeDataInd_t *pApsdeInd = (apsdeDataInd_t *)arg;
 
-    if (g_afTestReq.performanceTest) {
+    if (g_afTest.afTestTimerEvt) {
         return;
     }
 
@@ -438,10 +406,27 @@ void zbhciAfDataCnfPush(void *arg)
 #if AF_TEST_ENABLE
     apsdeDataConf_t *pApsDataCnf = (apsdeDataConf_t *)arg;
 
-    if ((pApsDataCnf->dstEndpoint == g_afTestReq.dstEp) &&
-        (pApsDataCnf->dstAddr.addr_short == g_afTestReq.dstAddr) &&
-        (pApsDataCnf->status == APS_STATUS_SUCCESS)) {
-        g_afTestReq.sendSuccessCnt++;
+    if (g_afTest.afTestTimerEvt && g_afTest.state) {
+        if ((pApsDataCnf->srcEndpoint == g_afTest.srcEp) &&
+            (pApsDataCnf->dstEndpoint == g_afTest.dstEp) &&
+            (pApsDataCnf->dstAddr.addr_short == g_afTest.dstAddr) &&
+            (pApsDataCnf->apsCnt == g_afTest.apsCnt)) {
+            g_afTest.state = 0;
+            if (pApsDataCnf->status == APS_STATUS_SUCCESS) {
+                g_afTest.sendSuccessCnt++;
+            } else {
+                for (u8 i = 0; i < REASON_TABLE_SIZE; i++) {
+                    if (g_afTest.reason[i].status == pApsDataCnf->status) {
+                        g_afTest.reason[i].cnt++;
+                        break;
+                    } else if (g_afTest.reason[i].status == 0) {
+                        g_afTest.reason[i].status = pApsDataCnf->status;
+                        g_afTest.reason[i].cnt++;
+                        break;
+                    }
+                }
+            }
+        }
     }
 #endif
 }
@@ -451,23 +436,6 @@ void zbhciAppDataSendConfirmPush(void *arg)
     apsdeDataConf_t *pApsDataCnf = (apsdeDataConf_t *)arg;
 
 #if ZB_COORDINATOR_ROLE
-#if 0
-    if (g_nodeTestTimer) {
-        g_afTestReq.sendTotalCnt++;
-        if (pApsDataCnf->status == SUCCESS) {
-            g_afTestReq.sendSuccessCnt++;
-        }
-        if (g_afTestReq.sendTotalCnt >= 100) {
-            txrx_performce_test_rsp_t rsp;
-            COPY_BUFFERTOU16_BE(rsp.dstAddr, (u8 *)&g_afTestReq.dstAddr);
-            COPY_BUFFERTOU16_BE(rsp.sendCnt, (u8 *)&g_afTestReq.sendTotalCnt);
-            COPY_BUFFERTOU16_BE(rsp.ackCnt, (u8 *)&g_afTestReq.sendSuccessCnt);
-
-            zbhciTx(ZBHCI_CMD_TXRX_PERFORMANCE_TEST_RSP, sizeof(txrx_performce_test_rsp_t), (u8 *)&rsp);
-            memset((u8 *)&g_afTestReq, 0, sizeof(zbhci_afTestReq_t));
-        }
-    }
-#else
     u8 *conf = ev_buf_allocate(sizeof(zbhci_app_data_confirm_t));
     if (conf) {
         memset(conf, 0, sizeof(zbhci_app_data_confirm_t));
@@ -499,7 +467,6 @@ void zbhciAppDataSendConfirmPush(void *arg)
 
         ev_buf_free(conf);
     }
-#endif
 #endif
 }
 
@@ -833,52 +800,55 @@ s32 node_toggle_broadcast_test(void *arg)
 }
 #endif
 
-s32 rxtx_performance_test(void *arg)
+#if AF_TEST_ENABLE
+static s32 performance_test(void *arg)
 {
-    txrx_performce_test_req_t *txrxTest = (txrx_performce_test_req_t *)arg;
-    epInfo_t dstEpInfo;
-    TL_SETSTRUCTCONTENT(dstEpInfo, 0);
+    if (g_afTest.state == 0) {
+        if (g_afTest.sendTotalCnt >= g_afTest.packetCnt) {
+            txrx_performce_test_rsp_t rsp;
 
-    u16 dstAddr = 0xffff;
-    COPY_BUFFERTOU16_BE(dstAddr, ((u8 *)&(txrxTest->dstAddr)));
+            COPY_BUFFERTOU16_BE(rsp.dstAddr, (u8 *)&g_afTest.dstAddr);
+            COPY_BUFFERTOU16_BE(rsp.sendCnt, (u8 *)&g_afTest.sendTotalCnt);
+            COPY_BUFFERTOU16_BE(rsp.ackCnt, (u8 *)&g_afTest.sendSuccessCnt);
 
-    u16 totalNum = 0;
-    COPY_BUFFERTOU16_BE(totalNum, ((u8 *)&(txrxTest->sendCnt)));
+            zbhciTx(ZBHCI_CMD_TXRX_PERFORMANCE_TEST_RSP, sizeof(txrx_performce_test_rsp_t), (u8 *)&rsp);
 
-    if (g_afTestReq.sendTotalCnt >= totalNum) {
-        ev_buf_free((u8 *)arg);
-        return -1;
-    }
-
-    u8 dataLen = 50;
-    u8 *pBuf = (u8 *)ev_buf_allocate(dataLen);
-    if (pBuf) {
-        g_afTestReq.sendTotalCnt++;
-        g_afTestReq.dstAddr = dstAddr;
-        g_afTestReq.dstEp = txrxTest->dstEp;
-
-        dstEpInfo.dstAddrMode = APS_SHORT_DSTADDR_WITHEP;
-        dstEpInfo.dstAddr.shortAddr = dstAddr;
-        dstEpInfo.dstEp = txrxTest->dstEp;
-        dstEpInfo.profileId = HA_PROFILE_ID;
-        dstEpInfo.radius = 0;
-
-        u8 *pData = pBuf;
-
-        *pData++ = LO_UINT16(g_afTestReq.sendTotalCnt);
-        *pData++ = HI_UINT16(g_afTestReq.sendTotalCnt);
-
-        for (u8 i = 0; i < dataLen - 2; i++) {
-            *pData++ = i;
+            g_afTest.afTestTimerEvt = NULL;
+            return -1;
         }
 
-        af_dataSend(txrxTest->srcEp, &dstEpInfo, ZCL_CLUSTER_TELINK_SDK_TEST_REQ, dataLen, pBuf, &g_afTestReq.dataApsCnt);
+        u8 dataLen = 50;
+        u8 *pBuf = (u8 *)ev_buf_allocate(dataLen);
+        if (pBuf) {
+            g_afTest.state = 1;
+            g_afTest.sendTotalCnt++;
 
-        ev_buf_free(pBuf);
+            epInfo_t dstEpInfo;
+            TL_SETSTRUCTCONTENT(dstEpInfo, 0);
+
+            dstEpInfo.dstAddrMode = APS_SHORT_DSTADDR_WITHEP;
+            dstEpInfo.dstAddr.shortAddr = g_afTest.dstAddr;
+            dstEpInfo.dstEp = g_afTest.dstEp;
+            dstEpInfo.profileId = HA_PROFILE_ID;
+
+            u8 *pData = pBuf;
+
+            *pData++ = LO_UINT16(g_afTest.sendTotalCnt);
+            *pData++ = HI_UINT16(g_afTest.sendTotalCnt);
+
+            for (u8 i = 0; i < dataLen - 2; i++) {
+                *pData++ = i;
+            }
+
+            af_dataSend(g_afTest.srcEp, &dstEpInfo, ZCL_CLUSTER_TELINK_SDK_TEST_REQ, dataLen, pBuf, &g_afTest.apsCnt);
+
+            ev_buf_free(pBuf);
+        }
     }
 
-    return (txrxTest->interval * 10);
+    return (g_afTest.interval * 10);
 }
+#endif
 
 s32 zbhci_nodeManageCmdHandler(void *arg)
 {
@@ -893,7 +863,7 @@ s32 zbhci_nodeManageCmdHandler(void *arg)
 
         u8 bufFree = 0;
         zbhci_mgmt_nodesJoined_rsp_hdr_t hdr;
-        zbhci_mgmt_nodesJoined_rsp_t *rsp = (zbhci_mgmt_nodesJoined_rsp_t *) ev_buf_allocate(sizeof(zbhci_mgmt_nodesJoined_rsp_t));
+        zbhci_mgmt_nodesJoined_rsp_t *rsp = (zbhci_mgmt_nodesJoined_rsp_t *)ev_buf_allocate(sizeof(zbhci_mgmt_nodesJoined_rsp_t));
         if (rsp) {
             u8 validcnt = 0;
             addrExt_t ieeeAddrList[5];
@@ -951,14 +921,28 @@ s32 zbhci_nodeManageCmdHandler(void *arg)
 #endif
     } else if (cmdID == ZBHCI_CMD_TXRX_PERFORMANCE_TEST_REQ) {
 #if AF_TEST_ENABLE
-        if (!g_afTestReq.performanceTest) {
-            memset((u8 *)&g_afTestReq, 0, sizeof(zbhci_afTestReq_t));
-            g_afTestReq.performanceTest = 1;
-            txrx_performce_test_req_t *txrxTest = (txrx_performce_test_req_t *)ev_buf_allocate(sizeof(txrx_performce_test_req_t));
-            if (txrxTest) {
-                memcpy(txrxTest, p, sizeof(txrx_performce_test_req_t));
-                TL_ZB_TIMER_SCHEDULE(rxtx_performance_test, txrxTest, 10);
-            }
+        if (g_afTest.afTestTimerEvt) {
+            TL_ZB_TIMER_CANCEL(&g_afTest.afTestTimerEvt);
+        }
+
+        memset((u8 *)&g_afTest, 0, sizeof(zbhci_afTest_t));
+
+        g_afTest.dstAddr = (p[0] << 8) + p[1];
+        p += 2;
+        g_afTest.srcEp = *p++;
+        g_afTest.dstEp = *p++;
+        g_afTest.packetCnt = (p[0] << 8) + p[1];
+        p += 2;
+        g_afTest.interval = *p++;
+        g_afTest.txPowerIdx = *p++;
+
+        //g_zb_txPowerSet = req.txPowerIdx;
+        //rf_setTxPower(req.txPowerIdx);
+
+        g_afTest.state = 0;
+
+        if (g_afTest.interval) {
+            g_afTest.afTestTimerEvt = TL_ZB_TIMER_SCHEDULE(performance_test, NULL, (u32)g_afTest.interval * 10);
         }
 #endif
     } else if (cmdID == ZBHCI_CMD_AF_DATA_SEND_TEST_REQ) {

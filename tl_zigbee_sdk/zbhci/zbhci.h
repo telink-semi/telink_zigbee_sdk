@@ -326,23 +326,22 @@ typedef struct _attribute_packed_ {
  * @brief  the hci command format to set test data to get the percent received
  *
  * */
-typedef struct {
+typedef struct _attribute_packed_ {
     u16 dstAddr;
     u8  srcEp;
     u8  dstEp;
     u16	sendCnt;
     u8  interval; //unit: 10ms
     u8  txPowerSet;
-    u8  payload[6];
 } txrx_performce_test_req_t;
 
-typedef struct {
+typedef struct _attribute_packed_ {
     u16 dstAddr;
     u16 sendCnt;
     u16 ackCnt;
 } txrx_performce_test_rsp_t;
 
-typedef struct {
+typedef struct _attribute_packed_ {
     u16 dstAddr;
     u8  srcEp;
     u8  dstEp;
@@ -351,7 +350,7 @@ typedef struct {
     u8  payload[];
 } zbhci_afDataSend_req_t;
 
-typedef struct {
+typedef struct _attribute_packed_ {
     u16 srcAddr;
     u8  srcEp;
     u8  dstEp;
@@ -364,7 +363,7 @@ typedef struct {
     addrExt_t macAddr;
 } zbhci_mgmt_nodeDeleteReq_t;
 
-typedef struct {
+typedef struct _attribute_packed_ {
     u16 totalCnt;
     addrExt_t macAddr;
 } zbhci_nodeLeaveInd_t;
@@ -379,16 +378,28 @@ typedef struct _attribute_packed_ {
     u8 apsCnt;
 } zbhci_app_data_confirm_t;
 
+#define REASON_TABLE_SIZE       8
+
 typedef struct {
-    ev_timer_event_t *performanceTestTmrEvt;
+    u8 status;
+    u8 cnt;
+} zbhci_fail_reason_t;
+
+typedef struct {
+    ev_timer_event_t *afTestTimerEvt;
+    u16 dstAddr;
+    u16 packetCnt;
+    u8  srcEp;
+    u8  dstEp;
+    u8  interval; //unit: 10ms
+    u8  txPowerIdx;
+
     u16 sendTotalCnt;
     u16 sendSuccessCnt;
-    u16 rcvTotalCnt;
-    u16 dstAddr;
-    u8  dstEp;
-    u8  dataApsCnt;
-    u8  performanceTest;
-} zbhci_afTestReq_t;
+    u8 state; //0 - idle; 1 - waiting for data confirm
+    u8 apsCnt;
+    zbhci_fail_reason_t reason[REASON_TABLE_SIZE];
+} zbhci_afTest_t;
 
 typedef struct {
     u32 otaFlashAddrStart;
@@ -406,14 +417,11 @@ typedef struct {
     u8 startIdx;        /*! start of the child table index */
 } zbhci_childNodeGetReq_t;
 
-extern zbhci_afTestReq_t g_afTestReq;
-
 
 u8 crc8Calculate(u16 type, u16 length, u8 *data);
 void zbhciCmdHandler(u16 msgType, u16 msgLen, u8 *p);
 void zbhciAppDataSendConfirmPush(void *arg);
 void zbhciAppNodeLeaveIndPush(void *arg);
-void zbhciAfDataPerformanceResultPush(void);
 void zbhciAfDataRcvIndPush(void *arg);
 void zbhciAfDataCnfPush(void *arg);
 bool zbhciMacAddrGetPush(addrExt_t devExtAddr);

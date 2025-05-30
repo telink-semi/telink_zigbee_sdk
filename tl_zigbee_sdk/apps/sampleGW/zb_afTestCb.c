@@ -82,7 +82,7 @@ static void afTest_testReqPrc(apsdeDataInd_t *pApsdeInd)
         *pData++ = HI_UINT16(g_afTest_rcvReqCnt);
 
         for (u8 i = 0; i < dataLen - 2; i++) {
-                *pData++ = i;
+            *pData++ = i;
         }
 
         u8 apsCnt = 0;
@@ -122,9 +122,7 @@ void afTest_rx_handler(void *arg)
         afTest_testReqPrc(pApsdeInd);
         break;
     case ZCL_CLUSTER_TELINK_SDK_TEST_RSP:
-#if ZBHCI_EN
-        zbhciAfDataPerformanceResultPush();
-#endif
+
         break;
     default:
         break;
