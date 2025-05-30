@@ -27,7 +27,9 @@
  * INCLUDES
  */
 #include "zcl_include.h"
-
+#ifdef ZCL_OTA
+#include "ota.h"
+#endif
 
 /**********************************************************************
  * LOCAL CONSTANTS
@@ -2240,21 +2242,39 @@ _CODE_ZCL_ zclDefaultRspCmd_t *zcl_parseInDftRspCmd(zclIncoming_t *pCmd)
 
 _CODE_ZCL_ status_t zcl_dfltRspHandler(zclIncoming_t *pCmd)
 {
-	zclDefaultRspCmd_t *pDfltRspCmd = NULL;
+    u16 clusterId = pCmd->msg->indInfo.cluster_id;
+    u8 endpoint = pCmd->msg->indInfo.dst_ep;
 
-	if(!pCmd->hdr.frmCtrl.bf.disDefResp){
-		pCmd->hdr.frmCtrl.bf.disDefResp = 1;
-	}
+    if (!pCmd->hdr.frmCtrl.bf.disDefResp) {
+        pCmd->hdr.frmCtrl.bf.disDefResp = 1;
+    }
 
-	/* Parse In Default Response Command */
-	pDfltRspCmd = zcl_parseInDftRspCmd(pCmd);
-	if(pDfltRspCmd == NULL){
-		return ZCL_STA_INSUFFICIENT_SPACE;
-	}else{
-		pCmd->attrCmd = (void *)pDfltRspCmd;
-	}
+    /* Parse In Default Response Command */
+    zclDefaultRspCmd_t *pDfltRspCmd = zcl_parseInDftRspCmd(pCmd);
+    if (pDfltRspCmd == NULL) {
+        return ZCL_STA_INSUFFICIENT_SPACE;
+    } else {
+        pCmd->attrCmd = (void *)pDfltRspCmd;
+    }
 
-	return ZCL_STA_SUCCESS;
+#ifdef ZCL_OTA //for test-case:OTA-TC-14C
+    if ((clusterId == ZCL_CLUSTER_OTA) &&
+        (pDfltRspCmd->commandID == ZCL_CMD_OTA_UPGRADE_END_REQ) &&
+        (pDfltRspCmd->statusCode == ZCL_STA_ABORT)) {
+        u16 dataLen = 0;
+        u8 data = 0;
+
+        if (ZCL_STA_SUCCESS == zcl_getAttrVal(endpoint, ZCL_CLUSTER_OTA,
+                                              ZCL_ATTRID_OTA_IMAGE_UPGRADE_STATUS,
+                                              &dataLen, (u8 *)&data)) {
+            if (data == IMAGE_UPGRADE_STATUS_DOWNLOAD_COMPLETE) {
+                ota_upgradeAbort();
+            }
+        }
+    }
+#endif
+
+    return ZCL_STA_SUCCESS;
 }
 
 /***************************************************************************

@@ -214,14 +214,6 @@ static void sampleLight_zclWriteRspCmd(zclWriteRspCmd_t *pWriteRspCmd)
 static void sampleLight_zclDfltRspCmd(zclDefaultRspCmd_t *pDftRspCmd)
 {
     //printf("sampleLight_zclDfltRspCmd\n");
-#ifdef ZCL_OTA
-    if ((pDftRspCmd->commandID == ZCL_CMD_OTA_UPGRADE_END_REQ) &&
-        (pDftRspCmd->statusCode == ZCL_STA_ABORT)) {
-        if (zcl_attr_imageUpgradeStatus == IMAGE_UPGRADE_STATUS_DOWNLOAD_COMPLETE) {
-            ota_upgradeAbort();
-        }
-    }
-#endif
 }
 
 #ifdef ZCL_REPORT
