@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #pragma once
 
 #if defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
@@ -36,33 +35,29 @@ int tl_printf(const char *format, ...);
 
 #if (UART_PRINTF_MODE || USB_PRINTF_MODE)
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-	#define printf										tl_printf
+    #define printf                                      tl_printf
 #endif
+    #define TRACE                                       printf
 
-	#define TRACE										printf
+    #define DEBUG(compileFlag, ...)                     do{ \
+                                                            if(compileFlag) TRACE(__VA_ARGS__); \
+                                                        }while(0)
 
-	#define	DEBUG(compileFlag, ...)						do{	\
-															if(compileFlag) TRACE(__VA_ARGS__);		\
-														}while(0)
-
-	#define DEBUG_ARRAY(compileFlag, arrayAddr, len)	do{	\
-															if(compileFlag){											\
-																TRACE("*********************************\n");			\
-																unsigned char i = 0;									\
-																do{														\
-																	TRACE(" %x", ((unsigned char *)arrayAddr)[i++]);	\
-																}while(i < len);										\
-																TRACE("\n*********************************\n");			\
-															}															\
-														}while(0)
+    #define DEBUG_ARRAY(compileFlag, arrayAddr, len)    do{ \
+                                                            if (compileFlag) { \
+                                                                TRACE("*********************************\n"); \
+                                                                unsigned char i = 0; \
+                                                                do { \
+                                                                    TRACE(" %x", ((unsigned char *)arrayAddr)[i++]); \
+                                                                } while(i < len); \
+                                                                TRACE("\n*********************************\n"); \
+                                                            } \
+                                                        }while(0)
 #else
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-	#define printf
+    #define printf(...)
 #endif
-
-	#define TRACE
-	#define	DEBUG(compileFlag, ...)
-	#define DEBUG_ARRAY(compileFlag, arrayAddr, len)
+    #define TRACE(...)
+    #define DEBUG(compileFlag, ...)
+    #define DEBUG_ARRAY(compileFlag, arrayAddr, len)
 #endif
-
-
