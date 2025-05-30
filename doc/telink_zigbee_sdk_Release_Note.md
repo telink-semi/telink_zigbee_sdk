@@ -1,3 +1,104 @@
+## V3.7.1.4(PR)
+
+### Version
+* Chips
+  - TC32: TLSR8269/TLSR8258/TLSR8278
+  - RISCV: TLSR921x(B91)/TLSR952x(B92)/TL721x A2/TL321x A2
+* Hardware Version
+  - TLSR8258: C1T139A30_V1_2/C1T139A3_V2.0A
+  - TLSR921x(B91): C1T213A20_V1_3/C1T213A3_V1_1
+  - TL321x: C1T335A20_V1_3/C1T335A3_V1_0
+* Driver Version
+  - tl_platform_sdk V3.5.0
+* Toolchain Version
+  - TLSR8269/TLSR8258/TLSR8278: TC32 ELF GCC4.3
+  - TLSR921x(B91): TL32 ELF MCULIB V5F GCC7.4
+  - TLSR952x(B92)/TL721x: TL32 ELF MCULIB V5F GCC12.2
+  - TL321x: TL32 ELF MCULIB V5 GCC12.2
+### Features
+* N/A
+### Bug Fixes
+* Add interrupt protection to the sending queue at the MAC layer.
+* Fix the Alarm cluster and IAS Zone cluster handlers.
+* Update the handling of the default response of the ota upgrade end request command.
+* Fix the issue of removing all groups.
+### Performance
+* N/A
+### Code Refactoring
+* Code style
+### BREAKING CHANGES
+* N/A
+### Flash
+|   chip   |                  flash                  |
+| :------- | :-------------------------------------: |
+| TLSR8258 | GD25LD40C/GD25LD40E/GD25LD80C/GD25LD80E |
+| TLSR8278 |                    /                    |
+| TLSR921x |        P25Q80U/P25Q80SU/P25Q16SU        |
+| TLSR952x |                    /                    |
+| TL721x   |                    /                    |
+| TL321x   |        P25Q80SU/P25Q16SU/P25Q32SU       | 
+### CodeSize
+* Units: KBytes
+
+|   chip   | sampleGW (RAM/FLASH Size) | sampleLight (RAM/FLASH Size) | sampleSwitch (RAM/FLASH Size) |
+| :------- | :-----------------------: | :--------------------------: | :---------------------------: |
+| TLSR8258 | 34 / 176                  | 32 / 196                     | 22 / 138                      |
+| TLSR8278 |  - / -                    |  - / -                       |  - / -                        |
+| TLSR921x | 36 / 161                  | 34 / 180                     | 24 / 122                      |
+| TLSR952x |  - / -                    |  - / -                       |  - / -                        |
+| TL721x   |  - / -                    |  - / -                       |  - / -                        |
+| TL321x   | 37 / 176                  | 35 / 198                     | 28 / 140                      |
+
+### Version
+* 芯片
+  - TC32: TLSR8269/TLSR8258/TLSR8278
+  - RISCV: TLSR921x(B91)/TLSR952x(B92)/TL721x A2/TL321x A2
+* 硬件版本
+  - TLSR8258: C1T139A30_V1_2/C1T139A3_V2.0A
+  - TLSR921x(B91): C1T213A20_V1_3/C1T213A3_V1_1
+  - TL321x: C1T335A20_V1_3/C1T335A3_V1_0
+* 驱动版本
+  - tl_platform_sdk V3.5.0
+* 工具链版本
+  - TLSR8269/TLSR8258/TLSR8278: TC32 ELF GCC4.3
+  - TLSR921x(B91): TL32 ELF MCULIB V5F GCC7.4
+  - TLSR952x(B92)/TL721x: TL32 ELF MCULIB V5F GCC12.2
+  - TL321x: TL32 ELF MCULIB V5 GCC12.2
+### Features
+* N/A
+### Bug Fixes
+* 在MAC层发送队列添加中断保护。
+* 修复Alarm和IAS Zone集群的处理程序。
+* 更新OTA结束请求命令的默认应答处理程序。
+* 修复删除所有组的命令处理。
+### Performance
+* N/A
+### Code Refactoring
+* 代码风格
+### BREAKING CHANGES
+* N/A
+### Flash
+|   chip   |                  flash                  |
+| :------- | :-------------------------------------: |
+| TLSR8258 | GD25LD40C/GD25LD40E/GD25LD80C/GD25LD80E |
+| TLSR8278 |                    /                    |
+| TLSR921x |        P25Q80U/P25Q80SU/P25Q16SU        |
+| TLSR952x |                    /                    |
+| TL721x   |                    /                    |
+| TL321x   |        P25Q80SU/P25Q16SU/P25Q32SU       | 
+### CodeSize
+* 单位: KBytes
+
+|   chip   | sampleGW (RAM/FLASH Size) | sampleLight (RAM/FLASH Size) | sampleSwitch (RAM/FLASH Size) |
+| :------- | :-----------------------: | :--------------------------: | :---------------------------: |
+| TLSR8258 | 34 / 176                  | 32 / 196                     | 22 / 138                      |
+| TLSR8278 |  - / -                    |  - / -                       |  - / -                        |
+| TLSR921x | 36 / 161                  | 34 / 180                     | 24 / 122                      |
+| TLSR952x |  - / -                    |  - / -                       |  - / -                        |
+| TL721x   |  - / -                    |  - / -                       |  - / -                        |
+| TL321x   | 37 / 176                  | 35 / 198                     | 28 / 140                      |
+
+
 ## V3.7.1.3(ER)
 
 ### Version
