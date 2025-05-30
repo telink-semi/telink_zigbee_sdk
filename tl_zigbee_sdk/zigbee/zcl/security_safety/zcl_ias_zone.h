@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #ifndef ZCL_IAS_ZONE_H
 #define ZCL_IAS_ZONE_H
 
@@ -34,78 +33,78 @@
  *  @brief  Size of ZCL zone table
  */
 #ifndef ZCL_ZONE_TABLE_NUM
-#define ZCL_ZONE_TABLE_NUM										5
+#define ZCL_ZONE_TABLE_NUM                              5
 #endif
 
 
 /* Command ID */
 // Client generated command
-#define ZCL_CMD_ZONE_ENROLL_RSP                                	0x00
-#define ZCL_CMD_INIT_NORMAL_OPERATION_MODE						0x01
-#define ZCL_CMD_INIT_TEST_MODE									0x02
+#define ZCL_CMD_ZONE_ENROLL_RSP                         0x00
+#define ZCL_CMD_INIT_NORMAL_OPERATION_MODE              0x01
+#define ZCL_CMD_INIT_TEST_MODE                          0x02
 
 // Server generated command
-#define ZCL_CMD_ZONE_STATUS_CHANGE_NOTIFICATION                 0x00
-#define ZCL_CMD_ZONE_ENROLL_REQ                                	0x01
+#define ZCL_CMD_ZONE_STATUS_CHANGE_NOTIFICATION         0x00
+#define ZCL_CMD_ZONE_ENROLL_REQ                         0x01
 
 
 /* Attribute ID */
-#define ZCL_ATTRID_ZONE_STATE                             		0x0000
-#define ZCL_ATTRID_ZONE_TYPE                              		0x0001
-#define ZCL_ATTRID_ZONE_STATUS                            		0x0002
-#define ZCL_ATTRID_IAS_CIE_ADDR                           		0x0010
-#define ZCL_ATTRID_ZONE_ID								  		0x0011
+#define ZCL_ATTRID_ZONE_STATE                           0x0000
+#define ZCL_ATTRID_ZONE_TYPE                            0x0001
+#define ZCL_ATTRID_ZONE_STATUS                          0x0002
+#define ZCL_ATTRID_IAS_CIE_ADDR                         0x0010
+#define ZCL_ATTRID_ZONE_ID                              0x0011
 
 
 /* Zone States Definition */
-#define ZONE_STATE_NOT_ENROLLED                           		0x00
-#define ZONE_STATE_ENROLLED                               		0x01
+#define ZONE_STATE_NOT_ENROLLED                         0x00
+#define ZONE_STATE_ENROLLED                             0x01
 
 
 /* Zone Types Definition */
-#define ZONE_TYPE_STANDARD_CIE                            		0x0000
-#define ZONE_TYPE_MOTION_SENSOR                           		0x000D
-#define ZONE_TYPE_CONTACT_SWITCH                          		0x0015
-#define ZONE_TYPE_DOOR_WINDOW_HANDLE							0x0016
-#define ZONE_TYPE_FIRE_SENSOR                             		0x0028
-#define ZONE_TYPE_WATER_SENSOR                            		0x002A
-#define ZONE_TYPE_CARBON_MONOXIDE_SENSOR                        0x002B
-#define ZONE_TYPE_PERSONAL_EMERGENCY_DEV                  		0x002C
-#define ZONE_TYPE_VIBRATION_MOVEMENT_SENSOR                     0x002D
-#define ZONE_TYPE_REMOTE_CONTROL                          		0x010F
-#define ZONE_TYPE_KEY_FOB                                 		0x0115
-#define ZONE_TYPE_KEY_PAD                                 		0x021D
-#define ZONE_TYPE_STANDARD_WARNING_DEV                    		0x0225
-#define ZONE_TYPE_GLASS_BREAK_SENSOR							0x0226
-#define ZONE_TYPE_SECURITY_REPEATER								0x0229
-#define ZONE_TYPE_INVALID_ZONE_TYPE                            	0xFFFF
+#define ZONE_TYPE_STANDARD_CIE                          0x0000
+#define ZONE_TYPE_MOTION_SENSOR                         0x000D
+#define ZONE_TYPE_CONTACT_SWITCH                        0x0015
+#define ZONE_TYPE_DOOR_WINDOW_HANDLE                    0x0016
+#define ZONE_TYPE_FIRE_SENSOR                           0x0028
+#define ZONE_TYPE_WATER_SENSOR                          0x002A
+#define ZONE_TYPE_CARBON_MONOXIDE_SENSOR                0x002B
+#define ZONE_TYPE_PERSONAL_EMERGENCY_DEV                0x002C
+#define ZONE_TYPE_VIBRATION_MOVEMENT_SENSOR             0x002D
+#define ZONE_TYPE_REMOTE_CONTROL                        0x010F
+#define ZONE_TYPE_KEY_FOB                               0x0115
+#define ZONE_TYPE_KEY_PAD                               0x021D
+#define ZONE_TYPE_STANDARD_WARNING_DEV                  0x0225
+#define ZONE_TYPE_GLASS_BREAK_SENSOR                    0x0226
+#define ZONE_TYPE_SECURITY_REPEATER                     0x0229
+#define ZONE_TYPE_INVALID_ZONE_TYPE                     0xFFFF
 
 
 /* Zone Status Bitmap */
-#define ZONE_STATUS_BIT_ALARM1                            		0x0001
-#define ZONE_STATUS_BIT_ALARM2                            		0x0002
-#define ZONE_STATUS_BIT_TAMPER                            		0x0004
-#define ZONE_STATUS_BIT_BATTERY                           		0x0008
-#define ZONE_STATUS_BIT_SUPERVISION_NOTIFY               		0x0010
-#define ZONE_STATUS_BIT_RESTORE_NOTIFY                   		0x0020
-#define ZONE_STATUS_BIT_TROUBLE                           		0x0040
-#define ZONE_STATUS_BIT_AC_MAINS                          		0x0080
-#define ZONE_STATUS_TEST										0x0100
-#define ZONE_STATUS_BATTERY_DEFECT								0x0200
+#define ZONE_STATUS_BIT_ALARM1                          0x0001
+#define ZONE_STATUS_BIT_ALARM2                          0x0002
+#define ZONE_STATUS_BIT_TAMPER                          0x0004
+#define ZONE_STATUS_BIT_BATTERY                         0x0008
+#define ZONE_STATUS_BIT_SUPERVISION_NOTIFY              0x0010
+#define ZONE_STATUS_BIT_RESTORE_NOTIFY                  0x0020
+#define ZONE_STATUS_BIT_TROUBLE                         0x0040
+#define ZONE_STATUS_BIT_AC_MAINS                        0x0080
+#define ZONE_STATUS_TEST                                0x0100
+#define ZONE_STATUS_BATTERY_DEFECT                      0x0200
 
 
 /* Enroll Response Code */
-#define ZONE_ENROLL_SUCC                                  		0x00
-#define ZONE_ENROLL_NOT_SUPPORTED                         		0x01
-#define ZONE_ENROLL_NOT_ENROLL_PERMIT                     		0x02
-#define ZONE_ENROLL_TOO_MANY_ZONES                         		0x03
+#define ZONE_ENROLL_SUCC                                0x00
+#define ZONE_ENROLL_NOT_SUPPORTED                       0x01
+#define ZONE_ENROLL_NOT_ENROLL_PERMIT                   0x02
+#define ZONE_ENROLL_TOO_MANY_ZONES                      0x03
 
 
 /**
  *  @brief  NO. of ZCL zone id (0 ~ 0xFE)
  */
-#define ZCL_ZONE_MAX_ZONE_ID									0xFE
-#define ZCL_ZONE_ID_INVALID										0xFF
+#define ZCL_ZONE_MAX_ZONE_ID                            0xFE
+#define ZCL_ZONE_ID_INVALID                             0xFF
 
 /*********************************************************************
  * ENUMS
@@ -137,8 +136,8 @@ typedef struct {
  */
 typedef struct {
     u16 zoneStatus;
-    u8 	extStatus;
-    u8	zoneId;
+    u8 extStatus;
+    u8 zoneId;
     u16 delay;
 } zoneStatusChangeNoti_t;
 
@@ -154,18 +153,18 @@ typedef struct {
 /**
  *  @brief  Definition for ZCL zone table entry
  */
-typedef struct _attribute_packed_{
-	u8   zoneId;
-    u16  zoneType;
+typedef struct _attribute_packed_ {
+    u8 zoneId;
+    u16 zoneType;
     addrExt_t zoneAddr;
 } zcl_zoneTabEntry_t;
 
 /**
  *  @brief  Definition for ZCL zone table information
  */
-typedef struct _attribute_packed_{
-	u8  used;
-    u8  endpoint;
+typedef struct _attribute_packed_ {
+    u8 used;
+    u8 endpoint;
     zcl_zoneTabEntry_t zone;
 } zcl_zoneTable_t;
 
@@ -183,11 +182,11 @@ typedef void (*zcl_enrollReqCb_t)(apsdeDataInd_t *pApsdeInd, zoneEnrollReq_t *pZ
  *  @brief  Structure definition for commands callback functions in ias zone cluster
  */
 typedef struct {
-	zcl_enrollRspCb_t    				enrollRspCbFunc;
-	zcl_initNormalOperationModeCb_t		initNormalOperationModeCbFunc;
-	zcl_initTestModeCb_t				initTestModeCbFunc;
-	zcl_statusChangeNotificationCb_t 	statusChangeNotificationCbFunc;
-	zcl_enrollReqCb_t    				enrollReqCbFunc;
+    zcl_enrollRspCb_t enrollRspCbFunc;
+    zcl_initNormalOperationModeCb_t initNormalOperationModeCbFunc;
+    zcl_initTestModeCb_t initTestModeCbFunc;
+    zcl_statusChangeNotificationCb_t statusChangeNotificationCbFunc;
+    zcl_enrollReqCb_t enrollReqCbFunc;
 } zcl_iasZone_AppCallbacks_t;
 
 
@@ -213,16 +212,16 @@ status_t zcl_iasZone_register(u8 endpoint, u16 manuCode, u8 attrNum, const zclAt
 
 
 status_t zcl_iasZone_enrollReq(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, zoneEnrollReq_t *pEnrollReq);
-#define zcl_iasZone_enrollReqCmd(a,b,c,d)	(zcl_iasZone_enrollReq((a), (b), (c), ZCL_SEQ_NUM, (d)))
+#define zcl_iasZone_enrollReqCmd(a,b,c,d)                       (zcl_iasZone_enrollReq((a), (b), (c), ZCL_SEQ_NUM, (d)))
 
 status_t zcl_iasZone_initNormalOperationMode(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo);
-#define zcl_iasZone_initNormalOperationModeCmd(a,b,c)	(zcl_iasZone_initNormalOperationMode((a), (b), (c), ZCL_SEQ_NUM))
+#define zcl_iasZone_initNormalOperationModeCmd(a,b,c)           (zcl_iasZone_initNormalOperationMode((a), (b), (c), ZCL_SEQ_NUM))
 
 status_t zcl_iasZone_initTestMode(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, zoneInitTestMode_t *pInitTestMode);
-#define zcl_iasZone_initTestModeCmd(a,b,c,d)	(zcl_iasZone_initTestMode((a), (b), (c), ZCL_SEQ_NUM, (d)))
+#define zcl_iasZone_initTestModeCmd(a,b,c,d)                    (zcl_iasZone_initTestMode((a), (b), (c), ZCL_SEQ_NUM, (d)))
 
 status_t zcl_iasZone_statusChangeNotification(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, zoneStatusChangeNoti_t *pStatusChangeNoti);
-#define zcl_iasZone_statusChangeNotificationCmd(a,b,c,d)	(zcl_iasZone_statusChangeNotification((a), (b), (c), ZCL_SEQ_NUM, (d)))
+#define zcl_iasZone_statusChangeNotificationCmd(a,b,c,d)        (zcl_iasZone_statusChangeNotification((a), (b), (c), ZCL_SEQ_NUM, (d)))
 
 
 extern zcl_zoneTable_t *zcl_findZoneEntry(u8 endpoint, u8 zoneId);

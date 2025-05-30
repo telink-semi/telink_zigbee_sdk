@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #if 0
 #include "tl_common.h"
 
@@ -49,16 +48,15 @@
 u16 zcl_attr_alarmCount = 0;
 
 /* Attribute record list */
-const zclAttrInfo_t alarm_attrTbl[] =
-{
+const zclAttrInfo_t alarm_attrTbl[] = {
 #ifdef ZCL_ATTR_ALARM_COUNT_ENABLE
-	{ ZCL_ATTRID_ALARM_COUNT,  ZCL_DATA_TYPE_UINT16,   ACCESS_CONTROL_READ,  (u8*)&zcl_attr_alarmCount},
+    { ZCL_ATTRID_ALARM_COUNT,             ZCL_DATA_TYPE_UINT16, ACCESS_CONTROL_READ, (u8*)&zcl_attr_alarmCount},
 #endif
-	{ ZCL_ATTRID_GLOBAL_CLUSTER_REVISION, ZCL_DATA_TYPE_UINT16,  ACCESS_CONTROL_READ,  (u8*)&zcl_attr_global_clusterRevision},
+    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION, ZCL_DATA_TYPE_UINT16, ACCESS_CONTROL_READ, (u8*)&zcl_attr_global_clusterRevision},
 };
 
-const u8 zcl_alarm_attrNum = ( sizeof(alarm_attrTbl) / sizeof(zclAttrInfo_t) );
+const u8 zcl_alarm_attrNum = (sizeof(alarm_attrTbl) / sizeof(zclAttrInfo_t));
 
-#endif    /* ZCL_ALARMS */
+#endif /* ZCL_ALARMS */
 
 #endif
