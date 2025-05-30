@@ -558,7 +558,6 @@
 ./tl_zigbee_sdk/platform/chip_tl721x/lib/include/emi_internal.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_tl721x/lib/include/flash_base.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_tl721x/lib/include/mspi.h			TELINK_APACHE 
-./tl_zigbee_sdk/platform/chip_tl721x/lib/include/otp.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_tl721x/lib/include/plic.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_tl721x/lib/include/stimer.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_tl721x/lib/include/swire.h			TELINK_APACHE 
@@ -593,6 +592,8 @@
 ./tl_zigbee_sdk/platform/chip_tl721x/lib/include/hash/sha512_224.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_tl721x/lib/include/hash/sha512_256.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_tl721x/lib/include/hash/sm3.h			TELINK_APACHE 
+./tl_zigbee_sdk/platform/chip_tl721x/lib/include/otp/otp.h			TELINK_APACHE 
+./tl_zigbee_sdk/platform/chip_tl721x/lib/include/otp/otp_internal.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_tl721x/lib/include/pke/eccp_curve.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_tl721x/lib/include/pke/ecdh.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_tl721x/lib/include/pke/ecdsa.h			TELINK_APACHE 
