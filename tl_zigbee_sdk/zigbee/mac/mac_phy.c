@@ -176,7 +176,7 @@ _attribute_ram_code_ u32 mac_currentTickGet(void)
  */
 void rf_reset(void)
 {
-    rf_setTrxState(RF_STATE_TX);
+    rf_setTrxState(RF_STATE_OFF);
 
     rf_setTxPower(g_zb_txPowerSet);
 
@@ -469,7 +469,7 @@ _attribute_ram_code_ u8 rf_performCCA(void)
 
     rssi_cur = ZB_RADIO_RSSI_GET();
     rssiSum += rssi_cur;
-    while (!clock_time_exceed(t1,128)) {
+    while (!clock_time_exceed(t1, 128)) {
         rssi_cur = ZB_RADIO_RSSI_GET();
         rssiSum += rssi_cur;
         cnt++;

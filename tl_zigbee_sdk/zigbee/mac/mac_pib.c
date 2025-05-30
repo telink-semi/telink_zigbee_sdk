@@ -173,14 +173,18 @@ _CODE_MAC_ void generateIEEEAddr(void)
          * xx xx xx CB 0B D8 xx xx
          * xx xx xx 77 5F D8 xx xx
          * xx xx xx B4 CF 3C xx xx
+         * xx xx xx C7 A3 C0 xx xx
+         * xx xx xx 28 22 38 xx xx
          *
          * so, it need to do shift
          */
-        if ((addr[3] == 0x38 && addr[4] == 0xC1 && addr[5] == 0xA4) ||
-            (addr[3] == 0xD1 && addr[4] == 0x19 && addr[5] == 0xC4) ||
-            (addr[3] == 0xCB && addr[4] == 0x0B && addr[5] == 0xD8) ||
-            (addr[3] == 0x77 && addr[4] == 0x5F && addr[5] == 0xD8) ||
-            (addr[3] == 0xB4 && addr[4] == 0xCF && addr[5] == 0x3C)) {
+        if ((addr[3] == 0x38 && addr[4] == 0xC1 && addr[5] == 0xA4) || \
+            (addr[3] == 0xD1 && addr[4] == 0x19 && addr[5] == 0xC4) || \
+            (addr[3] == 0xCB && addr[4] == 0x0B && addr[5] == 0xD8) || \
+            (addr[3] == 0x77 && addr[4] == 0x5F && addr[5] == 0xD8) || \
+            (addr[3] == 0xB4 && addr[4] == 0xCF && addr[5] == 0x3C) || \
+            (addr[3] == 0xC7 && addr[4] == 0xA3 && addr[5] == 0xC0) || \
+            (addr[3] == 0x28 && addr[4] == 0x22 && addr[5] == 0x38)) {
             flash_read(CFG_MAC_ADDRESS, 6, addr + 2);
             flash_read(CFG_MAC_ADDRESS + 6, 2, addr);
         }
