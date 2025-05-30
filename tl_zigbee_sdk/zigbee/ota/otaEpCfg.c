@@ -59,34 +59,32 @@ u16 zcl_attr_minBlockPeriod = 0;//in milliseconds
 //u32 zcl_attr_imageStamp = 0;
 
 /* Attribute record list */
-const zclAttrInfo_t ota_attrTbl[] =
-{
-	{ ZCL_ATTRID_OTA_UPGRADE_SERVER_ID,  		ZCL_DATA_TYPE_IEEE_ADDR,ACCESS_CONTROL_READ, (u8*)zcl_attr_upgradeServerID },
-	{ ZCL_ATTRID_OTA_FILE_OFFSET, 				ZCL_DATA_TYPE_UINT32, 	ACCESS_CONTROL_READ, (u8*)&zcl_attr_fileOffset },
-	{ ZCL_ATTRID_OTA_CURRENT_FILE_VER, 			ZCL_DATA_TYPE_UINT32, 	ACCESS_CONTROL_READ, (u8*)&zcl_attr_currFileVer },
-	{ ZCL_ATTRID_OTA_CURRENT_ZIGBEE_STACK_VER, 	ZCL_DATA_TYPE_UINT16, 	ACCESS_CONTROL_READ, (u8*)&zcl_attr_currZigbeeStackVer },
-	{ ZCL_ATTRID_OTA_DOWNLOAD_FILE_VER, 		ZCL_DATA_TYPE_UINT32, 	ACCESS_CONTROL_READ, (u8*)&zcl_attr_downloadFileVer },
-	{ ZCL_ATTRID_OTA_DOWNLOAD_ZIGBEE_STACK_VER, ZCL_DATA_TYPE_UINT16, 	ACCESS_CONTROL_READ, (u8*)&zcl_attr_downloadZigbeeStackVer },
-	{ ZCL_ATTRID_OTA_IMAGE_UPGRADE_STATUS, 		ZCL_DATA_TYPE_ENUM8 , 	ACCESS_CONTROL_READ, (u8*)&zcl_attr_imageUpgradeStatus },
-	{ ZCL_ATTRID_OTA_MANUFACTURER_ID, 			ZCL_DATA_TYPE_UINT16, 	ACCESS_CONTROL_READ, (u8*)&zcl_attr_manufacturerID },
-	{ ZCL_ATTRID_OTA_IMAGE_TYPE_ID, 			ZCL_DATA_TYPE_UINT16, 	ACCESS_CONTROL_READ, (u8*)&zcl_attr_imageTypeID },
-	{ ZCL_ATTRID_OTA_MINIMUM_BLOCK_PERIOD, 		ZCL_DATA_TYPE_UINT16, 	ACCESS_CONTROL_READ, (u8*)&zcl_attr_minBlockPeriod },
-//	{ ZCL_ATTRID_OTA_IMAGE_STAMP, 				ZCL_DATA_TYPE_UINT32, 	ACCESS_CONTROL_READ, (u8*)&zcl_attr_imageStamp },
-	{ ZCL_ATTRID_GLOBAL_CLUSTER_REVISION, 		ZCL_DATA_TYPE_UINT16,  	ACCESS_CONTROL_READ, (u8*)&zcl_attr_global_clusterRevision},
+const zclAttrInfo_t ota_attrTbl[] = {
+    { ZCL_ATTRID_OTA_UPGRADE_SERVER_ID,         ZCL_DATA_TYPE_IEEE_ADDR, ACCESS_CONTROL_READ, (u8*)zcl_attr_upgradeServerID },
+    { ZCL_ATTRID_OTA_FILE_OFFSET,               ZCL_DATA_TYPE_UINT32,    ACCESS_CONTROL_READ, (u8*)&zcl_attr_fileOffset },
+    { ZCL_ATTRID_OTA_CURRENT_FILE_VER,          ZCL_DATA_TYPE_UINT32,    ACCESS_CONTROL_READ, (u8*)&zcl_attr_currFileVer },
+    { ZCL_ATTRID_OTA_CURRENT_ZIGBEE_STACK_VER,  ZCL_DATA_TYPE_UINT16,    ACCESS_CONTROL_READ, (u8*)&zcl_attr_currZigbeeStackVer },
+    { ZCL_ATTRID_OTA_DOWNLOAD_FILE_VER,         ZCL_DATA_TYPE_UINT32,    ACCESS_CONTROL_READ, (u8*)&zcl_attr_downloadFileVer },
+    { ZCL_ATTRID_OTA_DOWNLOAD_ZIGBEE_STACK_VER, ZCL_DATA_TYPE_UINT16,    ACCESS_CONTROL_READ, (u8*)&zcl_attr_downloadZigbeeStackVer },
+    { ZCL_ATTRID_OTA_IMAGE_UPGRADE_STATUS,      ZCL_DATA_TYPE_ENUM8,     ACCESS_CONTROL_READ, (u8*)&zcl_attr_imageUpgradeStatus },
+    { ZCL_ATTRID_OTA_MANUFACTURER_ID,           ZCL_DATA_TYPE_UINT16,    ACCESS_CONTROL_READ, (u8*)&zcl_attr_manufacturerID },
+    { ZCL_ATTRID_OTA_IMAGE_TYPE_ID,             ZCL_DATA_TYPE_UINT16,    ACCESS_CONTROL_READ, (u8*)&zcl_attr_imageTypeID },
+    { ZCL_ATTRID_OTA_MINIMUM_BLOCK_PERIOD,      ZCL_DATA_TYPE_UINT16,    ACCESS_CONTROL_READ, (u8*)&zcl_attr_minBlockPeriod },
+//  { ZCL_ATTRID_OTA_IMAGE_STAMP,               ZCL_DATA_TYPE_UINT32,    ACCESS_CONTROL_READ, (u8*)&zcl_attr_imageStamp },
+    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,       ZCL_DATA_TYPE_UINT16,    ACCESS_CONTROL_READ, (u8*)&zcl_attr_global_clusterRevision},
 };
 
-#define ZCL_OTA_ATTR_NUM	sizeof(ota_attrTbl) / sizeof(zclAttrInfo_t)
+#define ZCL_OTA_ATTR_NUM        sizeof(ota_attrTbl) / sizeof(zclAttrInfo_t)
 
 
 /**
  *  @brief Definition for OTA ZCL specific cluster
  */
-const zcl_specClusterInfo_t g_otaClusterList[] =
-{
-	{ZCL_CLUSTER_OTA, MANUFACTURER_CODE_NONE, ZCL_OTA_ATTR_NUM,	ota_attrTbl, zcl_ota_register, zcl_otaCb},
+const zcl_specClusterInfo_t g_otaClusterList[] = {
+    {ZCL_CLUSTER_OTA, MANUFACTURER_CODE_NONE, ZCL_OTA_ATTR_NUM,	ota_attrTbl, zcl_ota_register, zcl_otaCb},
 };
 
-u8 OTA_CB_CLUSTER_NUM = (sizeof(g_otaClusterList)/sizeof(g_otaClusterList[0]));
+u8 OTA_CB_CLUSTER_NUM = (sizeof(g_otaClusterList) / sizeof(g_otaClusterList[0]));
 
 /**********************************************************************
  * FUNCTIONS

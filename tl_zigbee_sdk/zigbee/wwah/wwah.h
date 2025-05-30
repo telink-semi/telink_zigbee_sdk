@@ -22,34 +22,33 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #ifndef WWAH_H
 #define WWAH_H
 
 
-typedef enum{
-	WWAH_TYPE_CLIENT,
-	WWAH_TYPE_SERVER
-}wwah_type_e;
+typedef enum {
+    WWAH_TYPE_CLIENT,
+    WWAH_TYPE_SERVER
+} wwah_type_e;
 
 /**
  *  @brief Defined for wwah cluster attributes
  */
-typedef struct{
-	bool disableOTADowngrades;
-	bool mgmtLeaveWithoutRejoinEnabled;
-	u8 	 nwkRetryCount;
-	u8 	 macRetryCount;
-	bool routerCheckInEnabled;
-	bool touchlinkInterpanEnabled;
-	bool parentClassificationEnabled;
-	bool configurationModeEnabled;
-	u8	 currentDebugReportID;
-	bool tcSecurityOnNwkKeyRotationEnabled;
-	u8	 pendingNwkUpdateChannel;
-	u16	 pendingNwkUpdatePanID;
-	u16	 otaMaxOfflineDuration;
-}zcl_wwahAttr_t;
+typedef struct {
+    bool disableOTADowngrades;
+    bool mgmtLeaveWithoutRejoinEnabled;
+    u8 nwkRetryCount;
+    u8 macRetryCount;
+    bool routerCheckInEnabled;
+    bool touchlinkInterpanEnabled;
+    bool parentClassificationEnabled;
+    bool configurationModeEnabled;
+    u8 currentDebugReportID;
+    bool tcSecurityOnNwkKeyRotationEnabled;
+    u8 pendingNwkUpdateChannel;
+    u16 pendingNwkUpdatePanID;
+    u16 otaMaxOfflineDuration;
+} zcl_wwahAttr_t;
 
 
 extern const zcl_specClusterInfo_t g_wwahClusterList[];

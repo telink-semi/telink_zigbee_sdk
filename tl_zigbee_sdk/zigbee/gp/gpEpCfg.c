@@ -50,52 +50,48 @@
 /**
  *  @brief Definition for Incoming cluster / Sever Cluster
  */
-const u16 gp_inClusterList[] =
-{
+const u16 gp_inClusterList[] = {
 #if GP_BASIC_COMBO
-	ZCL_CLUSTER_GEN_GREEN_POWER
+    ZCL_CLUSTER_GEN_GREEN_POWER
 #endif
 };
 
 /**
  *  @brief Definition for Outgoing cluster / Client Cluster
  */
-const u16 gp_outClusterList[] =
-{
-	ZCL_CLUSTER_GEN_GREEN_POWER
+const u16 gp_outClusterList[] = {
+    ZCL_CLUSTER_GEN_GREEN_POWER
 };
 
 /**
  *  @brief Definition for Server cluster number and Client cluster number
  */
 #if GP_BASIC_COMBO
-	#define GP_IN_CLUSTER_NUM		1
-	#define GP_OUT_CLUSTER_NUM		1
+    #define GP_IN_CLUSTER_NUM           1
+    #define GP_OUT_CLUSTER_NUM          1
 #else
-	#define GP_IN_CLUSTER_NUM		0
-	#define GP_OUT_CLUSTER_NUM		1
+    #define GP_IN_CLUSTER_NUM           0
+    #define GP_OUT_CLUSTER_NUM          1
 #endif
 
 /**
  *  @brief Definition for simple description for HA profile
  */
-const af_simple_descriptor_t gp_simpleDesc =
-{
-	GP_PROFILE_ID,                      	/* Application profile identifier */
+const af_simple_descriptor_t gp_simpleDesc = {
+    GP_PROFILE_ID,              /* Application profile identifier */
 #if GP_BASIC_COMBO
-	GP_DEVICE_ID_COMBO_BASIC,               /* Application device identifier */
+    GP_DEVICE_ID_COMBO_BASIC,   /* Application device identifier */
 #else
-	GP_DEVICE_ID_PROXY_BASIC,               /* Application device identifier */
+    GP_DEVICE_ID_PROXY_BASIC,   /* Application device identifier */
 #endif
-	GREEN_POWER_ENDPOINT,              		/* Endpoint */
-	0,                                  	/* Application device version */
-	0,										/* Reserved */
-	GP_IN_CLUSTER_NUM,           			/* Application input cluster count */
-	GP_OUT_CLUSTER_NUM,          			/* Application output cluster count */
-	(u16 *)gp_inClusterList,    			/* Application input cluster list */
-	(u16 *)gp_outClusterList,   			/* Application output cluster list */
+    GREEN_POWER_ENDPOINT,       /* Endpoint */
+    0,                          /* Application device version */
+    0,                          /* Reserved */
+    GP_IN_CLUSTER_NUM,          /* Application input cluster count */
+    GP_OUT_CLUSTER_NUM,         /* Application output cluster count */
+    (u16 *)gp_inClusterList,    /* Application input cluster list */
+    (u16 *)gp_outClusterList,   /* Application output cluster list */
 };
-
 
 /* Attribute default */
 #if GP_BASIC_COMBO
@@ -122,43 +118,41 @@ u8 zclGpAttr_gpSharedSecKey[SEC_KEY_LEN] = {0};
 u8 zclGpAttr_gpLinkKey[SEC_KEY_LEN] = GP_LINK_KEY;
 
 /* Attribute record list */
-const zclAttrInfo_t gp_attrTbl[] =
-{
+const zclAttrInfo_t gp_attrTbl[] = {
 #if GP_BASIC_COMBO
-	/* Attributes of the GP server cluster */
-	{ ZCL_ATTRID_GP_GPS_MAX_SINK_TABLE_ENTRIES,   ZCL_DATA_TYPE_UINT8, 		  	 ACCESS_CONTROL_READ, 						 (u8*)&zclGpAttr_gpsMaxSinkTabEntries },
-	{ ZCL_ATTRID_GP_SINK_TABLE, 				  ZCL_DATA_TYPE_LONG_OCTET_STR,  ACCESS_CONTROL_READ, 						 (u8*)zclGpAttr_sinkTabEntry },
-	{ ZCL_ATTRID_GP_GPS_COMMUNICATION_MODE, 	  ZCL_DATA_TYPE_BITMAP8, 		 ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zclGpAttr_gpsCommMode },
-	{ ZCL_ATTRID_GP_GPS_COMMISSIONING_EXIT_MODE,  ZCL_DATA_TYPE_BITMAP8, 		 ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zclGpAttr_gpsCommExitMode },
-	{ ZCL_ATTRID_GP_GPS_COMMISSIONING_WINDOW, 	  ZCL_DATA_TYPE_UINT16, 		 ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zclGpAttr_gpsCommWindow },
-	{ ZCL_ATTRID_GP_GPS_SECURITY_LEVEL,			  ZCL_DATA_TYPE_BITMAP8, 		 ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zclGpAttr_gpsSecLevel },
-	{ ZCL_ATTRID_GP_GPS_FUNCTIONALITY, 			  ZCL_DATA_TYPE_BITMAP24, 	  	 ACCESS_CONTROL_READ, 						 (u8*)zclGpAttr_gpsFunc },
-	{ ZCL_ATTRID_GP_GPS_ACTIVE_FUNCTIONALITY,  	  ZCL_DATA_TYPE_BITMAP24, 	  	 ACCESS_CONTROL_READ, 						 (u8*)zclGpAttr_gpsActiveFunc },
+    /* Attributes of the GP server cluster */
+    { ZCL_ATTRID_GP_GPS_MAX_SINK_TABLE_ENTRIES,  ZCL_DATA_TYPE_UINT8,           ACCESS_CONTROL_READ,                        (u8*)&zclGpAttr_gpsMaxSinkTabEntries },
+    { ZCL_ATTRID_GP_SINK_TABLE,                  ZCL_DATA_TYPE_LONG_OCTET_STR,  ACCESS_CONTROL_READ,                        (u8*)zclGpAttr_sinkTabEntry },
+    { ZCL_ATTRID_GP_GPS_COMMUNICATION_MODE,      ZCL_DATA_TYPE_BITMAP8,         ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zclGpAttr_gpsCommMode },
+    { ZCL_ATTRID_GP_GPS_COMMISSIONING_EXIT_MODE, ZCL_DATA_TYPE_BITMAP8,         ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zclGpAttr_gpsCommExitMode },
+    { ZCL_ATTRID_GP_GPS_COMMISSIONING_WINDOW,    ZCL_DATA_TYPE_UINT16,          ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zclGpAttr_gpsCommWindow },
+    { ZCL_ATTRID_GP_GPS_SECURITY_LEVEL,          ZCL_DATA_TYPE_BITMAP8,         ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zclGpAttr_gpsSecLevel },
+    { ZCL_ATTRID_GP_GPS_FUNCTIONALITY,           ZCL_DATA_TYPE_BITMAP24,        ACCESS_CONTROL_READ,                        (u8*)zclGpAttr_gpsFunc },
+    { ZCL_ATTRID_GP_GPS_ACTIVE_FUNCTIONALITY,    ZCL_DATA_TYPE_BITMAP24,        ACCESS_CONTROL_READ,                        (u8*)zclGpAttr_gpsActiveFunc },
 #endif
-	/* Attributes of the GP client cluster */
-	{ ZCL_ATTRID_GP_GPP_MAX_PROXY_TABLE_ENTRIES,  ZCL_DATA_TYPE_UINT8, 	  		 ACCESS_CONTROL_READ, 						 (u8*)&zclGpAttr_gppMaxProxyTabEntries },
-	{ ZCL_ATTRID_GP_PROXY_TABLE,  				  ZCL_DATA_TYPE_LONG_OCTET_STR,  ACCESS_CONTROL_READ, 						 (u8*)zclGpAttr_proxyTabEntry },
-	{ ZCL_ATTRID_GP_GPP_FUNCTIONALITY,  		  ZCL_DATA_TYPE_BITMAP24, 	     ACCESS_CONTROL_READ, 						 (u8*)zclGpAttr_gppFunc },
-	{ ZCL_ATTRID_GP_GPP_ACTIVE_FUNCTIONALITY,  	  ZCL_DATA_TYPE_BITMAP24, 	     ACCESS_CONTROL_READ, 						 (u8*)zclGpAttr_gppActiveFunc },
-	/* Attributes shared by client and server of GP cluster */
-	{ ZCL_ATTRID_GP_SHARED_SECURITY_KEY_TYPE, 	  ZCL_DATA_TYPE_BITMAP8, 	   	 ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zclGpAttr_gpSharedSecKeyType },
-	{ ZCL_ATTRID_GP_SHARED_SECURITY_KEY,  	      ZCL_DATA_TYPE_128_BIT_SEC_KEY, ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)zclGpAttr_gpSharedSecKey },
-	{ ZCL_ATTRID_GP_LINK_KEY,  				      ZCL_DATA_TYPE_128_BIT_SEC_KEY, ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)zclGpAttr_gpLinkKey },
-	{ ZCL_ATTRID_GP_CLUSTER_REVISION,  		      ZCL_DATA_TYPE_UINT16, 	  	 ACCESS_CONTROL_READ, 						 (u8*)&zclGpAttr_clusterRev },
+    /* Attributes of the GP client cluster */
+    { ZCL_ATTRID_GP_GPP_MAX_PROXY_TABLE_ENTRIES, ZCL_DATA_TYPE_UINT8,           ACCESS_CONTROL_READ,                        (u8*)&zclGpAttr_gppMaxProxyTabEntries },
+    { ZCL_ATTRID_GP_PROXY_TABLE,                 ZCL_DATA_TYPE_LONG_OCTET_STR,  ACCESS_CONTROL_READ,                        (u8*)zclGpAttr_proxyTabEntry },
+    { ZCL_ATTRID_GP_GPP_FUNCTIONALITY,           ZCL_DATA_TYPE_BITMAP24,        ACCESS_CONTROL_READ,                        (u8*)zclGpAttr_gppFunc },
+    { ZCL_ATTRID_GP_GPP_ACTIVE_FUNCTIONALITY,    ZCL_DATA_TYPE_BITMAP24,        ACCESS_CONTROL_READ,                        (u8*)zclGpAttr_gppActiveFunc },
+    /* Attributes shared by client and server of GP cluster */
+    { ZCL_ATTRID_GP_SHARED_SECURITY_KEY_TYPE,    ZCL_DATA_TYPE_BITMAP8,         ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zclGpAttr_gpSharedSecKeyType },
+    { ZCL_ATTRID_GP_SHARED_SECURITY_KEY,         ZCL_DATA_TYPE_128_BIT_SEC_KEY, ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)zclGpAttr_gpSharedSecKey },
+    { ZCL_ATTRID_GP_LINK_KEY,                    ZCL_DATA_TYPE_128_BIT_SEC_KEY, ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)zclGpAttr_gpLinkKey },
+    { ZCL_ATTRID_GP_CLUSTER_REVISION,            ZCL_DATA_TYPE_UINT16,          ACCESS_CONTROL_READ,                        (u8*)&zclGpAttr_clusterRev },
 };
 
-#define ZCL_GP_ATTR_NUM		sizeof(gp_attrTbl) / sizeof(zclAttrInfo_t)
+#define ZCL_GP_ATTR_NUM         sizeof(gp_attrTbl) / sizeof(zclAttrInfo_t)
 
 
 /**
  *  @brief Definition for Green Power ZCL specific cluster
  */
-const zcl_specClusterInfo_t g_gpClusterList[] =
-{
-	{ZCL_CLUSTER_GEN_GREEN_POWER, MANUFACTURER_CODE_NONE, ZCL_GP_ATTR_NUM, gp_attrTbl, zcl_gp_register, zcl_gpCb},
+const zcl_specClusterInfo_t g_gpClusterList[] = {
+    {ZCL_CLUSTER_GEN_GREEN_POWER, MANUFACTURER_CODE_NONE, ZCL_GP_ATTR_NUM, gp_attrTbl, zcl_gp_register, zcl_gpCb},
 };
 
-u8 GP_CB_CLUSTER_NUM = (sizeof(g_gpClusterList)/sizeof(g_gpClusterList[0]));
+u8 GP_CB_CLUSTER_NUM = (sizeof(g_gpClusterList) / sizeof(g_gpClusterList[0]));
 
 /**********************************************************************
  * FUNCTIONS

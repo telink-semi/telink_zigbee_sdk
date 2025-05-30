@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #pragma once
 
 /* Includes: */
@@ -36,5 +35,3 @@
 #include "StdRequestType.h"
 #include "StdDescriptors.h"
 #include "USBController.h"
-
-

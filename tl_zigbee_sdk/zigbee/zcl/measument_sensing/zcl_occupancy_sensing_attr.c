@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #if 0
 #include "tl_common.h"
 
@@ -56,38 +55,37 @@ u16 zcl_attr_ultraUnoccu2OccuD = 0;
 u8  zcl_attr_ultraUnoccu2OccuT = 1;
 
 /* Attribute record list */
-const zclAttrInfo_t occupancy_attrTbl[] =
-{
+const zclAttrInfo_t occupancy_attrTbl[] = {
 #ifdef ZCL_ATTR_OCCUPANCY_ENABLE
-	{ ZCL_ATTRID_OCCUPANCY,  ZCL_DATA_TYPE_BITMAP8,   ACCESS_CONTROL_READ,  (u8*)&zcl_attr_occup},
+    { ZCL_ATTRID_OCCUPANCY,               ZCL_DATA_TYPE_BITMAP8, ACCESS_CONTROL_READ,                        (u8*)&zcl_attr_occup},
 #endif
 #ifdef ZCL_ATTR_OCCUPANCY_SENSOR_TYPE_ENABLE
-	{ ZCL_ATTRID_OCCUPANCY_SENSOR_TYPE,  ZCL_DATA_TYPE_ENUM8,   ACCESS_CONTROL_READ,  (u8*)&zcl_attr_occupSensorType},
+    { ZCL_ATTRID_OCCUPANCY_SENSOR_TYPE,   ZCL_DATA_TYPE_ENUM8,   ACCESS_CONTROL_READ,                        (u8*)&zcl_attr_occupSensorType},
 #endif
 
 #ifdef ZCL_ATTR_PIR_OCCU2UNOCCU_DELAY_ENABLE
-	{ ZCL_ATTRID_PIR_OCCU2UNOCCU_DELAY,  ZCL_DATA_TYPE_UINT16,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE,  (u8*)&zcl_attr_pirOccu2UncoouD},
+    { ZCL_ATTRID_PIR_OCCU2UNOCCU_DELAY,   ZCL_DATA_TYPE_UINT16,  ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_pirOccu2UncoouD},
 #endif
 #ifdef ZCL_ATTR_PIR_UNOCCU2OCCU_DELAY_ENABLE
-	{ ZCL_ATTRID_PIR_UNOCCU2OCCU_DELAY,  ZCL_DATA_TYPE_UINT16,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE,  (u8*)&zcl_attr_pirUnoccu2OccuD},
+    { ZCL_ATTRID_PIR_UNOCCU2OCCU_DELAY,   ZCL_DATA_TYPE_UINT16,  ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_pirUnoccu2OccuD},
 #endif
 #ifdef ZCL_ATTR_PIR_UNOCCU2OCCU_THRES_ENABLE
-	{ ZCL_ATTRID_PIR_UNOCCU2OCCU_THRES,  ZCL_DATA_TYPE_UINT8,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE,  (u8*)&zcl_attr_pirUnoccu2OccuT},
+    { ZCL_ATTRID_PIR_UNOCCU2OCCU_THRES,   ZCL_DATA_TYPE_UINT8,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_pirUnoccu2OccuT},
 #endif
 
 #ifdef ZCL_ATTR_ULTRA_OCCU2UNOCCU_DELAY_ENABLE
-	{ ZCL_ATTRID_ULTRA_OCCU2UNOCCU_DELAY,  ZCL_DATA_TYPE_UINT16,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE,  (u8*)&zcl_attr_ultraOccu2UncoouD},
+    { ZCL_ATTRID_ULTRA_OCCU2UNOCCU_DELAY, ZCL_DATA_TYPE_UINT16,  ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_ultraOccu2UncoouD},
 #endif
 #ifdef ZCL_ATTR_ULTRA_UNOCCU2OCCU_DELAY_ENABLE
-	{ ZCL_ATTRID_ULTRA_UNOCCU2OCCU_DELAY,  ZCL_DATA_TYPE_UINT16,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE,  (u8*)&zcl_attr_ultraUnoccu2OccuD},
+    { ZCL_ATTRID_ULTRA_UNOCCU2OCCU_DELAY, ZCL_DATA_TYPE_UINT16,  ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_ultraUnoccu2OccuD},
 #endif
 #ifdef ZCL_ATTR_ULTRA_UNOCCU2OCCU_THRES_ENABLE
-	{ ZCL_ATTRID_ULTRA_UNOCCU2OCCU_THRES,  ZCL_DATA_TYPE_UINT8,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE,  (u8*)&zcl_attr_ultraUnoccu2OccuT},
+    { ZCL_ATTRID_ULTRA_UNOCCU2OCCU_THRES, ZCL_DATA_TYPE_UINT8,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_ultraUnoccu2OccuT},
 #endif
-	{ ZCL_ATTRID_GLOBAL_CLUSTER_REVISION, ZCL_DATA_TYPE_UINT16,  ACCESS_CONTROL_READ,  (u8*)&zcl_attr_global_clusterRevision},
+    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION, ZCL_DATA_TYPE_UINT16,  ACCESS_CONTROL_READ,                        (u8*)&zcl_attr_global_clusterRevision},
 };
 
-const u8 zcl_occupancy_attrNum = ( sizeof(occupancy_attrTbl) / sizeof(zclAttrInfo_t) );
+const u8 zcl_occupancy_attrNum = (sizeof(occupancy_attrTbl) / sizeof(zclAttrInfo_t));
 
 #endif    /* ZCL_OCCUPANCY_SENSING */
 

@@ -22,104 +22,99 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #ifndef GP_SINK_H
 #define GP_SINK_H
 
 
-#define GPS_MAX_SINK_TABLE_ENTRIES		   			5
+#define GPS_MAX_SINK_TABLE_ENTRIES              5
 
 //A4.2.1
-#define GP_COMMISSIONING_PACKET_LEN_MAX				55
+#define GP_COMMISSIONING_PACKET_LEN_MAX         55
 
-#define SINK_GROUP_LIST_NUM							2
+#define SINK_GROUP_LIST_NUM                     2
 
-#define ZCL_GP_MAX_SINK_TABLE_ATTR_LEN				(45 * 2)
+#define ZCL_GP_MAX_SINK_TABLE_ATTR_LEN          (45 * 2)
 
-#define GPS_MULTI_BUF_SIZE_MAX						3
+#define GPS_MULTI_BUF_SIZE_MAX                  3
 
-typedef union
-{
-	u16	opts;
-	struct
-	{
-		u16	appId:3;
-		u16	communicationMode:2;
-		u16	seqNumCapabilities:1;
-		u16	rxOnCapability:1;
-		u16	fixedLocation:1;
-		u16	assignedAlias:1;
-		u16	securityUse:1;
-		u16	reserved:6;
-	}bits;
-}gpSinkEntryOpt_t;
+typedef union {
+    u16 opts;
+    struct {
+        u16 appId:3;
+        u16 communicationMode:2;
+        u16 seqNumCapabilities:1;
+        u16 rxOnCapability:1;
+        u16 fixedLocation:1;
+        u16 assignedAlias:1;
+        u16 securityUse:1;
+        u16 reserved:6;
+    } bits;
+} gpSinkEntryOpt_t;
 
 /**
  *  @brief	Sink table entry
  */
-typedef struct _attribute_packed_{
-	gpdId_t					gpdId;							//8-bytes
-	u32						gpdSecFrameCnt;
-	gpSinkEntryOpt_t		options;
-	u16						gpdAssignedAlias;				//8-bytes
-	gpSinkGroupListItem_t	groupList[SINK_GROUP_LIST_NUM];	//8-bytes
-	u8						endpoint;
-	u8						deviceId;
-	u8						groupcastRadius;
-	gpSecOpt_t				secOptions;						//4-bytes
-	u8						gpdKey[16];						//16-bytes
-	u8						used:1;
-	u8						sinkGroupListCnt:2;
-	u8  					complete:1;
-	u8						replyIncludeKey:1;
-	u8						replyEncrypt:1;
-	u8						reserved:2;
-}gpSinkTabEntry_t;	//45-bytes
+typedef struct _attribute_packed_ {
+    gpdId_t gpdId;              //8-bytes
+    u32 gpdSecFrameCnt;
+    gpSinkEntryOpt_t options;
+    u16 gpdAssignedAlias;       //8-bytes
+    gpSinkGroupListItem_t groupList[SINK_GROUP_LIST_NUM]; //8-bytes
+    u8 endpoint;
+    u8 deviceId;
+    u8 groupcastRadius;
+    gpSecOpt_t secOptions;      //4-bytes
+    u8 gpdKey[16];              //16-bytes
+    u8 used:1;
+    u8 sinkGroupListCnt:2;
+    u8 complete:1;
+    u8 replyIncludeKey:1;
+    u8 replyEncrypt:1;
+    u8 reserved:2;
+} gpSinkTabEntry_t; //45-bytes
 
 /***************************************************************************
 * @brief	Define for GPs
 */
-typedef struct
-{
-	ev_timer_event_t *gpsCommWindowTimeoutEvt;
-	ev_timer_event_t *gpsMultiSensorCommTimeoutEvt;
-	u8 *pMultiSensorCommBuf[GPS_MULTI_BUF_SIZE_MAX];
-	u8 multiSensorCommBufSize;
-	u8 multiSensorCommTime;
-	u8 multiSensorTotalNumReport;
-	u8 multiSensorNumOfReport;
-	u8 multiSensorCompleted:1;
-	u8 multiSensorReportMatched:1;
-	u8 resv:6;
-	u8 gpsInCommMode;
-	u8 gpsAppEndpoint;
-}gps_ctx_t;
+typedef struct {
+    ev_timer_event_t *gpsCommWindowTimeoutEvt;
+    ev_timer_event_t *gpsMultiSensorCommTimeoutEvt;
+    u8 *pMultiSensorCommBuf[GPS_MULTI_BUF_SIZE_MAX];
+    u8 multiSensorCommBufSize;
+    u8 multiSensorCommTime;
+    u8 multiSensorTotalNumReport;
+    u8 multiSensorNumOfReport;
+    u8 multiSensorCompleted:1;
+    u8 multiSensorReportMatched:1;
+    u8 resv:6;
+    u8 gpsInCommMode;
+    u8 gpsAppEndpoint;
+} gps_ctx_t;
 
-typedef struct
-{
-	u8 devId;
-	u8 gpdCommanadId;
-	u16 clusterId;
-	u8 zigEndpoint;
-	u8 zigbeeCommandId;
-	u8 payloadLen;
-	u8 changeIndex;
-	u8 payload[8];
-}gp_gpdZigCommand_t;
+typedef struct {
+    u8 devId;
+    u8 gpdCommanadId;
+    u16 clusterId;
+    u8 zigEndpoint;
+    u8 zigbeeCommandId;
+    u8 payloadLen;
+    u8 changeIndex;
+    u8 payload[8];
+} gp_gpdZigCommand_t;
 
 //global value
-typedef struct _attribute_packed_{
-	gpSinkTabEntry_t gpSinkTab[GPS_MAX_SINK_TABLE_ENTRIES];
-	u8 gpSinkTabNum;
-}gp_sinkTab_t;
+typedef struct _attribute_packed_ {
+    gpSinkTabEntry_t gpSinkTab[GPS_MAX_SINK_TABLE_ENTRIES];
+    u8 gpSinkTabNum;
+} gp_sinkTab_t;
 
 extern gp_sinkTab_t g_gpSinkTab;
 extern gps_ctx_t g_gpsCtx;
 
 gpSecRsp_status_t gpSinkSecOperation(u8 appId, gpdId_t gpdId,
-		 	 	 	 	 	 	 	 u8 endpoint, u32 gpdSecFrameCnt,
-		 	 	 	 	 	 	 	 u8 gpdfSecurityLevel, u8 gpdfKeyType,
-		 	 	 	 	 	 	 	 u8 *pKeyType, u8 *pKey);
+                                     u8 endpoint, u32 gpdSecFrameCnt,
+                                     u8 gpdfSecurityLevel, u8 gpdfKeyType,
+                                     u8 *pKeyType, u8 *pKey);
 
 void gpsGpDataIndProcess(gp_data_ind_t *pGpDataInd);
 

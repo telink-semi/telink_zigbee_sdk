@@ -22,21 +22,19 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #pragma once
 
 #include "usbmouse_i.h"
 
 /* Enable C linkage for C++ Compilers: */
 #if defined(__cplusplus)
-	extern "C" {
+extern "C" {
 #endif
-
 
 
 u8 usbmouse_hid_report(u8 report_id, u8 *data, int cnt);
 
 /* Disable C linkage for C++ Compilers: */
 #if defined(__cplusplus)
-	}
+}
 #endif

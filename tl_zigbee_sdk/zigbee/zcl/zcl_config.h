@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #ifndef ZCL_CONFIG_H
 #define ZCL_CONFIG_H
 

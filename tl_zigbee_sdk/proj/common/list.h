@@ -22,15 +22,14 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #pragma once
 
-#define LIST_CONCAT2(a, b) a##b
-#define LIST_CONCAT(a, b) LIST_CONCAT2(a, b)
+#define LIST_CONCAT2(a, b)      a##b
+#define LIST_CONCAT(a, b)       LIST_CONCAT2(a, b)
 
-#define LIST(name) 		\
-		static void *LIST_CONCAT(name, _list) = NULL; \
-		static list_t name = (list_t)&LIST_CONCAT(name, _list);
+#define LIST(name)              \
+    static void *LIST_CONCAT(name, _list) = NULL; \
+    static list_t name = (list_t)&LIST_CONCAT(name, _list);
 
 
 typedef void ** list_t;
@@ -40,14 +39,9 @@ void *listHead(list_t list);
 void *listTail(list_t list);
 void *listPop (list_t list);
 void listPush(list_t list, void *item);
-
 void *listChop(list_t list);
-
 void listAdd(list_t list, void *item);
 void listRemove(list_t list, void *item);
-
 int listLength(list_t list);
-
 void listCopy(list_t dest, list_t src);
-
 void listInsert(list_t list, void *prevItem, void *newItem);

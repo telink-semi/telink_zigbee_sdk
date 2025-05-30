@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #pragma once
 
 /* Enable C linkage for C++ Compilers: */
@@ -31,18 +30,18 @@ extern "C" {
 #endif
 
 enum {
-	USB_TIME_BEFORE_ALLOW_SUSPEND = (3000*1000),//  3000 ms
+    USB_TIME_BEFORE_ALLOW_SUSPEND = (3000 * 1000), //3000 ms
 };
 
 enum {
-	USB_IRQ_SETUP_REQ = 0,
-	USB_IRQ_DATA_REQ,
+    USB_IRQ_SETUP_REQ = 0,
+    USB_IRQ_DATA_REQ,
 };
 
 // telink usb report ctrl command. used mixed with USB_AUD_PLAY_PAUSE...
-enum{
-	USB_REPORT_NO_EVENT		= 0xf0,
-	USB_REPORT_RELEASE 		= 0xff,
+enum {
+    USB_REPORT_NO_EVENT = 0xf0,
+    USB_REPORT_RELEASE  = 0xff,
 };
 
 /**
@@ -64,4 +63,3 @@ void usb_handle_irq(void);
 #if defined(__cplusplus)
 }
 #endif
-

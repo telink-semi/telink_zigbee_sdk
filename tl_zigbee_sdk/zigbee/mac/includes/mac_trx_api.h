@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #ifndef MAC_TRX_API_H
 #define MAC_TRX_API_H
 
@@ -91,25 +90,25 @@
 
 
 //BIT(1) 1- FFD, 0- RFD
-#define	MAC_CAP_GET_DEVICE_TYPE(c)		((c >> 1) & 1)
+#define	MAC_CAP_GET_DEVICE_TYPE(c)      ((c >> 1) & 1)
 #define	MAC_CAP_GET_RXON_WHEN_IDLE(c)	((c >> 3) & 1)
 
 #if ZB_ROUTER_ROLE
-#define	TX_QUEUE_BN						32
+#define	TX_QUEUE_BN                     32
 #else
-#define	TX_QUEUE_BN						16
+#define	TX_QUEUE_BN                     16
 #endif
 
-typedef enum{
-	RX_BUSY 		= BIT(0),
-	TX_BUSY 		= BIT(1),
-	TX_ACKPACKET 	= BIT(2),
-	RX_WAITINGACK 	= BIT(3),
-	RX_DATAPENDING	= BIT(4),
-	TX_UNDERWAY 	= BIT(5)
-}rf_trxds_st_e;
+typedef enum {
+    RX_BUSY             = BIT(0),
+    TX_BUSY             = BIT(1),
+    TX_ACKPACKET        = BIT(2),
+    RX_WAITINGACK       = BIT(3),
+    RX_DATAPENDING      = BIT(4),
+    TX_UNDERWAY         = BIT(5)
+} rf_trxds_st_e;
 
-typedef enum{
+typedef enum {
     MAC_TX_IDLE,
     MAC_TX_CSMA,
     MAC_TX_UNDERWAY,
@@ -117,9 +116,9 @@ typedef enum{
     MAC_TX_RETRY,
     MAC_TX_TIME_OUT,
     MAC_TX_DONE,
-}mac_txState_t;
+} mac_txState_t;
 
-typedef enum{
+typedef enum {
     MAC_TX_EV_NEW_DATA,
     MAC_TX_EV_CSMA_IDLE,
     MAC_TX_EV_CSMA_BUSY,
@@ -129,25 +128,23 @@ typedef enum{
     MAC_TX_EV_ACK_RETRY,
     MAC_TX_EV_NO_ACK,
     MAC_TX_EV_HAVE_PENDING_DATA,
-}mac_txEvt_t;
+} mac_txEvt_t;
 
 /**
  *  @brief Definition of MAC generic frame type, used in both TX and RX
  */
-typedef struct{
-	u8 fAck:4;                /*!< Used in TX  */
-	u8 fFramePending:4;       /*!< Used in Poll  */
-	u8 psduLen;
-	u8 cnfStatus;
+typedef struct {
+    u8 fAck:4;          /*!< Used in TX  */
+    u8 fFramePending:4; /*!< Used in Poll  */
+    u8 psduLen;
+    u8 cnfStatus;
     u8 seqNum;
-	u8 *buf;
+    u8 *buf;
     u8 *txData;
     void *pendingList;
-}mac_genFrame_t;
+} mac_genFrame_t;
 
 typedef	mac_genFrame_t tx_data_queue;
-
-
 
 
 extern u8 MAC_TX_QUEUE_SIZE;

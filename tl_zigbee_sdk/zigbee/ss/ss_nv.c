@@ -22,53 +22,54 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #include "../common/includes/zb_common.h"
 
 
 #ifdef ZB_SECURITY
 
-_CODE_SS_ void zdo_ssInfoSaveToFlash(void){
+_CODE_SS_ void zdo_ssInfoSaveToFlash(void)
+{
 #if NV_ENABLE
-	/*
-	 * user can process network key (Encrypt) here :
-	 * ss_ib.nwkSecurMaterialSet[0].key and ss_ib.nwkSecurMaterialSet[1].key
-	 *
-	 * */
-	nv_flashWriteNew(1, NV_MODULE_APS, NV_ITEM_APS_SSIB, sizeof(ss_ib), (u8*)&ss_ib);
+    /*
+     * user can process network key (Encrypt) here :
+     * ss_ib.nwkSecurMaterialSet[0].key and ss_ib.nwkSecurMaterialSet[1].key
+     *
+     * */
+    nv_flashWriteNew(1, NV_MODULE_APS, NV_ITEM_APS_SSIB, sizeof(ss_ib), (u8 *)&ss_ib);
 #endif
 }
 
-_CODE_SS_ u8 zdo_ssInfoInit(void){
-	u8 ret = NV_ITEM_NOT_FOUND;
+_CODE_SS_ u8 zdo_ssInfoInit(void)
+{
+    u8 ret = NV_ITEM_NOT_FOUND;
 #if NV_ENABLE
-	ret = nv_flashReadNew(1, NV_MODULE_APS, NV_ITEM_APS_SSIB, sizeof(ss_ib), (u8*)&ss_ib);
+    ret = nv_flashReadNew(1, NV_MODULE_APS, NV_ITEM_APS_SSIB, sizeof(ss_ib), (u8 *)&ss_ib);
 #if ZB_COORDINATOR_ROLE
-	ss_ib.keyPairSetNew = (u8 *)g_ssTcKeyPair;
+    ss_ib.keyPairSetNew = (u8 *)g_ssTcKeyPair;
 #else
-	ss_ib.keyPairSetNew = (u8 *)&g_ssDevKeyPair;
+    ss_ib.keyPairSetNew = (u8 *)&g_ssDevKeyPair;
 #endif
 
-	/*
-	 * user can process network key(Decrypt) here :
-	 * ss_ib.nwkSecurMaterialSet[0].key and ss_ib.nwkSecurMaterialSet[1].key
-	 *
-	 * */
+    /*
+     * user can process network key(Decrypt) here :
+     * ss_ib.nwkSecurMaterialSet[0].key and ss_ib.nwkSecurMaterialSet[1].key
+     *
+     * */
 #endif
-	return ret;
+    return ret;
 }
 
-_CODE_SS_ u8 zdo_ssInfoKeyGet(void){
-	u8 ret = NV_ITEM_NOT_FOUND;
+_CODE_SS_ u8 zdo_ssInfoKeyGet(void)
+{
+    u8 ret = NV_ITEM_NOT_FOUND;
 #if NV_ENABLE
-	ss_info_base_t ss;
-	ret = nv_flashReadNew(1, NV_MODULE_APS, NV_ITEM_APS_SSIB, sizeof(ss_ib), (u8*)&ss);
-	if(ret == NV_SUCC){
-		ret = ss.activeSecureMaterialIndex;
-	}
+    ss_info_base_t ss;
+    ret = nv_flashReadNew(1, NV_MODULE_APS, NV_ITEM_APS_SSIB, sizeof(ss_ib), (u8 *)&ss);
+    if (ret == NV_SUCC) {
+        ret = ss.activeSecureMaterialIndex;
+    }
 #endif
-	return ret;
+    return ret;
 }
 
 #endif
-

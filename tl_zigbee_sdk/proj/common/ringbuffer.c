@@ -44,73 +44,73 @@ ringbuffer_t *ringbuffer_init(ringbuffer_t *ringbuf, unsigned char *buf, unsigne
 
 unsigned int ringbuffer_data_len(ringbuffer_t *ringbuf)
 {
-	unsigned int len = 0;
+    unsigned int len = 0;
 
-	if (ringbuf->read_idx == ringbuf->write_idx) {
-		if (ringbuf->read_mirror == ringbuf->write_mirror) {
-			len = 0;//is empty
-		} else {
-			len = ringbuf->buf_size;//is full
-		}
-	} else {
-		if (ringbuf->write_idx > ringbuf->read_idx) {
-			len = ringbuf->write_idx - ringbuf->read_idx;
-		} else {
-			len = ringbuf->buf_size - (ringbuf->read_idx - ringbuf->write_idx);
-		}
-	}
+    if (ringbuf->read_idx == ringbuf->write_idx) {
+        if (ringbuf->read_mirror == ringbuf->write_mirror) {
+            len = 0;//is empty
+        } else {
+            len = ringbuf->buf_size;//is full
+        }
+    } else {
+        if (ringbuf->write_idx > ringbuf->read_idx) {
+            len = ringbuf->write_idx - ringbuf->read_idx;
+        } else {
+            len = ringbuf->buf_size - (ringbuf->read_idx - ringbuf->write_idx);
+        }
+    }
 
-	return len;
+    return len;
 }
 
 unsigned int ringbuffer_put(ringbuffer_t *ringbuf, const unsigned char *data, unsigned int length)
 {
-	unsigned int space_len = ringbuf->buf_size - ringbuffer_data_len(ringbuf);
+    unsigned int space_len = ringbuf->buf_size - ringbuffer_data_len(ringbuf);
 
-	if (0 == space_len) {
-		return 0;
-	}
+    if (0 == space_len) {
+        return 0;
+    }
 
-	if (space_len < length) {
-		length = space_len;
-	}
+    if (space_len < length) {
+        length = space_len;
+    }
 
-	if (ringbuf->buf_size - ringbuf->write_idx > length) {
-		memcpy(&ringbuf->buf[ringbuf->write_idx], data, length);
-		ringbuf->write_idx += length;
-	} else {
-		memcpy(&ringbuf->buf[ringbuf->write_idx], &data[0], ringbuf->buf_size - ringbuf->write_idx);
-		memcpy(&ringbuf->buf[0], &data[ringbuf->buf_size - ringbuf->write_idx], length - (ringbuf->buf_size - ringbuf->write_idx));
-		ringbuf->write_idx = length - (ringbuf->buf_size - ringbuf->write_idx);
+    if (ringbuf->buf_size - ringbuf->write_idx > length) {
+        memcpy(&ringbuf->buf[ringbuf->write_idx], data, length);
+        ringbuf->write_idx += length;
+    } else {
+        memcpy(&ringbuf->buf[ringbuf->write_idx], &data[0], ringbuf->buf_size - ringbuf->write_idx);
+        memcpy(&ringbuf->buf[0], &data[ringbuf->buf_size - ringbuf->write_idx], length - (ringbuf->buf_size - ringbuf->write_idx));
+        ringbuf->write_idx = length - (ringbuf->buf_size - ringbuf->write_idx);
 
-		ringbuf->write_mirror = ~ringbuf->write_mirror;
-	}
+        ringbuf->write_mirror = ~ringbuf->write_mirror;
+    }
 
-	return length;
+    return length;
 }
 
 unsigned int ringbuffer_get(ringbuffer_t *ringbuf, unsigned char *data, unsigned int length)
 {
-	unsigned int data_len = ringbuffer_data_len(ringbuf);
+    unsigned int data_len = ringbuffer_data_len(ringbuf);
 
-	if (0 == data_len) {
-		return 0;
-	}
+    if (0 == data_len) {
+        return 0;
+    }
 
-	if (data_len < length) {
-		length = data_len;
-	}
+    if (data_len < length) {
+        length = data_len;
+    }
 
-	if (ringbuf->buf_size - ringbuf->read_idx > length) {
-		memcpy(data, &ringbuf->buf[ringbuf->read_idx], length);
-		ringbuf->read_idx += length;
-	} else {
-		memcpy(&data[0], &ringbuf->buf[ringbuf->read_idx], ringbuf->buf_size - ringbuf->read_idx);
-		memcpy(&data[ringbuf->buf_size - ringbuf->read_idx], &ringbuf->buf[0], length - (ringbuf->buf_size - ringbuf->read_idx));
-		ringbuf->read_idx = length - (ringbuf->buf_size - ringbuf->read_idx);
+    if (ringbuf->buf_size - ringbuf->read_idx > length) {
+        memcpy(data, &ringbuf->buf[ringbuf->read_idx], length);
+        ringbuf->read_idx += length;
+    } else {
+        memcpy(&data[0], &ringbuf->buf[ringbuf->read_idx], ringbuf->buf_size - ringbuf->read_idx);
+        memcpy(&data[ringbuf->buf_size - ringbuf->read_idx], &ringbuf->buf[0], length - (ringbuf->buf_size - ringbuf->read_idx));
+        ringbuf->read_idx = length - (ringbuf->buf_size - ringbuf->read_idx);
 
-		ringbuf->read_mirror = ~ringbuf->read_mirror;
-	}
+        ringbuf->read_mirror = ~ringbuf->read_mirror;
+    }
 
-	return length;
+    return length;
 }

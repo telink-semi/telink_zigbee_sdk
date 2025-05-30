@@ -22,40 +22,40 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #include "usbmouse.h"
 
 #if (USB_MOUSE_ENABLE)
 
-u8 usbmouse_hid_report(u8 report_id, u8 *data, int cnt){
-    if(!reg_usb_host_conn){
+u8 usbmouse_hid_report(u8 report_id, u8 *data, int cnt)
+{
+    if (!reg_usb_host_conn) {
     	reg_usb_ep_ctrl(USB_EDP_MOUSE) = 0;
     	return 0;
     }
 
-	if(usbhw_is_ep_busy(USB_EDP_MOUSE))
-		return 0;
+    if (usbhw_is_ep_busy(USB_EDP_MOUSE)) {
+        return 0;
+    }
 
-	reg_usb_ep_ptr(USB_EDP_MOUSE) = 0;
+    reg_usb_ep_ptr(USB_EDP_MOUSE) = 0;
 
-	// please refer to usbmouse_i.h mouse_report_desc
-	extern u8 usb_mouse_report_proto;
+    // please refer to usbmouse_i.h mouse_report_desc
+    extern u8 usb_mouse_report_proto;
 
-	if(!usb_mouse_report_proto){
-		reg_usb_ep_dat(USB_EDP_MOUSE) = data[0];
-		reg_usb_ep_dat(USB_EDP_MOUSE) = data[1];
-		reg_usb_ep_dat(USB_EDP_MOUSE) = data[2];
-	}else{
-		reg_usb_ep_dat(USB_EDP_MOUSE) = report_id;
-		foreach(i, cnt){
-			reg_usb_ep_dat(USB_EDP_MOUSE) = data[i];
-		}
-	}
+    if (!usb_mouse_report_proto) {
+        reg_usb_ep_dat(USB_EDP_MOUSE) = data[0];
+        reg_usb_ep_dat(USB_EDP_MOUSE) = data[1];
+        reg_usb_ep_dat(USB_EDP_MOUSE) = data[2];
+    } else {
+        reg_usb_ep_dat(USB_EDP_MOUSE) = report_id;
+        foreach (i, cnt) {
+            reg_usb_ep_dat(USB_EDP_MOUSE) = data[i];
+        }
+    }
 
-	reg_usb_ep_ctrl(USB_EDP_MOUSE) = FLD_EP_DAT_ACK;		// ACK
+    reg_usb_ep_ctrl(USB_EDP_MOUSE) = FLD_EP_DAT_ACK; // ACK
 
-	return 1;
+    return 1;
 }
-
 
 #endif

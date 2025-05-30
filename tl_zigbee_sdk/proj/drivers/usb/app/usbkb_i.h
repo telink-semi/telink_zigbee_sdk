@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #pragma once
 
 #include "../usbdesc.h"
@@ -39,13 +38,14 @@ static const USB_Descriptor_HIDReport_Datatype_t keyboard_report_desc[] = {
     HID_DESCRIPTOR_KEYBOARD(KEYBOARD_REPORT_KEY_MAX),
 };
 
-static inline u8 *usbkb_get_report_desc(void){
-	return (u8 *)(keyboard_report_desc);
+static inline u8 *usbkb_get_report_desc(void)
+{
+    return (u8 *)(keyboard_report_desc);
 }
 
-static inline u16 usbkb_get_report_desc_size(void){
-	return (u16)(sizeof(keyboard_report_desc));
+static inline u16 usbkb_get_report_desc_size(void)
+{
+    return (u16)(sizeof(keyboard_report_desc));
 }
-
 
 #endif

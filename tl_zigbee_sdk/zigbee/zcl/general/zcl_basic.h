@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #ifndef ZCL_BASIC_H
 #define ZCL_BASIC_H
 
@@ -47,43 +46,43 @@
 /** @addtogroup zcl_basic_cmdId BASIC Command Ids
  * @{
  */
-#define ZCL_CMD_BASIC_RESET_FAC_DEFAULT                     0x00
+#define ZCL_CMD_BASIC_RESET_FAC_DEFAULT                 0x00
 
 /** @} end of group zcl_basic_cmdId */
 
 /** @addtogroup zcl_basic_attrId BASIC Attribute Ids
  * @{
  */
-#define ZCL_ATTRID_BASIC_ZCL_VER                          0x0000
-#define ZCL_ATTRID_BASIC_APP_VER                          0x0001
-#define ZCL_ATTRID_BASIC_STACK_VER                        0x0002
-#define ZCL_ATTRID_BASIC_HW_VER                           0x0003
-#define ZCL_ATTRID_BASIC_MFR_NAME                         0x0004
-#define ZCL_ATTRID_BASIC_MODEL_ID                         0x0005
-#define ZCL_ATTRID_BASIC_DATE_CODE                        0x0006
-#define ZCL_ATTRID_BASIC_POWER_SOURCE                     0x0007
-#define ZCL_ATTRID_BASIC_LOC_DESC                         0x0010
-#define ZCL_ATTRID_BASIC_PHY_ENV                          0x0011
-#define ZCL_ATTRID_BASIC_DEV_ENABLED                      0x0012
-#define ZCL_ATTRID_BASIC_ALARM_MASK                       0x0013
-#define ZCL_ATTRID_BASIC_DISABLE_LOCAL_CFG                0x0014
-#define ZCL_ATTRID_BASIC_SW_BUILD_ID                      0x4000
+#define ZCL_ATTRID_BASIC_ZCL_VER                        0x0000
+#define ZCL_ATTRID_BASIC_APP_VER                        0x0001
+#define ZCL_ATTRID_BASIC_STACK_VER                      0x0002
+#define ZCL_ATTRID_BASIC_HW_VER                         0x0003
+#define ZCL_ATTRID_BASIC_MFR_NAME                       0x0004
+#define ZCL_ATTRID_BASIC_MODEL_ID                       0x0005
+#define ZCL_ATTRID_BASIC_DATE_CODE                      0x0006
+#define ZCL_ATTRID_BASIC_POWER_SOURCE                   0x0007
+#define ZCL_ATTRID_BASIC_LOC_DESC                       0x0010
+#define ZCL_ATTRID_BASIC_PHY_ENV                        0x0011
+#define ZCL_ATTRID_BASIC_DEV_ENABLED                    0x0012
+#define ZCL_ATTRID_BASIC_ALARM_MASK                     0x0013
+#define ZCL_ATTRID_BASIC_DISABLE_LOCAL_CFG              0x0014
+#define ZCL_ATTRID_BASIC_SW_BUILD_ID                    0x4000
 
 /** @} end of group zcl_basic_attrId */
 
 /* Power Source Attribute values */
-#define POWER_SOURCE_UNKNOWN                              	0x00
-#define POWER_SOURCE_MAINS_1_PHASE                        	0x01
-#define POWER_SOURCE_MAINS_3_PHASE                        	0x02
-#define POWER_SOURCE_BATTERY                              	0x03
-#define POWER_SOURCE_DC                                   	0x04
-#define POWER_SOURCE_EMERG_MAINS_CONST_PWR                	0x05
-#define POWER_SOURCE_EMERG_MAINS_XFER_SW                  	0x06
+#define POWER_SOURCE_UNKNOWN                            0x00
+#define POWER_SOURCE_MAINS_1_PHASE                      0x01
+#define POWER_SOURCE_MAINS_3_PHASE                      0x02
+#define POWER_SOURCE_BATTERY                            0x03
+#define POWER_SOURCE_DC                                 0x04
+#define POWER_SOURCE_EMERG_MAINS_CONST_PWR              0x05
+#define POWER_SOURCE_EMERG_MAINS_XFER_SW                0x06
 
 /**
  *  @brief Max length of char string
  */
-#define ZCL_BASIC_MAX_LENGTH 								24
+#define ZCL_BASIC_MAX_LENGTH                            24
 
 /** @} end of group ZCL_BASIC_Constant */
 
@@ -101,7 +100,7 @@ typedef void (*zcl_rstFacDefaultCb_t)(apsdeDataInd_t *pApsdeInd);
  *  @brief  Structure definition for commands callback functions in BASIC cluster
  */
 typedef struct {
-	zcl_rstFacDefaultCb_t    rstFacDefaultCbFunc;
+    zcl_rstFacDefaultCb_t rstFacDefaultCbFunc;
 } zcl_basic_AppCallbacks_t;
 
 /** @} end of group ZCL_BASIC_Callbacks */
@@ -155,8 +154,6 @@ extern const u8 zcl_basic_attrNum;
  */
 status_t zcl_basic_register(u8 endpoint, u16 manuCode, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
 
-
-
 /**
  * @brief       API to send Basic Reset to factory default command 
  *
@@ -168,7 +165,7 @@ status_t zcl_basic_register(u8 endpoint, u16 manuCode, u8 attrNum, const zclAttr
  * @return      None
  */
 status_t zcl_basic_reset(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo);
-#define zcl_basic_resetFactoryDftCmd(a,b,c)	(zcl_basic_reset((a), (b), (c), ZCL_SEQ_NUM))
+#define zcl_basic_resetFactoryDftCmd(a,b,c)     (zcl_basic_reset((a), (b), (c), ZCL_SEQ_NUM))
 
 /** @} end of group ZCL_BASIC_Fountions */
 

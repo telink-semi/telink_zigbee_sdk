@@ -51,7 +51,7 @@
 
 _CODE_ZCL_ status_t zcl_binary_input_register(u8 endpoint, u16 manuCode, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb)
 {
-	return zcl_registerCluster(endpoint, ZCL_CLUSTER_GEN_BINARY_INPUT_BASIC, manuCode, attrNum, attrTbl, NULL, cb);
+    return zcl_registerCluster(endpoint, ZCL_CLUSTER_GEN_BINARY_INPUT_BASIC, manuCode, attrNum, attrTbl, NULL, cb);
 }
 
 #endif	/* ZCL_BINARY_INPUT */

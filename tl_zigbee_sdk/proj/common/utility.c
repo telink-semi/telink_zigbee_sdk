@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #include "utility.h"
 
 static const unsigned int crc32_table[] = {
@@ -82,11 +81,10 @@ static const unsigned int crc32_table[] = {
 
 unsigned int xcrc32(const unsigned char *buf, int len, unsigned int init)
 {
-	unsigned int crc = init;
-	while (len--)
-    {
-      crc = (crc >> 8) ^ crc32_table[(crc ^ *buf) & 0xff];
-      buf++;
+    unsigned int crc = init;
+    while (len--) {
+        crc = (crc >> 8) ^ crc32_table[(crc ^ *buf) & 0xff];
+        buf++;
     }
-	return crc;
+    return crc;
 }

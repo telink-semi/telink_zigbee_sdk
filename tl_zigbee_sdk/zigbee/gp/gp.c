@@ -49,14 +49,14 @@ gp_appCb_t *gpAppCb = NULL;
  *  @brief Callback for GP primitive process
  */
 const gp_stubCb_t gpStubCbList = {
-	gpDataCnfPrc,
-	gpDataIndPrc,
-	gpSecReqPrc,
+    gpDataCnfPrc,
+    gpDataIndPrc,
+    gpSecReqPrc,
 };
 
 const gp_appCb_t gpAppCbList = {
-	gpChangleChannelReqCb,
-	gpCommissioningModeCb,
+    gpChangleChannelReqCb,
+    gpCommissioningModeCb,
 };
 
 /**
@@ -79,21 +79,21 @@ gpDeviceAnnounceCheckCb_t g_gpDeviceAnnounceCheckCb = gpDevAnnceCheckCb;
  */
 void gp_init(u8 endpoint)
 {
-	/* Initialize GP Stub */
-	gpStubCbInit((gp_stubCb_t *)&gpStubCbList);
+    /* Initialize GP Stub */
+    gpStubCbInit((gp_stubCb_t *)&gpStubCbList);
 
-	/* Register GP EndPoint descriptor */
-	af_endpointRegister(GREEN_POWER_ENDPOINT, (af_simple_descriptor_t *)&gp_simpleDesc, zcl_rx_handler, NULL);
+    /* Register GP EndPoint descriptor */
+    af_endpointRegister(GREEN_POWER_ENDPOINT, (af_simple_descriptor_t *)&gp_simpleDesc, zcl_rx_handler, NULL);
 
-	/* Register GP ZCL command callBacks */
-	zcl_register(GREEN_POWER_ENDPOINT, GP_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_gpClusterList);
+    /* Register GP ZCL command callBacks */
+    zcl_register(GREEN_POWER_ENDPOINT, GP_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_gpClusterList);
 
-	gp_registerAppCb((gp_appCb_t *)&gpAppCbList);
+    gp_registerAppCb((gp_appCb_t *)&gpAppCbList);
 
-	gp_proxyInit();
+    gp_proxyInit();
 
 #if GP_BASIC_COMBO
-	gp_sinkInit(endpoint);
+    gp_sinkInit(endpoint);
 #endif
 }
 
@@ -108,128 +108,128 @@ void gp_init(u8 endpoint)
  */
 void gp_registerAppCb(gp_appCb_t *cb)
 {
-	gpAppCb = cb;
+    gpAppCb = cb;
 }
 
 bool gpChangleChannelReqCb(void)
 {
-	//Allow change channel request.
+    //Allow change channel request.
 
-	return TRUE;
+    return TRUE;
 }
 
 void gpCommissioningModeCb(bool isInCommMode)
 {
-	//printf("gpIsInCommMode: %x\n", isInCommMode);
+    //printf("gpIsInCommMode: %x\n", isInCommMode);
 
-	if(!isInCommMode){
-		zb_nlmePermitJoiningRequest(0);
-	}
+    if (!isInCommMode) {
+        zb_nlmePermitJoiningRequest(0);
+    }
 }
 
 void gpsCommissionModeInvork(void)
 {
 #if GP_BASIC_COMBO
-	bool action = g_gpsCtx.gpsInCommMode ? FALSE : TRUE;
+    bool action = g_gpsCtx.gpsInCommMode ? FALSE : TRUE;
 
-	gpsCommissionModeSet(action, TRUE);
+    gpsCommissionModeSet(action, TRUE);
 #endif
 }
 
 void gpCommissioningNotificationCmdFromLocalCb(zcl_gp_commissioningNotificationCmd_t *pCmd)
 {
 #if GP_BASIC_COMBO
-	gpCommissioningNotificationCmdProcess(pCmd);
+    gpCommissioningNotificationCmdProcess(pCmd);
 #endif
 }
 
 static s32 gpAliasConflictTimeoutCb(void *arg)
 {
-	gpDevAnnceAliasSend(g_gppCtx.gpAliasConflictAddr);
+    gpDevAnnceAliasSend(g_gppCtx.gpAliasConflictAddr);
 
-	g_gppCtx.gpAliasConflictAddr = NWK_BROADCAST_RESERVED;
+    g_gppCtx.gpAliasConflictAddr = NWK_BROADCAST_RESERVED;
 
-	g_gppCtx.aliasConflictTimeoutEvt = NULL;
-	return -1;
+    g_gppCtx.aliasConflictTimeoutEvt = NULL;
+    return -1;
 }
 
 static void gpAliansConflictTimeoutEvtStop(void)
 {
-	if(g_gppCtx.aliasConflictTimeoutEvt){
-		TL_ZB_TIMER_CANCEL(&g_gppCtx.aliasConflictTimeoutEvt);
-	}
+    if (g_gppCtx.aliasConflictTimeoutEvt) {
+        TL_ZB_TIMER_CANCEL(&g_gppCtx.aliasConflictTimeoutEvt);
+    }
 }
 
 bool gpDevAnnceCheckCb(u16 aliasNwkAddr, addrExt_t aliasIeeeAddr)
 {
-	//printf("gpDevAnnceChk: aliasNwkAddr = %x\n", aliasNwkAddr);
+    //printf("gpDevAnnceChk: aliasNwkAddr = %x\n", aliasNwkAddr);
 
-	if(ZB_IEEE_ADDR_IS_INVALID(aliasIeeeAddr)){
-		if(g_gppCtx.aliasConflictTimeoutEvt){
-			if(g_gppCtx.gpAliasConflictAddr == aliasNwkAddr){
-				gpAliansConflictTimeoutEvtStop();
-			}
-			return TRUE;
-		}
-	}else{
-		if(g_gppCtx.aliasConflictTimeoutEvt){
-			return TRUE;
-		}
+    if (ZB_IEEE_ADDR_IS_INVALID(aliasIeeeAddr)) {
+        if (g_gppCtx.aliasConflictTimeoutEvt) {
+            if (g_gppCtx.gpAliasConflictAddr == aliasNwkAddr) {
+                gpAliansConflictTimeoutEvtStop();
+            }
+            return TRUE;
+        }
+    } else {
+        if (g_gppCtx.aliasConflictTimeoutEvt) {
+            return TRUE;
+        }
 
-		bool sendDevAnnce = FALSE;
+        bool sendDevAnnce = FALSE;
 
 #if GP_BASIC_COMBO
-		if(!sendDevAnnce && gp_getSinkTabEntryTotalNum()){
-			for(u8 i = 0; i < zclGpAttr_gpsMaxSinkTabEntries; i++){
-				if(g_gpSinkTab.gpSinkTab[i].used){
-					u16 addr = 0xFFFF;
+        if (!sendDevAnnce && gp_getSinkTabEntryTotalNum()) {
+            for (u8 i = 0; i < zclGpAttr_gpsMaxSinkTabEntries; i++) {
+                if (g_gpSinkTab.gpSinkTab[i].used) {
+                    u16 addr = 0xFFFF;
 
-					if(!g_gpSinkTab.gpSinkTab[i].options.bits.assignedAlias){
-						addr = gpAliasSrcAddrDerived(g_gpSinkTab.gpSinkTab[i].options.bits.appId,
-													 g_gpSinkTab.gpSinkTab[i].gpdId);
-					}else{
-						addr = g_gpSinkTab.gpSinkTab[i].gpdAssignedAlias;
-					}
+                    if (!g_gpSinkTab.gpSinkTab[i].options.bits.assignedAlias) {
+                        addr = gpAliasSrcAddrDerived(g_gpSinkTab.gpSinkTab[i].options.bits.appId,
+                                                     g_gpSinkTab.gpSinkTab[i].gpdId);
+                    } else {
+                        addr = g_gpSinkTab.gpSinkTab[i].gpdAssignedAlias;
+                    }
 
-					if((addr != 0xFFFF) && (addr == aliasNwkAddr)){
-						g_gppCtx.gpAliasConflictAddr = aliasNwkAddr;
-						sendDevAnnce = TRUE;
-						break;
-					}
-				}
-			}
-		}
+                    if ((addr != 0xFFFF) && (addr == aliasNwkAddr)) {
+                        g_gppCtx.gpAliasConflictAddr = aliasNwkAddr;
+                        sendDevAnnce = TRUE;
+                        break;
+                    }
+                }
+            }
+        }
 #endif
-		if(!sendDevAnnce && gp_getProxyTabEntryTotalNum()){
-			for(u8 i = 0; i < zclGpAttr_gppMaxProxyTabEntries; i++){
-				if(g_gpProxyTab.gpProxyTab[i].used){
-					for(u8 j = 0; j < g_gpProxyTab.gpProxyTab[i].lwSinkCnt; j++){
-						if(ZB_IEEE_ADDR_CMP(g_gpProxyTab.gpProxyTab[i].lightweightSinkAddrList[j].sinkIeeeAddr, aliasIeeeAddr)){
-							g_gpProxyTab.gpProxyTab[i].lightweightSinkAddrList[j].sinkNwkAddr = aliasNwkAddr;
-						}
-					}
+        if (!sendDevAnnce && gp_getProxyTabEntryTotalNum()) {
+            for (u8 i = 0; i < zclGpAttr_gppMaxProxyTabEntries; i++) {
+                if (g_gpProxyTab.gpProxyTab[i].used) {
+                    for (u8 j = 0; j < g_gpProxyTab.gpProxyTab[i].lwSinkCnt; j++) {
+                        if (ZB_IEEE_ADDR_CMP(g_gpProxyTab.gpProxyTab[i].lightweightSinkAddrList[j].sinkIeeeAddr, aliasIeeeAddr)) {
+                            g_gpProxyTab.gpProxyTab[i].lightweightSinkAddrList[j].sinkNwkAddr = aliasNwkAddr;
+                        }
+                    }
 
-					if((aliasNwkAddr == gpAliasSrcAddrDerived(g_gpProxyTab.gpProxyTab[i].options.bits.appId, g_gpProxyTab.gpProxyTab[i].gpdId)) ||
-					   (aliasNwkAddr == g_gpProxyTab.gpProxyTab[i].gpdAssignedAlias) ){
-						tl_zbNwkAddrConflictStatusSend(NWK_BROADCAST_RX_ON_WHEN_IDLE, aliasNwkAddr, TRUE);
+                    if ((aliasNwkAddr == gpAliasSrcAddrDerived(g_gpProxyTab.gpProxyTab[i].options.bits.appId, g_gpProxyTab.gpProxyTab[i].gpdId)) ||
+                        (aliasNwkAddr == g_gpProxyTab.gpProxyTab[i].gpdAssignedAlias)) {
+                        tl_zbNwkAddrConflictStatusSend(NWK_BROADCAST_RX_ON_WHEN_IDLE, aliasNwkAddr, TRUE);
 
-						g_gppCtx.gpAliasConflictAddr = aliasNwkAddr;
-						sendDevAnnce = TRUE;
-						break;
-					}
-				}
-			}
-		}
+                        g_gppCtx.gpAliasConflictAddr = aliasNwkAddr;
+                        sendDevAnnce = TRUE;
+                        break;
+                    }
+                }
+            }
+        }
 
-		if(sendDevAnnce){
-			//A.3.6.3.1, between Dmin and Dmax ms
-			u16 devAnnceDelay = (zb_random() / 650) + 5;
-			g_gppCtx.aliasConflictTimeoutEvt = TL_ZB_TIMER_SCHEDULE(gpAliasConflictTimeoutCb, NULL, devAnnceDelay);
-			return TRUE;
-		}
-	}
+        if (sendDevAnnce) {
+            //A.3.6.3.1, between Dmin and Dmax ms
+            u16 devAnnceDelay = (zb_random() / 650) + 5;
+            g_gppCtx.aliasConflictTimeoutEvt = TL_ZB_TIMER_SCHEDULE(gpAliasConflictTimeoutCb, NULL, devAnnceDelay);
+            return TRUE;
+        }
+    }
 
-	return FALSE;
+    return FALSE;
 }
 
 /*********************************************************************
@@ -243,30 +243,30 @@ bool gpDevAnnceCheckCb(u16 aliasNwkAddr, addrExt_t aliasIeeeAddr)
  */
 void gpDataCnfPrc(gp_data_cnf_t *pGpDataCnf)
 {
-	//printf("gpDataCnf: sta = %x, handle = %x\n", pGpDataCnf->status, pGpDataCnf->gpepHandle);
+    //printf("gpDataCnf: sta = %x, handle = %x\n", pGpDataCnf->status, pGpDataCnf->gpepHandle);
 
-	switch(pGpDataCnf->status){
-		case GP_DATA_CNF_STATUS_TX_QUEUE_FULL:
-			//printf("txQueueFull\n");
-			break;
-		case GP_DATA_CNF_STATUS_ENTRY_REPLACED:
-			//printf("entryReplaced\n");
-			break;
-		case GP_DATA_CNF_STATUS_ENTRY_ADDED:
-			//printf("entryAdded\n");
-			break;
-		case GP_DATA_CNF_STATUS_ENTRY_EXPIRED:
-			//printf("entryExpired\n");
-			break;
-		case GP_DATA_CNF_STATUS_ENTRY_REMOVED:
-			//printf("entryRemoved\n");
-			break;
-		case GP_DATA_CNF_STATUS_GPDF_SENDING_FINALIZED:
-			//printf("GPDF_sendingFinalized\n");
-			break;
-		default:
-			break;
-	}
+    switch (pGpDataCnf->status) {
+    case GP_DATA_CNF_STATUS_TX_QUEUE_FULL:
+        //printf("txQueueFull\n");
+        break;
+    case GP_DATA_CNF_STATUS_ENTRY_REPLACED:
+        //printf("entryReplaced\n");
+        break;
+    case GP_DATA_CNF_STATUS_ENTRY_ADDED:
+        //printf("entryAdded\n");
+        break;
+    case GP_DATA_CNF_STATUS_ENTRY_EXPIRED:
+        //printf("entryExpired\n");
+        break;
+    case GP_DATA_CNF_STATUS_ENTRY_REMOVED:
+        //printf("entryRemoved\n");
+        break;
+    case GP_DATA_CNF_STATUS_GPDF_SENDING_FINALIZED:
+        //printf("GPDF_sendingFinalized\n");
+        break;
+    default:
+        break;
+    }
 }
 
 /*********************************************************************
@@ -280,14 +280,14 @@ void gpDataCnfPrc(gp_data_cnf_t *pGpDataCnf)
  */
 void gpDataIndPrc(void *arg)
 {
-	gp_data_ind_t *pGpDataInd = (gp_data_ind_t *)arg;
+    gp_data_ind_t *pGpDataInd = (gp_data_ind_t *)arg;
 
-	//printf("gpDataIndPrc: status = %x\n", pGpDataInd->status);
+    //printf("gpDataIndPrc: status = %x\n", pGpDataInd->status);
 
 #if GP_BASIC_COMBO
-	gpsGpDataIndProcess(pGpDataInd);
+    gpsGpDataIndProcess(pGpDataInd);
 #endif
-	gppGpDataIndProcess(pGpDataInd);
+    gppGpDataIndProcess(pGpDataInd);
 }
 
 /*********************************************************************
@@ -301,45 +301,45 @@ void gpDataIndPrc(void *arg)
  */
 void gpSecReqPrc(void *arg)
 {
-	gp_sec_req_t *pGpSecReq = (gp_sec_req_t *)arg;
+    gp_sec_req_t *pGpSecReq = (gp_sec_req_t *)arg;
 
-//	printf("gpSecReqPrc: type = %x, lvl = %x, num = %x, handle = %x\n",
-//		   pGpSecReq->gpdfKeyType, pGpSecReq->gpdfSecurityLevel,
-//		   pGpSecReq->gpdSecFrameCnt, pGpSecReq->dgpStubHandle);
+    //printf("gpSecReqPrc: type = %x, lvl = %x, num = %x, handle = %x\n",
+    //       pGpSecReq->gpdfKeyType, pGpSecReq->gpdfSecurityLevel,
+    //       pGpSecReq->gpdSecFrameCnt, pGpSecReq->dgpStubHandle);
 
-	gp_sec_req_t gpSecReq;
-	memcpy((u8 *)&gpSecReq, pGpSecReq, sizeof(*pGpSecReq));
+    gp_sec_req_t gpSecReq;
+    memcpy((u8 *)&gpSecReq, pGpSecReq, sizeof(*pGpSecReq));
 
-	gp_sec_rsp_t *pGpSecRsp = (gp_sec_rsp_t *)arg;
-	memset((u8 *)pGpSecRsp, 0, sizeof(gp_sec_rsp_t));
+    gp_sec_rsp_t *pGpSecRsp = (gp_sec_rsp_t *)arg;
+    memset((u8 *)pGpSecRsp, 0, sizeof(gp_sec_rsp_t));
 
-	pGpSecRsp->appId = gpSecReq.appId;
-	pGpSecRsp->dgpStubHandle = gpSecReq.dgpStubHandle;
-	pGpSecRsp->endpoint = gpSecReq.endpoint;
-	memcpy((u8 *)&(pGpSecRsp->gpdId), (u8 *)&gpSecReq.gpdId, sizeof(gpdId_t));
-	pGpSecRsp->gpdfSecurityLevel = gpSecReq.gpdfSecurityLevel;
-	pGpSecRsp->gpdSecFrameCnt = gpSecReq.gpdSecFrameCnt;
+    pGpSecRsp->appId = gpSecReq.appId;
+    pGpSecRsp->dgpStubHandle = gpSecReq.dgpStubHandle;
+    pGpSecRsp->endpoint = gpSecReq.endpoint;
+    memcpy((u8 *)&(pGpSecRsp->gpdId), (u8 *)&gpSecReq.gpdId, sizeof(gpdId_t));
+    pGpSecRsp->gpdfSecurityLevel = gpSecReq.gpdfSecurityLevel;
+    pGpSecRsp->gpdSecFrameCnt = gpSecReq.gpdSecFrameCnt;
 
-	//A.3.7.3.1.2
+    //A.3.7.3.1.2
 #if GP_BASIC_COMBO
-		if(g_gpsCtx.gpsInCommMode || gp_getSinkTabByGpdId(gpSecReq.appId, gpSecReq.gpdId)){
-			pGpSecRsp->status = gpSinkSecOperation(gpSecReq.appId, gpSecReq.gpdId,
-												   gpSecReq.endpoint, gpSecReq.gpdSecFrameCnt,
-												   gpSecReq.gpdfSecurityLevel, gpSecReq.gpdfKeyType,
-												   &pGpSecRsp->gpdfKeyType, pGpSecRsp->gpdKey);
+    if (g_gpsCtx.gpsInCommMode || gp_getSinkTabByGpdId(gpSecReq.appId, gpSecReq.gpdId)) {
+        pGpSecRsp->status = gpSinkSecOperation(gpSecReq.appId, gpSecReq.gpdId,
+                                               gpSecReq.endpoint, gpSecReq.gpdSecFrameCnt,
+                                               gpSecReq.gpdfSecurityLevel, gpSecReq.gpdfKeyType,
+                                               &pGpSecRsp->gpdfKeyType, pGpSecRsp->gpdKey);
 
-			TL_SCHEDULE_TASK(gpSecRsp, arg);
+        TL_SCHEDULE_TASK(gpSecRsp, arg);
 
-			return;
-		}
+        return;
+    }
 #endif
 
-	pGpSecRsp->status = gpProxySecOperation(gpSecReq.appId, gpSecReq.gpdId,
-											gpSecReq.endpoint, gpSecReq.gpdSecFrameCnt,
-											gpSecReq.gpdfSecurityLevel, gpSecReq.gpdfKeyType,
-											&pGpSecRsp->gpdfKeyType, pGpSecRsp->gpdKey);
+    pGpSecRsp->status = gpProxySecOperation(gpSecReq.appId, gpSecReq.gpdId,
+                                            gpSecReq.endpoint, gpSecReq.gpdSecFrameCnt,
+                                            gpSecReq.gpdfSecurityLevel, gpSecReq.gpdfKeyType,
+                                            &pGpSecRsp->gpdfKeyType, pGpSecRsp->gpdKey);
 
-	TL_SCHEDULE_TASK(gpSecRsp, arg);
+    TL_SCHEDULE_TASK(gpSecRsp, arg);
 }
 
 /*********************************************************************
@@ -355,21 +355,21 @@ void gpSecReqPrc(void *arg)
  */
 status_t zcl_gpCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload)
 {
-	status_t status = ZCL_STA_SUCCESS;
+    status_t status = ZCL_STA_SUCCESS;
 
-	if(pAddrInfo->dstEp == GREEN_POWER_ENDPOINT){
-		if(pAddrInfo->dirCluster == ZCL_FRAME_SERVER_CLIENT_DIR){
-			status = zcl_gpServerCmdHandler(pAddrInfo, cmdId, cmdPayload);
-		}else{
+    if (pAddrInfo->dstEp == GREEN_POWER_ENDPOINT) {
+        if (pAddrInfo->dirCluster == ZCL_FRAME_SERVER_CLIENT_DIR) {
+            status = zcl_gpServerCmdHandler(pAddrInfo, cmdId, cmdPayload);
+        } else {
 #if GP_BASIC_COMBO
-			status = zcl_gpClientCmdHandler(pAddrInfo, cmdId, cmdPayload);
+            status = zcl_gpClientCmdHandler(pAddrInfo, cmdId, cmdPayload);
 #else
-			status = ZCL_STA_UNSUP_CLUSTER_COMMAND;
+            status = ZCL_STA_UNSUP_CLUSTER_COMMAND;
 #endif
-		}
-	}
+        }
+    }
 
-	return status;
+    return status;
 }
 
 #endif /* GP_SUPPORT_ENABLE */

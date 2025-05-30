@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #pragma once
 
 #include "../usbdesc.h"
@@ -30,15 +29,17 @@
 #if (USB_VENDOR_ENABLE)
 
 static const u8 vendor_report_desc[] = {
-	HID_DESCRIPTOR_VENDOR(1, 4, 0, 1, 64),
+    HID_DESCRIPTOR_VENDOR(1, 4, 0, 1, 64),
 };
 
-static inline u8 *usbvendor_get_report_desc(void){
-	return (u8*)(vendor_report_desc);
+static inline u8 *usbvendor_get_report_desc(void)
+{
+    return (u8*)(vendor_report_desc);
 }
 
-static inline u16 usbvendor_get_report_desc_size(void){
-	return (u16)(sizeof(vendor_report_desc));
+static inline u16 usbvendor_get_report_desc_size(void)
+{
+    return (u16)(sizeof(vendor_report_desc));
 }
 
 #endif

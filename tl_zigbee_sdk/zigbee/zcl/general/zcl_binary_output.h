@@ -22,10 +22,8 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #ifndef ZCL_BINARY_OUTPUT_H
 #define ZCL_BINARY_OUTPUT_H
-
 
 
 /*********************************************************************
@@ -35,32 +33,32 @@
 /**
  *  @brief	binary cluster Attribute IDs
  */
-#define ZCL_BINARY_OUTPUT_ATTRID_ACTIVE_TEXT     			0x0004
-#define ZCL_BINARY_OUTPUT_ATTRID_DESCRIPTION    			0x001C
-#define ZCL_BINARY_OUTPUT_ATTRID_INACTIVE_TEXT   			0x002E
-#define ZCL_BINARY_OUTPUT_ATTRID_MIN_OFF_TIME   			0x0042
-#define ZCL_BINARY_OUTPUT_ATTRID_MIN_ON_TIME       			0x0043
-#define ZCL_BINARY_OUTPUT_ATTRID_OUT_OF_SERVICE   			0x0051
-#define ZCL_BINARY_OUTPUT_ATTRID_POLARITY    				0x0054
-#define ZCL_BINARY_OUTPUT_ATTRID_PRESENT_VALUE      		0x0055
-#define ZCL_BINARY_OUTPUT_ATTRID_PRIORITY_ARRAY   			0x0057
-#define ZCL_BINARY_OUTPUT_ATTRID_RELIABLILITY         		0x0067
-#define ZCL_BINARY_OUTPUT_ATTRID_RELINQUISH_DEFAULT     	0x0068
-#define ZCL_BINARY_OUTPUT_ATTRID_STATUS_FLAGS           	0x006F
-#define ZCL_BINARY_OUTPUT_ATTRID_APP_TYPE       			0x0100
+#define ZCL_BINARY_OUTPUT_ATTRID_ACTIVE_TEXT            0x0004
+#define ZCL_BINARY_OUTPUT_ATTRID_DESCRIPTION            0x001C
+#define ZCL_BINARY_OUTPUT_ATTRID_INACTIVE_TEXT          0x002E
+#define ZCL_BINARY_OUTPUT_ATTRID_MIN_OFF_TIME           0x0042
+#define ZCL_BINARY_OUTPUT_ATTRID_MIN_ON_TIME            0x0043
+#define ZCL_BINARY_OUTPUT_ATTRID_OUT_OF_SERVICE         0x0051
+#define ZCL_BINARY_OUTPUT_ATTRID_POLARITY               0x0054
+#define ZCL_BINARY_OUTPUT_ATTRID_PRESENT_VALUE          0x0055
+#define ZCL_BINARY_OUTPUT_ATTRID_PRIORITY_ARRAY         0x0057
+#define ZCL_BINARY_OUTPUT_ATTRID_RELIABLILITY           0x0067
+#define ZCL_BINARY_OUTPUT_ATTRID_RELINQUISH_DEFAULT     0x0068
+#define ZCL_BINARY_OUTPUT_ATTRID_STATUS_FLAGS           0x006F
+#define ZCL_BINARY_OUTPUT_ATTRID_APP_TYPE               0x0100
 
 /**
  *  @brief Max length of char string
  */
-#define ZCL_BINARY_OUTPUT_MAX_LENGTH 						24
+#define ZCL_BINARY_OUTPUT_MAX_LENGTH                    24
 
 
 /**
  *  @brief  Definition format for priority array
  */
 typedef struct {
-	bool priority1;
-	bool priority2;
+    bool priority1;
+    bool priority2;
 } zcl_binOutput_priorityArray_t;
 
 #if 0

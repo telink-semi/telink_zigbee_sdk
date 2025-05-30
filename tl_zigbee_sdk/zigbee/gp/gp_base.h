@@ -22,17 +22,15 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #ifndef GP_BASE_H
 #define GP_BASE_H
 
 
-typedef struct
-{
-	ev_timer_event_t *transmitChannelTimeoutEvt;
-	u8 gpOperationalChannel;//hold the operational channel
-	u8 gpDuplicateTimeout;	//the default value of 2 seconds can be modified by the application profile
-}gp_base_t;
+typedef struct {
+    ev_timer_event_t *transmitChannelTimeoutEvt;
+    u8 gpOperationalChannel;    //hold the operational channel
+    u8 gpDuplicateTimeout;      //the default value of 2 seconds can be modified by the application profile
+} gp_base_t;
 
 extern gp_base_t g_gpBaseCtx;
 

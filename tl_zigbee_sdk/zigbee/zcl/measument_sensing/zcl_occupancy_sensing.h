@@ -22,10 +22,8 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #ifndef ZCL_OCCUPANCY_SENSING_H
 #define ZCL_OCCUPANCY_SENSING_H
-
 
 
 /** @addtogroup  TELINK_ZIGBEE_STACK TELINK ZigBee Stack
@@ -47,14 +45,14 @@
 /** @addtogroup zcl_occupancy_attrId OCCUPANCY SENSING Attribute Ids
  * @{
  */
-#define ZCL_ATTRID_OCCUPANCY                          0x0000
-#define ZCL_ATTRID_OCCUPANCY_SENSOR_TYPE              0x0001
-#define ZCL_ATTRID_PIR_OCCU2UNOCCU_DELAY              0x0010
-#define ZCL_ATTRID_PIR_UNOCCU2OCCU_DELAY              0x0011
-#define ZCL_ATTRID_PIR_UNOCCU2OCCU_THRES              0x0012
-#define ZCL_ATTRID_ULTRA_OCCU2UNOCCU_DELAY            0x0020
-#define ZCL_ATTRID_ULTRA_UNOCCU2OCCU_DELAY            0x0021
-#define ZCL_ATTRID_ULTRA_UNOCCU2OCCU_THRES            0x0022
+#define ZCL_ATTRID_OCCUPANCY                    0x0000
+#define ZCL_ATTRID_OCCUPANCY_SENSOR_TYPE        0x0001
+#define ZCL_ATTRID_PIR_OCCU2UNOCCU_DELAY        0x0010
+#define ZCL_ATTRID_PIR_UNOCCU2OCCU_DELAY        0x0011
+#define ZCL_ATTRID_PIR_UNOCCU2OCCU_THRES        0x0012
+#define ZCL_ATTRID_ULTRA_OCCU2UNOCCU_DELAY      0x0020
+#define ZCL_ATTRID_ULTRA_UNOCCU2OCCU_DELAY      0x0021
+#define ZCL_ATTRID_ULTRA_UNOCCU2OCCU_THRES      0x0022
 
 /** @} end of group zcl_occupancy_attrId */
 

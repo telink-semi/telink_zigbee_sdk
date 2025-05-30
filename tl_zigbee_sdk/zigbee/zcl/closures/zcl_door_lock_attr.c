@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #if 0
 #include "tl_common.h"
 
@@ -48,26 +47,25 @@
 
 /* Attribute default */
 zcl_attr_doorLock_t g_zclDoorLockAttr = {
-	.zcl_attr_LockState 		= 0,
-	.zcl_attr_LockType 			= 0,
-	.zcl_attr_ActuatorEnabled 	= 0,
-	.zcl_attr_sendPinOta 		= 0,
-	.zcl_attr_requirePinForRfOperation = 0,
+    .zcl_attr_LockState                 = 0,
+    .zcl_attr_LockType                  = 0,
+    .zcl_attr_ActuatorEnabled           = 0,
+    .zcl_attr_sendPinOta                = 0,
+    .zcl_attr_requirePinForRfOperation  = 0,
 };
 
 
 /* Attribute record list */
-const zclAttrInfo_t doorLock_attrTbl[] =
-{
-    { ZCL_ATTRID_LOCK_STATE,	   				ZCL_DATA_TYPE_ENUM8,     ACCESS_CONTROL_READ | ACCESS_CONTROL_REPORTABLE,  	(u8*)&g_zclDoorLockAttr.zcl_attr_LockState},
-    { ZCL_ATTRID_LOCK_TYPE,	   					ZCL_DATA_TYPE_ENUM8,     ACCESS_CONTROL_READ,  								(u8*)&g_zclDoorLockAttr.zcl_attr_LockType},
-	{ ZCL_ATTRID_ACTUATOR_ENABLED,				ZCL_DATA_TYPE_BOOLEAN,   ACCESS_CONTROL_READ,  								(u8*)&g_zclDoorLockAttr.zcl_attr_ActuatorEnabled},
-	{ ZCL_ATTRID_SEND_PIN_OTA,					ZCL_DATA_TYPE_BOOLEAN,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE,		(u8*)&g_zclDoorLockAttr.zcl_attr_sendPinOta},
-	{ ZCL_ATTRID_REQUIRE_PIN_FOR_RF_OPERATION,	ZCL_DATA_TYPE_BOOLEAN,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE,		(u8*)&g_zclDoorLockAttr.zcl_attr_requirePinForRfOperation},
-	{ ZCL_ATTRID_GLOBAL_CLUSTER_REVISION, 		ZCL_DATA_TYPE_UINT16,  	 ACCESS_CONTROL_READ,  								(u8*)&zcl_attr_global_clusterRevision},
+const zclAttrInfo_t doorLock_attrTbl[] = {
+    { ZCL_ATTRID_LOCK_STATE,                   ZCL_DATA_TYPE_ENUM8,   ACCESS_CONTROL_READ | ACCESS_CONTROL_REPORTABLE, (u8*)&g_zclDoorLockAttr.zcl_attr_LockState},
+    { ZCL_ATTRID_LOCK_TYPE,                    ZCL_DATA_TYPE_ENUM8,   ACCESS_CONTROL_READ,                             (u8*)&g_zclDoorLockAttr.zcl_attr_LockType},
+    { ZCL_ATTRID_ACTUATOR_ENABLED,             ZCL_DATA_TYPE_BOOLEAN, ACCESS_CONTROL_READ,                             (u8*)&g_zclDoorLockAttr.zcl_attr_ActuatorEnabled},
+    { ZCL_ATTRID_SEND_PIN_OTA,                 ZCL_DATA_TYPE_BOOLEAN, ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE,      (u8*)&g_zclDoorLockAttr.zcl_attr_sendPinOta},
+    { ZCL_ATTRID_REQUIRE_PIN_FOR_RF_OPERATION, ZCL_DATA_TYPE_BOOLEAN, ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE,      (u8*)&g_zclDoorLockAttr.zcl_attr_requirePinForRfOperation},
+    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,      ZCL_DATA_TYPE_UINT16,  ACCESS_CONTROL_READ,                             (u8*)&zcl_attr_global_clusterRevision},
 };
 
-const u8 zcl_doorLock_attrNum = ( sizeof(doorLock_attrTbl) / sizeof(zclAttrInfo_t) );
+const u8 zcl_doorLock_attrNum = (sizeof(doorLock_attrTbl) / sizeof(zclAttrInfo_t));
 
 #endif    /* ZCL_DOOR_LOCK */
 

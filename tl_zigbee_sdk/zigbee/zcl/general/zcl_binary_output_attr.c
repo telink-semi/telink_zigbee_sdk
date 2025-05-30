@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #if 0
 
 /**********************************************************************
@@ -87,51 +86,50 @@ u8 zcl_attr_binOutput_statusFlags = 0;
 u32 zcl_attr_binOutput_appType = 0;
 #endif
 
-const zclAttrInfo_t binary_output_attrTbl[] =
-{
+const zclAttrInfo_t binary_output_attrTbl[] = {
 #ifdef ZCL_BINARY_OUTPUT_ATTR_ACTIVE_TEXT_ENABLE
-	{ ZCL_BINARY_OUTPUT_ATTRID_ACTIVE_TEXT,			ZCL_DATA_TYPE_CHAR_STR,	ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)zcl_attr_binOutput_activeText},
+    { ZCL_BINARY_OUTPUT_ATTRID_ACTIVE_TEXT,        ZCL_DATA_TYPE_CHAR_STR, ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)zcl_attr_binOutput_activeText},
 #endif
 #ifdef ZCL_BINARY_OUTPUT_ATTR_DESCRIPTIONT_ENABLE
-	{ ZCL_BINARY_OUTPUT_ATTRID_DESCRIPTION,			ZCL_DATA_TYPE_CHAR_STR,	ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)zcl_attr_binOutput_description},
+    { ZCL_BINARY_OUTPUT_ATTRID_DESCRIPTION,        ZCL_DATA_TYPE_CHAR_STR, ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)zcl_attr_binOutput_description},
 #endif
 #ifdef ZCL_BINARY_OUTPUT_ATTR_INACTIVE_TEXT_ENABLE
-	{ ZCL_BINARY_OUTPUT_ATTRID_INACTIVE_TEXT,		ZCL_DATA_TYPE_CHAR_STR,	ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)zcl_attr_binOutput_inactiveText},
+    { ZCL_BINARY_OUTPUT_ATTRID_INACTIVE_TEXT,      ZCL_DATA_TYPE_CHAR_STR, ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)zcl_attr_binOutput_inactiveText},
 #endif
 #ifdef ZCL_BINARY_OUTPUT_ATTR_MIN_OFF_TIME_ENABLE
-	{ ZCL_BINARY_OUTPUT_ATTRID_MIN_OFF_TIME,		ZCL_DATA_TYPE_UINT32,	ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_binOutput_minOffTime},
+    { ZCL_BINARY_OUTPUT_ATTRID_MIN_OFF_TIME,       ZCL_DATA_TYPE_UINT32,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_binOutput_minOffTime},
 #endif
 #ifdef ZCL_BINARY_OUTPUT_ATTR_MIN_ON_TIME_ENABLE
-	{ ZCL_BINARY_OUTPUT_ATTRID_MIN_ON_TIME,			ZCL_DATA_TYPE_UINT32,	ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_binOutput_minOnTime},
+    { ZCL_BINARY_OUTPUT_ATTRID_MIN_ON_TIME,        ZCL_DATA_TYPE_UINT32,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_binOutput_minOnTime},
 #endif
 #ifdef ZCL_BINARY_OUTPUT_ATTR_OUT_OF_SERVICE_ENABLE
-	{ ZCL_BINARY_OUTPUT_ATTRID_OUT_OF_SERVICE,		ZCL_DATA_TYPE_BOOLEAN,	ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attrr_binOutput_outOfService},
+    { ZCL_BINARY_OUTPUT_ATTRID_OUT_OF_SERVICE,     ZCL_DATA_TYPE_BOOLEAN,  ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attrr_binOutput_outOfService},
 #endif
 #ifdef ZCL_BINARY_OUTPUT_ATTR_POLARITY_ENABLE
-	{ ZCL_BINARY_OUTPUT_ATTRID_POLARITY,			ZCL_DATA_TYPE_ENUM8,	ACCESS_CONTROL_READ,     					(u8*)&zcl_attr_binOutput_polarity},
+    { ZCL_BINARY_OUTPUT_ATTRID_POLARITY,           ZCL_DATA_TYPE_ENUM8,    ACCESS_CONTROL_READ,                        (u8*)&zcl_attr_binOutput_polarity},
 #endif
 #ifdef ZCL_BINARY_OUTPUT_ATTR_PRESENT_VALUE_ENABLE
-	{ ZCL_BINARY_OUTPUT_ATTRID_PRESENT_VALUE,		ZCL_DATA_TYPE_BOOLEAN,	ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_binOutput_presentValue},
+    { ZCL_BINARY_OUTPUT_ATTRID_PRESENT_VALUE,      ZCL_DATA_TYPE_BOOLEAN,  ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_binOutput_presentValue},
 #endif
 #ifdef ZCL_BINARY_OUTPUT_ATTR_PRIORITY_ARRAY_ENABLE
-	{ ZCL_BINARY_OUTPUT_ATTRID_PRIORITY_ARRAY,		ZCL_DATA_TYPE_ARRAY,   	ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)zcl_attr_binOutput_priorityArray},
+    { ZCL_BINARY_OUTPUT_ATTRID_PRIORITY_ARRAY,     ZCL_DATA_TYPE_ARRAY,    ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)zcl_attr_binOutput_priorityArray},
 #endif
 #ifdef ZCL_BINARY_OUTPUT_ATTR_RELIABILITY_ENABLE
-	{ ZCL_BINARY_OUTPUT_ATTRID_RELIABLILITY,		ZCL_DATA_TYPE_ENUM8,	ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_binOutput_reliability},
+    { ZCL_BINARY_OUTPUT_ATTRID_RELIABLILITY,       ZCL_DATA_TYPE_ENUM8,    ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_binOutput_reliability},
 #endif
 #ifdef ZCL_BINARY_OUTPUT_ATTR_RELINQUISH_DEFAULT_ENABLE
-	{ ZCL_BINARY_OUTPUT_ATTRID_RELINQUISH_DEFAULT,	ZCL_DATA_TYPE_BOOLEAN, 	ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_binOutput_relinquishDefault},
+    { ZCL_BINARY_OUTPUT_ATTRID_RELINQUISH_DEFAULT, ZCL_DATA_TYPE_BOOLEAN,  ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_binOutput_relinquishDefault},
 #endif
 #ifdef ZCL_BINARY_OUTPUT_ATTR_STATUS_FLAGS_ENABLE
-	{ ZCL_BINARY_OUTPUT_ATTRID_STATUS_FLAGS,		ZCL_DATA_TYPE_BITMAP8,	ACCESS_CONTROL_READ, 						(u8*)&zcl_attr_binOutput_statusFlags},
+    { ZCL_BINARY_OUTPUT_ATTRID_STATUS_FLAGS,       ZCL_DATA_TYPE_BITMAP8,  ACCESS_CONTROL_READ,                        (u8*)&zcl_attr_binOutput_statusFlags},
 #endif
 #ifdef ZCL_BINARY_OUTPUT_ATTR_APP_TYPE_ENABLE
-	{ ZCL_BINARY_OUTPUT_ATTRID_APP_TYPE,			ZCL_DATA_TYPE_UINT32,	ACCESS_CONTROL_READ, 						(u8*)&zcl_attr_binOutput_appType},
+    { ZCL_BINARY_OUTPUT_ATTRID_APP_TYPE,           ZCL_DATA_TYPE_UINT32,   ACCESS_CONTROL_READ,                        (u8*)&zcl_attr_binOutput_appType},
 #endif
-	{ ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,			ZCL_DATA_TYPE_UINT16,	ACCESS_CONTROL_READ,  						(u8*)&zcl_attr_global_clusterRevision},
+    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,          ZCL_DATA_TYPE_UINT16,   ACCESS_CONTROL_READ,                        (u8*)&zcl_attr_global_clusterRevision},
 };
 
-const u8 zcl_binary_output_attrNum = ( sizeof(binary_output_attrTbl) / sizeof(zclAttrInfo_t) );
+const u8 zcl_binary_output_attrNum = (sizeof(binary_output_attrTbl) / sizeof(zclAttrInfo_t));
 
 #endif	/* ZCL_BINARY_OUTPUT */
 

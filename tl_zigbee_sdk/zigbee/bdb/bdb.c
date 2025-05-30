@@ -260,7 +260,7 @@ _CODE_BDB_ static bool isQueueFull(findBindQ_t *pFindBindQ)
 {
     if (((pFindBindQ->rear + 1) % FIND_BIND_QUEUE_SIZE) == pFindBindQ->front) {
         return TRUE;
-    }else{
+    } else {
         return FALSE;
     }
 }
@@ -596,7 +596,7 @@ _CODE_BDB_ static void bdb_simpleDescReqSend(void *arg)
 {
     if (queuePop(g_bdbCtx.pFindBindQ, &g_bdbCtx.findDstInfo)) {
         if (g_bdbCtx.identifyTimer) {
-                TL_ZB_TIMER_CANCEL(&g_bdbCtx.identifyTimer);
+            TL_ZB_TIMER_CANCEL(&g_bdbCtx.identifyTimer);
         }
 
         u32 evt = BDB_EVT_COMMISSIONING_FINDORBIND_SIMPLE_DESC_REQ;
@@ -1282,7 +1282,7 @@ _CODE_BDB_ void bdb_zdoStartDevCnf(zdo_start_device_confirm_t *startDevCnf)
         evt = BDB_EVT_INIT_DONE;
         g_bdbCtx.initResult = BDB_INIT_STATUS_SUCCESS;
         if (startDevCnf->status != SUCCESS) {
-                g_bdbCtx.initResult = BDB_INIT_STATUS_FAILURE;
+            g_bdbCtx.initResult = BDB_INIT_STATUS_FAILURE;
         }
         TL_SCHEDULE_TASK(bdb_task, (void *)evt);
         break;
@@ -1818,7 +1818,6 @@ _CODE_BDB_ void bdb_attrSet(u8 attrId, u8 *value)
 
     u8 len = g_bdbAttrTbl[attrId-BDB_ATTR_PRIMARY_CHANNEL_SET].len;
     memcpy((u8 *)&g_bdbAttrs+g_bdbAttrTbl[attrId-BDB_ATTR_PRIMARY_CHANNEL_SET].offset, value, len);
-    return;
 }
 
 /*********************************************************************

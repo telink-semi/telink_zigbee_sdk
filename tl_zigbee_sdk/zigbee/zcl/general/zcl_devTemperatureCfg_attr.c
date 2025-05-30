@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #if 0
 #include "tl_common.h"
 
@@ -58,39 +57,38 @@ u24 zcl_attr_lowTripPoint = 0x000001;
 u24 zcl_attr_highTripPoint = 0x000001;
 
 /* Attribute record list */
-const zclAttrInfo_t dev_temp_cfg_attrTbl[] =
-{
+const zclAttrInfo_t dev_temp_cfg_attrTbl[] = {
 #ifdef ZCL_ATTR_CUTTRNT_TEMP_ENABLE
-	{ ZCL_ATTRID_DEV_TEMP_CURR_TEMP,       ZCL_DATA_TYPE_INT16,    ACCESS_CONTROL_READ, (u8*)&zcl_attr_curTemp},
+    { ZCL_ATTRID_DEV_TEMP_CURR_TEMP,       ZCL_DATA_TYPE_INT16,   ACCESS_CONTROL_READ,                        (u8*)&zcl_attr_curTemp},
 #endif
 #ifdef ZCL_ATTR_MIN_TEMP_EXP_ENABLE
-	{ ZCL_ATTRID_DEV_TEMP_MIN_TEMP_EXP,    ZCL_DATA_TYPE_INT16,    ACCESS_CONTROL_READ, (u8*)&zcl_attr_minTempExp},
+    { ZCL_ATTRID_DEV_TEMP_MIN_TEMP_EXP,    ZCL_DATA_TYPE_INT16,   ACCESS_CONTROL_READ,                        (u8*)&zcl_attr_minTempExp},
 #endif
 #ifdef ZCL_ATTR_MAX_TEMP_EXP_ENABLE
-	{ ZCL_ATTRID_DEV_TEMP_MAX_TEMP_EXP,    ZCL_DATA_TYPE_INT16,    ACCESS_CONTROL_READ, (u8*)&zcl_attr_maxTempExp},
+    { ZCL_ATTRID_DEV_TEMP_MAX_TEMP_EXP,    ZCL_DATA_TYPE_INT16,   ACCESS_CONTROL_READ,                        (u8*)&zcl_attr_maxTempExp},
 #endif
 #ifdef ZCL_ATTR_OVER_TEMP_TOTAL_ENABLE
-	{ ZCL_ATTRID_DEV_TEMP_OVER_TEMP_TOTAL, ZCL_DATA_TYPE_UINT16,   ACCESS_CONTROL_READ, (u8*)&zcl_attr_overTempTotal},
+    { ZCL_ATTRID_DEV_TEMP_OVER_TEMP_TOTAL, ZCL_DATA_TYPE_UINT16,  ACCESS_CONTROL_READ,                        (u8*)&zcl_attr_overTempTotal},
 #endif
 #ifdef ZCL_ATTR_OVER_DEV_TEMP_ALARM_MASK_ENABLE
-	{ ZCL_ATTRID_DEV_TEMP_ALARM_MASK,      ZCL_DATA_TYPE_BITMAP8,  ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_tempAlarmMask},
+    { ZCL_ATTRID_DEV_TEMP_ALARM_MASK,      ZCL_DATA_TYPE_BITMAP8, ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_tempAlarmMask},
 #endif
 #ifdef ZCL_ATTR_OVER_LOW_TEMP_THRESHOLD_ENABLE
-	{ ZCL_ATTRID_DEV_TEMP_LOW_THRES,       ZCL_DATA_TYPE_INT16,    ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_lowTempThreshold},
+    { ZCL_ATTRID_DEV_TEMP_LOW_THRES,       ZCL_DATA_TYPE_INT16,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_lowTempThreshold},
 #endif
 #ifdef ZCL_ATTR_OVER_HIGH_TEMP_THERSHOLD_ENABLE
-	{ ZCL_ATTRID_DEV_TEMP_HIGH_THRES,      ZCL_DATA_TYPE_INT16,    ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_highTempThreshold},
+    { ZCL_ATTRID_DEV_TEMP_HIGH_THRES,      ZCL_DATA_TYPE_INT16,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_highTempThreshold},
 #endif
 #ifdef ZCL_ATTR_OVER_LOW_TEMP_TRIP_ENABLE
-	{ ZCL_ATTRID_DEV_TEMP_LOW_TRIP,        ZCL_DATA_TYPE_UINT24,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_lowTripPoint},
+    { ZCL_ATTRID_DEV_TEMP_LOW_TRIP,        ZCL_DATA_TYPE_UINT24,  ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_lowTripPoint},
 #endif
 #ifdef ZCL_ATTR_OVER_HIGH_TEMP_TRIP_ENABLE
-	{ ZCL_ATTRID_DEV_TEMP_HIGH_TRIP,       ZCL_DATA_TYPE_UINT24,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_highTripPoint},
+    { ZCL_ATTRID_DEV_TEMP_HIGH_TRIP,       ZCL_DATA_TYPE_UINT24,  ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_highTripPoint},
 #endif
-	{ ZCL_ATTRID_GLOBAL_CLUSTER_REVISION, ZCL_DATA_TYPE_UINT16,  ACCESS_CONTROL_READ,  (u8*)&zcl_attr_global_clusterRevision},
+    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,  ZCL_DATA_TYPE_UINT16,  ACCESS_CONTROL_READ,                        (u8*)&zcl_attr_global_clusterRevision},
 };
 
-const u8 zcl_dev_temp_cfg_attrNum = ( sizeof(dev_temp_cfg_attrTbl) / sizeof(zclAttrInfo_t) );
+const u8 zcl_dev_temp_cfg_attrNum = (sizeof(dev_temp_cfg_attrTbl) / sizeof(zclAttrInfo_t));
  
 #endif    /* ZCL_DEV_TEMPERATURE_CFG */
 

@@ -22,10 +22,8 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #ifndef ZCL_DEV_TEMP_CFG_H
 #define ZCL_DEV_TEMP_CFG_H
-
 
 
 /** @addtogroup  TELINK_ZIGBEE_STACK TELINK ZigBee Stack
@@ -47,15 +45,15 @@
 /** @addtogroup zcl_dev_temp_cfg_attrId DEVICE TEMPERATURE Attribute Ids
  * @{
  */
-#define ZCL_ATTRID_DEV_TEMP_CURR_TEMP                     0x0000
-#define ZCL_ATTRID_DEV_TEMP_MIN_TEMP_EXP                  0x0001
-#define ZCL_ATTRID_DEV_TEMP_MAX_TEMP_EXP                  0x0002
-#define ZCL_ATTRID_DEV_TEMP_OVER_TEMP_TOTAL               0x0003
-#define ZCL_ATTRID_DEV_TEMP_ALARM_MASK                    0x0010
-#define ZCL_ATTRID_DEV_TEMP_LOW_THRES                     0x0011
-#define ZCL_ATTRID_DEV_TEMP_HIGH_THRES					  0x0012
-#define ZCL_ATTRID_DEV_TEMP_LOW_TRIP                      0x0013
-#define ZCL_ATTRID_DEV_TEMP_HIGH_TRIP                     0x0014
+#define ZCL_ATTRID_DEV_TEMP_CURR_TEMP                   0x0000
+#define ZCL_ATTRID_DEV_TEMP_MIN_TEMP_EXP                0x0001
+#define ZCL_ATTRID_DEV_TEMP_MAX_TEMP_EXP                0x0002
+#define ZCL_ATTRID_DEV_TEMP_OVER_TEMP_TOTAL             0x0003
+#define ZCL_ATTRID_DEV_TEMP_ALARM_MASK                  0x0010
+#define ZCL_ATTRID_DEV_TEMP_LOW_THRES                   0x0011
+#define ZCL_ATTRID_DEV_TEMP_HIGH_THRES                  0x0012
+#define ZCL_ATTRID_DEV_TEMP_LOW_TRIP                    0x0013
+#define ZCL_ATTRID_DEV_TEMP_HIGH_TRIP                   0x0014
 
 /** @} end of group zcl_dev_temp_cfg_attrId */
 

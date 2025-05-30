@@ -22,11 +22,8 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #ifndef ZDO_API_H
 #define	ZDO_API_H
-
-
 
 
 /***********************************************************************************
@@ -36,109 +33,107 @@
  * 			APSDE-DATA indication primitive described in  Zigbee Specification r18, 2.2.4.1.3 APSDE-DATA.indication,
  * 			page 29.
  */
-#define	MAC_HEADER_MAX_SIZE			23
-#define	NWK_HEADER_MAX_SIZE			25
-#define	SECURE_HEADER_SIZE			14
-#define	APS_HEADER_MAX_SIZE			8
-#define	APS_MAXPACKET_LENGTH		(127 - MAC_HEADER_MAX_SIZE - NWK_HEADER_MAX_SIZE - SECURE_HEADER_SIZE - APS_HEADER_MAX_SIZE)
+#define	MAC_HEADER_MAX_SIZE             23
+#define	NWK_HEADER_MAX_SIZE             25
+#define	SECURE_HEADER_SIZE              14
+#define	APS_HEADER_MAX_SIZE             8
+#define	APS_MAXPACKET_LENGTH            (127 - MAC_HEADER_MAX_SIZE - NWK_HEADER_MAX_SIZE - SECURE_HEADER_SIZE - APS_HEADER_MAX_SIZE)
 
 
 /**********************************************************************************
  * @brief		zdo result status primitives.
 */
-typedef enum{
-	ZDO_SUCCESS								= 0x00,
+typedef enum {
+    ZDO_SUCCESS                         = 0x00,
 
-	ZDO_NETWORK_LOST						= 0x60,//Non-standard status
+    ZDO_NETWORK_LOST                    = 0x60,//Non-standard status
 
-	ZDO_INVALID_REQUEST						= 0x80,
-	ZDO_DEVICE_NOT_FOUND					= 0x81,
-	ZDO_INVALID_EP							= 0x82,
-	ZDO_NOT_ACTIVE							= 0x83,
-	ZDO_NOT_SUPPORTED						= 0x84,
-	ZDO_TIMEOUT								= 0x85,
-	ZDO_NO_MATCH							= 0x86,
+    ZDO_INVALID_REQUEST                 = 0x80,
+    ZDO_DEVICE_NOT_FOUND                = 0x81,
+    ZDO_INVALID_EP                      = 0x82,
+    ZDO_NOT_ACTIVE                      = 0x83,
+    ZDO_NOT_SUPPORTED                   = 0x84,
+    ZDO_TIMEOUT                         = 0x85,
+    ZDO_NO_MATCH                        = 0x86,
 
-	ZDO_NO_ENTRY							= 0x88,
-	ZDO_NO_DESCRIPTOR						= 0x89,
-	ZDO_INSUFFICIENT_SPACE					= 0x8A,
-	ZDO_NOT_PERMITTED						= 0x8B,
-	ZDO_TABLE_FULL							= 0x8C,
-	ZDO_NOT_AUTHORIZED						= 0x8D,
-	ZDO_DEVICE_BINDING_TABLE_FALL			= 0x8E,
-	ZDO_INVALID_INDEX						= 0x8F,
-}zdo_status_t;
-
-
-typedef struct{
-	extPANId_t	nwkExtendedPANID;
-	extPANId_t	apsUseExtendedPANID;
-	u32	apsChannelMask;
-	u8	apsDesignatedCoordinator;
-	u8	apsUseInsecureJoin;
-}zdo_startup_attr_t;
-
-typedef struct{
-	/* Integer value representing the time duration (in OctetDurations) between each NWK discovery attempt.
-	 * It is employed within ZDO to provide a time duration between the NLME-NETWORKDISCOVERY.request attempts.
-	 */
-	u32	config_nwk_indirectPollRate;//In ms
-	u16	config_nwk_time_btwn_scans;//In ms, default value, 100ms on 2.4GHz
-
-	/* The :Config_NWK_Scan_Attempts is employed within ZDO to call the NLME-NETWORKDISCOVERY.
-	 * request primitive the indicated number of times (for routers and end devices).Integer value
-	 * representing the number of scan attempts to make before the NWK layer decides which ZigBee
-	 * coordinator or router to associate with.
-	 */
-	u8	config_nwk_scan_attempts;//This attribute has default value of 5 and valid values between 1 and 255.
-	u8	config_permit_join_duration;//Permit join duration, 0x00 - disable join, 0xff - join is allowed forever
-	u8	config_parent_link_retry_threshold;//Number of retry parent sync before judged as connection lost and the default value is ZDO_MAX_PARENT_THRESHOLD_RETRY
-
-	/* Addition rejoin with backoff timer for rejoin device.
-	 * |-------------------------------------------------|
-	 * |<---- rejoin times = 2 ----->|<- first backoff ->|
-	 * |<- duration ->|<- duration ->|<- backoff time  ->|
-	 * |---------------------------------------------------------------------|
-	 * |<----- rejoin times = 2 ---->|<----------- second backoff ---------->|
-	 * |<- duration ->|<- duration ->|<- backoff time  ->|<- backoff time  ->|
-	 * |-----------------------------------------------------------------------------------------|
-	 * |<----- rejoin times = 2 ---->|<---------------------- third backoff -------------------->|
-	 * |<- duration ->|<- duration ->|<- backoff time  ->|<- backoff time  ->|<- backoff time  ->|
-	 */
-	u8	config_rejoin_times;//The number of rejoin attempts during the fast rejoin.
-	u16	config_rejoin_duration;//The amount of time between each rejoin attempt while the device is in Fast Rejoin mode, in seconds.
-							   //If 0, config_rejoin_times will be ignored and only one Fast Rejoin will be performed.
-	u16	config_rejoin_backoff_time;//The amount of time to sleep after the Fast Rejoin attempts before performing the next attempt, in seconds.
-								   //If 0 means no Rejoin backoff/retry.
-	u16	config_max_rejoin_backoff_time;//Upper limit of the config_rejoin_backoff_time.
-	u16 config_rejoin_backoff_iteration;//The number of iterations of the Fast Rejoin backoff, in times.
-										//If 0 means do not reset the backoff duration.
-
-	u16 config_accept_nwk_update_pan_id;
-	u8	config_accept_nwk_update_channel;
-	bool config_mgmt_leave_use_aps_sec;
-	bool config_use_tc_sec_on_nwk_key_rotation;
-	u8	config_nwk_scan_duration;
-}zdo_attrCfg_t;
+    ZDO_NO_ENTRY                        = 0x88,
+    ZDO_NO_DESCRIPTOR                   = 0x89,
+    ZDO_INSUFFICIENT_SPACE              = 0x8A,
+    ZDO_NOT_PERMITTED                   = 0x8B,
+    ZDO_TABLE_FULL                      = 0x8C,
+    ZDO_NOT_AUTHORIZED                  = 0x8D,
+    ZDO_DEVICE_BINDING_TABLE_FALL       = 0x8E,
+    ZDO_INVALID_INDEX                   = 0x8F,
+} zdo_status_t;
 
 
+typedef struct {
+    extPANId_t nwkExtendedPANID;
+    extPANId_t apsUseExtendedPANID;
+    u32 apsChannelMask;
+    u8 apsDesignatedCoordinator;
+    u8 apsUseInsecureJoin;
+} zdo_startup_attr_t;
+
+typedef struct {
+    /* Integer value representing the time duration (in OctetDurations) between each NWK discovery attempt.
+     * It is employed within ZDO to provide a time duration between the NLME-NETWORKDISCOVERY.request attempts.
+     */
+    u32 config_nwk_indirectPollRate;//In ms
+    u16 config_nwk_time_btwn_scans;//In ms, default value, 100ms on 2.4GHz
+
+    /* The :Config_NWK_Scan_Attempts is employed within ZDO to call the NLME-NETWORKDISCOVERY.
+     * request primitive the indicated number of times (for routers and end devices).Integer value
+     * representing the number of scan attempts to make before the NWK layer decides which ZigBee
+     * coordinator or router to associate with.
+     */
+    u8 config_nwk_scan_attempts;//This attribute has default value of 5 and valid values between 1 and 255.
+    u8 config_permit_join_duration;//Permit join duration, 0x00 - disable join, 0xff - join is allowed forever
+    u8 config_parent_link_retry_threshold;//Number of retry parent sync before judged as connection lost and the default value is ZDO_MAX_PARENT_THRESHOLD_RETRY
+
+    /* Addition rejoin with backoff timer for rejoin device.
+     * |-------------------------------------------------|
+     * |<---- rejoin times = 2 ----->|<- first backoff ->|
+     * |<- duration ->|<- duration ->|<- backoff time  ->|
+     * |---------------------------------------------------------------------|
+     * |<----- rejoin times = 2 ---->|<----------- second backoff ---------->|
+     * |<- duration ->|<- duration ->|<- backoff time  ->|<- backoff time  ->|
+     * |-----------------------------------------------------------------------------------------|
+     * |<----- rejoin times = 2 ---->|<---------------------- third backoff -------------------->|
+     * |<- duration ->|<- duration ->|<- backoff time  ->|<- backoff time  ->|<- backoff time  ->|
+     */
+    u8 config_rejoin_times;//The number of rejoin attempts during the fast rejoin.
+    u16 config_rejoin_duration;//The amount of time between each rejoin attempt while the device is in Fast Rejoin mode, in seconds.
+                                                       //If 0, config_rejoin_times will be ignored and only one Fast Rejoin will be performed.
+    u16 config_rejoin_backoff_time;//The amount of time to sleep after the Fast Rejoin attempts before performing the next attempt, in seconds.
+                                                               //If 0 means no Rejoin backoff/retry.
+    u16 config_max_rejoin_backoff_time;//Upper limit of the config_rejoin_backoff_time.
+    u16 config_rejoin_backoff_iteration;//The number of iterations of the Fast Rejoin backoff, in times.
+                                        //If 0 means do not reset the backoff duration.
+
+    u16 config_accept_nwk_update_pan_id;
+    u8 config_accept_nwk_update_channel;
+    bool config_mgmt_leave_use_aps_sec;
+    bool config_use_tc_sec_on_nwk_key_rotation;
+    u8 config_nwk_scan_duration;
+} zdo_attrCfg_t;
 
 /**
  *  @brief Structure for parameter of startDev callback function
  */
-typedef struct{
+typedef struct {
     u8 status;
     u8 channel_num;
     u16	pan_id;
     u16	short_addr;
-}zdo_start_device_confirm_t;
+} zdo_start_device_confirm_t;
 
-typedef struct{
-	addrExt_t parentIeeeAddr;
-	addrExt_t devIeeeAddr;
-	u16 devShortAddr;
-	u8 sta;//ss_apsmeUpdateDevStatus_e
-}zdo_tc_join_ind_t;
+typedef struct {
+    addrExt_t parentIeeeAddr;
+    addrExt_t devIeeeAddr;
+    u16 devShortAddr;
+    u8 sta;//ss_apsmeUpdateDevStatus_e
+} zdo_tc_join_ind_t;
 
 typedef void (*zdo_startDveCnfCb_t)(zdo_start_device_confirm_t *p);
 typedef void (*zdo_nlmeResetCnfCb_t)(nlme_reset_cnf_t *p);
@@ -151,35 +146,33 @@ typedef void (*zdo_nlmeSyncCnfCb_t)(nlme_sync_cnf_t *p);
 typedef bool (*zdo_tcJoinIndCb_t)(zdo_tc_join_ind_t *p);
 typedef void (*zdo_tcFrameCntReachedCb_t)(void);
 
-typedef struct{
-	zdo_startDveCnfCb_t				zdpStartDevCnfCb;
-	zdo_nlmeResetCnfCb_t			zdpResetCnfCb;
-	zdo_dveAnnceIndCb_t				zdpDevAnnounceIndCb;
-	zdo_leaveIndCb_t				zdpLeaveIndCb;
-	zdo_leaveCnfCb_t				zdpLeaveCnfCb;
-	zdo_nwkUpdateCb_t				zdpNwkUpdateIndCb;
-	zdo_permitJoinIndCb_t			zdpPermitJoinIndCb;
-	zdo_nlmeSyncCnfCb_t				zdoNlmeSyncCnfCb;
-	zdo_tcJoinIndCb_t				zdoTcJoinIndCb;			//only for ZC
-	zdo_tcFrameCntReachedCb_t		ssTcFrameCntReachedCb;	//only for ZC
-}zdo_appIndCb_t;
+typedef struct {
+    zdo_startDveCnfCb_t zdpStartDevCnfCb;
+    zdo_nlmeResetCnfCb_t zdpResetCnfCb;
+    zdo_dveAnnceIndCb_t zdpDevAnnounceIndCb;
+    zdo_leaveIndCb_t zdpLeaveIndCb;
+    zdo_leaveCnfCb_t zdpLeaveCnfCb;
+    zdo_nwkUpdateCb_t zdpNwkUpdateIndCb;
+    zdo_permitJoinIndCb_t zdpPermitJoinIndCb;
+    zdo_nlmeSyncCnfCb_t zdoNlmeSyncCnfCb;
+    zdo_tcJoinIndCb_t zdoTcJoinIndCb;                   //only for ZC
+    zdo_tcFrameCntReachedCb_t ssTcFrameCntReachedCb;    //only for ZC
+} zdo_appIndCb_t;
 
 typedef void (*nwkDiscoveryUserCb_t)(void);
 typedef bool (*zdo_touchLinkleaveCnfCb_t)(nlme_leave_cnf_t *p);
 typedef void (*nwk_touchLinkAttrClearCb_t)(void);
 
-typedef struct{
-	zdo_touchLinkleaveCnfCb_t	leaveCnfCb;
-	nwk_touchLinkAttrClearCb_t	attrClearCb;
-}zdo_touchLinkCb_t;
+typedef struct {
+    zdo_touchLinkleaveCnfCb_t leaveCnfCb;
+    nwk_touchLinkAttrClearCb_t attrClearCb;
+} zdo_touchLinkCb_t;
 
 
 extern zdo_appIndCb_t *zdoAppIndCbLst;
 extern zdo_touchLinkCb_t *zdoTouchLinkCb;
 extern zdo_attrCfg_t zdo_cfg_attributes;
 extern u32 TRANSPORT_NETWORK_KEY_WAIT_TIME;
-
-
 
 
 void zdo_zdpCbTblRegister(zdo_appIndCb_t *cbTbl);
@@ -234,8 +227,8 @@ void zdo_af_set_rejoin_backoff_iteration(u16 iteration);
 
 /****************************************************************************************************
  * @brief	The :Config_NWK_Scan_Attempts is employed within ZDO to call the NLME-NETWORKDISCOVERY. request
- * 			primitive the indicated number of times (for routers and end devices). The attribute has
- * 			default value of 5 and valid values between 1 and 255
+ * 		primitive the indicated number of times (for routers and end devices). The attribute has
+ * 		default value of 5 and valid values between 1 and 255
  *
  * @param	none
  *
@@ -255,7 +248,7 @@ u16 zdo_af_get_nwk_time_btwn_scans(void);
 
 /**********************************************************************************************************
  * @brief	The default value for :Config_Permit_Join_Duration is 0x00, however, this value can be  established
- * 			differently according  to the needs of the profile.
+ * 		differently according  to the needs of the profile.
  *
  * @param	none
  *
@@ -298,10 +291,10 @@ void zdo_init(void);
 
 /******************************************************************************************
  * @brief	Start network formation.
- * 			Only for Coordinator and Router device.
+ * 		Only for Coordinator and Router device.
  *
  * @param	scanChannels
- * 			scanDuration
+ * 		scanDuration
  *
  * @return	zdo_status_t
  */
@@ -309,7 +302,7 @@ zdo_status_t zdo_nwkFormationStart(u32 scanChannels, u8 scanDuration);
 
 /******************************************************************************************
  * @brief	Start router request.
- * 			Only for Coordinator and Router device network recovery.
+ * 		Only for Coordinator and Router device network recovery.
  *
  * @param
  *
@@ -319,7 +312,7 @@ zdo_status_t zdo_nwkRouterStart(void);
 
 /******************************************************************************************
  * @brief	Start network discovery.
- * 			Only for Router and End Device.
+ * 		Only for Router and End Device.
  *
  * @param	pReq: the NWK-Discovery.req primitive
  * @param	cb
@@ -411,8 +404,6 @@ zdo_status_t zdo_nwkDirectJoinAccept(nlme_directJoin_req_t *pReq);
  */
 void zdo_nlmeForgetDev(addrExt_t nodeIeeeAddr, bool rejoin);
 
-
-
 /***********************************************************************//**
  * @brief		Shift to and save the logic channel.
  *
@@ -422,4 +413,5 @@ void zdo_nlmeForgetDev(addrExt_t nodeIeeeAddr, bool rejoin);
  *
  **************************************************************************/
 bool zdo_ifZdoNwkManagerIdle(void);
+
 #endif	/* ZDO_API_H */

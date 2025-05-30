@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #if 0
 
 /**********************************************************************
@@ -59,24 +58,23 @@ s16 zcl_attr_MaxMeasuredValue = 0x8000;
 u16 zcl_attr_Tolerance = 0;
 #endif
 
-const zclAttrInfo_t temperature_measurement_attrTbl[] =
-{
+const zclAttrInfo_t temperature_measurement_attrTbl[] = {
 #ifdef ZCL_TEMPERATURE_MEASUREMENT_ATTR_MEASUREDVALUE_ENABLE
-	{ ZCL_TEMPERATURE_MEASUREMENT_ATTRID_MEASUREDVALUE,       ZCL_DATA_TYPE_INT16,    ACCESS_CONTROL_READ | ACCESS_CONTROL_REPORTABLE, (u8*)&zcl_attr_MeasuredValue},
+    { ZCL_TEMPERATURE_MEASUREMENT_ATTRID_MEASUREDVALUE,    ZCL_DATA_TYPE_INT16,  ACCESS_CONTROL_READ | ACCESS_CONTROL_REPORTABLE, (u8*)&zcl_attr_MeasuredValue},
 #endif
 #ifdef ZCL_TEMPERATURE_MEASUREMENT_ATTR_MINMEASUREDVALUE_ENABLE
-	{ ZCL_TEMPERATURE_MEASUREMENT_ATTRID_MINMEASUREDVALUE,    ZCL_DATA_TYPE_INT16,    ACCESS_CONTROL_READ, (u8*)&zcl_attr_MinMeasuredValue},
+    { ZCL_TEMPERATURE_MEASUREMENT_ATTRID_MINMEASUREDVALUE, ZCL_DATA_TYPE_INT16,  ACCESS_CONTROL_READ,                             (u8*)&zcl_attr_MinMeasuredValue},
 #endif
 #ifdef ZCL_TEMPERATURE_MEASUREMENT_ATTR_MAXMEASUREDVALUE_ENABLE
-	{ ZCL_TEMPERATURE_MEASUREMENT_ATTRID_MAXMEASUREDVALUE,    ZCL_DATA_TYPE_INT16,    ACCESS_CONTROL_READ, (u8*)&zcl_attr_MaxMeasuredValue},
+    { ZCL_TEMPERATURE_MEASUREMENT_ATTRID_MAXMEASUREDVALUE, ZCL_DATA_TYPE_INT16,  ACCESS_CONTROL_READ,                             (u8*)&zcl_attr_MaxMeasuredValue},
 #endif
 #ifdef ZCL_TEMPERATURE_MEASUREMENT_ATTR_TOLERANCE_ENABLE
-	{ ZCL_TEMPERATURE_MEASUREMENT_ATTRID_TOLERANCE,           ZCL_DATA_TYPE_UINT16,   ACCESS_CONTROL_READ, (u8*)&zcl_attr_Tolerance},
+    { ZCL_TEMPERATURE_MEASUREMENT_ATTRID_TOLERANCE,        ZCL_DATA_TYPE_UINT16, ACCESS_CONTROL_READ,                             (u8*)&zcl_attr_Tolerance},
 #endif
-	{ ZCL_ATTRID_GLOBAL_CLUSTER_REVISION, 					  ZCL_DATA_TYPE_UINT16,   ACCESS_CONTROL_READ,  (u8*)&zcl_attr_global_clusterRevision},
+    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,                  ZCL_DATA_TYPE_UINT16, ACCESS_CONTROL_READ,                             (u8*)&zcl_attr_global_clusterRevision},
 };
 
-const u8 zcl_temperature_measurement_attrNum = ( sizeof(temperature_measurement_attrTbl) / sizeof(zclAttrInfo_t) );
+const u8 zcl_temperature_measurement_attrNum = (sizeof(temperature_measurement_attrTbl) / sizeof(zclAttrInfo_t));
 
 #endif	/* ZCL_TEMPERATURE_MEASUREMENT */
 

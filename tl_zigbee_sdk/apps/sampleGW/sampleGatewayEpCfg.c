@@ -161,7 +161,7 @@ const af_simple_descriptor_t sampleTestDesc = {
     (u16 *)sampleTest_inClusterList,    /* Application input cluster list */
     (u16 *)sampleTest_outClusterList,   /* Application output cluster list */
 };
-#endif	/* AF_TEST_ENABLE */
+#endif /* AF_TEST_ENABLE */
 
 
 /* Basic */

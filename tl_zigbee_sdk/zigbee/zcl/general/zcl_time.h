@@ -22,30 +22,22 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #ifndef ZCL_TIME_H
 #define ZCL_TIME_H
 
 
-
-
-#define ZCL_ATTRID_TIME                      0x0000
-#define ZCL_ATTRID_TIME_STATUS               0x0001
-#define ZCL_ATTRID_TIMEZONE                  0x0002
-#define ZCL_ATTRID_DST_START                 0x0003
-#define ZCL_ATTRID_DST_END                   0x0004
-#define ZCL_ATTRID_DST_SHIFT                 0x0005
-#define ZCL_ATTRID_STANDARD_TIME             0x0006
-#define ZCL_ATTRID_LOCAL_TIME                0x0007
-#define ZCL_ATTRID_LAST_SET_TIME             0x0008
-#define ZCL_ATTRID_VALID_UNTIL_TIME          0x0009
-
-
+#define ZCL_ATTRID_TIME                         0x0000
+#define ZCL_ATTRID_TIME_STATUS                  0x0001
+#define ZCL_ATTRID_TIMEZONE                     0x0002
+#define ZCL_ATTRID_DST_START                    0x0003
+#define ZCL_ATTRID_DST_END                      0x0004
+#define ZCL_ATTRID_DST_SHIFT                    0x0005
+#define ZCL_ATTRID_STANDARD_TIME                0x0006
+#define ZCL_ATTRID_LOCAL_TIME                   0x0007
+#define ZCL_ATTRID_LAST_SET_TIME                0x0008
+#define ZCL_ATTRID_VALID_UNTIL_TIME             0x0009
 
 
 status_t zcl_time_register(u8 endpoint, u16 manuCode, u8 attrNum, const zclAttrInfo_t attrTbl[], cluster_forAppCb_t cb);
-
-
-
 
 #endif	/* ZCL_TIME_H */

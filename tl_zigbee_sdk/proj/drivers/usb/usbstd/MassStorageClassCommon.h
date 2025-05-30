@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #pragma once
 
 /* Includes: */
@@ -189,39 +188,36 @@ extern "C" {
 /** Enum for possible Class, Subclass and Protocol values of device and interface descriptors relating to the Mass
  *  Storage device class.
  */
-enum MS_Descriptor_ClassSubclassProtocol_t
-{
-	MS_CSCP_MassStorageClass          = 0x08, /**< Descriptor Class value indicating that the device or interface
-	                                           *   belongs to the Mass Storage class.
-	                                           */
-	MS_CSCP_SCSITransparentSubclass   = 0x06, /**< Descriptor Subclass value indicating that the device or interface
-	                                           *   belongs to the SCSI Transparent Command Set subclass of the Mass
-	                                           *   storage class.
-	                                           */
-	MS_CSCP_BulkOnlyTransportProtocol = 0x50, /**< Descriptor Protocol value indicating that the device or interface
-	                                           *   belongs to the Bulk Only Transport protocol of the Mass Storage class.
-	                                           */
+enum MS_Descriptor_ClassSubclassProtocol_t {
+    MS_CSCP_MassStorageClass          = 0x08, /**< Descriptor Class value indicating that the device or interface
+                                               *   belongs to the Mass Storage class.
+                                               */
+    MS_CSCP_SCSITransparentSubclass   = 0x06, /**< Descriptor Subclass value indicating that the device or interface
+                                               *   belongs to the SCSI Transparent Command Set subclass of the Mass
+                                               *   storage class.
+                                               */
+    MS_CSCP_BulkOnlyTransportProtocol = 0x50, /**< Descriptor Protocol value indicating that the device or interface
+                                               *   belongs to the Bulk Only Transport protocol of the Mass Storage class.
+                                               */
 };
 
 /** Enum for the Mass Storage class specific control requests that can be issued by the USB bus host. */
-enum MS_ClassRequests_t
-{
-	MS_REQ_GetMaxLUN                  = 0xFE, /**< Mass Storage class-specific request to retrieve the total number of Logical
-	                                           *   Units (drives) in the SCSI device.
-	                                           */
-	MS_REQ_MassStorageReset           = 0xFF, /**< Mass Storage class-specific request to reset the Mass Storage interface,
-	                                           *   ready for the next command.
+enum MS_ClassRequests_t {
+    MS_REQ_GetMaxLUN                  = 0xFE, /**< Mass Storage class-specific request to retrieve the total number of Logical
+                                               *   Units (drives) in the SCSI device.
+                                               */
+    MS_REQ_MassStorageReset           = 0xFF, /**< Mass Storage class-specific request to reset the Mass Storage interface,
+                                               *   ready for the next command.
                                                */
 };
 
 /** Enum for the possible command status wrapper return status codes. */
-enum MS_CommandStatusCodes_t
-{
-	MS_SCSI_COMMAND_Pass              = 0, /**< Command completed with no error */
-	MS_SCSI_COMMAND_Fail              = 1, /**< Command failed to complete - host may check the exact error via a
-	                                        *   SCSI REQUEST SENSE command.
-	                                        */
-	MS_SCSI_COMMAND_PhaseError        = 2, /**< Command failed due to being invalid in the current phase. */
+enum MS_CommandStatusCodes_t {
+    MS_SCSI_COMMAND_Pass              = 0, /**< Command completed with no error */
+    MS_SCSI_COMMAND_Fail              = 1, /**< Command failed to complete - host may check the exact error via a
+                                            *   SCSI REQUEST SENSE command.
+                                            */
+    MS_SCSI_COMMAND_PhaseError        = 2, /**< Command failed due to being invalid in the current phase. */
 };
 
 /* Type Defines: */
@@ -231,16 +227,15 @@ enum MS_CommandStatusCodes_t
  *
  *  \note Regardless of CPU architecture, these values should be stored as little endian.
  */
-typedef struct _attribute_packed_
-{
-	u32 Signature; /**< Command block signature, must be \ref MS_CBW_SIGNATURE to indicate a valid Command Block. */
-	u32 Tag; /**< Unique command ID value, to associate a command block wrapper with its command status wrapper. */
-	u32 DataTransferLength; /**< Length of the optional data portion of the issued command, in bytes. */
-	u8  Flags; /**< Command block flags, indicating command data direction. */
-	u8  LUN; /**< Logical Unit number this command is issued to. */
-	u8  SCSICommandLength; /**< Length of the issued SCSI command within the SCSI command data array. */
-	u8  SCSICommandData[16]; /**< Issued SCSI command in the Command Block. */
-}  MS_CommandBlockWrapper_t;
+typedef struct _attribute_packed_ {
+    u32 Signature;              /**< Command block signature, must be \ref MS_CBW_SIGNATURE to indicate a valid Command Block. */
+    u32 Tag;                    /**< Unique command ID value, to associate a command block wrapper with its command status wrapper. */
+    u32 DataTransferLength;     /**< Length of the optional data portion of the issued command, in bytes. */
+    u8 Flags;                   /**< Command block flags, indicating command data direction. */
+    u8 LUN;                     /**< Logical Unit number this command is issued to. */
+    u8 SCSICommandLength;       /**< Length of the issued SCSI command within the SCSI command data array. */
+    u8 SCSICommandData[16];     /**< Issued SCSI command in the Command Block. */
+} MS_CommandBlockWrapper_t;
 
 /** \brief Mass Storage Class Command Status Wrapper.
  *
@@ -248,13 +243,12 @@ typedef struct _attribute_packed_
  *
  *  \note Regardless of CPU architecture, these values should be stored as little endian.
  */
-typedef struct _attribute_packed_
-{
-	u32 Signature; /**< Status block signature, must be \ref MS_CSW_SIGNATURE to indicate a valid Command Status. */
-	u32 Tag; /**< Unique command ID value, to associate a command block wrapper with its command status wrapper. */
-	u32 DataTransferResidue; /**< Number of bytes of data not processed in the SCSI command. */
-	u8  Status; /**< Status code of the issued command - a value from the \ref MS_CommandStatusCodes_t enum. */
-}  MS_CommandStatusWrapper_t;
+typedef struct _attribute_packed_ {
+    u32 Signature;              /**< Status block signature, must be \ref MS_CSW_SIGNATURE to indicate a valid Command Status. */
+    u32 Tag;                    /**< Unique command ID value, to associate a command block wrapper with its command status wrapper. */
+    u32 DataTransferResidue;    /**< Number of bytes of data not processed in the SCSI command. */
+    u8 Status;                  /**< Status code of the issued command - a value from the \ref MS_CommandStatusCodes_t enum. */
+} MS_CommandStatusWrapper_t;
 
 /** \brief Mass Storage Class SCSI Sense Structure
  *
@@ -263,25 +257,24 @@ typedef struct _attribute_packed_
  *  device (giving explicit error codes for the last issued command). For details of the
  *  structure contents, refer to the SCSI specifications.
  */
-typedef struct _attribute_packed_
-{
-	u8  ResponseCode;
+typedef struct _attribute_packed_ {
+    u8 ResponseCode;
 
-	u8  SegmentNumber;
+    u8 SegmentNumber;
 
-	u8 SenseKey            : 4;
-	u8 Reserved            : 1;
-	u8 ILI                 : 1;
-	u8 EOM                 : 1;
-	u8 FileMark            : 1;
+    u8 SenseKey : 4;
+    u8 Reserved : 1;
+    u8 ILI      : 1;
+    u8 EOM      : 1;
+    u8 FileMark : 1;
 
-	u8  Information[4];
-	u8  AdditionalLength;
-	u8  CmdSpecificInformation[4];
-	u8  AdditionalSenseCode;
-	u8  AdditionalSenseQualifier;
-	u8  FieldReplaceableUnitCode;
-	u8  SenseKeySpecific[3];
+    u8 Information[4];
+    u8 AdditionalLength;
+    u8 CmdSpecificInformation[4];
+    u8 AdditionalSenseCode;
+    u8 AdditionalSenseQualifier;
+    u8 FieldReplaceableUnitCode;
+    u8 SenseKeySpecific[3];
 } SCSI_Request_Sense_Response_t;
 
 /** \brief Mass Storage Class SCSI Inquiry Structure.
@@ -292,43 +285,39 @@ typedef struct _attribute_packed_
  *
  *  For details of the structure contents, refer to the SCSI specifications.
  */
-typedef struct _attribute_packed_
-{
-	u8 DeviceType          : 5;
-	u8 PeripheralQualifier : 3;
+typedef struct _attribute_packed_ {
+    u8 DeviceType          : 5;
+    u8 PeripheralQualifier : 3;
 
-	u8 Reserved            : 7;
-	u8 Removable           : 1;
+    u8 Reserved            : 7;
+    u8 Removable           : 1;
 
-	u8  Version;
+    u8  Version;
 
-	u8 ResponseDataFormat  : 4;
-	u8 Reserved2           : 1;
-	u8 NormACA             : 1;
-	u8 TrmTsk              : 1;
-	u8 AERC                : 1;
+    u8 ResponseDataFormat  : 4;
+    u8 Reserved2           : 1;
+    u8 NormACA             : 1;
+    u8 TrmTsk              : 1;
+    u8 AERC                : 1;
 
-	u8  AdditionalLength;
-	u8  Reserved3[2];
+    u8  AdditionalLength;
+    u8  Reserved3[2];
 
-	u8 SoftReset           : 1;
-	u8 CmdQue              : 1;
-	u8 Reserved4           : 1;
-	u8 Linked              : 1;
-	u8 Sync                : 1;
-	u8 WideBus16Bit        : 1;
-	u8 WideBus32Bit        : 1;
-	u8 RelAddr             : 1;
+    u8 SoftReset           : 1;
+    u8 CmdQue              : 1;
+    u8 Reserved4           : 1;
+    u8 Linked              : 1;
+    u8 Sync                : 1;
+    u8 WideBus16Bit        : 1;
+    u8 WideBus32Bit        : 1;
+    u8 RelAddr             : 1;
 
-	u8  VendorID[8];
-	u8  ProductID[16];
-	u8  RevisionID[4];
+    u8 VendorID[8];
+    u8 ProductID[16];
+    u8 RevisionID[4];
 } SCSI_Inquiry_Response_t;
 
 /* Disable C linkage for C++ Compilers: */
 #if defined(__cplusplus)
 }
 #endif
-
-
-

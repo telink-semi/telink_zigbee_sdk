@@ -22,21 +22,20 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #ifndef GP_SEC_H
 #define GP_SEC_H
 
 
 u8 gpCcmStar(u8 appId, gpdId_t gpdId,
-		     u8 gpdfSecKey, u8 gpdfSecLevel,
-		     u8 endpoint, u32 secFrameCounter,
-		     u8 gpdAsduLen, u8 *gpdAsdu,
-		     bool autoComm, bool rxAfterTx,
-		     u32 mic, u8 *pKey);
+             u8 gpdfSecKey, u8 gpdfSecLevel,
+             u8 endpoint, u32 secFrameCounter,
+             u8 gpdAsduLen, u8 *gpdAsdu,
+             bool autoComm, bool rxAfterTx,
+             u32 mic, u8 *pKey);
 
 u8 gpdKeyWithTCLK(u8 appId, gpdId_t gpdId,
-				  u8 dataLen, u8 *pData,
-				  u32 frameCounter, u8 *mic,
-				  u8 *pKey, bool enOrDecrypt);
+                  u8 dataLen, u8 *pData,
+                  u32 frameCounter, u8 *mic,
+                  u8 *pKey, bool enOrDecrypt);
 
 #endif	/* GP_SEC_H */

@@ -82,7 +82,7 @@ static void afTest_testReqPrc(apsdeDataInd_t *pApsdeInd)
         *pData++ = HI_UINT16(g_afTest_rcvReqCnt);
 
         for (u8 i = 0; i < dataLen - 2; i++) {
-                *pData++ = i;
+            *pData++ = i;
         }
 
         u8 apsCnt = 0;

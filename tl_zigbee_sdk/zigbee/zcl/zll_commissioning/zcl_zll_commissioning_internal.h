@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #ifndef ZCL_ZLL_COMMOSSIONING_INTERNAL_H
 #define ZCL_ZLL_COMMOSSIONING_INTERNAL_H
 
@@ -32,33 +31,33 @@
  *
  * */
 
-typedef struct{
-	zcl_zllTouckLinkDisc_t 				*disc;
-	zcl_zllTouckLinkNetworkStartParams	*networkStartInfo;
-	ev_timer_event_t 					*transIdLifeTimer;
-	ev_timer_event_t 					*runTimer;
-	u32 				transId;
-	u32 				respId;
-	u32					scanChanMask;
-	u8					touchLinkChan;
-	zll_tlZbInfo_t  	zbInfo;
-	zll_tlZllInfo_t 	zllInfo;
-	u8 					seqNo;
-	u8 					scanListNum;
-	u8 					opIdx;
-	zcl_DeviceInfo 		dstDevInfo;
-	zcl_DeviceInfo 		devInfo;
-	u8 					state;
-	u8 					status;
-	u8 					workingChannelBackUp;
-	u8					lqiThreshold;
-	u8					commissionTxPower;
-	u8 					keyType;
-	u8					vDoPrimaryScan:1;
-	u8					IsFirstChannel:1;
-	u8					startNetworkAllowed:1;
-	u8					resved:5;
-}zcl_zllTouckLink_t;
+typedef struct {
+    zcl_zllTouckLinkDisc_t *disc;
+    zcl_zllTouckLinkNetworkStartParams *networkStartInfo;
+    ev_timer_event_t *transIdLifeTimer;
+    ev_timer_event_t *runTimer;
+    u32 transId;
+    u32 respId;
+    u32 scanChanMask;
+    u8 touchLinkChan;
+    zll_tlZbInfo_t zbInfo;
+    zll_tlZllInfo_t zllInfo;
+    u8 seqNo;
+    u8 scanListNum;
+    u8 opIdx;
+    zcl_DeviceInfo dstDevInfo;
+    zcl_DeviceInfo devInfo;
+    u8 state;
+    u8 status;
+    u8 workingChannelBackUp;
+    u8 lqiThreshold;
+    u8 commissionTxPower;
+    u8 keyType;
+    u8 vDoPrimaryScan:1;
+    u8 IsFirstChannel:1;
+    u8 startNetworkAllowed:1;
+    u8 resved:5;
+} zcl_zllTouckLink_t;
 
 
 extern zcl_zllTouckLink_t g_zllTouchLink;

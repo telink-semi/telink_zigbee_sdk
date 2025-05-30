@@ -22,11 +22,8 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #ifndef ZCL_GROUP_H
 #define ZCL_GROUP_H
-
-
 
 
 /** @addtogroup  TELINK_ZIGBEE_STACK TELINK ZigBee Stack
@@ -48,23 +45,23 @@
 /** @addtogroup zcl_group_cmdId GROUP Command Ids
  * @{
  */
-#define ZCL_CMD_GROUP_ADD_GROUP                           0x00
-#define ZCL_CMD_GROUP_VIEW_GROUP                          0x01
-#define ZCL_CMD_GROUP_GET_MEMBERSHIP                      0x02
-#define ZCL_CMD_GROUP_REMOVE_GROUP                        0x03
-#define ZCL_CMD_GROUP_REMOVE_ALL_GROUP                    0x04
-#define ZCL_CMD_GROUP_ADD_GROUP_IF_IDF                    0x05
+#define ZCL_CMD_GROUP_ADD_GROUP                 0x00
+#define ZCL_CMD_GROUP_VIEW_GROUP                0x01
+#define ZCL_CMD_GROUP_GET_MEMBERSHIP            0x02
+#define ZCL_CMD_GROUP_REMOVE_GROUP              0x03
+#define ZCL_CMD_GROUP_REMOVE_ALL_GROUP          0x04
+#define ZCL_CMD_GROUP_ADD_GROUP_IF_IDF          0x05
 
-#define ZCL_CMD_GROUP_ADD_GROUP_RSP                       0x00
-#define ZCL_CMD_GROUP_VIEW_GROUP_RSP                      0x01
-#define ZCL_CMD_GROUP_GET_MEMBERSHIP_RSP                  0x02
-#define ZCL_CMD_GROUP_REMOVE_GROUP_RSP                    0x03
+#define ZCL_CMD_GROUP_ADD_GROUP_RSP             0x00
+#define ZCL_CMD_GROUP_VIEW_GROUP_RSP            0x01
+#define ZCL_CMD_GROUP_GET_MEMBERSHIP_RSP        0x02
+#define ZCL_CMD_GROUP_REMOVE_GROUP_RSP          0x03
 /** @} end of group zcl_group_cmdId */
 
 /** @addtogroup zcl_group_attrId GROUP Attribute Ids
  * @{
  */
-#define ZCL_ATTRID_GROUP_NAME_SUPPORT                     0x0000
+#define ZCL_ATTRID_GROUP_NAME_SUPPORT           0x0000
 /** @} end of group zcl_group_attrId */
 
 /** @} end of group ZCL_GROUP_Constant */
@@ -78,16 +75,16 @@
  *  @brief  Definition format for add group command
  */
 typedef struct {
-	u16 groupId;
-	u8 *pGroupName;
+    u16 groupId;
+    u8 *pGroupName;
 } zcl_addGroup_t;
 
 /**
  *  @brief  Definition format for add group response command
  */
 typedef struct {
-	u8 status;
-	u16 groupId;
+    u8 status;
+    u16 groupId;
 } zcl_addGroupRsp_t;
 
 /**
@@ -99,18 +96,18 @@ typedef zcl_addGroupRsp_t zcl_removeGroupRsp_t;
  *  @brief  Definition format for view group response command
  */
 typedef struct {
-	u8 status;
-	u16 groupId;
-	u8 *pGroupName;
+    u8 status;
+    u16 groupId;
+    u8 *pGroupName;
 } zcl_viewGroupRsp_t;
 
 /**
  *  @brief  Definition format for get group membership response command
  */
 typedef struct {
-	u8 capacity;
-	u8 groupCnt;
-	u8 *pGroupList;
+    u8 capacity;
+    u8 groupCnt;
+    u8 *pGroupList;
 } zcl_getGroupMembershipRsp_t;
 
 #if 0
@@ -130,10 +127,10 @@ typedef void (*zcl_getGroupMembershipRspCb_t)(apsdeDataInd_t *pApsdeInd, zcl_get
  *  @brief  Structure definition for commands callback functions in Group cluster
  */
 typedef struct {
-	zcl_addGroupRspCb_t     			addGroupRspCbFunc;
-	zcl_viewGroupRspCb_t				viewGroupRspCbFunc;
-	zcl_removeGroupRspCb_t     			removeGroupRspCbFunc;
-	zcl_getGroupMembershipRspCb_t     	getGroupMembershipRspCbFunc;
+    zcl_addGroupRspCb_t addGroupRspCbFunc;
+    zcl_viewGroupRspCb_t viewGroupRspCbFunc;
+    zcl_removeGroupRspCb_t removeGroupRspCbFunc;
+    zcl_getGroupMembershipRspCb_t getGroupMembershipRspCbFunc;
 } zcl_group_AppCallbacks_t;
 
 /** @} end of group ZCL_GROUP_Callbacks */
@@ -184,7 +181,7 @@ status_t zcl_group_register(u8 endpoint, u16 manuCode, u8 arrtNum, const zclAttr
  * @return      None
  */
 status_t zcl_group_add(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, u16 groupId, u8 *groupName);
-#define zcl_group_addCmd(a,b,c,d,e)		(zcl_group_add((a), (b), (c), ZCL_SEQ_NUM, (d), (e)))
+#define zcl_group_addCmd(a,b,c,d,e)     (zcl_group_add((a), (b), (c), ZCL_SEQ_NUM, (d), (e)))
 
 /**
  * @brief       API to send View command in Group cluster
@@ -198,7 +195,7 @@ status_t zcl_group_add(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 
  * @return      None
  */
 status_t zcl_group_view(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, u16 groupId);
-#define zcl_group_viewCmd(a,b,c,d)		(zcl_group_view((a), (b), (c), ZCL_SEQ_NUM, (d)))
+#define zcl_group_viewCmd(a,b,c,d)      (zcl_group_view((a), (b), (c), ZCL_SEQ_NUM, (d)))
 
 /**
  * @brief       API to send Remove command in Group cluster
@@ -212,7 +209,7 @@ status_t zcl_group_view(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8
  * @return      None
  */
 status_t zcl_group_remove(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, u16 groupId);
-#define zcl_group_removeCmd(a,b,c,d)		(zcl_group_remove((a), (b), (c), ZCL_SEQ_NUM, (d)))
+#define zcl_group_removeCmd(a,b,c,d)    (zcl_group_remove((a), (b), (c), ZCL_SEQ_NUM, (d)))
 
 /**
  * @brief       API to send Remove All command in Group cluster
@@ -225,7 +222,7 @@ status_t zcl_group_remove(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, 
  * @return      None
  */
 status_t zcl_group_removeAll(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo);
-#define zcl_group_removeAllCmd(a,b,c)		(zcl_group_removeAll((a), (b), (c), ZCL_SEQ_NUM))
+#define zcl_group_removeAllCmd(a,b,c)   (zcl_group_removeAll((a), (b), (c), ZCL_SEQ_NUM))
 
 /**
  * @brief       API to send Get Membership command in Group cluster
@@ -240,7 +237,7 @@ status_t zcl_group_removeAll(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRs
  * @return      None
  */
 status_t zcl_group_getMembership(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, u8 groupCnt, u16 *groupList);
-#define zcl_group_getMembershipCmd(a,b,c,d,e)		(zcl_group_getMembership((a), (b), (c), ZCL_SEQ_NUM, (d), (e)))
+#define zcl_group_getMembershipCmd(a,b,c,d,e)   (zcl_group_getMembership((a), (b), (c), ZCL_SEQ_NUM, (d), (e)))
 
 /**
  * @brief       API to send View command in Group cluster
@@ -254,16 +251,7 @@ status_t zcl_group_getMembership(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefau
  * @return      None
  */
 status_t zcl_group_addIfIdentify(u8 srcEp, epInfo_t *pDstEpInfo, u8 disableDefaultRsp, u8 seqNo, u16 groupId, u8 *groupName);
-#define zcl_group_addIfIdentifyCmd(a,b,c,d,e)		(zcl_group_addIfIdentify((a), (b), (c), ZCL_SEQ_NUM, (d), (e)))
-
-
-
-
-
-
-
-
-
+#define zcl_group_addIfIdentifyCmd(a,b,c,d,e)   (zcl_group_addIfIdentify((a), (b), (c), ZCL_SEQ_NUM, (d), (e)))
 
 /** @} end of group ZCL_GROUP_Fountions */
 

@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #ifndef MAC_PHY_H
 #define MAC_PHY_H
 
@@ -30,32 +29,32 @@
 /*********************************************************************
  * CONSTANTS
  */
-#define RF_PKT_BUFF_LEN				(144)//(128+32) //(128+16)
+#define RF_PKT_BUFF_LEN         (144)//(128+32) //(128+16)
 
-#define CCA_THRESHOLD       		(-70)
-#define RSSI_PASS_THRESHOLD			(-30)
+#define CCA_THRESHOLD           (-70)
+#define RSSI_PASS_THRESHOLD     (-30)
 
 /*********************************************************************
  * ENUMS
  */
-enum{
+enum {
     RF_SUCC,
     RF_CSMA_FAILURE,
 };
 
-enum{
+enum {
     RF_RX_OFF,
     RF_RX_ON,
 };
 
-enum{
+enum {
     CCA_ED_ONLY,
     CCA_CS_ONLY,
     CCA_ED_AND_CS,
     CCA_ED_OR_CS,
 };
 
-enum{
+enum {
     RF_STATE_TX = 0,
     RF_STATE_RX,
     RF_STATE_ED,
@@ -65,8 +64,8 @@ enum{
 /*
  * Definition for RF Setting identifier.
  */
-enum{
-	SUCC,
+enum {
+    SUCC,
     RF_BLACK_LIST_FULL,
     RF_BLACK_LIST_NO_MEMBER,
 };
@@ -74,7 +73,7 @@ enum{
 /*
  * Definition for RF Setting identifier.
  */
-enum{
+enum {
     /* General ID */
     RF_ID_CHANNEL               = 0x00,
     RF_ID_TX_POWER,
@@ -97,41 +96,41 @@ enum{
 /*********************************************************************
  * TYPES
  */
-typedef enum{
+typedef enum {
     PHY_CCA_IDLE       = 0x04,
     PHY_CCA_TRX_OFF    = 0x03,
     PHY_CCA_BUSY       = 0x00,
-}phy_ccaSts_t;
+} phy_ccaSts_t;
 
 /**
  *  @brief  Definition for Telink RX packet format
  */
-typedef struct{
+typedef struct {
     u32 dmaLen;
     u8  rssi;
     u8  rseverd[7];
     u8  payloadLen;
     u8  payload[1];
-}rf_recvPkt_t;
+} rf_recvPkt_t;
 
 /**
  *  @brief  Definition for Telink TX packet format
  */
-typedef struct{
+typedef struct {
     u32 dmaLen;
     u8  rfLen;
     u8  payload[1];
-}rf_sendPkt_t;
+} rf_sendPkt_t;
 
 /*
  * Definition for RF Rx buffer format
  */
-typedef struct{
+typedef struct {
     u8	*psdu;
     u32 timeStamp;
     s8  rssi;
     u8  psduLen;
-}rx_buf_t;
+} rx_buf_t;
 
 
 extern u8 g_zb_txPowerSet;
@@ -153,7 +152,7 @@ extern u8 g_zb_txPowerSet;
  */
 void rf_reset(void);
 
-#define mac_phyReconfig()	rf_reset();
+#define mac_phyReconfig()       rf_reset();
 
 /*********************************************************************
  * @fn      rf_init

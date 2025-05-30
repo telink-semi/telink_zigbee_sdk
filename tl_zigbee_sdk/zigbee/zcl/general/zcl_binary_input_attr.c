@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #if 0
 
 /**********************************************************************
@@ -74,39 +73,38 @@ u8 zcl_attr_binInput_statusFlags = 0;
 u32 zcl_attr_binInput_appType = 0;
 #endif
 
-const zclAttrInfo_t binary_input_attrTbl[] =
-{
+const zclAttrInfo_t binary_input_attrTbl[] = {
 #ifdef ZCL_BINARY_INPUT_ATTR_ACTIVE_TEXT_ENABLE
-	{ ZCL_BINARY_INPUT_ATTRID_ACTIVE_TEXT,		ZCL_DATA_TYPE_CHAR_STR,	ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)zcl_attr_binInput_activeText},
+    { ZCL_BINARY_INPUT_ATTRID_ACTIVE_TEXT,    ZCL_DATA_TYPE_CHAR_STR, ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)zcl_attr_binInput_activeText},
 #endif
 #ifdef ZCL_BINARY_INPUT_ATTR_DESCRIPTIONT_ENABLE
-	{ ZCL_BINARY_INPUT_ATTRID_DESCRIPTION,		ZCL_DATA_TYPE_CHAR_STR,	ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)zcl_attr_binInput_description},
+    { ZCL_BINARY_INPUT_ATTRID_DESCRIPTION,    ZCL_DATA_TYPE_CHAR_STR, ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)zcl_attr_binInput_description},
 #endif
 #ifdef ZCL_BINARY_INPUT_ATTR_INACTIVE_TEXT_ENABLE
-	{ ZCL_BINARY_INPUT_ATTRID_INACTIVE_TEXT,	ZCL_DATA_TYPE_CHAR_STR,	ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)zcl_attr_binInput_inactiveText},
+    { ZCL_BINARY_INPUT_ATTRID_INACTIVE_TEXT,  ZCL_DATA_TYPE_CHAR_STR, ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)zcl_attr_binInput_inactiveText},
 #endif
 #ifdef ZCL_BINARY_INPUT_ATTR_OUT_OF_SERVICE_ENABLE
-	{ ZCL_BINARY_INPUT_ATTRID_OUT_OF_SERVICE,	ZCL_DATA_TYPE_BOOLEAN,	ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_binInput_outOfService},
+    { ZCL_BINARY_INPUT_ATTRID_OUT_OF_SERVICE, ZCL_DATA_TYPE_BOOLEAN,  ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_binInput_outOfService},
 #endif
 #ifdef ZZCL_BINARY_INPUT_ATTR_POLARITY_ENABLE
-	{ ZCL_BINARY_INPUT_ATTRID_POLARITY,			ZCL_DATA_TYPE_ENUM8,	ACCESS_CONTROL_READ, 						(u8*)&zcl_attr_binInput_polarity},
+    { ZCL_BINARY_INPUT_ATTRID_POLARITY,       ZCL_DATA_TYPE_ENUM8,    ACCESS_CONTROL_READ,                        (u8*)&zcl_attr_binInput_polarity},
 #endif
 #ifdef ZCL_BINARY_INPUT_ATTR_PRESENT_VALUE_ENABLE
-	{ ZCL_BINARY_INPUT_ATTRID_PRESENT_VALUE,	ZCL_DATA_TYPE_BOOLEAN,	ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_binInput_presentValue},
+    { ZCL_BINARY_INPUT_ATTRID_PRESENT_VALUE,  ZCL_DATA_TYPE_BOOLEAN,  ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_binInput_presentValue},
 #endif
 #ifdef ZCL_BINARY_INPUT_ATTR_RELIABILITY_ENABLE
-	{ ZCL_BINARY_INPUT_ATTRID_RELIABILITY,		ZCL_DATA_TYPE_ENUM8,	ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_binInput_reliability},
+    { ZCL_BINARY_INPUT_ATTRID_RELIABILITY,    ZCL_DATA_TYPE_ENUM8,    ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_binInput_reliability},
 #endif
 #ifdef ZCL_BINARY_INPUT_ATTR_STATUS_FLAGS_ENABLE
-	{ ZCL_BINARY_INPUT_ATTRID_STATUS_FLAGS,		ZCL_DATA_TYPE_BITMAP8,	ACCESS_CONTROL_READ, 						(u8*)&zcl_attr_binInput_statusFlags},
+    { ZCL_BINARY_INPUT_ATTRID_STATUS_FLAGS,   ZCL_DATA_TYPE_BITMAP8,  ACCESS_CONTROL_READ,                         (u8*)&zcl_attr_binInput_statusFlags},
 #endif
 #ifdef ZCL_BINARY_INPUT_ATTR_APP_TYPE_ENABLE
-	{ ZCL_BINARY_INPUT_ATTRID_APP_TYPE,			ZCL_DATA_TYPE_UINT32,	ACCESS_CONTROL_READ, 						(u8*)&zcl_attr_binInput_appType},
+    { ZCL_BINARY_INPUT_ATTRID_APP_TYPE,       ZCL_DATA_TYPE_UINT32,   ACCESS_CONTROL_READ,                         (u8*)&zcl_attr_binInput_appType},
 #endif
-	{ ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,		ZCL_DATA_TYPE_UINT16,	ACCESS_CONTROL_READ,  						(u8*)&zcl_attr_global_clusterRevision},
+    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,     ZCL_DATA_TYPE_UINT16,   ACCESS_CONTROL_READ,                         (u8*)&zcl_attr_global_clusterRevision},
 };
 
-const u8 zcl_binary_input_attrNum = ( sizeof(binary_input_attrTbl) / sizeof(zclAttrInfo_t) );
+const u8 zcl_binary_input_attrNum = (sizeof(binary_input_attrTbl) / sizeof(zclAttrInfo_t));
 
 #endif	/* ZCL_BINARY_INPUT */
 

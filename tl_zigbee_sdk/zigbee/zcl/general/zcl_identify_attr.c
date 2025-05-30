@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #if 0
 #include "tl_common.h"
 
@@ -50,15 +49,14 @@
 u16 zcl_attr_identifyTime = 0;	//in seconds
 
 /* Attribute record list */
-const zclAttrInfo_t identify_attrTbl[] =
-{
+const zclAttrInfo_t identify_attrTbl[] = {
 #ifdef ZCL_ATTRID_IDENTIFY_TIME_ENABLE
-	{ ZCL_ATTRID_IDENTIFY_TIME,  ZCL_DATA_TYPE_UINT16,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE,  (u8*)&zcl_attr_identifyTime },
+    { ZCL_ATTRID_IDENTIFY_TIME,           ZCL_DATA_TYPE_UINT16, ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_identifyTime },
 #endif
-	{ ZCL_ATTRID_GLOBAL_CLUSTER_REVISION, ZCL_DATA_TYPE_UINT16,  ACCESS_CONTROL_READ,  (u8*)&zcl_attr_global_clusterRevision},
+    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION, ZCL_DATA_TYPE_UINT16, ACCESS_CONTROL_READ,                        (u8*)&zcl_attr_global_clusterRevision },
 };
 
-const u8 zcl_identify_attrNum = ( sizeof(identify_attrTbl) / sizeof(zclAttrInfo_t) );
+const u8 zcl_identify_attrNum = (sizeof(identify_attrTbl) / sizeof(zclAttrInfo_t));
 
 #endif    /* ZCL_IDENTIFY */
 

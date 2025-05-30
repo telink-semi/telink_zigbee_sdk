@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #if 0
 #include "tl_common.h"
 
@@ -53,15 +52,14 @@ u8 zcl_attr_Mode = 0x04;
 
 
 /* Attribute record list */
-const zclAttrInfo_t windowCovering_attrTbl[] =
-{
-    { ZCL_ATTRID_WINDOW_COVERING_TYPE,	   	ZCL_DATA_TYPE_ENUM8,     	ACCESS_CONTROL_READ,  						(u8*)&zcl_attr_WindowCoveringType},
-    { ZCL_ATTRID_CONFIG_STATUS,	   			ZCL_DATA_TYPE_BITMAP8,     	ACCESS_CONTROL_READ,  						(u8*)&zcl_attr_ConfigStatus},
-	{ ZCL_ATTRID_MODE,	   					ZCL_DATA_TYPE_BITMAP8,     	ACCESS_CONTROL_READ| ACCESS_CONTROL_WRITE,  (u8*)&zcl_attr_Mode},
-	{ ZCL_ATTRID_GLOBAL_CLUSTER_REVISION, 	ZCL_DATA_TYPE_UINT16,  		ACCESS_CONTROL_READ,  						(u8*)&zcl_attr_global_clusterRevision},
+const zclAttrInfo_t windowCovering_attrTbl[] = {
+    { ZCL_ATTRID_WINDOW_COVERING_TYPE,    ZCL_DATA_TYPE_ENUM8,   ACCESS_CONTROL_READ,                       (u8*)&zcl_attr_WindowCoveringType},
+    { ZCL_ATTRID_CONFIG_STATUS,           ZCL_DATA_TYPE_BITMAP8, ACCESS_CONTROL_READ,                       (u8*)&zcl_attr_ConfigStatus},
+    { ZCL_ATTRID_MODE,                    ZCL_DATA_TYPE_BITMAP8, ACCESS_CONTROL_READ| ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_Mode},
+    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION, ZCL_DATA_TYPE_UINT16,  ACCESS_CONTROL_READ,                       (u8*)&zcl_attr_global_clusterRevision},
 };
 
-const u8 zcl_windowCovering_attrNum = ( sizeof(windowCovering_attrTbl) / sizeof(zclAttrInfo_t) );
+const u8 zcl_windowCovering_attrNum = (sizeof(windowCovering_attrTbl) / sizeof(zclAttrInfo_t));
 
 #endif    /* ZCL_IAS_ZONE */
 #endif

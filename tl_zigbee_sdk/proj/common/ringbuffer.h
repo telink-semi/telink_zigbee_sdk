@@ -25,7 +25,7 @@
 #pragma once
 
 typedef struct {
-	unsigned char *buf;
+    unsigned char *buf;
     unsigned int  buf_size;
     unsigned int  read_mirror:1;
     unsigned int  read_idx:31;

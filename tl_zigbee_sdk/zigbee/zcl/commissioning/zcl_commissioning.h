@@ -22,10 +22,8 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #ifndef ZCL_COMMISSIONING_H
 #define ZCL_COMMISSIONING_H
-
 
 
 /** @addtogroup  TELINK_ZIGBEE_STACK TELINK ZigBee Stack
@@ -49,16 +47,16 @@
  */
 
 // Client generated command
-#define ZCL_CMD_RESTART_DEVICE                            0x00
-#define ZCL_CMD_SAVE_STARTUP_PARAMETERS                   0x01
-#define ZCL_CMD_RESTORE_STARTUP_PARAMETERS                0x02
-#define ZCL_CMD_RESET_STARTUP_PARAMETERS                  0x03
+#define ZCL_CMD_RESTART_DEVICE                          0x00
+#define ZCL_CMD_SAVE_STARTUP_PARAMETERS                 0x01
+#define ZCL_CMD_RESTORE_STARTUP_PARAMETERS              0x02
+#define ZCL_CMD_RESET_STARTUP_PARAMETERS                0x03
 
 // Server generated command
-#define ZCL_CMD_RESTART_DEVICE_RSP                        0x00
-#define ZCL_CMD_SAVE_STARTUP_PARAMETERS_RSP               0x01
-#define ZCL_CMD_RESTORE_STARTUP_PARAMETERS_RSP            0x02
-#define ZCL_CMD_RESET_STARTUP_PARAMETERS_RSP              0x03
+#define ZCL_CMD_RESTART_DEVICE_RSP                      0x00
+#define ZCL_CMD_SAVE_STARTUP_PARAMETERS_RSP             0x01
+#define ZCL_CMD_RESTORE_STARTUP_PARAMETERS_RSP          0x02
+#define ZCL_CMD_RESET_STARTUP_PARAMETERS_RSP            0x03
 
 /** @} end of group zcl_commissioning_cmdId */
 
@@ -70,33 +68,33 @@
 /* Startup parameters */
 /* Network attribute set */
 #define ZCL_ATTR_SHORT_ADDRESS                          0x0000
-#define ZCL_ATTR_EXTENDED_PAN_ID						0x0001
-#define ZCL_ATTR_PAN_ID								  	0x0002
-#define ZCL_ATTR_CHANNEL_MASK							0x0003
-#define ZCL_ATTR_PROTOCOL_VERSION						0x0004
-#define ZCL_ATTR_STACK_PROFILE						  	0x0005
-#define ZCL_ATTR_STARTUP_CONTROL						0x0006
+#define ZCL_ATTR_EXTENDED_PAN_ID                        0x0001
+#define ZCL_ATTR_PAN_ID                                 0x0002
+#define ZCL_ATTR_CHANNEL_MASK                           0x0003
+#define ZCL_ATTR_PROTOCOL_VERSION                       0x0004
+#define ZCL_ATTR_STACK_PROFILE                          0x0005
+#define ZCL_ATTR_STARTUP_CONTROL                        0x0006
 /* Security attribute set */
-#define ZCL_ATTR_TRUST_CENTER_ADDRESS					0x0010
-#define ZCL_ATTR_TRUST_CENTER_MASTER_KEY				0x0011
-#define ZCL_ATTR_NETWORK_KEY							0x0012
-#define ZCL_ATTR_USE_INSECURE_JOIN					  	0x0013
-#define ZCL_ATTR_PRECONFIGURED_LINK_KEY				  	0x0014
-#define ZCL_ATTR_NETWORK_KEY_SEQUENCE_NO				0x0015
-#define ZCL_ATTR_NETWORK_KEY_TYPE						0x0016
-#define ZCL_ATTR_NETWORK_MANAGER_ADDRESS				0x0017
+#define ZCL_ATTR_TRUST_CENTER_ADDRESS                   0x0010
+#define ZCL_ATTR_TRUST_CENTER_MASTER_KEY                0x0011
+#define ZCL_ATTR_NETWORK_KEY                            0x0012
+#define ZCL_ATTR_USE_INSECURE_JOIN                      0x0013
+#define ZCL_ATTR_PRECONFIGURED_LINK_KEY                 0x0014
+#define ZCL_ATTR_NETWORK_KEY_SEQUENCE_NO                0x0015
+#define ZCL_ATTR_NETWORK_KEY_TYPE                       0x0016
+#define ZCL_ATTR_NETWORK_MANAGER_ADDRESS                0x0017
 /* Join parameters */
-#define ZCL_ATTR_SCAN_ATTEMPTS						  	0x0020
-#define ZCL_ATTR_TIME_BETWEEN_SCANS					  	0x0021
-#define ZCL_ATTR_REJOIN_INTERVAL						0x0022
-#define ZCL_ATTR_MAX_REJOIN_INTERVAL					0x0023
+#define ZCL_ATTR_SCAN_ATTEMPTS                          0x0020
+#define ZCL_ATTR_TIME_BETWEEN_SCANS                     0x0021
+#define ZCL_ATTR_REJOIN_INTERVAL                        0x0022
+#define ZCL_ATTR_MAX_REJOIN_INTERVAL                    0x0023
 /* End device Parameters */
-#define ZCL_ATTR_INDIRECT_POLL_RATE					  	0x0030
-#define ZCL_ATTR_PARENT_RETRY_THRESHOLD				  	0x0031
+#define ZCL_ATTR_INDIRECT_POLL_RATE                     0x0030
+#define ZCL_ATTR_PARENT_RETRY_THRESHOLD                 0x0031
 /* Concentrator parameters */
-#define ZCL_ATTR_CONCENTRATOR_FLAG					  	0x0040
-#define ZCL_ATTR_CONCENTRATOR_RADIUS					0x0041
-#define ZCL_ATTR_CONCENTRATOR_DISCOVERY_TIME			0x0042
+#define ZCL_ATTR_CONCENTRATOR_FLAG                      0x0040
+#define ZCL_ATTR_CONCENTRATOR_RADIUS                    0x0041
+#define ZCL_ATTR_CONCENTRATOR_DISCOVERY_TIME            0x0042
 
 /** @} end of group zcl_commissioning_attrId */
 
@@ -112,19 +110,19 @@
 /**
  *  @brief  Definition for commissioning command callback format
  */
-typedef void (*zcl_restartDeviceCb_t)( u8 options, u8 delay, u8 jitter );
-typedef void (*zcl_saveStartupParamsCb_t)( u8 options, u8 index );
-typedef void (*zcl_restoreStartupParamsCb_t)( u8 options, u8 index );
-typedef void (*zcl_resetStartupParamsCb_t)( u8 options, u8 index );
+typedef void (*zcl_restartDeviceCb_t)(u8 options, u8 delay, u8 jitter);
+typedef void (*zcl_saveStartupParamsCb_t)(u8 options, u8 index);
+typedef void (*zcl_restoreStartupParamsCb_t)(u8 options, u8 index);
+typedef void (*zcl_resetStartupParamsCb_t)(u8 options, u8 index);
 
 /**
  *  @brief  Structure definition for commands callback functions in commissioning cluster
  */
 typedef struct {
-	zcl_restartDeviceCb_t    restartDeviceCbFunc;
-	zcl_saveStartupParamsCb_t    saveStartupParamsCbFunc;
-	zcl_restoreStartupParamsCb_t    restoreStartupParamsCbFunc;
-	zcl_resetStartupParamsCb_t    resetStartupParamsCbFunc;
+    zcl_restartDeviceCb_t restartDeviceCbFunc;
+    zcl_saveStartupParamsCb_t saveStartupParamsCbFunc;
+    zcl_restoreStartupParamsCb_t restoreStartupParamsCbFunc;
+    zcl_resetStartupParamsCb_t resetStartupParamsCbFunc;
 } zcl_commissioning_AppCallbacks_t;
 
 /** @} end of group ZCL_COMMISSIONING_Callbacks */
@@ -139,7 +137,7 @@ typedef struct {
  */
 
 /* Startup attributes set*/
-	/* General startup attributes */
+/* General startup attributes */
 extern u16 zcl_attr_short_address;
 extern extPANId_t zcl_attr_extended_PAN_id;
 extern u16 zcl_attr_PAN_id;
@@ -148,7 +146,7 @@ extern u8 zcl_attr_protocol_version;
 extern u8 zcl_attr_stack_profile;
 extern u8 zcl_attr_startup_control;
 
-	/* Security attributes */
+/* Security attributes */
 extern addrExt_t zcl_attr_trust_center_address;
 extern u8 zcl_attr_trust_center_master_key[16];
 extern u8 zcl_attr_network_key[16];
@@ -181,13 +179,13 @@ extern const u8 zcl_commissioning_attrNum;
 /**
   Macros for commissioning parse-compose
  */
-#define ZCL_RESTART_OPTIONS_GET_STARTUP_MODE(options) 	(options & 7)
-#define ZCL_RESTART_OPTIONS_GET_IMMEDIATE(options) 		(options & (1 << 3))
+#define ZCL_RESTART_OPTIONS_GET_STARTUP_MODE(options)   (options & 7)
+#define ZCL_RESTART_OPTIONS_GET_IMMEDIATE(options)      (options & (1 << 3))
 
 typedef struct {
-	u8 options;
-	u8 delay;
-	u8 jitter;
+    u8 options;
+    u8 delay;
+    u8 jitter;
 } zcl_restartDevice_t;
 
 

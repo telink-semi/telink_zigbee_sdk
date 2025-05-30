@@ -22,10 +22,8 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #ifndef ZCL_BINARY_INPUT_H
 #define ZCL_BINARY_INPUT_H
-
 
 
 /*********************************************************************
@@ -35,20 +33,20 @@
 /**
  *  @brief	binary input cluster Attribute IDs
  */
-#define ZCL_BINARY_INPUT_ATTRID_ACTIVE_TEXT     			0x0004
-#define ZCL_BINARY_INPUT_ATTRID_DESCRIPTION    				0x001C
-#define ZCL_BINARY_INPUT_ATTRID_INACTIVE_TEXT   			0x002E
-#define ZCL_BINARY_INPUT_ATTRID_OUT_OF_SERVICE   			0x0051
-#define ZCL_BINARY_INPUT_ATTRID_POLARITY       				0x0054
-#define ZCL_BINARY_INPUT_ATTRID_PRESENT_VALUE   			0x0055
-#define ZCL_BINARY_INPUT_ATTRID_RELIABILITY    				0x0067
-#define ZCL_BINARY_INPUT_ATTRID_STATUS_FLAGS       			0x006F
-#define ZCL_BINARY_INPUT_ATTRID_APP_TYPE   					0x0100
+#define ZCL_BINARY_INPUT_ATTRID_ACTIVE_TEXT             0x0004
+#define ZCL_BINARY_INPUT_ATTRID_DESCRIPTION             0x001C
+#define ZCL_BINARY_INPUT_ATTRID_INACTIVE_TEXT           0x002E
+#define ZCL_BINARY_INPUT_ATTRID_OUT_OF_SERVICE          0x0051
+#define ZCL_BINARY_INPUT_ATTRID_POLARITY                0x0054
+#define ZCL_BINARY_INPUT_ATTRID_PRESENT_VALUE           0x0055
+#define ZCL_BINARY_INPUT_ATTRID_RELIABILITY             0x0067
+#define ZCL_BINARY_INPUT_ATTRID_STATUS_FLAGS            0x006F
+#define ZCL_BINARY_INPUT_ATTRID_APP_TYPE                0x0100
 
 /**
  *  @brief Max length of char string
  */
-#define ZCL_BINARY_INPUT_MAX_LENGTH 						24
+#define ZCL_BINARY_INPUT_MAX_LENGTH                     24
 
 #if 0
 #ifdef ZCL_BINARY_INPUT_ATTR_ACTIVE_TEXT_ENABLE

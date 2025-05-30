@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #ifndef ZCL_INCLUDE_H
 #define ZCL_INCLUDE_H
 

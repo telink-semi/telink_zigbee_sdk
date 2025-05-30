@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #if 0
 #include "tl_common.h"
 #include "../zcl_include.h"
@@ -53,42 +52,41 @@ u32 zcl_attr_localTime = 0xffffffff;
 u32 zcl_attr_validUntilTime = 0xffffffff;
 
 /* Attribute record list */
-const zclAttrInfo_t time_attrTbl[] =
-{
+const zclAttrInfo_t time_attrTbl[] = {
 #ifdef ZCL_ATTR_TIME_ENABLE
-	{ ZCL_ATTRID_TIME,  ZCL_DATA_TYPE_UTC,   ACCESS_CONTROL_READ,  (u8*)&zcl_attr_time},
+    { ZCL_ATTRID_TIME,                    ZCL_DATA_TYPE_UTC,     ACCESS_CONTROL_READ,                        (u8*)&zcl_attr_time},
 #endif
 #ifdef ZCL_ATTR_TIME_STATUS_ENABLE
-	{ ZCL_ATTRID_TIME_STATUS,  ZCL_DATA_TYPE_BITMAP8,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE,  (u8*)&zcl_attr_timeStatus},
+    { ZCL_ATTRID_TIME_STATUS,             ZCL_DATA_TYPE_BITMAP8, ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_timeStatus},
 #endif
 #ifdef ZCL_ATTR_TIMEZONE_ENABLE
-	{ ZCL_ATTRID_TIMEZONE,  ZCL_DATA_TYPE_INT32,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE,  (u8*)&zcl_attr_timezone},
+    { ZCL_ATTRID_TIMEZONE,                ZCL_DATA_TYPE_INT32,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_timezone},
 #endif
 #ifdef ZCL_ATTR_DST_START_ENABLE
-	{ ZCL_ATTRID_DST_START,  ZCL_DATA_TYPE_UINT32,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE,  (u8*)&zcl_attr_dstStart},
+    { ZCL_ATTRID_DST_START,               ZCL_DATA_TYPE_UINT32,  ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_dstStart},
 #endif
 #ifdef ZCL_ATTR_DST_END_ENABLE
-	{ ZCL_ATTRID_DST_END,  ZCL_DATA_TYPE_UINT32,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE,  (u8*)&zcl_attr_dstEnd},
+    { ZCL_ATTRID_DST_END,                 ZCL_DATA_TYPE_UINT32,  ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_dstEnd},
 #endif
 #ifdef ZCL_ATTR_DST_SHIFT_ENABLE
-	{ ZCL_ATTRID_DST_SHIFT,  ZCL_DATA_TYPE_UINT32,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE,  (u8*)&zcl_attr_dstShift},
+    { ZCL_ATTRID_DST_SHIFT,               ZCL_DATA_TYPE_UINT32,  ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_dstShift},
 #endif
 #ifdef ZCL_ATTR_STANDARD_TIME_ENABLE
-	{ ZCL_ATTRID_STANDARD_TIME,  ZCL_DATA_TYPE_UINT32,   ACCESS_CONTROL_READ,  (u8*)&zcl_attr_standardTime},
+    { ZCL_ATTRID_STANDARD_TIME,           ZCL_DATA_TYPE_UINT32,  ACCESS_CONTROL_READ,                        (u8*)&zcl_attr_standardTime},
 #endif
 #ifdef ZCL_ATTR_LOCAL_TIME_ENABLE
-	{ ZCL_ATTRID_LOCAL_TIME,  ZCL_DATA_TYPE_UINT32,   ACCESS_CONTROL_READ,  (u8*)&zcl_attr_localTime},
+    { ZCL_ATTRID_LOCAL_TIME,              ZCL_DATA_TYPE_UINT32,  ACCESS_CONTROL_READ,                        (u8*)&zcl_attr_localTime},
 #endif
 #ifdef ZCL_ATTR_LAST_SET_TIME_ENABLE
-	{ ZCL_ATTRID_LAST_SET_TIME,  ZCL_DATA_TYPE_UTC,   ACCESS_CONTROL_READ,  (u8*)&zcl_attr_localTime},
+    { ZCL_ATTRID_LAST_SET_TIME,           ZCL_DATA_TYPE_UTC,     ACCESS_CONTROL_READ,                        (u8*)&zcl_attr_localTime},
 #endif
 #ifdef ZCL_ATTR_VALID_UNTIL_TIME_ENABLE
-	{ ZCL_ATTRID_VALID_UNTIL_TIME,  ZCL_DATA_TYPE_UTC,   ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE,  (u8*)&zcl_attr_validUntilTime},
+    { ZCL_ATTRID_VALID_UNTIL_TIME,        ZCL_DATA_TYPE_UTC,     ACCESS_CONTROL_READ | ACCESS_CONTROL_WRITE, (u8*)&zcl_attr_validUntilTime},
 #endif
-	{ ZCL_ATTRID_GLOBAL_CLUSTER_REVISION, ZCL_DATA_TYPE_UINT16,  ACCESS_CONTROL_READ,  (u8*)&zcl_attr_global_clusterRevision},
+    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION, ZCL_DATA_TYPE_UINT16,  ACCESS_CONTROL_READ,                        (u8*)&zcl_attr_global_clusterRevision},
 };
 
-const u8 zcl_time_attrNum = ( sizeof(time_attrTbl) / sizeof(zclAttrInfo_t) );
+const u8 zcl_time_attrNum = (sizeof(time_attrTbl) / sizeof(zclAttrInfo_t));
 
 #endif    /* ZCL_TIME */
 #endif

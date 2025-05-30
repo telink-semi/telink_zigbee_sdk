@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #pragma once
 
 #include "usbkb_i.h"
@@ -32,14 +31,11 @@
 extern "C" {
 #endif
 
-#define KEYBOARD_REPORT_KEY_MAX     6
-
+#define KEYBOARD_REPORT_KEY_MAX         6
 
 u8 usbkb_hid_report_normal(u8 ctrl_key, u8 *keycode);
-
 
 /* Disable C linkage for C++ Compilers: */
 #if defined(__cplusplus)
 }
 #endif
-

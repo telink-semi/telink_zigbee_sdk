@@ -22,14 +22,13 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #pragma once
 
 #include "../usbdesc.h"
 
 /* Enable C linkage for C++ Compilers: */
 #if defined(__cplusplus)
-    extern "C" {
+extern "C" {
 #endif
 
 
@@ -44,20 +43,20 @@ typedef struct {
     u8 *rxBuf;
     usbcdc_txBuf_t *txBuf;
 
-	/* Following variables are used in the RX more than CDC_TXRX_EPSIZE */
+    /* Following variables are used in the RX more than CDC_TXRX_EPSIZE */
     ev_timer_event_t *timer;
 
-	cdc_handlerFn_t rxCb;
+    cdc_handlerFn_t rxCb;
     cdc_handlerFn_t txCb;
 
-	u16 lenToSend;
-	u16 lastSendIndex;
-	u8  lastIndex;
+    u16 lenToSend;
+    u16 lastSendIndex;
+    u8  lastIndex;
 } cdc_ctrl_t;
 
 typedef enum usbcdc_sts_e {
-	USB_CDC_SUCCESS = 0,
-    USB_CDC_BUSY 	= 1,
+    USB_CDC_SUCCESS     = 0,
+    USB_CDC_BUSY        = 1,
     USB_CDC_MULTIBLOCK,
 } usbcdc_sts_t;
 
@@ -131,9 +130,7 @@ u8 usbcdc_isAvailable(void);
  */
 u8 usbcdc_isTxBusy(void);
 
-
-
 /* Disable C linkage for C++ Compilers: */
 #if defined(__cplusplus)
-    }
+}
 #endif

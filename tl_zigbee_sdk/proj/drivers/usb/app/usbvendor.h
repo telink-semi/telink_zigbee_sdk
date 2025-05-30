@@ -22,14 +22,13 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #pragma once
 
 #include "usbvendor_i.h"
 
 /* Enable C linkage for C++ Compilers: */
 #if defined(__cplusplus)
-    extern "C" {
+extern "C" {
 #endif
 
 
@@ -44,21 +43,21 @@ typedef struct {
     u8 *rxBuf;
     hidvendor_txBuf_t *txBuf;
 
-	/* Following variables are used in the RX more than CDC_TXRX_EPSIZE */
+    /* Following variables are used in the RX more than CDC_TXRX_EPSIZE */
     ev_timer_event_t *timer;
 
-	hidvendor_handlerFn_t rxCb;
-	hidvendor_handlerFn_t txCb;
+    hidvendor_handlerFn_t rxCb;
+    hidvendor_handlerFn_t txCb;
 
-	u16 lenToSend;
-	u16 lastSendIndex;
-	u8  lastIndex;
+    u16 lenToSend;
+    u16 lastSendIndex;
+    u8  lastIndex;
 } hidvendor_ctrl_t;
 
 typedef enum hidvendor_sts_e {
-	HID_VENDOR_SUCCESS  = 0,
-	HID_VENDOR_BUSY 	= 1,
-	HID_VENDOR_MULTIBLOCK,
+    HID_VENDOR_SUCCESS  = 0,
+    HID_VENDOR_BUSY     = 1,
+    HID_VENDOR_MULTIBLOCK,
 } hidvendor_sts_t;
 
 /**
@@ -114,5 +113,5 @@ u8 hidvendor_isTxBusy(void);
 
 /* Disable C linkage for C++ Compilers: */
 #if defined(__cplusplus)
-    }
+}
 #endif
