@@ -103,7 +103,8 @@ enum
 /**
  * Customers cannot use analog register 0x35 because driver and chip functions are occupied, details are as follows:
  * [Bit0]: If this bit is 1, it means that reboot or power on has occurred. If this bit is 0, it means that sleep has occurred.
- * [Bit1~7]: These bits are used by the driver and cannot be used by the customer.
+ * [Bit1]: If this bit is 1, it means that core and sram are 0.8V. If this bit is 0, it means that core and sram are 0.9V.
+ * [Bit2~7]: These bits are used by the driver and cannot be used by the customer.
  */
 #define PM_ANA_REG_WD_CLR_BUF0 0x35 // initial value 0xff.
 
@@ -198,12 +199,12 @@ typedef enum
 
     //To clear all wake sources, the parameter of this interface is usually FLD_WAKEUP_STATUS_ALL
     //instead of FLD_WAKEUP_STATUS_INUSE_ALL.
-    FLD_WAKEUP_STATUS_ALL = 0xff,
+    FLD_WAKEUP_STATUS_ALL        = 0xff,
 
     //After the wake source is obtained, &WAKEUP_STATUS_INUSE_ALL is needed to determine
     //whether the wake source in use has been cleared, because some of the wake sources
     //that are not in use may have been set up.
-    FLD_WAKEUP_STATUS_INUSE_ALL = 0x0f,
+    FLD_WAKEUP_STATUS_INUSE_ALL  = 0x0f,
 } pm_wakeup_status_e;
 
 #define areg_aon_0x65 0x65 //read only

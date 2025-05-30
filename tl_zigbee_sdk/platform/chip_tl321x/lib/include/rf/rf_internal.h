@@ -225,32 +225,6 @@ static inline void rf_bb_timer_set_tick(unsigned int tick)
 }
 
 /**
- * @brief       This function is used to enable the ldo rxtxlf bypass function, and the calibration value
- *              written by the software will take effect after enabling.
- * @param[in]   none.
- * @return      none.
- */
-static inline void rf_ldot_ldo_rxtxlf_bypass_en(void)
-{
-    write_reg8(0x17074e, 0x45); //CBPF_TRIM_I && CBPF_TRIM_Q
-    write_reg8(0x17074c, 0x02); //LNA_ITRIM=0x01(default)(change to 0x02[TBD])
-    write_reg8(0x1706e4, read_reg8(0x1706e4) | BIT(1));
-}
-
-/**
- * @brief       This function is used to close the ldo rxtxlf bypass function, and the hardware will
- *              automatically perform the calibration function after closing.
- * @param[in]   none.
- * @return      none.
- */
-static inline void rf_ldot_ldo_rxtxlf_bypass_dis(void)
-{
-    write_reg8(0x17074e, 0x40); //CBPF_TRIM_I && CBPF_TRIM_Q
-    write_reg8(0x17074c, 0x11); //LNA_ITRIM=0x01(default)(change to 0x02[TBD])
-    write_reg8(0x1706e4, read_reg8(0x1706e4) & (~BIT(1)));
-}
-
-/**
  * @brief      This function serves to optimize RF performance
  *             This function must be called every time rx is turned on,
  *             and is called by an internal function.
@@ -1487,4 +1461,63 @@ static inline unsigned int rf_bb_timer_get_tick(void)
 
     #endif
 #endif
+
+/**
+ * @brief       This function is used to enable the ldo rxtxlf bypass function, and the calibration value
+ *              written by the software will take effect after enabling.
+ * @param[in]   none.
+ * @return      none.
+ */
+static inline void rf_ldot_ldo_rxtxlf_bypass_en(void)
+{
+    /*
+     *       bit                 default value               note
+     *                                                       note
+     * ---------------------------------------------------------------------------
+     * <2:0>:ADC_TRIM           default:100,100->010 change the on time of PMOS switch, and shorten it as the value of control bit increases
+     */
+    analog_write_reg8(0x01,0x02);
+    /*
+    *         bit                        default    value                note
+    *                                                             note
+    * ---------------------------------------------------------------------------
+    * <2:0>:VCO_TRIM_KVT                default:0x7  Adjustment of Kv of vctrl path depending upon reference frequency. Default should change depending upon if the reference frequency is 24MHz or 32MHz
+    * <3>  :VCO_EN_PKDET                default:0    Enable peak detector operation
+    * <5:4>:LDOTRIM_TRIM_VREF           default:2,   Bump bits for the 900 mV LDOTRIM reference voltage.
+    */
+    write_reg8(0x170754,0x27);//LDOTRIM_TRIM_VREF
+    write_reg8(0x170621,0x1e);
+    write_reg8(0x1706e5,0x0f);
+    write_reg8(0x1706e4,read_reg8(0x1706e4)|BIT(1));
+
+}
+
+/**
+ * @brief       This function is used to close the ldo rxtxlf bypass function, and the hardware will
+ *              automatically perform the calibration function after closing.
+ * @param[in]   none.
+ * @return      none.
+ */
+static inline void rf_ldot_ldo_rxtxlf_bypass_dis(void)
+{
+    /*
+     *       bit                 default value               note
+     *                                                       note
+     * ---------------------------------------------------------------------------
+     * <2:0>:ADC_TRIM           default:100,100 change the on time of PMOS switch, and shorten it as the value of control bit increases
+     */
+    analog_write_reg8(0x01,0x04);
+    /*
+    *         bit                        default    value                note
+    *                                                             note
+    * ---------------------------------------------------------------------------
+    * <2:0>:VCO_TRIM_KVT                default:0x7  Adjustment of Kv of vctrl path depending upon reference frequency. Default should change depending upon if the reference frequency is 24MHz or 32MHz
+    * <3>  :VCO_EN_PKDET                default:0    Enable peak detector operation
+    * <5:4>:LDOTRIM_TRIM_VREF           default:2, 2->3  Bump bits for the 900 mV LDOTRIM reference voltage.
+    */
+    write_reg8(0x170754,0x37);//LDOTRIM_TRIM_VREF
+    write_reg8(0x170621,0x1a);//RF_RX_HIGH_PERFORMANCE
+    write_reg8(0x1706e5,0x20);
+    write_reg8(0x1706e4, read_reg8(0x1706e4) & (~BIT(1)));//LDOT_LDO_RXTXLF_BYPASS
+}
 #endif

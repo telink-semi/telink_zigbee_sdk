@@ -3,11 +3,10 @@
  *
  * @brief	This is the source file for tl321x
  *
- * @author	Driver Group
- * @date	2024
+ * @author  Driver Group
+ * @date    2024
  *
  * @par     Copyright (c) 2024, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -111,14 +110,13 @@ __attribute__((weak)) void mswi_irq_handler(void)
 __attribute__((weak)) void except_handler(void)
 {
     /* unhandled trap */
-    exception_mtval = read_csr(NDS_MTVAL);
-    exception_mepc = read_csr(NDS_MEPC);
+    exception_mtval   = read_csr(NDS_MTVAL);
+    exception_mepc    = read_csr(NDS_MEPC);
     exception_mstatus = read_csr(NDS_MSTATUS);
-    exception_mcause = read_csr(NDS_MCAUSE);
+    exception_mcause  = read_csr(NDS_MCAUSE);
     exception_mdcause = read_csr(NDS_MDCAUSE);
 
-    while (1)
-    {
+    while (1) {
         __asm__("nop");
     }
 }
@@ -128,24 +126,23 @@ __attribute__((weak)) void except_handler(void)
  * @return      none
  */
 _attribute_ram_code_sec_noinline_ void trap_entry(void) __attribute__((interrupt("machine"), aligned(4)));
+
 __attribute__((weak)) void trap_entry(void)
 {
-    long mcause = read_csr(NDS_MCAUSE);
-    long mepc = 0;
-    long mstatus = 0;
+    long mcause   = read_csr(NDS_MCAUSE);
+    long mepc     = 0;
+    long mstatus  = 0;
     long mxstatus = 0;
 
-    if(g_plic_preempt_en)
-    {
-        mepc = read_csr(NDS_MEPC);
-        mstatus = read_csr(NDS_MSTATUS);
+    if (g_plic_preempt_en) {
+        mepc     = read_csr(NDS_MEPC);
+        mstatus  = read_csr(NDS_MSTATUS);
         mxstatus = read_csr(NDS_MXSTATUS);
     }
 
-    if((mcause & 0x80000000UL) && ((mcause & 0x7FFFFFFFUL) == 7)) /* machine timer interrupt */
+    if ((mcause & 0x80000000UL) && ((mcause & 0x7FFFFFFFUL) == 7)) /* machine timer interrupt */
     {
-        if(g_plic_preempt_en)
-        {
+        if (g_plic_preempt_en) {
             /* before enable global interrupt,disable the timer interrupt to prevent re-entry */
             core_mie_disable(FLD_MIE_MTIE);
             set_csr(NDS_MSTATUS, FLD_MSTATUS_MIE);
@@ -153,38 +150,32 @@ __attribute__((weak)) void trap_entry(void)
 
         mtime_irq_handler();
 
-        if(g_plic_preempt_en)
-        {
+        if (g_plic_preempt_en) {
             clear_csr(NDS_MSTATUS, FLD_MSTATUS_MIE);
             /* re-enable the timer interrupt. */
             core_mie_enable(FLD_MIE_MTIE);
         }
-    }
-    else if((mcause & 0x80000000UL) && ((mcause & 0x7FFFFFFFUL) == 3)) /* machine software interrupt */
+    } else if ((mcause & 0x80000000UL) && ((mcause & 0x7FFFFFFFUL) == 3)) /* machine software interrupt */
     {
         plic_sw_interrupt_claim();
         /* if support interrupt nest,enable global interrupt */
-        if(g_plic_preempt_en)
-        {
+        if (g_plic_preempt_en) {
             set_csr(NDS_MSTATUS, FLD_MSTATUS_MIE);
         }
 
         mswi_irq_handler();
 
-        if(g_plic_preempt_en)
-        {
+        if (g_plic_preempt_en) {
             clear_csr(NDS_MSTATUS, FLD_MSTATUS_MIE);
         }
 
         plic_sw_interrupt_complete();
-    }
-    else /* unhandled Trap */
+    } else /* unhandled Trap */
     {
         except_handler();
     }
 
-    if(g_plic_preempt_en)
-    {
+    if (g_plic_preempt_en) {
         write_csr(NDS_MSTATUS, mstatus);
         write_csr(NDS_MEPC, mepc);
         write_csr(NDS_MXSTATUS, mxstatus);

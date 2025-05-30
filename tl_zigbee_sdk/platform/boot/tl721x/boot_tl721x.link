@@ -30,8 +30,11 @@ SECTIONS
     PROVIDE (BIN_BEGIN = .);
     .vectors        : { KEEP(*(.vectors )) }
     .flash_code        : { KEEP(*(.flash_code )) }
+    . = ALIGN(8);
+    .flash_data     : AT( ALIGN(LOADADDR (.flash_code) + SIZEOF (.flash_code),8))
+        { KEEP(*(.flash_data )) }
     . = 0x00040000;
-    .retention_reset    : AT( ALIGN(LOADADDR (.flash_code) + SIZEOF (.flash_code),8)) 
+    .retention_reset    : AT( ALIGN(LOADADDR (.flash_data) + SIZEOF (.flash_data),8))
         { KEEP(*(.retention_reset )) }
     PROVIDE (_RETENTION_RESET_VMA_START = ADDR(.retention_reset));
     PROVIDE (_RETENTION_RESET_LMA_START = LOADADDR(.retention_reset));

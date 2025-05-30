@@ -22,7 +22,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #include "tl_common.h"
 
 
@@ -31,15 +30,15 @@ volatile u8 T_DBG_testIrq[16] = {0};
 #if (__PROJECT_TL_BOOT_LOADER__)
 void uart0_irq_handler(void)
 {
-	if(uart_get_irq_status(UART0, UART_TXDONE)){
-		T_DBG_testIrq[8]++;
-		drv_uart_tx_irq_handler();
-	}
+    if (uart_get_irq_status(UART0, UART_TXDONE)) {
+        T_DBG_testIrq[8]++;
+        drv_uart_tx_irq_handler();
+    }
 
-	if(uart_get_irq_status(UART0, UART_RXDONE)){
-		T_DBG_testIrq[9]++;
-		drv_uart_rx_irq_handler();
-	}
+    if (uart_get_irq_status(UART0, UART_RXDONE)) {
+        T_DBG_testIrq[9]++;
+        drv_uart_rx_irq_handler();
+    }
 }
 #else
 extern void rf_rx_irq_handler(void);
@@ -47,78 +46,77 @@ extern void rf_tx_irq_handler(void);
 
 _attribute_ram_code_ void rf_irq_handler(void)
 {
-	T_DBG_testIrq[0]++;
-	if(rf_get_irq_status(FLD_RF_IRQ_RX)){
-		rf_clr_irq_status(FLD_RF_IRQ_RX);
-		T_DBG_testIrq[1]++;
-		rf_rx_irq_handler();
-	}else if(rf_get_irq_status(FLD_RF_IRQ_TX)){
-		rf_clr_irq_status(FLD_RF_IRQ_TX);
-		T_DBG_testIrq[2]++;
-		rf_tx_irq_handler();
-	}else{
-		T_DBG_testIrq[3]++;
-		rf_clr_irq_status(0xffff);
-	}
+    T_DBG_testIrq[0]++;
+    if (rf_get_irq_status(FLD_RF_IRQ_RX)) {
+        rf_clr_irq_status(FLD_RF_IRQ_RX);
+        T_DBG_testIrq[1]++;
+        rf_rx_irq_handler();
+    } else if (rf_get_irq_status(FLD_RF_IRQ_TX)) {
+        rf_clr_irq_status(FLD_RF_IRQ_TX);
+        T_DBG_testIrq[2]++;
+        rf_tx_irq_handler();
+    } else {
+        T_DBG_testIrq[3]++;
+        rf_clr_irq_status(0xffff);
+    }
 }
 
 void timer0_irq_handler(void)
 {
-	if(timer_get_irq_status(TMR_STA_TMR0)){
-		timer_clr_irq_status(TMR_STA_TMR0);
-		drv_timer_irq0_handler();
-	}
+    if (timer_get_irq_status(TMR_STA_TMR0)) {
+        timer_clr_irq_status(TMR_STA_TMR0);
+        drv_timer_irq0_handler();
+    }
 }
 
 void timer1_irq_handler(void)
 {
-	if(timer_get_irq_status(TMR_STA_TMR1)){
-		timer_clr_irq_status(TMR_STA_TMR1);
-		drv_timer_irq1_handler();
-	}
+    if (timer_get_irq_status(TMR_STA_TMR1)) {
+        timer_clr_irq_status(TMR_STA_TMR1);
+        drv_timer_irq1_handler();
+    }
 }
 
 void stimer_irq_handler(void)
 {
-	if(stimer_get_irq_status(FLD_SYSTEM_IRQ)){
-		stimer_clr_irq_status(FLD_SYSTEM_IRQ);
-		T_DBG_testIrq[4]++;
-		drv_timer_irq3_handler();
-	}
+    if (stimer_get_irq_status(FLD_SYSTEM_IRQ)) {
+        stimer_clr_irq_status(FLD_SYSTEM_IRQ);
+        T_DBG_testIrq[4]++;
+        drv_timer_irq3_handler();
+    }
 }
 
 void gpio_irq_handler(void)
 {
-	T_DBG_testIrq[5]++;
-	gpio_clr_irq_status(FLD_GPIO_IRQ_CLR);
-	drv_gpio_irq_handler();
+    T_DBG_testIrq[5]++;
+    gpio_clr_irq_status(FLD_GPIO_IRQ_CLR);
+    drv_gpio_irq_handler();
 }
 
 void gpio_risc0_irq_handler(void)
 {
-	T_DBG_testIrq[6]++;
-	gpio_clr_irq_status(FLD_GPIO_IRQ_GPIO2RISC0_CLR);
-	drv_gpio_irq_risc0_handler();
+    T_DBG_testIrq[6]++;
+    gpio_clr_irq_status(FLD_GPIO_IRQ_GPIO2RISC0_CLR);
+    drv_gpio_irq_risc0_handler();
 }
 
 void gpio_risc1_irq_handler(void)
 {
-	T_DBG_testIrq[7]++;
-	gpio_clr_irq_status(FLD_GPIO_IRQ_GPIO2RISC1_CLR);
-	drv_gpio_irq_risc1_handler();
+    T_DBG_testIrq[7]++;
+    gpio_clr_irq_status(FLD_GPIO_IRQ_GPIO2RISC1_CLR);
+    drv_gpio_irq_risc1_handler();
 }
 
 void uart0_irq_handler(void)
 {
-	if(uart_get_irq_status(UART0, UART_TXDONE)){
-		T_DBG_testIrq[8]++;
-		drv_uart_tx_irq_handler();
-	}
+    if (uart_get_irq_status(UART0, UART_TXDONE)) {
+        T_DBG_testIrq[8]++;
+        drv_uart_tx_irq_handler();
+    }
 
-	if(uart_get_irq_status(UART0, UART_RXDONE)){
-		T_DBG_testIrq[9]++;
-		drv_uart_rx_irq_handler();
-	}
+    if (uart_get_irq_status(UART0, UART_RXDONE)) {
+        T_DBG_testIrq[9]++;
+        drv_uart_rx_irq_handler();
+    }
 }
 #endif
-

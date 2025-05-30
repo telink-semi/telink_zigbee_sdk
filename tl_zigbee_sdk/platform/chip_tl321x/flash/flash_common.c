@@ -34,8 +34,8 @@
     |              | P25Q40SU   |   0x4b  | 0x136085 |  PUYA   |           8us                   |                   30ms               |
     |              | P25Q16SU   |   0x4b  | 0x156085 |  PUYA   |           8us                   |                   30ms               |
     |              | P25Q32SU   |   0x4b  | 0x166085 |  PUYA   |           8us                   |                   30ms               |
-    |              | GD25LQ16E  |   0x4b  | 0x1560c8 |    GD   |           20us                  | 300ms/500ms(85 Celsius/125 Celsius)  |
-    |              | GD25LQ80E  |   0x4b  | 0x1460c8 |    GD   |           20us                  | 600ms/1000ms(85 Celsius/125 Celsius) |
+    |              | GD25LE16E  |   0x4b  | 0x1560c8 |    GD   |           20us                  | 300ms/500ms(85 Celsius/125 Celsius)  |
+    |              | GD25LE80E  |   0x4b  | 0x1460c8 |    GD   |           20us                  | 600ms/1000ms(85 Celsius/125 Celsius) |
     +--------------+------------+---------+----------+---------+---------------------------------+--------------------------------------+
 
     Note:

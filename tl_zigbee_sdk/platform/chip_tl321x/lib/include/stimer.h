@@ -490,12 +490,12 @@ static _always_inline void stimer_wait_write_32k_done(void)
  * @param[in]   tick    - The initial value of the tick at startup.
  * @return      none.
  */
-_attribute_ram_code_sec_noinline_ void stimer_enable(stimer_enable_mode_e mode, unsigned int tick);
+_attribute_ram_code_sec_optimize_o2_noinline_ void stimer_enable(stimer_enable_mode_e mode, unsigned int tick);
 
 /**
  * @brief       This function is used to stop the system timer.
  * @return      none.
  */
-_attribute_ram_code_sec_noinline_ void stimer_disable(void);
+_attribute_ram_code_sec_optimize_o2_noinline_ void stimer_disable(void);
 
 #endif /* STIMER_H_ */

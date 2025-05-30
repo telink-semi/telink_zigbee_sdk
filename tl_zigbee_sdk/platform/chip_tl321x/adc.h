@@ -202,7 +202,7 @@ typedef enum
     ADC_SAMPLE_FREQ_23K  = (0 << 24) | (1023 << 8) | (ADC_SAMPLE_CYC_48 << 4) | 15,
     ADC_SAMPLE_FREQ_48K  = (1 << 24) | (490 << 8) | (ADC_SAMPLE_CYC_48 << 4) | 10,
     ADC_SAMPLE_FREQ_96K  = (2 << 24) | (240 << 8) | (ADC_SAMPLE_CYC_27 << 4) | 10,
-    ADC_SAMPLE_FREQ_192K = (3 << 24) | (115 << 8) | (ADC_SAMPLE_CYC_6 << 4) | 10,
+    ADC_SAMPLE_FREQ_192K = (3 << 24) | (115 << 8) | (ADC_SAMPLE_CYC_6 << 4) | 10,//When you select ADC_SAMPLE_FREQ_192K, the first code of the vbat sample mode is an exception and needs to be discarded.
 } adc_sample_freq_e;
 
 typedef enum
@@ -243,7 +243,7 @@ typedef enum
 /**
  * @brief    This function is used to power on sar_adc.
  * @return   none.
- * @note     -# User need to wait >30us after adc_power_on() for ADC to be stable.
+ * @note     -# User need to wait >100us after adc_power_on() for ADC to be stable.
  *           -# If you calling adc_power_off(), because all analog circuits of ADC are turned off after adc_power_off(),
  *            it is necessary to wait >30us after re-adc_power_on() for ADC to be stable.
  */
@@ -342,8 +342,8 @@ unsigned short adc_calculate_temperature(unsigned short adc_code);
 /**
  * @brief This function serves to calculate voltage from adc sample code.
  * @param[in]   chn - enum variable of ADC sample channel.
- * @param[in]   adc_code    - the adc sample code.
- * @return      adc_vol_mv  - the average value of adc voltage value.
+ * @param[in]   adc_code    - the adc sample code(should be positive value.)
+ * @return      adc_vol_mv  - the average value of adc voltage value(adc voltage value >= 0).
  */
 unsigned short adc_calculate_voltage(adc_sample_chn_e chn, unsigned short adc_code);
 
@@ -423,12 +423,12 @@ _attribute_ram_code_sec_noinline_ void adc_clr_irq_status_dma(void);
  *                                                NDMA only interface                                                 *
  **********************************************************************************************************************/
 /**
- * @brief This function serves to directly get an adc sample code from analog registers.
+ * @brief This function serves to directly get an adc sample code from fifo.
  * @return  adc_code    - the adc sample code.
- * @note   If you want to get the sampling results twice in succession,
- *         must ensure that the sampling interval is more than 2 times the sampling period.
+ *                      - Bit[11:15] of the adc code read from reg_adc_rxfifo_dat are sign bits,if the adc code is positive, bits [11:15] are all 1's,
+ *                        if the adc code is negative, bits [11:15] are all 0's and valid data bits are Bit[0:10],the valid range is 0~0x7FF.
  */
-unsigned short adc_get_code(void);
+unsigned short adc_get_raw_code(void);
 
 /**
  * @brief     Get the irq status of ADC.

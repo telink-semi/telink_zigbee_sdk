@@ -413,7 +413,11 @@ void adc_init(adc_ref_vol_e v_ref, adc_pre_scale_e pre_scale, adc_sample_freq_e 
 void adc_get_code_dma(unsigned short *sample_buffer, unsigned short sample_num);
 /**
  * @brief This function serves to directly get an adc sample code from analog registers.
- * @return      adc_code    - the adc sample code.
+ *      If you want to get the sampling results twice in succession,
+ *       Must ensure that the sampling interval is more than 2 times the sampling period.
+ * @return  adc_code    - the adc sample code.
+ *                      - This interface can only get the adc_code >= 0, if adc code < 0, the adc code return value is 0.
+ *                      - The Bit[0:12] of the adc code return value is valid data, the valid range is 0~0x1FFF.
  */
 unsigned short adc_get_code(void);
 
@@ -421,8 +425,8 @@ unsigned short adc_get_code(void);
  * @brief This function serves to calculate voltage from adc sample code.
  *        ADC calibration environment: GPIO sampling, the pre_scale is 1/4, and the sampling frequency is 48K.
  *        Therefore, the voltage value measured using the calibration interface in this environment is the most accurate.
- * @param[in]   adc_code    - the adc sample code.
- * @return      adc_vol_mv  - the average value of adc voltage value.
+ * @param[in]   adc_code    - the adc sample code.(should be positive value.)
+ * @return      adc_vol_mv  - the average value of adc voltage value.(adc voltage value >= 0).
  */
 unsigned short adc_calculate_voltage(unsigned short adc_code);
 #if INTERNAL_TEST_FUNC_EN

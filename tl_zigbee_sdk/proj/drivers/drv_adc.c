@@ -64,7 +64,7 @@ static u16 adc_get_voltage(void)
     while (cnt < ADC_SAMPLE_NUM) {
         u8 fifoCnt = adc_get_rxfifo_cnt();
         if (fifoCnt) {
-            adc_sample_buffer[cnt] = adc_get_code();
+            adc_sample_buffer[cnt] = adc_get_raw_code();
             if (adc_sample_buffer[cnt] & BIT(11)) {
                 //12 bit resolution, BIT(11) is sign bit, 1 means negative voltage in differential_mode
                 adc_sample_buffer[cnt] = 0;

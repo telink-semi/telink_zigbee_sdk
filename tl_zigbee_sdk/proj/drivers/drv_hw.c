@@ -58,7 +58,9 @@
         #error please config system clock
     #endif
 #elif defined(MCU_CORE_TL321X)
-    #if (CLOCK_SYS_CLOCK_HZ == 96000000)
+    #if (CLOCK_SYS_CLOCK_HZ == 48000000)
+        #define CLOCK_INIT         PLL_192M_CCLK_48M_HCLK_48M_PCLK_24M_MSPI_48M
+    #elif (CLOCK_SYS_CLOCK_HZ == 96000000)
         #define CLOCK_INIT         PLL_192M_CCLK_96M_HCLK_48M_PCLK_24M_MSPI_48M
     #else
         #error please config system clock
@@ -139,7 +141,7 @@ static void voltage_detect_init(u32 detectPin)
 #elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
     drv_adc_mode_pin_set(DRV_ADC_BASE_MODE, (adc_input_pin_def_e)detectPin);
 #elif defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
-    drv_adc_mode_pin_set(DRV_ADC_BASE_MODE, (adc_input_pin_e)detectPin);
+    drv_adc_mode_pin_set(DRV_ADC_BASE_MODE, (adc_input_pin_def_e)detectPin);
 #endif
 
     drv_adc_enable(1);

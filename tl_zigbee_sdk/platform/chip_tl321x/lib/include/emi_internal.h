@@ -95,5 +95,11 @@ void rf_emi_tx_burst_loop_v1(void);
  */
 void rf_emi_tx_burst_setup_v1(void);
 
+/**
+ * @brief        This function is used in RF current test configurations where only RF modules work
+ * @param[in]    none.
+ * @return       none.
+ */
+_attribute_ram_code_sec_noinline_ void rf_current_test_cfg(void);
 
 #endif

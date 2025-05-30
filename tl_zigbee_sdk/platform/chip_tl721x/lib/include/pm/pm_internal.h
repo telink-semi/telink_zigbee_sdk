@@ -360,6 +360,25 @@ static _always_inline pm_dig_ldo_trim_e pm_get_dig_ldo_voltage(void)
 }
 
 /**
+ * @brief       This function serves to get suspend LDO voltage
+ * @return      suspend LDO trim voltage
+ */
+static _always_inline unsigned char pm_get_spd_ldo_voltage(void)
+{
+    return analog_read_reg8(0x0e) & 0xf8;
+}
+
+/**
+ * @brief       This function serves to get deep retention LDO voltage
+ * @return      deep retention LDO trim voltage
+ */
+static _always_inline unsigned char pm_get_ret_ldo_voltage(void)
+{
+    return analog_read_reg8(0x0f) & 0xf8;
+
+}
+
+/**
  * @brief       This function serves to trim suspend LDO voltage
  * @param[in]   spd_ldo_trim - suspend LDO trim voltage
  * @return      none

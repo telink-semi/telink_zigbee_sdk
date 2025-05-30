@@ -79,6 +79,7 @@ enum
     FLD_ANA_DMA_EN         = BIT(1),
     FLD_ANA_AUTO_RXCLR_EN  = BIT(2),
     FLD_ANA_NDMA_RXDONE_EN = BIT(3),
+    FLD_ANA_DIV_MOD        = BIT_RNG(4, 5),
 
 };
 #endif

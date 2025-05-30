@@ -107,7 +107,15 @@
 /**********************************************************************************************************************
  *                                      global function prototype                                                     *
  *********************************************************************************************************************/
-
+/**
+ * @brief      This function serves to analog clock divide.
+ * @param[in]  div - 0: 2 frequency division of  pclk(default)
+ *                   1: 4 frequency division of  pclk
+ *                   2: 8 frequency division of  pclk
+ *                   3: 16 frequency division of  pclk
+ * @return     none.
+ */
+_attribute_ram_code_sec_ void analog_set_clk(unsigned char div);
 
 /**
  * @brief      This function serves to analog register read by byte.

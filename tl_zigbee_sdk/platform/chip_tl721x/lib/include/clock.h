@@ -45,7 +45,12 @@
 /**********************************************************************************************************************
  *                                           global macro                                                             *
  *********************************************************************************************************************/
-
+/*
+ * ALG_MODULE_MAX_CLK is configured to 30:
+ *  -The alg clock source is pclk, with a default division of 1/2.
+ *  - Whether it is 0.8v or 0.9v, the maximum is 30m,It is necessary to modify the frequency division based on the current size of the pclk.
+ */
+#define ALG_MODULE_MAX_CLK                30
 /**
  * @brief system clock type
  * |                                     |                                    |               |
@@ -70,7 +75,9 @@ typedef enum
  */
 //clock_bbpll_config(PLL_CLK_240M);
 //core 0.9V
+#define PLL_240M_CCLK_240M_HCLK_120M_PCLK_120M_MSPI_60M clock_init(BASEBAND_PLL, CLK_DIV1, CCLK_DIV2_TO_HCLK_DIV2_TO_PCLK, CLK_DIV4)//This frequency is only applicable to chips with built-in Flash
 #define PLL_240M_CCLK_240M_HCLK_120M_PCLK_120M_MSPI_48M clock_init(BASEBAND_PLL, CLK_DIV1, CCLK_DIV2_TO_HCLK_DIV2_TO_PCLK, CLK_DIV5)
+
 //core 0.8V
 #define PLL_240M_CCLK_120M_HCLK_60M_PCLK_60M_MSPI_48M clock_init(BASEBAND_PLL, CLK_DIV2, CCLK_DIV2_TO_HCLK_DIV2_TO_PCLK, CLK_DIV5)
 #define PLL_240M_CCLK_120M_HCLK_60M_PCLK_30M_MSPI_48M clock_init(BASEBAND_PLL, CLK_DIV2, CCLK_DIV2_TO_HCLK_DIV4_TO_PCLK, CLK_DIV5)

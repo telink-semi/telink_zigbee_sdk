@@ -389,8 +389,8 @@ enum
     FLD_USB_REG_WABLM = BIT_RNG(4, 5),
 };
 
-#define D25F_SRAM_EMA_ADDR     (SC_BASE_ADDR + 0x70)
-#define D25F_SRAM_EMA_DATA_LEN 4
+#define SOC_SRAM_EMA_ADDR     (SC_BASE_ADDR + 0x70)
+#define SOC_SRAM_EMA_DATA_LEN 4
 #define reg_soc_sram_cfg0      REG_ADDR8(SC_BASE_ADDR + 0x70)
 
 enum

@@ -129,18 +129,18 @@ typedef enum
 
 /**
  * @brief trim suspend LDO
- *
+ * @note  only for A2 version
  */
 typedef enum
 {
-    SPD_LDO_TRIM_0P75V = 0,
-    SPD_LDO_TRIM_0P80V,
-    SPD_LDO_TRIM_0P85V,
-    SPD_LDO_TRIM_0P90V,
-    SPD_LDO_TRIM_0P95V,
-    SPD_LDO_TRIM_1P00V,
-    SPD_LDO_TRIM_1P05V,
-    SPD_LDO_TRIM_1P10V,
+    SPD_LDO_TRIM_0P65V = 0, // 0.609V
+    SPD_LDO_TRIM_0P75V,     // 0.707V
+    SPD_LDO_TRIM_0P85V,     // 0.811V
+    SPD_LDO_TRIM_0P95V,     // 0.906V
+    SPD_LDO_TRIM_1P00V,     // 0.962V
+    SPD_LDO_TRIM_1P05V,     // 1.008V
+    SPD_LDO_TRIM_1P10V,     // 1.067V
+    SPD_LDO_TRIM_1P15V,     // 1.107V
 } pm_spd_ldo_trim_e;
 
 /**
@@ -186,6 +186,7 @@ static _always_inline void pm_set_dig_ldo_voltage(pm_dig_ldo_trim_e dig_ldo_trim
  * @brief       This function serves to trim suspend LDO voltage
  * @param[in]   spd_ldo_trim - suspend LDO trim voltage
  * @return      none
+ * @note        A1 version is incompatible with A2 version, this function is only for A2 version.
  */
 static _always_inline void pm_set_spd_ldo_voltage(pm_spd_ldo_trim_e spd_ldo_trim)
 {

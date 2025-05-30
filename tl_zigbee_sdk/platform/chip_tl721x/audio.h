@@ -1322,7 +1322,7 @@ static inline void audio_i2s1_src_clk_en(void)
  */
 static inline void audio_i2s2_src_clk_en(void)
 {
-    reg_i2s2_step |= FLD_I2S1_CLK_EN_0;
+    reg_i2s2_step |= FLD_I2S2_CLK_EN_0;
 }
 
 /**
@@ -1349,7 +1349,7 @@ static inline void audio_i2s1_src_clk_dis(void)
  */
 static inline void audio_i2s2_src_clk_dis(void)
 {
-    reg_i2s2_step &= ~FLD_I2S1_CLK_EN_0;
+    reg_i2s2_step &= ~FLD_I2S2_CLK_EN_0;
 }
 
 /**
@@ -1386,6 +1386,16 @@ static inline void audio_set_i2s2_clk(unsigned short div_numerator, unsigned sho
 {
     reg_i2s2_step = (div_numerator & FLD_I2S0_STEP) | FLD_I2S2_CLK_EN_0;
     reg_i2s2_mod  = div_denominator;
+}
+
+/**
+ *  @brief      This function serves to enable i2s src clock.
+ *  @param[in]  i2s_select i2s channel.
+ *  @return     none.
+ */
+static inline void audio_i2s_src_clk_en(audio_i2s_select_e i2s_select)
+{
+    (i2s_select == I2S0) ? (audio_i2s0_src_clk_en()) : ((i2s_select == I2S1) ? (audio_i2s1_src_clk_en()) : (audio_i2s2_src_clk_en()));
 }
 
 /**
@@ -1631,14 +1641,14 @@ void i2s_set_pin(audio_i2s_select_e i2s_select, i2s_pin_config_t *config);
 void audio_rx_dma_config(dma_chn_e chn, unsigned short *dst_addr, unsigned int data_len, dma_chain_config_t *head_of_list);
 
 /**
- * @brief     This function serves to set rx dma chain transfer
+ * @brief     This function serves to set rx dma chain transfer.
  * @param[in] config_addr - the head of list of llp_pointer.
  * @param[in] llpointer   - the next element of llp_pointer.
  * @param[in] dst_addr    - the dma address of destination.
  * @param[in] data_len    - the length of dma size by byte.
  * @return    none.
  */
-void audio_rx_dma_add_list_element(dma_chain_config_t *rx_config, dma_chain_config_t *llpointer, unsigned short *dst_addr, unsigned int data_len);
+void audio_rx_dma_add_list_element(dma_chain_config_t *config_addr, dma_chain_config_t *llpointer, unsigned short *dst_addr, unsigned int data_len);
 
 /**
  * @brief  This function serves to set audio rx dma chain transfer.
@@ -1983,7 +1993,7 @@ void audio_set_debug_clk_as_mclk(audio_clk_dbg_e clk);
  * @param[in] i2s_select                    - i2s channel select.
  * @param[in] i2s_clk_config                 i2s_clk_config[2]   i2s_clk_config[3]-->lrclk_adc(sampling rate)
                                                   ||                  ||
- *  pll(192M default)------->div---->i2s_clk--->2*div(div=0,bypass)--->blck----->div
+ *  pll(240M default)------->div---->i2s_clk--->2*div(div=0,bypass)--->blck----->div
  *                           ||                                       ||
  *           i2s_clk_config[0]/i2s_clk_config[1]                 i2s_clk_config[4]-->lrclk_dac (sampling rate)
  *
@@ -1995,7 +2005,7 @@ void audio_set_debug_clk_as_mclk(audio_clk_dbg_e clk);
 _attribute_ram_code_sec_noinline_ void audio_set_i2s_clock(audio_i2s_select_e i2s_select, unsigned short *i2s_clk_config);
 
 /**
- * @brief     This function set i2s input data bit with .
+ * @brief     This function set i2s input data bit with.
  * @param[in] i2s_select       - channel select.
  * @param[in] data_mode        - i2s data bit with.
  * @return    none.
@@ -2015,7 +2025,7 @@ void audio_set_i2s_format(audio_i2s_select_e i2s_select, i2s_mode_select_e i2s_m
  *  @param[in]  i2s_select -i2s channel.
  *  @return     none.
  */
-void audio_i2s_clk_en(audio_i2s_select_e i2s_sel);
+void audio_i2s_clk_en(audio_i2s_select_e i2s_select);
 
 /**
  * @brief     This function serves to config i2s interface, word length, and m/s.

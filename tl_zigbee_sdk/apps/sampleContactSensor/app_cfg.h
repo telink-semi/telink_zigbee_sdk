@@ -127,7 +127,7 @@ extern "C" {
     #define CLOCK_SYS_CLOCK_HZ                  120000000
 #elif defined(MCU_CORE_TL321X)
     #define BOARD                               BOARD_TL321X_DONGLE//BOARD_TL321X_EVK
-    #define CLOCK_SYS_CLOCK_HZ                  96000000
+    #define CLOCK_SYS_CLOCK_HZ                  48000000
 #else
     #error "MCU is undefined!"
 #endif

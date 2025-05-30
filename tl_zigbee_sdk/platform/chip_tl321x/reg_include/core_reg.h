@@ -23,7 +23,7 @@
  *******************************************************************************************************/
 #ifndef CORE_REG_H
 #define CORE_REG_H
-
+#include "bit.h"
 /* If using Andes toolchain, this Macro is defined in it's toolchain */
 /* If using std gcc toolchain, this core register(not standard risc-v core register)
     should be defined here. */
@@ -575,4 +575,33 @@ enum riscv_fence
     FENCE_IORW
 };
 
+
+/*
+NDS_MDCM_CFG
+dcache cfg     0x312c1                                 0011 0001 0010 1100 0001
+ISET[2:0]      : cache lines per way                   001: 128
+DWAY[5:3]      : associativity  x_way                  000: direct-mapped
+DSZ[8:6]       : D-Cache block(line) size              011: 32 byte
+DLCK[9]        : D-Cache locking support               1: with locking support
+DC_ECC[11:10]  : err protection                        00: no parity/ecc support
+DLMB[14:12]    : number of dlm base register present   1:one dlm base register present
+DLMSZ[19:15]   : DLM size                              00110 : 4KiB
+
+NDS_IDCM_CFG
+icache         0x412c9                                0100 0001 0010 1100 1001
+ISET[2:0]      : cache lines per way                  001: 128
+IWAY[5:3]      : associativity of i-cache             001: 2-way
+ISZ[8:6]       : i-cache line size                    011: 32byte
+ILCK[9]        : i-cache locking support              1: with locking support
+IC_ECC[11:10]  : I-Cache err protection               00: no ecc
+ILMB[14:12]    : number of ILM base register present  001
+ILMSZ[19:15]   : ILM Size                             01000: 128KiB
+*/
+enum
+{
+    FLD_CACHE_ISET            = BIT_RNG(0, 2),
+    FLD_CACHE_XWAY            = BIT_RNG(3, 5),
+    FLD_CACHE_LINE_SZ         = BIT_RNG(6, 8),
+    FLD_CACHE_DLCK            = BIT(9),
+};
 #endif

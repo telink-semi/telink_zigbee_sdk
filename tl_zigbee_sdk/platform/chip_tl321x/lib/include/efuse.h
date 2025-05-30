@@ -24,18 +24,16 @@
 #ifndef EFUSE_H_
 #define EFUSE_H_
 
-#define ADC_CALIB_EN 0
-#if ADC_CALIB_EN
 typedef struct
 {
-    unsigned char ft_vbat_gain;
-    unsigned char ft_vbat_offset;
     unsigned char ft_gpio_gain;
     unsigned char ft_gpio_offset;
-    unsigned char cp_vbat_gain;
-    unsigned char cp_vbat_offset;
+    unsigned char ft_vbat_gain;
+    unsigned char ft_vbat_offset;
     unsigned char cp_gpio_gain;
     unsigned char cp_gpio_offset;
+    unsigned char cp_vbat_gain;
+    unsigned char cp_vbat_offset;
 } adc_ft_cp_calib_t;
 
 /**
@@ -44,7 +42,6 @@ typedef struct
  * @return     1 - the calibration value update, 0 - the calibration value is not update.
  */
 drv_api_status_e efuse_calib_adc_vref(void);
-#endif
 
 /**
 * @brief      This function servers to get chip id from EFUSE.

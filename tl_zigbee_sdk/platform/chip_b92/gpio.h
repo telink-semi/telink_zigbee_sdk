@@ -77,6 +77,7 @@ typedef enum
  *          when deep/deep Retention is invoked, it can't maintain high/low level and an abnormal level will occur.
  *          Therefore, this pin can't be used in applications where a certain level state needs to be maintained all the time.
  *          The PG group can only be used as an mspi pin and cannot be used as a wake-up source.
+ *          When the GPIO signals are used as wakeup source, it is suggested not configuring the pull-up resistance to 10K ohm.
  */
 typedef enum
 {
@@ -373,7 +374,7 @@ typedef enum
     GPIO_PIN_UP_DOWN_FLOAT = 0,
     GPIO_PIN_PULLUP_1M     = 1,
     GPIO_PIN_PULLDOWN_100K = 2,
-    GPIO_PIN_PULLUP_10K    = 3, //PULLUP_10K cannot be used as a wake-up function, otherwise it may fail to wake up.
+    GPIO_PIN_PULLUP_10K    = 3, //PULLUP_10K cannot be used as a wake up function; otherwise, the wake up may fail.
 } gpio_pull_type_e;
 
 typedef enum

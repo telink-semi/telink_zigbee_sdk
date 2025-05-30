@@ -240,32 +240,6 @@ static inline void rf_bb_timer_set_tick(unsigned int tick)
 }
 
 /**
- * @brief       This function is used to enable the ldo rxtxlf bypass function, and the calibration value
- *              written by the software will take effect after enabling.
- * @param[in]   none.
- * @return      none.
- */
-static inline void rf_ldot_ldo_rxtxlf_bypass_en(void)
-{
-    write_reg8(0x17074e, 0x45); //CBPF_TRIM_I && CBPF_TRIM_Q
-    write_reg8(0x17074c, 0x02); //LNA_ITRIM=0x01(default)(change to 0x02[TBD])
-    write_reg8(0x1706e4, read_reg8(0x1706e4) | BIT(1));
-}
-
-/**
- * @brief       This function is used to close the ldo rxtxlf bypass function, and the hardware will
- *              automatically perform the calibration function after closing.
- * @param[in]   none.
- * @return      none.
- */
-static inline void rf_ldot_ldo_rxtxlf_bypass_dis(void)
-{
-    write_reg8(0x17074e, 0x40); //CBPF_TRIM_I && CBPF_TRIM_Q
-    write_reg8(0x17074c, 0x11); //LNA_ITRIM=0x01(default)(change to 0x02[TBD])
-    write_reg8(0x1706e4, read_reg8(0x1706e4) & (~BIT(1)));
-}
-
-/**
  * @brief      This function serves to optimize RF performance
  *             This function must be called every time rx is turned on,
  *             and is called by an internal function.
@@ -1539,4 +1513,45 @@ void rf_dis_fcal_trim(void);
     #endif
 #endif
 
+/**
+ * @brief       This function is used to enable the ldo rxtxlf bypass function, and the calibration value
+ *              written by the software will take effect after enabling.
+ * @param[in]   none.
+ * @return      none.
+ */
+static inline void rf_ldot_ldo_rxtxlf_bypass_en(void)
+{
+    /*
+     *       bit                 default value               note
+     *                                                       note
+     * ---------------------------------------------------------------------------
+     * <2:1>:ADC_TRIM           default:0x01,->0x11(960mV-->900mV) trim of the adc reference voltage current
+     * <3>:ADC_INVERT_CLK       default:1,->0        ADC gives its output on neg edge of the clock.
+     */
+    write_reg8(0x17074f, 0x06);//CBPF_VCM_TRIM_H
+    write_reg8(0x1706e5, 0x05);//LDOT_LDO_RXTXLF_TRIM_OVERWRITE
+    write_reg8(0x170760, read_reg8(0x170760) | BIT(6));//LDO_ANT_PUP_VANT_OW
+    write_reg8(0x1706e4, read_reg8(0x1706e4) | BIT(1));//LDOT_LDO_RXTXLF_BYPASS
+}
+
+/**
+ * @brief       This function is used to close the ldo rxtxlf bypass function, and the hardware will
+ *              automatically perform the calibration function after closing.
+ * @param[in]   none.
+ * @return      none.
+ */
+static inline void rf_ldot_ldo_rxtxlf_bypass_dis(void)
+{
+    /*
+     *       bit                 default value               note
+     *                                                       note
+     * ---------------------------------------------------------------------------
+     * <2:1>:ADC_TRIM           default:0x01, trim of the adc reference voltage current
+     * <3>:ADC_INVERT_CLK       default:0,    ADC gives its output on pos edge of the clock
+     */
+    write_reg8(0x17074f, 0x0a);//CBPF_VCM_TRIM_H
+    write_reg8(0x1706e5, 0x20);//LDOT_LDO_RXTXLF_TRIM_OVERWRITE
+    write_reg8(0x170760, read_reg8(0x170760) & (~BIT(6)));//LDO_ANT_PUP_VANT_OW
+    write_reg8(0x1706e4, read_reg8(0x1706e4) & (~BIT(1)));//LDOT_LDO_RXTXLF_BYPASS
+}
 #endif

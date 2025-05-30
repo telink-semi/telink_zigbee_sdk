@@ -1,12 +1,12 @@
 /********************************************************************************************************
- * @file    otp.h
+ * @file    otp_internal.h
  *
  * @brief   This is the header file for TL721X
  *
  * @author  Driver Group
- * @date    2024
+ * @date    2025
  *
- * @par     Copyright (c) 2024, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2025, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -38,16 +38,8 @@
  *   -# OTP shutdown to save current using the function otp_set_deep_standby_mode().
  *
  */
-#ifndef OTP_H_
-#define OTP_H_
-
-/**********************************************************************************************************************
- *                                                External interface                                                  *
- *********************************************************************************************************************/
-/*!
- * @name External functions
- * @{
- */
+#ifndef OTP_INTERNAL_H_
+#define OTP_INTERNAL_H_
 
 /**
  * @brief      This function serves to init otp clk. This interface must be called to initialize the otp clock before using otp.
@@ -128,8 +120,9 @@ void otp_check_protection_code(unsigned char sdk_version);
  * @return      res 0: ok, 1: vdd0p94 invalid, 2: vddo1p8 invalid, 3: vdd0p94 and vddo1p8 all invalid
  */
 _attribute_ram_code_sec_noinline_ unsigned char otp_get_vdd0p94_vddo1p8_calib_value(void);
+
 /**
  * @}
  */
 
-#endif /* OTP_H_ */
+#endif /* OTP_INTERNAL_H_ */

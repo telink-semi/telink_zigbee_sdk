@@ -58,9 +58,9 @@
 #endif
 
 #ifdef HASH_DMA_FUNCTION
-extern int buf_hash_dma[0x600];
+//extern int buf_hash_dma[0x600];
     //#define CONFIG_HASH_SUPPORT_ADDRESS_HIGH_LOW
-    #define HASH_DMA_RAM_BASE (buf_hash_dma)
+//    #define HASH_DMA_RAM_BASE (buf_hash_dma)
     //support dma node style
     #define SUPPORT_HASH_DMA_NODE
 #endif

@@ -124,7 +124,7 @@ typedef enum
  */
 typedef enum
 {
-    MCU_POWER_ON = BIT(0), /**< power on, vbus detect or reset pin */
+    MCU_POWER_ON                 = BIT(0), /**< power on, vbus detect or reset pin */
     //BIT(1) RSVD
     MCU_SW_REBOOT_BACK           = BIT(2), /**< Clear the watchdog status flag in time, otherwise, the system reboot may be wrongly judged as the watchdog.*/
     MCU_DEEPRET_BACK             = BIT(3),
@@ -135,10 +135,10 @@ typedef enum
                                               - but software reboot(sys_reboot())/deep/deepretation/32k watchdog come back,the status remains;
                                               */
 
-    MCU_STATUS_POWER_ON     = MCU_POWER_ON,
-    MCU_STATUS_REBOOT_BACK  = MCU_SW_REBOOT_BACK,
-    MCU_STATUS_DEEPRET_BACK = MCU_DEEPRET_BACK,
-    MCU_STATUS_DEEP_BACK    = MCU_DEEP_BACK,
+    MCU_STATUS_POWER_ON          = MCU_POWER_ON,
+    MCU_STATUS_REBOOT_BACK       = MCU_SW_REBOOT_BACK,
+    MCU_STATUS_DEEPRET_BACK      = MCU_DEEPRET_BACK,
+    MCU_STATUS_DEEP_BACK         = MCU_DEEP_BACK,
 } pm_mcu_status;
 
 /**
@@ -191,11 +191,11 @@ typedef enum
 typedef enum
 {
     // CORE_0P7V_SRAM_0P8V_BB_0P7V = 0,/**< multi ldo mode  0.94V-LDO/DCDC 0.7V_CORE 0.8V_SRAM 0.7V BB*/
-    CORE_0P8V_SRAM_0P8V_BB_0P8V = 0, /**< dig ldo mode  0.94V-LDO/DCDC 0.8V_CORE 0.8V_SRAM 0.8V BB (default value)*/
-    CORE_0P9V_SRAM_0P9V_BB_0P9V,     /**< dig ldo mode  1.05V-LDO/DCDC 0.9V_CORE 0.9V_SRAM 0.9V BB*/
+    CORE_0P8V_SRAM_0P8V_BB_0P8V = 1, /**< dig ldo mode  0.94V-LDO/DCDC 0.8V_CORE 0.8V_SRAM 0.8V BB (default value)*/
+    CORE_0P9V_SRAM_0P9V_BB_0P9V = 2, /**< dig ldo mode  1.05V-LDO/DCDC 0.9V_CORE 0.9V_SRAM 0.9V BB*/
 } pm_power_cfg_e;
 
-extern unsigned int g_dvdd_vol;
+extern pm_power_cfg_e g_dvdd_vol;
 
 /**
  * @brief   early wakeup time
@@ -400,6 +400,9 @@ _attribute_ram_code_sec_optimize_o2_noinline_ void pm_set_dig_module_power_switc
  *                so will turns off the general interrupt and clears all interrupt requests.
  *              4.When adjusting this voltage, no access ram operation is allowed, disable swire.
  *              5.If the check configuration fails, reboot.
+ *              6.Due to the loss of digital registers during deep/deep ret sleep, while the values of 3V analog registers are maintained, this can result in a mismatch 
+ *                between the EMA digital register and the actual voltage after deep/deep ret wake-up, which may pose a risk of SRAM usage errors.
+ *                Therefore, make sure to call this interface to restore the voltage to 0.8V before going to sleep.
  */
 drv_api_status_e pm_set_dvdd(pm_power_cfg_e vol, dma_chn_e chn, unsigned int dma_timeout_us);
 

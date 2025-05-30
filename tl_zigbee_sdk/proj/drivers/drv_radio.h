@@ -165,7 +165,7 @@
                                                     } \
                                                     if(rssi > maxEd){rssi = maxEd;} \
                                                     if(rssi < minEd){rssi = minEd;} \
-                                                    lqi = 255*(rssi - minEd)/(maxEd - minEd); \
+                                                    lqi = 255 * (rssi - minEd) / (maxEd - minEd); \
                                                 }while(0)
 
 /* RSSI: [-106 ~ -58]
@@ -327,7 +327,7 @@
                                                     s16 maxEd = -15;  /* AGC */ \
                                                     if(rssi > maxEd){rssi = maxEd;} \
                                                     if(rssi < minEd){rssi = minEd;} \
-                                                    lqi = 255*(rssi - minEd)/(maxEd - minEd); \
+                                                    lqi = 255 * (rssi - minEd) / (maxEd - minEd); \
                                                 }while(0)
 
 /* RSSI: [-99 ~ -15]
@@ -507,7 +507,7 @@
                                                     s16 maxEd = -15;  /* AGC */ \
                                                     if(rssi > maxEd){rssi = maxEd;} \
                                                     if(rssi < minEd){rssi = minEd;} \
-                                                    lqi = 255*(rssi - minEd)/(maxEd - minEd); \
+                                                    lqi = 255 * (rssi - minEd) / (maxEd - minEd); \
                                                 }while(0)
 
 /* RSSI: [-99 ~ -15]
@@ -694,7 +694,7 @@
                                                     s16 maxEd = -15;  /* AGC */ \
                                                     if(rssi > maxEd){rssi = maxEd;} \
                                                     if(rssi < minEd){rssi = minEd;} \
-                                                    lqi = 255*(rssi - minEd)/(maxEd - minEd); \
+                                                    lqi = 255 * (rssi - minEd) / (maxEd - minEd); \
                                                 }while(0)
 
 /* RSSI: [-99 ~ -15]
@@ -882,7 +882,7 @@
                                                     s16 maxEd = -15;  /* AGC */ \
                                                     if(rssi > maxEd){rssi = maxEd;} \
                                                     if(rssi < minEd){rssi = minEd;} \
-                                                    lqi = 255*(rssi - minEd)/(maxEd - minEd); \
+                                                    lqi = 255 * (rssi - minEd) / (maxEd - minEd); \
                                                 }while(0)
 
 /* RSSI: [-99 ~ -15]
@@ -1052,9 +1052,9 @@
 
 /* tx power 0dBm*/
 #if defined(MCU_CORE_TL321X)
-	#define ZB_RADIO_TX_0DBM                    RF_POWER_INDEX_P0p08dBm
+    #define ZB_RADIO_TX_0DBM                    RF_POWER_INDEX_P0p08dBm
 #else
-	#define ZB_RADIO_TX_0DBM                    RF_POWER_INDEX_P0p03dBm
+    #define ZB_RADIO_TX_0DBM                    RF_POWER_INDEX_P0p03dBm
 #endif
 
 
@@ -1074,7 +1074,7 @@
                                                     s16 maxEd = -15;  /* AGC */ \
                                                     if(rssi > maxEd){rssi = maxEd;} \
                                                     if(rssi < minEd){rssi = minEd;} \
-                                                    lqi = 255*(rssi - minEd)/(maxEd - minEd); \
+                                                    lqi = 255 * (rssi - minEd) / (maxEd - minEd); \
                                                 }while(0)
 
 /* RSSI: [-99 ~ -15]

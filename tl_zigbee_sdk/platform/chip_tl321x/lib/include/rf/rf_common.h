@@ -179,20 +179,18 @@ typedef struct
  */
 typedef struct
 {
-    unsigned char RCCAL_CODE;
     unsigned char CBPF_CCODE_L;
     unsigned char CBPF_CCODE_H;
 } rf_rccal_cal_t;
 
 typedef struct
 {
-    unsigned short cal_tbl[81];
+    unsigned short cal_tbl[8];
     rf_ldo_trim_t  ldo_trim;
     rf_dcoc_cal_t  dcoc_cal;
     rf_rccal_cal_t rccal_cal;
     unsigned char  tx_fcal[8];
     unsigned char  rx_fcal[8];
-    unsigned char  fcal[8];
 } rf_fast_settle_t;
 
 /**
@@ -647,7 +645,7 @@ static inline void rf_set_tx_settle_time(unsigned short tx_stl_us)
 /**
  * @brief   This function serves to set RF tx settle time and rx settle time.
  * @param[in]  rx_stl_us  rx settle time,the unit is us.The max value of this param is 0xfff;The default settling time value is 150us.
- *             The typical value is 85us (rx_settle time should not be less than this value).
+ *             The typical value is 93us (rx_settle time should not be less than this value).
  * @return  none.
  * @note       Attention:It is not necessary to call this function to adjust the settling time in the normal packet receiving state.
  */
@@ -1261,5 +1259,15 @@ void rf_rx_fast_settle_get_cal_val(rf_rx_fast_settle_time_e rx_settle_time, unsi
  *  @return     none
 */
 void rf_rx_fast_settle_set_cal_val(rf_rx_fast_settle_time_e rx_settle_time, unsigned char chn, rf_fast_settle_t *fs_cv);
+
+/**
+ *  @brief      This function is used to perform a linear fit on the RF calibration tlinear fit.able data.
+ *  @param[in]  fs_cv    - A pointer to the rf_fast_settle_t structure containing the calibration table.
+ *  @return     none
+ *  @note       This function uses the least squares method to calculate the slope and intercept of the best-fit line.
+ *              The x-values are predefined as {4, 14, 24, 34, 44, 54, 64, 74}.
+ *              The corresponding y-values are taken from the calibration table in the fs_cv structure.
+*/
+void rf_cali_linear_fit(rf_fast_settle_t *fs_cv);
 
 #endif

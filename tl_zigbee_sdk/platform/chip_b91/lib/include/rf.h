@@ -523,7 +523,7 @@ typedef enum
     RF_CHANNEL_4    = BIT(4), /**< RF channel 4 */
     RF_CHANNEL_5    = BIT(5), /**< RF channel 5 */
     RF_CHANNEL_NONE = 0x00,   /**< none RF channel*/
-    RF_CHANNEL_ALL  = 0x0f,   /**< all RF channel */
+    RF_CHANNEL_ALL  = 0x3f,   /**< all RF channel */
 } rf_channel_e;
 
 /**

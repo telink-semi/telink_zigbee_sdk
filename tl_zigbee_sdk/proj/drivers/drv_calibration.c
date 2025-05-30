@@ -171,12 +171,16 @@ void drv_calibration(void)
     u32 flash_mid = 0;
     u8 flash_uid[16] = {0};
 
+    otp_calib_adc_vref();
+
     if (flash_read_mid_uid_with_check_with_device_num(SLAVE0, &flash_mid, flash_uid)) {
         drv_calib_freq_offset();
     }
 #elif defined(MCU_CORE_TL321X)
     u32 flash_mid = 0;
     u8 flash_uid[16] = {0};
+
+    efuse_calib_adc_vref();
 
     if (flash_read_mid_uid_with_check(&flash_mid, flash_uid)) {
         drv_calib_freq_offset();
@@ -209,7 +213,7 @@ bool drv_get_primary_ieee_addr(u8 *addr)
         return TRUE;
     }
 #else
-	/* no primary IEEE */
+    /* no primary IEEE */
     return FALSE;
 #endif
 }

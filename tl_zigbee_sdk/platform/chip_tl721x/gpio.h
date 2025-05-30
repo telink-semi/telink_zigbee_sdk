@@ -71,6 +71,7 @@ typedef enum
 
 /**
  *  @brief  Define GPIO types
+ *  @note   The GPIOB groups and PA6 of the A2 version chip does not support 10k pull-up wake-up.
  */
 typedef enum
 {
@@ -422,7 +423,8 @@ typedef enum
     GPIO_PIN_UP_DOWN_FLOAT = 0,
     GPIO_PIN_PULLUP_1M     = 1,
     GPIO_PIN_PULLDOWN_100K = 2,
-    GPIO_PIN_PULLUP_10K    = 3, //PULLUP_10K cannot be used as a wake-up function, otherwise it may fail to wake up(Except for the PC/PD).
+    GPIO_PIN_PULLUP_10K    = 3, //PULLUP_10K of PB0 to PB7 and PA6 of the A2 version chip
+                                //cannot be used as the wake up function; otherwise, the wake up may fail.
 } gpio_pull_type_e;
 
 typedef enum
