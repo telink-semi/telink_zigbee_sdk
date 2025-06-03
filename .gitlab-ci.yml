@@ -71,7 +71,7 @@ build_tc32:
   before_script:
   script:
     - which tc32-elf-gcc
-    - chmod +x tl_zigbee_sdk/tools/*.sh
+    - chmod +x tl_zigbee_sdk/tools/*
     - date
     - ls tl_zigbee_sdk/build/tlsr_tc32
     - $TC32_ECLIPSE_BUILD  -data ${CI_PIPELINE_ID}_WS1  -import $PROJECT_PATH -cleanBuild $PROJECT_NAME/sampleLight_8258
@@ -92,7 +92,7 @@ build_riscv:
   script:
     - ls
     - pwd
-    - chmod +x tl_zigbee_sdk/tools/*.sh
+    - chmod +x tl_zigbee_sdk/tools/*
     - date
     - echo "--------------- Will build Demo -----------------"
     - echo $PROJECT_PATH
@@ -113,7 +113,7 @@ build_iotStudio:
   script:
     - ls
     - pwd
-    - chmod +x tl_zigbee_sdk/tools/*.sh
+    - chmod +x tl_zigbee_sdk/tools/*
     - date
     - echo "--------------- Will build Demo -----------------"
     - echo $PROJECT_PATH
@@ -138,7 +138,7 @@ cov:
     - TC32
   before_script:  
   script:    
-    - chmod +x tl_zigbee_sdk/tools/*.sh    
+    - chmod +x tl_zigbee_sdk/tools/*
     - $COV_B COV_$CI_PROJECT_NAME $COV_B_TEMPLATE/$CODE_COMPILE_ARCH $TC32_ECLIPSE_BUILD  -data ${CI_PIPELINE_ID}_WS  -import tl_zigbee_sdk/build/tlsr_tc32  -cleanBuild tl_zigbee_sdk/sampleLight_8258    
     - $COV_A COV_$CI_PROJECT_NAME    
     - cov_add_commit_steam_project_2_platform.sh
