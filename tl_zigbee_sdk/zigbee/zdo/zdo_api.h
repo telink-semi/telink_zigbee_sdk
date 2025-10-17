@@ -135,6 +135,11 @@ typedef struct {
     u8 sta;//ss_apsmeUpdateDevStatus_e
 } zdo_tc_join_ind_t;
 
+typedef struct {
+    u16 shortAddr;
+    u8 status;
+} zdo_nwk_status_ind_t;
+
 typedef void (*zdo_startDveCnfCb_t)(zdo_start_device_confirm_t *p);
 typedef void (*zdo_nlmeResetCnfCb_t)(nlme_reset_cnf_t *p);
 typedef void (*zdo_dveAnnceIndCb_t)(zdo_device_annce_req_t *p);
@@ -145,6 +150,7 @@ typedef void (*zdo_permitJoinIndCb_t)(nlme_permitJoining_req_t *p);
 typedef void (*zdo_nlmeSyncCnfCb_t)(nlme_sync_cnf_t *p);
 typedef bool (*zdo_tcJoinIndCb_t)(zdo_tc_join_ind_t *p);
 typedef void (*zdo_tcFrameCntReachedCb_t)(void);
+typedef void (*zdo_nwkStatusIndCb_t)(zdo_nwk_status_ind_t *p);
 
 typedef struct {
     zdo_startDveCnfCb_t zdpStartDevCnfCb;
@@ -157,6 +163,7 @@ typedef struct {
     zdo_nlmeSyncCnfCb_t zdoNlmeSyncCnfCb;
     zdo_tcJoinIndCb_t zdoTcJoinIndCb;                   //only for ZC
     zdo_tcFrameCntReachedCb_t ssTcFrameCntReachedCb;    //only for ZC
+    zdo_nwkStatusIndCb_t nwkStatusIndCb;
 } zdo_appIndCb_t;
 
 typedef void (*nwkDiscoveryUserCb_t)(void);

@@ -71,12 +71,13 @@ ota_callBack_t sampleLight_otaCb = {
 /**********************************************************************
  * LOCAL VARIABLES
  */
-u32 heartInterval = 0;
+static u32 heartInterval = 0;
 
 #if DEBUG_HEART
-ev_timer_event_t *heartTimerEvt = NULL;
+static ev_timer_event_t *heartTimerEvt = NULL;
 #endif
-ev_timer_event_t *steerTimerEvt = NULL;
+static ev_timer_event_t *steerTimerEvt = NULL;
+static ev_timer_event_t *rejoinBackoffTimerEvt = NULL;
 
 /**********************************************************************
  * FUNCTIONS
@@ -95,7 +96,7 @@ static s32 heartTimerCb(void *arg)
 }
 #endif
 
-s32 sampleLight_bdbNetworkSteerStart(void *arg)
+static s32 sampleLight_bdbNetworkSteerStart(void *arg)
 {
     bdb_networkSteerStart();
 
@@ -104,13 +105,32 @@ s32 sampleLight_bdbNetworkSteerStart(void *arg)
 }
 
 #if FIND_AND_BIND_SUPPORT
-s32 sampleLight_bdbFindAndBindStart(void *arg)
+static s32 sampleLight_bdbFindAndBindStart(void *arg)
 {
     bdb_findAndBindStart(BDB_COMMISSIONING_ROLE_TARGET);
 
     return -1;
 }
 #endif
+
+static s32 sampleLight_rejoinBackoff(void *arg)
+{
+    static bool rejoinMode = REJOIN_SECURITY;
+
+    if (zb_isDeviceFactoryNew()) {
+        rejoinBackoffTimerEvt = NULL;
+        return -1;
+    }
+
+    //printf("rejoin mode = %d\n", rejoinMode);
+
+    zb_rejoinSecModeSet(rejoinMode);
+    zb_rejoinReq(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
+
+    rejoinMode = !rejoinMode;
+
+    return 0;
+}
 
 /*********************************************************************
  * @fn      zbdemo_bdbInitCb
@@ -189,6 +209,10 @@ void zbdemo_bdbCommissioningCb(u8 status, void *arg)
             TL_ZB_TIMER_CANCEL(&steerTimerEvt);
         }
 
+        if (rejoinBackoffTimerEvt) {
+            TL_ZB_TIMER_CANCEL(&rejoinBackoffTimerEvt);
+        }
+
 #ifdef ZCL_OTA
         ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
 #endif
@@ -230,7 +254,9 @@ void zbdemo_bdbCommissioningCb(u8 status, void *arg)
     case BDB_COMMISSION_STA_NOT_PERMITTED:
         break;
     case BDB_COMMISSION_STA_REJOIN_FAILURE:
-        zb_rejoinReq(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
+        if (!rejoinBackoffTimerEvt) {
+            rejoinBackoffTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleLight_rejoinBackoff, NULL, 60 * 1000);
+        }
         break;
     case BDB_COMMISSION_STA_FORMATION_DONE:
 #ifndef ZBHCI_EN
@@ -309,8 +335,54 @@ void sampleLight_leaveIndHandler(nlme_leave_ind_t *pLeaveInd)
 
 }
 
-bool sampleLight_nwkUpdateIndicateHandler(nwkCmd_nwkUpdate_t *pNwkUpdate){
-    return FAILURE;
+/*********************************************************************
+ *
+ * @brief   Receive notification of PAN ID conflict.
+ *
+ * @param   pNwkUpdateCmd - Conflicting PAN ID information
+ *
+ * @return  TRUE  - Allow PAN ID conflict handling
+ *          FALSE - Truncate the execution of PAN ID conflict handling
+ */
+bool sampleLight_nwkUpdateIndicateHandler(nwkCmd_nwkUpdate_t *pNwkUpdate)
+{
+    return FALSE;
+}
+
+/*********************************************************************
+ * @fn      sampleLight_nwkStatusIndHandler
+ *
+ * @brief   Handler for NWK status indication message.
+ *
+ * @param   pInd - parameter of NWK status indication
+ *
+ * @return  None
+ */
+void sampleLight_nwkStatusIndHandler(zdo_nwk_status_ind_t *pNwkStatusInd)
+{
+    //printf("nwkStatusIndHandler: addr = %x, status = %x\n", pNwkStatusInd->shortAddr, pNwkStatusInd->status);
+
+    if (pNwkStatusInd->status == NWK_COMMAND_STATUS_BAD_FRAME_COUNTER) {
+        tl_zb_normal_neighbor_entry_t *nbe = nwk_neTblGetByShortAddr(pNwkStatusInd->shortAddr);
+        if (nbe) {
+            //printf("curFC = %d, rcvFC = %d, failCnt = %d\n", nbe->incomingFrameCnt, nbe->receivedFrameCnt, nbe->frameCounterFailCnt);
+
+            /*
+             * When the network does not support the network key update feature,
+             * this is a barbaric method to solve the decryption failure problem
+             * caused by Frame Counter overflow, but it may also brings
+             * the hidden danger of being attacked.
+             */
+#if 1
+            if ((nbe->frameCounterFailCnt >= 10) && (nbe->receivedFrameCnt < nbe->incomingFrameCnt)) {
+                nbe->incomingFrameCnt = 0;
+            }
+#endif
+        }
+    } else if (pNwkStatusInd->status == NWK_COMMAND_STATUS_BAD_KEY_SEQUENCE_NUMBER) {
+        zb_rejoinSecModeSet(REJOIN_INSECURITY);
+        zb_rejoinReq(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
+    }
 }
 
 #endif  /* __PROJECT_TL_DIMMABLE_LIGHT__ */

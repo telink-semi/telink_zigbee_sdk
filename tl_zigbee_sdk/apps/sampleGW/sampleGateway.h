@@ -108,6 +108,7 @@ bool sampleGW_nwkUpdateIndicateHandler(nwkCmd_nwkUpdate_t *pNwkUpdateCmd);
 void sampleGW_permitJoinIndHandler(nlme_permitJoining_req_t *pPermitJoinReq);
 bool sampleGW_tcJoinIndHandler(zdo_tc_join_ind_t *pTcJoinInd);
 void sampleGW_tcFrameCntReachedHandler(void);
+void sampleGW_nwkStatusIndHandler(zdo_nwk_status_ind_t *pNwkStatusInd);
 
 void sampleGW_dataSendConfirm(void *arg);
 

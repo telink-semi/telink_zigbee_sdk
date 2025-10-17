@@ -76,10 +76,10 @@ mac_appIndCb_t macAppIndCbList = {
 /**********************************************************************
  * LOCAL VARIABLES
  */
-u32 heartInterval = 0;
+static u32 heartInterval = 0;
 
 #if DEBUG_HEART
-ev_timer_event_t *heartTimerEvt = NULL;
+static ev_timer_event_t *heartTimerEvt = NULL;
 #endif
 
 /**********************************************************************
@@ -317,10 +317,10 @@ bool sampleGW_tcJoinIndHandler(zdo_tc_join_ind_t *pTcJoinInd)
 /*********************************************************************
  *
  * @brief   Notification of frame counter near limit.
- * 			The function will be called when the truster center detects
- * 			the frame counter for any device in its neighbor table is
- * 			grater than 0x80000000, or its outgoing frame counter
- * 			reaches 0x80000000.
+ *          The function will be called when the truster center detects
+ *          the frame counter for any device in its neighbor table is
+ *          grater than 0x80000000, or its outgoing frame counter
+ *          reaches 0x80000000.
  *
  * @param   None
  *
@@ -328,6 +328,11 @@ bool sampleGW_tcJoinIndHandler(zdo_tc_join_ind_t *pTcJoinInd)
  */
 void sampleGW_tcFrameCntReachedHandler(void)
 {
+    /*
+     * Disable the feature of update network key by default.
+     * If you need to support this feature, define it as 1.
+     */
+#if 0
     ss_tcUpdateNwkKey_t updateNwkKey;
 
     /* Broadcast NWK key updates. */
@@ -335,6 +340,7 @@ void sampleGW_tcFrameCntReachedHandler(void)
     drv_generateRandomData(updateNwkKey.key, CCM_KEY_SIZE);
 
     zb_tcUpdateNwkKey(&updateNwkKey);
+#endif
 }
 
 /*********************************************************************
@@ -347,7 +353,7 @@ void sampleGW_tcFrameCntReachedHandler(void)
  */
 void sampleGW_permitJoinIndHandler(nlme_permitJoining_req_t *pPermitJoinReq)
 {
-    /* When received a permit join request by TC, check the allowRemoteTcPolicyChange and
+    /* When received a permit join request, check the allowRemoteTcPolicyChange and
      * local status of permit join. If the allowRemoteTcPolicyChange is FALSE, and the
      * local status of permit join is FALSE too, the TC may broadcast a Mgmt_permit_join_req
      * with permitDuration = 0 to close the network. */
@@ -357,6 +363,20 @@ void sampleGW_permitJoinIndHandler(nlme_permitJoining_req_t *pPermitJoinReq)
             zb_mgmtPermitJoinReq(0xfffc, 0, 0x01, &sn, NULL);
         }
     }
+}
+
+/*********************************************************************
+ * @fn      sampleGW_nwkStatusIndHandler
+ *
+ * @brief   Handler for NWK status indication message.
+ *
+ * @param   pInd - parameter of NWK status indication
+ *
+ * @return  None
+ */
+void sampleGW_nwkStatusIndHandler(zdo_nwk_status_ind_t *pNwkStatusInd)
+{
+    //printf("nwkStatusIndHandler: addr = %x, status = %x\n", pNwkStatusInd->shortAddr, pNwkStatusInd->status);
 }
 
 #endif  /* __PROJECT_TL_GW__ */

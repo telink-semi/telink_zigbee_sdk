@@ -60,6 +60,8 @@ typedef struct nebTbl_t {
     u16 endDevCfg;              //bit mask of the end device's cfg. the default value shall be 0.
     u16 addrmapIdx;
 #ifdef ZB_SECURITY
+    u32 frameCounterFailCnt;
+    u32 receivedFrameCnt;
     u32 incomingFrameCnt;       //incoming frame counter for this device after key change.
     u8 keySeqNum;               //key number for which incoming_frame_counter is valid.
 #else

@@ -81,6 +81,7 @@ const zdo_appIndCb_t appCbLst = {
     NULL,                               //nlme sync cnf cb
     sampleGW_tcJoinIndHandler,          //tc join ind cb
     sampleGW_tcFrameCntReachedHandler,  //tc detects that the frame counter is near limit
+    sampleGW_nwkStatusIndHandler,       //nwk status ind cb
 };
 
 /**

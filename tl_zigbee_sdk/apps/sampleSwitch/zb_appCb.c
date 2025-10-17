@@ -70,13 +70,13 @@ ota_callBack_t sampleSwitch_otaCb = {
 };
 #endif
 
-ev_timer_event_t *steerTimerEvt = NULL;
-ev_timer_event_t *switchRejoinBackoffTimerEvt = NULL;
+static ev_timer_event_t *steerTimerEvt = NULL;
+static ev_timer_event_t *rejoinBackoffTimerEvt = NULL;
 
 /**********************************************************************
  * FUNCTIONS
  */
-s32 sampleSwitch_bdbNetworkSteerStart(void *arg)
+static s32 sampleSwitch_bdbNetworkSteerStart(void *arg)
 {
     bdb_networkSteerStart();
 
@@ -85,7 +85,7 @@ s32 sampleSwitch_bdbNetworkSteerStart(void *arg)
 }
 
 #if FIND_AND_BIND_SUPPORT
-s32 sampleSwitch_bdbFindAndBindStart(void *arg)
+static s32 sampleSwitch_bdbFindAndBindStart(void *arg)
 {
     BDB_ATTR_GROUP_ID_SET(0x1234);//only for initiator
     bdb_findAndBindStart(BDB_COMMISSIONING_ROLE_INITIATOR);
@@ -95,14 +95,22 @@ s32 sampleSwitch_bdbFindAndBindStart(void *arg)
 }
 #endif
 
-s32 sampleSwitch_rejoinBacckoff(void *arg)
+static s32 sampleSwitch_rejoinBackoff(void *arg)
 {
+    static bool rejoinMode = REJOIN_SECURITY;
+
     if (zb_isDeviceFactoryNew()) {
-        switchRejoinBackoffTimerEvt = NULL;
+        rejoinBackoffTimerEvt = NULL;
         return -1;
     }
 
+    //printf("rejoin mode = %d\n", rejoinMode);
+
+    zb_rejoinSecModeSet(rejoinMode);
     zb_rejoinReq(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
+
+    rejoinMode = !rejoinMode;
+
     return 0;
 }
 
@@ -154,8 +162,8 @@ void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork)
     } else {
         if (joinedNetwork) {
             //zb_rejoinReqWithBackOff(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
-            if (!switchRejoinBackoffTimerEvt) {
-                switchRejoinBackoffTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSwitch_rejoinBacckoff, NULL, 60 * 1000);
+            if (!rejoinBackoffTimerEvt) {
+                rejoinBackoffTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSwitch_rejoinBackoff, NULL, 60 * 1000);
             }
         }
     }
@@ -186,11 +194,11 @@ void zbdemo_bdbCommissioningCb(u8 status, void *arg)
             TL_ZB_TIMER_CANCEL(&steerTimerEvt);
         }
 
-        if (switchRejoinBackoffTimerEvt) {
-            TL_ZB_TIMER_CANCEL(&switchRejoinBackoffTimerEvt);
+        if (rejoinBackoffTimerEvt) {
+            TL_ZB_TIMER_CANCEL(&rejoinBackoffTimerEvt);
         }
 
-        if (!g_zbNwkCtx.joined) {
+        if (!zb_isDeviceJoinedNwk()) {
             zb_rejoinReq(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
         }
 
@@ -237,13 +245,13 @@ void zbdemo_bdbCommissioningCb(u8 status, void *arg)
     case BDB_COMMISSION_STA_NOT_PERMITTED:
         break;
     case BDB_COMMISSION_STA_PARENT_LOST:
-        //zb_rejoinSecModeSet(REJOIN_INSECURITY);
+        zb_rejoinSecModeSet(REJOIN_SECURITY);
         zb_rejoinReq(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
         //zb_rejoinReqWithBackOff(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
         break;
     case BDB_COMMISSION_STA_REJOIN_FAILURE:
-        if (!switchRejoinBackoffTimerEvt) {
-            switchRejoinBackoffTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSwitch_rejoinBacckoff, NULL, 60 * 1000);
+        if (!rejoinBackoffTimerEvt) {
+            rejoinBackoffTimerEvt = TL_ZB_TIMER_SCHEDULE(sampleSwitch_rejoinBackoff, NULL, 60 * 1000);
         }
         break;
     default:
@@ -322,8 +330,8 @@ void sampleSwitch_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf)
     if(pLeaveCnf->status == SUCCESS){
     	//SYSTEM_RESET();
 
-        if (switchRejoinBackoffTimerEvt) {
-            TL_ZB_TIMER_CANCEL(&switchRejoinBackoffTimerEvt);
+        if (rejoinBackoffTimerEvt) {
+            TL_ZB_TIMER_CANCEL(&rejoinBackoffTimerEvt);
         }
     }
 }
@@ -341,6 +349,30 @@ void sampleSwitch_leaveIndHandler(nlme_leave_ind_t *pLeaveInd)
 {
     //printf("sampleSwitch_leaveIndHandler, rejoin = %d\n", pLeaveInd->rejoin);
     //printfArray(pLeaveInd->device_address, 8);
+}
+
+/*********************************************************************
+ * @fn      sampleSwitch_nwkStatusIndHandler
+ *
+ * @brief   Handler for NWK status indication message.
+ *
+ * @param   pInd - parameter of NWK status indication
+ *
+ * @return  None
+ */
+void sampleSwitch_nwkStatusIndHandler(zdo_nwk_status_ind_t *pNwkStatusInd)
+{
+    //printf("nwkStatusIndHandler: addr = %x, status = %x\n", pNwkStatusInd->shortAddr, pNwkStatusInd->status);
+
+    if (pNwkStatusInd->status == NWK_COMMAND_STATUS_BAD_FRAME_COUNTER) {
+        tl_zb_normal_neighbor_entry_t *nbe = nwk_neTblGetByShortAddr(pNwkStatusInd->shortAddr);
+        if (nbe) {
+            //printf("curFC = %d, rcvFC = %d, failCnt = %d\n", nbe->incomingFrameCnt, nbe->receivedFrameCnt, nbe->frameCounterFailCnt);
+        }
+    } else if (pNwkStatusInd->status == NWK_COMMAND_STATUS_BAD_KEY_SEQUENCE_NUMBER) {
+        zb_rejoinSecModeSet(REJOIN_INSECURITY);
+        zb_rejoinReq(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
+    }
 }
 
 #endif  /* __PROJECT_TL_SWITCH__ */

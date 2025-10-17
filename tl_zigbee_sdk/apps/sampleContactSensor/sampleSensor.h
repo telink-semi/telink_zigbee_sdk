@@ -134,8 +134,9 @@ status_t sampleSensor_iasZoneCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void
 status_t sampleSensor_pollCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
 void sampleSensor_zclCheckInStart(void);
 
+void sampleSensor_otaProcessMsgHandler(u8 evt, u8 status);
 void sampleSensor_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf);
 void sampleSensor_leaveIndHandler(nlme_leave_ind_t *pLeaveInd);
-void sampleSensor_otaProcessMsgHandler(u8 evt, u8 status);
+void sampleSensor_nwkStatusIndHandler(zdo_nwk_status_ind_t *pNwkStatusInd);
 
 #endif /* _SAMPLE_CONTACT_SENSOR_H_ */

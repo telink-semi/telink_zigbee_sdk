@@ -78,6 +78,7 @@ const zdo_appIndCb_t appCbLst = {
     NULL,                               //nlme sync cnf cb
     NULL,                               //tc join ind cb
     NULL,                               //tc detects that the frame counter is near limit
+    sampleSwitch_nwkStatusIndHandler,   //nwk status ind cb
 };
 
 /**
