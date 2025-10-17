@@ -331,8 +331,6 @@
 ./tl_zigbee_sdk/platform/chip_b92/flash/flash_mid166085.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_b92/flash/flash_mid1660c8.c			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_b92/flash/flash_mid1660c8.h			TELINK_APACHE 
-./tl_zigbee_sdk/platform/chip_b92/flash/flash_mid186085.c			TELINK_APACHE 
-./tl_zigbee_sdk/platform/chip_b92/flash/flash_mid186085.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_b92/flash/flash_type.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_b92/flash.h			TELINK_APACHE  
 ./tl_zigbee_sdk/platform/chip_b92/gpio.h			TELINK_APACHE  
@@ -454,7 +452,6 @@
 ./tl_zigbee_sdk/platform/chip_tl321x/lib/include/hash/sha512_256.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_tl321x/lib/include/hash/sm3.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_tl321x/lib/include/pke/dh.h			TELINK_APACHE 
-./tl_zigbee_sdk/platform/chip_tl321x/lib/include/pke/eccp_curve.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_tl321x/lib/include/pke/ecdh.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_tl321x/lib/include/pke/ecdsa.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_tl321x/lib/include/pke/ecies.h			TELINK_APACHE 
@@ -594,7 +591,6 @@
 ./tl_zigbee_sdk/platform/chip_tl721x/lib/include/hash/sm3.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_tl721x/lib/include/otp/otp.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_tl721x/lib/include/otp/otp_internal.h			TELINK_APACHE 
-./tl_zigbee_sdk/platform/chip_tl721x/lib/include/pke/eccp_curve.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_tl721x/lib/include/pke/ecdh.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_tl721x/lib/include/pke/ecdsa.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_tl721x/lib/include/pke/pke.h			TELINK_APACHE 
