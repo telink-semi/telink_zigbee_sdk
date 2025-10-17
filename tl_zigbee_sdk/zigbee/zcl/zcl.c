@@ -845,6 +845,7 @@ _CODE_ZCL_ void zcl_cmdHandler(void *pCmd)
             } else {
                 inMsg.clusterAppCb = pCluster->clusterAppCb;
                 inMsg.addrInfo.dirCluster = inMsg.hdr.frmCtrl.bf.dir;
+                inMsg.addrInfo.apsSec = (pApsdeInd->indInfo.security_status & SECURITY_IN_APSLAYER) ? 1 : 0;
                 inMsg.addrInfo.profileId = pApsdeInd->indInfo.profile_id;
                 inMsg.addrInfo.srcAddr = pApsdeInd->indInfo.src_short_addr;
                 inMsg.addrInfo.dstAddr = pApsdeInd->indInfo.dst_addr;
