@@ -35,5 +35,8 @@
 #include "ske_ecb.h"
 #include "ske_gcm_gmac.h"
 #include "ske_ofb.h"
+#include "ske_xts.h"
+#include "ske_cmac.h"
+#include "ske_cbc_mac.h"
 
 #endif

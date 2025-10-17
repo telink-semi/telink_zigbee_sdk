@@ -29,11 +29,12 @@ extern "C"
 {
 #endif
 
-
+#include "chip_config.h"
 #include "lib/include/pke/pke_common.h"
 
 
 //sample ecc GF(p) curve
+#if(COMPATIBLE_WITH_TL321X_AND_TL323X == 0)
 #define SUPPORT_BRAINPOOLP160R1
 #define SUPPORT_BRAINPOOLP192R1
 #define SUPPORT_BRAINPOOLP224R1
@@ -45,16 +46,19 @@ extern "C"
 #define SUPPORT_SECP160R2
 #define SUPPORT_SECP192R1
 #define SUPPORT_SECP224R1
-#define SUPPORT_SECP256R1
 #define SUPPORT_SECP384R1
+#endif
+#define SUPPORT_SECP256R1
 #if (ECCP_MAX_BIT_LEN >= 521)
     #define SUPPORT_SECP521R1
 #endif
+#if(COMPATIBLE_WITH_TL321X_AND_TL323X == 0)
 #define SUPPORT_SECP160K1
 #define SUPPORT_SECP192K1
 #define SUPPORT_SECP224K1
 #define SUPPORT_SECP256K1
 #define SUPPORT_BN256
+#endif
 #if (ECCP_MAX_BIT_LEN >= 638)
     #define SUPPORT_BN638
 #endif

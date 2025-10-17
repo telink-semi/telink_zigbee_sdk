@@ -135,3 +135,18 @@ static inline unsigned char lpc_get_result(void)
  * @return      none.
  */
 void lpc_set_input_ref(lpc_mode_e mode, lpc_reference_e ref);
+
+/**
+ * @brief       This function serves to protect the flash during the chip power-down process.
+ * @param[in]   pin  - selected input channel.Input derived from external PortB(PB<1>~PB<7>).
+ * @return      none.
+ * @note       -# In order to improve the robustness of the chip during high-speed operation, the low power comparator (LPC) is used to
+ *              protect the flash during power-down of the chip when the main frequency CCLK is running above 48MHz (excluding 48MHz).
+ *              When this feature is enabled, there are the following limitations:
+ *               -# The chip power supply voltage is limited to 2.1V to 4.2V.
+ *               -# One of PB[1:7] must be reserved for this feature.
+ *               -# Interrupt preemption must be enabled and the LPC interrupt will be set as the only highest priority interrupt that can interrupt any process.
+ *               -# LPC interrupt priority(IRQ_PM_LVL) > flash operation priority > other interrupt priority.
+ *               -# lpc_flash_prot_config() and core_interrupt_enable() should be called as early as possible to activate flash power-down protection.This maximizes the duration of flash protection.
+ */
+void lpc_flash_prot_config(lpc_input_channel_e chn);

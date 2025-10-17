@@ -21,6 +21,8 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
+#include "chip_config.h"
+#if(COMPATIBLE_WITH_TL321X_AND_TL323X == 0)
 #ifndef AUDIO_REG_H
 #define AUDIO_REG_H
 #include "soc.h"
@@ -104,9 +106,9 @@ enum
 #define reg_rxfifo_wptr(i) REG_ADDR16((AUDIO_DFIFO_REG_BASE + 0x16) + (i * 0x04))
 
 /**
- * BIT[0:15]   reg_rxfifo_num[15:0] get rxfifo0 data number.
+ * BIT[0:3]   reg_rxfifo_num[3:0] get rxfifo0 data number.
  */
-#define reg_rxfifo_num(i) REG_ADDR16((AUDIO_DFIFO_REG_BASE + 0x20) + (i * 0x04))
+#define reg_rxfifo_num(i) REG_ADDR8((AUDIO_DFIFO_REG_BASE + 0x20) + (i * 0x04))
 
 /**
  * BIT[0:2] rxfifo0 input selsect: 3'd0:sdm;3'd1:i2s1;3'd2:i2s2;3'd3:codec;3'd4:usb.
@@ -949,4 +951,5 @@ enum
  */
 #define reg_step_h_1(i) REG_ADDR8((ASCL1_BASE + 0x07) + (i * 0x08))
 
+#endif
 #endif

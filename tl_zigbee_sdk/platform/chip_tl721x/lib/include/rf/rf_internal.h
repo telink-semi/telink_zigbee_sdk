@@ -1511,7 +1511,7 @@ void rf_dis_rccal_trim(void);
 void rf_dis_fcal_trim(void);
 
     #endif
-#endif
+
 
 /**
  * @brief       This function is used to enable the ldo rxtxlf bypass function, and the calibration value
@@ -1554,4 +1554,6 @@ static inline void rf_ldot_ldo_rxtxlf_bypass_dis(void)
     write_reg8(0x170760, read_reg8(0x170760) & (~BIT(6)));//LDO_ANT_PUP_VANT_OW
     write_reg8(0x1706e4, read_reg8(0x1706e4) & (~BIT(1)));//LDOT_LDO_RXTXLF_BYPASS
 }
+#endif
+
 #endif

@@ -136,6 +136,7 @@ typedef enum
     XTAL_UNSTABLE            = 0x01,
     PM_CLR_PLIC_REQUEST_FAIL = 0x02,
     WAIT_TIMEOUT             = 0x03,
+    PLL_DONE                 = 0x04,
 } pm_sw_reboot_reason_e;
 
 #define areg_aon_0x3d 0x3d

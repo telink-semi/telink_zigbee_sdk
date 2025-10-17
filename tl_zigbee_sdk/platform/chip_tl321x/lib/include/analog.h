@@ -163,3 +163,30 @@ _attribute_ram_code_sec_optimize_o2_noinline_  bool analog_busy(void);
  */
     #define analog_wait_txbuf_no_empty() wait_condition_fails_or_timeout(analog_txbuf_no_empty, g_drv_api_error_timeout_us, drv_timeout_handler, (unsigned int)DRV_API_ERROR_TIMEOUT_ANA_TX_BUFCNT)
 #endif
+
+/**
+ * @brief      This function serves to analog register write by byte.This is for internal use only.
+ *             Make sure all interruptions have been turned off.
+ * @param[in]  addr - address need to be write.
+ * @param[in]  data - the value need to be write.
+ * @return     none.
+ */
+_attribute_ram_code_sec_optimize_o2_noinline_ void analog_write_reg8_internal(unsigned char addr, unsigned char data);
+
+/**
+ * @brief      This function serves to analog register write by halfword.This is for internal use only.
+ *             Make sure all interruptions have been turned off.
+ * @param[in]  addr - address need to be write.
+ * @param[in]  data - the value need to be write.
+ * @return     none.
+ */
+_attribute_ram_code_sec_optimize_o2_noinline_ void analog_write_reg16_internal(unsigned char addr, unsigned short data);
+
+/**
+ * @brief      This function serves to analog register write by word.This is for internal use only.
+ *             Make sure all interruptions have been turned off.
+ * @param[in]  addr - address need to be write.
+ * @param[in]  data - the value need to be write.
+ * @return     none.
+ */
+_attribute_ram_code_sec_optimize_o2_noinline_ void analog_write_reg32_internal(unsigned char addr, unsigned int data);

@@ -65,6 +65,10 @@
  */
 #define rf_tx_packet_dma_len(rf_data_len) (((rf_data_len) + 3) / 4) | (((rf_data_len) % 4) << 22)
 
+/**
+ *  @brief This macro provides an alternative name for the rf_get_latched_rssi() function to be compatible with older versions of code
+ */
+#define rf_get_rssi rf_get_latched_rssi
 /***********************************************************FOR BLE******************************************************/
 /**
  *  @brief Those setting of offset according to ble packet format, so this setting for ble only.
@@ -518,12 +522,7 @@ extern const rf_power_level_e rf_power_Level_list[60];
  * @param[in]   none.
  * @return      none.
  */
-static inline void rf_ldot_ldo_rxtxlf_bypass_en(void)
-{
-    write_reg8(0x17074e, 0x45); //CBPF_TRIM_I && CBPF_TRIM_Q
-    write_reg8(0x17074c, 0x02); //LNA_ITRIM=0x01(default)(change to 0x02[TBD])
-    write_reg8(0x1706e4, read_reg8(0x1706e4) | BIT(1));
-}
+void rf_ldot_ldo_rxtxlf_bypass_en(void);
 
 /**
  * @brief       This function is used to close the ldo rxtxlf bypass function, and the hardware will
@@ -531,12 +530,7 @@ static inline void rf_ldot_ldo_rxtxlf_bypass_en(void)
  * @param[in]   none.
  * @return      none.
  */
-static inline void rf_ldot_ldo_rxtxlf_bypass_dis(void)
-{
-    write_reg8(0x17074e, 0x40); //CBPF_TRIM_I && CBPF_TRIM_Q
-    write_reg8(0x17074c, 0x11); //LNA_ITRIM=0x01(default)(change to 0x02[TBD])
-    write_reg8(0x1706e4, read_reg8(0x1706e4) & (~BIT(1)));
-}
+void rf_ldot_ldo_rxtxlf_bypass_dis(void);
 
 /**
  * @brief      This function serves to optimize RF performance
@@ -555,16 +549,7 @@ static inline void rf_ldot_ldo_rxtxlf_bypass_dis(void)
  *                again after entering rx 30us.
  *
  */
-
-static inline void rf_set_rxpara(void)
-{
-    unsigned char reg_calibration = 0;
-    reg_calibration               = ((read_reg8(0x1706ed) & 0xf) << 2) | ((read_reg8(0x1706ec) & 0xc0) >> 6);
-    if (reg_calibration > 10) {
-        reg_calibration -= 10;
-    }
-    write_reg8(0x1706e5, (read_reg8(0x1706e5) & 0xc0) | reg_calibration);
-}
+void rf_set_rxpara(void);
 
 /**
  * @brief       This function serves to judge the statue of  RF receive.
@@ -1139,11 +1124,16 @@ void rf_start_srx(unsigned int tick);
 
 
 /**
- * @brief       This function serves to get rssi.
+ * @brief       This function serves to get latched rssi.
  * @return      rssi value.
  */
-signed char rf_get_rssi(void);
+signed char rf_get_latched_rssi(void);
 
+/**
+ * @brief       This function serves to get the real time rssi.
+ * @return      rssi value.
+ */
+signed char rf_get_real_time_rssi(void);
 
 /**
  * @brief       This function serves to set pin for RFFE of RF.

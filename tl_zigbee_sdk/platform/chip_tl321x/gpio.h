@@ -71,6 +71,8 @@ typedef enum
 
 /**
  *  @brief  Define GPIO types
+ *  @note   the following one point need to noticed when using GPIOF groups:
+ *          Since these GPIOs are used for connecting the flash and have been occupied, they cannot be used as wake-up pins.
  */
 typedef enum
 {
@@ -110,8 +112,10 @@ typedef enum
     GPIO_PB7  = GPIO_GROUPB | BIT(7),
     GPIOB_ALL = GPIO_GROUPB | 0x00ff,
 
-    GPIO_PC0  = GPIO_GROUPC | BIT(0),
+    // There is crosstalk between PC0 and PC1. It is recommended to use only one pin at a time, except for audio, within a short period.
+    GPIO_PC0  = GPIO_GROUPC | BIT(0), 
     GPIO_PC1  = GPIO_GROUPC | BIT(1),
+
     GPIO_PC2  = GPIO_GROUPC | BIT(2),
     GPIO_PC3  = GPIO_GROUPC | BIT(3),
     GPIO_PC4  = GPIO_GROUPC | BIT(4),
@@ -236,12 +240,14 @@ typedef enum
     PWM3_N              = 10,
     PWM4_N              = 11,
     PWM5_N              = 12,
+#if(COMPATIBLE_WITH_TL321X_AND_TL323X == 0)
     MSPI_CN2            = 13,
     MSPI_CN3            = 14,
     MSPI_CN1            = 15,
     GSPI_CN1            = 16,
     GSPI_CN2            = 17,
     GSPI_CN3            = 18,
+#endif
     GSPI_CN0_IO         = 19,
     GSPI_CK_IO          = 20,
     GSPI_IO3_IO         = 21,
@@ -265,6 +271,7 @@ typedef enum
     UART2_TX            = 39,
     UART2_RTX_IO        = 40,
     CLK_7816            = 41,
+#if(COMPATIBLE_WITH_TL321X_AND_TL323X == 0)
     SDM_CLK             = 42,
     I2S_BCK_IO          = 43,
     I2S_LR0_IO          = 44,
@@ -279,13 +286,16 @@ typedef enum
     SDM1_P              = 53,
     SDM1_N              = 54,
     IR_LEARN_I          = 55,
+#endif
     SSPI_CN_I           = 56,
     SSPI_CK_I           = 57,
     SSPI_SI_IO          = 58,
     SSPI_SO_IO          = 59,
+#if(COMPATIBLE_WITH_TL321X_AND_TL323X == 0)
     KEYS0_IO            = 60,
     TMR0_CMP            = 61,
     TMR1_CMP            = 62,
+#endif
     RZ_TX               = 63,
     SWM_IO              = 64,
     TX_CYC2PA           = 65,
@@ -412,7 +422,9 @@ typedef enum
     PROBE_PCLK       = 6,
     PROBE_CLK_MSPI   = 7,
     PROBE_CLK_GSPI   = 9,
+#if(COMPATIBLE_WITH_TL321X_AND_TL323X == 0)
     PROBE_CLK_SDM    = 10,
+#endif
     PROBE_CLK_I2S2   = 12,
     PROBE_CLK_USBPHY = 13,
     PROBE_CLK_DMIC   = 14,

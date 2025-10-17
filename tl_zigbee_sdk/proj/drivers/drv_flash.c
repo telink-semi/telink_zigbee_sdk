@@ -80,18 +80,22 @@ const drv_flash_opt_t c_flashOptList[] = {
     //4M
     {0x166085, flash_unlock_mid166085, flash_lock_mid166085, FLASH_LOCK_LOW_512K_MID166085},
     {0x1660c8, flash_unlock_mid1660c8, flash_lock_mid1660c8, FLASH_LOCK_LOW_512K_MID1660C8},
-    //16M
-    {0x186085, flash_unlock_mid186085, flash_lock_mid186085, FLASH_LOCK_LOW_512K_MID186085}
 #elif defined(MCU_CORE_TL721X)
+    //1M
+    {0x146085, flash_unlock_mid146085_with_device_num, flash_lock_mid146085_with_device_num, FLASH_LOCK_LOW_512K_MID146085},
+    {0x1460c8, flash_unlock_mid1460c8_with_device_num, flash_lock_mid1460c8_with_device_num, FLASH_LOCK_LOW_512K_MID1460C8},
     //2M
     {0x156085, flash_unlock_mid156085_with_device_num, flash_lock_mid156085_with_device_num, FLASH_LOCK_LOW_512K_MID156085},
+    {0x1560c8, flash_unlock_mid1560c8_with_device_num, flash_lock_mid1560c8_with_device_num, FLASH_LOCK_LOW_512K_MID1560C8},
 #elif defined(MCU_CORE_TL321X)
     //512K
     {0x136085, flash_unlock_mid136085, flash_lock_mid136085, FLASH_LOCK_LOW_256K_MID136085},
     //1M
     {0x146085, flash_unlock_mid146085, flash_lock_mid146085, FLASH_LOCK_LOW_512K_MID146085},
+    {0x1460c8, flash_unlock_mid1460c8, flash_lock_mid1460c8, FLASH_LOCK_LOW_512K_MID1460C8},
     //2M
     {0x156085, flash_unlock_mid156085, flash_lock_mid156085, FLASH_LOCK_LOW_512K_MID156085},
+    {0x1560c8, flash_unlock_mid1560c8, flash_lock_mid1560c8, FLASH_LOCK_LOW_512K_MID1560C8},
     //4M
     {0x166085, flash_unlock_mid166085, flash_lock_mid166085, FLASH_LOCK_LOW_512K_MID166085},
 #else

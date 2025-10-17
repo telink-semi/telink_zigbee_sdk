@@ -262,7 +262,7 @@ ev_bufItem_t *ev_buf_getHead(u8 *pd)
 u8 *ev_buf_getTail(u8 *pd, int offsetToTail)
 {
     u32 index;
-    u16 size[DEFAULT_BUFFER_GROUP_NUM] = {BUFFER_GROUP_0, BUFFER_GROUP_1, BUFFER_GROUP_2};
+    u16 size[DEFAULT_BUFFER_GROUP_NUM] = {BUFFER_GROUP_0, BUFFER_GROUP_1, BUFFER_GROUP_2, BUFFER_GROUP_3};
 
     memcpy((u8*)&index, pd - 4, 4);
     assert((index < 3) && (index >= 0));

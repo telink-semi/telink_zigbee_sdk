@@ -23,50 +23,71 @@
  *******************************************************************************************************/
 #ifndef DRIVERS_LIB_INCLUDE_HASH_HASH_CONFIG_H_
 #define DRIVERS_LIB_INCLUDE_HASH_HASH_CONFIG_H_
+/************************************************************************************
+ *******************************    HASH config    **********************************
+ ************************************************************************************/
 
+//hash IP base address
+// #define HASH_BASE_ADDR            (0x80000000U)//(0x43C00000U)  //HASH register base address
 
+//supported hash algorithms.
+#include "chip_config.h"
 //#define SUPPORT_HASH_SM3//hw not support
+#if(COMPATIBLE_WITH_TL321X_AND_TL323X == 0)
 #define SUPPORT_HASH_MD5
+#endif
 #define SUPPORT_HASH_SHA256
-//#define SUPPORT_HASH_SHA384//hw not support
-//#define SUPPORT_HASH_SHA512//hw not support//Add a software implementation of the SHA-512 hash driver file to solve the problem of hardware not supporting SHA-512 hash.
+// #define SUPPORT_HASH_SHA384
+// #define SUPPORT_HASH_SHA512
 #define SUPPORT_HASH_SHA1
 #define SUPPORT_HASH_SHA224
-//#define SUPPORT_HASH_SHA512_224//hw not support
-//#define SUPPORT_HASH_SHA512_256//hw not support
+// #define SUPPORT_HASH_SHA512_224
+// #define SUPPORT_HASH_SHA512_256
 //#define SUPPORT_HASH_SHA3_224 //hw not support
 //#define SUPPORT_HASH_SHA3_256 //hw not support
 //#define SUPPORT_HASH_SHA3_384 //hw not support
 //#define SUPPORT_HASH_SHA3_512 //hw not support
 
-
 //#define HASH_CPU_BIG_ENDIAN        //endian choice.
+
+//#define HMAC_SECURE_PORT_FUNCTION
+
+//support hash dma function
 #define HASH_DMA_FUNCTION
-//support multiple thread function
-#define CONFIG_HASH_SUPPORT_MUL_THREAD
-//support node style
-#define SUPPORT_HASH_NODE
-//support PBKDF2
-#define SUPPORT_PBKDF2
-//support ansi_x9.63_kdf
-#define SUPPORT_ANSI_X9_63_KDF
-#define HMAC_SECURE_PORT_FUNCTION
-
-
-#ifdef SUPPORT_PBKDF2
-    #define PBKDF2_HIGH_SPEED
-#endif
 
 #ifdef HASH_DMA_FUNCTION
-//extern int buf_hash_dma[0x600];
-    //#define CONFIG_HASH_SUPPORT_ADDRESS_HIGH_LOW
-//    #define HASH_DMA_RAM_BASE (buf_hash_dma)
-    //support dma node style
-    #define SUPPORT_HASH_DMA_NODE
+//DMA in/out address with high 32bit and low 32bit
+//#define CONFIG_HASH_SUPPORT_ADDRESS_HIGH_LOW
+
+//ram for hash dma, just for temporary use
+// #define HASH_DMA_RAM_BASE         (0x60000000U)//(0x80000000U)
 #endif
+
+//support multiple thread function
+// #define CONFIG_HASH_SUPPORT_MUL_THREAD
+
+//support node style
+#define SUPPORT_HASH_NODE
+
+#ifdef HASH_DMA_FUNCTION
+//support dma node style
+#define SUPPORT_HASH_DMA_NODE
+#endif
+
+//support PBKDF2
+#define SUPPORT_PBKDF2
 
 #ifdef SUPPORT_PBKDF2
-    #define PBKDF2_HIGH_SPEED
+#define PBKDF2_HIGH_SPEED
 #endif
 
-#endif /* DRIVERS_LIB_INCLUDE_HASH_HASH_CONFIG_H_ */
+//support ansi_x9.63_kdf
+#define SUPPORT_ANSI_X9_63_KDF
+
+
+
+
+
+
+#endif/* DRIVERS_LIB_INCLUDE_HASH_HASH_CONFIG_H_ */
+

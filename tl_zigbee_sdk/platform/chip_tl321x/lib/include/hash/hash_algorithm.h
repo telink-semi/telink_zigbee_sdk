@@ -24,7 +24,7 @@
 #ifndef HASH_ALGORITHM_H
 #define HASH_ALGORITHM_H
 
-#include <lib/include/hash/hash_kdf.h>
+#include "lib/include/hash/hash_kdf.h"
 #include "lib/include/crypto_common/utility.h"
 #include "hash_portable.h"
 #include "hash.h"

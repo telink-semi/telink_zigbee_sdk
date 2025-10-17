@@ -42,7 +42,8 @@
 #include "lib/include/pm/pm.h"
 #include "reg_include/register.h"
 #include <stdbool.h>
-
+#include "chip_config.h"
+#if(COMPATIBLE_WITH_TL321X_AND_TL323X == 0)
 /* For compatibility, usb_set_pin_en() is equivalent to usb_set_pin(1), configure the usb pin and enable the dp_through_swire function.*/
 #define usb_set_pin_en() usb_set_pin(1)
 
@@ -700,3 +701,4 @@ void usb_hardware_remote_wakeup(void);
 void usb_software_remote_wakeup(void);
 
 #endif /* _USBHW_H_ */
+#endif

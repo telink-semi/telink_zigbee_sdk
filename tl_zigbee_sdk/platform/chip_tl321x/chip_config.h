@@ -1,12 +1,12 @@
 /********************************************************************************************************
- * @file    eccp_curve.h
+ * @file    chip_config.h
  *
- * @brief   This is the header file for TL721X
+ * @brief   This is the header file for TL321X
  *
  * @author  Driver Group
- * @date    2024
+ * @date    2025
  *
- * @par     Copyright (c) 2024, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2025, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -21,4 +21,20 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-#include "../../crypto_common/eccp_curve.h"
+#ifndef __CHIP_CONFIG_H_
+#define __CHIP_CONFIG_H_
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+#define COMPATIBLE_WITH_TL321X_AND_TL323X          0/*The peripheral configurations of the tl321x and tl323x chips are identical. Setting 0: Enable all peripherals on the tl321x chip.*/
+
+#ifdef __cplusplus
+}
+#endif
+
+
+#endif
+

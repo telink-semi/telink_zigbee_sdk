@@ -144,8 +144,7 @@ typedef enum
 
 /**
  * @brief   Power type for different application
- * @note    Chip version A0 don't support DCDC_1P25_LDO_1P8 mode, only A1 can use.
- *          Chip version A0/A1 don't support DCDC_1P25_DCDC_1P8 mode, only A2 can use.
+ * @note    Chip version A0 don't support DCDC_1P25_LDO_1P8 mode.
  */
 typedef enum
 {
@@ -235,5 +234,11 @@ _attribute_ram_code_sec_noinline_ void sys_init(power_mode_e power_mode, vbat_ty
  * @note      This function can only used when cclk is 24M RC cause the function execution process will power down the 24M crystal.
  */
 _attribute_ram_code_sec_noinline_ void crystal_manual_settle(void);
+
+/**
+ * @brief      This function servers to reset and hold mcu.
+ * @return     none
+ */
+_attribute_ram_code_sec_optimize_o2_noinline_ void sys_mcu_reset_hold(void);
 
 #endif

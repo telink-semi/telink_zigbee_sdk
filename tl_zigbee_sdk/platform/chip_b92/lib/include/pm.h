@@ -95,6 +95,7 @@ typedef enum
 typedef enum
 {
     WAIT_TIMEOUT = 0x00,
+    PLL_DONE     = 0x01,
 } pm_sw_reboot_reason_e;
 
 #define PM_ANA_REG_POWER_ON_CLR_BUF1 0x3b // initial value 0x00
@@ -355,10 +356,12 @@ void pm_set_wakeup_time_param(pm_r_delay_cycle_s param);
  */
 void pm_set_xtal_stable_timer_param(unsigned int delay_us, unsigned int loopnum, unsigned int nopnum);
 /**
- * @brief       this function servers to wait bbpll clock lock.
+ * @brief       This function servers to wait BBPLL clock lock.
+ * @param[in]   all_ramcode_en  - Whether all processing in this function is required to be ram code. If this parameter is set to 1, it requires that:
+ *              before calling this function, you have done the disable BTB, disable interrupt, mspi_stop_xip and other operations as the corresponding function configured to 0.
  * @return      none.
  */
-_attribute_ram_code_sec_optimize_o2_ void pm_wait_bbpll_done(void);
+_attribute_ram_code_sec_optimize_o2_noinline_ void pm_wait_bbpll_done(unsigned char all_ramcode_en);
 
 /**
  * @brief       This function serves to recover system timer.
@@ -451,3 +454,9 @@ _attribute_ram_code_sec_optimize_o2_ unsigned char pm_clr_all_irq_status(void);
  * @return      none.
  */
 _attribute_ram_code_sec_optimize_o2_noinline_ void pm_sys_reboot_with_reason(pm_sw_reboot_reason_e reboot_reason, unsigned char all_ramcode_en);
+
+/**
+ * @brief  This function serves to probe the vdd_dcore voltage.
+ * @return none.
+ */
+void pm_set_probe_dcore_vol_to_pd7(void);

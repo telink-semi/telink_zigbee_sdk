@@ -257,7 +257,7 @@ static _always_inline void pm_set_vbat_type(vbat_type_e vbat_v)
 
 /**
  * @brief       This function configures a GPIO pin as the wakeup pin.
- * @param[in]   pin - the pins can be set to all GPIO except PB0/PC5 and GPIOG groups.
+ * @param[in]   pin - the pins can be set to all GPIO except GPIOF groups.
  * @param[in]   pol - the wakeup polarity of the pad pin(0: low-level wakeup, 1: high-level wakeup).
  * @param[in]   en  - enable or disable the wakeup function for the pan pin(1: enable, 0: disable).
  * @return      none.
@@ -380,7 +380,7 @@ _attribute_ram_code_sec_noinline_ void pm_set_power_mode(power_mode_e power_mode
  * @param[in]   all_ramcode_en  - Whether all processing in this function is required to be ram code.
  * @return      none.
  */
-_attribute_ram_code_sec_noinline_ void pm_sys_reboot_with_reason(pm_sw_reboot_reason_e reboot_reason, unsigned char all_ramcode_en);
+_attribute_ram_code_sec_optimize_o2_noinline_ void pm_sys_reboot_with_reason(pm_sw_reboot_reason_e reboot_reason, unsigned char all_ramcode_en);
 
 /**
  * @brief       This function serves to switch digital module power.

@@ -32,11 +32,7 @@
     #define ADC_SAMPLE_FREQ                     ADC_SAMPLE_FREQ_96K
     #define ADC_SAMPLE_NDMA_DELAY_TIME          ((1000 / ( 6 * (2 << (ADC_SAMPLE_FREQ)))) + 1)//delay 2 sample
     #define ADC_PRESCALE                        ADC_PRESCALE_1F4
-#if defined(MCU_CORE_TL721X)
-    #define ADC_VREF                            ADC_VREF_GPIO_1P2V
-#else//b91/b92/tl321x
     #define ADC_VREF                            ADC_VREF_1P2V
-#endif
 #endif
 
 #if defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)

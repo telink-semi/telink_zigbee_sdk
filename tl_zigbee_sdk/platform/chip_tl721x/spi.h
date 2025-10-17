@@ -340,7 +340,9 @@ typedef enum
     LSPI_CSN_PD1_PIN      = GPIO_PD1,
     LSPI_CSN_PD2_PIN      = GPIO_PD2,
     LSPI_CSN_PD3_PIN      = GPIO_PD3,
+#if (SPECIAL_APPLICATION)
     LSPI_CSN_PD4_PIN      = GPIO_PD4,
+#endif
     LSPI_CSN_PD5_PIN      = GPIO_PD5,
     LSPI_CSN_PD6_PIN      = GPIO_PD6,
     LSPI_CSN_PD7_PIN      = GPIO_PD7,

@@ -29,9 +29,19 @@
 /**********************************************************************************************************************
  *                                           global macro                                                             *
  *********************************************************************************************************************/
-#define EMI_ACCESS_ADDR    0x140808
 #define EMI_ACCESS_CODE    0x29417671
 #define EMI_TX_PKT_PAYLOAD 37
+
+/**
+ *  @brief  Define emi_config_param_t struct.
+ */
+typedef struct
+{
+    unsigned char    emi_tx_payload_len; /**< Length of the EMI TX payload;Default: 37 */
+    unsigned int     emi_access_code;    /**< Access code for EMI transmission Default:0x29417671*/
+} emi_config_param_t;
+
+extern emi_config_param_t emi_config_param;
 
 /**********************************************************************************************************************
  *                                         function declaration                                                    *

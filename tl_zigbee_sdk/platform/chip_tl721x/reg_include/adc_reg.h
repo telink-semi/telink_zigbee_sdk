@@ -72,7 +72,12 @@ enum
  */
 #define areg_adc_misc_l 0xf7
 #define areg_adc_misc_h 0xf8
+#define areg_adc_sel_stb 0xf9
 
+enum
+{
+    FLD_ADC_VREF_OUT  = BIT_RNG(4, 5),
+};
 
 #define areg_ain_scale  0xfa
 

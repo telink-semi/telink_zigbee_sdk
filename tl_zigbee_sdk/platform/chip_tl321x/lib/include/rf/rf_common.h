@@ -47,6 +47,10 @@
  */
 #define rf_tx_packet_dma_len(rf_data_len) (((rf_data_len) + 3) / 4) | (((rf_data_len) % 4) << 22)
 
+/**
+ *  @brief This macro provides an alternative name for the rf_get_latched_rssi() function to be compatible with older versions of code
+ */
+#define rf_get_rssi rf_get_latched_rssi
 /**********************************************************************************************************************
  *                                       RF global data type                                                          *
  *********************************************************************************************************************/
@@ -185,7 +189,7 @@ typedef struct
 
 typedef struct
 {
-    unsigned short cal_tbl[8];
+    unsigned short cal_tbl[81];
     rf_ldo_trim_t  ldo_trim;
     rf_dcoc_cal_t  dcoc_cal;
     rf_rccal_cal_t rccal_cal;
@@ -437,9 +441,10 @@ typedef enum
 /**********************************************************************************************************************
  *                                         RF global constants                                                        *
  *********************************************************************************************************************/
-extern const rf_power_level_e rf_power_Level_list[60];
-extern rf_mode_e              g_rfmode;
-extern rf_crc_config_t        rf_crc_config[3];
+extern const rf_power_level_e                       rf_power_Level_list[60];
+extern rf_mode_e                                    g_rfmode;
+extern rf_crc_config_t                              rf_crc_config[3];
+extern _attribute_data_retention_sec_ unsigned char g_rf_rx_high_performance;
 
 /**********************************************************************************************************************
  *                                         RF function declaration                                                    *
@@ -822,6 +827,9 @@ static inline unsigned char rf_get_rx_wptr(void)
  * @note      There are two types of RX performance modes, RF_RX_LOW_POWER and RF_RX_HIGH_PERFORMANCE
  *            The default is RF_RX_LOW_POWER, and in this mode, the rx performance can reach -96dBm
  *            RF_RX_HIGH_PERFORMANCE mode can improve performance by 1dBm, but the rx power consumption will increase
+ *            Attention:
+ *                (1)If the user calls this function to change the RX performance mode, the RF MODE must be initialized again.(e.g. rf_set_ble_1M_mode)
+ *                (2)Since the RSSI values of the chip in the two RX performance modes are quite different,the g_rf_rx_high_performance global variable is used to indicate the current performance mode.
  */
 void rf_rx_performance_mode(rf_rx_performance_e rx_performance);
 
@@ -892,10 +900,16 @@ void rf_start_srx(unsigned int tick);
 
 
 /**
- * @brief       This function serves to get rssi.
+ * @brief       This function serves to get latched rssi.
  * @return      rssi value.
  */
-signed char rf_get_rssi(void);
+signed char rf_get_latched_rssi(void);
+
+/**
+ * @brief       This function serves to get the real time rssi.
+ * @return      rssi value.
+ */
+signed char rf_get_real_time_rssi(void);
 
 /**
  * @brief       This function serves to set RF Tx mode.
@@ -1269,5 +1283,36 @@ void rf_rx_fast_settle_set_cal_val(rf_rx_fast_settle_time_e rx_settle_time, unsi
  *              The corresponding y-values are taken from the calibration table in the fs_cv structure.
 */
 void rf_cali_linear_fit(rf_fast_settle_t *fs_cv);
+
+/**
+ * @brief      This function serves to optimize RF performance
+ * @param[in]  none
+ * @return     none
+ * @note       1.Call this function after turning on rx 30us, and the calibration value set by the function
+ *                will take effect after calling rf_ldot_ldo_rxtxlf_bypass_en;if automatic calibration is
+ *                required, you can use rf_ldot_ldo_rxtxlf_bypass_dis to turn off the bypass function; how to
+ *                use it can refer to bqb.c file or rf_emi_rx in emi.c
+ *             2. After using rf_ldot_ldo_rxtxlf_bypass_dis to turn off the bypass function and enter tx/rx
+ *                automatic calibration, to use this function again, you need to call the rf_set_rxpara function
+ *                again after entering rx 30us.
+ *
+ */
+void rf_set_rxpara(void);
+
+/**
+ * @brief       This function is used to enable the ldo rxtxlf bypass function, and the calibration value
+ *              written by the software will take effect after enabling.
+ * @param[in]   none.
+ * @return      none.
+ */
+void rf_ldot_ldo_rxtxlf_bypass_en(void);
+
+/**
+ * @brief       This function is used to close the ldo rxtxlf bypass function, and the hardware will
+ *              automatically perform the calibration function after closing.
+ * @param[in]   none.
+ * @return      none.
+ */
+void rf_ldot_ldo_rxtxlf_bypass_dis(void);
 
 #endif

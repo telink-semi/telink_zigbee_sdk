@@ -24,6 +24,15 @@
 #ifndef ANALOG_AFE3V_REG_H
 #define ANALOG_AFE3V_REG_H
 #include "soc.h"
+#define areg_aon_0x00 0x00
+
+enum
+{
+    FLD_FC_BG_HV   = BIT(0),        //Force start for bandgap
+    FLD_BG_TRIM_3V = BIT_RNG(1, 3), //Bandgap voltage trimming
+    FLD_BUF        = BIT(4),
+    FLD_DCDC_BPO   = BIT_RNG(5, 7), //change the on time of PMOS switch, and it will be prolonged as the value of control bit increases
+};
 
 #define areg_aon_0x05 0x05
 
@@ -112,6 +121,7 @@ typedef enum
     XTAL_UNSTABLE            = 0x01,
     PM_CLR_PLIC_REQUEST_FAIL = 0x02,
     WAIT_TIMEOUT             = 0x03,
+    PLL_DONE                 = 0x04,
 } pm_sw_reboot_reason_e;
 
 #define areg_aon_0x3d 0x3d
@@ -185,6 +195,9 @@ typedef enum
 #define areg_aon_0x69 0x69
 
 #define areg_aon_0x79 0x79
+enum{
+    FLD_32K_WATCHDOG_EN             = BIT(0),
+};
 
 #define areg_aon_0x7d 0x7d
 

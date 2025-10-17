@@ -339,35 +339,6 @@ static inline unsigned char uart_get_txfifo_num(uart_num_e uart_num)
 }
 
 /**
- * @brief     uart finite state machine reset(the configuration register is still there and does not need to be reconfigured),
- *            For compatibility define uart_reset uart_hw_fms_reset, uart_hw_fms_reset is used when the driver is invoked (no matter at the driver layer or demo layer),
- *            before using UART, it is needed to call uart_hw_fsm_reset() to avoid affecting the use of UART.
- * @param[in] uart_num - UART0 or UART1.
- * @return    none
- * @note -
- *            this function will clear rx and tx status and fifo.
- */
-static inline void uart_hw_fsm_reset(uart_num_e uart_num)
-{
-    /**
-      In B91, tx_done is 1 by default, after uart reset(write 0, then write 1) write 0,UART_TXDONE will be restored to its default value,
-      if UART_TX_IRQ_MASK is turned on in advance, it will enter interrupt,in the interrupt, there is the action of clearing UART_TXDONE, but after the clear, immediately becomes 1,
-      out of the interrupt, and immediately in the interrupt, and so on loop, resulting in the feeling that the program did not go down.
-     */
-    unsigned char tx_mask_flag = 0;
-    if (reg_uart_rx_timeout1(uart_num) & FLD_UART_MASK_TXDONE) {
-        tx_mask_flag = 1;
-        reg_uart_rx_timeout1(uart_num) &= ~FLD_UART_MASK_TXDONE;
-    }
-    reg_rst0 &= (~((uart_num) ? FLD_RST0_UART1 : FLD_RST0_UART0));
-    reg_rst0 |= ((uart_num) ? FLD_RST0_UART1 : FLD_RST0_UART0);
-    reg_uart_state(uart_num) |= FLD_UART_CLR_TXDONE;
-    if (tx_mask_flag == 1) {
-        reg_uart_rx_timeout1(uart_num) |= FLD_UART_MASK_TXDONE;
-    }
-}
-
-/**
  * @brief     Enable the clock of UART module.
  * @param[in] uart_num - UART0/UART1.
  * @return    none
@@ -830,6 +801,38 @@ static inline void uart_clr_rx_index(uart_num_e uart_num)
 static inline void uart_clr_tx_index(uart_num_e uart_num)
 {
     uart_tx_byte_index[uart_num] = 0;
+}
+
+/**
+ * @brief     uart finite state machine reset(the configuration register is still there and does not need to be reconfigured),
+ *            For compatibility define uart_reset uart_hw_fms_reset, uart_hw_fms_reset is used when the driver is invoked (no matter at the driver layer or demo layer),
+ *            before using UART, it is needed to call uart_hw_fsm_reset() to avoid affecting the use of UART.
+ * @param[in] uart_num - UART0 or UART1.
+ * @return    none
+ * @note -
+ *            this function will clear rx and tx status and fifo.
+ */
+static inline void uart_hw_fsm_reset(uart_num_e uart_num)
+{
+    /**
+      In B91, tx_done is 1 by default, after uart reset(write 0, then write 1) write 0,UART_TXDONE will be restored to its default value,
+      if UART_TX_IRQ_MASK is turned on in advance, it will enter interrupt,in the interrupt, there is the action of clearing UART_TXDONE, but after the clear, immediately becomes 1,
+      out of the interrupt, and immediately in the interrupt, and so on loop, resulting in the feeling that the program did not go down.
+     */
+    unsigned char tx_mask_flag = 0;
+    if (reg_uart_rx_timeout1(uart_num) & FLD_UART_MASK_TXDONE) {
+        tx_mask_flag = 1;
+        reg_uart_rx_timeout1(uart_num) &= ~FLD_UART_MASK_TXDONE;
+    }
+    reg_rst0 &= (~((uart_num) ? FLD_RST0_UART1 : FLD_RST0_UART0));
+    reg_rst0 |= ((uart_num) ? FLD_RST0_UART1 : FLD_RST0_UART0);
+    reg_uart_state(uart_num) |= FLD_UART_CLR_TXDONE;
+    if (tx_mask_flag == 1) {
+        reg_uart_rx_timeout1(uart_num) |= FLD_UART_MASK_TXDONE;
+    }
+
+    uart_clr_rx_index(uart_num);
+    uart_clr_tx_index(uart_num);
 }
 
 /**

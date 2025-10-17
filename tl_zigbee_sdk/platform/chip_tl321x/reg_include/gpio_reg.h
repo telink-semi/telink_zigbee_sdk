@@ -205,17 +205,6 @@
 #define reg_gpio_pf_gpio          REG_ADDR8(GPIO_BASE_ADDR + 0x56)
 #define reg_gpio_pf_out_toggle    REG_ADDR8(GPIO_BASE_ADDR + 0x57)
 
-#define reg_gpio_pf_setting3      REG_ADDR32(GPIO_BASE_ADDR + 0x58)
-#define reg_gpio_pf_irq0_en       REG_ADDR8(GPIO_BASE_ADDR + 0x58)
-#define reg_gpio_pf_irq1_en       REG_ADDR8(GPIO_BASE_ADDR + 0x59)
-#define reg_gpio_pf_irq2_en       REG_ADDR8(GPIO_BASE_ADDR + 0x5a)
-#define reg_gpio_pf_irq3_en       REG_ADDR8(GPIO_BASE_ADDR + 0x5b)
-#define reg_gpio_pf_setting4      REG_ADDR32(GPIO_BASE_ADDR + 0x5c)
-#define reg_gpio_pf_irq4_en       REG_ADDR8(GPIO_BASE_ADDR + 0x5c)
-#define reg_gpio_pf_irq5_en       REG_ADDR8(GPIO_BASE_ADDR + 0x5d)
-#define reg_gpio_pf_irq6_en       REG_ADDR8(GPIO_BASE_ADDR + 0x5e)
-#define reg_gpio_pf_irq7_en       REG_ADDR8(GPIO_BASE_ADDR + 0x5f)
-
 #define reg_gpio_in(i)            REG_ADDR8(GPIO_BASE_ADDR + ((i >> 8) << 4))
 #define reg_gpio_ie(i)            REG_ADDR8(GPIO_BASE_ADDR + 0x01 + ((i >> 8) << 4))
 #define reg_gpio_oen(i)           REG_ADDR8(GPIO_BASE_ADDR + 0x02 + ((i >> 8) << 4))

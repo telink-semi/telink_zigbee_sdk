@@ -1,5 +1,5 @@
 /********************************************************************************************************
- * @file    register.h
+ * @file    ske_xts.h
  *
  * @brief   This is the header file for TL321X
  *
@@ -21,39 +21,49 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-#ifndef REGISTER_H
-#define REGISTER_H
-#include "chip_config.h"
-#include "gpio_reg.h"
-#include "soc.h"
-#include "analog_reg.h"
-#if(COMPATIBLE_WITH_TL321X_AND_TL323X == 0)
-#include "audio_reg.h"
+#ifndef SKE_XTS_H
+#define SKE_XTS_H
+
+
+
+#include "ske.h"
+
+
+#ifdef __cplusplus
+extern "C" {
 #endif
-#include "timer_reg.h"
-#include "dma_reg.h"
-#if(COMPATIBLE_WITH_TL321X_AND_TL323X == 0)
-#include "usb_reg.h"
+
+
+typedef struct{
+    unsigned char t[16];
+    SKE_CRYPTO crypto;
+    SKE_CTX ske_xts_ctx[1];
+    unsigned int c_bytes;
+    unsigned int current_bytes;
+} SKE_XTS_CTX;
+
+//APIs
+
+unsigned int ske_lp_xts_init(SKE_XTS_CTX *ctx, SKE_ALG alg, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx,
+        unsigned char *i, unsigned int c_bytes);
+
+unsigned int ske_lp_xts_update_blocks(SKE_XTS_CTX *ctx, unsigned char *in, unsigned char *out, unsigned int bytes);
+
+unsigned int ske_lp_xts_update_including_last_2_blocks(SKE_XTS_CTX *ctx, unsigned char *in, unsigned char *out, unsigned int bytes);
+
+unsigned int ske_lp_xts_final(SKE_XTS_CTX *ctx);
+
+unsigned int ske_lp_xts_crypto(SKE_ALG alg, SKE_CRYPTO crypto, unsigned char *key, unsigned short sp_key_idx, unsigned char *i,
+        unsigned char *in, unsigned char *out, unsigned int bytes);
+
+
+
+
+
+
+
+#ifdef __cplusplus
+}
 #endif
-#include "pwm_reg.h"
-#include "spi_reg.h"
-#include "i2c_reg.h"
-#include "mspi_reg.h"
-#include "rf_reg.h"
-#include "pke_reg.h"
-#include "plic_reg.h"
-#include "plic_sw_reg.h"
-#include "plmt_reg.h"
-#include "uart_reg.h"
-#include "stimer_reg.h"
-#include "adc_reg.h"
-#include "swire_reg.h"
-#include "qdec_reg.h"
-#include "plic_sw_reg.h"
-#include "plmt_reg.h"
-#include "analog_afe3v_reg.h"
-#include "analog_afe1v_reg.h"
-#if(COMPATIBLE_WITH_TL321X_AND_TL323X == 0)
-#include "ir_learn_reg.h"
-#endif
+
 #endif

@@ -28,7 +28,6 @@
 #include "flash_mid146085.h" // P25Q80U
 #include "flash_mid156085.h" // P25Q16SU
 #include "flash_mid166085.h" // P25Q32SU
-#include "flash_mid186085.h" // P25Q128L
 #include "flash_mid1560c8.h" // GD25LQ16E
 #include "flash_mid1460c8.h" // GD25LQ80E
 #include "flash_mid1660c8.h" // GD25LQ32E/GD25LE32E
@@ -119,7 +118,7 @@ void flash_write_otp(unsigned long addr, unsigned long len, unsigned char *buf);
 void flash_erase_otp(unsigned long addr);
 
 /**
- * @brief       This function is used to write the configure of the flash,P25Q16SU/P25Q32SU/P25Q128L uses this function.
+ * @brief       This function is used to write the configure of the flash,P25Q16SU/P25Q32SU uses this function.
  * @param[in]   cmd     - the write command.
  * @param[in]   data    - the start address of the data buffer.
  * @return      none.
@@ -137,7 +136,7 @@ void flash_erase_otp(unsigned long addr);
 _attribute_text_sec_ void flash_write_config(flash_command_e cmd, unsigned char data);
 
 /**
- * @brief       This function is used to read the configure of the flash,P25Q16SU/P25Q32SU/P25Q128L uses this function.
+ * @brief       This function is used to read the configure of the flash,P25Q16SU/P25Q32SU uses this function.
  * @return      the value of configure.
  * @note        Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
  *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.

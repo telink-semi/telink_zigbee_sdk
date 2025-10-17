@@ -683,3 +683,9 @@ _attribute_ram_code_sec_noinline_ void mspi_write(unsigned char *data, unsigned 
  * @return      none
  */
 _attribute_ram_code_sec_noinline_ void mspi_read(unsigned char *data, unsigned int len);
+
+/**
+ * @brief      This function servers to reset and hold mspi.
+ * @return     none
+ */
+_attribute_ram_code_sec_optimize_o2_noinline_ void mspi_reset_hold(void);

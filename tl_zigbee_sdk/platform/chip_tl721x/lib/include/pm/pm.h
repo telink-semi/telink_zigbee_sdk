@@ -293,7 +293,9 @@ static _always_inline void pm_set_vbat_type(vbat_type_e vbat_v)
 
 /**
  * @brief       This function configures a GPIO pin as the wakeup pin.
- * @param[in]   pin - the pins can be set to all GPIO except PB0/PC5 and GPIOG groups.
+ * @param[in]   pin - the pins can be set to all GPIO except GPIOG groups.
+ *                    The GPIOB groups and PA6 of the A2 version chip does not support 10k pull-up wake-up.
+ *                    When powering the GPIO with 1.8V and configured in pull-up mode, the sleep current will increase by approximately a dozen uA.
  * @param[in]   pol - the wakeup polarity of the pad pin(0: low-level wakeup, 1: high-level wakeup).
  * @param[in]   en  - enable or disable the wakeup function for the pan pin(1: enable, 0: disable).
  * @return      none.

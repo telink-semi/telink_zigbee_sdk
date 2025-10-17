@@ -27,11 +27,11 @@
  *  ===============
  *   -----------------------------------------------------------------------------------------------------------------------------------------------
  *  |  watchdog mode | timer source |            Usage scenarios                         |                          note                            |
- *  |-----------------------------------------------------------------------------------------------------------------------------------------------
+ *   -----------------------------------------------------------------------------------------------------------------------------------------------
  *  |                |              |                                                    |the timer watchdog does not work while sleep              |
  *  | timer watchdog | system clock | only reset exceptions that occur during active     |(because its clock source is no longer available)         |
  *  |                |              |                                                    |                                                          |
- *  |-----------------------------------------------------------------------------------------------------------------------------------------------
+ *   -----------------------------------------------------------------------------------------------------------------------------------------------
  *  |                |              |                                                    |1.If want to use 32K watchdog to handle sleep exceptions, |
  *  |                |              |                                                    |need to pay attention:if there is no timer as the wake-up |
  *  |                |              |                                                    |source in the sleep state,32K watchdog cannot be enabled. |
@@ -41,16 +41,18 @@
  *  |                |              |                                                    |modules,the 32K watchdog has no action to clear watchdog, |
  *  |                |              |                                                    |and can only feed the dog by resetting the capture value. |
  *  |                |              |                                                    |The correct operation process is:                         |
- *  |                |              |                                                    |wd_32k_stop->wd_32k_set_interval_ms->wd_32k_start;        |
+ *  |                |              |                                                    |stop -> set_interval_ms -> start; This process has been   |
+ *                                                                                       |encapsulated within the interface wd_32k_feed().          |
  *  |                |              |                                                    |(If set the capture value without stopping,there will be  |
  *  |                |              |                                                    |some intermediate values that can cause an abnormal reset)|
- *   ------------------------------------------------------------------------------------------------------------------------------------------------
+ *   -----------------------------------------------------------------------------------------------------------------------------------------------
  *  API Reference
  *  ===============
  *  Header File: watchdog.h
  */
 #ifndef WATCHDOG_H_
 #define WATCHDOG_H_
+
 #include "lib/include/analog.h"
 #include "lib/include/clock.h"
 #include "compiler.h"
@@ -138,6 +140,26 @@ _attribute_ram_code_sec_noinline_ void wd_32k_start(void);
 _attribute_ram_code_sec_noinline_ void wd_32k_stop(void);
 
 /**
+ * @brief     feed 32k watch dog.
+ * @return    none.
+ * @note      1.After deep sleep is awakened, the wd_32k_set_interval_ms interface needs to be called
+ *            to reconfigure the watch dog reset time. Otherwise, the reset time will revert
+ *            to the default value (5 seconds). This reset time might be unexpected.
+ *            2.During the time when feeding the dogs, the watch dog will be turned off.
+ *            During this period, the system is unprotected.
+ *            Therefore, other watch dogs still need to be turned on.
+ *            3.During the time when I was feeding the dogs, there was a period when the interruption was turned off.
+ *            Duration of time when the interruption is disabled: PCLK_16M 20.2us, PCLK_24M 13.54us, PCLK_48M 6.72us.
+ */
+_attribute_ram_code_sec_noinline_ void wd_32k_feed(void);
+
+/**
+ * @brief     get 32k watch dog count.
+ * @return    32k watch dog count.
+ */
+_attribute_ram_code_sec_noinline_ unsigned int wd_32k_get_count_ms(void);
+
+/**
  * @brief     get 32k watchdog overflow status.
  * @return    watchdog overflow status.
  * @note      -# After the 32k watchdog reboot returns, the status is set to 1,before the mcu enters the next state, wd_32k_clear_status() must be used to clear the status,
@@ -155,11 +177,22 @@ _attribute_ram_code_sec_noinline_ unsigned char wd_32k_get_status(void);
  */
 _attribute_ram_code_sec_noinline_ void wd_32k_clear_status(void);
 
+#if(COMPATIBLE_WITH_TL321X_AND_TL323X == 0)
 /**
  * @brief     This function set the watchdog trigger time.
- * @param[in] period_ms - The watchdog trigger time. Unit is  millisecond,the lower 8bit of the wd timer register is invalid,so ranges from 8~134,217,720ms.
- * @return    none
+ * @param[in] period_ms - The watchdog trigger time. Unit is millisecond,the lower 8bit of the wd timer register is invalid,so ranges from 8~134,217,720ms.
+ * @return    none.
  */
 _attribute_ram_code_sec_noinline_ void wd_32k_set_interval_ms(unsigned int period_ms);
+#else
+/**
+ * @brief     This function set the watchdog trigger time.
+ * @param[in] period_ms - The watchdog trigger time. Unit is millisecond.
+ * @return    none.
+ * @note      | period(ms)                   | 256-8192 | 8192-262144 |  262144-8388608 | 8388608-268435456 |
+ *            | One wd clock cycle width(ms) |   256    |    8192     |     262144      |       8388608     |
+ */
+_attribute_ram_code_sec_noinline_ void wd_32k_set_interval_ms(unsigned int period_ms);
+#endif
 
 #endif

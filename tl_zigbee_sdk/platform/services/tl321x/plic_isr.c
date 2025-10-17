@@ -1,7 +1,7 @@
 /********************************************************************************************************
- * @file	plic_isr.c
+ * @file    plic_isr.c
  *
- * @brief	This is the source file for tl321x
+ * @brief   This is the source file for tl321x
  *
  * @author  Driver Group
  * @date    2024
@@ -22,9 +22,8 @@
  *
  *******************************************************************************************************/
 /*
- * All interrupt entry functions and weak definitions of related processing functions are defined here,If you dont use the relevant interrupt function,
- *  you can delete it to save ram_code space.
- ****************************************************************************************
+ * All interrupt entry functions and weak definitions of related processing functions are defined here.
+ * If you do not use the relevant interrupt function, you can delete it to save ram_code space.
  */
 #include "tl_common.h"
 

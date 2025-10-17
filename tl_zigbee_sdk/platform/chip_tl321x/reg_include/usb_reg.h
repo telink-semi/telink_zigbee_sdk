@@ -21,6 +21,8 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
+#include "chip_config.h"
+#if(COMPATIBLE_WITH_TL321X_AND_TL323X == 0)
 #ifndef USB_REG_H
 #define USB_REG_H
 #include "soc.h"
@@ -324,3 +326,4 @@ enum
 #define reg_usb_tstamp3   REG_ADDR8(REG_USB_BASE + 0x63)
 
 #endif /* USB_REG_H */
+#endif

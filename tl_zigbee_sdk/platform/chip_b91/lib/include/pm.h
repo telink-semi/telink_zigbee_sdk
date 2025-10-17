@@ -83,6 +83,7 @@ typedef enum
 typedef enum
 {
     WAIT_TIMEOUT = 0x00,
+    PLL_DONE     = 0x01,
 } pm_sw_reboot_reason_e;
 
 #define PM_ANA_REG_POWER_ON_CLR_BUF1 0x3a // initial value 0x00
@@ -352,10 +353,12 @@ void pm_set_xtal_stable_timer_param(unsigned int delay_us, unsigned int loopnum,
 _attribute_ram_code_sec_optimize_o2_ void pm_wait_xtal_ready(unsigned char all_ramcode_en);
 
 /**
- * @brief       this function servers to wait bbpll clock lock.
+ * @brief       This function servers to wait BBPLL clock lock.
+ * @param[in]   all_ramcode_en  - Whether all processing in this function is required to be ram code. If this parameter is set to 1, it requires that:
+ *              before calling this function, you have done the disable BTB, disable interrupt, mspi_stop_xip and other operations as the corresponding function configured to 0.
  * @return      none.
  */
-_attribute_ram_code_sec_noinline_ void pm_wait_bbpll_done(void);
+_attribute_ram_code_sec_optimize_o2_noinline_ void pm_wait_bbpll_done(unsigned char all_ramcode_en);
 
 /**
  * @brief       This function serves to recover system timer.
@@ -430,4 +433,4 @@ _always_inline void sys_reset_all(void)
  * @param[in]   all_ramcode_en  - Whether all processing in this function is required to be ram code.
  * @return      none.
  */
-_attribute_ram_code_sec_noinline_ void pm_sys_reboot_with_reason(pm_sw_reboot_reason_e reboot_reason, unsigned char all_ramcode_en);
+_attribute_ram_code_sec_optimize_o2_noinline_ void pm_sys_reboot_with_reason(pm_sw_reboot_reason_e reboot_reason, unsigned char all_ramcode_en);

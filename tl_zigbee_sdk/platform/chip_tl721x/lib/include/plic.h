@@ -128,8 +128,10 @@ typedef void (*func_isr_t)(void);
 
 /**
  * @brief The global variable is used to indicate whether interrupt nesting is supported.
+ * @note
+ *        - To avoid interrupt nesting failures caused by sign extension, the unsigned long type is used here.
  */
-extern _attribute_data_retention_sec_ volatile unsigned char g_plic_preempt_en;
+extern _attribute_data_retention_sec_ volatile unsigned long g_plic_preempt_en;
 
 /**
  * @defgroup irq_source_index Interrupt source index definition

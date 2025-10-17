@@ -356,8 +356,10 @@ _MSPI_WAIT:
 #if 0
     // add debug, PB4 output 1
     lui     t0, 0x80140         //0x8014030a
-    li      t1, 0x00
-    sb      t1, 0x30b(t0)       //0x8014030b  PB output  =  0x00
+    li      t1, 0xef
+    li      t2, 0x10
+    sb      t1, 0x30a(t0)       //0x8014030a  PB oen     =  0xef
+    sb      t2, 0x30b(t0)       //0x8014030b  PB output  =  0x10
 #endif
 
     /*flash wakeup need delay about 20us */
@@ -369,10 +371,10 @@ _WAIT_EFUSE_LOAD_AND_FLASH_WAKEUP_FINISH:
     bgeu    t1, t0 , _WAIT_EFUSE_LOAD_AND_FLASH_WAKEUP_FINISH
 
 #if 0
-    // add debug, PB4 output 1
+    // add debug, PB4 output 0
     lui     t0, 0x80140         //0x8014030a
-    li      t1, 0x10
-    sb      t1, 0x30b(t0)       //0x8014030b  PB output  =  0x00
+    li      t2, 0x00
+    sb      t2, 0x30b(t0)       //0x8014030b  PB output  =  0x00
 #endif
 
 _MULTI_ADDRESS_BEGIN:

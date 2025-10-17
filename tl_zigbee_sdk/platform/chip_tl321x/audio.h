@@ -31,6 +31,8 @@
  *  ===============
  *  Header File: audio.h
  */
+#include "chip_config.h"
+#if(COMPATIBLE_WITH_TL321X_AND_TL323X == 0)
 #ifndef audio_H
 #define audio_H
 
@@ -1500,11 +1502,12 @@ void i2s_set_pin(i2s_pin_config_t *config);
 
 /**
  * @brief     This function serves to config  rx_dma channel.
- * @param[in] chn          - dma channel.
- * @param[in] dst_addr     - the dma address of destination.
- * @param[in] data_len     - the length of dma rx size by byte.
+ * @param[in] chn          - dma channel
+ * @param[in] dst_addr     - Pointer to data buffer, it must be 4-bytes aligned address.
+ *                           and the actual buffer size defined by the user needs to be not smaller than the data_len, otherwise there may be an out-of-bounds problem.
+ * @param[in] data_len     - Length of DMA in bytes, it must be set to a multiple of 4. The maximum value that can be set is 0x10000. 
  * @param[in] head_of_list - the head address of dma llp.
- * @return    none.
+ * @return    none
  */
 void audio_rx_dma_config(dma_chn_e chn, unsigned short *dst_addr, unsigned int data_len, dma_chain_config_t *head_of_list);
 
@@ -1512,9 +1515,10 @@ void audio_rx_dma_config(dma_chn_e chn, unsigned short *dst_addr, unsigned int d
  * @brief     This function serves to set rx dma chain transfer
  * @param[in] config_addr - the head of list of llp_pointer.
  * @param[in] llpointer   - the next element of llp_pointer.
- * @param[in] dst_addr    - the dma address of destination.
- * @param[in] data_len    - the length of dma size by byte.
- * @return    none.
+ * @param[in] dst_addr    - Pointer to data buffer, it must be 4-bytes aligned address and the actual buffer size defined by the user needs to
+ *                          be not smaller than the data_len, otherwise there may be an out-of-bounds problem.
+ * @param[in] data_len    - Length of DMA in bytes, it must be set to a multiple of 4. The maximum value that can be set is 0x10000.
+ * @return    none
  */
 void audio_rx_dma_add_list_element(dma_chain_config_t *rx_config, dma_chain_config_t *llpointer, unsigned short *dst_addr, unsigned int data_len);
 
@@ -1531,21 +1535,21 @@ void audio_rx_dma_chain_init(audio_fifo_chn_e rx_fifo_chn, dma_chn_e chn, unsign
 
 /**
  * @brief     This function serves to config  tx_dma channel.
- * @param[in] chn          - dma channel.
- * @param[in] src_addr     - the address of source.
- * @param[in] data_len     - the length of dma rx size by byte.
+ * @param[in] chn          - dma channel
+ * @param[in] src_addr     - Pointer to data buffer, it must be 4-bytes aligned address.
+ * @param[in] data_len     - Length of DMA in bytes, range from 1 to 0x10000.
  * @param[in] head_of_list - the head address of dma llp.
  * @return    none
  */
 void audio_tx_dma_config(dma_chn_e chn, unsigned short *src_addr, unsigned int data_len, dma_chain_config_t *head_of_list);
 
 /**
- * @brief     This function serves to set tx dma chain transfer.
+ * @brief     This function serves to set tx dma chain transfer
  * @param[in] config_addr - the head of list of llp_pointer.
  * @param[in] llpointer   - the next element of llp_pointer.
- * @param[in] src_addr    - the address of source.
- * @param[in] data_len    - the length of dma size by byte.
- * @return    none.
+ * @param[in] src_addr    - Pointer to data buffer, it must be 4-bytes aligned address.
+ * @param[in] data_len    - Length of DMA in bytes, range from 1 to 0x10000.
+ * @return    none
  */
 void audio_tx_dma_add_list_element(dma_chain_config_t *config_addr, dma_chain_config_t *llpointer, unsigned short *src_addr, unsigned int data_len);
 
@@ -2046,4 +2050,5 @@ void audio_set_i2s_ascl_en(audio_i2s_select_e i2s_select);
  */
 void audio_codec_clr_input_pop(unsigned char t_ms);
 /** @} */
+#endif
 #endif

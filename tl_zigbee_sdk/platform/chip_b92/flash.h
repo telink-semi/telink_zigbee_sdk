@@ -46,6 +46,13 @@
 #define PAGE_SIZE     256
 #define PAGE_SIZE_OTP 256
 
+#define FLASH_ADDR_BASE     0x20000000
+#define FLASH_ADDR_MASK     0xf0000000
+
+#ifndef STACK_SIZE_FOR_FLASH_DATA
+    #define STACK_SIZE_FOR_FLASH_DATA       256
+#endif
+
 /**
  * @brief     flash command definition
  * |     --      |     --      |     --        |    --    |    --    |
@@ -135,7 +142,6 @@ typedef enum
     MID156085 = 0x156085, //P25Q16SU
     MID1560C8 = 0x1560c8, //GD25LQ16E
     MID166085 = 0x166085, //P25Q32SU
-    MID186085 = 0x186085, //P25Q128L
     MID1460C8 = 0x1460c8, //GD25LQ80E
     MID1660C8 = 0x1660c8, //GD25LQ32E/GD25LE32E
 } flash_mid_e;

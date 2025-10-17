@@ -73,9 +73,71 @@ typedef enum
     TIMER_MODE_TICK         = 3,
 } timer_mode_e;
 
+/*
+ *  @brief  Define timer capture mode
+ */
+typedef enum{
+     TMR_CAPT_RISING_EDGE         = 0,
+     TMR_CAPT_FALLING_EDGE        = 1,
+     TMR_CAPT_RISING_FALLING_EDGE = 2,
+} timer_capt_mode_e;
+
+
+/*
+ * @brief   Type of Timer mask.
+ */
+typedef enum{
+    TMR0_MODE_MASK      =       BIT(0),
+    TMR0_CAPT_MASK      =       BIT(1),
+    TMR0_COMP_MASK      =       BIT(2),
+    TMR1_MODE_MASK      =       BIT(3),
+    TMR1_CAPT_MASK      =       BIT(4),
+    TMR1_COMP_MASK      =       BIT(5),
+    TMR0_OV_MASK        =       BIT(6),
+    TMR1_OV_MASK        =       BIT(7),
+}timer_mask_e;
+
 /**********************************************************************************************************************
  *                                      global function prototype                                                     *
  *********************************************************************************************************************/
+
+/*
+ * @brief     This function servers to enable timer input capture mode.
+ * @return    none.
+ */
+static inline void timer_input_capture_en(timer_type_e type)
+{
+    switch(type)
+        {
+            case TIMER0:
+                reg_tmr_ctrl2 |= FLD_TMR0_CAPT_EN;
+                break;
+            case TIMER1:
+                reg_tmr_ctrl2 |= FLD_TMR1_CAPT_EN;
+                break;
+            default:
+                break;
+        }
+}
+
+/*
+ * @brief     This function servers to disable timer input capture mode.
+ * @return    none.
+ */
+static inline void timer_input_capture_dis(timer_type_e type)
+{
+    switch(type)
+        {
+            case TIMER0:
+                reg_tmr_ctrl2 &= ~(FLD_TMR0_CAPT_EN);
+                break;
+            case TIMER1:
+                reg_tmr_ctrl2 &= ~(FLD_TMR1_CAPT_EN);
+                break;
+            default:
+                break;
+        }
+}
 
 /**
  * @brief       This function refer to get timer irq status.
@@ -175,7 +237,14 @@ static inline void timer_set_cap_tick(timer_type_e type, unsigned int cap_tick)
 {
     reg_tmr_capt(type) = cap_tick;
 }
-
+/*
+ * @brief     This function performs to get  timer capture value.
+ * @return    timer capture value.
+ */
+static inline unsigned int timer_get_capture_value(timer_type_e type)
+{
+    return reg_tmr_ccapt(type);
+}
 /**
  * @brief     This function set timer irq mask.
  * @param[in] mask - variable of enumeration to select the timer interrupt mask.
@@ -220,6 +289,21 @@ void timer_set_mode(timer_type_e type, timer_mode_e mode);
  */
 void timer_gpio_init(timer_type_e type, gpio_pin_e pin, gpio_pol_e pol);
 
+
+/*
+ * @brief     This function set timer input capture mode.
+ * @param[in] capt_mode  - timer input capture mode.
+ * @return    none.
+ */
+void timer_set_input_capture_mode(timer_type_e type, timer_capt_mode_e capt_mode, gpio_pin_e pin);
+
+/*
+ * @brief     This function is used to reset the tick value to 0 when it is equal to the preset capture tick value or when a capture is triggered.
+ * @param[in] type - TIMER0 or TIMER1.
+ * @param[in] reset - 1: reset the tick  0: do not reset the tick
+ * @return    none.
+ */
+void timer_reset_tick(timer_type_e type, unsigned char reset);
 /**
  * @brief     the specified timer stop working.
  * @param[in] type - select the timer to stop.

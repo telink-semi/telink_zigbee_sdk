@@ -332,16 +332,20 @@ static _always_inline void pm_24mrc_power_down_if_unused(void)
 }
 
 /**
- * @brief       this function servers to power up BBPLL
+ * @brief       This function servers to power up BBPLL.
+ * @param[in]   all_ramcode_en  - Whether all processing in this function is required to be ram code. If this parameter is set to 1, it requires that:
+ *              before calling this function, you have done the disable BTB, disable interrupt, mspi_stop_xip and other operations as the corresponding function configured to 0.
  * @return      none.
  */
-_attribute_ram_code_sec_noinline_ void pm_bbpll_power_up(void);
+_attribute_ram_code_sec_optimize_o2_noinline_ void pm_bbpll_power_up(unsigned char all_ramcode_en);
 
 /**
- * @brief       this function servers to wait BBPLL clock lock.
+ * @brief       This function servers to wait BBPLL clock lock.
+ * @param[in]   all_ramcode_en  - Whether all processing in this function is required to be ram code. If this parameter is set to 1, it requires that:
+ *              before calling this function, you have done the disable BTB, disable interrupt, mspi_stop_xip and other operations as the corresponding function configured to 0.
  * @return      none.
  */
-_attribute_ram_code_sec_noinline_ void pm_wait_bbpll_done(void);
+_attribute_ram_code_sec_optimize_o2_noinline_ void pm_wait_bbpll_done(unsigned char all_ramcode_en);
 
 /**
  * @brief       This function is used to determine the stability of the crystal oscillator.

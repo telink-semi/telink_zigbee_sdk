@@ -58,7 +58,8 @@ SECTIONS
     .text           : AT(ALIGN(LOADADDR (.ram_code) + SIZEOF (.ram_code), 8)) 
         { *(.text .stub .text.* .gnu.linkonce.t.* ) KEEP(*(.text.*personality* )) *(.gnu.warning )  }
     .rodata         : AT(ALIGN(LOADADDR (.text) + SIZEOF (.text), ALIGNOF(.rodata))) 
-        { *(.rodata .rodata.* .gnu.linkonce.r.* )}
+        { *(.rodata .rodata.* .gnu.linkonce.r.* )
+          *(.srodata.cst16 ) *(.srodata.cst8 ) *(.srodata.cst4 ) *(.srodata.cst2 ) *(.srodata .srodata.* )}
     .eh_frame_hdr   : AT(ALIGN(LOADADDR (.rodata) + SIZEOF (.rodata), ALIGNOF(.eh_frame_hdr)))
         { *(.eh_frame_hdr ) }
     . = ALIGN(0x20);
@@ -69,12 +70,12 @@ SECTIONS
     PROVIDE( __global_pointer$ = . + (4K / 2) );
     .data   : AT(ALIGN(LOADADDR (.eh_frame) + SIZEOF (.eh_frame),  ALIGNOF(.data)))
         { *(.data .data.* .gnu.linkonce.d.* ) KEEP(*(.gnu.linkonce.d.*personality* )) SORT(CONSTRUCTORS) 
-          *(.srodata.cst16 ) *(.srodata.cst8 ) *(.srodata.cst4 ) *(.srodata.cst2 ) *(.srodata .srodata.* ) *(.sdata .sdata.* .gnu.linkonce.s.* ) *(.sdata2 .sdata2.* .gnu.linkonce.s.* )
+          *(.sdata .sdata.* .gnu.linkonce.s.* ) *(.sdata2 .sdata2.* .gnu.linkonce.s.* )
         }
     PROVIDE (_DATA_VMA_END = .);    
     PROVIDE (_DATA_VMA_START = ADDR(.data));
     PROVIDE (_DATA_LMA_START = LOADADDR(.data));
-    
+
     . = ALIGN(8);
     PROVIDE (_BSS_VMA_START = .);
     .sbss   (NOLOAD)    : { *(.dynsbss ) *(.sbss .sbss.* .gnu.linkonce.sb.* ) *(.scommon .scommon.* ) }

@@ -73,6 +73,7 @@ typedef enum
 typedef enum
 {
     NOINPUTN           = 0,
+    ADC_GPIO_PB0N      = 0x01,
     ADC_GPIO_PB1N      = 0x02,
     ADC_GPIO_PB2N      = 0x03,
     ADC_GPIO_PB3N      = 0x04,
@@ -89,6 +90,7 @@ typedef enum
 typedef enum
 {
     NOINPUTP           = 0,
+    ADC_GPIO_PB0P      = 0x01,
     ADC_GPIO_PB1P      = 0x02,
     ADC_GPIO_PB2P      = 0x03,
     ADC_GPIO_PB3P      = 0x04,
@@ -111,6 +113,7 @@ typedef enum
  */
 typedef enum
 {
+    ADC_GPIO_PB0 = GPIO_PB0 | (0x1 << 12),//When the GPIO voltage is set to 1.8V, PB0 cannot be used as ADC detect IO.
     ADC_GPIO_PB1 = GPIO_PB1 | (0x2 << 12),
     ADC_GPIO_PB2 = GPIO_PB2 | (0x3 << 12),
     ADC_GPIO_PB3 = GPIO_PB3 | (0x4 << 12),

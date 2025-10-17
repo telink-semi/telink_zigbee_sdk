@@ -237,25 +237,29 @@ void clock_32k_init(clk_32k_type_e src);
 unsigned char clock_kick_32k_xtal(unsigned char xtal_times);
 
 /**
- * @brief       This function performs to select 24M as the system clock source.
- * @return      none.
+ * @brief     This function serves to calibrate 24M RC.
+ *            24M RC is inaccurate, and it is greatly affected by temperature, if need use it so real-time calibration is required
+ *            The 24M RC needs to be calibrated before the pm_sleep_wakeup function,
+ *            because this clock will be used to kick 24m xtal start after wake up,
+ *            The more accurate this time, the faster the crystal will start.Calibration cycle depends on usage
+ * @return    none.
  */
 _attribute_ram_code_sec_noinline_ void clock_cal_24m_rc(void);
 
 /**
- * @brief     This function performs to select 32K as the system clock source.
+ * @brief     This function serves to calibrate 32K RC.
  * @return    none.
  */
 void clock_cal_32k_rc(void);
 
 /**
- * @brief  This function serves to get the 32k tick.
- * @return none.
+ * @brief  This function serves to get the 32k tick currently.
+ * @return the current 32k tick.
  */
 _attribute_ram_code_sec_noinline_ unsigned int clock_get_32k_tick(void);
 
 /**
- * @brief  This function serves to set the 32k tick.
+ * @brief  This function serves to set the 32k tick for sleep.
  * @param  tick - the value of to be set to 32k.
  * @return none.
  */

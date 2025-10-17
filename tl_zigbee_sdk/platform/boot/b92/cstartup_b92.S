@@ -89,7 +89,7 @@
     .equ __DRAM_1_EN,   1
     .equ __DRAM_2_EN,   1
     .equ __DRAM_DIS,    0
-#else
+#elif (SRAM_SIZE == SRAM_128K)
     .equ __IRAM_2_EN,   0
     .equ __DRAM_1_EN,   0
     .equ __DRAM_2_EN,   0
@@ -290,16 +290,16 @@ _RETENTION_RESET_INIT:
     la     t2, _RETENTION_RESET_VMA_START
     la     t3, _RETENTION_RESET_VMA_END
 _RETENTION_RESET_BEGIN:
-    bleu    t3, t2, _RAMCODE_INIT
+    bleu    t3, t2, _RETENTION_DATA_INIT
     lw     t0, 0(t1)
     sw     t0, 0(t2)
     addi   t1, t1, 4
     addi   t2, t2, 4
     j      _RETENTION_RESET_BEGIN
 
-#if 0
     /* Move retention from flash to sram */
 _RETENTION_DATA_INIT:
+#if 0
     la     t1, _RETENTION_DATA_LMA_START
     la     t2, _RETENTION_DATA_VMA_START
     la     t3, _RETENTION_DATA_VMA_END
@@ -436,6 +436,12 @@ _ISTART:
     la     gp, __global_pointer$
     .option pop
 
+#if DP_THROUGH_SWIRE_DIS
+    lui     t0, 0x80100
+    addi    t0 , t0 , 0x700
+    li      t1, 0x00
+    sb      t1, 0x501(t0)  //0x80100c01 -> 0x00  <7>: 0 swire_usb_dis 
+#endif
     /* Initialize stack pointer */
     la     t0, _STACK_TOP
     mv     sp, t0
