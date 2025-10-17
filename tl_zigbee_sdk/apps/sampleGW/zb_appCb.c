@@ -293,7 +293,7 @@ bool sampleGw_macAssocReqIndHandler(void *arg)
  * @param   pNwkUpdateCmd - Conflicting PAN ID information
  *
  * @return  TRUE  - Allow PAN ID conflict handling
- * 			FALSE - Truncate the execution of PAN ID conflict handling
+ *          FALSE - Truncate the execution of PAN ID conflict handling
  */
 bool sampleGW_nwkUpdateIndicateHandler(nwkCmd_nwkUpdate_t *pNwkUpdateCmd)
 {
@@ -307,7 +307,7 @@ bool sampleGW_nwkUpdateIndicateHandler(nwkCmd_nwkUpdate_t *pNwkUpdateCmd)
  * @param   pTcJoinInd - address information
  *
  * @return  TRUE  - Allow delivery of transport key
- * 			FALSE - Truncate delivery transport key
+ *          FALSE - Truncate delivery transport key
  */
 bool sampleGW_tcJoinIndHandler(zdo_tc_join_ind_t *pTcJoinInd)
 {

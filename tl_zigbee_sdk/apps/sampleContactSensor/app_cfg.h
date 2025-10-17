@@ -75,13 +75,6 @@ extern "C" {
 #endif
 
 /**********************************************************************
- * ZCL cluster configuration
- */
-#define ZCL_IAS_ZONE_SUPPORT                    1
-#define ZCL_POLL_CTRL_SUPPORT                   1
-#define ZCL_OTA_SUPPORT                         1
-
-/**********************************************************************
  * Board definitions
  */
 /* Board ID */
@@ -101,6 +94,9 @@ extern "C" {
 #define BOARD_TL721X_DONGLE                     13
 #define BOARD_TL321X_EVK                        14
 #define BOARD_TL321X_DONGLE                     15
+//Module
+#define BOARD_ML7218D_MERCURY                   16//ML7218D-MERCURY-M0-PE11-V1.3
+#define BOARD_ML7218A_GAIA                      17//ML7218A_GAIA-M0-PE11-V1.3
 
 /* Board define */
 #if defined(MCU_CORE_826x)
@@ -178,6 +174,13 @@ extern "C" {
  * Stack configuration
  */
 #include "stack_cfg.h"
+
+/**********************************************************************
+ * ZCL cluster configuration
+ */
+#define ZCL_IAS_ZONE_SUPPORT                    1
+#define ZCL_POLL_CTRL_SUPPORT                   1
+#define ZCL_OTA_SUPPORT                         1
 
 /**********************************************************************
  * EV configuration

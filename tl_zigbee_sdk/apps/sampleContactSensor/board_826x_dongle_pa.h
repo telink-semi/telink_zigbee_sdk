@@ -43,17 +43,17 @@ extern "C" {
 #define	PULL_WAKEUP_SRC_PA1     PM_PIN_PULLUP_10K
 
 //LED
-#define LED1                    GPIO_PC4
+#define LED_G                   GPIO_PC4
 #define PC4_FUNC                AS_GPIO
 #define PC4_OUTPUT_ENABLE       1
 #define PC4_INPUT_ENABLE        0
 
-#define LED3                    GPIO_PB1
+#define LED_R                   GPIO_PB1
 #define PB1_FUNC                AS_GPIO
 #define PB1_OUTPUT_ENABLE       1
 #define PB1_INPUT_ENABLE        0
 
-#define LED_POWER               LED3
+#define LED_POWER               LED_R
 
 /****************NOT USED*************************/
 #define LED2                    GPIO_PE0

@@ -131,13 +131,6 @@ void light_blink_stop(void)
     }
 }
 
-/*******************************************************************
- * @brief	Button click detect:
- * 			SW1. keep press button1 5s === factory reset
- * 			SW1. short press button1   === send level step with OnOff command (Up)
- * 			SW2. short press button2   === send level step with OnOff command (Down)
- *
- */
 void buttonKeepPressed(u8 btNum)
 {
     if (btNum == VK_SW1) {
@@ -263,7 +256,7 @@ void app_key_handler(void)
 
     if (g_switchAppCtx.state == APP_FACTORY_NEW_SET_CHECK) {
         if (clock_time_exceed(g_switchAppCtx.keyPressedTime, 5 * 1000 * 1000)) {
-            buttonKeepPressed(VK_SW1);
+            buttonKeepPressed(valid_keyCode);
         }
     }
 

@@ -39,18 +39,6 @@ extern "C" {
 /* HCI interface */
 #define	ZBHCI_UART                              0
 
-/* RGB or CCT */
-#define COLOR_RGB_SUPPORT                       0
-#define COLOR_CCT_SUPPORT                       1//0
-
-#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-#if COLOR_RGB_SUPPORT && COLOR_CCT_SUPPORT
-#error	"NOT SUPPORT"
-#elif COLOR_RGB_SUPPORT
-#define COLOR_X_Y_DISABLE                       1
-#endif
-#endif
-
 /* BDB */
 #define TOUCHLINK_SUPPORT                       1
 #define FIND_AND_BIND_SUPPORT                   0
@@ -82,27 +70,8 @@ extern "C" {
 #endif
 
 #if (ZBHCI_USB_PRINT || ZBHCI_USB_CDC || ZBHCI_USB_HID || ZBHCI_UART)
-    #define ZBHCI_EN                            1
+#define ZBHCI_EN                                1
 #endif
-
-/**********************************************************************
- * ZCL cluster configuration
- */
-#define ZCL_ON_OFF_SUPPORT                      1
-#define ZCL_LEVEL_CTRL_SUPPORT                  1
-#if (COLOR_RGB_SUPPORT || COLOR_CCT_SUPPORT)
-#define ZCL_LIGHT_COLOR_CONTROL_SUPPORT         1
-#endif
-#define ZCL_GROUP_SUPPORT                       1
-#define ZCL_SCENE_SUPPORT                       1
-#define ZCL_OTA_SUPPORT                         1
-#define ZCL_GP_SUPPORT                          1
-#define ZCL_WWAH_SUPPORT                        0
-#if TOUCHLINK_SUPPORT
-#define ZCL_ZLL_COMMISSIONING_SUPPORT           1
-#endif
-//test
-#define AF_TEST_ENABLE                          0
 
 /**********************************************************************
  * Board definitions
@@ -123,6 +92,9 @@ extern "C" {
 #define BOARD_TL721X_DONGLE                     12
 #define BOARD_TL321X_EVK                        13
 #define BOARD_TL321X_DONGLE                     14
+//Module
+#define BOARD_ML7218D_MERCURY                   15//ML7218D-MERCURY-M0-PE11-V1.3
+#define BOARD_ML7218A_GAIA                      16//ML7218A_GAIA-M0-PE11-V1.3
 
 /* Board define */
 #if defined(MCU_CORE_826x)
@@ -188,12 +160,37 @@ extern "C" {
     #include "board_tl321x_evk.h"
 #elif (BOARD == BOARD_TL321X_DONGLE)
     #include "board_tl321x_dongle.h"
+#elif (BOARD == BOARD_ML7218D_MERCURY)
+    #include "board_ml7218d_mercury.h"
+#elif (BOARD == BOARD_ML7218A_GAIA)
+    #include "board_ml7218a_gaia.h"
 #endif
 
 /**********************************************************************
  * Stack configuration
  */
 #include "stack_cfg.h"
+
+/**********************************************************************
+ * ZCL cluster configuration
+ */
+#define ZCL_ON_OFF_SUPPORT                      1
+#if (COLOR_RGB_SUPPORT || COLOR_CCT_SUPPORT)
+#define ZCL_LEVEL_CTRL_SUPPORT                  1
+#define ZCL_LIGHT_COLOR_CONTROL_SUPPORT         1
+#elif (BRIGHTNESS_SUPPORT)
+#define ZCL_LEVEL_CTRL_SUPPORT                  1
+#endif
+#define ZCL_GROUP_SUPPORT                       1
+#define ZCL_SCENE_SUPPORT                       1
+#define ZCL_OTA_SUPPORT                         1
+#define ZCL_GP_SUPPORT                          1
+#define ZCL_WWAH_SUPPORT                        0
+#if TOUCHLINK_SUPPORT
+#define ZCL_ZLL_COMMISSIONING_SUPPORT           1
+#endif
+//test
+#define AF_TEST_ENABLE                          0
 
 /**********************************************************************
  * EV configuration

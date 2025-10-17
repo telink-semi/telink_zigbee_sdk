@@ -73,10 +73,7 @@ extern "C" {
 #define PE3_OUTPUT_ENABLE       1
 #define PE3_INPUT_ENABLE        0
 
-
-#define LED1                    LED_G
 #define LED_POWER               LED_R
-
 
 #define	PM_WAKEUP_LEVEL         PM_WAKEUP_LEVEL_LOW
 

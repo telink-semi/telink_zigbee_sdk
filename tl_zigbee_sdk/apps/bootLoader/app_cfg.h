@@ -80,6 +80,9 @@ extern "C" {
 #define BOARD_TL721X_DONGLE                     13
 #define BOARD_TL321X_EVK                        14
 #define BOARD_TL321X_DONGLE                     15
+//Module
+#define BOARD_ML7218D_MERCURY                   16//ML7218D-MERCURY-M0-PE11-V1.3
+#define BOARD_ML7218A_GAIA                      17//ML7218A_GAIA-M0-PE11-V1.3
 
 /* Board define */
 #if defined(MCU_CORE_826x)
@@ -145,6 +148,10 @@ extern "C" {
     #include "board_tl321x_evk.h"
 #elif (BOARD == BOARD_TL321X_DONGLE)
     #include "board_tl321x_dongle.h"
+#elif (BOARD == BOARD_ML7218D_MERCURY)
+    #include "board_ml7218d_mercury.h"
+#elif (BOARD == BOARD_ML7218A_GAIA)
+    #include "board_ml7218a_gaia.h"
 #endif
 
 

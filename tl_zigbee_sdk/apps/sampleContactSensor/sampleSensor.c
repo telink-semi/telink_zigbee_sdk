@@ -167,6 +167,9 @@ void user_app_init(void)
     /* Register endPoint */
     af_endpointRegister(SAMPLE_SENSOR_ENDPOINT, (af_simple_descriptor_t *)&sampleSensor_simpleDesc, zcl_rx_handler, NULL);
 
+    /* Initialize or restore attributes, this must before 'zcl_register()' */
+    zcl_reportingTabInit();
+
     /* Register ZCL specific cluster information */
     zcl_register(SAMPLE_SENSOR_ENDPOINT, SAMPLE_SENSOR_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_sampleSensorClusterList);
 
@@ -185,14 +188,13 @@ void app_task(void)
     app_key_handler();
 
     if (bdb_isIdle()) {
+        report_handler();
+
 #if PM_ENABLE
-        app_key_handler();
         if (!g_sensorAppCtx.keyPressed) {
             drv_pm_lowPowerEnter();
         }
 #endif
-
-        report_handler();
     }
 }
 

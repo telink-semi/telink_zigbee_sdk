@@ -29,6 +29,19 @@
 extern "C" {
 #endif
 
+/***************************************************************/
+/* RGB or CCT or Brightness */
+#define COLOR_RGB_SUPPORT       0
+#define COLOR_CCT_SUPPORT       1//0
+#define BRIGHTNESS_SUPPORT      0
+
+#if COLOR_RGB_SUPPORT && COLOR_CCT_SUPPORT
+#error "Not Support"
+#elif COLOR_RGB_SUPPORT
+#define COLOR_X_Y_DISABLE       1
+#endif
+/***************************************************************/
+
 //KEY
 #define	BUTTON1                 GPIO_PD2
 #define PD2_FUNC                AS_GPIO
@@ -49,7 +62,7 @@ extern "C" {
 * LED_B	        GPIO_PB4        //D1 -- blue    PWM4
 * LED_W	        GPIO_PD7        //D3 -- white   PWM2
 ****************************************************************/
-#if defined COLOR_RGB_SUPPORT && (COLOR_RGB_SUPPORT == 1)
+#if defined(COLOR_RGB_SUPPORT) && (COLOR_RGB_SUPPORT == 1)
 #define PD5_FUNC                AS_PWM
 #define PD5_OUTPUT_ENABLE       1
 #define PD5_INPUT_ENABLE        0
@@ -87,7 +100,7 @@ extern "C" {
 
 #define LED_POWER               LED_W
 #define LED_PERMIT              LED_W
-#elif defined COLOR_CCT_SUPPORT && (COLOR_CCT_SUPPORT == 1)
+#elif defined(COLOR_CCT_SUPPORT) && (COLOR_CCT_SUPPORT == 1)
 //PWM configuration, LED_B as warm light, LED_W as cool light.
 #define PB4_FUNC                AS_PWM
 #define PB4_OUTPUT_ENABLE       1
@@ -122,7 +135,7 @@ extern "C" {
 
 #define LED_POWER               LED_R
 #define LED_PERMIT              LED_G
-#elif defined ZCL_LEVEL_CTRL_SUPPORT && (ZCL_LEVEL_CTRL_SUPPORT == 1)
+#elif defined(BRIGHTNESS_SUPPORT) && (BRIGHTNESS_SUPPORT == 1)
 #define PD7_FUNC                AS_PWM
 #define PD7_OUTPUT_ENABLE       1
 #define PD7_INPUT_ENABLE        0

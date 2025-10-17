@@ -104,11 +104,13 @@ void buttonShortPressed(u8 btNum)
             }
         }
     } else if (btNum == VK_SW2) {
-        /* toggle local permit Joining */
-        u8 duration = zb_getMacAssocPermit() ? 0 : 180;
-        zb_nlmePermitJoiningRequest(duration);
+        if (zb_isDeviceJoinedNwk()) {
+            /* toggle local permit Joining */
+            u8 duration = zb_getMacAssocPermit() ? 0 : 180;
+            zb_nlmePermitJoiningRequest(duration);
 
-        gpsCommissionModeInvork();
+            gpsCommissionModeInvork();
+        }
     }
 }
 
@@ -131,21 +133,19 @@ void keyScan_keyReleasedCB(u8 keyCode)
     gLightCtx.state = APP_STATE_NORMAL;
 }
 
-volatile u8 T_keyPressedNum = 0;
 void app_key_handler(void)
 {
     static u8 valid_keyCode = 0xff;
 
     if (gLightCtx.state == APP_FACTORY_NEW_SET_CHECK) {
         if (clock_time_exceed(gLightCtx.keyPressedTime, 5 * 1000 * 1000)) {
-            buttonKeepPressed(VK_SW1);
+            buttonKeepPressed(valid_keyCode);
         }
     }
 
     if (kb_scan_key(0 , 1)) {
-        T_keyPressedNum++;
-
         if (kb_event.cnt) {
+            gLightCtx.keyPressed = 1;
             keyScan_keyPressedCB(&kb_event);
             if (kb_event.cnt == 1) {
                 valid_keyCode = kb_event.keycode[0];
@@ -153,6 +153,7 @@ void app_key_handler(void)
         } else {
             keyScan_keyReleasedCB(valid_keyCode);
             valid_keyCode = 0xff;
+            gLightCtx.keyPressed = 0;
         }
     }
 }

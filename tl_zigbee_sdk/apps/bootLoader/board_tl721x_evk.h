@@ -31,11 +31,11 @@ extern "C" {
 
 // BUTTON
 //key1
-#define BUTTON1                 GPIO_PD4
-#define PPD4_FUNC               AS_GPIO
-#define PPD4_OUTPUT_ENABLE      0
-#define PPD4_INPUT_ENABLE       1
-#define	PULL_WAKEUP_SRC_PD4     GPIO_PIN_PULLDOWN_100K
+#define BUTTON1                 GPIO_PB7
+#define PB7_FUNC                AS_GPIO
+#define PB7_OUTPUT_ENABLE       0
+#define PB7_INPUT_ENABLE        1
+#define	PULL_WAKEUP_SRC_PB7     GPIO_PIN_PULLDOWN_100K
 
 //key2
 #define BUTTON2                 GPIO_PD6
@@ -97,7 +97,7 @@ extern "C" {
 
 // DEBUG
 #if UART_PRINTF_MODE
-#define	DEBUG_INFO_TX_PIN       GPIO_PB7//print
+#define	DEBUG_INFO_TX_PIN       GPIO_PE0//print
 #endif
 
 // USB
@@ -124,8 +124,8 @@ enum {
 #define	KB_MAP_NUM              KB_MAP_NORMAL
 #define	KB_MAP_FN               KB_MAP_NORMAL
 
-#define KB_DRIVE_PINS           {GPIO_PD4, GPIO_PD6}
-#define KB_SCAN_PINS            {GPIO_PD5, GPIO_PD7}
+#define KB_DRIVE_PINS           {BUTTON1, BUTTON2}
+#define KB_SCAN_PINS            {BUTTON3, BUTTON4}
 
 #define	KB_LINE_MODE            0
 #define	KB_LINE_HIGH_VALID      0

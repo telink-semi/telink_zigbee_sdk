@@ -29,18 +29,43 @@
 extern "C" {
 #endif
 
+/***************************************************************/
+/* RGB or CCT or Brightness */
+#define COLOR_RGB_SUPPORT       0
+#define COLOR_CCT_SUPPORT       1//0
+#define BRIGHTNESS_SUPPORT      0
+
+#if COLOR_RGB_SUPPORT && COLOR_CCT_SUPPORT
+#error "Not Support"
+#elif COLOR_RGB_SUPPORT
+#define COLOR_X_Y_DISABLE       1
+#endif
+/***************************************************************/
+
 // BUTTON
 #define BUTTON1                 GPIO_PB2
 #define PB2_FUNC                AS_GPIO
 #define PB2_OUTPUT_ENABLE       0
 #define PB2_INPUT_ENABLE        1
-#define	PULL_WAKEUP_SRC_PB2     PM_PIN_PULLUP_10K
+#define PULL_WAKEUP_SRC_PB2     PM_PIN_PULLDOWN_100K
 
 #define BUTTON2                 GPIO_PB3
 #define PB3_FUNC                AS_GPIO
 #define PB3_OUTPUT_ENABLE       0
 #define PB3_INPUT_ENABLE        1
-#define	PULL_WAKEUP_SRC_PB3     PM_PIN_PULLUP_10K
+#define PULL_WAKEUP_SRC_PB3     PM_PIN_PULLDOWN_100K
+
+#define BUTTON3                 GPIO_PB4
+#define PB4_FUNC                AS_GPIO
+#define PB4_OUTPUT_ENABLE       0
+#define PB4_INPUT_ENABLE        1
+#define PULL_WAKEUP_SRC_PB4     PM_PIN_PULLUP_10K
+
+#define BUTTON4                 GPIO_PB5
+#define PB5_FUNC                AS_GPIO
+#define PB5_OUTPUT_ENABLE       0
+#define PB5_INPUT_ENABLE        1
+#define PULL_WAKEUP_SRC_PB5     PM_PIN_PULLUP_10K
 
 //LED
 /***************************************************************
@@ -49,7 +74,7 @@ extern "C" {
 * LED_B	        GPIO_PD2        //D2 -- blue    PWM3
 * LED_W	        GPIO_PD4        //D4 -- white   PWM2_N
 ****************************************************************/
-#if defined COLOR_RGB_SUPPORT && (COLOR_RGB_SUPPORT == 1)
+#if defined(COLOR_RGB_SUPPORT) && (COLOR_RGB_SUPPORT == 1)
 #define LED_R                   GPIO_PD5
 #define LED_G                   GPIO_PD3
 #define LED_B                   GPIO_PD2
@@ -79,7 +104,7 @@ extern "C" {
 
 #define LED_POWER               LED_W
 #define LED_PERMIT              LED_W
-#elif defined COLOR_CCT_SUPPORT && (COLOR_CCT_SUPPORT == 1)
+#elif defined(COLOR_CCT_SUPPORT) && (COLOR_CCT_SUPPORT == 1)
 //PWM configuration, LED_B as warm light, LED_W as cool light.
 #define LED_B                   GPIO_PD2 //D2 -- blue   PWM3
 #define LED_W                   GPIO_PD4 //D4 -- white  PWM2_N
@@ -114,7 +139,7 @@ extern "C" {
 
 #define LED_POWER               LED_R
 #define LED_PERMIT              LED_G
-#elif defined ZCL_LEVEL_CTRL_SUPPORT && (ZCL_LEVEL_CTRL_SUPPORT == 1)
+#elif defined(BRIGHTNESS_SUPPORT) && (BRIGHTNESS_SUPPORT == 1)
 #define LED_W                   GPIO_PD4 //D4 -- white  PWM2_N
 
 #define PWM_W_CHANNEL           2//PWM2_N
@@ -192,19 +217,24 @@ extern "C" {
 
 enum {
     VK_SW1 = 0x01,
-    VK_SW2 = 0x02
+    VK_SW2 = 0x02,
+    VK_SW3 = 0x03,
+    VK_SW4 = 0x04
 };
 
-#define	KB_MAP_NORMAL           { \
-                                    {VK_SW1,}, \
-                                    {VK_SW2,}, \
+#define KB_MAP_NORMAL           { \
+                                    {VK_SW1, VK_SW3}, \
+                                    {VK_SW2, VK_SW4}, \
                                 }
 
-#define	KB_MAP_NUM              KB_MAP_NORMAL
-#define	KB_MAP_FN               KB_MAP_NORMAL
+#define KB_MAP_NUM              KB_MAP_NORMAL
+#define KB_MAP_FN               KB_MAP_NORMAL
 
-#define KB_DRIVE_PINS           {0}
-#define KB_SCAN_PINS            {BUTTON1, BUTTON2}
+#define KB_DRIVE_PINS           {GPIO_PB2, GPIO_PB3}
+#define KB_SCAN_PINS            {GPIO_PB4, GPIO_PB5}
+
+#define KB_LINE_MODE            0
+#define KB_LINE_HIGH_VALID      0
 
 /* Disable C linkage for C++ Compilers: */
 #if defined(__cplusplus)

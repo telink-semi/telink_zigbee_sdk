@@ -57,7 +57,7 @@ extern "C" {
 #define LED_PERMIT              LED_B
 
 //UART
-#if	UART_ENABLE
+#if UART_ENABLE
 #define UART_TX_PIN             GPIO_PC2
 #define PC2_FUNC                AS_UART
 #define PC2_INPUT_ENABLE        0

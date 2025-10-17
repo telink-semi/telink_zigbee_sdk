@@ -173,19 +173,8 @@ void led_init(void)
 
 void app_task(void)
 {
-    static bool assocPermit = 0;
-    if (assocPermit != zb_getMacAssocPermit()) {
-        assocPermit = zb_getMacAssocPermit();
-        if (assocPermit) {
-            led_on(LED_PERMIT);
-        } else {
-            led_off(LED_PERMIT);
-        }
-    }
-
-    if (BDB_STATE_GET() == BDB_STATE_IDLE) {
-        app_key_handler();
-    }
+    app_key_handler();
+    localPermitJoinState();
 }
 
 static void sampleGwSysException(void)

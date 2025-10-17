@@ -51,7 +51,7 @@ typedef struct {
     u8  sta;            //current state in blink
     u8  times;          //blink times
     u8  state;
-
+    u8  keyPressed;
     bool bdbFindBindFlg;
     bool lightAttrsChanged;
 

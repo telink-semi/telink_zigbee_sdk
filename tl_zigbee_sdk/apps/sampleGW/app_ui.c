@@ -73,6 +73,19 @@ void light_init(void)
     led_on(LED_POWER);
 }
 
+void localPermitJoinState(void)
+{
+    static bool assocPermit = 0;
+    if (assocPermit != zb_getMacAssocPermit()) {
+        assocPermit = zb_getMacAssocPermit();
+        if (assocPermit) {
+            led_on(LED_PERMIT);
+        } else {
+            led_off(LED_PERMIT);
+        }
+    }
+}
+
 s32 zclLightTimerCb(void *arg)
 {
     u32 interval = 0;
@@ -136,6 +149,7 @@ void light_blink_stop(void)
 void buttonKeepPressed(u8 btNum)
 {
     if (btNum == VK_SW1) {
+        //g_appGwCtx.state = APP_FACTORY_NEW_DOING;
         //zb_factoryReset();
     } else if (btNum == VK_SW2) {
 
@@ -233,24 +247,22 @@ void keyScan_keyPressedCB(kb_data_t *kbEvt)
 
 void keyScan_keyReleasedCB(u8 keyCode)
 {
-	g_appGwCtx.state = APP_STATE_NORMAL;
+    g_appGwCtx.state = APP_STATE_NORMAL;
 }
 
-volatile u8 T_keyPressedNum = 0;
 void app_key_handler(void)
 {
     static u8 valid_keyCode = 0xff;
 
     if (g_appGwCtx.state == APP_FACTORY_NEW_SET_CHECK) {
         if (clock_time_exceed(g_appGwCtx.keyPressedTime, 5 * 1000 * 1000)) {
-            buttonKeepPressed(VK_SW1);
+            buttonKeepPressed(valid_keyCode);
         }
     }
 
     if (kb_scan_key(0, 1)) {
-        T_keyPressedNum++;
-
         if (kb_event.cnt) {
+            g_appGwCtx.keyPressed = 1;
             keyScan_keyPressedCB(&kb_event);
             if (kb_event.cnt == 1) {
                 valid_keyCode = kb_event.keycode[0];
@@ -258,6 +270,7 @@ void app_key_handler(void)
         } else {
             keyScan_keyReleasedCB(valid_keyCode);
             valid_keyCode = 0xff;
+            g_appGwCtx.keyPressed = 0;
         }
     }
 }

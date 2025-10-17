@@ -215,6 +215,7 @@ void app_task(void)
 {
     app_key_handler();
     localPermitJoinState();
+
     if (BDB_STATE_GET() == BDB_STATE_IDLE) {
         //factoryRst_handler();
 
@@ -290,7 +291,8 @@ void user_init(bool isRetention)
     bdb_defaultReportingCfg(SAMPLE_LIGHT_ENDPOINT, HA_PROFILE_ID,
                             ZCL_CLUSTER_GEN_LEVEL_CONTROL, ZCL_ATTRID_LEVEL_CURRENT_LEVEL,
                             1, 120, (u8 *)&reportableChange);
-#endif
+#endif /* ZCL_LEVEL_CTRL_SUPPORT */
+#if ZCL_LIGHT_COLOR_CONTROL_SUPPORT
 #if COLOR_RGB_SUPPORT
     bdb_defaultReportingCfg(SAMPLE_LIGHT_ENDPOINT, HA_PROFILE_ID,
                             ZCL_CLUSTER_LIGHTING_COLOR_CONTROL, ZCL_ATTRID_CURRENT_HUE,
@@ -306,12 +308,13 @@ void user_init(bool isRetention)
                             ZCL_CLUSTER_LIGHTING_COLOR_CONTROL, ZCL_ATTRID_CURRENT_Y,
                             1, 120, (u8 *)&reportableChange);
 #endif
-#endif
+#endif /* COLOR_RGB_SUPPORT */
 #if COLOR_CCT_SUPPORT
     bdb_defaultReportingCfg(SAMPLE_LIGHT_ENDPOINT, HA_PROFILE_ID,
                             ZCL_CLUSTER_LIGHTING_COLOR_CONTROL, ZCL_ATTRID_COLOR_TEMPERATURE_MIREDS,
                             1, 120, (u8 *)&reportableChange);
-#endif
+#endif /* COLOR_CCT_SUPPORT */
+#endif /* ZCL_LIGHT_COLOR_CONTROL_SUPPORT */
 
     /* Initialize BDB */
     bdb_init((af_simple_descriptor_t *)&sampleLight_simpleDesc, &g_bdbCommissionSetting, &g_zbDemoBdbCb, 1);

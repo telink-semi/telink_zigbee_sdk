@@ -75,9 +75,7 @@ extern "C" {
 #define PB4_OUTPUT_ENABLE       1
 #define PB4_INPUT_ENABLE        0
 
-#define LED1                    LED_G
 #define LED_POWER               LED_R
-
 
 #define	PM_WAKEUP_LEVEL         PM_WAKEUP_LEVEL_HIGH
 

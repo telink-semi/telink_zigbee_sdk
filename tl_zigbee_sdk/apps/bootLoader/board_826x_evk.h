@@ -43,31 +43,31 @@ extern "C" {
 #define	PULL_WAKEUP_SRC_PC7     PM_PIN_PULLUP_10K
 
 //LED
+#define LED_R                   GPIO_PD5
+#define PD5_FUNC                AS_GPIO
+#define PD5_OUTPUT_ENABLE       1
+#define PD5_INPUT_ENABLE        0
+
+#define LED_G                   GPIO_PD6
+#define PD6_FUNC                AS_GPIO
+#define PD6_OUTPUT_ENABLE       1
+#define PD6_INPUT_ENABLE        0
+
 #define LED_B                   GPIO_PB4
 #define PB4_FUNC                AS_GPIO
 #define PB4_OUTPUT_ENABLE       1
 #define PB4_INPUT_ENABLE        0
-
-#define LED2                    GPIO_PD6
-#define PD6_FUNC                AS_GPIO
-#define PD6_OUTPUT_ENABLE       1
-#define PD6_INPUT_ENABLE        0
 
 #define LED_W                   GPIO_PD7
 #define PD7_FUNC                AS_GPIO
 #define PD7_OUTPUT_ENABLE       1
 #define PD7_INPUT_ENABLE        0
 
-#define LED4                    GPIO_PD5
-#define PD5_FUNC                AS_GPIO
-#define PD5_OUTPUT_ENABLE       1
-#define PD5_INPUT_ENABLE        0
-
 #define LED_POWER               LED_W
 #define LED_PERMIT              LED_B
 
 //UART
-#if	UART_ENABLE
+#if UART_ENABLE
 #define UART_TX_PIN             GPIO_PC2
 #define PC2_FUNC                AS_UART
 #define PC2_INPUT_ENABLE        0
