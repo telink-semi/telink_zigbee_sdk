@@ -28,6 +28,18 @@
  */
 #include "zcl_include.h"
 
+#define REPORT_DEBUG_ENABLE     0
+
+/**********************************************************************
+ * TYPEDEFS
+ */
+typedef struct {
+    reportCfgInfo_t *pEntry;
+    u16 seconds;
+    u8 minOrMax; //0 - min; 1 - max
+    ev_timer_event_t timer;
+} zcl_reportTimerEvt_t;
+
 /**********************************************************************
  * GLOBAL VARIABLES
  */
@@ -36,11 +48,14 @@ zcl_reportingTab_t reportingTab;
 /**********************************************************************
  * LOCAL VARIABLES
  */
-ev_timer_event_t *reportAttrTimerEvt = NULL;
+static zcl_reportTimerEvt_t reportTimer[ZCL_REPORTING_TABLE_NUM];
+static ev_timer_event_t reportingTimer;
 
 /**********************************************************************
  * FUNCTIONS
  */
+static void reportAttrTimerStart(void);
+static void reportAttrTimerStop(zcl_reportTimerEvt_t *pTimerEvt);
 
 /*********************************************************************
  * @fn      zcl_reportCfgInfoEntryClear
@@ -49,7 +64,7 @@ ev_timer_event_t *reportAttrTimerEvt = NULL;
  *
  * @param   pEntry
  *
- * @return	NULL
+ * @return  None
  */
 _CODE_ZCL_ void zcl_reportCfgInfoEntryClear(reportCfgInfo_t *pEntry)
 {
@@ -65,7 +80,7 @@ _CODE_ZCL_ void zcl_reportCfgInfoEntryClear(reportCfgInfo_t *pEntry)
  *
  * @param   pEntry
  *
- * @return	NULL
+ * @return  None
  */
 _CODE_ZCL_ void zcl_reportingTabInit(void)
 {
@@ -85,9 +100,9 @@ _CODE_ZCL_ void zcl_reportingTabInit(void)
  *
  * @brief
  *
- * @param   NULL
+ * @param   None
  *
- * @return	Number of active reporting table
+ * @return  Number of active reporting table
  */
 _CODE_ZCL_ u8 zcl_reportingEntryActiveNumGet(void)
 {
@@ -95,7 +110,8 @@ _CODE_ZCL_ u8 zcl_reportingEntryActiveNumGet(void)
 
     if (reportingTab.reportNum) {
         for (u8 i = 0; i < ZCL_REPORTING_TABLE_NUM; i++) {
-            if (reportingTab.reportCfgInfo[i].used && (reportingTab.reportCfgInfo[i].maxInterval != 0xFFFF)) {
+            if (reportingTab.reportCfgInfo[i].used &&
+               (reportingTab.reportCfgInfo[i].maxInterval != 0xFFFF)) {
                 cnt++;
             }
         }
@@ -109,10 +125,11 @@ _CODE_ZCL_ u8 zcl_reportingEntryActiveNumGet(void)
  *
  * @brief
  *
- * @param   clusterId
- * 			attrID
+ * @param   endpoint
+ *          clusterId
+ *          attrID
  *
- * @return	Reporting table entry
+ * @return  Reporting table entry
  */
 _CODE_ZCL_ reportCfgInfo_t *zcl_reportCfgInfoEntryFind(u8 endpoint, u16 clusterId, u16 attrID)
 {
@@ -134,9 +151,9 @@ _CODE_ZCL_ reportCfgInfo_t *zcl_reportCfgInfoEntryFind(u8 endpoint, u16 clusterI
  *
  * @brief
  *
- * @param   NULL
+ * @param   None
  *
- * @return	Reporting table entry
+ * @return  Reporting table entry
  */
 _CODE_ZCL_ reportCfgInfo_t *zcl_reportCfgInfoEntryFreeGet(void)
 {
@@ -156,7 +173,7 @@ _CODE_ZCL_ reportCfgInfo_t *zcl_reportCfgInfoEntryFreeGet(void)
  *
  * @param   pEntry
  *
- * @return	NULL
+ * @return  None
  */
 _CODE_ZCL_ void zcl_reportCfgInfoEntryRst(reportCfgInfo_t *pEntry)
 {
@@ -167,7 +184,14 @@ _CODE_ZCL_ void zcl_reportCfgInfoEntryRst(reportCfgInfo_t *pEntry)
         pEntry->maxIntCnt = pEntry->maxIntDft;
         memset(pEntry->reportableChange, 0, REPORTABLE_CHANGE_MAX_ANALOG_SIZE);
 
-        reportAttrTimerStop();
+        for (u8 i = 0; i < ZCL_REPORTING_TABLE_NUM; i++) {
+            zcl_reportTimerEvt_t *pTimerEvt = &reportTimer[i];
+            if (pTimerEvt->pEntry == pEntry) {
+                reportAttrTimerStop(pTimerEvt);
+                break;
+            }
+        }
+
         reportAttrTimerStart();
     }
 }
@@ -178,12 +202,12 @@ _CODE_ZCL_ void zcl_reportCfgInfoEntryRst(reportCfgInfo_t *pEntry)
  * @brief
  *
  * @param   pEntry
- * 			endPoint
- * 			profileId
- * 			clusterId
- * 			pCfgReportRec
+ *          endPoint
+ *          profileId
+ *          clusterId
+ *          pCfgReportRec
  *
- * @return	NULL
+ * @return  None
  */
 _CODE_ZCL_ void zcl_reportCfgInfoEntryUpdate(reportCfgInfo_t *pEntry, u8 endPoint, u16 profileId, u16 clusterId, zclCfgReportRec_t *pCfgReportRec)
 {
@@ -233,11 +257,11 @@ _CODE_ZCL_ void zcl_reportCfgInfoEntryUpdate(reportCfgInfo_t *pEntry, u8 endPoin
  * @brief
  *
  * @param   dataType
- * 			curValue
- * 			prevValue
- * 			reportableChange
+ *          curValue
+ *          prevValue
+ *          reportableChange
  *
- * @return	TRUE / FALSE
+ * @return  TRUE or FALSE
  */
 _CODE_ZCL_ bool reportableChangeValueChk(u8 dataType, u8 *curValue, u8 *prevValue, u8 *reportableChange)
 {
@@ -380,11 +404,11 @@ _CODE_ZCL_ bool reportableChangeValueChk(u8 dataType, u8 *curValue, u8 *prevValu
  *
  * @brief
  *
- * @param
+ * @param   None
  *
- * @return	NULL
+ * @return  None
  */
-_CODE_ZCL_ void reportAttrs(void)
+_CODE_ZCL_ static void reportAttrs(void)
 {
     struct report_t {
         u8 numAttr;
@@ -417,20 +441,17 @@ _CODE_ZCL_ void reportAttrs(void)
                 pAttrEntry = zcl_findAttribute(pEntry->endPoint, pEntry->clusterID, pEntry->attrID);
                 if (pAttrEntry) {
                     bool valid = 0;
-                    u8 dataLen = zcl_getAttrSize(pAttrEntry->type, pAttrEntry->data);
 
+                    u8 dataLen = zcl_getAttrSize(pAttrEntry->type, pAttrEntry->data);
                     dataLen = (dataLen > REPORTABLE_CHANGE_MAX_ANALOG_SIZE) ? (REPORTABLE_CHANGE_MAX_ANALOG_SIZE) : (dataLen);
 
-                    if (!pEntry->maxIntCnt) {
+                    DEBUG(REPORT_DEBUG_ENABLE, "RP: cID = %x, aID = %x, min = %d, max = %d\n",
+                          pEntry->clusterID, pEntry->attrID, pEntry->minIntCnt, pEntry->maxIntCnt);
+
+                    if (!pEntry->maxIntCnt && pEntry->maxInterval) {
                         valid = 1;
                     } else if (!pEntry->minIntCnt) {
-                        if ((!zcl_analogDataType(pAttrEntry->type) && memcmp(pEntry->prevData, pAttrEntry->data, dataLen)) ||
-                            (zcl_analogDataType(pAttrEntry->type) && reportableChangeValueChk(pAttrEntry->type, pAttrEntry->data,
-                                                                                              pEntry->prevData, pEntry->reportableChange))) {
-                            valid = 1;
-                        } else {
-                            pEntry->minIntCnt = pEntry->minInterval;
-                        }
+                        valid = 1;
                     }
 
                     if (valid) {
@@ -450,10 +471,10 @@ _CODE_ZCL_ void reportAttrs(void)
                         report.attr[report.numAttr].attrData = pAttrEntry->data;
                         report.numAttr++;
 
-                        //store for next compare
+                        //update for the next comparison
                         memcpy(pEntry->prevData, pAttrEntry->data, dataLen);
-                        pEntry->minIntCnt = pEntry->minInterval;
-                        pEntry->maxIntCnt = pEntry->maxInterval;
+                        pEntry->minIntCnt = pEntry->minInterval ? pEntry->minInterval : 0xFFFF;
+                        pEntry->maxIntCnt = pEntry->maxInterval ? pEntry->maxInterval : 0xFFFF;
 
                         if (report.numAttr >= 2) {
                             again = 1;
@@ -476,6 +497,22 @@ _CODE_ZCL_ void reportAttrs(void)
     } while (again);
 }
 
+_CODE_ZCL_ static s32 reportingTimerCb(void *arg)
+{
+    reportAttrs();
+
+    return -1;
+}
+
+_CODE_ZCL_ static void reportingTimerStart(void)
+{
+    if (!ev_timer_exist(&reportingTimer)) {
+        reportingTimer.cb = reportingTimerCb;
+        reportingTimer.data = NULL;
+        ev_on_timer(&reportingTimer, 100);
+    }
+}
+
 /*********************************************************************
  * @fn      reportAttrTimerCb
  *
@@ -483,74 +520,46 @@ _CODE_ZCL_ void reportAttrs(void)
  *
  * @param   arg
  *
- * @return	0 -- continue; -1 -- cancel
+ * @return  0 -- continue; -1 -- cancel
  */
 _CODE_ZCL_ static s32 reportAttrTimerCb(void *arg)
 {
-    u16 seconds = (u16)((u32)arg);
+    zcl_reportTimerEvt_t *pReportTimer = (zcl_reportTimerEvt_t *)arg;
 
-    if (zcl_reportingEntryActiveNumGet()) {
-        for (u8 i = 0; i < ZCL_REPORTING_TABLE_NUM; i++) {
-            reportCfgInfo_t *pEntry = &reportingTab.reportCfgInfo[i];
+    DEBUG(REPORT_DEBUG_ENABLE, "reportAttrTimerCb: %x\n", (u32)pReportTimer);
 
-            if (pEntry->used && (pEntry->maxInterval != 0xFFFF) &&
-                zb_bindingTblSearched(pEntry->clusterID, pEntry->endPoint)) {
-                if (pEntry->minIntCnt) {
-                    if (pEntry->minIntCnt >= seconds) {
-                        pEntry->minIntCnt -= seconds;
-                    } else {
-                        pEntry->minIntCnt = 0;
-                    }
-                }
-                if (pEntry->maxIntCnt) {
-                    if (pEntry->maxIntCnt >= seconds) {
-                        pEntry->maxIntCnt -= seconds;
-                    } else {
-                        pEntry->maxIntCnt = 0;
-                    }
-                }
-            }
-        }
-    }
-
-    reportAttrTimerEvt = NULL;
-    return -1;
-}
-
-/*********************************************************************
- * @fn      reportAttrTimerStart
- *
- * @brief
- *
- * @param   second
- *
- * @return	NULL
- */
-_CODE_ZCL_ void reportAttrTimerStart(void)
-{
-    u16 seconds = 0xFFFF;
-
-    if (reportAttrTimerEvt) {
-        return;
-    }
-
-    for (u8 i = 0; i < ZCL_REPORTING_TABLE_NUM; i++) {
-        reportCfgInfo_t *pEntry = &reportingTab.reportCfgInfo[i];
+    if (pReportTimer->pEntry) {
+        reportCfgInfo_t *pEntry = pReportTimer->pEntry;
 
         if (pEntry->used && (pEntry->maxInterval != 0xFFFF) &&
             zb_bindingTblSearched(pEntry->clusterID, pEntry->endPoint)) {
-            if (pEntry->maxIntCnt && (pEntry->maxIntCnt < seconds)) {
-                seconds = pEntry->maxIntCnt;
+            if (pEntry->minIntCnt) {
+                if (pEntry->minIntCnt >= pReportTimer->seconds) {
+                    pEntry->minIntCnt -= pReportTimer->seconds;
+                } else {
+                    pEntry->minIntCnt = 0;
+                }
             }
-            if (pEntry->minIntCnt && (pEntry->minIntCnt < seconds)) {
-                seconds = pEntry->minIntCnt;
+            if (pEntry->maxIntCnt) {
+                if (pEntry->maxIntCnt >= pReportTimer->seconds) {
+                    pEntry->maxIntCnt -= pReportTimer->seconds;
+                } else {
+                    pEntry->maxIntCnt = 0;
+                }
             }
         }
+
+        DEBUG(REPORT_DEBUG_ENABLE, "cID = %x, attrID = %x, min = %d, max = %d, sec = %d\n",
+              pEntry->clusterID, pEntry->attrID, pEntry->minIntCnt, pEntry->maxIntCnt, pReportTimer->seconds);
+
+        reportingTimerStart();
+
+        pReportTimer->pEntry = NULL;
+        pReportTimer->seconds = 0;
+        pReportTimer->minOrMax = 0;
     }
 
-    if (seconds != 0xFFFF) {
-        reportAttrTimerEvt = TL_ZB_TIMER_SCHEDULE(reportAttrTimerCb, (void *)((u32)seconds), seconds * 1000);
-    }
+    return -1;
 }
 
 /*********************************************************************
@@ -558,14 +567,100 @@ _CODE_ZCL_ void reportAttrTimerStart(void)
  *
  * @brief
  *
- * @param   NULL
+ * @param   pTimerEvt
  *
- * @return	NULL
+ * @return  None
  */
-_CODE_ZCL_ void reportAttrTimerStop(void)
+_CODE_ZCL_ static void reportAttrTimerStop(zcl_reportTimerEvt_t *pTimerEvt)
 {
-    if (reportAttrTimerEvt) {
-        TL_ZB_TIMER_CANCEL(&reportAttrTimerEvt);
+    if (pTimerEvt->pEntry) {
+        if (ev_timer_exist(&pTimerEvt->timer)) {
+            ev_unon_timer(&pTimerEvt->timer);
+        }
+
+        pTimerEvt->pEntry = NULL;
+        pTimerEvt->seconds = 0;
+        pTimerEvt->minOrMax = 0;
+    }
+}
+
+/*********************************************************************
+ * @fn      reportAttrTimerStart
+ *
+ * @brief
+ *
+ * @param   None
+ *
+ * @return  None
+ */
+_CODE_ZCL_ static void reportAttrTimerStart(void)
+{
+    for (u8 i = 0; i < ZCL_REPORTING_TABLE_NUM; i++) {
+        reportCfgInfo_t *pEntry = &reportingTab.reportCfgInfo[i];
+        zcl_reportTimerEvt_t *pTimerEvt = &reportTimer[i];
+
+        if (pEntry->used && (pEntry->maxInterval != 0xFFFF) &&
+            zb_bindingTblSearched(pEntry->clusterID, pEntry->endPoint)) {
+            u16 seconds = 0;
+            u8 minOrMax = 1;
+
+            zclAttrInfo_t *pAttrEntry = zcl_findAttribute(pEntry->endPoint, pEntry->clusterID, pEntry->attrID);
+            u8 dataLen = zcl_getAttrSize(pAttrEntry->type, pAttrEntry->data);
+            dataLen = (dataLen > REPORTABLE_CHANGE_MAX_ANALOG_SIZE) ? (REPORTABLE_CHANGE_MAX_ANALOG_SIZE) : (dataLen);
+
+            if ((!zcl_analogDataType(pAttrEntry->type) && memcmp(pEntry->prevData, pAttrEntry->data, dataLen)) ||
+                (zcl_analogDataType(pAttrEntry->type) && reportableChangeValueChk(pAttrEntry->type, pAttrEntry->data,
+                                                                                  pEntry->prevData, pEntry->reportableChange))) {
+                //update for the next comparison
+                memcpy(pEntry->prevData, pAttrEntry->data, dataLen);
+
+                if (pEntry->minInterval) {
+                    if (pTimerEvt->pEntry && (pTimerEvt->minOrMax == 1)) {
+                        reportAttrTimerStop(pTimerEvt);
+                    }
+
+                    seconds = pEntry->minInterval;
+                    minOrMax = 0;
+                } else {
+                    reportAttrTimerStop(pTimerEvt);
+
+                    pEntry->minIntCnt = 0;
+
+                    reportingTimerStart();
+                    continue;
+                }
+            } else {
+                if (pEntry->maxInterval) {
+                    if (pTimerEvt->pEntry && (pTimerEvt->minOrMax == 1) &&
+                       (pTimerEvt->seconds != pEntry->maxInterval)) {
+                        reportAttrTimerStop(pTimerEvt);
+                    }
+
+                    seconds = pEntry->maxInterval;
+                    minOrMax = 1;
+                } else {
+                    if (pTimerEvt->pEntry && (pTimerEvt->minOrMax == 1)) {
+                        reportAttrTimerStop(pTimerEvt);
+                    }
+
+                    continue;
+                }
+            }
+
+            if (!pTimerEvt->pEntry) {
+                DEBUG(REPORT_DEBUG_ENABLE, "SET_Timer: cID = %x, attrID = %x, sec = %d\n",
+                      pEntry->clusterID, pEntry->attrID, seconds);
+
+                pTimerEvt->pEntry = pEntry;
+                pTimerEvt->seconds = seconds;
+                pTimerEvt->minOrMax = minOrMax;
+                pTimerEvt->timer.cb = reportAttrTimerCb;
+                pTimerEvt->timer.data = (void *)pTimerEvt;
+                ev_on_timer(&pTimerEvt->timer, seconds * 1000);
+            }
+        } else {
+            reportAttrTimerStop(pTimerEvt);
+        }
     }
 }
 
@@ -574,14 +669,13 @@ _CODE_ZCL_ void reportAttrTimerStop(void)
  *
  * @brief
  *
- * @param   NULL
+ * @param   None
  *
- * @return	NULL
+ * @return  None
  */
 _CODE_ZCL_ void report_handler(void)
 {
     if (zb_isDeviceJoinedNwk()) {
-        reportAttrs();
         reportAttrTimerStart();
     }
 }

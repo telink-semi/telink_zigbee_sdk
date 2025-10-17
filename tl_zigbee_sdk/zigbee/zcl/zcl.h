@@ -766,9 +766,6 @@ void zcl_reportCfgInfoEntryUpdate(reportCfgInfo_t *pEntry, u8 endPoint, u16 prof
 status_t zcl_configureReporting(u8 endpoint, u16 profileId, u16 clusterId, zclCfgReportRec_t *pCfgReportRec);
 
 //for application
-bool reportableChangeValueChk(u8 dataType, u8 *curValue, u8 *prevValue, u8 *reportableChange);
-void reportAttrTimerStart(void);
-void reportAttrTimerStop(void);
 void report_handler(void);
 
 #endif /* ZCL_REPORT */
