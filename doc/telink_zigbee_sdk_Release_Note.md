@@ -1,3 +1,96 @@
+## V3.7.2.0(PR)
+
+### Version
+* Chips
+  - TC32: TLSR8269/TLSR8258/TLSR8278
+  - RISCV: TLSR921x(B91)/TLSR952x(B92)/TL721x A3/TL321x A3
+* Hardware Version
+  - TLSR8258: C1T139A30_V1_2/C1T139A3_V2.0A
+  - TLSR921x(B91): C1T213A20_V1_3/C1T213A3_V1_1
+  - TL721x: C1T315A20_V1_2/C1T315A3_V1_1
+  - TL321x: C1T335A20_V1_3/C1T335A3_V1_0
+* Driver Version
+  - tl_platform_sdk V3.8.0
+* Toolchain Version
+  - TLSR8269/TLSR8258/TLSR8278: TC32 ELF GCC4.3
+  - TLSR921x(B91): TL32 ELF MCULIB V5F GCC7.4
+  - TLSR952x(B92)/TL721x: TL32 ELF MCULIB V5F GCC12.2
+  - TL721x: TL32 ELF MCULIB V5F GCC12.2
+  - TL321x: TL32 ELF MCULIB V5 GCC12.2
+* IDE
+  - [Telink IoT Studio](https://www.telink-semi.com/development-tools)
+### Features
+* Update driver to V3.8.0.
+* Provide registration callback for network status code indication.
+* Update demo to enhance its robustness.
+* A barbaric method to solve the decryption failure problem caused by Frame Counter overflow.
+### Bug Fixes
+* Fix the issue of APS encryption flag assignment in ZCL messages.
+* Fix the issue of losing parent for a ZED with RX_On_When_Idle is 1.
+### Performance
+* Update the reporting processing mechanism to reduce power consumption.
+### Code Refactoring
+* ZCL attributes reporting.
+### BREAKING CHANGES
+* N/A
+### CodeSize
+* Units: KBytes
+
+|   chip   | sampleGW (RAM/FLASH Size) | sampleLight (RAM/FLASH Size) | sampleSwitch (RAM/FLASH Size) |
+| :------- | :-----------------------: | :--------------------------: | :---------------------------: |
+| TLSR8258 | 35 / 178                  | 34 / 197                     | 24 / 141                      |
+| TLSR8278 |  - / -                    |  - / -                       |  - / -                        |
+| TLSR921x | 38 / 166                  | 36 / 185                     | 26 / 128                      |
+| TLSR952x |  - / -                    |  - / -                       |  - / -                        |
+| TL721x   |  - / -                    |  - / -                       |  - / -                        |
+| TL321x   | 38 / 178                  | 36 / 199                     | 28 / 142                      |
+
+### Version
+* 芯片
+  - TC32: TLSR8269/TLSR8258/TLSR8278
+  - RISCV: TLSR921x(B91)/TLSR952x(B92)/TL721x A3/TL321x A3
+* 硬件版本
+  - TLSR8258: C1T139A30_V1_2/C1T139A3_V2.0A
+  - TLSR921x(B91): C1T213A20_V1_3/C1T213A3_V1_1
+  - TL721x: C1T315A20_V1_2/C1T315A3_V1_1
+  - TL321x: C1T335A20_V1_3/C1T335A3_V1_0
+* 驱动版本
+  - tl_platform_sdk V3.8.0
+* 工具链版本
+  - TLSR8269/TLSR8258/TLSR8278: TC32 ELF GCC4.3
+  - TLSR921x(B91): TL32 ELF MCULIB V5F GCC7.4
+  - TLSR952x(B92)/TL721x: TL32 ELF MCULIB V5F GCC12.2
+  - TL721x: TL32 ELF MCULIB V5F GCC12.2
+  - TL321x: TL32 ELF MCULIB V5 GCC12.2
+* IDE
+  - [Telink IoT Studio](https://www.telink-semi.com/development-tools)
+### Features
+* 更新驱动到V3.8.0版本。
+* 提供网络状态码指示的注册回调方法。
+* 更新demo以增强其健壮性。
+* 提供一种野蛮的方法来解决由帧计数器溢出引起的解密失败问题。
+### Bug Fixes
+* 修复ZCL消息中APS加密标志赋值的问题。
+* 修复RX_On_When_ID为1的ZED丢失父节点的问题。
+### Performance
+* 更新报告处理机制以节省功耗。
+### Code Refactoring
+* ZCL属性上报.
+### BREAKING CHANGES
+* N/A
+### CodeSize
+* 单位: KBytes
+
+|   chip   | sampleGW (RAM/FLASH Size) | sampleLight (RAM/FLASH Size) | sampleSwitch (RAM/FLASH Size) |
+| :------- | :-----------------------: | :--------------------------: | :---------------------------: |
+| TLSR8258 | 35 / 178                  | 34 / 197                     | 24 / 141                      |
+| TLSR8278 |  - / -                    |  - / -                       |  - / -                        |
+| TLSR921x | 38 / 166                  | 36 / 185                     | 26 / 128                      |
+| TLSR952x |  - / -                    |  - / -                       |  - / -                        |
+| TL721x   |  - / -                    |  - / -                       |  - / -                        |
+| TL321x   | 38 / 178                  | 36 / 199                     | 28 / 142                      |
+
+
 ## V3.7.1.4(PR)
 
 ### Version
