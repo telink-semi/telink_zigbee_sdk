@@ -1,0 +1,2 @@
+# ensure all shell scripts using LF (Linux) eol
+*.sh text eol=lf
