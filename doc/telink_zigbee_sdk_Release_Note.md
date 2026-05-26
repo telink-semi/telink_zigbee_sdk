@@ -1,3 +1,110 @@
+## V4.0.0.0(FR)
+
+### Version
+* Chips
+  - RISCV: TLSR921x/TL321x/TL323x
+* Hardware Version
+  - TLSR921x: C1T213A20_V1_3/C1T213A3_V1_1
+  - TL321x: C1T335A20_V1_3/C1T335A3_V1_0
+  - TL323x: C1T388A20_V1_1/C1T388A3_V1_0
+* Driver Version
+  - tl_platform_sdk V3.11.0
+* Toolchain Version
+  - TLSR921x(B91): TL32 ELF MCULIB V5F GCC7.4
+  - TL321x: TL32 ELF MCULIB V5 GCC12.2
+  - TL323x: TL32 ELF MCULIB V5F GCC12.2
+* IDE
+  - [Telink IoT Studio](https://www.telink-semi.com/development-tools)
+### Features
+* Support Zigbee4.0 features(BDB3.1, Zigbee Direct).
+### Bug Fixes
+* N/A
+### Performance
+* N/A
+### Code Refactoring
+* Modify the directory structure.
+### BREAKING CHANGES
+* Modify the directory structure(/stack and /apps) for multi-stack and different applications.
+* Reallocate the NV data Storage address. 
+  - Be cautious about version upgrade from Zigbee3.0 to Zigbee4.0, if to do it, please ensure the address assignment remains consistent.
+### CodeSize
+* Zigbee single-mode (Units: KBytes)
+
+|   chip   | sampleGW (RAM/FLASH Size) | sampleLight (RAM/FLASH Size) | sampleSwitch (RAM/FLASH Size) |
+| :------- | :-----------------------: | :--------------------------: | :---------------------------: |
+| TLSR921x | 38 / 166                  | 36 / 185                     | 26 / 128                      |
+| TL321x   | 38 / 178                  | 36 / 199                     | 28 / 142                      |
+| TL323x   | 38 / 178                  | 36 / 199                     | 28 / 142                      |
+
+* Zigbee+BLE dual-mode (Units: KBytes)
+
+|   chip   | sampleGW_ble (RAM/FLASH Size) | sampleLight_ble (RAM/FLASH Size) | sampleSwitch_ble (RAM/FLASH Size) |
+| :------- | :-----------------------: | :--------------------------: | :---------------------------: |
+| TLSR921x | 49 / 226                  | 47 / 238                     | 37 / 185                      |
+| TL321x   | 75 / 272                  | 72 / 287                     | 63 / 235                      |
+| TL323x   | 74 / 268                  | 72 / 282                     | 63 / 231                      |
+
+* Zigbee Direct (Units: KBytes)
+
+|   chip   | sampleGW_Direct (RAM/FLASH Size) | sampleLight_Direct (RAM/FLASH Size) | sampleSwitch_Direct (RAM/FLASH Size) |
+| :------- | :-----------------------: | :--------------------------: | :---------------------------: |
+| TLSR921x | 50 / 220                  | 48 / 255                     | 38 / 196                      |
+| TL321x   | 77 / 270                  | 74 / 306                     | 65 / 251                      |
+| TL323x   | 76 / 265                  | 74 / 201                     | 65 / 246                      |
+
+### Version
+* 芯片
+  - RISCV: TLSR921x/TL321x/TL323x
+* 硬件版本
+  - TLSR921x: C1T213A20_V1_3/C1T213A3_V1_1
+  - TL321x: C1T335A20_V1_3/C1T335A3_V1_0
+  - TL323x: C1T388A20_V1_1/C1T388A3_V1_0
+* 驱动版本
+  - tl_platform_sdk V3.11.0
+* 工具链版本
+  - TLSR921x(B91): TL32 ELF MCULIB V5F GCC7.4
+  - TL321x: TL32 ELF MCULIB V5 GCC12.2
+  - TL323x: TL32 ELF MCULIB V5F GCC12.2
+* IDE
+  - [Telink IoT Studio](https://www.telink-semi.com/development-tools)
+### Features
+* 支持Zigbee4.0特性(BDB3.1, Zigbee Direct)。
+### Bug Fixes
+* N/A
+### Performance
+* N/A
+### Code Refactoring
+* 调整目录结构。
+### BREAKING CHANGES
+* 修改目录结构（/stack and /apps）以支持多协议栈和不同的应用。
+* 重新分配NV数据存储地址。
+  - 从 Zigbee3.0 升级到 Zigbee4.0 时要小心，如果要进行升级，请确保地址分配保持一致。
+### CodeSize
+* Zigbee single-mode (Units: KBytes)
+
+|   chip   | sampleGW (RAM/FLASH Size) | sampleLight (RAM/FLASH Size) | sampleSwitch (RAM/FLASH Size) |
+| :------- | :-----------------------: | :--------------------------: | :---------------------------: |
+| TLSR921x | 38 / 166                  | 36 / 185                     | 26 / 128                      |
+| TL321x   | 38 / 178                  | 36 / 199                     | 28 / 142                      |
+| TL323x   | 38 / 178                  | 36 / 199                     | 28 / 142                      |
+
+* Zigbee+BLE dual-mode (Units: KBytes)
+
+|   chip   | sampleGW_ble (RAM/FLASH Size) | sampleLight_ble (RAM/FLASH Size) | sampleSwitch_ble (RAM/FLASH Size) |
+| :------- | :-----------------------: | :--------------------------: | :---------------------------: |
+| TLSR921x | 49 / 226                  | 47 / 238                     | 37 / 185                      |
+| TL321x   | 75 / 272                  | 72 / 287                     | 63 / 235                      |
+| TL323x   | 74 / 268                  | 72 / 282                     | 63 / 231                      |
+
+* Zigbee Direct (Units: KBytes)
+
+|   chip   | sampleGW_Direct (RAM/FLASH Size) | sampleLight_Direct (RAM/FLASH Size) | sampleSwitch_Direct (RAM/FLASH Size) |
+| :------- | :-----------------------: | :--------------------------: | :---------------------------: |
+| TLSR921x | 50 / 220                  | 48 / 255                     | 38 / 196                      |
+| TL321x   | 77 / 270                  | 74 / 306                     | 65 / 251                      |
+| TL323x   | 76 / 265                  | 74 / 201                     | 65 / 246                      |
+
+
 ## V3.7.2.0(PR)
 
 ### Version
