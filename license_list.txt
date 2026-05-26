@@ -435,8 +435,8 @@
 ./tl_zigbee_sdk/stack/hci/usbCDC/zbhci_usb_cdc.c			TELINK_APACHE  
 ./tl_zigbee_sdk/stack/hci/usbHID/zbhci_usb_hid.c			TELINK_APACHE  
 ./tl_zigbee_sdk/stack/hci/usbPrint/hci_usbPrint.c			TELINK_APACHE  
-./tl_zigbee_sdk/stack/hci/zbhci.c			TELINK_APACHE  
-./tl_zigbee_sdk/stack/hci/zbhci.h			TELINK_APACHE  
+./tl_zigbee_sdk/stack/hci/hci.c			TELINK_APACHE  
+./tl_zigbee_sdk/stack/hci/hci.h			TELINK_APACHE  
 ./tl_zigbee_sdk/stack/common/includes/zb_buffer.h			TELINK_APACHE  
 ./tl_zigbee_sdk/stack/common/includes/zb_list.h			TELINK_APACHE  
 ./tl_zigbee_sdk/stack/common/includes/zb_task_queue.h			TELINK_APACHE  
