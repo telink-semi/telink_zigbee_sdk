@@ -354,7 +354,7 @@ static s32 app_bleIntervalChange(void *arg)
     return -1;
 }
 
-/*Negotiate the connection interval after 10 seconds to increase the probability of successful negoatiation*/
+/*Negotiate the connection interval after 10 seconds to increase the probability of successful negotiation*/
 void app_bleConnIntervalSet(u8 interval, u16 latency)
 {
     g_appBleInterval = interval;
