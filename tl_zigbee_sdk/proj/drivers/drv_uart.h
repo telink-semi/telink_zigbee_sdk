@@ -27,11 +27,11 @@
 
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     #define UART_CLOCK_SOURCE           CLOCK_SYS_CLOCK_HZ
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
     /* PCLK provides clock source for UART module. */
     #define UART_CLOCK_SOURCE           (sys_clk.pclk * 1000 * 1000)
     #ifndef UART_IDX
-        #define UART_IDX                UART0
+    #define UART_IDX                    UART0
     #endif
     #define UART_DMA_CHANNEL_RX         DMA2
     #define UART_DMA_CHANNEL_TX         DMA3
@@ -54,52 +54,49 @@ typedef struct {
 } drv_uart_t;
 
 
-/****************************************************************************************
- *	@brief	uart tx/rx pin set
+/**
+ * @brief  UART pin set
  *
- *	@param  txPin		TX pin
- *	@param  rxPin		RX pin
+ * @param  txPin - TX pin
+ * @param  rxPin - RX pin
  *
- *	@return	none
+ * @return none
  */
 void drv_uart_pin_set(u32 txPin, u32 rxPin);
 
-/****************************************************************************************
- *	@brief	init UART receive callback function
+/**
+ * @brief  Initialize UART receive callback function
  *
- *	@param  baudRate		baud rate
- *	@param  rxBuf			the buffer for data receiving
- *	@param  rxBufLen		the length of the uart RX buffer, must be a multiple of 4
- *	@param	uart_recvCb		UART receive callback function.
+ * @param  baudRate    - baud rate
+ * @param  rxBuf       - the buffer for data receiving
+ * @param  rxBufLen    - the length of the UART RX buffer, must be a multiple of 4
+ * @param  uart_recvCb - UART receive callback function.
  *
- *	@return	0: success
+ * @return 0 - success
  */
 u8 drv_uart_init(u32 baudRate, u8 *rxBuf, u16 rxBufLen, uart_irq_callback uartRecvCb);
 
-/****************************************************************************************
- *	@brief	uart Rx ISR
- *
+/**
+ * @brief UART RX ISR
  */
 void drv_uart_rx_irq_handler(void);
 
-/****************************************************************************************
- *	@brief	uart Tx ISR
- *
+/**
+ * @brief UART TX ISR
  */
 void drv_uart_tx_irq_handler(void);
 
-/****************************************************************************************
- *	@brief	uart data send function
+/**
+ * @brief  UART data send function
  *
- *	@param	data	start address of the data
- *	@param	len		length of data
+ * @param  data	- start address of the data
+ * @param  len  - length of data
  *
- *	@return	1: finished, 0: failed
+ * @return 1 - finished; 0 - failed
  */
 u8 drv_uart_tx_start(u8 *data, u32 len);
 
-/****************************************************************************************
- *	@brief	check if exception occurs
- *
+/**
+ * @brief Check if exception occurs
  */
 void drv_uart_exceptionProcess(void);

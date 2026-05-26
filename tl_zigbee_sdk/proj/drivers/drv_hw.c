@@ -45,15 +45,9 @@
     #else
         #error please config system clock
     #endif
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
+#elif defined(MCU_CORE_B91)
     #if (CLOCK_SYS_CLOCK_HZ == 48000000)
         #define CLOCK_INIT         CCLK_48M_HCLK_48M_PCLK_24M
-    #else
-        #error please config system clock
-    #endif
-#elif defined(MCU_CORE_TL721X)
-    #if (CLOCK_SYS_CLOCK_HZ == 120000000)
-        #define CLOCK_INIT         PLL_240M_CCLK_120M_HCLK_60M_PCLK_60M_MSPI_48M
     #else
         #error please config system clock
     #endif
@@ -62,6 +56,14 @@
         #define CLOCK_INIT         PLL_192M_CCLK_48M_HCLK_48M_PCLK_24M_MSPI_48M
     #elif (CLOCK_SYS_CLOCK_HZ == 96000000)
         #define CLOCK_INIT         PLL_192M_CCLK_96M_HCLK_48M_PCLK_24M_MSPI_48M
+    #else
+        #error please config system clock
+    #endif
+#elif defined(MCU_CORE_TL323X)
+    #if (CLOCK_SYS_CLOCK_HZ == 48000000)
+        #define CLOCK_INIT         PLL_192M_CCLK_48M_HCLK_48M_PCLK_48M_MSPI_48M
+    #elif (CLOCK_SYS_CLOCK_HZ == 96000000)
+        #define CLOCK_INIT         PLL_192M_CCLK_96M_HCLK_48M_PCLK_48M_MSPI_48M
     #else
         #error please config system clock
     #endif
@@ -74,31 +76,27 @@ static void randInit(void)
 {
 #if defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     random_generator_init();
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
     trng_init();
 #endif
 }
 
 /*********************************************************************
- * @fn      internalFlashSizeCheck
+ * @fn     internalFlashSizeCheck
  *
- * @brief   This function is provided to get and update to the correct flash address
- * 			where are stored the right MAC address and pre-configured parameters.
- * 			NOTE: It should be called before ZB_RADIO_INIT().
+ * @brief  This function is provided to get and update to the correct flash address
+ *         where are stored the right MAC address and pre-configured parameters.
+ *         NOTE: It should be called before ZB_RADIO_INIT().
  *
- * @param   None
+ * @param  none
  *
- * @return  None
+ * @return none
  */
 static void internalFlashSizeCheck(void)
 {
-#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
-#if defined(MCU_CORE_TL721X)
-    u32 mid = flash_read_mid_with_device_num(SLAVE0);
-#else
+#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91) || \
+    defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
     u32 mid = flash_read_mid();
-#endif
-
     u8 *pMid = (u8 *)&mid;
 
     if ((pMid[2] < FLASH_SIZE_512K) || \
@@ -138,10 +136,10 @@ static void voltage_detect_init(u32 detectPin)
     drv_adc_mode_pin_set(DRV_ADC_VBAT_MODE, NOINPUT);
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     drv_adc_mode_pin_set(DRV_ADC_VBAT_MODE, (GPIO_PinTypeDef)detectPin);
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X)
     drv_adc_mode_pin_set(DRV_ADC_BASE_MODE, (adc_input_pin_def_e)detectPin);
-#elif defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
-    drv_adc_mode_pin_set(DRV_ADC_BASE_MODE, (adc_input_pin_def_e)detectPin);
+#elif defined(MCU_CORE_TL323X)
+    drv_adc_mode_pin_set(DRV_ADC_BASE_MODE, (sd_adc_p_input_pin_def_e)detectPin);
 #endif
 
     drv_adc_enable(1);
@@ -150,6 +148,7 @@ static void voltage_detect_init(u32 detectPin)
 
 #if VOLTAGE_DETECT_ENABLE
 #define VOLTAGE_DEBOUNCE_NUM 	5
+
 void voltage_detect(bool powerOn)
 {
     u16 voltage = drv_get_adc_data();
@@ -181,7 +180,7 @@ void voltage_detect(bool powerOn)
 }
 #endif
 
-static startup_state_e platform_wakeup_init(void)
+static startup_state_e platform_wakeup_init(bool clear)
 {
     startup_state_e state = SYSTEM_BOOT;
 
@@ -190,22 +189,20 @@ static startup_state_e platform_wakeup_init(void)
 #elif defined(MCU_CORE_8278)
     cpu_wakeup_init(LDO_MODE, INTERNAL_CAP_XTAL24M);
 #elif defined(MCU_CORE_B91)
-    sys_init(LDO_1P4_LDO_1P8, VBAT_MAX_VALUE_GREATER_THAN_3V6, INTERNAL_CAP_XTAL24M);
-#elif defined(MCU_CORE_B92)
-    sys_init(LDO_1P4_LDO_2P0, VBAT_MAX_VALUE_GREATER_THAN_3V6, GPIO_VOLTAGE_3V3, INTERNAL_CAP_XTAL24M);
-#elif defined(MCU_CORE_TL721X)
-    sys_init(LDO_0P94_LDO_1P8, VBAT_MAX_VALUE_GREATER_THAN_3V6, INTERNAL_CAP_XTAL24M);
+    sys_init(DCDC_1P4_LDO_1P8, VBAT_MAX_VALUE_GREATER_THAN_3V6, INTERNAL_CAP_XTAL24M);
 #elif defined(MCU_CORE_TL321X)
-    sys_init(LDO_1P25_LDO_1P8, VBAT_MAX_VALUE_GREATER_THAN_3V6, INTERNAL_CAP_XTAL24M);
+    sys_init(DCDC_1P25_LDO_1P8, VBAT_MAX_VALUE_GREATER_THAN_3V6, INTERNAL_CAP_XTAL24M);
+#elif defined(MCU_CORE_TL323X)
+    sys_init(DCDC_1P25_LDO_1P8, VBAT_MAX_VALUE_GREATER_THAN_3V6, INTERNAL_CAP_XTAL24M);
 #endif
 
-#if defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#if defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
     wd_32k_stop();
     wd_stop();
 #endif
 
-#if defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
-    pm_update_status_info(1);
+#if defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+    pm_update_status_info(clear);
 #endif
 
 #if defined(MCU_CORE_826x)
@@ -213,7 +210,7 @@ static startup_state_e platform_wakeup_init(void)
     state = (pm_mcu_status == MCU_STATUS_DEEP_BACK) ? SYSTEM_DEEP : SYSTEM_BOOT;
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     state = (startup_state_e)pm_get_mcu_status();
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
     if (g_pm_status_info.mcu_status == MCU_STATUS_DEEPRET_BACK) {
         state = SYSTEM_DEEP_RETENTION;
     } else if (g_pm_status_info.mcu_status == MCU_STATUS_DEEP_BACK) {
@@ -224,23 +221,25 @@ static startup_state_e platform_wakeup_init(void)
     return state;
 }
 
-/****************************************************************************************************
-* @brief 		platform initialization function
-*
-* @param[in] 	none
-*
-* @return	  	startup_state_e.
-*/
-startup_state_e drv_platform_init(void)
+/*********************************************************************
+ * @fn     drv_platform_init
+ *
+ * @brief  Platform initialization function
+ *
+ * @param  clear - whether to clear the startup state
+ *
+ * @return startup_state_e
+ */
+startup_state_e drv_platform_init(bool clear)
 {
     drv_disable_irq();
     drv_irqMask_clear();
 
-    startup_state_e state = platform_wakeup_init();
+    startup_state_e state = platform_wakeup_init(clear);
 
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     clock_init(SYS_CLOCK_VALUE);
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
     CLOCK_INIT;
 #endif
 
@@ -249,19 +248,14 @@ startup_state_e drv_platform_init(void)
     sysTimerPerUs = tickPerUs;
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     sysTimerPerUs = sys_tick_per_us;
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
     sysTimerPerUs = SYSTEM_TIMER_TICK_1US;
 #endif
 
     gpio_init(TRUE);
 
-#if UART_PRINTF_MODE
-#if CONSOLE_UART_ENABLE
-    drv_console_pin_set(CONSOLE_TX_PIN, CONSOLE_RX_PIN);
-    drv_console_init(CONSOLE_UART_BAUDRATE);
-#else
-    DEBUG_TX_PIN_INIT();
-#endif
+#if CONSOLE_ENABLE
+    drv_console_init();
 #endif
 
     if (state != SYSTEM_DEEP_RETENTION) {
@@ -276,14 +270,14 @@ startup_state_e drv_platform_init(void)
 #if PM_ENABLE
         PM_CLOCK_INIT();
 #endif
+
+        /* Only do calibration when power on and deep sleep wake-up. */
+        drv_calibration();
     } else {
 #if PM_ENABLE
         drv_pm_wakeupTimeUpdate();
 #endif
     }
-
-    /* Get calibration info to improve performance */
-    drv_calibration();
 
     /* ADC */
 #if VOLTAGE_DETECT_ENABLE
@@ -292,14 +286,16 @@ startup_state_e drv_platform_init(void)
     voltage_detect((state == SYSTEM_BOOT) ? 1 : 0);
 #endif
 
-#if defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
-    /* AES enable after clock_init */
+#if defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+    /* Enable AES and ECC after clock_init */
     ske_dig_en();
+    pke_dig_en();
 #endif
 
+#if RF_ENABLE
     /* RF */
     ZB_RADIO_INIT();
-    ZB_TIMER_INIT();
+#endif
 
 #if defined(MCU_CORE_8258)
     if (flash_is_zb()) {
@@ -317,7 +313,7 @@ void drv_enable_irq(void)
 {
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     irq_enable();
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
     core_interrupt_enable();
 #endif
 }
@@ -326,7 +322,7 @@ u32 drv_disable_irq(void)
 {
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     return (u32)irq_disable();
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
     return core_interrupt_disable();
 #endif
 }
@@ -335,7 +331,7 @@ void drv_irqMask_clear(void)
 {
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     irq_disable_type(FLD_IRQ_ALL);
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
     reg_irq_src0 = 0;
     reg_irq_src1 = 0;
     core_mie_disable(FLD_MIE_MSIE);
@@ -349,7 +345,7 @@ u32 drv_restore_irq(u32 en)
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     irq_restore((u8)en);
     return 0;
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
     return core_restore_interrupt(en);
 #endif
 }
@@ -373,7 +369,7 @@ u32 drv_u32Rand(void)
 {
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     return rand();
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
     return trng_rand();
 #else
     return 0;
@@ -394,28 +390,3 @@ void drv_generateRandomData(u8 *pData, u8 len)
     }
 }
 
-/*For vbus supply -- close vbus watchdog, watchdog time is 8s.*/
-#if defined(MCU_CORE_B92)
-volatile u32 g_vbus_timer_turn_off_start_tick = 0;
-volatile u8 g_vbus_timer_turn_off_flag = 0;
-void drv_vbusWatchdogClose(void)
-{
-    if (usb_get_vbus_detect_status()) {
-        if (g_vbus_timer_turn_off_flag == 0) {
-            if (g_vbus_timer_turn_off_start_tick == 0) {
-                g_vbus_timer_turn_off_start_tick = stimer_get_tick();
-            }
-
-            if (clock_time_exceed(g_vbus_timer_turn_off_start_tick, 100 * 1000)) {
-                wd_turn_off_vbus_timer();//clear reset
-
-                g_vbus_timer_turn_off_start_tick = 0;
-                g_vbus_timer_turn_off_flag = 1;
-            }
-        }
-    } else if (g_vbus_timer_turn_off_flag) {
-        g_vbus_timer_turn_off_start_tick = 0;
-        g_vbus_timer_turn_off_flag = 0;
-    }
-}
-#endif

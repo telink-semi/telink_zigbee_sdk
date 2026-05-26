@@ -24,7 +24,6 @@
  *******************************************************************************************************/
 #pragma once
 
-
 #include "app_cfg.h"
 #include "platform.h"
 
@@ -37,6 +36,7 @@
 #include "common/utlist.h"
 #include "common/list.h"
 #include "common/string.h"
+#include "common/swap.h"
 #include "common/tlPrintf.h"
 #include "common/mempool.h"
 
@@ -60,8 +60,8 @@
 #include "drivers/drv_timer.h"
 #include "drivers/drv_keyboard.h"
 #include "drivers/drv_nv.h"
+#include "drivers/drv_console.h"
 #include "drivers/drv_putchar.h"
 #include "drivers/drv_usb.h"
 #include "drivers/drv_calibration.h"
 #include "drivers/drv_security.h"
-#include "drivers/drv_console.h"

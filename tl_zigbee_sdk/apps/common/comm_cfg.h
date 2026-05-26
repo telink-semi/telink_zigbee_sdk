@@ -7,7 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *			All rights reserved.
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -45,19 +45,24 @@
  *
  * Normal mode is used by default.
  */
+#ifndef BOOT_LOADER_MODE
 #define BOOT_LOADER_MODE                0
-
-
+#endif
 
 /* Boot loader address. */
-#define BOOT_LOADER_IMAGE_ADDR          0x0
+#define BOOT_LOADER_IMAGE_ADDR          0x0000
 
 /* APP image address. */
-#if (BOOT_LOADER_MODE)
-    #define APP_IMAGE_ADDR              0x8000
+#if BOOT_LOADER_MODE
+#define APP_IMAGE_ADDR                  0x8000
+#define IMAGE_TYPE_BOOT_FLAG            1
 #else
-    #define APP_IMAGE_ADDR              0x0
+#define APP_IMAGE_ADDR                  0x0000
+#define IMAGE_TYPE_BOOT_FLAG            0
 #endif
+
+/*Telink ID*/
+#define MANUFACTURER_CODE_TELINK        0x1141
 
 /* Chip IDs */
 #define TLSR_8267                       0x00
@@ -69,15 +74,22 @@
 #define TLSR_B92                        0x06
 #define TLSR_TL721X                     0x07
 #define TLSR_TL321X                     0x08
+#define TLSR_TL323X                     0x09
 
 /* Image types */
-#if (BOOT_LOADER_MODE)
-    #define IMAGE_TYPE_BOOT_FLAG        1
-#else
-    #define IMAGE_TYPE_BOOT_FLAG        0
-#endif
+//For BootLoader
 #define IMAGE_TYPE_BOOTLOADER           (0xFF)
+//For ZIGBEE
 #define IMAGE_TYPE_GW                   (0x00 | (IMAGE_TYPE_BOOT_FLAG << 7))
 #define IMAGE_TYPE_LIGHT                (0x01 | (IMAGE_TYPE_BOOT_FLAG << 7))
 #define IMAGE_TYPE_SWITCH               (0x02 | (IMAGE_TYPE_BOOT_FLAG << 7))
 #define IMAGE_TYPE_CONTACT_SENSOR       (0x03 | (IMAGE_TYPE_BOOT_FLAG << 7))
+//For ZB_BLE
+#define IMAGE_TYPE_GW_EXT               (0x10 | (IMAGE_TYPE_BOOT_FLAG << 7))
+#define IMAGE_TYPE_LIGHT_EXT            (0x11 | (IMAGE_TYPE_BOOT_FLAG << 7))
+#define IMAGE_TYPE_SWITCH_EXT           (0x12 | (IMAGE_TYPE_BOOT_FLAG << 7))
+#define IMAGE_TYPE_CONTACT_SENSOR_EXT   (0x13 | (IMAGE_TYPE_BOOT_FLAG << 7))
+//For IEEE802154
+#define IMAGE_TYPE_COOR                 (0x51)
+#define IMAGE_TYPE_DEVICE               (0x52)
+

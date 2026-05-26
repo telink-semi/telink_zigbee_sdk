@@ -32,6 +32,6 @@
 #include "pke.h"
 #include "pke_prime.h"
 #include "rsa.h"
-
+#include "x25519.h"
 
 #endif

@@ -62,7 +62,7 @@ static void hwTimerInit(u8 tmrIdx, u8 mode)
     } else {
         stimer_irq_enable();
     }
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
+#elif defined(MCU_CORE_B91)
     if (tmrIdx < TIMER_IDX_3) {
         timer_set_mode(tmrIdx, mode);
         if (tmrIdx == TIMER_IDX_0) {
@@ -73,7 +73,7 @@ static void hwTimerInit(u8 tmrIdx, u8 mode)
     } else {
         plic_interrupt_enable(IRQ1_SYSTIMER);
     }
-#elif defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
     if (tmrIdx < TIMER_IDX_3) {
         timer_set_mode(tmrIdx, mode);
         if (tmrIdx == TIMER_IDX_0) {
@@ -107,9 +107,9 @@ static void hwTimerStart(u8 tmrIdx)
     } else {
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
         stimer_set_irq_mask();
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
+#elif defined(MCU_CORE_B91)
         stimer_set_irq_mask(FLD_SYSTEM_IRQ);
-#elif defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
         stimer_set_irq_mask(FLD_SYSTEM_IRQ_MASK);
 #endif
     }
@@ -122,9 +122,9 @@ static void hwTimerStop(u8 tmrIdx)
     } else {
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
         stimer_clr_irq_mask();
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
+#elif defined(MCU_CORE_B91)
         stimer_clr_irq_mask(FLD_SYSTEM_IRQ);
-#elif defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
         stimer_clr_irq_mask(FLD_SYSTEM_IRQ_MASK);
 #endif
     }
@@ -151,15 +151,15 @@ static hw_timer_sts_t hwTmr_setAbs(u8 tmrIdx, ext_clk_t *absTimer, timerCb_t fun
 
     /* Safety Check - If time is already past, set timer as Expired */
     if (!pTimer->expireInfo.high && pTimer->expireInfo.low < TIMER_SAFE_BOUNDARY_IN_US(TIMER_TICK_1US_GET(tmrIdx))) {
-    	drv_restore_irq(r);
+        drv_restore_irq(r);
         memset(pTimer, 0, sizeof(hwTmr_info_t));
         if (func) {
             func(arg);
         }
         return HW_TIMER_SUCC;
     } else {
-    	hwTimerSet(tmrIdx, pTimer->expireInfo.high ? TIMER_OVERFLOW_VALUE : pTimer->expireInfo.low);
-    	hwTimerStart(tmrIdx);
+        hwTimerSet(tmrIdx, pTimer->expireInfo.high ? TIMER_OVERFLOW_VALUE : pTimer->expireInfo.low);
+        hwTimerStart(tmrIdx);
     }
 
     drv_restore_irq(r);
@@ -202,7 +202,7 @@ static void drv_hwTmr_irq_process(u8 tmrIdx)
 
 static void hwTimerInfoReset(u8 tmrIdx)
 {
-    memset((u8*)&hwTmr_vars.timerInfo[tmrIdx], 0, sizeof(hwTmr_info_t));
+    memset((u8 *)&hwTmr_vars.timerInfo[tmrIdx], 0, sizeof(hwTmr_info_t));
 }
 
 void drv_hwTmr_init(u8 tmrIdx, u8 mode)
@@ -243,7 +243,6 @@ hw_timer_sts_t drv_hwTmr_set(u8 tmrIdx, u32 t_us, timerCb_t func, void *arg)
 
     return hwTmr_setAbs(tmrIdx, &t, func, arg);
 }
-
 
 void drv_timer_irq0_handler(void)
 {

@@ -24,18 +24,25 @@
  *******************************************************************************************************/
 #include "../tl_common.h"
 
-void drv_console_pin_set(u32 tx, u32 rx)
+
+#if UART_PRINTF_MODE
+static void console_uart_set(u32 tx, u32 rx)
 {
-#if defined(MCU_CORE_B91)
+#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+    uart_gpio_set(tx, rx);
+#elif defined(MCU_CORE_B91)
     uart_set_pin(tx, rx);
-#elif defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
     uart_set_pin(CONSOLE_UART_IDX, tx, rx);
 #endif
 }
 
-void drv_console_init(u32 baudrate)
+static void console_uart_baudrate_set(u32 baudrate)
 {
-#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+    uart_reset();
+    uart_init_baudrate(baudrate, UART_CLOCK_SOURCE, PARITY_NONE, STOP_BIT_ONE);
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
     u16 div = 0;
     u8 bwpc = 0;
     uart_reset(CONSOLE_UART_IDX);
@@ -44,9 +51,39 @@ void drv_console_init(u32 baudrate)
 #endif
 }
 
-void drv_console_write(u8 byte)
+static void console_uart_putc(const u8 byte)
 {
-#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#if defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+    uart_send_byte(byte);
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
     uart_send_byte(CONSOLE_UART_IDX, byte);
+#endif
+}
+#endif
+
+void drv_console_write(const u8 byte)
+{
+#if GSUART_PRINTF_MODE
+    soft_uart_putc(byte);
+#elif UART_PRINTF_MODE
+    console_uart_putc(byte);
+#elif USB_PRINTF_MODE
+    hw_usb_putc(byte);
+#endif
+}
+
+void drv_console_init(void)
+{
+#if CONSOLE_ENABLE
+    tl_printf_register(drv_console_write);
+#endif
+
+#if GSUART_PRINTF_MODE
+    DEBUG_TX_PIN_INIT();
+#elif UART_PRINTF_MODE
+    console_uart_set(CONSOLE_UART_TX_PIN, CONSOLE_UART_RX_PIN);
+    console_uart_baudrate_set(CONSOLE_BAUDRATE);
+#elif USB_PRINTF_MODE
+    drv_usb_init();
 #endif
 }

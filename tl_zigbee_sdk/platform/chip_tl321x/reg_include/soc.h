@@ -388,6 +388,9 @@ enum
     FLD_USB_DIV = BIT_RNG(0, 2),
 };
 
+#define reg_product_id0 REG_ADDR8(SC_BASE_ADDR + 0x3e)
+#define reg_product_id1 REG_ADDR8(SC_BASE_ADDR + 0x3f)
+
 #define reg_boot_idcode(i) REG_ADDR8(SC_BASE_ADDR + 0x5c + (i)) /* i[0-8] */
 
 /**

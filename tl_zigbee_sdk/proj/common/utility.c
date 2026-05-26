@@ -88,3 +88,24 @@ unsigned int xcrc32(const unsigned char *buf, int len, unsigned int init)
     }
     return crc;
 }
+
+const char *hex_to_str(const void *buf, unsigned char len)
+{
+    static const char hex[] = "0123456789abcdef";
+    static char str[301];
+    const unsigned char *b = buf;
+    unsigned char i;
+
+    len = min(len, (sizeof(str) - 1) / 3);
+
+    for (i = 0; i < len; i++) {
+        str[i * 3]     = hex[b[i] >> 4];
+        str[i * 3 + 1] = hex[b[i] & 0xf];
+        str[i * 3 + 2] = ' ';
+    }
+
+    str[i * 3] = '\0';
+
+    return str;
+}
+

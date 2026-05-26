@@ -26,65 +26,65 @@
 
 
 /**
- *  @brief Definition for poll callback function 
+ * @brief Definition for poll callback function
  */
 typedef void (*ev_poll_callback_t)(void);
- 
+
 /**
- *  @brief Definition for each poll item 
+ * @brief Definition for each poll item
  */
 typedef struct ev_poll_s {
-    ev_poll_callback_t cb;                 //!< Callback of the poll task
-    u32                valid;              //!< Indicate the poll task is used or not
-} ev_poll_t; 
+    ev_poll_callback_t cb; //!< Callback of the poll task
+    u32 valid;             //!< Indicate the poll task is used or not
+} ev_poll_t;
 
 
 extern ev_poll_t ev_poll[];
 
 /**
- * @brief       Process poll events
+ * @brief  Process poll events
  *
- * @param[in]   None
+ * @param  none
  *
- * @return      None
+ * @return none
  */
 void ev_poll_process(void);
 
 /**
- * @brief       Schedule a new priority task
+ * @brief  Schedule a new priority task
  *
- * @param[in]   e   - Specified poll event ID
- * @param[in]   cb  - Pointer for the poll callback function
+ * @param  e  - Specified poll event ID
+ * @param  cb - Pointer for the poll callback function
  *
- * @return      None
+ * @return none
  */
 void ev_on_poll(ev_poll_e e, ev_poll_callback_t cb);
 
 /**
- * @brief       Enable the specified poll event
+ * @brief  Enable the specified poll event
  *
- * @param[in]   e - Specified poll event ID
+ * @param  e - Specified poll event ID
  *
- * @return      None
+ * @return none
  */
 void ev_enable_poll(ev_poll_e e);
 
 /**
- * @brief       Schedule a LOW Medium task
+ * @brief  Schedule a LOW Medium task
  *
- * @param[in]   e - Specified poll event ID
+ * @param  e - Specified poll event ID
  *
- * @return      None
+ * @return none
  */
 void ev_disable_poll(ev_poll_e e);
 
- /**
-  * @brief       Schedule a Poll Task
-  *
-  * @param[in]   e    - Specified poll event ID
-  * @param[in]   task - Pointer for the task callback function
-  *
-  * @return      None
-  */
+/**
+ * @brief  Schedule a Poll Task
+ *
+ * @param  e    - Specified poll event ID
+ * @param  task - Pointer for the task callback function
+ *
+ * @return none
+ */
 #define EV_SCHEDULE_POLL(e, task) (ev_on_poll(e, task))
 

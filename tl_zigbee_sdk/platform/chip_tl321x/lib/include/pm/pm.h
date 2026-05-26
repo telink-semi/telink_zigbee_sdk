@@ -363,8 +363,6 @@ _attribute_ram_code_sec_noinline_ void pm_update_status_info(unsigned char clr_e
                     dcdc_1p25   dcdc_1p8     ldo_1p25    ldo_1p8
                 00:     N           N           Y           Y
                 01:     Y           N           N           Y
-                10:     Y           N           N           N
-                11:     Y           Y           N           N
  */
 _attribute_ram_code_sec_noinline_ void pm_set_power_mode(power_mode_e power_mode);
 
@@ -389,4 +387,4 @@ _attribute_ram_code_sec_optimize_o2_noinline_ void pm_sys_reboot_with_reason(pm_
  * @return      none.
  * @note        Before calling this interface to open base band, you need to make sure that the input function of PA2 is turned off.(BUT-53)
  */
-_attribute_ram_code_sec_noinline_ void pm_set_dig_module_power_switch(pm_pd_module_e module, pm_power_sel_e power_sel);
+_attribute_ram_code_sec_optimize_o2_noinline_  void pm_set_dig_module_power_switch(pm_pd_module_e module, pm_power_sel_e power_sel);

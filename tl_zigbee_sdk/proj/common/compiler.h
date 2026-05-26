@@ -31,21 +31,33 @@
 #define _attribute_packed_                              __attribute__((packed))
 #endif
 
+//save retention ram size
+#if defined(MCU_CORE_8258)
+#define _attribute_data_no_init_                        __attribute__((section(".data_no_init")))
+#else
+#define _attribute_data_no_init_
+#endif
+
 #define _attribute_aligned_(s)                          __attribute__((aligned(s)))
 #define _attribute_session_(s)                          __attribute__((section(s)))
 
+#define _attribute_noinline_                            __attribute__((noinline))
 #define _attribute_no_inline_                           __attribute__((noinline))
 
 #define _attribute_data_retention_
 #define _attribute_data_retention_sec_
+#define _attribute_ble_data_retention_
 
 #define _attribute_ram_code_                            __attribute__((section(".ram_code")))
 #define _attribute_ram_code_sec_                        __attribute__((section(".ram_code")))
+#define _attribute_ram_code_only_                       __attribute__((section(".ram_code")))
+#define _attribute_ble_ram_code_noinline_               __attribute__((section(".ram_code"), noinline))
 #define _attribute_ram_code_sec_noinline_               __attribute__((section(".ram_code"))) __attribute__((noinline))
 #define _attribute_custom_data_                         __attribute__((section(".custom_data")))
 #define _attribute_custom_bss_                          __attribute__((section(".custom_bss")))
 #define _attribute_text_sec_                            __attribute__((section(".text")))
 #define _attribute_aes_data_sec_                        __attribute__((section(".aes_data")))
+#define _attribute_data_sec_                            __attribute__((section(".data")))
 
 #ifndef STD_GCC //standard open source risc-V GCC
 #define _attribute_flash_code_sec_noinline_             __attribute__((section(".flash_code"))) __attribute__((optimize("O2"))) __attribute__((noinline)) __attribute__((no_execit))
@@ -67,13 +79,16 @@
 
 /**
  *  _always_inline needs to be added in the following two cases:
- * 1. The subfunctions in the pm_sleep_wakeup function need to use _always_inline and _attribute_ram_code_sec_optimize_o2_, as detailed in the internal comments of pm_sleep_wakeup.
+ * 1. The sub functions in the pm_sleep_wakeup function need to use _always_inline and _attribute_ram_code_sec_optimize_o2_, as detailed in the internal comments of pm_sleep_wakeup.
  * 2. The BLE SDK uses interrupt preemption, flash interface operations can be interrupted by high-priority interrupts, which requires that the high-priority interrupt handler function,can not have a text segment of code.
  *    So the BLE SDK provides the following requirements: Add the following function to _always_inline: rf_set_tx_rx_off, rf_set_ble_crc_adv, rf_set_ble_crc_value, rf_set_rx_maxlen, stimer_get_tick, clock_time_exceed, rf_receiving_flag, dma_config, gpio_toggle, gpio_set_low_level, gpio_set_level.
  */
 #define _always_inline                                  inline __attribute__((always_inline))
 
-/// Pack a structure field
+//Pack a structure field
 #define __PACKED                                        __attribute__((__packed__))
+
+//define the force inlining attribute for this compiler
+#define __INLINE                                       static __attribute__((__always_inline__)) inline
 
 #endif

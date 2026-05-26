@@ -31,20 +31,21 @@
 #elif defined (MCU_CORE_8258)
 #include "chip_8258/driver_8258.h"
 #include "chip_8258/gpio_default.h"
+#include "chip_8258/driver_ext/driver_ext.h"
 #elif defined (MCU_CORE_8278)
 #include "chip_8278/driver_8278.h"
 #include "chip_8278/gpio_default.h"
 #elif defined (MCU_CORE_B91)
 #include "chip_b91/driver.h"
 #include "chip_b91/gpio_default.h"
-#elif defined (MCU_CORE_B92)
-#include "chip_b92/driver.h"
-#include "chip_b92/gpio_default.h"
-#elif defined (MCU_CORE_TL721X)
-#include "chip_tl721x/driver.h"
-#include "chip_tl721x/gpio_default.h"
+#include "chip_b91/ext_driver/driver_ext.h"
 #elif defined (MCU_CORE_TL321X)
 #include "chip_tl321x/driver.h"
 #include "chip_tl321x/gpio_default.h"
+#include "chip_tl321x/ext_driver/driver_ext.h"
+#elif defined (MCU_CORE_TL323X)
+#include "chip_tl323x/driver.h"
+#include "chip_tl323x/gpio_default.h"
+#include "chip_tl323x/ext_driver/driver_ext.h"
 #endif
 

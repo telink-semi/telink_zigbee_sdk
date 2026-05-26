@@ -7,7 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *			All rights reserved.
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@
  *******************************************************************************************************/
 #pragma once
 
-#include "../common/comm_cfg.h"
+#include "comm_cfg.h"
 
 #if defined(MCU_CORE_826x)
     #if (CHIP_8269)
@@ -33,7 +33,7 @@
         #define CHIP_TYPE               TLSR_8267
     #endif
 #elif defined(MCU_CORE_8258)
-        #define CHIP_TYPE               TLSR_8258_512K//TLSR_8258_1M
+        #define CHIP_TYPE               TLSR_8258_1M
     #if (CHIP_TYPE == TLSR_8258_1M)
         #define FLASH_CAP_SIZE_1M       1
     #endif
@@ -43,27 +43,24 @@
 #elif defined(MCU_CORE_B91)
         #define CHIP_TYPE               TLSR_B91
         #define FLASH_CAP_SIZE_1M       1
-#elif defined(MCU_CORE_B92)
-        #define CHIP_TYPE               TLSR_B92
-        #define FLASH_CAP_SIZE_1M       1
-#elif defined(MCU_CORE_TL721X)
-        #define CHIP_TYPE               TLSR_TL721X
-        #define FLASH_CAP_SIZE_1M       1
 #elif defined(MCU_CORE_TL321X)
         #define CHIP_TYPE               TLSR_TL321X
-        #define FLASH_CAP_SIZE_1M       1
+        #define FLASH_CAP_SIZE_2M       1
+#elif defined(MCU_CORE_TL323X)
+        #define CHIP_TYPE               TLSR_TL323X
+        #define FLASH_CAP_SIZE_2M       1
 #endif
 
 #define APP_RELEASE                     0x10//app release 1.0
 #define APP_BUILD                       0x01//app build 01
-#define STACK_RELEASE                   0x30//stack release 3.0
+#define STACK_RELEASE                   0x40//stack release 4.0
 #define STACK_BUILD                     0x01//stack build 01
 
 /*********************************************************************************************
  * During OTA upgrade, the upgraded device will check the rules of the following three fields.
  * Refer to ZCL OTA specification for details.
  */
-#define MANUFACTURER_CODE_TELINK        0x1141//Telink ID
+#define MANUFACTURER_CODE               MANUFACTURER_CODE_TELINK//Telink ID
 #define	IMAGE_TYPE                      ((CHIP_TYPE << 8) | IMAGE_TYPE_BOOTLOADER)
 #define	FILE_VERSION                    ((APP_RELEASE << 24) | (APP_BUILD << 16) | (STACK_RELEASE << 8) | STACK_BUILD)
 
@@ -73,5 +70,5 @@
 #define IMAGE_OFFSET                    BOOT_LOADER_IMAGE_ADDR
 
 #if !defined(BOOT_LOADER_MODE) || (BOOT_LOADER_MODE == 0)
-	#error "Please define BOOT_LOADER_MODE = 1"
+    #error "Please define BOOT_LOADER_MODE = 1"
 #endif

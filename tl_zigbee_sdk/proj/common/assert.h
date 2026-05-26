@@ -26,16 +26,16 @@
 
 //for  __DEBUG__
 #if (ASSERT_DEBUG_MODE)
-#define assert(exp)             do{ \
+#define assert(exp)             do { \
                                     if (!(exp)) { \
                                         DEBUG_OUT("File:%s, Line:%d\n", __FILE__, __LINE__); \
                                         while(1){;} \
                                     } \
-                                }while(0)
+                                } while(0)
 
-#define trace_route             do{ \
+#define trace_route             do { \
                                     DEBUG_OUT("File:%s, Line:%d\n", __FILE__, __LINE__); \
-                                }while(0)
+                                } while(0)
 #else
 #define assert(ignore)          ((void) 0)
 #define trace_route

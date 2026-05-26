@@ -66,7 +66,7 @@
     .org 0x0
 
     .extern FILE_VERSION
-    .extern MANUFACTURER_CODE_TELINK
+    .extern MANUFACTURER_CODE
     .extern IMAGE_TYPE
 
     .global _RESET_ENTRY
@@ -79,7 +79,7 @@ _RESET_ENTRY:
 
     .word (FILE_VERSION)
     .org 0x12
-    .short (MANUFACTURER_CODE_TELINK)
+    .short (MANUFACTURER_CODE)
     .short (IMAGE_TYPE)
 
     .org 0x18

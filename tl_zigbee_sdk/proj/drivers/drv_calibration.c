@@ -66,10 +66,9 @@ static void drv_calib_adc_verf(void)
     }
 #endif
 }
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
+#elif defined(MCU_CORE_B91)
 static void drv_calib_adc_verf(void)
 {
-#if defined(MCU_CORE_B91)
     u8 adc_vref_calib_value[7] = {0};
     u16 gpio_calib_vref = 0;
     s8 gpio_calib_vref_offset = 0;
@@ -107,10 +106,6 @@ static void drv_calib_adc_verf(void)
             }
         }
     }
-#elif defined(MCU_CORE_B92)
-    /******get adc calibration value from EFUSE********/
-    efuse_calib_adc_vref(GPIO_VOLTAGE_3V3);
-#endif
 }
 
 static void drv_calib_freq_offset(void)
@@ -136,7 +131,7 @@ static void drv_calib_rf_rx_dcoc(void)
         rf_update_rx_dcoc_calib_code(flash_iq_code);
     }
 }
-#elif defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
 static void drv_calib_freq_offset(void)
 {
     u8 freq_offset_value = 0xff;
@@ -158,7 +153,7 @@ void drv_calibration(void)
     if (flash_read_mid_uid_with_check(&flash_mid, flash_uid)) {
         drv_calib_adc_verf();
     }
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92)
+#elif defined(MCU_CORE_B91)
     u32 flash_mid = 0;
     u8 flash_uid[16] = {0};
 
@@ -166,15 +161,6 @@ void drv_calibration(void)
         drv_calib_adc_verf();
         drv_calib_freq_offset();
         drv_calib_rf_rx_dcoc();
-    }
-#elif defined(MCU_CORE_TL721X)
-    u32 flash_mid = 0;
-    u8 flash_uid[16] = {0};
-
-    otp_calib_adc_vref();
-
-    if (flash_read_mid_uid_with_check_with_device_num(SLAVE0, &flash_mid, flash_uid)) {
-        drv_calib_freq_offset();
     }
 #elif defined(MCU_CORE_TL321X)
     u32 flash_mid = 0;
@@ -185,24 +171,30 @@ void drv_calibration(void)
     if (flash_read_mid_uid_with_check(&flash_mid, flash_uid)) {
         drv_calib_freq_offset();
     }
+#elif defined(MCU_CORE_TL323X)
+    u32 flash_mid = 0;
+    u8 flash_uid[16] = {0};
+
+    extern drv_api_status_e efuse_calib_sd_adc_vref(void);
+    efuse_calib_sd_adc_vref();
+
+    pm_efuse_calib_vdd1v8_voltage();
+
+    if (flash_read_mid_uid_with_check(&flash_mid, flash_uid)) {
+        drv_calib_freq_offset();
+    }
 #endif
 }
 
 bool drv_get_primary_ieee_addr(u8 *addr)
 {
-#if defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#if defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
     u8 addr_zero[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     u8 addr_invalid[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
     u8 buf[8];
 
-#if defined(MCU_CORE_TL721X)
-    /* xx xx xx 28 22 38 xx xx */
-    extern void otp_get_ieee_addr(unsigned char *buf);
-    otp_get_ieee_addr(buf); //get IEEE address from OTP
-#else
     /* xx xx xx C7 A3 C0 xx xx */
     efuse_get_ieee_addr(buf);
-#endif
 
     if (!memcmp(buf, addr_zero, 8) || !memcmp(buf, addr_invalid, 8)) {
         return FALSE;

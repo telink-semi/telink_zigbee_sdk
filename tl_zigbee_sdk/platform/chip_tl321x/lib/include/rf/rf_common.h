@@ -21,6 +21,65 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
+
+ /**
+ * @page RF RF Module Configuration Guide
+ * 
+ * @brief This page provides detailed usage notes, power configuration instructions, and key precautions for the RF module.
+ * 
+ * @par Header File
+ *      rf_common.h
+ * 
+ * @section rf_pm_precautions RF and PM Usage Precautions
+ * When using RF and Power Management (PM) functions in combination, note the following requirements for different low-power modes:
+ * 
+ * - <b>Suspend mode</b>:
+ *   RF-related digital registers will be lost. After waking up from suspend mode, re-invoke all RF-related function interfaces to restore functionality.
+ *   <br>
+ *   If you don't want to re-invoke RF-related function interfaces after waking up, you can use the <code>pm_set_suspend_power_cfg</code> function 
+ *   to set <code>PM_POWER_BASEBAND</code> to maintain power during suspend sleep. 
+ *   <b>Note:</b> This will increase power consumption during suspend.
+ * 
+ * - <b>Deep retention mode</b>:
+ *   RF-related digital registers will be lost. After waking up from deep retention mode, re-invoke all RF-related function interfaces to restore functionality.
+ * 
+ * - <b>Deep mode</b>:
+ *   RF-related digital registers will be lost. After waking up from deep mode, re-invoke all RF-related function interfaces to restore functionality.
+ * 
+ * @section rf_power_explanation RF Transmit Power Configuration
+ * 
+ * @subsection rf_power_supply Power Supply Modes of RF PA Module
+ * The RF Power Amplifier (PA) module supports two power supply modes, with key characteristics as follows:
+ * 
+ * | Power Supply Mode | Power Source                          | Output Power Characteristics                                                                 | Advantage                                  |
+ * |-------------------|---------------------------------------|------------------------------------------------------------------------------------------------|-------------------------------------------|
+ * | VBAT mode         | Directly powered by VBAT              | Maximum output power varies with VBAT voltage (higher VBAT higher available power)          | Simple power path, suitable for high-power scenarios |
+ * | VANT mode         | Powered by embedded DCDC + LDO        | Output power is stable (independent of VBAT voltage)                                          | Lower power consumption at the same transmit power |
+ * 
+ * @subsection rf_power_table TX Power Table (Driver-Provided)
+ * - The default <code>rf_power_level_e</code> enumeration is tested based on the largest package, providing typical reference values for both VBAT and VANT modes.
+ * - Power levels exceeding the maximum VANT power are automatically mapped to VBAT mode (driver handles mode switching internally).
+ * 
+ * @subsection rf_power_adjust Power Level Adjustment Instructions
+ * #### 3.1 Basic Configuration Rules
+ * - Both VBAT and VANT modes support 64 configurable power levels (range: 0 ~ 63).
+ * - The mapping relationship between level numbers and hardware registers is fixed (package-independent); only the actual transmit power differs by package.
+ * 
+ * #### 3.2 Configuration Methods (via <code>rf_set_power_level</code> Interface)
+ * Two configuration approaches are supported:
+ * a) Use predefined values from the <code>rf_power_level_e</code> enumeration (recommended for most scenarios).
+ * b) Write custom level values (for scenario-specific power optimization), following mode-specific formatting rules.
+ * 
+ * #### 3.3 Mode-Specific Level Format
+ * | Mode       | Level Format                          | Valid Range |
+ * |------------|---------------------------------------|-------------|
+ * | VBAT mode  | <code>level = power_level</code>      | 0 ~ 63      |
+ * | VANT mode  | <code>level = BIT(7) \| power_level</code> | 0 ~ 63      |
+ * 
+ * @subsection rf_power_notes Supplementary Notes
+ * 1. For package-specific detailed power data (e.g., actual power values corresponding to each level), refer to the <cite>[Chip Model] RF Test Report</cite>.
+ * 2. Actual transmit power is affected by antenna matching, PCB layout, and hardware design. Mandatory hardware calibration is required for mass production or high-precision applications.
+ */
 #ifndef RF_COMMON_H
 #define RF_COMMON_H
 
@@ -41,7 +100,19 @@
  * @brief       This define for ble debug the effect of rx_dly.
  *              when this function turn on the time of rx_dly will shorten 6.3us,
  */
-#define RF_RX_SHORT_MODE_EN 1 //In order to debug whether the problem is caused by rx_dly.
+#define RF_RX_SHORT_MODE_EN         1 //In order to debug whether the problem is caused by rx_dly.
+#define RF_RX_DCOC_SOFTWARE_CAL_EN  1 //BLE move the macro here.
+
+/*
+*This macro is defined to restore the use of hardware HPMC when debugging software issues.
+*Note: According to the given design scheme, it is necessary to enable HPMC fitting+compensation values and only use this macro definition
+*Used for internal debugging. When it is necessary to restore hardware HPMC, set this macro to 0 (modified by kun.he, confirmed by wenfeng.lou, 20250310)
+*/
+/* BLE move the macro here. */
+#define RF_TX_HPMC_COMPENSATE_EN    1
+#define RF_TX_HPMC_LINEAR_FIT_EN    0
+#define RF_TX_HPMC_COMP_VAL         80
+
 /**
  *  @brief This define serve to calculate the DMA length of packet.
  */
@@ -226,6 +297,24 @@ typedef enum
     RF_MODE_AUTO = 2, /**<  Auto mode */
     RF_MODE_OFF  = 3  /**<  TXRX OFF mode */
 } rf_status_e;
+
+/**
+ *  @brief  set the modulation index.
+ */
+typedef enum
+{
+    RF_MI_P0p00  = 0,    /**< MI = 0 */
+    RF_MI_P0p076 = 76,   /**< MI = 0.076 */
+    RF_MI_P0p32  = 320,  /**< MI = 0.32 */
+    RF_MI_P0p50  = 500,  /**< MI = 0.5 */
+    RF_MI_P0p60  = 600,  /**< MI = 0.6 */
+    RF_MI_P0p70  = 700,  /**< MI = 0.7 */
+    RF_MI_P0p80  = 800,  /**< MI = 0.8 */
+    RF_MI_P0p90  = 900,  /**< MI = 0.9 */
+    RF_MI_P1p20  = 1200, /**< MI = 1.2 */
+    RF_MI_P1p30  = 1300, /**< MI = 1.3 */
+    RF_MI_P1p40  = 1400, /**< MI = 1.4 */
+} rf_mi_value_e;
 
 /**
  *  @brief   Define power list of RF.
@@ -441,7 +530,7 @@ typedef enum
 /**********************************************************************************************************************
  *                                         RF global constants                                                        *
  *********************************************************************************************************************/
-extern const rf_power_level_e                       rf_power_Level_list[60];
+extern _attribute_data_retention_ volatile rf_power_level_e rf_power_Level_list[60]; //BLE SDK use: volatile to put into RAM
 extern rf_mode_e                                    g_rfmode;
 extern rf_crc_config_t                              rf_crc_config[3];
 extern _attribute_data_retention_sec_ unsigned char g_rf_rx_high_performance;
@@ -548,9 +637,9 @@ static inline void rf_rx_acc_code_pipe_en(rf_channel_e pipe)
  *                        If "enable" is set as 0x7 (i.e. 0111),the access_code channel (7) is enabled.
  * @return      none
  */
-static inline void rf_tx_acc_code_pipe_en(rf_channel_e pipe)
+static inline void rf_tx_acc_code_pipe_en(unsigned char pipe)
 {
-    write_reg8(0x170215, ((read_reg8(0x170215) & 0xf8) | pipe) | BIT(4)); //Tx_Channel_man[2:0]
+    write_reg8(0x170215, ((read_reg8(0x170215) & 0xf8) | (pipe&0x07)) | BIT(4)); //Tx_Channel_man[2:0]
 }
 
 /**
@@ -1314,5 +1403,25 @@ void rf_ldot_ldo_rxtxlf_bypass_en(void);
  * @return      none.
  */
 void rf_ldot_ldo_rxtxlf_bypass_dis(void);
+
+/**
+ * @brief       This function is used to  set the modulation index of the receiver.
+ *              This function is common to all modes,the order of use requirement:configure mode first,
+ *              then set the the modulation index,default is 0.5 in drive,both sides need to be consistent
+ *              otherwise performance will suffer,if don't specifically request,don't need to call this function.
+ * @param[in]   mi_value- the value of modulation_index*100.
+ * @return      none.
+ */
+void rf_set_rx_modulation_index(rf_mi_value_e mi_value);
+
+/**
+ * @brief       This function is used to  set the modulation index of the sender.
+ *              This function is common to all modes,the order of use requirement:configure mode first,
+ *              then set the the modulation index,default is 0.5 in drive,both sides need to be consistent
+ *              otherwise performance will suffer,if don't specifically request,don't need to call this function.
+ * @param[in]   mi_value- the value of modulation_index*100.
+ * @return      none.
+ */
+void rf_set_tx_modulation_index(rf_mi_value_e mi_value);
 
 #endif

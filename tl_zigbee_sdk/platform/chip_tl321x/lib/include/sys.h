@@ -225,6 +225,10 @@ _attribute_ram_code_sec_noinline_ void sys_reboot_ram(void);
  *                 When this time is adjusted to meet the crystal oscillator requirements, it will not reboot.
  *              -# Before calling this interface, you need to ensure that the input function of PA2 is disable.
  *                 and in order to prevent errors, the PA2 input function is disabled on this interface.(BUT-53)
+ * @attention   The LPD power down protection function has been enabled in sys_init(), and the 32k watchdog and timer watchdog are turned on by default, 
+ *              the 32k watchdog reset time is 5s, and the timer watchdog reset time is 10s, the application layer please keep one watchdog working, 
+ *              and feed the watchdog at regular intervals (the watchdog reset time can be reconfigured on your own,but MUST > 1s to prevent the watchdog from resetting during normal power down process.), 
+ *              to prevent the chip from triggering the LPD function by mistake due to power supply voltage glitches, causing the chip to get stuck.
  */
 _attribute_ram_code_sec_noinline_ void sys_init(power_mode_e power_mode, vbat_type_e vbat_v, cap_typedef_e cap);
 

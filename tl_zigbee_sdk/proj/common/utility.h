@@ -39,8 +39,11 @@
 #ifndef min3
 #define min3(a,b,c)                     min2(min2(a, b), c)
 #endif
+#ifndef max
+#define max(a,b)                        ((a) > (b) ? (a) : (b))
+#endif
 #ifndef max2
-#define max2(a,b)                       ((a) > (b) ? (a): (b))
+#define max2(a,b)                       ((a) > (b) ? (a) : (b))
 #endif
 #ifndef max3
 #define max3(a,b,c)                     max2(max2(a, b), c)
@@ -82,6 +85,11 @@
 
 #define IS_POWER_OF_2(x)                (!(x & (x-1)))
 #define IS_LITTLE_ENDIAN                (*(unsigned short*)"\0\xff" > 0x100)
+#define IS_4BYTE_ALIGN(x)               (!(x & 3))
+#define IS_16BYTE_ALIGN(x)              (!(x & 15))
+
+#define	DATA_LENGTH_ALIGN4(n)           (((n) + 3) / 4 * 4)
+#define	DATA_LENGTH_ALIGN16(n)          (((n) + 15) / 16 * 16)
 
 #define IMPLIES(x, y)                   (!(x) || (y))
 
@@ -107,6 +115,9 @@
 #define HI_UINT16(a)                    (((a) >> 8) & 0xFF)
 #define LO_UINT16(a)                    ((a) & 0xFF)
 
+#define U16_HI(a)                       (((a) >> 8) & 0xFF)
+#define U16_LO(a)                       ((a) & 0xFF)
+
 #define U24_BYTE0(a)                    ((a) & 0xFF)
 #define U24_BYTE1(a)                    (((a) >> 8) & 0xFF)
 #define U24_BYTE2(a)                    (((a) >> 16) & 0xFF)
@@ -116,6 +127,10 @@
 #define U32_BYTE2(a)                    (((a) >> 16) & 0xFF)
 #define U32_BYTE3(a)                    (((a) >> 24) & 0xFF)
 
+#define MAKE_U16(h, l)                  ((unsigned short)(((h) << 8) | (l)))
+#define MAKE_U24(a, b, c)               ((unsigned int)(((a) << 16) | ((b) << 8) | (c)))
+#define MAKE_U32(a, b, c, d)            ((unsigned int)(((a) << 24) | ((b) << 16) | ((c) << 8) | (d)))
+
 #define BUILD_U16(lo, hi)               ((unsigned short)((((hi) & 0x00FF) << 8) + ((lo) & 0x00FF)))
 #define BUILD_U24(b0, b1, b2)           ((unsigned int)((((b2) & 0x000000FF) << 16) + (((b1) & 0x000000FF) << 8) + ((b0) & 0x000000FF)))
 #define BUILD_U32(b0, b1, b2, b3)       ((unsigned int)((((b3) & 0x000000FF) << 24) + (((b2) & 0x000000FF) << 16) + (((b1) & 0x000000FF) << 8) + ((b0) & 0x000000FF)))
@@ -124,6 +139,26 @@
 #define BUILD_S24(b0, b1, b2)           ((signed int)((((b2) & 0x000000FF) << 16) + (((b1) & 0x000000FF) << 8) + ((b0) & 0x000000FF)))
 #define BUILD_S32(b0, b1, b2, b3)       ((signed int)((((b3) & 0x000000FF) << 24) + (((b2) & 0x000000FF) << 16) + (((b1) & 0x000000FF) << 8) + ((b0) & 0x000000FF)))
 
+#define U16_TO_BYTES(n)                 ((u8) (n)), ((u8)((n) >> 8))
+#define U24_TO_BYTES(n)                 ((u8) (n)), ((u8)((n) >> 8)), ((u8)((n) >> 16))
+#define U32_TO_BYTES(n)                 ((u8) (n)), ((u8)((n) >> 8)), ((u8)((n) >> 16)), ((u8)((n) >> 24))
+
+#define BYTE_TO_UINT16(n, p)            {n = ((u16)(p)[0] + ((u16)(p)[1] << 8));}
+#define BYTE_TO_UINT24(n, p)            {n = ((u32)(p)[0] + ((u32)(p)[1] << 8) + ((u32)(p)[2] << 16));}
+#define BYTE_TO_UINT32(n, p)            {n = ((u32)(p)[0] + ((u32)(p)[1] << 8) + ((u32)(p)[2] << 16) + ((u32)(p)[3] << 24));}
+
+#define STREAM_TO_U8(n, p)              {n = *(p); p++;}
+#define STREAM_TO_U16(n, p)             {BYTE_TO_UINT16(n, p); p += 2;}
+#define STREAM_TO_U24(n, p)             {BYTE_TO_UINT24(n, p); p += 3;}
+#define STREAM_TO_U32(n, p)             {BYTE_TO_UINT32(n, p); p += 4;}
+#define STREAM_TO_STR(n, p, l)          {memcpy(n, p, l); p += l;}
+
+#define U8_TO_STREAM(p, n)              {*(p)++ = (u8)(n);}
+#define U16_TO_STREAM(p, n)             {*(p)++ = (u8)(n); *(p)++ = (u8)((n) >> 8);}
+#define U24_TO_STREAM(p, n)             {*(p)++ = (u8)(n); *(p)++ = (u8)((n) >> 8); *(p)++ = (u8)((n) >> 16);}
+#define U32_TO_STREAM(p, n)             {*(p)++ = (u8)(n); *(p)++ = (u8)((n) >> 8); *(p)++ = (u8)((n) >> 16); *(p)++ = (u8)((n) >> 24);}
+#define U40_TO_STREAM(p, n)             {*(p)++ = (u8)(n); *(p)++ = (u8)((n) >> 8); *(p)++ = (u8)((n) >> 16); *(p)++ = (u8)((n) >> 24); *(p)++ = (u8)((n) >> 32);}
+#define STR_TO_STREAM(p, n, l)          {memcpy(p, n, l); p += l;}
 
 #define HASH_MAGIC_VAL                  5381u
 #define INT_MASK                        0x7fffffff
@@ -134,3 +169,4 @@
 #define TWO_INT_HASH_FUNC(v1, v2)               (HASH_FUNC_STEP(HASH_FUNC_STEP(HASH_MAGIC_VAL, (v1)), (v2)) & INT_MASK)
 
 extern unsigned int xcrc32(const unsigned char *buf, int len, unsigned int init);
+const char *hex_to_str(const void *buf, unsigned char len);

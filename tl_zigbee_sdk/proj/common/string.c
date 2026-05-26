@@ -117,13 +117,9 @@ static void bcopy_(register char *src, register char *dest, int len)
 #if 1
 void *memset(void *dest, int val, unsigned int len)
 {
-    if (dest == NULL) {
+    if ((dest == NULL) || (is_ev_buf(dest) && (len > LARGE_BUFFER))) {
         ZB_EXCEPTION_POST(SYS_EXCEPTTION_COMMON_MEM_ACCESS);
         return dest;
-    }
-    if (is_ev_buf(dest) && (len > LARGE_BUFFER)) {
-    	ZB_EXCEPTION_POST(SYS_EXCEPTTION_COMMON_MEM_ACCESS);
-    	return dest;
     }
 
     register unsigned char *ptr = (unsigned char *)dest;
@@ -138,17 +134,9 @@ void *memcpy(void *out, const void *in, unsigned int length)
     if (length == 0) {
         return out;
     }
-    if (out == NULL) {
+    if ((out == NULL) || (in == NULL) || (is_ev_buf(out) && (length > LARGE_BUFFER))) {
         ZB_EXCEPTION_POST(SYS_EXCEPTTION_COMMON_MEM_ACCESS);
         return out;
-    }
-    if (in == NULL) {
-        ZB_EXCEPTION_POST(SYS_EXCEPTTION_COMMON_MEM_ACCESS);
-        return out;
-    }
-    if (is_ev_buf(out) && (length > LARGE_BUFFER)) {
-    	ZB_EXCEPTION_POST(SYS_EXCEPTTION_COMMON_MEM_ACCESS);
-    	return out;
     }
 
     bcopy_((char *)in, (char *)out, (int)length);

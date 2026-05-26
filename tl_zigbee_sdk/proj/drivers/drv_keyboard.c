@@ -107,16 +107,19 @@ u32 key_debounce_filter(u32 mtrx_cur[], u32 filt_en)
 
     foreach_arr (i, drive_pins) {
         u32 mtrx_tmp = mtrx_cur[i];
+        mtrx_pre[i] = mtrx_tmp;
+
         if (filt_en) {
             //mtrx_cur[i] = (mtrx_last[i] ^ mtrx_tmp) ^ (mtrx_last[i] | mtrx_tmp);  //key_matrix_pressed is valid when current and last value is the same
-            mtrx_cur[i] = (~mtrx_last[i] & (mtrx_pre[i] & mtrx_tmp) ) | ( mtrx_last[i] & (mtrx_pre[i] | mtrx_tmp));
+            mtrx_cur[i] = (~mtrx_last[i] & (mtrx_pre[i] & mtrx_tmp)) | (mtrx_last[i] & (mtrx_pre[i] | mtrx_tmp));
         }
         if (mtrx_cur[i] != mtrx_last[i]) {
-        	kc = 1;
+            kc = 1;
         }
-        mtrx_pre[i] = mtrx_tmp;
+        //mtrx_pre[i] = mtrx_tmp;
         mtrx_last[i] = mtrx_cur[i];
     }
+
     return kc;
 }
 
@@ -169,7 +172,7 @@ static inline void kb_remap_key_code(u32 *pressed_matrix, int key_max, kb_data_t
 
 static u32 kb_key_pressed(u8 *gpio)
 {
-#if(!KB_LINE_MODE)
+#if (!KB_LINE_MODE)
     foreach_arr (i, drive_pins) {
         drv_gpio_write(drive_pins[i], KB_LINE_HIGH_VALID);
         drv_gpio_output_en(drive_pins[i], 1);
@@ -194,7 +197,7 @@ static u32 kb_key_pressed(u8 *gpio)
         release_cnt--;
     }
 
-#if(!KB_LINE_MODE)
+#if (!KB_LINE_MODE)
     foreach_arr (i, drive_pins) {
         drv_gpio_write(drive_pins[i], 0);
         drv_gpio_output_en(drive_pins[i], 0);
@@ -305,7 +308,7 @@ u32 kb_scan_key(int numlock_status, int read_key)
         if (matrix_wptr == matrix_rptr || !read_key) {
             return 0; //buffer empty, no data
         }
-        pd = matrix_buff[matrix_rptr&3];
+        pd = matrix_buff[matrix_rptr & 3];
         matrix_rptr = (matrix_rptr + 1) & 7;
 
         ///////////////////////////////////////////////////////////////////

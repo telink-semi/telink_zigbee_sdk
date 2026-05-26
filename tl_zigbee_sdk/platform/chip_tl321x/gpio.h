@@ -700,7 +700,7 @@ static inline void gpio_clr_irq_status(gpio_irq_e status)
  */
 static inline void gpio_clr_irq_mask(gpio_irq_e mask)
 {
-    BM_CLR(reg_gpio_irq_ctrl, mask);
+    BM_CLR(reg_gpio_irq_src_mask, mask);
 }
 
 /**

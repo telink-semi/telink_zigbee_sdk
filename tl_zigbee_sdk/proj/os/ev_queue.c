@@ -26,20 +26,20 @@
 
 
 /*********************************************************************
- * @fn      ev_queue_rawPush
+ * @fn     ev_queue_rawPush
  *
- * @brief   Push a raw data into a queue
- *          The element must compatible with the format @ref queue_item_t
+ * @brief  Push a raw data into a queue
+ *         The element must compatible with the format @ref queue_item_t
  *
- * @param   q - The specified queue
- * @param   payload - Pointer to the new element 
+ * @param  q          - The specified queue
+ * @param  newElement - Pointer to the new element
  *
- * @return  Status
+ * @return status
  */
 ev_queue_sts_t ev_queue_rawPush(ev_queue_t *q, queue_item_t *newElement)
 {
-    queue_item_t* previous;
-    queue_item_t* current;
+    queue_item_t *previous;
+    queue_item_t *current;
 
     if (NULL == q || NULL == newElement) {
         return QUEUE_INVALID_PARAMETER;
@@ -53,18 +53,23 @@ ev_queue_sts_t ev_queue_rawPush(ev_queue_t *q, queue_item_t *newElement)
         q->tail = newElement;
         newElement->next = NULL;
         q->curNum++;
+
         drv_restore_irq(r);
+
         return QUEUE_SUCC;
     }
+
     /* find a place for insertion */
     previous = NULL;
     current = q->head;
 
-    if (NULL == q->priFunc) { /* if priority is not used, insert at the end as in a FIFO */
+    if (NULL == q->priFunc) {
+        /* if priority is not used, insert at the end as in a FIFO */
         q->tail->next = newElement;
         newElement->next = NULL;
         q->tail = newElement;
-    } else { /* if priority is used, insert at the end */
+    } else {
+        /* if priority is used, insert at the end */
         while (current != NULL) {
             /* Here, a small priority value has a higher priority */
             if (q->priFunc((arg_t)(newElement)) < q->priFunc((arg_t)(current))) {
@@ -75,34 +80,36 @@ ev_queue_sts_t ev_queue_rawPush(ev_queue_t *q, queue_item_t *newElement)
             }
         }
         /* insert between previous and current */
-        if (NULL == previous) { /* insert at the head */
+        if (NULL == previous) {
+            /* insert at the head */
             q->head = newElement;
         } else {
             previous->next = newElement;
         }
         newElement->next = current;
-        if (NULL==current) {
+        if (NULL == current) {
             q->tail = newElement;
         }
     }
     q->curNum++;
 
     drv_restore_irq(r);
+
     return QUEUE_SUCC;
 }
 
 /*********************************************************************
- * @fn      ev_queue_rawPop
+ * @fn     ev_queue_rawPop
  *
- * @brief   Pop data part of the element from the speified queue.
+ * @brief  Pop data part of the element from the specified queue.
  *
- * @param   q - The specified queue
+ * @param  q - The specified queue
  *
- * @return  Pointer to first element in the queue
+ * @return Pointer to first element in the queue
  */
 queue_item_t *ev_queue_rawPop(ev_queue_t *q)
 {
-    queue_item_t* oldHead;
+    queue_item_t *oldHead;
 
     u32 r = drv_disable_irq();
 
@@ -119,35 +126,37 @@ queue_item_t *ev_queue_rawPop(ev_queue_t *q)
     if (q->curNum == 0) {
         q->head = q->tail = NULL;
     }
+
     drv_restore_irq(r);
+
     return oldHead;
 }
 
 /*********************************************************************
- * @fn      ev_queue_rawDelete
+ * @fn     ev_queue_rawDelete
  *
- * @brief   Delete an element from the queue
+ * @brief  Delete an element from the queue
  *
- * @param   q - The specified queue
- * @param   payload - Pointer to data part of the bufferItem that is to be deleted
+ * @param  q          - The specified queue
+ * @param  delElement - Pointer to data part of the bufferItem that is to be deleted
  *
- * @return  Status
+ * @return status
  */
 ev_queue_sts_t ev_queue_rawDelete(ev_queue_t *q, queue_item_t *delElement)
 {
-    queue_item_t* previous;
-    queue_item_t* current;
+    queue_item_t *previous;
+    queue_item_t *current;
 
     if (NULL == q || NULL == delElement) {
         return QUEUE_INVALID_PARAMETER;
     }
 
-    u32 r = drv_disable_irq();
-
-    if (NULL == q->head) { /* invalid q or newElement */
-    	drv_restore_irq(r);
+    if (NULL == q->head) {
+        /* invalid q or newElement */
         return QUEUE_EMPTY;
     }
+
+    u32 r = drv_disable_irq();
 
     if (q->head == delElement) {
         q->head = q->head->next;
@@ -155,7 +164,9 @@ ev_queue_sts_t ev_queue_rawDelete(ev_queue_t *q, queue_item_t *delElement)
             q->tail = NULL;
         }
         q->curNum--;
+
         drv_restore_irq(r);
+
         return QUEUE_SUCC;
     }
 
@@ -177,25 +188,26 @@ ev_queue_sts_t ev_queue_rawDelete(ev_queue_t *q, queue_item_t *delElement)
         q->curNum--;
     } else {
         /* element not in the Queue */
-    	drv_restore_irq(r);
-        return QUEUE_NOT_FOUND;
+        drv_restore_irq(r);
 
+        return QUEUE_NOT_FOUND;
     }
 
     drv_restore_irq(r);
+
     return QUEUE_SUCC;
 }
 
 /*********************************************************************
- * @fn      ev_queue_init
+ * @fn     ev_queue_init
  *
- * @brief   Initialize the EV queue 
+ * @brief  Initialize the EV queue
  *
- * @param   q - The queue need to use
- * @param   priFunc - Pointer to the function that calculates a priority
- *                    NULL means not use the priority feature
+ * @param  q       - The queue need to use
+ * @param  priFunc - Pointer to the function that calculates a priority
+ *                   NULL means not use the priority feature
  *
- * @return  Status
+ * @return status
  */
 ev_queue_sts_t ev_queue_init(ev_queue_t *q, ev_priFunc_t priFunc)
 {
@@ -203,20 +215,21 @@ ev_queue_sts_t ev_queue_init(ev_queue_t *q, ev_priFunc_t priFunc)
         return QUEUE_INVALID_PARAMETER;
     }
 
-    memset((u8 *)q, 0 , sizeof(ev_queue_t));
+    memset((u8 *)q, 0, sizeof(ev_queue_t));
     q->priFunc = priFunc;
+
     return QUEUE_SUCC;
 }
 
 /*********************************************************************
- * @fn      ev_queue_push
+ * @fn     ev_queue_push
  *
- * @brief   Push a data part of an element into a queue
+ * @brief  Push a data part of an element into a queue
  *
- * @param   q - The queue that a new element need to push to
- * @param   payload - The payload of the new element   
+ * @param  q       - The queue that a new element need to push to
+ * @param  payload - The payload of the new element
  *
- * @return  Status
+ * @return status
  */
 ev_queue_sts_t ev_queue_push(ev_queue_t *q, u8 *payload)
 {
@@ -225,15 +238,14 @@ ev_queue_sts_t ev_queue_push(ev_queue_t *q, u8 *payload)
     return ev_queue_rawPush(q, newElement);
 }
 
-
 /*********************************************************************
- * @fn      ev_queue_pop
+ * @fn     ev_queue_pop
  *
- * @brief   Pop data part of the element from the specified queue.
+ * @brief  Pop data part of the element from the specified queue.
  *
- * @param   q - The queue that element need to pop from
+ * @param  q - The queue that element need to pop from
  *
- * @return  Pointer to data part of the @ev_bufItem_t
+ * @return Pointer to data part of the @ev_bufItem_t
  */
 u8 *ev_queue_pop(ev_queue_t *q)
 {
@@ -247,14 +259,14 @@ u8 *ev_queue_pop(ev_queue_t *q)
 }
 
 /*********************************************************************
- * @fn      ev_queue_delete
+ * @fn     ev_queue_delete
  *
- * @brief   Delete an element from the queue
+ * @brief  Delete an element from the queue
  *
- * @param   q - The specified queue
- * @param   payload - Pointer to data part of the buffer that is to be deleted
+ * @param  q       - The specified queue
+ * @param  payload - Pointer to data part of the buffer that is to be deleted
  *
- * @return  Status
+ * @return status
  */
 ev_queue_sts_t ev_queue_delete(ev_queue_t *q, u8 *payload)
 {
@@ -263,24 +275,136 @@ ev_queue_sts_t ev_queue_delete(ev_queue_t *q, u8 *payload)
 }
 
 /*********************************************************************
- * @fn      ev_queue_freeQ
+ * @fn     ev_queue_freeQ
  *
- * @brief   Free a queue. This also deallocates all buffers in the queue.
+ * @brief  Free a queue. This also deallocates all buffers in the queue.
  *
- * @param   q - The specified queue to free
+ * @param  q - The specified queue to free
  *
- * @return  Status
+ * @return status
  */
 ev_queue_sts_t ev_queue_freeQ(ev_queue_t *q)
 {
     u8 *buffer_ptr;
-    if (NULL == q) { /* invalid q or newElement */
+
+    if (NULL == q) {
+        /* invalid q or newElement */
         return QUEUE_INVALID_PARAMETER;
     }
 
     while (NULL != (buffer_ptr = ev_queue_pop(q))) {
         ev_buf_free(buffer_ptr);
     }
+
+    return QUEUE_SUCC;
+}
+
+/*********************************************************************
+ * @fn     ev_queue_insert
+ *
+ * @brief  Insert an element into the specified queue, usually
+ *         used when iterating over elements in a Queue
+ *
+ * @param  q     - The queue that a new element need to push to
+ * @param  item  - The new element to be inserted
+ * @param  prev  - The element in the queue before the new element to be inserted.
+ *                 Note: if the pPrev is NULL, the pItem is the 1st element in queue.
+ *
+ * @return status
+ */
+ev_queue_sts_t ev_queue_insert(ev_queue_t *q, void *item, void *prev)
+{
+    queue_item_t *pItem = (queue_item_t *)item;
+    queue_item_t *pPrev = (queue_item_t *)prev;
+
+#if (1) // Can be optimized
+    if (q == NULL || pItem == NULL) {
+        return QUEUE_INVALID_PARAMETER;
+    }
+#else
+    assert(q != NULL);
+    assert(pItem != NULL);
+#endif
+
+    u32 r = drv_disable_irq();
+
+    /* if the queue was empty or pPrev was at tail */
+    if (q->head == NULL || pPrev == q->tail) {
+        ev_queue_rawPush(q, pItem);
+        /* in the API: queue_enq, q->curNum has already ++. */
+    }
+    /* if pPrev was empty, inserting pItem at head */
+    else if (pPrev == NULL) {
+        /* inserting element to head of the queue */
+        pItem->next = q->head;
+        /* if the queue was empty, inserting new element at tail */
+        if (q->head == NULL) {
+            q->tail = pItem;
+        }
+        /* update queue head */
+        q->head = pItem;
+        q->curNum++;
+    }
+    /* inserting new element in middle of the queue */
+    else {
+        pItem->next = pPrev->next;
+        pPrev->next = pItem;
+        q->curNum++;
+    }
+
+    drv_restore_irq(r);
+
+    return QUEUE_SUCC;
+}
+
+/*********************************************************************
+ * @fn     ev_queue_remove
+ *
+ * @brief  Remove an element from the specified queue, usually
+ *         used when iterating over elements in a Queue
+ *
+ * @param  q     - The queue that a target element need to be removed
+ * @param  item  - The target element to be removed
+ * @param  prev  - The element in the queue before the target element
+ *                 to be removed. Note: if the pPrev is NULL, which
+ *                 means the pItem is the 1st element in queue
+ *
+ * @return status
+ */
+ev_queue_sts_t ev_queue_remove(ev_queue_t *q, void *item, void *prev)
+{
+    queue_item_t *pItem = (queue_item_t *)item;
+    queue_item_t *pPrev = (queue_item_t *)prev;
+
+#if (1) // Can be optimized
+    if (q == NULL || q->head == NULL || pItem == NULL) {
+        return QUEUE_INVALID_PARAMETER;
+    }
+#else
+    assert(q != NULL);
+    assert(q->head != NULL);
+    assert(pItem != NULL);
+#endif
+
+    u32 r = drv_disable_irq();
+
+    /* if the 1st element, remove from head of queue*/
+    if (q->head == pItem) {
+        q->head = pItem->next;
+    }
+    /* removing the element in middle of the queue */
+    else if (pPrev != NULL) {
+        pPrev->next = pItem->next;
+    }
+    /* if the removing element is last element */
+    if (q->tail == pItem) {
+        /* update queue tail */
+        q->tail = pPrev;
+    }
+
+    q->curNum--;
+
+    drv_restore_irq(r);
 
     return QUEUE_SUCC;
 }

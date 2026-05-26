@@ -190,9 +190,18 @@ typedef enum
     FLD_WAKEUP_STATUS_INUSE_ALL = 0x0f,
 } pm_wakeup_status_e;
 
-#define areg_aon_0x65 0x65
+#define areg_aon_0x65                0x65
+enum {
+    //RSVD
+    FLD_RESET_XTAL_QICK_START        = BIT(6),
+    FLD_RESET_32K_TIMER_CNT          = BIT(7),
+};
 
-#define areg_aon_0x69 0x69
+#define areg_aon_0x69                0x69
+enum
+{
+    FLD_32K_WD_OVERFLOW_STATUS       = BIT(7),
+};
 
 #define areg_aon_0x79 0x79
 enum{

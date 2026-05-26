@@ -28,7 +28,7 @@
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     #define S_TIMER_CLOCK_1US           sysTimerPerUs
     #define H_TIMER_CLOCK_1US           (CLOCK_SYS_CLOCK_HZ / 1000000)
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
     #define S_TIMER_CLOCK_1US           sysTimerPerUs
     #define H_TIMER_CLOCK_1US           (sys_clk.pclk)
 
@@ -38,18 +38,18 @@
 #endif
 
 #define TIMER_TICK_1US_GET(idx)         ((idx < TIMER_IDX_3) ? H_TIMER_CLOCK_1US : S_TIMER_CLOCK_1US)
- 
+
 /**
- * hardware_timer_index Hardware Timer Index
+ * @brief Hardware_timer_index Hardware Timer Index
  */
 #define TIMER_IDX_0                     0 //!< Timer0
 #define TIMER_IDX_1                     1 //!< Timer1
 #define TIMER_IDX_2                     2 //!< Timer2, for Watch dog.
-#define TIMER_IDX_3                     3 //!< SYS Timer, for MAC-CSMA.
+#define TIMER_IDX_3                     3 //!< SYS Timer
 #define TIMER_NUM                       4 //!< Total number of timer
 
 /**
- * hardware_timer_mode Hardware Timer Mode
+ * @brief Hardware_timer_mode Hardware Timer Mode
  */
 #define TIMER_MODE_SCLK                 0 //!< Timer running in the system clock mode, it will free run from 0 to 0xffffffff
 #define TIMER_MODE_GPIO                 1
@@ -57,7 +57,7 @@
 #define TIMER_MODE_TICK_MODE            3
 
 /**
- * hardware_timer_state Hardware Timer State
+ * @brief Hardware_timer_state Hardware Timer State
  */
 #define TIMER_IDLE                      0 //!< Indicating the timer is not running
 #define TIMER_WOF                       1 //!< Waiting for overflow
@@ -65,7 +65,7 @@
 
 
 /**
- *  @brief  Definition for 64 bit timer unit
+ * @brief Definition for 64 bit timer unit
  */
 typedef struct {
     u32 low;
@@ -73,7 +73,7 @@ typedef struct {
 } ext_clk_t;
 
 /**
- *  @brief  Status of Hardware Timer
+ * @brief Status of Hardware Timer
  */
 typedef enum hw_timer_sts_e {
     HW_TIMER_SUCC       = 0,
@@ -82,49 +82,48 @@ typedef enum hw_timer_sts_e {
 } hw_timer_sts_t;
 
 /**
- *  @brief  Definition for Timer callback function type
+ * @brief Definition for Timer callback function type
  */
 typedef int (*timerCb_t)(void *p);
 
-
- /**
-  * @brief       Initialize the specified hardware timer
-  *
-  * @param[in]   tmrIdx - Index of timer @ref hardware_timer_index
-  * @param[in]   mode   - Specify the timer running mode @ref hardware_timer_mode
-  *
-  * @return      None
-  */
+/**
+ * @brief  Initialize the specified hardware timer
+ *
+ * @param  tmrIdx - Index of timer @ref hardware_timer_index
+ * @param  mode   - Specify the timer running mode @ref hardware_timer_mode
+ *
+ * @return none
+ */
 void drv_hwTmr_init(u8 tmrIdx, u8 mode);
 
- /**
-  * @brief       Set a new timer through relative time value
-  *
-  * @param[in]   tmrIdx   - Index of timer @ref hardware_timer_index
-  * @param[in]   interval - The time interval from current time. The unit is microsecond
-  * @param[in]   func     - Pointer to the callback function to be invoked when the timer expiry
-  * @param[in]   arg      - Argument of callback function
-  *
-  * @return      Status
-  */
+/**
+ * @brief  Set a new timer through relative time value
+ *
+ * @param  tmrIdx   - Index of timer @ref hardware_timer_index
+ * @param  interval - The time interval from current time. The unit is microsecond
+ * @param  func     - Pointer to the callback function to be invoked when the timer expiry
+ * @param  arg      - Argument of callback function
+ *
+ * @return status
+ */
 hw_timer_sts_t drv_hwTmr_set(u8 tmrIdx, u32 t_us, timerCb_t func, void *arg);
 
 /**
-  * @brief       Cancel an existed timer
-  *
-  * @param[in]   tmrIdx  - Index of timer @ref hardware_timer_index
-  *
-  * @return      None
-  */
+ * @brief  Cancel an existed timer
+ *
+ * @param  tmrIdx - Index of timer @ref hardware_timer_index
+ *
+ * @return none
+ */
 void drv_hwTmr_cancel(u8 tmrIdx);
 
 /**
-  * @brief       Interrupt handler of Timer
-  *
-  * @param       None
-  *
-  * @return      None
-  */
+ * @brief  Interrupt handler of Timer
+ *
+ * @param  none
+ *
+ * @return none
+ */
 void drv_timer_irq0_handler(void);
 void drv_timer_irq1_handler(void);
 void drv_timer_irq3_handler(void);

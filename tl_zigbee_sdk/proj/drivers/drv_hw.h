@@ -28,7 +28,7 @@
 
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     #define SYSTEM_RESET()              mcu_reset()
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
     #define SYSTEM_RESET()              sys_reboot()
 #endif
 
@@ -40,7 +40,7 @@ typedef enum {
 
 extern u32 sysTimerPerUs;
 
-startup_state_e drv_platform_init(void);
+startup_state_e drv_platform_init(bool clear);
 
 void drv_enable_irq(void);
 u32 drv_disable_irq(void);
@@ -54,6 +54,7 @@ void drv_wd_clear(void);
 
 u32 drv_u32Rand(void);
 void drv_generateRandomData(u8 *pData, u8 len);
+#define generateRandomNum(len, data)    drv_generateRandomData(data, len)
 
 void voltage_detect(bool powerOn);
-void drv_vbusWatchdogClose(void);
+

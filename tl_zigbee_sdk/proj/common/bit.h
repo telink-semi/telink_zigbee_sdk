@@ -28,9 +28,13 @@
 
 #include "macro_trick.h"
 
+#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 #define BIT(n)                          (1 << (n))
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#define BIT(n)                          (1ULL << (n))
+#endif
 
-// BITSx  are internal used macro, please use BITS instead
+// BITSx are internal used macro, please use BITS instead
 #define BITS1(a)                        (BIT(a))
 #define BITS2(a, b)                     (BIT(a) | BIT(b))
 #define BITS3(a, b, c)                  (BIT(a) | BIT(b) | BIT(c))
@@ -204,7 +208,7 @@
     __pragma(warning(disable:4244))     \
     BM_SET_MASK_FLD(x, m, MV(m, v))     \
     __pragma(warning(pop))
-    
+
 #define SET_FLD_V5(x, m1, v1, m2, v2)                   \
     __pragma(warning(push))                             \
     __pragma(warning(disable:4244))                     \

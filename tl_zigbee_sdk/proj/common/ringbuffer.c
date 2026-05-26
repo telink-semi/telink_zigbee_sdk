@@ -22,8 +22,8 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-#include "ringbuffer.h"
 #include "types.h"
+#include "ringbuffer.h"
 #include "string.h"
 
 ringbuffer_t *ringbuffer_init(ringbuffer_t *ringbuf, unsigned char *buf, unsigned int size)

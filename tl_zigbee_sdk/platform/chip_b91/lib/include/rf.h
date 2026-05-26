@@ -21,17 +21,59 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-/**@page RF
- *
- *    Header File: rf.h
- *
- *    Attention
- *    ==============
-     -# Precautions when using RF and pm functions in combination:
-        -suspend mode        :In this mode RF related digital registers are lost and need to re-call the RF related function interfaces after waking up.
-        -deep retention mode :In this mode RF related digital registers are lost and need to re-call the RF related function interfaces after waking up.
-        -deep mode           :In this mode RF related digital registers are lost and need to re-call the RF related function interfaces after waking up.
-
+/**
+ * @page RF RF Module Configuration Guide
+ * 
+ * @brief This page provides detailed usage notes, power configuration instructions, and key precautions for the RF module.
+ * 
+ * @par Header File
+ *      rf.h
+ * 
+ * @section rf_pm_precautions RF and PM Usage Precautions
+ * When using RF and Power Management (PM) functions in combination, note the following requirements for different low-power modes:
+ * 
+ * - <b>Suspend mode</b>:
+ *   RF-related digital registers will be lost. After waking up from suspend mode, re-invoke all RF-related function interfaces to restore functionality.
+ * 
+ * - <b>Deep retention mode</b>:
+ *   RF-related digital registers will be lost. After waking up from deep retention mode, re-invoke all RF-related function interfaces to restore functionality.
+ * 
+ * - <b>Deep mode</b>:
+ *   RF-related digital registers will be lost. After waking up from deep mode, re-invoke all RF-related function interfaces to restore functionality.
+ * 
+ * @section rf_power_explanation RF Transmit Power Configuration
+ * 
+ * @subsection rf_power_supply Power Supply Modes of RF PA Module
+ * The RF Power Amplifier (PA) module supports two power supply modes, with key characteristics as follows:
+ * 
+ * | Power Supply Mode | Power Source                          | Output Power Characteristics                                                                 | Advantage                                  |
+ * |-------------------|---------------------------------------|------------------------------------------------------------------------------------------------|-------------------------------------------|
+ * | VBAT mode         | Directly powered by VBAT              | Maximum output power varies with VBAT voltage (higher VBAT -> higher available power)          | Simple power path, suitable for high-power scenarios |
+ * | VANT mode         | Powered by embedded DCDC + LDO        | Output power is stable (independent of VBAT voltage)                                          | Lower power consumption at the same transmit power |
+ * 
+ * @subsection rf_power_table TX Power Table (Driver-Provided)
+ * - The default <code>rf_power_level_e</code> enumeration is calibrated based on the largest package, providing typical reference values for both VBAT and VANT modes.
+ * - Power levels exceeding the maximum VANT power are automatically mapped to VBAT mode (driver handles mode switching internally).
+ * 
+ * @subsection rf_power_adjust Power Level Adjustment Instructions
+ * #### 3.1 Basic Configuration Rules
+ * - Both VBAT and VANT modes support 64 configurable power levels (range: 0 ~ 63).
+ * - The mapping relationship between level numbers and hardware registers is fixed (package-independent); only the actual transmit power differs by package.
+ * 
+ * #### 3.2 Configuration Methods (via <code>rf_set_power_level</code> Interface)
+ * Two configuration approaches are supported:
+ * a) Use predefined values from the <code>rf_power_level_e</code> enumeration (recommended for most scenarios).
+ * b) Write custom level values (for scenario-specific power optimization), following mode-specific formatting rules.
+ * 
+ * #### 3.3 Mode-Specific Level Format
+ * | Mode       | Level Format                          | Valid Range |
+ * |------------|---------------------------------------|-------------|
+ * | VBAT mode  | <code>level = power_level</code>      | 0 ~ 63      |
+ * | VANT mode  | <code>level = BIT(7) \| power_level</code> | 0 ~ 63      |
+ * 
+ * @subsection rf_power_notes Supplementary Notes
+ * 1. For package-specific detailed power data (e.g., actual power values corresponding to each level), refer to the <cite>[Chip Model] RF Test Report</cite>.
+ * 2. Actual transmit power is affected by antenna matching, PCB layout, and hardware design. Mandatory hardware calibration is required for mass production or high-precision applications.
  */
 #ifndef RF_H
 #define RF_H

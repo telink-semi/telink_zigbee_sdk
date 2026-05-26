@@ -28,18 +28,19 @@
 pspi_csn_pin_def_e drv_cs_pin;
 #endif
 
-/**
- * @brief     This function configures the clock and working mode for SPI interface
- * @param[in] spiClock - SPI module
- *            SPI clock = System clock / ((DivClock+1)*2)
- * @param[in] mode - the selected working mode of SPI module,mode 0~mode 3
- * @return    none
+/*********************************************************************
+ * @brief  This function configures the clock and working mode for SPI interface
+ *
+ * @param  spiClock - SPI module, SPI clock = System clock / ((DivClock + 1) * 2)
+ * @param  mode     - the selected working mode of SPI module, mode 0 ~ mode 3
+ *
+ * @return none
  */
 void drv_spi_master_init(u32 spiClock, drv_spi_mode_e mode)
 {
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91)
     u8 divClock = ((2 * spiClock) >= SPI_CLOCK_SOURCE) ? 0 : (u8)(SPI_CLOCK_SOURCE / (2 * spiClock) - 1);
-#elif defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
     u8 divClock = SPI_CLOCK_SOURCE / spiClock;
 #endif
 
@@ -53,16 +54,18 @@ void drv_spi_master_init(u32 spiClock, drv_spi_mode_e mode)
      */
     spi_master_init(PSPI_MODULE, divClock, mode);
     spi_master_config(PSPI_MODULE, SPI_NORMAL);
-#elif defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
     spi_master_init(GSPI_MODULE, divClock, mode);
     spi_master_config(GSPI_MODULE, SPI_NORMAL);
 #endif
 }
 
-/**
- * @brief     This function configures the clock and working mode for SPI interface
- * @param[in] mode - the selected working mode of SPI module,mode 0~mode 3
- * @return    none
+/*********************************************************************
+ * @brief  This function configures the clock and working mode for SPI interface
+ *
+ * @param  mode - the selected working mode of SPI module, mode 0 ~ mode 3
+ *
+ * @return none
  */
 void drv_spi_slave_init(drv_spi_mode_e mode)
 {
@@ -72,15 +75,17 @@ void drv_spi_slave_init(drv_spi_mode_e mode)
     spi_slave_init(0, mode);
 #elif defined(MCU_CORE_B91)
     spi_slave_init(PSPI_MODULE, mode);
-#elif defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
     spi_slave_init(GSPI_MODULE, mode);
 #endif
 }
 
-/**
- * @brief     This function selects a pin port for the SPI master interface
- * @param[in] Pin Group or Pins
- * @return    none
+/*********************************************************************
+ * @brief  This function selects a pin port for the SPI master interface
+ *
+ * @param  Pin Group or Pins
+ *
+ * @return none
  */
 #if defined(MCU_CORE_826x)
 void drv_spi_master_pin_select(SPI_PinTypeDef pinGroup)
@@ -111,7 +116,7 @@ void drv_spi_master_pin_select(pspi_clk_pin_def_e sclk_pin, pspi_csn_pin_def_e c
 
     pspi_set_pin(&pspi_pin_config);
 }
-#elif defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
 void drv_spi_master_pin_select(gpio_pin_e sclk_pin, gpio_pin_e cs_pin, gpio_pin_e mosi_pin, gpio_pin_e miso_pin)
 {
     gspi_pin_config_t gspi_pin_config;
@@ -125,10 +130,12 @@ void drv_spi_master_pin_select(gpio_pin_e sclk_pin, gpio_pin_e cs_pin, gpio_pin_
 }
 #endif
 
-/**
- * @brief     This function selects a pin port for the SPI slave interface
- * @param[in] Pin Group or Pins
- * @return    none
+/*********************************************************************
+ * @brief  This function selects a pin port for the SPI slave interface
+ *
+ * @param  Pin Group or Pins
+ *
+ * @return none
  */
 #if defined(MCU_CORE_826x)
 void drv_spi_slave_pin_select(SPI_PinTypeDef pinGroup)
@@ -159,7 +166,7 @@ void drv_spi_slave_pin_select(pspi_clk_pin_def_e sclk_pin, pspi_csn_pin_def_e cs
 
     pspi_set_pin(&pspi_pin_config);
 }
-#elif defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
 void drv_spi_slave_pin_select(gpio_pin_e sclk_pin, gpio_pin_e cs_pin, gpio_pin_e mosi_pin, gpio_pin_e miso_pin)
 {
     drv_spi_master_pin_select(sclk_pin, cs_pin, mosi_pin, miso_pin);
@@ -167,16 +174,18 @@ void drv_spi_slave_pin_select(gpio_pin_e sclk_pin, gpio_pin_e cs_pin, gpio_pin_e
 
 #endif
 
-/**
- * @brief      This function serves to write a bulk of data to the SPI slave
- *             device specified by the CS pin
- * @param[in]  cmd - pointer to the command bytes needed written into the
- *             slave device first before the writing operation of actual data
- * @param[in]  cmdLen - length in byte of the command bytes
- * @param[in]  data - pointer to the data need to write
- * @param[in]  dataLen - length in byte of the data need to write
- * @param[in]  csPin - the CS pin specifying the slave device
- * @return     none
+/*********************************************************************
+ * @brief  This function serves to write a bulk of data to the SPI slave
+ *         device specified by the CS pin
+ *
+ * @param  cmd     - pointer to the command bytes needed written into the
+ *                   slave device first before the writing operation of actual data
+ * @param  cmdLen  - length in byte of the command bytes
+ * @param  data    - pointer to the data need to write
+ * @param  dataLen - length in byte of the data need to write
+ * @param  csPin   - the CS pin specifying the slave device
+ *
+ * @return none
  */
 void drv_spi_write(u8 *cmd, int cmdLen, u8 *data, int dataLen, u32 csPin)
 {
@@ -203,7 +212,7 @@ void drv_spi_write(u8 *cmd, int cmdLen, u8 *data, int dataLen, u32 csPin)
         spi_master_write(PSPI_MODULE, pBuf, cmdLen + dataLen);
         ev_buf_free(pBuf);
     }
-#elif defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
     u8 *pBuf = (u8 *)ev_buf_allocate(cmdLen + dataLen);
     if (pBuf) {
         u8 *pData = pBuf;
@@ -219,16 +228,18 @@ void drv_spi_write(u8 *cmd, int cmdLen, u8 *data, int dataLen, u32 csPin)
 #endif
 }
 
-/**
- * @brief      This function serves to read a bulk of data from the SPI slave
- *             device specified by the CS pin
- * @param[in]  cmd - pointer to the command bytes needed written into the
- *             slave device first before the reading operation of actual data
- * @param[in]  cmdLen - length in byte of the command bytes
- * @param[out] data - pointer to the buffer that will cache the reading out data
- * @param[in]  dataLen - length in byte of the data need to read
- * @param[in]  csPin - the CS pin specifying the slave device
- * @return     none
+/*********************************************************************
+ * @brief  This function serves to read a bulk of data from the SPI slave
+ *         device specified by the CS pin
+ *
+ * @param  cmd     - pointer to the command bytes needed written into the
+ *                   slave device first before the reading operation of actual data
+ * @param  cmdLen  - length in byte of the command bytes
+ * @param  data    - pointer to the buffer that will cache the reading out data
+ * @param  dataLen - length in byte of the data need to read
+ * @param  csPin   - the CS pin specifying the slave device
+ *
+ * @return none
  */
 void drv_spi_read(u8 *cmd, int cmdLen, u8 *data, int dataLen, u32 csPin)
 {
@@ -243,7 +254,7 @@ void drv_spi_read(u8 *cmd, int cmdLen, u8 *data, int dataLen, u32 csPin)
         drv_cs_pin = csPin;
     }
     spi_master_write_read(PSPI_MODULE, cmd, cmdLen, data, dataLen);
-#elif defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
     spi_master_write_read(GSPI_MODULE, cmd, cmdLen, data, dataLen);
 #endif
 }

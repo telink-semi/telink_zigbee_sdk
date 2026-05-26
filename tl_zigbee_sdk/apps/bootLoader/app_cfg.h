@@ -7,7 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *			All rights reserved.
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -32,14 +32,20 @@ extern "C" {
 /**********************************************************************
  * App configuration
  */
+/* If the bootloader is using with zigbee_ble dual-mode, please enable this macro.*/
+#ifndef BLE_CONCURRENT_MODE
+#define BLE_CONCURRENT_MODE                     0
+#endif
+
 /* Debug mode */
-#define	UART_PRINTF_MODE                        0
-#define USB_PRINTF_MODE                         0
+#define GSUART_PRINTF_MODE                      0//GPIO simulate UART
+#define UART_PRINTF_MODE                        0//Hardware UART
+//#define USB_PRINTF_MODE                       0
 
 /*
  * Enable UART to upgrade image.
  */
-#define UART_ENABLE                             1
+#define MODULE_UART_ENABLE                      1
 
 /* Voltage detect module */
 /* If VOLTAGE_DETECT_ENABLE is set,
@@ -59,6 +65,15 @@ extern "C" {
  */
 #define FLASH_PROTECT_ENABLE                    1
 
+/* Console module */
+#if (GSUART_PRINTF_MODE || UART_PRINTF_MODE || USB_PRINTF_MODE)
+#define CONSOLE_ENABLE                          1
+#endif
+
+/* USB module */
+#if (USB_PRINTF_MODE)
+#define MODULE_USB_ENABLE                       1
+#endif
 
 /**********************************************************************
  * Board definitions
@@ -80,9 +95,8 @@ extern "C" {
 #define BOARD_TL721X_DONGLE                     13
 #define BOARD_TL321X_EVK                        14
 #define BOARD_TL321X_DONGLE                     15
-//Module
-#define BOARD_ML7218D_MERCURY                   16//ML7218D-MERCURY-M0-PE11-V1.3
-#define BOARD_ML7218A_GAIA                      17//ML7218A_GAIA-M0-PE11-V1.3
+#define BOARD_TL323X_EVK                        16
+#define BOARD_TL323X_DONGLE                     17
 
 /* Board define */
 #if defined(MCU_CORE_826x)
@@ -97,14 +111,11 @@ extern "C" {
 #elif defined(MCU_CORE_B91)
     #define BOARD                               BOARD_B91_DONGLE//BOARD_B91_EVK
     #define CLOCK_SYS_CLOCK_HZ                  48000000
-#elif defined(MCU_CORE_B92)
-    #define BOARD                               BOARD_B92_DONGLE//BOARD_B92_EVK
-    #define CLOCK_SYS_CLOCK_HZ                  48000000
-#elif defined(MCU_CORE_TL721X)
-    #define BOARD                               BOARD_TL721X_DONGLE//BOARD_TL721X_EVK
-    #define CLOCK_SYS_CLOCK_HZ                  120000000
 #elif defined(MCU_CORE_TL321X)
     #define BOARD                               BOARD_TL321X_DONGLE//BOARD_TL321X_EVK
+    #define CLOCK_SYS_CLOCK_HZ                  48000000
+#elif defined(MCU_CORE_TL323X)
+    #define BOARD                               BOARD_TL323X_DONGLE//BOARD_TL323X_EVK
     #define CLOCK_SYS_CLOCK_HZ                  48000000
 #else
     #error "MCU is undefined!"
@@ -136,22 +147,14 @@ extern "C" {
     #include "board_b91_evk.h"
 #elif (BOARD == BOARD_B91_DONGLE)
     #include "board_b91_dongle.h"
-#elif (BOARD == BOARD_B92_EVK)
-    #include "board_b92_evk.h"
-#elif (BOARD == BOARD_B92_DONGLE)
-    #include "board_b92_dongle.h"
-#elif (BOARD == BOARD_TL721X_EVK)
-    #include "board_tl721x_evk.h"
-#elif (BOARD == BOARD_TL721X_DONGLE)
-    #include "board_tl721x_dongle.h"
 #elif (BOARD == BOARD_TL321X_EVK)
     #include "board_tl321x_evk.h"
 #elif (BOARD == BOARD_TL321X_DONGLE)
     #include "board_tl321x_dongle.h"
-#elif (BOARD == BOARD_ML7218D_MERCURY)
-    #include "board_ml7218d_mercury.h"
-#elif (BOARD == BOARD_ML7218A_GAIA)
-    #include "board_ml7218a_gaia.h"
+#elif (BOARD == BOARD_TL323X_EVK)
+    #include "board_tl323x_evk.h"
+#elif (BOARD == BOARD_TL323X_DONGLE)
+    #include "board_tl323x_dongle.h"
 #endif
 
 

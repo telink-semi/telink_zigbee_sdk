@@ -22,40 +22,46 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-#include "../drivers/drv_putchar.h"
-#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
-    #include <stdarg.h>
-#else
-    typedef char *va_list;
-
-    #define _INTSIZEOF(n)       ((sizeof(n) + sizeof(int) - 1) & ~(sizeof(int) - 1))
-
-    #define va_start(ap, v)     (ap = (va_list)&v + _INTSIZEOF(v))
-    #define va_arg(ap, t)       (*(t *)((ap += _INTSIZEOF(t)) - _INTSIZEOF(t)))
-    #define va_end(ap)          (ap = (va_list)0)
-
-    #define DECIMAL_OUTPUT      10
-    #define OCTAL_OUTPUT        8
-    #define HEX_OUTPUT          16
-#endif
+#include "types.h"
+#include "tlPrintf.h"
 
 
+static tl_putCharFn_t tl_putChar = NULL;
 
-#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+void tl_printf_register(tl_putCharFn_t fn)
+{
+    tl_putChar = fn;
+}
+
+void tl_printf_putChar(const unsigned char byte)
+{
+    if (tl_putChar) {
+        tl_putChar(byte);
+    }
+}
+
+#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
 __attribute__((used)) int _write(int fd, const unsigned char *buf, int size)
 {
     (void)fd;
-    int i;
-    for (i = 0; i < size; i++) {
-    	drv_putchar(buf[i]);
+    int i = 0;
+
+    if (tl_putChar == NULL) {
+        return 0;
     }
+
+    for (i = 0; i < size; i++) {
+        tl_putChar(buf[i]);
+    }
+
     return i;
 }
-#else
+
+#elif defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 static void put_s(char *s)
 {
     while ((*s != '\0')) {
-        drv_putchar(*s++);
+        tl_putChar(*s++);
     }
 }
 
@@ -89,12 +95,16 @@ int tl_printf(const char *format, ...)
     long m;
     int w;
 
+    if (tl_putChar == NULL) {
+        return 0;
+    }
+
     va_list arg_ptr;
     va_start(arg_ptr, format);
 
     while ((span = *(format++))) {
         if (span != '%') {
-            drv_putchar(span);
+            tl_putChar(span);
         } else {
             span = *(format++);
 
@@ -106,11 +116,11 @@ int tl_printf(const char *format, ...)
 
             if (span == 'c') {
                 j = va_arg(arg_ptr, int);//get value of char
-                drv_putchar(j);
+                tl_putChar(j);
             } else if (span == 'd') {
                 m = va_arg(arg_ptr, int);//get value of char
                 if (m < 0) {
-                    drv_putchar('-');
+                    tl_putChar('-');
                     m = -m;
                 }
                 puti(m, DECIMAL_OUTPUT, w);
@@ -126,7 +136,7 @@ int tl_printf(const char *format, ...)
             } else if (span == 0) {
                 break;
             } else {
-                drv_putchar(span);
+                tl_putChar(span);
             }
         }
     }

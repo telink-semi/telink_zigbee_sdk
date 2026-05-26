@@ -24,15 +24,14 @@
  *******************************************************************************************************/
 #pragma once
 
-#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || \
-    defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
+#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91)
 typedef enum {
     GPIO_IRQ_INVALID,
     GPIO_IRQ_MODE,
     GPIO_IRQ_RISC0_MODE,
     GPIO_IRQ_RISC1_MODE,
 } drv_gpioIrqMode_e;
-#elif defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
 typedef gpio_irq_num_e drv_gpioIrqMode_e;
 #endif
 
@@ -45,20 +44,21 @@ typedef enum {
 
 typedef void (*irq_callback)(void);
 
-/****
-* brief: initialize the gpio interrupt
-* param[in] mode, the gpio interrupt mode
-* param[in] pin, the gpio interrupt pin
-* param[in] polarity, the falling edge or the rising edge.
-* param[in] gpio_irq_callback, the callback function
-* @return, 0 success, -1 failed(fail to allocate the node buffer)
-*/
+/**
+ * @brief  Initialize the GPIO interrupt
+ *
+ * @param  mode              - the GPIO interrupt mode
+ * @param  pin               - the GPIO interrupt pin
+ * @param  polarity          - the falling edge or the rising edge
+ * @param  gpio_irq_callback - the callback function
+ *
+ * @return 0 - success; -1 - failed (fail to allocate the node buffer)
+ */
 int drv_gpio_irq_config(drv_gpioIrqMode_e mode, u32 pin, drv_gpioPoll_e polarity, irq_callback gpio_irq_callback);
 
-#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || \
-    defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X)
+#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91)
 void drv_gpio_irq_handler(void);
-#elif defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
 void drv_gpio_irq_handler(gpio_irq_num_e irq);
 #endif
 void drv_gpio_irq_risc0_handler(void);

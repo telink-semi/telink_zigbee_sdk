@@ -7,7 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *			All rights reserved.
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@
 
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     #define REBOOT()                        WRITE_REG8(0x602, 0x88)
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
     #define REBOOT()                        ((void(*)(void))(FLASH_R_BASE_ADDR + APP_IMAGE_ADDR))()
 #endif
 
@@ -51,7 +51,7 @@
 #define FW_START_UP_FLAG_WHOLE              0x544c4e4b
 
 /* UART */
-#if UART_ENABLE
+#if MODULE_UART_ENABLE
 #define UART_TX_BUF_SIZE                    64
 #define UART_RX_BUF_SIZE                    64
 
@@ -113,7 +113,7 @@ __attribute__((aligned(4))) u8 uartRxBuf[UART_RX_BUF_SIZE] = {0};
 
 static ev_queue_t msgQ;
 static upgradeInfo_t upgradeInfo;
-#endif	/* UART_ENABLE */
+#endif	/* MODULE_UART_ENABLE */
 
 static ev_timer_event_t *otaChkTimerEvt = NULL;
 static bool noAppFlg = FALSE;
@@ -250,7 +250,7 @@ void bootloader_ota_check_Stop(void)
     }
 }
 
-#if UART_ENABLE
+#if MODULE_UART_ENABLE
 u8 crc8Calc(u16 type, u16 len, u8 *data)
 {
     u8 crc8;
@@ -564,11 +564,9 @@ void bootloader_uartRxHandler(void)
     }
 }
 
-void bootloader_keyPressedCb(kb_data_t *kbEvt)
+void bootloader_keyPressedCb(u8 keyCode)
 {
-    u8 keyCode = kbEvt->keycode[0];
-
-    if (keyCode == VK_SW1) {
+    if (keyCode) {
         //cancel the timeout timer, wait for UART upgrade message.
         bootloader_ota_check_Stop();
     }
@@ -576,9 +574,10 @@ void bootloader_keyPressedCb(kb_data_t *kbEvt)
 
 void bootloader_keyPressProc(void)
 {
-    if (kb_scan_key(0 , 1)) {
+    if (kb_scan_key(0, 1)) {
         if (kb_event.cnt) {
-            bootloader_keyPressedCb(&kb_event);
+            u8 valid_keyCode = kb_event.keycode[0];
+            bootloader_keyPressedCb(valid_keyCode);
         }
     }
 }
@@ -591,7 +590,7 @@ void bootloader_init(bool isBoot)
         drv_gpio_write(LED_POWER, 1);
         drv_gpio_write(LED_PERMIT, 1);
 
-#if UART_ENABLE
+#if MODULE_UART_ENABLE
         UART_PIN_CFG();
         drv_uart_init(115200, uartRxBuf, UART_RX_BUF_SIZE, bootloader_uartRxHandler);
 

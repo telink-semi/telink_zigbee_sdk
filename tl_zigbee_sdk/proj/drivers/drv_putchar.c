@@ -25,15 +25,14 @@
 #include "drv_putchar.h"
 
 
-#if UART_PRINTF_MODE
-#if !defined(CONSOLE_UART_ENABLE) || (CONSOLE_UART_ENABLE == 0)
-_attribute_ram_code_ void soft_uart_putc(unsigned char byte)
+#if GSUART_PRINTF_MODE
+void soft_uart_putc(const unsigned char byte)
 {
     u8 j = 0;
     u32 t1 = 0, t2 = 0;
 
-#if defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
-    u16 tmp_bit0 = (DEBUG_INFO_TX_PIN & 0xff)<<8;
+#if defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+    u16 tmp_bit0 = (DEBUG_INFO_TX_PIN & 0xff) << 8;
     u16 tmp_bit1 = DEBUG_INFO_TX_PIN & 0xff;
     u16 bit[10] = {0};
 #else
@@ -52,7 +51,10 @@ _attribute_ram_code_ void soft_uart_putc(unsigned char byte)
     bit[7] = ((byte >> 6) & 0x01) ? tmp_bit1 : tmp_bit0;
     bit[8] = ((byte >> 7) & 0x01) ? tmp_bit1 : tmp_bit0;
     bit[9] = tmp_bit1;
-    //u32 r = drv_disable_irq();// enable this may disturb time sequence, but if disable unrecognizable code will show
+
+    //enable this may disturb time sequence, but if disable unrecognizable code will show
+    u32 r = drv_disable_irq();
+
     t1 = clock_time();
     for (j = 0; j < 10; j++) {
         t2 = t1;
@@ -63,13 +65,12 @@ _attribute_ram_code_ void soft_uart_putc(unsigned char byte)
 
         TX_PIN_OUTPUT_REG = bit[j]; //send bit0
     }
-    //drv_restore_irq(r);
+
+    drv_restore_irq(r);
 }
-#endif
 
 #elif USB_PRINTF_MODE
-
-#define USB_PRINT_TIMEOUT       10 //  about 10us at 30MHz
+#define USB_PRINT_TIMEOUT       10 //about 10us at 30MHz
 
 static int usb_putc(unsigned char c)
 {
@@ -83,25 +84,17 @@ static int usb_putc(unsigned char c)
     return -1;
 }
 
-static int hw_usb_putc(unsigned char c)
+int hw_usb_putc(const unsigned char byte)
 {
-    if (reg_usb_host_conn) {
-        return usb_putc(c);
+#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || \
+    defined(MCU_CORE_8278) || defined(MCU_CORE_B91)
+    if (reg_usb_host_conn)
+#elif defined(MCU_CORE_TL321X)
+    if (reg_usb_addr)
+#endif
+    {
+        return usb_putc(byte);
     }
     return -1;
 }
-
 #endif
-
-void drv_putchar(unsigned char byte)
-{
-#if UART_PRINTF_MODE
-#if CONSOLE_UART_ENABLE
-    drv_console_write(byte);
-#else
-    soft_uart_putc(byte);
-#endif
-#elif USB_PRINTF_MODE
-    hw_usb_putc(byte);
-#endif
-}

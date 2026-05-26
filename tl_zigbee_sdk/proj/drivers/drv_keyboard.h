@@ -73,7 +73,8 @@ static inline int kb_is_key_valid(kb_data_t *p)
     return (p->cnt || p->ctrl_key);
 }
 
-static inline void kb_set_key_invalid(kb_data_t *p){
+static inline void kb_set_key_invalid(kb_data_t *p)
+{
     p->cnt = p->ctrl_key = 0;
 }
 

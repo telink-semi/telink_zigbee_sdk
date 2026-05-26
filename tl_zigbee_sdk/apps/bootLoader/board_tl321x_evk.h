@@ -7,7 +7,7 @@
  * @date    2024
  *
  * @par     Copyright (c) 2024, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *			All rights reserved.
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@
 extern "C" {
 #endif
 
-// BUTTON
+//BUTTON
 //key1
 #define BUTTON1                 GPIO_PB3
 #define PB3_FUNC                AS_GPIO
@@ -58,7 +58,7 @@ extern "C" {
 #define PB7_INPUT_ENABLE        1
 #define	PULL_WAKEUP_SRC_PB7     GPIO_PIN_PULLUP_10K
 
-// LED
+//LED
 #define LED_R                   GPIO_PB1
 #define PB1_FUNC                AS_GPIO
 #define PB1_OUTPUT_ENABLE       1
@@ -82,32 +82,33 @@ extern "C" {
 #define LED_POWER               LED_R
 #define LED_PERMIT              LED_G
 
-// ADC
+//ADC
 #if VOLTAGE_DETECT_ENABLE
 #define VOLTAGE_DETECT_ADC_PIN  ADC_GPIO_PB4
 #endif
 
-// UART
-#if UART_ENABLE
+//UART
+#if MODULE_UART_ENABLE
+#define UART_IDX                UART0
 #define UART_TX_PIN             GPIO_PC4
 #define UART_RX_PIN             GPIO_PC5
 
-#define UART_PIN_CFG()          drv_uart_pin_set(UART_TX_PIN, UART_RX_PIN);//uart tx/rx pin set
+#define UART_PIN_CFG()          drv_uart_pin_set(UART_TX_PIN, UART_RX_PIN)
 #endif
 
-// DEBUG
-#if UART_PRINTF_MODE
-#define	DEBUG_INFO_TX_PIN       GPIO_PE0//print
+//DEBUG
+#if GSUART_PRINTF_MODE
+#define	CONSOLE_GPIO_TX_PIN     GPIO_PE0//print
+#elif UART_PRINTF_MODE
+#define CONSOLE_UART_IDX        UART1
+#define CONSOLE_UART_TX_PIN     GPIO_PE0
+#define CONSOLE_UART_RX_PIN     GPIO_PE1
 #endif
 
-// USB
-#if ZBHCI_USB_PRINT || ZBHCI_USB_CDC || ZBHCI_USB_HID
-#define HW_USB_CFG()            do{ \
-                                    usb_set_pin_en(); \
-                                    usb_edp_en();     \
-                                }while(0)
+//USB
+#if MODULE_USB_ENABLE
+#define HW_USB_CFG()            drv_usb_init()
 #endif
-
 
 enum {
     VK_SW1 = 0x01,
@@ -116,16 +117,16 @@ enum {
     VK_SW4 = 0x04
 };
 
-#define	KB_MAP_NORMAL           { \
-                                    {VK_SW1, VK_SW3}, \
-                                    {VK_SW2, VK_SW4}, \
+#define KB_MAP_NORMAL           { \
+                                    {VK_SW3, VK_SW4}, \
+                                    {VK_SW1, VK_SW2}, \
                                 }
 
 #define	KB_MAP_NUM              KB_MAP_NORMAL
 #define	KB_MAP_FN               KB_MAP_NORMAL
 
-#define KB_DRIVE_PINS           {GPIO_PB3, GPIO_PB5}
-#define KB_SCAN_PINS            {GPIO_PB6, GPIO_PB7}
+#define KB_DRIVE_PINS           {BUTTON1, BUTTON2}
+#define KB_SCAN_PINS            {BUTTON3, BUTTON4}
 
 #define	KB_LINE_MODE            0
 #define	KB_LINE_HIGH_VALID      0

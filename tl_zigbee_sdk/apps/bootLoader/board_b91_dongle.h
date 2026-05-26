@@ -7,7 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *			All rights reserved.
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@
 extern "C" {
 #endif
 
-// BUTTON
+//BUTTON
 #define BUTTON1                 GPIO_PB2//SW2
 #define PB2_FUNC                AS_GPIO
 #define PB2_OUTPUT_ENABLE       0
@@ -42,7 +42,7 @@ extern "C" {
 #define PB3_INPUT_ENABLE        1
 #define	PULL_WAKEUP_SRC_PB3     GPIO_PIN_PULLUP_10K
 
-// LED
+//LED
 #define LED_Y                   GPIO_PB5//D7
 #define PB5_FUNC                AS_GPIO
 #define PB5_OUTPUT_ENABLE       1
@@ -76,36 +76,43 @@ extern "C" {
 #define LED_POWER               LED_R
 #define LED_PERMIT              LED_G
 
-// ADC
+//ADC
 #if VOLTAGE_DETECT_ENABLE
 #define VOLTAGE_DETECT_ADC_PIN  ADC_GPIO_PB6
 #endif
 
-// UART
-#if UART_ENABLE
+//UART
+#if MODULE_UART_ENABLE
+#define UART_IDX                UART0
 #define UART_TX_PIN             UART0_TX_PA3
 #define UART_RX_PIN             UART0_RX_PA4
 
-#define UART_PIN_CFG()          drv_uart_pin_set(UART_TX_PIN, UART_RX_PIN);//uart tx/rx pin set
+#define UART_PIN_CFG()          drv_uart_pin_set(UART_TX_PIN, UART_RX_PIN)
 #endif
 
-// DEBUG
-#if UART_PRINTF_MODE
-#define	DEBUG_INFO_TX_PIN       GPIO_PC1//print
+//DEBUG
+#if GSUART_PRINTF_MODE
+#define	CONSOLE_GPIO_TX_PIN     GPIO_PC1//print
+#elif UART_PRINTF_MODE
+#if MODULE_UART_ENABLE
+#warning "The serial port is occupied."
+#else
+#define CONSOLE_UART_IDX        UART0
+#define CONSOLE_UART_TX_PIN     UART0_TX_PA3
+#define CONSOLE_UART_RX_PIN     UART0_RX_PA4
+#endif
 #endif
 
-// USB
-#if ZBHCI_USB_PRINT || ZBHCI_USB_CDC || ZBHCI_USB_HID
-#define HW_USB_CFG()            do{ \
-                                    usb_set_pin_en(); \
-                                    usb_edp_en();     \
-                                }while(0)
+//USB
+#if MODULE_USB_ENABLE
+#define HW_USB_CFG()            drv_usb_init()
 #endif
-
 
 enum {
     VK_SW1 = 0x01,
     VK_SW2 = 0x02,
+    VK_SW3 = 0x03, //unused
+    VK_SW4 = 0x04, //unused
 };
 
 #define	KB_MAP_NORMAL           { \
@@ -118,7 +125,6 @@ enum {
 
 #define KB_DRIVE_PINS           {0}
 #define KB_SCAN_PINS            {BUTTON1, BUTTON2}
-
 
 /* Disable C linkage for C++ Compilers: */
 #if defined(__cplusplus)

@@ -24,20 +24,31 @@
  *******************************************************************************************************/
 #pragma once
 
+typedef void ** list_t;
+
 #define LIST_CONCAT2(a, b)      a##b
 #define LIST_CONCAT(a, b)       LIST_CONCAT2(a, b)
 
-#define LIST(name)              \
-    static void *LIST_CONCAT(name, _list) = NULL; \
-    static list_t name = (list_t)&LIST_CONCAT(name, _list);
+#define LIST(name)                                                      \
+    static void *LIST_CONCAT(name, _list) = NULL;                       \
+    static list_t name = (list_t)&LIST_CONCAT(name, _list)
 
+#define LIST_STRUCT_DEF(name)                                           \
+    void *LIST_CONCAT(name, _list);                                     \
+    list_t name
 
-typedef void ** list_t;
+#define LIST_STRUCT_INIT(struct_ptr, name)                              \
+    do {                                                                \
+        (struct_ptr)->name = &((struct_ptr)->LIST_CONCAT(name, _list)); \
+        (struct_ptr)->LIST_CONCAT(name, _list) = 0;                     \
+        listInit((struct_ptr)->name);                                   \
+    } while(0)
+
 
 void listInit(list_t list);
 void *listHead(list_t list);
 void *listTail(list_t list);
-void *listPop (list_t list);
+void *listPop(list_t list);
 void listPush(list_t list, void *item);
 void *listChop(list_t list);
 void listAdd(list_t list, void *item);
@@ -45,3 +56,5 @@ void listRemove(list_t list, void *item);
 int listLength(list_t list);
 void listCopy(list_t dest, list_t src);
 void listInsert(list_t list, void *prevItem, void *newItem);
+void *listNext(void *item);
+

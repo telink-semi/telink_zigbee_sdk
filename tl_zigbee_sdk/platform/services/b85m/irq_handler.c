@@ -36,7 +36,7 @@ volatile u8 T_DBG_irqTest[16] = {0};
 _attribute_ram_code_ void irq_handler(void)
 {
 #if (__PROJECT_TL_BOOT_LOADER__)
-#if UART_ENABLE
+#if MODULE_UART_ENABLE
     u16 dma_irq_source = dma_chn_irq_status_get();
 
     if (dma_irq_source & FLD_DMA_CHN_UART_RX) {

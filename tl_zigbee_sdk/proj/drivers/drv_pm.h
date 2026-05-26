@@ -50,46 +50,46 @@ typedef struct {
 
 /* Initialize 32K for timer wakeup. */
 #if defined(MCU_CORE_826x)
-    #define PM_CLOCK_INIT()             do{ rc_32k_cal(); }while(0)
+    #define PM_CLOCK_INIT()             do {rc_32k_cal();} while(0)
 
     #define PM_NORMAL_SLEEP_MAX         (100 * 1000)//100s, (0xC0000000 / 32)
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 #if CLOCK_32K_EXT_CRYSTAL
-    #define PM_CLOCK_INIT()             do{ \
+    #define PM_CLOCK_INIT()             do { \
                                             clock_32k_init(CLK_32K_XTAL); \
                                             pwm_kick_32k_pad_times(10); \
                                             pm_select_external_32k_crystal(); \
-                                        }while(0)
+                                        } while(0)
 #else
-    #define PM_CLOCK_INIT()             do{ \
+    #define PM_CLOCK_INIT()             do { \
                                             clock_32k_init(CLK_32K_RC); \
                                             rc_32k_cal(); \
                                             pm_select_internal_32k_rc(); \
-                                        }while(0)
+                                        } while(0)
 #endif
     #define PM_NORMAL_SLEEP_MAX         (230 * 1000)//230s, (0xE0000000 / 16)
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
     /* 24M RC is inaccurate, and it is greatly affected by temperature, so real-time calibration is required
      * The 24M RC needs to be calibrated before the pm_sleep_wakeup function,
      * because this clock will be used to kick 24m xtal start after wake up.
      * The more accurate this time, the faster the crystal will start. Calibration cycle depends on usage
      */
 #if CLOCK_32K_EXT_CRYSTAL
-    #define PM_CLOCK_INIT()             do{ \
+    #define PM_CLOCK_INIT()             do { \
                                             clock_cal_24m_rc(); \
                                             clock_32k_init(CLK_32K_XTAL); \
                                             clock_kick_32k_xtal(10); \
-                                        }while(0)
+                                        } while(0)
 #else
-    #define PM_CLOCK_INIT()             do{ \
+    #define PM_CLOCK_INIT()             do { \
                                             clock_cal_24m_rc(); \
                                             clock_32k_init(CLK_32K_RC); \
                                             clock_cal_32k_rc();/*6.68ms*/ \
-                                        }while(0)
+                                        } while(0)
 #endif
 #if defined(MCU_CORE_B91)
     #define PM_NORMAL_SLEEP_MAX         (230 * 1000)//230s, (0xE0000000 / 16)
-#elif defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
     #define PM_NORMAL_SLEEP_MAX         (156 * 1000)//156s, (0xE0000000 / 24)
 #endif
 #endif
@@ -102,8 +102,8 @@ bool drv_pm_deepSleep_flag_get(void);
 void drv_pm_wakeupPinConfig(drv_pm_pinCfg_t *pinCfg, u32 pinNum);
 u8 drv_pm_wakeupPinValid(drv_pm_pinCfg_t *pinCfg, u32 pinNum);
 
-void drv_pm_sleep(drv_pm_sleep_mode_e mode, drv_pm_wakeup_src_e src, u32 durationMs);
-void drv_pm_longSleep(drv_pm_sleep_mode_e mode, drv_pm_wakeup_src_e src, u32 durationMs);
+void drv_pm_sleep(drv_pm_sleep_mode_e mode, drv_pm_wakeup_src_e src, u32 tick);
+void drv_pm_longSleep(drv_pm_sleep_mode_e mode, drv_pm_wakeup_src_e src, u32 tick);
 
 void drv_pm_lowPowerEnter(void);
 void drv_pm_wakeupTimeUpdate(void);

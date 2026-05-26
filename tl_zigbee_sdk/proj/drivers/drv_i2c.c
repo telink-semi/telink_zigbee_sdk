@@ -25,11 +25,13 @@
 #include "../tl_common.h"
 
 
-/**
- * @brief      This function set the id of slave device and the speed of I2C interface
- * @param[in]  i2cClock - I2C clock,
- *             I2C clock = System clock / (4*DivClock);if the datasheet you look at is 2*,pls modify it.
- * @return     none
+/*********************************************************************
+ * @brief  This function set the id of slave device and the speed of I2C interface
+ *
+ * @param  i2cClock - I2C clock, I2C clock = System clock / (4 * DivClock);
+ *                    if the datasheet you look at is 2*, pls modify it.
+ *
+ * @return none
  */
 void drv_i2c_master_init(u32 i2cClock)
 {
@@ -39,17 +41,22 @@ void drv_i2c_master_init(u32 i2cClock)
     I2C_MasterInit(divClock);
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     i2c_master_init(divClock);
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X)
     i2c_master_init();
     i2c_set_master_clk(divClock);
+#elif defined(MCU_CORE_TL323X)
+    i2c_master_init(I2C0);
+    i2c_set_master_clk(I2C0, divClock);
 #endif
 }
 
-/**
- *  @brief      the function config the ID of slave and mode of slave.
- *  @param[in]  deviceID - it contains write or read bit,the lsb is write or read bit.
- *              ID|0x01 indicate read. ID&0xfe indicate write.
- *  @return     none
+/*********************************************************************
+ *  @brief  The function config the ID of slave and mode of slave.
+ *
+ *  @param  deviceID - it contains write or read bit,the lsb is write or read bit.
+ *                     ID | 0x01 indicate read. ID & 0xfe indicate write.
+ *
+ *  @return none
  */
 void drv_i2c_slave_init(u8 deviceID)
 {
@@ -57,19 +64,23 @@ void drv_i2c_slave_init(u8 deviceID)
     I2C_SlaveInit(deviceID, 0, NULL);
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     i2c_slave_init(deviceID, 0, NULL);
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X)
     i2c_slave_init(deviceID);
+#elif defined(MCU_CORE_TL323X)
+    i2c_slave_init(I2C0, deviceID);
 #endif
 }
 
-/**
- * @brief      This function writes one byte to the slave device at the specified address
- * @param[in]  slaveID - id of the slave device
- * @param[in]  addr - i2c slave address where the one byte data will be written
- * @param[in]  addrLen - length in byte of the address, which makes this function is
- *             compatible for slave device with both one-byte address and two-byte address
- * @param[in]  data - the one byte data will be written via I2C interface
- * @return     none
+/*********************************************************************
+ * @brief  This function writes one byte to the slave device at the specified address
+ *
+ * @param  slaveID - id of the slave device
+ * @param  addr    - i2c slave address where the one byte data will be written
+ * @param  addrLen - length in byte of the address, which makes this function is
+ *                   compatible for slave device with both one-byte address and two-byte address
+ * @param  data    - the one byte data will be written via I2C interface
+ *
+ * @return none
  */
 void drv_i2c_write_byte(u8 slaveID, u32 addr, u32 addrLen, u8 data)
 {
@@ -79,7 +90,7 @@ void drv_i2c_write_byte(u8 slaveID, u32 addr, u32 addrLen, u8 data)
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     i2c_set_id(slaveID);
     i2c_write_byte(addr, addrLen, data);
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
     u8 buf[6] = {0};
     u8 *pBuf = buf;
 
@@ -88,18 +99,24 @@ void drv_i2c_write_byte(u8 slaveID, u32 addr, u32 addrLen, u8 data)
     }
     *pBuf++ = data;
 
+#if defined(MCU_CORE_TL323X)
+    i2c_master_write(I2C0, slaveID, buf, (u8)(pBuf - buf));
+#else
     i2c_master_write(slaveID, buf, (u8)(pBuf - buf));
+#endif
 #endif
 }
 
-/**
- *  @brief      write continuous data to slave
- *  @param[in]  slaveID - id of the slave device
- *  @param[in]  addr - the register that master write data to slave in. support one byte and two bytes. i.e param2 AddrLen may be 1 or 2.
- *  @param[in]  addrLen - the length of register. enum 0 or 1 or 2 or 3. based on the spec of i2c slave.
- *  @param[in]  dataBuf - the first SRAM buffer address to write data to slave in.
- *  @param[in]  dataLen - the length of data master write to slave.
- *  @return     none
+/*********************************************************************
+ *  @brief  Write continuous data to slave
+ *
+ *  @param  slaveID - id of the slave device
+ *  @param  addr    - the register that master write data to slave in. support one byte and two bytes. i.e param2 AddrLen may be 1 or 2.
+ *  @param  addrLen - the length of register. enum 0 or 1 or 2 or 3. based on the spec of i2c slave.
+ *  @param  dataBuf - the first SRAM buffer address to write data to slave in.
+ *  @param  dataLen - the length of data master write to slave.
+ *
+ *  @return none
  */
 void drv_i2c_write_series(u8 slaveID, u32 addr, u32 addrLen, u8 *dataBuf, int dataLen)
 {
@@ -109,7 +126,7 @@ void drv_i2c_write_series(u8 slaveID, u32 addr, u32 addrLen, u8 *dataBuf, int da
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     i2c_set_id(slaveID);
     i2c_write_series(addr, addrLen, dataBuf, dataLen);
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
     u8 *pBuf = (u8 *)ev_buf_allocate(addrLen + dataLen);
     if (pBuf) {
         u8 *pData = pBuf;
@@ -120,20 +137,26 @@ void drv_i2c_write_series(u8 slaveID, u32 addr, u32 addrLen, u8 *dataBuf, int da
         memcpy(pData, dataBuf, dataLen);
         pData += dataLen;
 
+#if defined(MCU_CORE_TL323X)
+        i2c_master_write(I2C0, slaveID, pBuf, (u8)(addrLen + dataLen));
+#else
         i2c_master_write(slaveID, pBuf, (u8)(addrLen + dataLen));
+#endif
 
         ev_buf_free(pBuf);
     }
 #endif
 }
 
-/**
- * @brief      This function reads one byte from the slave device at the specified address
- * @param[in]  slaveID - id of the slave device
- * @param[in]  addr - i2c slave address where the one byte data will be read
- * @param[in]  addrLen - length in byte of the address, which makes this function is
- *             compatible for slave device with both one-byte address and two-byte address
- * @return     the one byte data read from the slave device via I2C interface
+/*********************************************************************
+ * @brief  This function reads one byte from the slave device at the specified address
+ *
+ * @param  slaveID - id of the slave device
+ * @param  addr    - i2c slave address where the one byte data will be read
+ * @param  addrLen - length in byte of the address, which makes this function is
+ *                   compatible for slave device with both one-byte address and two-byte address
+ *
+ * @return the one byte data read from the slave device via I2C interface
  */
 u8 drv_i2c_read_byte(u8 slaveID, u32 addr, u32 addrLen)
 {
@@ -143,7 +166,7 @@ u8 drv_i2c_read_byte(u8 slaveID, u32 addr, u32 addrLen)
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     i2c_set_id(slaveID);
     return i2c_read_byte(addr, addrLen);
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
     u8 data = 0;
     u8 buf[4] = {0};
     u8 *pBuf = buf;
@@ -152,7 +175,11 @@ u8 drv_i2c_read_byte(u8 slaveID, u32 addr, u32 addrLen)
         *pBuf++ = (u8)(addr >> ((addrLen - 1 - i) << 3));
     }
 
+#if defined(MCU_CORE_TL323X)
+    i2c_master_write_read(I2C0, slaveID, buf, (u8)addrLen, &data, 1);
+#else
     i2c_master_write_read(slaveID, buf, (u8)addrLen, &data, 1);
+#endif
 
     return data;
 #else
@@ -160,14 +187,16 @@ u8 drv_i2c_read_byte(u8 slaveID, u32 addr, u32 addrLen)
 #endif
 }
 
-/**
- * @brief      read continuous data from slave
- * @param[in]  slaveID - id of the slave device
- * @param[in]  addr - the register master read data from slave in. support one byte and two bytes.
- * @param[in]  addrLen - the length of register. enum 0 or 1 or 2 or 3 based on the spec of i2c slave.
- * @param[out] dataBuf - the first address of SRAM buffer master store data in.
- * @param[in]  dataLen - the length of data master read from slave.
- * @return     none.
+/*********************************************************************
+ * @brief  Read continuous data from slave
+ *
+ * @param  slaveID - id of the slave device
+ * @param  addr    - the register master read data from slave in. support one byte and two bytes.
+ * @param  addrLen - the length of register. enum 0 or 1 or 2 or 3 based on the spec of i2c slave.
+ * @param  dataBuf - the first address of SRAM buffer master store data in.
+ * @param  dataLen - the length of data master read from slave.
+ *
+ * @return none
  */
 void drv_i2c_read_series(u8 slaveID, u32 addr, u32 addrLen, u8 *dataBuf, int dataLen)
 {
@@ -177,7 +206,7 @@ void drv_i2c_read_series(u8 slaveID, u32 addr, u32 addrLen, u8 *dataBuf, int dat
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     i2c_set_id(slaveID);
     i2c_read_series(addr, addrLen, dataBuf, dataLen);
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
     u8 buf[4] = {0};
     u8 *pBuf = buf;
 
@@ -185,14 +214,20 @@ void drv_i2c_read_series(u8 slaveID, u32 addr, u32 addrLen, u8 *dataBuf, int dat
         *pBuf++ = (u8)(addr >> ((addrLen - 1 - i) << 3));
     }
 
+#if defined(MCU_CORE_TL323X)
+    i2c_master_write_read(I2C0, slaveID, buf, (u8)addrLen, dataBuf, (u8)dataLen);
+#else
     i2c_master_write_read(slaveID, buf, (u8)addrLen, dataBuf, (u8)dataLen);
+#endif
 #endif
 }
 
-/**
- * @brief      This function selects a pin port for I2C interface.
- * @param[in]  Pin Group or Pins
- * @return     none
+/*********************************************************************
+ * @brief  This function selects a pin port for I2C interface.
+ *
+ * @param  Pin Group or Pins
+ *
+ * @return none
  */
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258)
 void drv_i2c_gpio_set(I2C_GPIO_GroupTypeDef i2c_pin_group)
@@ -213,9 +248,14 @@ void drv_i2c_gpio_set(i2c_sda_pin_e sda_pin, i2c_scl_pin_e scl_pin)
 {
     i2c_set_pin(sda_pin, scl_pin);
 }
-#elif defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_TL321X)
 void drv_i2c_gpio_set(gpio_func_pin_e sda_pin, gpio_func_pin_e scl_pin)
 {
     i2c_set_pin(sda_pin, scl_pin);
+}
+#elif defined(MCU_CORE_TL323X)
+void drv_i2c_gpio_set(gpio_func_pin_e sda_pin, gpio_func_pin_e scl_pin)
+{
+    i2c_set_pin(I2C0, sda_pin, scl_pin);
 }
 #endif

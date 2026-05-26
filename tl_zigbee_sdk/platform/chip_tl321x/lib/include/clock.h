@@ -59,21 +59,29 @@ typedef enum
 } sys_pll_clk_e;
 
 #define PLL_CLK PLL_CLK_192M
-
 /**
- *  @note   -# If it is an external flash, the maximum speed of mspi needs to be based on the board test.
- *          Because the maximum speed is related to the wiring of the board, and is also affected by temperature and GPIO voltage,
- *          the maximum speed needs to be tested at the highest and lowest voltage of the board,
- *          and the high and low temperature long-term stability test speed is no problem.
+ * The following chart lists the maximum operating frequency that each clock source can operate at different voltage levels.
+ * (But if it is related to peripherals, this frequency will be related to the whole system, such as MSPI-->
+ *  If it is built-in flash, the maximum speed of mspi is 64M,If it is an external flash, the maximum speed
+ *  of mspi needs to be based on the board test.)
  *
- *          -# Default CCLK supports 48MHz max, if CCLK > 48MHz is required and these limits are acceptable, please contact Telink FAE for support:
- *          In order to improve the robustness of the chip during high-speed operation, the low power comparator (LPC) is used to
- *          protect the flash during power-down of the chip when the main frequency CCLK is running above 48MHz (excluding 48MHz).
- *          When this feature is enabled, there are the following limitations:
- *           -# The chip power supply voltage is limited to 2.1V to 4.2V.
- *           -# One of PB[1:7] must be reserved for this feature.
- *           -# Interrupt preemption must be enabled and the LPC interrupt will be set as the only highest priority interrupt that can interrupt any process.
- *           -# LPC interrupt priority(IRQ_PM_LVL) > flash operation priority > other interrupt priority.
+ * :-------------------------------- Voltage versus frequency table --------------------------------------------------------------------------
+ * |voltage|  pll  | cclk  | hclk | pclk | mspi | gspi(m/s)  | alg |   pm_top  |  clki2s  |
+ * |  1.0V |  192  |  96   |  48  |  48  |  64  |   48       |  24 |    24     |   13     |
+ *
+ * -# If it is an external flash, the maximum speed of mspi needs to be based on the board test.
+ *    Because the maximum speed is related to the wiring of the board, and is also affected by temperature and GPIO voltage,
+ *    the maximum speed needs to be tested at the highest and lowest voltage of the board,
+ *    and the high and low temperature long-term stability test speed is no problem.
+ *
+ * -# Default CCLK supports 48MHz max, if CCLK > 48MHz is required and these limits are acceptable, please contact Telink FAE for support:
+ *    In order to improve the robustness of the chip during high-speed operation, the low power comparator (LPC) is used to
+ *    protect the flash during power-down of the chip when the main frequency CCLK is running above 48MHz (excluding 48MHz).
+ *    When this feature is enabled, there are the following limitations:
+ *    -# The chip power supply voltage is limited to 2.1V to 4.2V.
+ *    -# One of PB[1:7] must be reserved for this feature.
+ *    -# Interrupt preemption must be enabled and the LPC interrupt will be set as the only highest priority interrupt that can interrupt any process.
+ *    -# LPC interrupt priority(IRQ_PM_LVL) > flash operation priority > other interrupt priority.
  */
 
 #define PLL_192M_CCLK_48M_HCLK_48M_PCLK_48M_MSPI_48M clock_init(BASEBAND_PLL, CLK_DIV4, CCLK_DIV1_TO_HCLK_DIV1_TO_PCLK, CLK_DIV4)
@@ -81,9 +89,7 @@ typedef enum
 #define PLL_192M_CCLK_48M_HCLK_48M_PCLK_12M_MSPI_48M clock_init(BASEBAND_PLL, CLK_DIV4, CCLK_DIV1_TO_HCLK_DIV4_TO_PCLK, CLK_DIV4)
 #define PLL_192M_CCLK_48M_HCLK_24M_PCLK_24M_MSPI_48M clock_init(BASEBAND_PLL, CLK_DIV4, CCLK_DIV2_TO_HCLK_DIV2_TO_PCLK, CLK_DIV4)
 #define PLL_192M_CCLK_48M_HCLK_24M_PCLK_12M_MSPI_48M clock_init(BASEBAND_PLL, CLK_DIV4, CCLK_DIV2_TO_HCLK_DIV4_TO_PCLK, CLK_DIV4)
-
 #define PLL_192M_CCLK_32M_HCLK_16M_PCLK_16M_MSPI_48M clock_init(BASEBAND_PLL, CLK_DIV6, CCLK_DIV2_TO_HCLK_DIV2_TO_PCLK, CLK_DIV4)
-
 #define PLL_192M_CCLK_24M_HCLK_12M_PCLK_12M_MSPI_48M clock_init(BASEBAND_PLL, CLK_DIV8, CCLK_DIV2_TO_HCLK_DIV2_TO_PCLK, CLK_DIV4)
 #define PLL_192M_CCLK_24M_HCLK_24M_PCLK_12M_MSPI_48M clock_init(BASEBAND_PLL, CLK_DIV8, CCLK_DIV1_TO_HCLK_DIV2_TO_PCLK, CLK_DIV4)
 #define PLL_192M_CCLK_24M_HCLK_24M_PCLK_24M_MSPI_48M clock_init(BASEBAND_PLL, CLK_DIV8, CCLK_DIV1_TO_HCLK_DIV1_TO_PCLK, CLK_DIV4)
@@ -91,6 +97,10 @@ typedef enum
 #define XTAL_24M_CCLK_24M_HCLK_24M_PCLK_24M_MSPI_24M clock_init(XTAL_24M, CLK_DIV1, CCLK_DIV1_TO_HCLK_DIV1_TO_PCLK, CLK_DIV1)
 
 #define RC_24M_CCLK_24M_HCLK_24M_PCLK_24M_MSPI_24M   clock_init(RC_24M, CLK_DIV1, CCLK_DIV1_TO_HCLK_DIV1_TO_PCLK, CLK_DIV1)
+
+/**
+ * -# If it is built-in flash, the maximum speed of mspi is 64M.
+ */
 
 /**********************************************************************************************************************
  *                                          internal

@@ -29,13 +29,13 @@
 ev_poll_t ev_poll[EV_POLL_MAX];
 
 
-/**
- * @brief       Schedule a new priority task
+/*********************************************************************
+ * @brief  Schedule a new priority task
  *
- * @param[in]   e   - Specified poll event ID
- * @param[in]   cb  - Pointer for the poll callback function
+ * @param  e  - Specified poll event ID
+ * @param  cb - Pointer for the poll callback function
  *
- * @return      None
+ * @return none
  */
 void ev_on_poll(ev_poll_e e, ev_poll_callback_t cb)
 {
@@ -43,42 +43,42 @@ void ev_on_poll(ev_poll_e e, ev_poll_callback_t cb)
     ev_poll[e].valid = 1;
 }
 
-/**
- * @brief       Enable the specified poll event
+/*********************************************************************
+ * @brief  Enable the specified poll event
  *
- * @param[in]   e - Specified poll event ID
+ * @param  e - Specified poll event ID
  *
- * @return      None
+ * @return none
  */
 void ev_enable_poll(ev_poll_e e)
 {
     ev_poll[e].valid = 1;
 }
 
-/**
- * @brief       Schedule a LOW Medium task
+/*********************************************************************
+ * @brief  Schedule a LOW Medium task
  *
- * @param[in]   e - Specified poll event ID
+ * @param  e - Specified poll event ID
  *
- * @return      None
+ * @return none
  */
 void ev_disable_poll(ev_poll_e e)
 {
     ev_poll[e].valid = 0;
 }
 
-/**
- * @brief       Process poll events
+/*********************************************************************
+ * @brief  Process poll events
  *
- * @param[in]   None
+ * @param  none
  *
- * @return      None
+ * @return none
  */
 void ev_poll_process(void)
 {
     for (u8 i = 0; i < EV_POLL_MAX; i++) {
         if (ev_poll[i].valid) {
-        	ev_poll[i].cb();
+            ev_poll[i].cb();
         }
     }
 }

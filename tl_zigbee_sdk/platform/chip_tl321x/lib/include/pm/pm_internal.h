@@ -53,8 +53,11 @@
 #define PM_SUSPEND_WHILE_DEBUG   0
 #define PM_SUSPEND_WHILE_DEBUG_2 0
 #define PM_MIN_CODE_DEBUG        0
-#define PM_START_CODE_DEBUG      0
 #define PM_XTAL_READY_DEBUG      0
+#define PM_XTAL_ONCE_DEBUG       0
+#define PM_XTAL_READY_TIME       0
+#define PM_MANUAL_SETTLE_DEBUG   0
+#define PM_PLL_DONE_DEBUG        0
 
 //TODO:The A2 chip changes the default values of some analog registers to commonly configured values,
 //which saves the time of configuring registers during initialization.
@@ -149,14 +152,14 @@ typedef enum
  */
 typedef enum
 {
-    RET_LDO_TRIM_0P55V = 0,
-    RET_LDO_TRIM_0P60V,
+    RET_LDO_TRIM_0P60V = 0,
     RET_LDO_TRIM_0P65V,
     RET_LDO_TRIM_0P70V,
     RET_LDO_TRIM_0P75V,
     RET_LDO_TRIM_0P80V,
     RET_LDO_TRIM_0P85V,
     RET_LDO_TRIM_0P90V,
+    RET_LDO_TRIM_0P95V,
 } pm_ret_ldo_trim_e;
 
 /**
@@ -340,6 +343,12 @@ static _always_inline void pm_24mrc_power_down_if_unused(void)
 _attribute_ram_code_sec_optimize_o2_noinline_ void pm_bbpll_power_up(unsigned char all_ramcode_en);
 
 /**
+ * @brief       This function servers to power down BBPLL.
+ * @return      none.
+ */
+_attribute_ram_code_sec_optimize_o2_noinline_ void pm_bbpll_power_down(void);
+
+/**
  * @brief       This function servers to wait BBPLL clock lock.
  * @param[in]   all_ramcode_en  - Whether all processing in this function is required to be ram code. If this parameter is set to 1, it requires that:
  *              before calling this function, you have done the disable BTB, disable interrupt, mspi_stop_xip and other operations as the corresponding function configured to 0.
@@ -361,17 +370,17 @@ _attribute_ram_code_sec_optimize_o2_noinline_ void pm_wait_bbpll_done(unsigned c
  * @attention   This function can only be called with the 24M clock configuration
  * @return      none.
  */
-_attribute_ram_code_sec_noinline_ void pm_wait_xtal_ready(unsigned char all_ramcode_en);
+_attribute_ram_code_sec_optimize_o2_noinline_ void pm_wait_xtal_ready(unsigned char all_ramcode_en);
 
 /**
  * @brief       this function serves to clear all irq status.
  * @return      Indicates whether clearing irq status was successful.
  */
-_attribute_ram_code_sec_noinline_ unsigned char pm_clr_all_irq_status(void);
+_attribute_ram_code_sec_optimize_o2_noinline_ unsigned char pm_clr_all_irq_status(void);
 
 /**
  * @brief       This function serves to recover system timer.
  *              The code is placed in the ram code section, in order to shorten the time.
  * @return      none.
  */
-_attribute_ram_code_sec_noinline_ void pm_stimer_recover(void);
+_attribute_ram_code_sec_optimize_o2_noinline_ void pm_stimer_recover(void);

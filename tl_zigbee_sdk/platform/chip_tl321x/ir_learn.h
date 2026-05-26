@@ -1,7 +1,7 @@
 /********************************************************************************************************
  * @file    ir_learn.h
  *
- * @brief   This is the source file for TL321X
+ * @brief   This is the header file for TL321X
  *
  * @author  Driver Group
  * @date    2024

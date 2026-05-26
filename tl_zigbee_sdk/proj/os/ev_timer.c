@@ -220,6 +220,9 @@ u8 ev_timer_taskCancel(ev_timer_event_t **evt)
     return SUCCESS;
 }
 
+#if PM_ENABLE
+extern u32 prevSleepTick;
+#endif
 void ev_timer_update(u32 updateTime)
 {
     if (updateTime == 0) {
@@ -227,6 +230,14 @@ void ev_timer_update(u32 updateTime)
     }
 
     u32 r = drv_disable_irq();
+
+#if PM_ENABLE
+#if defined(MCU_CORE_8258)
+    prevSleepTick = pm_get_32k_tick();
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+    prevSleepTick = clock_get_32k_tick();
+#endif
+#endif
 
     u32 updateTimeMs = 0;
     u32 curSysTick = clock_time();
@@ -258,14 +269,17 @@ void ev_timer_update(u32 updateTime)
     drv_restore_irq(r);
 }
 
-void ev_timer_executeCB(void)
+static bool ev_timer_executeCB(bool detect)
 {
     ev_timer_event_t *timerEvt = ev_timer.timer_head;
     ev_timer_event_t *prev_head = timerEvt;
 
     while (timerEvt) {
         if (timerEvt->timeout == 0) {
-            /* start executing callback function */
+            if (detect) {
+                return 1;
+            }
+
             timerEvt->isBusy = 1;
 
             s32 t = timerEvt->cb(timerEvt->data);
@@ -289,18 +303,21 @@ void ev_timer_executeCB(void)
                 timerEvt = timerEvt->next;
             }
         } else {
-                timerEvt = timerEvt->next;
+            timerEvt = timerEvt->next;
         }
     }
 
     ev_timer_nearestUpdate();
+
+    return 0;
 }
 
-void ev_timer_process(void)
+bool ev_timer_process(bool detect)
 {
     u32 updateTime = 0;
     u32 sysTicks = 0;
     u32 currSysTick = clock_time();
+    bool evtReady = 0;
 
     if (currSysTick != prevSysTick) {
         sysTicks = (u32)(currSysTick - prevSysTick);
@@ -319,7 +336,8 @@ void ev_timer_process(void)
             ev_timer_update(updateTime);
         }
 
-        /* execute callback */
-        ev_timer_executeCB();
+        evtReady = ev_timer_executeCB(detect);
     }
+
+    return evtReady;
 }

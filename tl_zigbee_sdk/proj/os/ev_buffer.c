@@ -28,7 +28,6 @@
 
 #define DEFAULT_BUFFER_GROUP_NUM        4
 
-/**************************** Private Variable Definitions *******************/
 typedef struct {
     mem_pool_t *qHead;
     u16 size;
@@ -51,14 +50,14 @@ MEMPOOL_DECLARE(size_2_pool, size_2_mem, BUFFER_GROUP_2, BUFFER_NUM_IN_GROUP2);
 MEMPOOL_DECLARE(size_3_pool, size_3_mem, BUFFER_GROUP_3, BUFFER_NUM_IN_GROUP3);
 
 /*********************************************************************
- * @fn      ev_buf_isExisted
+ * @fn     ev_buf_isExisted
  *
- * @brief   Return whether the buffer is in the available buffer 
+ * @brief  Return whether the buffer is in the available buffer
  *
- * @param   index
- * @param   block
+ * @param  index
+ * @param  block
  *
- * @return  TRUE or FALSE
+ * @return TRUE or FALSE
  */
 u8 ev_buf_isExisted(u8 index, mem_block_t *block)
 {
@@ -81,13 +80,13 @@ u8 *ev_buf_retrieveMempoolHeader(u8 *pd)
 }
 
 /*********************************************************************
- * @fn      ev_buf_reset
+ * @fn     ev_buf_reset
  *
- * @brief   Reset the EV Buffer module
+ * @brief  Reset the EV Buffer module
  *
- * @param   None
+ * @param  none
  *
- * @return  None
+ * @return none
  */
 void ev_buf_reset(void)
 {
@@ -103,17 +102,17 @@ void ev_buf_reset(void)
         ev_buf_v->bufGroups[i].availBufNum = buffCnt[i];
         ev_buf_v->bufGroups[i].qHead = mempool_init(memPool[i], mem[i], size[i], buffCnt[i]);
         ev_buf_v->bufGroups[i].size = size[i];
-    }  
+    }
 }
 
 /*********************************************************************
- * @fn      ev_buf_init
+ * @fn     ev_buf_init
  *
- * @brief   Initialize the EV Buffer module
+ * @brief  Initialize the EV Buffer module
  *
- * @param   None
+ * @param  none
  *
- * @return  None
+ * @return none
  */
 void ev_buf_init(void)
 {
@@ -121,18 +120,17 @@ void ev_buf_init(void)
 }
 
 /*********************************************************************
- * @fn      ev_buf_allocate
+ * @fn     ev_buf_allocate
  *
- * @brief   Allocate an available buffer according to the requested size
- *          The allocated buffer will have only three kind of size, defined 
- *          in @ref EV_BUFFER_CONSTANT 
+ * @brief  Allocate an available buffer according to the requested size
+ *         The allocated buffer will have only three kind of size, defined
+ *         in @ref EV_BUFFER_CONSTANT
  *
- * @param   size - requested size
+ * @param  size - requested size
  *
- * @return  Pointer to an allocated buffer.
- *          NULL means the there is no available buffer.
+ * @return Pointer to an allocated buffer.
+ *         NULL means the there is no available buffer.
  */
-
 #if EV_BUFFER_DEBUG
 u8 *my_ev_buf_allocate(u16 size, u16 line)
 #else
@@ -155,13 +153,13 @@ u8 *ev_buf_allocate(u16 size)
     }
     if ((index == U8_MAX ) || (!ev_buf_v->bufGroups[index].availBufNum)) {
         /* no available buffer */
-    	drv_restore_irq(r);
+        drv_restore_irq(r);
         return NULL;
     }
     u8 *temp = (u8 *)mempool_alloc(ev_buf_v->bufGroups[index].qHead);
     if (!temp) {
-    	drv_restore_irq(r);
-    	return NULL;
+        drv_restore_irq(r);
+        return NULL;
     }
     ev_buf_v->bufGroups[index].availBufNum--;
 
@@ -181,13 +179,13 @@ u8 *long_ev_buf_get(void)
 }
 
 /*********************************************************************
- * @fn      ev_buf_free
+ * @fn     ev_buf_free
  *
- * @brief   Free the specified buffer 
+ * @brief  Free the specified buffer
  *
- * @param   pBuf - the pointer to the specified buffer to free.
+ * @param  pBuf - the pointer to the specified buffer to free.
  *
- * @return  status
+ * @return status
  */
 #if EV_BUFFER_DEBUG
 volatile u32 T_DBG_evFreeBuf = 0;
@@ -219,12 +217,12 @@ buf_sts_t ev_buf_free(u8 *pBuf)
 
         ZB_EXCEPTION_POST(SYS_EXCEPTTION_EV_BUFFER_EXCEPTION_FREE_MULTI);
 
-    	drv_restore_irq(r);
+        drv_restore_irq(r);
         return BUFFER_DUPLICATE_FREE;
     }
 
     mempool_free(ev_buf_v->bufGroups[pDelBuf->groupIndex].qHead, ev_buf_retrieveMempoolHeader(pBuf));
-    ev_buf_v->bufGroups[pDelBuf->groupIndex].availBufNum++;    
+    ev_buf_v->bufGroups[pDelBuf->groupIndex].availBufNum++;
 
 #if EV_BUFFER_DEBUG
     pDelBuf->line = line;
@@ -236,13 +234,13 @@ buf_sts_t ev_buf_free(u8 *pBuf)
 }
 
 /*********************************************************************
- * @fn      ev_buf_getHead
+ * @fn     ev_buf_getHead
  *
- * @brief   Get the header pointer of a buffer item 
+ * @brief  Get the header pointer of a buffer item
  *
- * @param   pd - the pointer of a data, which is previously allocated
+ * @param  pd - the pointer of a data, which is previously allocated
  *
- * @return  Pointer of bufferItem
+ * @return Pointer of bufferItem
  */
 ev_bufItem_t *ev_buf_getHead(u8 *pd)
 {
@@ -250,26 +248,26 @@ ev_bufItem_t *ev_buf_getHead(u8 *pd)
 }
 
 /*********************************************************************
- * @fn      ev_buf_getTail
+ * @fn     ev_buf_getTail
  *
- * @brief   Get the pointer from a EV BUFFER tail.
+ * @brief  Get the pointer from a EV BUFFER tail.
  *
- * @param   pd - the pointer of a data, which is previously allocated
- * @param   offsetToTail - The offset to Tail
+ * @param  pd - the pointer of a data, which is previously allocated
+ * @param  offsetToTail - The offset to Tail
  *
- * @return  Pointer of the specified memory
+ * @return Pointer of the specified memory
  */
 u8 *ev_buf_getTail(u8 *pd, int offsetToTail)
 {
     u32 index;
     u16 size[DEFAULT_BUFFER_GROUP_NUM] = {BUFFER_GROUP_0, BUFFER_GROUP_1, BUFFER_GROUP_2, BUFFER_GROUP_3};
 
-    memcpy((u8*)&index, pd - 4, 4);
+    memcpy((u8 *)&index, pd - 4, 4);
     assert((index < 3) && (index >= 0));
-    return (u8*)(pd - 8 + size[index] - offsetToTail);
+    return (u8 *)(pd - 8 + size[index] - offsetToTail);
 }
 
-u8 is_ev_buf(void *arg)
+_always_inline u8 is_ev_buf(void *arg)
 {
     if (((u32)arg >= (u32)(size_0_mem) && (u32)arg < ((u32)(size_0_mem) + sizeof(size_0_mem))) ||
         ((u32)arg >= (u32)(size_1_mem) && (u32)arg < ((u32)(size_1_mem) + sizeof(size_1_mem))) ||

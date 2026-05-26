@@ -50,8 +50,10 @@ extern void gpio0_irq_handler(void);
 extern void gpio1_irq_handler(void);
 extern void gpio2_irq_handler(void);
 
+#if(!BLE_SUPPORT_CONTROLLER_ONLY)
 PLIC_ISR_REGISTER(uart0_irq_handler, IRQ_UART0)
 PLIC_ISR_REGISTER(dma_irq_handler, IRQ_DMA)
+#endif
 PLIC_ISR_REGISTER(rf_irq_handler, IRQ_ZB_RT)
 PLIC_ISR_REGISTER(timer1_irq_handler, IRQ_TIMER1)
 PLIC_ISR_REGISTER(timer0_irq_handler, IRQ_TIMER0)

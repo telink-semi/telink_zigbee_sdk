@@ -44,8 +44,9 @@ u8 sys_exceptionPost(u16 line, u8 evt)
 void sys_stackStatusCheck(void)
 {
     extern u32 _end_bss_;
-    u8 *stackEnd = (u8*)&_end_bss_;
+    u8 *stackEnd = (u8 *)&_end_bss_;
     u8 stackOverflown = 0;
+
     for (s32 i = 0; i < 4; i++) {
         if (stackEnd[i] != 0xff) {
             /* stack overflown */
@@ -64,9 +65,17 @@ void sys_exceptHandlerRegister(sys_exception_cb_t cb)
     g_sysExceptCallback = cb;
 }
 
+void ev_init(bool reset)
+{
+    if (reset) {
+        ev_buf_init();
+        ev_timer_init();
+    }
+}
+
 void ev_main(void)
 {
-    ev_timer_process();
+    ev_timer_process(0);
     ev_poll_process();
 
     //sys_stackStatusCheck();

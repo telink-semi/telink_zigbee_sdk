@@ -7,7 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *			All rights reserved.
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -22,29 +22,29 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-#include "zb_common.h"
+#include "tl_common.h"
+#include "app.h"
 
 /*
  * main:
  * */
 int main(void)
 {
-    startup_state_e state = drv_platform_init();
-
-    u8 isRetention = (state == SYSTEM_DEEP_RETENTION) ? 1 : 0;
-
-    os_init(isRetention);
+    startup_state_e state = drv_platform_init(IS_BOOT_LOADER_IMAGE ? FALSE : TRUE);
 
 #if 0
+    u8 isRetention = (state == SYSTEM_DEEP_RETENTION) ? 1 : 0;
+    ev_init(!isRetention);
+
     extern void moduleTest_start(void);
     moduleTest_start();
 #else
-    extern void user_init(bool isRetention);
-    user_init(isRetention);
+
+    app_init(state);
 
     drv_enable_irq();
 
-#if (MODULE_WATCHDOG_ENABLE)
+#if MODULE_WATCHDOG_ENABLE
     drv_wd_setInterval(600);
     drv_wd_start();
 #endif
@@ -61,21 +61,11 @@ int main(void)
         }
 #endif
 
-#if defined(MCU_CORE_B92)
-        drv_vbusWatchdogClose();
-#endif
-
-        ev_main();
-
-#if (MODULE_WATCHDOG_ENABLE)
+#if MODULE_WATCHDOG_ENABLE
         drv_wd_clear();
 #endif
 
-        tl_zbTaskProcedure();
-
-#if (MODULE_WATCHDOG_ENABLE)
-        drv_wd_clear();
-#endif
+        app_proc();
     }
 #endif
 

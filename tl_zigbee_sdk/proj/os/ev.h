@@ -45,6 +45,8 @@ enum {
     SYS_EXCEPTTION_ZB_MAC_TX_TIMER,
     SYS_EXCEPTTION_ZB_MAC_CSMA,
     SYS_EXCEPTTION_ZB_MAC_TRX_TASK,
+    SYS_EXCEPTTION_ZB_MAC_PIB_NULL,
+    SYS_EXCEPTTION_ZB_MAC_RAW_DATA_NULL,
 
     SYS_EXCEPTTION_ZB_NWK_ADDR_IDX                      = 0x30,
     SYS_EXCEPTTION_ZB_NWK_BRC_INFO,
@@ -76,5 +78,6 @@ void sys_exceptHandlerRegister(sys_exception_cb_t cb);
 u8 sys_exceptionPost(u16 line, u8 evt);
 #define ZB_EXCEPTION_POST(evt)  sys_exceptionPost(__LINE__, evt)
 
+void ev_init(bool reset);
 //will be called in every main loop
 void ev_main(void);

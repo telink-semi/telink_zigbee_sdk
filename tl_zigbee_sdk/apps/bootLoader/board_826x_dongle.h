@@ -7,7 +7,7 @@
  * @date    2021
  *
  * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *			All rights reserved.
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -56,8 +56,13 @@ extern "C" {
 #define LED_POWER               LED_W
 #define LED_PERMIT              LED_B
 
+//ADC
+#if VOLTAGE_DETECT_ENABLE
+#define VOLTAGE_DETECT_ADC_PIN  NOINPUT
+#endif
+
 //UART
-#if UART_ENABLE
+#if MODULE_UART_ENABLE
 #define UART_TX_PIN             GPIO_PC2
 #define PC2_FUNC                AS_UART
 #define PC2_INPUT_ENABLE        0
@@ -74,27 +79,23 @@ extern "C" {
 #define UART_PIN_CFG()          UART_GPIO_CFG_PC2_PC3()
 #endif
 
-//ADC
-#if VOLTAGE_DETECT_ENABLE
-#define VOLTAGE_DETECT_ADC_PIN  NOINPUT
-#endif
-
 //DEBUG
-#if UART_PRINTF_MODE
-#define	DEBUG_INFO_TX_PIN       GPIO_PB5//print
+#if GSUART_PRINTF_MODE
+#define	CONSOLE_GPIO_TX_PIN     GPIO_PB5//print
+#elif UART_PRINTF_MODE
+#warning "Not Supported."
 #endif
 
 //USB
-#if ZBHCI_USB_PRINT || ZBHCI_USB_CDC || ZBHCI_USB_HID
-#define HW_USB_CFG()            do{ \
-                                    usb_set_pin_en(); \
-                                }while(0)
+#if MODULE_USB_ENABLE
+#define HW_USB_CFG()            drv_usb_init()
 #endif
-
 
 enum {
     VK_SW1 = 0x01,
-    VK_SW2 = 0x02
+    VK_SW2 = 0x02,
+    VK_SW3 = 0x03, //unused
+    VK_SW4 = 0x04, //unused
 };
 
 #define	KB_MAP_NORMAL           { \
@@ -107,7 +108,6 @@ enum {
 
 #define KB_DRIVE_PINS           {0}
 #define KB_SCAN_PINS            {BUTTON1, BUTTON2}
-
 
 /* Disable C linkage for C++ Compilers: */
 #if defined(__cplusplus)

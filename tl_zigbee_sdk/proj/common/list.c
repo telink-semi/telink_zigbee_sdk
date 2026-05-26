@@ -152,3 +152,9 @@ void listInsert(list_t list, void *prevItem, void *newItem)
         ((struct list *)prevItem)->next = newItem;
     }
 }
+
+void *listNext(void *item)
+{
+    return item == 0 ? 0: ((struct list *)item)->next;
+}
+

@@ -24,6 +24,10 @@
  *******************************************************************************************************/
 #pragma once
 
+#if defined(MCU_CORE_B91) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#include <stdbool.h>
+#endif
+
 #if 0
 typedef signed char int8_t;
 typedef unsigned char uint8_t;
@@ -55,8 +59,8 @@ typedef u32 UTCTime;
 typedef u32 arg_t;
 
 enum {
-  ZB_FALSE      = 0,
-  ZB_TRUE       = 1
+    ZB_FALSE = 0,
+    ZB_TRUE  = 1
 };
 
 typedef u8 cId_t;
@@ -91,7 +95,7 @@ typedef struct {
         u16 shortAddr;          //!< Short address
         addrExt_t extAddr;      //!< Extended address
     } addr;
-    u8  addrMode;               //!< Address mode
+    u8 addrMode;                //!< Address mode
 } addr_t;
 
 typedef struct {

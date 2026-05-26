@@ -36,7 +36,7 @@ static inline void usb_clear_irq_reset(void)
     reg_irq_src = FLD_IRQ_USB_RST_EN;
 }
 
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X)
 
 static inline u8 usb_is_irq_reset(void)
 {
@@ -48,22 +48,6 @@ static inline void usb_clear_irq_reset(void)
     reg_usb_irq_mask |= USB_IRQ_RESET_STATUS;
 }
 
-static inline void usb_edp_en(void)
-{
-#if defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
-    usbhw_init();
-    usbhw_set_ctrl_ep_size(SIZE_64_BYTE);
 #endif
-    usbhw_set_eps_en(FLD_USB_EDP8_EN |
-                     FLD_USB_EDP1_EN |
-                     FLD_USB_EDP2_EN |
-                     FLD_USB_EDP3_EN |
-                     FLD_USB_EDP4_EN |
-                     FLD_USB_EDP5_EN |
-                     FLD_USB_EDP6_EN |
-                     FLD_USB_EDP7_EN);
-#if defined(MCU_CORE_B91)
-    usbhw_set_irq_mask(USB_IRQ_RESET_MASK | USB_IRQ_SUSPEND_MASK);
-#endif
-}
-#endif
+
+void drv_usb_init(void);
