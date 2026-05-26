@@ -2,17 +2,17 @@ stages:
   - scc
   - genLicense
   - checkLicense
-#  - build_tc32
-#  - build_riscv
   - build_iotStudio
-#  - cov
-#  - fossid
-#  - plainPW_check
-#  - oss
-#  - misspellChecking
+  - cov
+  - fossid
+  - plainPW_check
+  - oss
+  - misspellChecking
 
 scc:
   stage: scc
+  tags:
+    - LINUX
   script:
     - echo "Enter scc stage"
     - scc | tee scc.txt
@@ -22,6 +22,7 @@ scc:
   artifacts:
     paths:
     - scc.txt
+  when: always
 
 genLicense:
   variables:
@@ -45,6 +46,8 @@ checkLicense:
     CODE_COMPILE_ARCH: 'EAGLE_ANDES'
     COV_PF_CATALOG: 'ZIGBEE'
   stage: checkLicense
+  tags:
+    - LINUX
   allow_failure: yes
   before_script:
   script:
@@ -60,55 +63,13 @@ checkLicense:
     - "no_license*.txt"
     - "unknow_type_file.txt"
 
-build_tc32:
-  variables:
-    PROJECT_PATH: './tl_zigbee_sdk/build/tlsr_tc32'
-    PROJECT_NAME: 'tl_zigbee_sdk'
-  stage: build_tc32
-  tags:
-    - LINUX
-    - TC32
-  before_script:
-  script:
-    - which tc32-elf-gcc
-    - chmod +x tl_zigbee_sdk/tools/*
-    - date
-    - ls tl_zigbee_sdk/build/tlsr_tc32
-    - $TC32_ECLIPSE_BUILD  -data ${CI_PIPELINE_ID}_WS1  -import $PROJECT_PATH -cleanBuild $PROJECT_NAME/sampleLight_8258
-    - date
-
-  artifacts:
-    paths:
-    - "$PROJECT_PATH/**/*.bin"
-    - "$PROJECT_PATH/**/*.lst"
-    - "$PROJECT_PATH/**/*.elf"
-
-build_riscv:
-  variables:    
-    PROJECT_PATH: './tl_zigbee_sdk/build/tlsr_riscv'
-    PROJECT_NAME: 'tl_zigbee_sdk'
-  stage: build_riscv
-  before_script:
-  script:
-    - ls
-    - pwd
-    - chmod +x tl_zigbee_sdk/tools/*
-    - date
-    - echo "--------------- Will build Demo -----------------"
-    - echo $PROJECT_PATH
-    - $ANDESRISCV_ECLIPSE_BUILD  -data ${CI_PIPELINE_ID}_WS  -import $PROJECT_PATH -cleanBuild $PROJECT_NAME/sampleLight_b91
-    - date
-
-  artifacts:
-    paths:
-    - "$PROJECT_PATH/**/output/*.bin"
-    - "$PROJECT_PATH/**/output/objdump.txt"
-
 build_iotStudio:
   variables:    
     PROJECT_PATH: './tl_zigbee_sdk/build/zigbee_sampleLight/tl323x'
     PROJECT_NAME: 'zigbee_sampleGW_tl323x'
   stage: build_iotStudio
+  tags:
+    - TELINKIDE_LINUX
   before_script:
   script:
     - ls
@@ -190,11 +151,11 @@ misspellChecking:
               ./tl_zigbee_sdk/platform/chip_b92/reg_include/core_reg.h
               ./tl_zigbee_sdk/platform/chip_tl321x/reg_include/core_reg.h
               ./tl_zigbee_sdk/platform/chip_tl721x/reg_include/core_reg.h
-              ./tl_zigbee_sdk/apps/sampleLight/sampleLightCtrl.c
-              ./tl_zigbee_sdk/apps/sampleLight/sampleLightEpCfg.c
-              ./tl_zigbee_sdk/apps/sampleLight/sampleLight.h
-              ./tl_zigbee_sdk/apps/sampleLight/zcl_sceneCb.c
-              ./tl_zigbee_sdk/apps/sampleLight/zcl_colorCtrlCb.c"
+              ./tl_zigbee_sdk/apps/zigbee/sampleLight/sampleLightCtrl.c
+              ./tl_zigbee_sdk/apps/zigbee/sampleLight/sampleLightEpCfg.c
+              ./tl_zigbee_sdk/apps/zigbee/sampleLight/sampleLight.h
+              ./tl_zigbee_sdk/apps/zigbee/sampleLight/zcl_sceneCb.c
+              ./tl_zigbee_sdk/apps/zigbee/sampleLight/zcl_colorCtrlCb.c"
     word_filter_pattern: "monts SIE currentY"
   tags:
     - LINUX
