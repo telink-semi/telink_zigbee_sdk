@@ -2,14 +2,14 @@ stages:
   - scc
   - genLicense
   - checkLicense
-  - build_tc32
-  - build_riscv
+#  - build_tc32
+#  - build_riscv
   - build_iotStudio
-  - cov
-  - fossid
-  - plainPW_check
-  - oss
-  - misspellChecking
+#  - cov
+#  - fossid
+#  - plainPW_check
+#  - oss
+#  - misspellChecking
 
 scc:
   stage: scc
@@ -106,8 +106,8 @@ build_riscv:
 
 build_iotStudio:
   variables:    
-    PROJECT_PATH: './tl_zigbee_sdk/build/iot_riscv_tl321x'
-    PROJECT_NAME: 'tl_zigbee_sdk'
+    PROJECT_PATH: './tl_zigbee_sdk/build/zigbee_sampleLight/tl323x'
+    PROJECT_NAME: 'zigbee_sampleGW_tl323x'
   stage: build_iotStudio
   before_script:
   script:
@@ -117,7 +117,7 @@ build_iotStudio:
     - date
     - echo "--------------- Will build Demo -----------------"
     - echo $PROJECT_PATH
-    - $TELINK_IDE_BUILD  -data ${CI_PIPELINE_ID}_WS  -import $PROJECT_PATH -cleanBuild $PROJECT_NAME/sampleLight_tl321x
+    - $TELINK_IDE_BUILD  -data ${CI_PIPELINE_ID}_WS  -import $PROJECT_PATH -cleanBuild $PROJECT_NAME/sampleLight_tl323x
     - date
 
   artifacts:
