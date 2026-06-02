@@ -64,9 +64,9 @@ checkLicense:
     - "unknow_type_file.txt"
 
 build_iotStudio:
-  variables:    
-    PROJECT_PATH: './tl_zigbee_sdk/build/zigbee_sampleLight/tl323x'
-    PROJECT_NAME: 'zigbee_sampleGW_tl323x'
+  variables:
+    BUILD_DEMOS: "sampleGW sampleLight sampleSwitch"
+    BUILD_PLATFORMS: "b91 tl321x tl323x"
   stage: build_iotStudio
   tags:
     - TELINKIDE_LINUX
@@ -76,16 +76,22 @@ build_iotStudio:
     - pwd
     - chmod +x tl_zigbee_sdk/tools/*
     - date
-    - echo "--------------- Will build Demo -----------------"
-    - echo $PROJECT_PATH
-    - $TELINK_IDE_BUILD  -data ${CI_PIPELINE_ID}_WS  -import $PROJECT_PATH -cleanBuild $PROJECT_NAME/sampleLight_tl323x
+    - |
+      for DEMO in $BUILD_DEMOS; do
+        for PLATFORM in $BUILD_PLATFORMS; do
+          echo "--------------- Will build ${DEMO}_${PLATFORM} Demo -----------------"
+          $TELINK_IDE_BUILD -data ${CI_PIPELINE_ID}_WS \
+            -import ./tl_zigbee_sdk/build/zigbee_${DEMO}/${PLATFORM} \
+            -cleanBuild zigbee_${DEMO}_sdk_${PLATFORM}/${DEMO}_${PLATFORM}
+        done
+      done
     - date
 
   artifacts:
     paths:
-    - "$PROJECT_PATH/**/*.bin"
-    - "$PROJECT_PATH/**/*.lst"
-    - "$PROJECT_PATH/**/*.elf"
+    - "tl_zigbee_sdk/build/zigbee_sample*/**/*.bin"
+    - "tl_zigbee_sdk/build/zigbee_sample*/**/*.lst"
+    - "tl_zigbee_sdk/build/zigbee_sample*/**/*.elf"
 
 # The cov job definition
 cov:
