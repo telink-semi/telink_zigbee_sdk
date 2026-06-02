@@ -89,9 +89,9 @@ build_iotStudio:
 
   artifacts:
     paths:
-    - "tl_zigbee_sdk/build/zigbee_sample*/**/*.bin"
-    - "tl_zigbee_sdk/build/zigbee_sample*/**/*.lst"
-    - "tl_zigbee_sdk/build/zigbee_sample*/**/*.elf"
+    - "tl_zigbee_sdk/build/zigbee_sample*/**/sample*/*.bin"
+    - "tl_zigbee_sdk/build/zigbee_sample*/**/sample*/*.lst"
+    - "tl_zigbee_sdk/build/zigbee_sample*/**/sample*/*.elf"
 
 # The cov job definition
 cov:
