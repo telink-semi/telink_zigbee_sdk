@@ -35,7 +35,9 @@
 #define	ZDO_EP                                  0
 #define	AF_BROADCAST_EP                         0xFF
 
+#ifndef MAX_ACTIVE_EP_NUMBER
 #define	MAX_ACTIVE_EP_NUMBER                    8
+#endif
 
 #define	INVALID_CMP_RESULT                      0xFF
 
