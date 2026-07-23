@@ -124,8 +124,7 @@ ext_hci_StatusTypeDef_e ext_hci_uartInit(ext_hci_InitTypeDef * uart)
 /**
  * @brief  Transmit interrupt function
  */
-_attribute_ram_code_
-_attribute_ram_code_sec_ void ext_hci_irq_handler(void){
+_attribute_ram_code_sec_noinline_ void ext_hci_irq_handler(void){
      if(uart_get_irq_status(EXT_HCI_UART_CHANNEL,UART_TXDONE_IRQ_STATUS))
      {
          uart_clr_irq_status(EXT_HCI_UART_CHANNEL,UART_TXDONE_IRQ_STATUS);
@@ -141,7 +140,7 @@ PLIC_ISR_REGISTER(ext_hci_irq_handler, EXT_HCI_UART_IRQ )
 /**
  * @brief  Receive interrupt function
  */
-_attribute_ram_code_
+_attribute_ram_code_sec_noinline_
 void ext_hci_dma_irq_handler(void)
 {
     if(dma_get_tc_irq_status( BIT(EXT_HCI_UART_DMA_CHN_RX))){

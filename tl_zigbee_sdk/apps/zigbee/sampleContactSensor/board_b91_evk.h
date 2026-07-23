@@ -76,6 +76,7 @@ extern "C" {
 #define PB4_INPUT_ENABLE        0
 
 #define LED_POWER               LED_R
+#define LED_PERMIT              LED_G
 
 //ADC
 #if VOLTAGE_DETECT_ENABLE

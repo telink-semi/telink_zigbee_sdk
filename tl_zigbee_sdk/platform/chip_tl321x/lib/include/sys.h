@@ -37,6 +37,8 @@
 #include "reg_include/register.h"
 #include "compiler.h"
 
+#define  INTERNAL_SIMULATION_DEBUG    0
+
 /**********************************************************************************************************************
  *                                         global constants                                                           *
  *********************************************************************************************************************/
@@ -189,6 +191,7 @@ typedef enum
     CHIP_VERSION_A0 = 0x00,
     CHIP_VERSION_A1 = 0x01,
     CHIP_VERSION_A2 = 0x81,
+    CHIP_VERSION_A4 = 0x02,
 } sys_chip_version_e;
 
 /**********************************************************************************************************************
@@ -237,7 +240,7 @@ _attribute_ram_code_sec_noinline_ void sys_init(power_mode_e power_mode, vbat_ty
  * @return    none.
  * @note      This function can only used when cclk is 24M RC cause the function execution process will power down the 24M crystal.
  */
-_attribute_ram_code_sec_noinline_ void crystal_manual_settle(void);
+_attribute_ram_code_sec_optimize_o2_noinline_ void crystal_manual_settle(void);
 
 /**
  * @brief      This function servers to reset and hold mcu.

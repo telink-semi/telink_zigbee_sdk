@@ -6,8 +6,8 @@
  * @author  Zigbee Group
  * @date    2025
  *
- * @par     Copyright (c) 2024, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
- *			All rights reserved.
+ * @par     Copyright (c) 2025, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@
 extern "C" {
 #endif
 
-// BUTTON
+//BUTTON
 //key1
 #define BUTTON1                 GPIO_PC4
 #define PC4_FUNC                AS_GPIO
@@ -58,7 +58,7 @@ extern "C" {
 #define PC7_INPUT_ENABLE        1
 #define	PULL_WAKEUP_SRC_PC7     GPIO_PIN_PULLUP_10K
 
-// LED
+//LED
 #define LED_R                   GPIO_PC2
 #define PC2_FUNC                AS_GPIO
 #define PC2_OUTPUT_ENABLE       1
@@ -82,17 +82,17 @@ extern "C" {
 #define LED_POWER               LED_R
 #define LED_PERMIT              LED_G
 
-// ADC
+//ADC
 #if VOLTAGE_DETECT_ENABLE
 #define VOLTAGE_DETECT_ADC_PIN  SD_ADC_GPIO_PB0P
 #endif
 
-// UART
-#if ZBHCI_UART
+//UART
+#if MODULE_UART_ENABLE
 #error please configurate uart PIN!!!!!!
 #endif
 
-// DEBUG
+//DEBUG
 #if GSUART_PRINTF_MODE
 #define CONSOLE_GPIO_TX_PIN     GPIO_PA0//print
 #elif UART_PRINTF_MODE
@@ -100,7 +100,6 @@ extern "C" {
 #define CONSOLE_UART_TX_PIN     GPIO_PA1
 #define CONSOLE_UART_RX_PIN     GPIO_PD1
 #endif
-
 
 enum {
     VK_SW1 = 0x01,
@@ -117,8 +116,8 @@ enum {
 #define	KB_MAP_NUM              KB_MAP_NORMAL
 #define	KB_MAP_FN               KB_MAP_NORMAL
 
-#define KB_DRIVE_PINS           {GPIO_PC4, GPIO_PC5}
-#define KB_SCAN_PINS            {GPIO_PC6, GPIO_PC7}
+#define KB_DRIVE_PINS           {BUTTON1, BUTTON2}
+#define KB_SCAN_PINS            {BUTTON3, BUTTON4}
 
 #define	KB_LINE_MODE            0
 #define	KB_LINE_HIGH_VALID      0

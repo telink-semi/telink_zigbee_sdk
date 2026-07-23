@@ -27,8 +27,7 @@
 #include "zcl_include.h"
 #include "sampleGateway.h"
 #include "device_manage.h"
-
-#include "stack/ble/ble_multi/controller/ll/adv/leg_adv.h"
+#include "controller/ll/adv/leg_adv.h"
 
 int central_smp_pending = 0;        // SMP: security & encryption;
 unsigned int  tlk_flash_mid = 0;
@@ -1076,9 +1075,7 @@ void user_ble_init(bool isRetention)
     blc_gatt_register_data_handler(app_gatt_data_handler);
 
     /* SMP Initialization */
-    #if (ACL_PERIPHR_SMP_ENABLE || ACL_CENTRAL_SMP_ENABLE)
-        blc_smp_configPairingSecurityInfoStorageAddressAndSize(FLASH_SMP_PAIRING_ADDR, FLASH_SMP_PAIRING_MAX_SIZE);
-    #endif
+    blc_smp_configPairingSecurityInfoStorageAddressAndSize(FLASH_SMP_PAIRING_ADDR, FLASH_SMP_PAIRING_MAX_SIZE);
 
     #if (ACL_PERIPHR_SMP_ENABLE)  //Peripheral SMP Enable
         blc_smp_setSecurityLevel_periphr(Unauthenticated_Pairing_with_Encryption);  //LE_Security_Mode_1_Level_2

@@ -136,7 +136,7 @@ typedef enum
 
     DMA_REQ_STIMER_RX = 30,
 
-    DMA_REQ_RZ_RX,
+    DMA_REQ_RZ_TX,
 
     DMA_REQ_SKE_TX,
     DMA_REQ_SKE_RX,

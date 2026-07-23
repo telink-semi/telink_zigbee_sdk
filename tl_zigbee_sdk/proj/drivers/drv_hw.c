@@ -67,6 +67,12 @@
     #else
         #error please config system clock
     #endif
+#elif defined(MCU_CORE_TL521X)
+    #if (CLOCK_SYS_CLOCK_HZ == 72000000)
+        #define CLOCK_INIT         PLL_144M_CCLK_72M_HCLK_36M_PCLK_36M_MSPI_48M
+    #else
+        #error please config system clock
+    #endif
 #endif
 
 //system ticks per US
@@ -76,7 +82,8 @@ static void randInit(void)
 {
 #if defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     random_generator_init();
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
+      defined(MCU_CORE_TL521X)
     trng_init();
 #endif
 }
@@ -95,7 +102,7 @@ static void randInit(void)
 static void internalFlashSizeCheck(void)
 {
 #if defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91) || \
-    defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+    defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
     u32 mid = flash_read_mid();
     u8 *pMid = (u8 *)&mid;
 
@@ -194,14 +201,16 @@ static startup_state_e platform_wakeup_init(bool clear)
     sys_init(DCDC_1P25_LDO_1P8, VBAT_MAX_VALUE_GREATER_THAN_3V6, INTERNAL_CAP_XTAL24M);
 #elif defined(MCU_CORE_TL323X)
     sys_init(DCDC_1P25_LDO_1P8, VBAT_MAX_VALUE_GREATER_THAN_3V6, INTERNAL_CAP_XTAL24M);
+#elif defined(MCU_CORE_TL521X)
+    sys_init(DCDC_1P25_LDO_1P8, VBAT_MAX_VALUE_GREATER_THAN_3V6, INTERNAL_CAP_XTAL24M);
 #endif
 
-#if defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#if defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
     wd_32k_stop();
     wd_stop();
 #endif
 
-#if defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#if defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
     pm_update_status_info(clear);
 #endif
 
@@ -210,7 +219,8 @@ static startup_state_e platform_wakeup_init(bool clear)
     state = (pm_mcu_status == MCU_STATUS_DEEP_BACK) ? SYSTEM_DEEP : SYSTEM_BOOT;
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     state = (startup_state_e)pm_get_mcu_status();
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
+      defined(MCU_CORE_TL521X)
     if (g_pm_status_info.mcu_status == MCU_STATUS_DEEPRET_BACK) {
         state = SYSTEM_DEEP_RETENTION;
     } else if (g_pm_status_info.mcu_status == MCU_STATUS_DEEP_BACK) {
@@ -239,7 +249,8 @@ startup_state_e drv_platform_init(bool clear)
 
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     clock_init(SYS_CLOCK_VALUE);
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
+      defined(MCU_CORE_TL521X)
     CLOCK_INIT;
 #endif
 
@@ -248,7 +259,8 @@ startup_state_e drv_platform_init(bool clear)
     sysTimerPerUs = tickPerUs;
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     sysTimerPerUs = sys_tick_per_us;
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
+      defined(MCU_CORE_TL521X)
     sysTimerPerUs = SYSTEM_TIMER_TICK_1US;
 #endif
 
@@ -286,7 +298,7 @@ startup_state_e drv_platform_init(bool clear)
     voltage_detect((state == SYSTEM_BOOT) ? 1 : 0);
 #endif
 
-#if defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#if defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
     /* Enable AES and ECC after clock_init */
     ske_dig_en();
     pke_dig_en();
@@ -313,7 +325,8 @@ void drv_enable_irq(void)
 {
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     irq_enable();
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
+      defined(MCU_CORE_TL521X)
     core_interrupt_enable();
 #endif
 }
@@ -322,21 +335,9 @@ u32 drv_disable_irq(void)
 {
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     return (u32)irq_disable();
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
+      defined(MCU_CORE_TL521X)
     return core_interrupt_disable();
-#endif
-}
-
-void drv_irqMask_clear(void)
-{
-#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
-    irq_disable_type(FLD_IRQ_ALL);
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
-    reg_irq_src0 = 0;
-    reg_irq_src1 = 0;
-    core_mie_disable(FLD_MIE_MSIE);
-    core_mie_disable(FLD_MIE_MTIE);
-    core_mie_disable(FLD_MIE_MEIE);
 #endif
 }
 
@@ -345,8 +346,23 @@ u32 drv_restore_irq(u32 en)
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     irq_restore((u8)en);
     return 0;
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
+      defined(MCU_CORE_TL521X)
     return core_restore_interrupt(en);
+#endif
+}
+
+void drv_irqMask_clear(void)
+{
+#if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
+    irq_disable_type(FLD_IRQ_ALL);
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
+      defined(MCU_CORE_TL521X)
+    reg_irq_src0 = 0;
+    reg_irq_src1 = 0;
+    core_mie_disable(FLD_MIE_MSIE);
+    core_mie_disable(FLD_MIE_MTIE);
+    core_mie_disable(FLD_MIE_MEIE);
 #endif
 }
 
@@ -369,7 +385,8 @@ u32 drv_u32Rand(void)
 {
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     return rand();
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
+      defined(MCU_CORE_TL521X)
     return trng_rand();
 #else
     return 0;

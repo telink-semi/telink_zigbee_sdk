@@ -31,7 +31,7 @@
  * @param[in]  none.
  * @return     The number of currently connected ACLs.
  */
-int blc_ll_getCurrentConnectionNumber(void); //master + slave connection number
+int blc_ll_getCurrentConnectionNumber(void); //central + Peripheral connection number
 
 
 /**
@@ -43,29 +43,29 @@ int blc_ll_getSupportedMaxConnNumber(void);
 
 
 /**
- * @brief      This function is used to obtain the number of ACL connections of the Master role.
+ * @brief      This function is used to obtain the number of ACL connections of the central role.
  * @param[in]  none.
- * @return     The number of currently connected master ACLs.
+ * @return     The number of currently connected central ACLs.
  */
-int blc_ll_getCurrentCentralRoleNumber(void); //master role number
+int blc_ll_getCurrentCentralRoleNumber(void); //central role number
 
 
 /**
- * @brief      This function is used to obtain the number of ACL connections of the Slave role.
+ * @brief      This function is used to obtain the number of ACL connections of the peripheral role.
  * @param[in]  none.
- * @return     The number of currently connected slave ACLs.
+ * @return     The number of currently connected peripheral ACLs.
  */
-int blc_ll_getCurrentPeripheralRoleNumber(void); //slave  role number
+int blc_ll_getCurrentPeripheralRoleNumber(void); //peripheral  role number
 
 
 /**
- * @brief      This function is used to configure the number of master and slave connections that the protocol stack can support.
- * @param[in]  max_master_num - Number of master ACL connections supported.
- * @param[in]  max_slave_num - Number of slave ACL connections supported.
+ * @brief      This function is used to configure the number of central and peripheral connections that the protocol stack can support.
+ * @param[in]  max_central_num - Number of central ACL connections supported.
+ * @param[in]  max_peripheral_num - Number of peripheral ACL connections supported.
  * @return     status, 0x00:  succeed
  *                     other: failed
  */
-ble_sts_t blc_ll_setMaxConnectionNumber(int max_master_num, int max_slave_num);
+ble_sts_t blc_ll_setMaxConnectionNumber(int max_central_num, int max_peripheral_num);
 
 
 /**
@@ -105,7 +105,7 @@ ble_sts_t blc_ll_readRemoteVersion(u16 connHandle);
 
 
 /**
- * @brief      for user to initialize ACL connection module, this is must if user want use ACL master role or ACL slave role.
+ * @brief      for user to initialize ACL connection module, this is must if user want use ACL central role or ACL Peripheral role.
  * @param      none
  * @return     none
  */
@@ -144,14 +144,14 @@ bool blc_ll_isAclConnEstablished(u16 connHandle);
 
 
 /**
- * @brief      set ACL data length for Master and Slave.
+ * @brief      set ACL data length for central and peripheral.
  * @param[in]  maxRxOct - ACL max RX Oct.
- * @param[in]  maxTxOct_master - ACL master max TX Oct (Range:27 - 251)
- * @param[in]  maxTxOct_slave - ACL slave max TX Oct  (Range:27 - 251)
+ * @param[in]  maxTxOct_central - ACL central max TX Oct (Range:27 - 251)
+ * @param[in]  maxTxOct_peripheral - ACL peripheral max TX Oct  (Range:27 - 251)
  * @return     status, 0x00 :  succeed
  *                     other: failed
  */
-ble_sts_t blc_ll_setAclConnMaxOctetsNumber(u8 maxRxOct, u8 maxTxOct_master, u8 maxTxOct_slave);
+ble_sts_t blc_ll_setAclConnMaxOctetsNumber(u8 maxRxOct, u8 maxTxOct_central, u8 maxTxOct_peripheral);
 
 
 /**
@@ -279,5 +279,7 @@ void blc_ll_dataLenAutoExgDisable(u16 connHandle);
 ble_sts_t blc_hci_readSuggestedDefaultTxDataLength(u8 *tx, u8 *txtime);
 ble_sts_t blc_hci_writeSuggestedDefaultTxDataLength(u16 tx, u16 txtime);
 ble_sts_t blc_hci_readMaximumDataLength(hci_le_readMaxDataLengthCmd_retParam_t *para);
+
+void blc_ll_set_acl_flush_timeout(u32 timeout_us);
 
 #endif /* ACL_CONN_H_ */

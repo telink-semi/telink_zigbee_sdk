@@ -24,7 +24,7 @@
 #ifndef PHY_H_
 #define PHY_H_
 
-#include "stack/ble/ble_multi/hci/hci_cmd.h"
+#include "hci/hci_cmd.h"
 
 
 /**

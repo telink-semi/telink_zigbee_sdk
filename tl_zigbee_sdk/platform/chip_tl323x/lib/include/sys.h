@@ -37,6 +37,8 @@
 #include "reg_include/register.h"
 #include "compiler.h"
 
+#define  INTERNAL_SIMULATION_DEBUG    0
+
 /**********************************************************************************************************************
  *                                         global constants                                                           *
  *********************************************************************************************************************/
@@ -188,7 +190,6 @@ typedef enum
 {
     CHIP_VERSION_A0 = 0x00,
     CHIP_VERSION_A1 = 0x01, /*20260325 add*/
-    CHIP_VERSION_A2 = 0xc0, 
 } sys_chip_version_e;
 
 /**********************************************************************************************************************
@@ -204,7 +205,7 @@ extern unsigned int g_chip_version;
  * @brief      This function reboot mcu.
  * @return     none
  */
-#ifdef BLC_ZEPHYR_BLE_INTEGRATION
+#ifdef BLC_ZEPHYR_BLE_INTEGRATION   /* ble defined, compatible with zephyr */
 _attribute_text_sec_ void protected_sys_reboot(void);
 #else
 _attribute_text_sec_ void sys_reboot(void);
@@ -229,7 +230,7 @@ _attribute_ram_code_sec_noinline_ void sys_reboot_ram(void);
  *              to adjust the waiting time for the crystal oscillator to start before calling the sys_init interface.
  *              When this time is adjusted to meet the crystal oscillator requirements, it will not reboot.
  */
-void sys_init(power_mode_e power_mode, vbat_type_e vbat_v, cap_typedef_e cap);
+_attribute_ram_code_sec_noinline_ void sys_init(power_mode_e power_mode, vbat_type_e vbat_v, cap_typedef_e cap);
 
 /**
  * @brief     this function servers to manual set crystal.

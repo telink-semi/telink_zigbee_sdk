@@ -39,6 +39,7 @@
 #include "reg_include/stimer_reg.h"
 #include "dma.h"
 #include "gpio.h"
+#include "pem.h"
 
 /**********************************************************************************************************************
  *                                           global macro                                                             *
@@ -107,6 +108,22 @@ typedef enum
     STIMER_AUTO_MODE_W_AND_NXT_32K_DONE  = 0x03, /**< After the tick value is written to the system timer,
                                                 the system timer automatically starts when the first 32k tick rises. */
 } stimer_enable_mode_e;
+
+typedef enum
+{
+    STIMER_EVENT_TRIG_POS = 0,
+    STIMER_EVENT_TRIG_POS_1,
+    STIMER_EVENT_CAL_TGL_PUL,
+    STIMER_EVENT_CAPT,
+    STIMER_EVENT_OV,
+} stimer_event_e;
+
+typedef enum
+{
+    STIMER_TASK_EN = 0,
+    STIMER_TASK_DIS,
+    STIMER_TASK_CAPT,
+} stimer_task_e;
 
 /**********************************************************************************************************************
  *                                     global variable declaration                                                    *
@@ -497,5 +514,21 @@ _attribute_ram_code_sec_optimize_o2_noinline_ void stimer_enable(stimer_enable_m
  * @return      none.
  */
 _attribute_ram_code_sec_optimize_o2_noinline_ void stimer_disable(void);
+
+/**
+ * @brief      This function serves to configure the STIMER PEM event.
+ * @param[in]  chn - to select the PEM channel.
+ * @param[in]  pin - the STIMER event signal selection.
+ * @return     none.
+ */
+void stimer_set_pem_event(pem_chn_e chn, stimer_event_e event_signal);
+
+/**
+ * @brief      This function serves to configure the STIMER PEM task.
+ * @param[in]  chn - to select the PEM channel.
+ * @param[in]  pin - the STIMER task signal selection.
+ * @return     none.
+ */
+void stimer_set_pem_task(pem_chn_e chn, stimer_task_e task_signal);
 
 #endif /* STIMER_H_ */

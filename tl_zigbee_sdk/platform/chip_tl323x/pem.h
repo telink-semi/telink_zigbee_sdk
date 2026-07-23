@@ -85,29 +85,25 @@ typedef enum
 typedef enum
 {
     PEM_EVENT_MSPI = 0,
-    PEM_EVENT_LSPI,
-    PEM_EVENT_GSPI,
-    PEM_EVENT_SECURITY_IP,
-    PEM_EVENT_GPIO,
-    PEM_EVENT_DMA,
-    PEM_EVENT_QDEC,
-    PEM_EVENT_CPU,
-    PEM_EVENT_TIMER,
-    PEM_EVENT_STIMER,
-    PEM_EVENT_SAR_ADC,
-    PEM_EVENT_AUDIO,
-    PEM_EVENT_IR_LEARN,
-    PEM_EVENT_PWM_0,
-    PEM_EVENT_PWM_1,
-    PEM_EVENT_RZ,
-    PEM_EVENT_ALGM,
-    PEM_EVENT_UART0,
-    PEM_EVENT_UART1,
-    PEM_EVENT_UART2,
-    PEM_EVENT_I2C,
-    PEM_EVENT_KS,
-    PEM_EVENT_USB,
-    PEM_EVENT_ZB,
+    PEM_EVENT_GSPI = 2,
+    PEM_EVENT_OSR_IP = 3,
+    PEM_EVENT_GPIO = 4,
+    PEM_EVENT_DMA = 5,
+    PEM_EVENT_MISC = 6,
+    PEM_EVENT_CPU = 7,
+    PEM_EVENT_TIMER = 8,
+    PEM_EVENT_STIMER = 9,
+    PEM_EVENT_PWM = 13,
+    PEM_EVENT_UART3 = 14,
+    PEM_EVENT_RZ = 15,
+    PEM_EVENT_ALGM = 16,
+    PEM_EVENT_UART0 = 17,
+    PEM_EVENT_UART1 = 18,
+    PEM_EVENT_UART2 = 19,
+    PEM_EVENT_I2C = 20,
+    PEM_EVENT_ZB = 23,
+    PEM_EVENT_UART4 = 28,
+    PEM_EVENT_I2C1 = 29,
 } pem_event_module_sel_e;
 
 /**
@@ -116,28 +112,25 @@ typedef enum
 typedef enum
 {
     PEM_TASK_MSPI = 0,
-    PEM_TASK_LSPI,
-    PEM_TASK_GSPI,
+    PEM_TASK_GSPI = 2,
+    PEM_TASK_OSR_IP = 3,
     PEM_TASK_GPIO = 4,
-    PEM_TASK_DMA,
-    PEM_TASK_QDEC,
-    PEM_TASK_CPU,
-    PEM_TASK_TIMER,
-    PEM_TASK_STIMER,
-    PEM_TASK_SAR_ADC,
-    PEM_TASK_AUDIO,
-    PEM_TASK_IR_LEARN,
-    PEM_TASK_PWM_0,
-    PEM_TASK_PWM_1,
-    PEM_TASK_RZ,
-    PEM_TASK_ALGM,
-    PEM_TASK_UART0,
-    PEM_TASK_UART1,
-    PEM_TASK_UART2,
-    PEM_TASK_I2C,
-    PEM_TASK_KS,
-    PEM_TASK_USB,
-    PEM_TASK_ZB,
+    PEM_TASK_DMA = 5,
+    PEM_TASK_MISC = 6,
+    PEM_TASK_CPU = 7,
+    PEM_TASK_TIMER = 8,
+    PEM_TASK_STIMER = 9,
+    PEM_TASK_PWM = 13,
+    PEM_TASK_UART3 = 14,
+    PEM_TASK_RZ = 15,
+    PEM_TASK_ALGM = 16,
+    PEM_TASK_UART0 = 17,
+    PEM_TASK_UART1 = 18,
+    PEM_TASK_UART2 = 19,
+    PEM_TASK_I2C = 20,
+    PEM_TASK_ZB = 23,
+    PEM_TASK_UART4 = 28,
+    PEM_TASK_I2C1 = 29,
 } pem_task_module_sel_e;
 
 /**
@@ -161,14 +154,14 @@ typedef enum
 } pem_lvl_e;
 
 /**
- * @brief edge detection.
- * @note  convert the level signal into an edge signal.
+ *  @brief  Define rising/falling types
  */
 typedef enum
 {
-    RISING_EDGE = 0,
-    RISING_FALLING_EDGE,
-} pem_edge_detect_e;
+    PEM_EVENT_RISING  = 0x00,
+    PEM_EVENT_FALLING = 0x04,
+    PEM_EVENT_BOTH = 0x01,
+} pem_event_pol_e;
 
 /**
  *  @brief  Define pem event struct.
@@ -181,7 +174,7 @@ typedef struct
     unsigned char sig_sel         : 3;
     unsigned char                 : 3;
     pem_clk_sel_e     clk_sel     : 2;
-    pem_edge_detect_e edge_detect : 1;
+    unsigned char     edge_detect : 1;
     unsigned char                 : 1;
     unsigned char inv             : 1;
     unsigned char                 : 1;
@@ -235,19 +228,17 @@ void pem_init(void);
 /**
  * @brief     This function servers to configure PEM channel and some configures.
  * @param[in] chn - to select the PEM channel.
- * @param[in] task_signal - to select the PEM channel.
- * @param[in] task_module - to select the PEM task module.
+ * @param[in] pem_event_config -  to setting serves to set the configuration of PEM event.
  * @return    none
  */
-void pem_task_config(pem_chn_e chn, unsigned int task_signal, pem_task_module_sel_e task_module);
+void pem_event_config(pem_chn_e chn, pem_event_config_t pem_event_config);
 
 /**
  * @brief     This function servers to configure PEM channel and some configures.
  * @param[in] chn - to select the PEM channel.
- * @param[in] event_signal - to select the event signal.
- * @param[in] event_module - to select the PEM event module.
+ * @param[in] pem_task_config - to setting serves to set the configuration of PEM task.
  * @return    none
  */
-void pem_event_config(pem_chn_e chn, unsigned int event_signal, pem_event_module_sel_e event_module);
+void pem_task_config(pem_chn_e chn, pem_task_config_t pem_task_config);
 
 #endif /* PEM_H_ */

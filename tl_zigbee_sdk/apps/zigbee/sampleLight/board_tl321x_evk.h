@@ -222,11 +222,6 @@ extern "C" {
 #define CONSOLE_UART_RX_PIN     GPIO_PE1
 #endif
 
-//USB
-#if MODULE_USB_ENABLE
-#define HW_USB_CFG()            drv_usb_init()
-#endif
-
 enum {
     VK_SW1 = 0x01,
     VK_SW2 = 0x02,

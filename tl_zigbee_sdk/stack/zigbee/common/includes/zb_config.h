@@ -32,7 +32,9 @@
 #define STACK_RVE_23                            23
 
 //Stack compliance revision
-#if defined(MCU_CORE_8278) || defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#if defined(MCU_CORE_8278) || defined(MCU_CORE_B91) || \
+    defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
+    defined(MCU_CORE_TL521X)
 #define ZB_STACK_COMPLIANCE_REVISION            STACK_RVE_23
 #elif defined(MCU_CORE_8258)
 #define ZB_STACK_COMPLIANCE_REVISION            STACK_RVE_22
@@ -94,7 +96,7 @@
 /******************************************************************************/
 
 #if defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91) || \
-    defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+    defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
     #if ZB_COORDINATOR_ROLE
         #define NWK_ROUTE_RECORD_TABLE_NUM      127//300
     #endif /* ZB_COORDINATOR_ROLE */
@@ -139,7 +141,9 @@
 #endif
 
 //supported key negotiation methods
-#if defined(MCU_CORE_8278) || defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#if defined(MCU_CORE_8278) || defined(MCU_CORE_B91) || \
+    defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
+    defined(MCU_CORE_TL521X)
 #define ZB_KEY_NEGOTIAION_METHODS               (STATIC_KEY_REQUEST | \
                                                  CURVE_25519_WITH_HASH_AES_MMO_128 | \
                                                  CURVE_25519_WITH_HASH_SHA_256)

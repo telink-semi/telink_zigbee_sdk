@@ -250,9 +250,9 @@ typedef enum
 enum
 {
     FLD_PWM0_FIFO_NUM_OF_TRIGGER_LEVEL = BIT_RNG(0, 3),
-    FLD_PEM_PWM_EVENT_SEL              = BIT_RNG(4, 5),
-    FLD_PEM_PWM_EVENT_EN               = BIT(6),
-    FLD_PEM_TASK_SEL                   = BIT(7),
+    FLD_PWM_PEM_EVENT_SEL              = BIT_RNG(4, 5),
+    FLD_PWM_PEM_EVENT_EN               = BIT(6),
+    FLD_PWM_PEM_TASK_SEL               = BIT(7),
 };
 
 /**

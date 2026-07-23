@@ -24,7 +24,7 @@
 #ifndef LL_EXT_ADV_H_
 #define LL_EXT_ADV_H_
 
-#include "stack/ble/ble_multi/hci/hci_cmd.h"
+#include "hci/hci_cmd.h"
 
 
 /* maximum number of advertising sets this SDK can support, periodic advertising is included. */
@@ -92,6 +92,33 @@ ble_sts_t blc_ll_setExtAdvParam(u8 adv_handle, advEvtProp_type_t adv_evt_prop, u
 
 
 /**
+ * @brief      This function is used to set the advertising parameters v2
+ * @param[in]  adv_handle - Used to identify an advertising set
+ * @param[in]  adv_evt_prop - describes the type of advertising event that is being configured and its basic properties
+ * @param[in]  pri_advInter_min - Minimum advertising interval for undirected and low duty cycle directed advertising.
+ * @param[in]  pri_advInter_max - Maximum advertising interval for undirected and low duty cycle directed advertising.
+ * @param[in]  pri_advChnMap - primary advertisement channel
+ * @param[in]  ownAddrType - Own Address Type
+ * @param[in]  peerAddrType - Peer Address Type
+ * @param[in]  peerAddr - Peer Address
+ * @param[in]  advFilterPolicy - Advertising Filter Policy
+ * @param[in]  adv_tx_pow - Advertising TX Power
+ * @param[in]  pri_adv_phy - primary advertisement PHY
+ * @param[in]  sec_adv_max_skip - Maximum advertising events the Controller can skip
+ * @param[in]  sec_adv_phy - Secondary advertisement PHY
+ * @param[in]  adv_sid - Value of the Advertising SID subfield in the ADI field of the PDU
+ * @param[in]  scan_req_notify_en - Scan Request Notification Enable
+ * @param[in]  pri_adv_codePhy_option - primary advertisement codePhy PHY option
+ * @param[in]  sec_adv_codePhy_option - primary advertisement codePhy PHY option
+ * @return     Status - 0x00: command succeeded;
+ *                      0x12:  1. adv_handle out of range;
+ *                             2. pri_advChnMap out of range
+ *                      0x0C:  advertising is enabled for the specified advertising set
+ */
+ble_sts_t blc_ll_setExtAdvParam_v2(u8 adv_handle, advEvtProp_type_t adv_evt_prop, u32 pri_advInter_min, u32 pri_advInter_max, adv_chn_map_t pri_advChnMap, own_addr_type_t ownAddrType, u8 peerAddrType, u8 *peerAddr, adv_fp_type_t advFilterPolicy, tx_power_t adv_tx_pow, le_phy_type_t pri_adv_phy, u8 sec_adv_max_skip, le_phy_type_t sec_adv_phy, u8 adv_sid, u8 scan_req_notify_en, le_codedPhy_option pri_adv_codePhy_option, le_codedPhy_option sec_adv_codePhy_option);
+
+
+/**
  * @brief      This function is used to set the data used in advertising PDU that have a data field
  *             notice that: setting legacy ADV data also use this API, data length can not exceed 31
  * @param[in]  adv_handle - Used to identify an advertising set
@@ -100,6 +127,7 @@ ble_sts_t blc_ll_setExtAdvParam(u8 adv_handle, advEvtProp_type_t adv_evt_prop, u
  * @return     Status - 0x00: command succeeded; 0x01-0xFF: command failed
  */
 ble_sts_t blc_ll_setExtAdvData(u8 adv_handle, int advData_len, const u8 *advData);
+
 
 /**
  * @brief  This function is used to set the ADV_DECISION_IND data.
@@ -110,6 +138,7 @@ ble_sts_t blc_ll_setExtAdvData(u8 adv_handle, int advData_len, const u8 *advData
  * @return Status - 0x00: command succeeded; 0x01-0xFF: command failed
  */
 ble_sts_t blc_ll_setDecisionData(u8 adv_handle, u8 decisionType, int decisionDataLen, const u8 *decisionData);
+
 
 /**
  * @brief      This function is used to provide scan response data used in scanning response PDUs.
@@ -169,7 +198,32 @@ ble_sts_t blc_ll_clearAdvSets(void);
  *                  0xFF: invalid ADV handle, e.g. connection is not Peripheral role, or Peripheral is established by legacy ADV
  *                  Others: Extended ADV handle
  */
-u8 blc_ll_getExtendedAdvHandleForAclConnection(u16 connHandle);
+/* This function is DEPRECATED. And it will be removed in the future.
+ * Therefore, we would recommend adopting the replacement approach outlined below.
+ *
+ * User should use "LE Advertising Set Terminated event" instead.
+ * When using LE Advertising Set, after connection on an advertising set,
+ * there will be a "LE Advertising Set Terminated event" from Controller to Host.
+ *
+ * Migration Guide:
+ * 1. Register this event by calling blc_hci_le_setEventMask_cmd() and add
+ * HCI_LE_EVT_MASK_EXTENDED_ADVERTISING_SET_TERMINATED event in it.
+ * This function is usually called in user_init_normal.
+ * 2. Add if(subEvt_code == HCI_SUB_EVT_LE_ADVERTISING_SET_TERMINATED){} branch
+ * in app_controller_event_callback()
+ *
+ * Then after the advertising set is connected, there should be a event callback
+ * in the if(subEvt_code == HCI_SUB_EVT_LE_ADVERTISING_SET_TERMINATED){} branch.
+ */
+//u8 blc_ll_getExtendedAdvHandleForAclConnection(u16 connHandle);
+
+
+/**
+ * @brief      for user to initialize advertising coding selection feature
+ * @param[in]  none.
+ * @return     none.
+ */
+void blc_ll_initAdvCodingSelection_feature(void);
 
 
 #endif /* LL_EXT_ADV_H_ */

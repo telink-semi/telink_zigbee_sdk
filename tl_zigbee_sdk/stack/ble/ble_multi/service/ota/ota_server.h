@@ -203,12 +203,5 @@ ble_sts_t blc_ota_enableFirmwareEncryption(void);
  */
 ble_sts_t blc_ota_enableSecureBoot(void);
 
-/**
- * @brief      this function is used to get ota status.
- * @param      none
- * @return     Status - 0x00: ota not start; 0x01: ota started
- */
-bool blt_ota_isOtaBusy(void);
-
 
 #endif /* STACK_BLE_SERVICE_OTA_OTA_SERVER_H_ */

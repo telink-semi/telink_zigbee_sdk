@@ -182,7 +182,7 @@ typedef enum
 
 } ble_sts_t;
 
-#if !HOST_V2_ENABLE
+
 /**
  *  @brief  Definition for Error Response of ATTRIBUTE PROTOCOL PDUS
  *  See the Core_v5.0(Vol 3/Part F/3.4.1.1, "Error Response") for more information.
@@ -212,7 +212,9 @@ typedef enum
     ATT_ERR_DATABASE_OUT_OF_SYNC   = 0x12, //!< The server requests the client to rediscover the database
     ATT_ERR_VALUE_NOT_ALLOWED      = 0x13, //!< The attribute parameter value was not allowed
 
-	ATT_ERR_ZIGBEE_DIRECT_APP_ERROR = 0x80,//!<The attribute PDU was invalid for zigbee direct
+//#ifdef BLC_ZIGBEE_INTEGRATION
+    ATT_ERR_ZIGBEE_DIRECT_APP_ERROR = 0x80,//!<The attribute PDU was invalid for zigbee direct
+//#endif /* BLC_ZIGBEE_INTEGRATION */
 
     /* List of Common Profile and Service Error Codes */
     ATT_ERR_WRITE_REQUEST_REJECT = 0xFC,          //!< Write Request Rejected
@@ -221,7 +223,7 @@ typedef enum
     ATT_ERR_OUT_OF_RANGE,                         //!< Out of Range
 
 } att_err_t;
-#endif
+
 
 /**
  *  @brief  error code for user initialization error
@@ -381,10 +383,13 @@ typedef enum
 } att_pdu_type;
 
 /**
- * @brief   HCI ACL DATA buffer length = LE_ACL_Data_Packet_Length + 4, pkt_len is integer multiple of 4, so result is 4 Byte align
- *          4 = 2(connHandle) + 1(PBFlag) + 1(length)
+ * @brief   In Spec and HCI final pkt, HCI ACL DATA buffer length = LE_ACL_Data_Packet_Length + 4.
+ *          pkt_len is integer multiple of 4, so result is 4 Byte align.
+ *          See the Core_v5.0(Vol 3/Part F/3.4.1.1, "Error Response") for more information.
+ *          However when dealing with RxFifo to HCI, Telink use a byte to PBFlag.
+ *          So Telink Controller used 5 = 2(connHandle) + 1(PBFlag) + 2(length)
  */
-#define CALCULATE_HCI_ACL_DATA_FIFO_SIZE(pkt_len) ((pkt_len + 4 + 3) / 4 * 4)
+#define CALCULATE_HCI_ACL_DATA_FIFO_SIZE(pkt_len) ((pkt_len + 5 + 3) / 4 * 4)
 
 
 /**

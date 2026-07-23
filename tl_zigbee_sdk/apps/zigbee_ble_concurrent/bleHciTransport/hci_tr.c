@@ -24,7 +24,7 @@
 #include "hci_tr.h"
 #include "hci_tr_def.h"
 #include "hci_tr_h4.h"
-#include "stack/ble/ble_multi/controller/ble_controller.h"
+#include "controller/ble_controller.h"
 
 
 #if HCI_TR_EN

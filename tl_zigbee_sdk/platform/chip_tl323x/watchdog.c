@@ -23,6 +23,13 @@
  *******************************************************************************************************/
 #include "watchdog.h"
 
+static const wd_32k_gear_t g_wd_gears[] = {
+    {WK_32K_CLK_WIDTH_256MS,      256},
+    {WK_32K_CLK_WIDTH_8192MS,    8192},
+    {WK_32K_CLK_WIDTH_262144MS,  262144},
+    {WK_32K_CLK_WIDTH_8388608MS, 8388608},
+};
+
 /**
  * @brief     start 32k watchdog.
  * @return    none.
@@ -136,29 +143,21 @@ _attribute_ram_code_sec_noinline_ void wd_32k_set_interval_ms(unsigned int perio
         wd_32k_set_target_value(WK_32K_CLK_WIDTH_8388608MS, 31);
     }
 #else
-    if(period_ms < 256)
-    {
+    if (period_ms < 256) {
         wd_32k_set_target_value(WK_32K_CLK_WIDTH_256MS, 1);
+        return;
     }
-    else if(period_ms < 7937)//8192-255
-    {
-        wd_32k_set_target_value(WK_32K_CLK_WIDTH_256MS, (period_ms + 255) / 256);//256ms
+    for (unsigned char i = 0; i < sizeof(g_wd_gears) / sizeof(g_wd_gears[0]); i++) {
+        unsigned int width = g_wd_gears[i].width_ms;
+        /* target = ceil((period_ms + width/4) / width), width/4 as margin */
+        unsigned int target = (period_ms + width / 4 + width - 1) / width;
+        if (target <= 31) {
+            wd_32k_set_target_value(g_wd_gears[i].clk_sel, (unsigned char)target);
+            return;
+        }
     }
-    else if(period_ms < 253953)//262144-8191
-    {
-        wd_32k_set_target_value(WK_32K_CLK_WIDTH_8192MS, (period_ms + 8191) / 8192);//8.2s
-    }
-    else if(period_ms < 8126465)//8388608-262143
-    {
-        wd_32k_set_target_value(WK_32K_CLK_WIDTH_262144MS, (period_ms + 262143) / 262144);//4.4m
-    }
-    else if(period_ms < 260046849)//268435456-8388607
-    {
-        wd_32k_set_target_value(WK_32K_CLK_WIDTH_8388608MS, (period_ms + 8388607) / 8388608);//2.3h
-    }
-    else
-    {
-        wd_32k_set_target_value(WK_32K_CLK_WIDTH_8388608MS, 31);
-    }
+
+    /* period_ms exceeds all g_wd_gears, use max gear with max target */
+    wd_32k_set_target_value(WK_32K_CLK_WIDTH_8388608MS, 31);
 #endif
 }

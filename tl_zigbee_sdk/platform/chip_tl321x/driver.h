@@ -71,3 +71,5 @@
 #include "ir_learn.h"
 #endif
 #include "cache.h"
+#include "pem.h"
+#include "rz.h"

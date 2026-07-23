@@ -175,7 +175,7 @@ typedef struct
 /**
  *  @brief data structure of OTA command "CMD_OTA_SCHEDULE_FW_SIZE"
  */
-typedef struct
+typedef struct __attribute__((packed))
 {
     u16 ota_cmd;
     u32 success_fw_size; // successful OTA firmware size (unit: Byte)

@@ -108,7 +108,7 @@ enum {
     VK_SW4 = 0x04
 };
 
-#define	KB_MAP_NORMAL           { \
+#define KB_MAP_NORMAL           { \
                                     {VK_SW3, VK_SW4}, \
                                     {VK_SW1, VK_SW2}, \
                                 }

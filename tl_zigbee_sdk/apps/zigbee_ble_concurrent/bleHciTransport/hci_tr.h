@@ -26,8 +26,7 @@
 
 #include "common/types.h"
 #include "common/compiler.h"
-
-#include "stack/ble/ble_multi/hci/hci.h"
+#include "hci/hci.h"
 
 #ifndef HCI_TR_EN
     #define HCI_TR_EN 0

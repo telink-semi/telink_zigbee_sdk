@@ -44,7 +44,8 @@
 
 #ifndef ZB_BUF_POOL_NUM
 #if defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || \
-    defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+    defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
+    defined(MCU_CORE_TL521X)
     #if (ZB_COORDINATOR_ROLE || ZB_ROUTER_ROLE)
         #define ZB_BUF_POOL_NUM         36
     #else

@@ -289,7 +289,8 @@ _always_inline u8 rf_getTrxState(void)
  *
  * @return none
  */
-#if defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#if defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
+    defined(MCU_CORE_TL521X)
 _attribute_ram_code_
 #endif
 void rf_setTrxState(u8 state)
@@ -462,7 +463,8 @@ u8 rf_stopEDScan(void)
 }
 
 volatile s8 T_rssiPeak = 0;
-#if defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#if defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
+    defined(MCU_CORE_TL521X)
 _attribute_ram_code_
 #endif
 u8 rf_performCCA(void)
@@ -530,7 +532,8 @@ _always_inline void rf802154_tx_ready(u8 *buf, u8 len)
     }
 }
 
-#if defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#if defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
+    defined(MCU_CORE_TL521X)
 _attribute_ram_code_
 #endif
 void rf802154_tx(void)
@@ -813,7 +816,8 @@ inline bool zb_rfTxDoing(void)
 
 void restore_zb_rf_context(void)
 {
-#if defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#if defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
+    defined(MCU_CORE_TL521X)
     rf_reset_register_value();
 #else
     reset_baseband();

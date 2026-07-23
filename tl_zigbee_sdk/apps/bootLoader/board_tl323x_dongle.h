@@ -4,9 +4,9 @@
  * @brief   This is the header file for board_tl323x_dongle
  *
  * @author  Zigbee Group
- * @date    2026
+ * @date    2025
  *
- * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2025, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,94 +29,97 @@
 extern "C" {
 #endif
 
+//BUTTON
+#define BUTTON1                 GPIO_PA2//SW1
+#define PA2_FUNC                AS_GPIO
+#define PA2_OUTPUT_ENABLE       0
+#define PA2_INPUT_ENABLE        1
+#define PULL_WAKEUP_SRC_PA2     GPIO_PIN_PULLUP_10K
 
-// BUTTON
-#define BUTTON1                     GPIO_PA2    //SW1
-#define PA2_FUNC                    AS_GPIO
-#define PA2_OUTPUT_ENABLE           0
-#define PA2_INPUT_ENABLE            1
-#define PULL_WAKEUP_SRC_PA2         GPIO_PIN_PULLUP_10K
+#define BUTTON2                 GPIO_PA4//SW2
+#define PA4_FUNC                AS_GPIO
+#define PA4_OUTPUT_ENABLE       0
+#define PA4_INPUT_ENABLE        1
+#define PULL_WAKEUP_SRC_PA4     GPIO_PIN_PULLUP_10K
 
-#define BUTTON2                     GPIO_PA4    //SW2
-#define PA4_FUNC                    AS_GPIO
-#define PA4_OUTPUT_ENABLE           0
-#define PA4_INPUT_ENABLE            1
-#define PULL_WAKEUP_SRC_PA4         GPIO_PIN_PULLUP_10K
+//LED
+#define LED_Y                   GPIO_PD0//D4
+#define PD0_FUNC                AS_GPIO
+#define PD0_OUTPUT_ENABLE       1
+#define PD0_INPUT_ENABLE        0
 
-// LED
-#define LED_Y                       GPIO_PD0//D4
-#define PD0_FUNC                    AS_GPIO
-#define PD0_OUTPUT_ENABLE           1
-#define PD0_INPUT_ENABLE            0
+#define LED_R                   GPIO_PB0//D2
+#define PB0_FUNC                AS_GPIO
+#define PB0_OUTPUT_ENABLE       1
+#define PB0_INPUT_ENABLE        0
 
-#define LED_R                       GPIO_PB0//D2
-#define PB0_FUNC                    AS_GPIO
-#define PB0_OUTPUT_ENABLE           1
-#define PB0_INPUT_ENABLE            0
+#define LED_G                   GPIO_PB1//D1
+#define PB1_FUNC                AS_GPIO
+#define PB1_OUTPUT_ENABLE       1
+#define PB1_INPUT_ENABLE        0
 
-#define LED_G                       GPIO_PB1//D1
-#define PB1_FUNC                    AS_GPIO
-#define PB1_OUTPUT_ENABLE           1
-#define PB1_INPUT_ENABLE            0
+#define LED_W                   GPIO_PD2//D6
+#define PD2_FUNC                AS_GPIO
+#define PD2_OUTPUT_ENABLE       1
+#define PD2_INPUT_ENABLE        0
 
-#define LED_W                       GPIO_PD2//D6
-#define PD2_FUNC                    AS_GPIO
-#define PD2_OUTPUT_ENABLE           1
-#define PD2_INPUT_ENABLE            0
+#define LED_B                   GPIO_PD1//D5
+#define PD1_FUNC                AS_GPIO
+#define PD1_OUTPUT_ENABLE       1
+#define PD1_INPUT_ENABLE        0
 
-#define LED_B                       GPIO_PD1//D5
-#define PD1_FUNC                    AS_GPIO
-#define PD1_OUTPUT_ENABLE           1
-#define PD1_INPUT_ENABLE            0
+#define LED_O                   GPIO_PD3//D7
+#define PD3_FUNC                AS_GPIO
+#define PD3_OUTPUT_ENABLE       1
+#define PD3_INPUT_ENABLE        0
 
-#define LED_O                       GPIO_PD3//D7
-#define PD3_FUNC                    AS_GPIO
-#define PD3_OUTPUT_ENABLE           1
-#define PD3_INPUT_ENABLE            0
+#define LED_POWER               LED_R
+#define LED_PERMIT              LED_G
 
-#define LED_POWER                   LED_R
-#define LED_PERMIT                  LED_G
+//ADC
+#if VOLTAGE_DETECT_ENABLE
+#define VOLTAGE_DETECT_ADC_PIN  SD_ADC_GPIO_PB7P
+#endif
 
-// ADC
-#define VOLTAGE_DETECT_ADC_PIN      SD_ADC_GPIO_PB7P
-
-// UART
+//UART
 #if MODULE_UART_ENABLE
-    #define UART_TX_PIN             GPIO_PB6
-    #define UART_RX_PIN             GPIO_PB7
-
-    #define UART_PIN_CFG()          drv_uart_pin_set(UART_TX_PIN, UART_RX_PIN);// uart tx/rx pin set
+#define UART_IDX                UART0
+#define UART_TX_PIN             GPIO_PB6
+#define UART_RX_PIN             GPIO_PB7
+#define UART_PIN_CFG()          drv_uart_pin_set(UART_TX_PIN, UART_RX_PIN);
 #endif
 
 //DEBUG
 #if GSUART_PRINTF_MODE
-#define CONSOLE_GPIO_TX_PIN         GPIO_PB6//print
+#define CONSOLE_GPIO_TX_PIN     GPIO_PB6//print
 #elif UART_PRINTF_MODE
-#define CONSOLE_UART_IDX            UART1
-#define CONSOLE_UART_TX_PIN         GPIO_PB6
-#define CONSOLE_UART_RX_PIN         GPIO_PB7
+#define CONSOLE_UART_IDX        UART1
+#define CONSOLE_UART_TX_PIN     GPIO_PB6
+#define CONSOLE_UART_RX_PIN     GPIO_PB7
 #endif
 
-// USB
-#if ZBHCI_USB_PRINT || ZBHCI_USB_CDC || ZBHCI_USB_HID
+//USB
+#if MODULE_USB_ENABLE
 #warning "TL323X does not support."
 #endif
 
-
-enum{
+enum {
     VK_SW1 = 0x01,
     VK_SW2 = 0x02,
+    VK_SW3 = 0x03, //unused
+    VK_SW4 = 0x04, //unused
 };
 
-#define KB_MAP_NORMAL   {\
-        {VK_SW1,}, \
-        {VK_SW2,}, }
+#define KB_MAP_NORMAL           { \
+                                    {VK_SW2,}, \
+                                    {VK_SW1,}, \
+                                }
 
-#define KB_MAP_NUM      KB_MAP_NORMAL
-#define KB_MAP_FN       KB_MAP_NORMAL
+#define KB_MAP_NUM              KB_MAP_NORMAL
+#define KB_MAP_FN               KB_MAP_NORMAL
 
-#define KB_DRIVE_PINS   {0}
-#define KB_SCAN_PINS    {BUTTON1, BUTTON2}
+#define KB_DRIVE_PINS           {0}
+#define KB_SCAN_PINS            {BUTTON1, BUTTON2}
 
 /* Disable C linkage for C++ Compilers: */
 #if defined(__cplusplus)

@@ -55,10 +55,8 @@
 /* APP image address. */
 #if BOOT_LOADER_MODE
 #define APP_IMAGE_ADDR                  0x8000
-#define IMAGE_TYPE_BOOT_FLAG            1
 #else
 #define APP_IMAGE_ADDR                  0x0000
-#define IMAGE_TYPE_BOOT_FLAG            0
 #endif
 
 /*Telink ID*/
@@ -75,8 +73,14 @@
 #define TLSR_TL721X                     0x07
 #define TLSR_TL321X                     0x08
 #define TLSR_TL323X                     0x09
+#define TLSR_TL521X                     0x0A
 
 /* Image types */
+#if BOOT_LOADER_MODE
+#define IMAGE_TYPE_BOOT_FLAG            1
+#else
+#define IMAGE_TYPE_BOOT_FLAG            0
+#endif
 //For BootLoader
 #define IMAGE_TYPE_BOOTLOADER           (0xFF)
 //For ZIGBEE

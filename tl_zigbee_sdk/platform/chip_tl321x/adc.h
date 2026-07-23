@@ -38,6 +38,7 @@
 #include "compiler.h"
 #include "gpio.h"
 #include "reg_include/register.h"
+#include "pem.h"
 
 #ifndef INTERNAL_TEST_FUNC_EN
     #define INTERNAL_TEST_FUNC_EN 0 //only for internal test

@@ -29,9 +29,7 @@
 #include "sampleSwitch.h"
 #include "app_ui.h"
 #include "zigbee_ble_switch.h"
-#include "stack/ble/ble_config.h"
-#include "stack/ble/ble_common.h"
-#include "stack/ble/ble.h"
+#include "ble.h"
 
 #if PM_ENABLE
 extern u8 switch_to_ble;
@@ -120,7 +118,7 @@ void app_pm_task(void)
 
     return;
 }
-#elif defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#elif defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
 void app_pm_task(void)
 {
     /*

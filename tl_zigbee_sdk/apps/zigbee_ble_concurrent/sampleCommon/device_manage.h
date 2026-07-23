@@ -25,16 +25,16 @@
 #ifndef DEVICE_MANAGE_H_
 #define DEVICE_MANAGE_H_
 
-#if defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL323X)
-#include "stack/ble/ble_multi/ble_common.h"
-#include "stack/ble/ble_multi/hci/hci_event.h"
+#if defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
+#include "ble_common.h"
+#include "hci/hci_event.h"
 
 #ifndef ACL_CENTRAL_MAX_NUM
-    #define ACL_CENTRAL_MAX_NUM 4 // ACL central maximum number
+#define ACL_CENTRAL_MAX_NUM 4 // ACL central maximum number
 #endif
 
 #ifndef ACL_PERIPHR_MAX_NUM
-    #define ACL_PERIPHR_MAX_NUM 4 // ACL peripheral maximum number
+#define ACL_PERIPHR_MAX_NUM 4 // ACL peripheral maximum number
 #endif
 
 

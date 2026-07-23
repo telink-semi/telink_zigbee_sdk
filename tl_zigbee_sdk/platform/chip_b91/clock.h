@@ -45,17 +45,33 @@
 /**********************************************************************************************************************
  *                                           global macro                                                             *
  *********************************************************************************************************************/
+
 /**
- *  @note   If it is an external flash, the maximum speed of mspi needs to be based on the board test.
- *          Because the maximum speed is related to the wiring of the board, and is also affected by temperature and GPIO voltage,
- *          the maximum speed needs to be tested at the highest and lowest voltage of the board,
- *          and the high and low temperature long-term stability test speed is no problem.
+ * The following chart lists the maximum operating frequency that each clock source can operate at different voltage levels.
+ * (But if it is related to peripherals, this frequency will be related to the whole system, such as MSPI-->
+ *  If it is built-in flash, the maximum speed of mspi is 64M,If it is an external flash, the maximum speed
+ *  of mspi needs to be based on the board test.)
+ *
+ * :-------------------------------- Voltage versus frequency table --------------------------------------------------------------------------
+ * |voltage|  pll  | cclk  | hclk | pclk | clk_npe | srcclk | clkzbmst |  mspi |  hspi |
+ * |  1.2V |  264  |  96   |  48  |  24  |  24     |   96   |  24      |   64  |   48  |
+ * |  1.0V |  120  |  48   |  24  |  24  |  8      |   48   |  24      |   24  |   24  |
+ *
+ * -# If it is an external flash, the maximum speed of mspi needs to be based on the board test.
+ *    Because the maximum speed is related to the wiring of the board, and is also affected by temperature and GPIO voltage,
+ *    the maximum speed needs to be tested at the highest and lowest voltage of the board,
+ *    and the high and low temperature long-term stability test speed is no problem.
  */
+
 #define CCLK_16M_HCLK_16M_PCLK_16M clock_init(PLL_CLK_192M, PAD_PLL_DIV, PLL_DIV12_TO_CCLK, CCLK_DIV1_TO_HCLK, HCLK_DIV1_TO_PCLK, PLL_DIV4_TO_MSPI_CLK)
 #define CCLK_24M_HCLK_24M_PCLK_24M clock_init(PLL_CLK_192M, PAD_PLL_DIV, PLL_DIV8_TO_CCLK, CCLK_DIV1_TO_HCLK, HCLK_DIV1_TO_PCLK, PLL_DIV4_TO_MSPI_CLK)
 #define CCLK_32M_HCLK_32M_PCLK_16M clock_init(PLL_CLK_192M, PAD_PLL_DIV, PLL_DIV6_TO_CCLK, CCLK_DIV1_TO_HCLK, HCLK_DIV2_TO_PCLK, PLL_DIV4_TO_MSPI_CLK)
 #define CCLK_48M_HCLK_48M_PCLK_24M clock_init(PLL_CLK_192M, PAD_PLL_DIV, PLL_DIV4_TO_CCLK, CCLK_DIV1_TO_HCLK, HCLK_DIV2_TO_PCLK, PLL_DIV4_TO_MSPI_CLK)
 #define CCLK_96M_HCLK_48M_PCLK_24M clock_init(PLL_CLK_192M, PAD_PLL_DIV, PLL_DIV2_TO_CCLK, CCLK_DIV2_TO_HCLK, HCLK_DIV2_TO_PCLK, PLL_DIV4_TO_MSPI_CLK)
+
+/**
+ * -# If it is built-in flash, the maximum speed of mspi is 64M.
+ */
 
 /**********************************************************************************************************************
  *                                         global data type                                                           *

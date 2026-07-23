@@ -24,7 +24,7 @@
 #ifndef LLMS_INIT_H_
 #define LLMS_INIT_H_
 
-#include "stack/ble/ble_multi/hci/hci_cmd.h"
+#include "hci/hci_cmd.h"
 
 
 /**

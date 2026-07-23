@@ -1352,7 +1352,7 @@ _CODE_BDB_ static void bdb_steeringConfirm(zdo_start_device_confirm_t *startDevC
 
         if (!ZB_IEEE_ADDR_IS_INVALID(ss_ib.trust_center_address) && ss_ib.securityLevel) {
             bdb_retrieveTimerMode = RETRRIEVE_TCLK_TIMER_MODE_AFTER_STEER;
-            TL_ZB_TIMER_SCHEDULE(bdb_retrieveTCLKStart, NULL, 200);
+            TL_ZB_TIMER_SCHEDULE(bdb_retrieveTCLKStart, NULL, 2000);
             bdb_globalLinkKeySet(ss_ib.tcLinkKey);
         } else {
             //evt = BDB_EVT_COMMISSIONING_NETWORK_STEER_PERMITJOIN;
@@ -1407,7 +1407,11 @@ _CODE_BDB_ void bdb_nwkDiscCnfCb(void)
             }
         }
 
-        zb_assocJoinReq();   //steering confirm, it should return steering failure
+        //steering confirm, it should return steering failure
+        if (ZDO_SUCCESS != zb_assocJoinReq()) {
+            BDB_STATUS_SET(BDB_COMMISSION_STA_STEER_ERR);
+            TL_SCHEDULE_TASK(bdb_steeringDone, NULL);
+        }        
     }
 }
 

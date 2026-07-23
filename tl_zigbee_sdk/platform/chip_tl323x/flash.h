@@ -83,6 +83,8 @@ typedef enum
     FLASH_WRITE_CMD                    = 0x020010a8,
     FLASH_QUAD_PAGE_PROGRAM_CMD        = 0x320010aa,
     FLASH_SECT_ERASE_CMD               = 0x200070a8,
+    FLASH_32K_BLOCK_ERASE_CMD          = 0x520070a8,
+    FLASH_64K_BLOCK_ERASE_CMD          = 0xd80070a8,
     FLASH_WRITE_SECURITY_REGISTERS_CMD = 0x420010a8,
     FLASH_ERASE_SECURITY_REGISTERS_CMD = 0x440070a8,
     FLASH_WRITE_STATUS_CMD_LOWBYTE     = 0x01001080,
@@ -116,6 +118,7 @@ typedef enum
     FLASH_SONOS_PUYA = 0x02006085, // 6085     bit[25]:SONOS:Byte Program Time == Page Programming Time
     FLASH_SONOS_TH   = 0x020060EB, // 60EB
     FLASH_SST_TH     = 0x040060CD, // 60CD     bit[26]:SST:  Byte Program Time != Page Programming Time
+    FLASH_NORD_TH    = 0x100070CD, // 70CD/71CD/51CD        bit[27]=1:NORD: Byte Program Time != Page Programming Time
 } flash_vendor_e;
 
 /**
@@ -145,10 +148,13 @@ typedef enum
 typedef enum
 {
     MID146085 = 0x146085, //P25Q80SU
+    MID1471CD = 0x1471cd, //TH25Q80U
+    MID1571CD = 0x1571cd, //TH25Q16U
     MID156085 = 0x156085, //P25Q16SU
     MID1460C8 = 0x1460c8, //GD25LE80E
     MID1560C8 = 0x1560c8, //GD25LE16E
     MID166085 = 0x166085, //P25Q32SU
+    MID1660CD = 0x1660cd, //TH25Q32UB
 } flash_mid_e;
 
 typedef struct
@@ -235,6 +241,44 @@ static _always_inline void flash_change_rw_func(flash_handler_t read, flash_hand
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
 _attribute_text_sec_ void flash_erase_sector(unsigned long addr);
+
+/**
+ * @brief       This function serves to erase a block of 32k.
+ * @param[in]   addr    - must be 0 or a multiple of 0x8000.
+ * @return      none.
+ * @note        Attention: The block erase takes a long time, please pay attention to feeding the dog in advance.
+ *              The maximum block erase time is listed at the beginning of this document and is available for viewing.
+ *
+ *              Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
+ *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.
+ *              Taking into account the factors such as power supply fluctuations, the safe voltage value needs to be greater
+ *              than the minimum chip operating voltage. For the specific value, please make a reasonable setting according
+ *              to the specific application and hardware circuit.
+ *
+ *              Risk description: When the chip power supply voltage is relatively low, due to the unstable power supply,
+ *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
+ *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
+ */
+_attribute_text_sec_ void flash_erase_block_32k(unsigned long addr);
+
+/**
+ * @brief       This function serves to erase a block of 64k.
+ * @param[in]   addr    - must be 0 or a multiple of 0x10000.
+ * @return      none.
+ * @note        Attention: The block erase takes a long time, please pay attention to feeding the dog in advance.
+ *              The maximum block erase time is listed at the beginning of this document and is available for viewing.
+ *
+ *              Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
+ *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.
+ *              Taking into account the factors such as power supply fluctuations, the safe voltage value needs to be greater
+ *              than the minimum chip operating voltage. For the specific value, please make a reasonable setting according
+ *              to the specific application and hardware circuit.
+ *
+ *              Risk description: When the chip power supply voltage is relatively low, due to the unstable power supply,
+ *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
+ *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
+ */
+_attribute_text_sec_ void flash_erase_block_64k(unsigned long addr);
 
 /**
  * @brief       This function reads the content from a page to the buf with dual read mode.

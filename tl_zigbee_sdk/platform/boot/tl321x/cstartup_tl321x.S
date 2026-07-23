@@ -1,7 +1,7 @@
 /********************************************************************************************************
  * @file    cstartup_tl321x.S
  *
- * @brief   This is the boot file for TL321X
+ * @brief   This is the boot file for tl321x
  *
  * @author  Driver & Zigbee Group
  * @date    2024
@@ -140,14 +140,14 @@ _START:
     lui     t0, 0x80100
     addi    t0 , t0 , 0x700
     li      t1, 0x00
-    sb      t1, 0x501(t0)  //0x80100c01 -> 0x00  <7>: 0 swire_usb_dis 
+    sb      t1, 0x501(t0)  //0x80100c01 -> 0x00  <7>: 0 swire_usb_dis
 #endif
 
     /* Initialize stack pointer */
     la     t0, _STACK_TOP
     mv     sp, t0
 
-    /* This code should be placed before the following gpio_shutdown_flashcode_for_asm interface because 
+    /* This code should be placed before the following gpio_shutdown_flashcode_for_asm interface because
     when using the Os compilation option, the gpio_shutdown_flashcode_for_asm will use the EXEC.IT table. */
 #ifdef __nds_execit
     /* Initialize EXEC.IT table */
@@ -335,14 +335,14 @@ _ISTART:
     lui     t0, 0x80100
     addi    t0 , t0 , 0x700
     li      t1, 0x00
-    sb      t1, 0x501(t0)  //0x80100c01 -> 0x00  <7>: 0 swire_usb_dis 
+    sb      t1, 0x501(t0)  //0x80100c01 -> 0x00  <7>: 0 swire_usb_dis
 #endif
 
     /* Initialize stack pointer */
     la     t0, _STACK_TOP
     mv     sp, t0
 
-    /* This code should be placed before the following gpio_shutdown_ramcode_for_asm interface because 
+    /* This code should be placed before the following gpio_shutdown_ramcode_for_asm interface because
     when using the Os compilation option, the gpio_shutdown_ramcode_for_asm will use the EXEC.IT table. */
 #ifdef __nds_execit
     /* Initialize EXEC.IT table */

@@ -384,3 +384,10 @@ _attribute_ram_code_sec_optimize_o2_noinline_ unsigned char pm_clr_all_irq_statu
  * @return      none.
  */
 _attribute_ram_code_sec_optimize_o2_noinline_ void pm_stimer_recover(void);
+
+/**
+ * @brief      This function servers to get calibration value from EFUSE.
+ * @param[in]  none
+ * @return     DRV_API_SUCCESS - the calibration value update, DRV_API_FAILURE - the calibration value is not update.
+ */
+drv_api_status_e pm_efuse_calib_ret_ldo_voltage(void);

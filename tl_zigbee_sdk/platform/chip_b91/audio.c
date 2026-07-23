@@ -339,27 +339,33 @@ void audio_set_dmic_pin(dmic_pin_group_e pin_gp)
         reg_gpio_pb_fuc_h    = reg_gpio_pb_fuc_h & (~BIT_RNG(0, 1));
         reg_gpio_pb_fuc_l    = (reg_gpio_pb_fuc_l & (~BIT_RNG(4, 7)));
         gpio_function_dis(GPIO_PB2 | GPIO_PB3 | GPIO_PB4);
+        gpio_input_en(GPIO_PB2);
     } else if (pin_gp == DMIC_GROUPC_C1_DAT_C2_C3_CLK) {
         reg_gpio_pad_mul_sel = BIT(0);
         reg_gpio_pc_fuc_l    = (reg_gpio_pc_fuc_l & (~BIT_RNG(2, 7))) | ((2 << 2) | (2 << 4) | (2 << 6));
         gpio_function_dis(GPIO_PC1 | GPIO_PC2 | GPIO_PC3);
+        gpio_input_en(GPIO_PC1);
 
     } else if (pin_gp == DMIC_GROUPD_D4_DAT_D5_D6_CLK) //can not use in A0
     {
         reg_gpio_pd_fuc_h = (reg_gpio_pd_fuc_h & (~BIT_RNG(0, 5))) | ((1 << 0) | (1 << 2) | (1 << 4));
         gpio_function_dis(GPIO_PD4 | GPIO_PD5 | GPIO_PD6);
+        gpio_input_en(GPIO_PD4);
     } else if (pin_gp == DMIC_B2_DAT_B3_CLK) {
         reg_gpio_pad_mul_sel = BIT(2);
         reg_gpio_pb_fuc_l    = (reg_gpio_pb_fuc_l & (~BIT_RNG(4, 7)));
         gpio_function_dis(GPIO_PB2 | GPIO_PB3);
+        gpio_input_en(GPIO_PB2);
     } else if (pin_gp == DMIC_C1_DAT_C2_CLK) {
         reg_gpio_pad_mul_sel = BIT(0);
         reg_gpio_pc_fuc_l    = (reg_gpio_pc_fuc_l & (~BIT_RNG(2, 5))) | ((2 << 2) | (2 << 4));
         gpio_function_dis(GPIO_PC1 | GPIO_PC2);
+        gpio_input_en(GPIO_PC1);
     } else if (pin_gp == DMIC_D4_DAT_D5_CLK) //can not use in A0
     {
         reg_gpio_pd_fuc_h = (reg_gpio_pd_fuc_h & (~BIT_RNG(0, 3))) | ((1 << 0) | (1 << 2));
         gpio_function_dis(GPIO_PD4 | GPIO_PD5);
+        gpio_input_en(GPIO_PD4);
     }
 }
 

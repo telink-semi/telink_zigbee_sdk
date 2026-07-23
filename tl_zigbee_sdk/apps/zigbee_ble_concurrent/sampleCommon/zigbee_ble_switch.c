@@ -34,7 +34,7 @@
 #include "app_pm.h"
 #endif
 
-#if defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL323X)
+#if defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
 #include "device_manage.h"
 #endif
 
@@ -229,7 +229,7 @@ void concurrent_mode_main_loop(void)
 #if PM_ENABLE
     extern void app_key_handler(void);
     app_key_handler();
-	app_pm_task();
+    app_pm_task();
 #endif
 }
 
@@ -251,7 +251,7 @@ u8 ble_task_stop(void)
             ZB_RF_ISR_RECOVERY;
         }
     }
-#elif defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#elif defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
     if (!APP_BLE_STATE_IDLE()) {
         ble_sts_t ret1 = BLE_SUCCESS;
         ret = blc_ll_setAdvEnable(BLC_ADV_DISABLE);
@@ -274,7 +274,7 @@ u8 ble_task_restart(void)
     u32 r = drv_disable_irq();
 #if defined(MCU_CORE_8258) || defined(MCU_CORE_B91)
     ble_sts_t ret = bls_ll_setAdvEnable(1);
-#elif defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#elif defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
     ble_sts_t ret = blc_ll_setAdvEnable(1);
 #endif
     /* rf irq is cleared in the "bls_ll_setAdvEnable",

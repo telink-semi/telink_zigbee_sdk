@@ -200,16 +200,6 @@
 			<locationURI>PARENT-3-PROJECT_LOC/stack/ble/ble_b91</locationURI>
 		</link>
 		<link>
-			<name>stack/ble/ble_common.h</name>
-			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/stack/ble/ble_common.h</locationURI>
-		</link>
-		<link>
-			<name>stack/ble/ble_config.h</name>
-			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/stack/ble/ble_config.h</locationURI>
-		</link>
-		<link>
 			<name>stack/ble/ble_rf_pa_ctrl.c</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/stack/ble/ble_rf_pa_ctrl.c</locationURI>

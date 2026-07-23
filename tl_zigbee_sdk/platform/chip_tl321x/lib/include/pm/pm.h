@@ -258,6 +258,9 @@ static _always_inline void pm_set_vbat_type(vbat_type_e vbat_v)
 /**
  * @brief       This function configures a GPIO pin as the wakeup pin.
  * @param[in]   pin - the pins can be set to all GPIO except GPIOF groups.
+ *                    Recommend using 1M internal pull-up, do not use 10K pull-up;
+ *                    If 10K pull-up must be used, do not use this IO as low-level wakeup IO;
+ *                    If this IO must be used as low-level wakeup IO, set 1M pull-up before entering sleep and restore 10K pull-up after wakeup;
  * @param[in]   pol - the wakeup polarity of the pad pin(0: low-level wakeup, 1: high-level wakeup).
  * @param[in]   en  - enable or disable the wakeup function for the pan pin(1: enable, 0: disable).
  * @return      none.

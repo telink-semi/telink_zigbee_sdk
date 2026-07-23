@@ -1,7 +1,7 @@
 /********************************************************************************************************
  * @file    boot_tl321x.link
  *
- * @brief   This is the link file for TL321X
+ * @brief   This is the link file for tl321x
  *
  * @author  Driver & Zigbee Group
  * @date    2024
@@ -25,7 +25,7 @@
 ENTRY(_RESET_ENTRY)
 SECTIONS
 {
-    NDS_SAG_LMA_FLASH = 0x20000000 ;
+    NDS_SAG_LMA_FLASH = 0x20000000;
     . = (0x20000000 + __FW_OFFSET);
     PROVIDE (BIN_BEGIN = .);
     .vectors        : { KEEP(*(.vectors )) }
@@ -66,6 +66,7 @@ SECTIONS
     /*. = 0x00080000;*/
     . = ALIGN(ADDR (.ram_code) + SIZEOF (.ram_code), 8);
     PROVIDE( __global_pointer$ = . + (4K / 2) );
+
     .data   : AT(ALIGN(LOADADDR (.eh_frame) + SIZEOF (.eh_frame),  ALIGNOF(.data)))
         { *(.data .data.* .gnu.linkonce.d.* ) KEEP(*(.gnu.linkonce.d.*personality* )) SORT(CONSTRUCTORS) 
           *(.sdata .sdata.* .gnu.linkonce.s.* ) *(.sdata2 .sdata2.* .gnu.linkonce.s.* )

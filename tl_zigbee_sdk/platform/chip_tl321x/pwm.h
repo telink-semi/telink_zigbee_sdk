@@ -26,6 +26,7 @@
 #include "dma.h"
 #include "gpio.h"
 #include "reg_include/register.h"
+#include "pem.h"
 
 /**
  * @brief  enum variable, the number of PWM channels supported
@@ -64,6 +65,55 @@ typedef enum
     PWM_CLOCK_32K_CHN_PWM4 = 0x10,
     PWM_CLOCK_32K_CHN_PWM5 = 0x20
 } pwm_clk_32k_en_chn_e;
+
+typedef enum
+{
+    PWM_EVENT_PWM0_START = 0x0000,
+    PWM_EVENT_PWM1_START,
+    PWM_EVENT_PWM2_START,
+    PWM_EVENT_PWM3_START,
+    PWM_EVENT_PWM4_START,
+    PWM_EVENT_PWM5_START,
+} pwm_event_e;
+
+typedef enum
+{
+    PWM_TASK_PWM0_EN = 0x0000,
+    PWM_TASK_PWM1_EN,
+    PWM_TASK_PWM2_EN,
+    PWM_TASK_PWM3_EN,
+    PWM_TASK_PWM4_EN,
+    PWM_TASK_PWM5_EN,
+} pwm_task_e;
+
+typedef enum
+{
+    //event_sel = 0
+    PWM_EVENT_PWM0_CYCDONE = 0x0000,
+    PWM_EVENT_PWM1_CYCDONE,
+    PWM_EVENT_PWM2_CYCDONE,
+    PWM_EVENT_PWM3_CYCDONE,
+    PWM_EVENT_PWM4_CYCDONE,
+    PWM_EVENT_PWM5_CYCDONE,
+    PWM_EVENT_PWM6_CYCDONE,
+
+    //event_sel = 1
+    PWM_EVENT_PWM0_DONE = 0x0100,
+    PWM_EVENT_PWM0_FIFO_DONE,
+    PWM_EVENT_PWM0_LVL,
+} pwm_1_event_e;
+
+typedef enum
+{
+    //task_sel = 0
+    PWM_TASK_PWM0_DISABLE = 0x0000,
+    PWM_TASK_PWM1_DISABLE,
+    PWM_TASK_PWM2_DISABLE,
+    PWM_TASK_PWM3_DISABLE,
+    PWM_TASK_PWM4_DISABLE,
+    PWM_TASK_PWM5_DISABLE,
+} pwm_1_task_e;
+
 
 /**
  * @brief     This function servers to set pwm clock frequency, when pwm clock source is pclk.
@@ -473,4 +523,21 @@ static inline void pwm_32k_chn_dis(pwm_clk_32k_en_chn_e pwm_32K_en_chn)
 {
     BM_CLR(reg_pwm_mode32k, pwm_32K_en_chn);
 }
+
+/**
+ * @brief      This function serves to configure the PWM PEM event.
+ * @param[in]  chn - to select the PEM channel.
+ * @param[in]  pin - the PWM event signal selection.
+ * @return     none.
+ */
+void pwm_set_pem_event(pem_chn_e chn, pwm_event_e event_signal);
+
+/**
+ * @brief      This function serves to configure the PWM PEM task.
+ * @param[in]  chn - to select the PEM channel.
+ * @param[in]  pin - the PWM task signal selection.
+ * @return     none.
+ */
+void pwm_set_pem_task(pem_chn_e chn, pwm_task_e task_signal);
+
 #endif

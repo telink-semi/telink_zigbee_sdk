@@ -75,6 +75,8 @@ typedef enum
     FLASH_WRITE_CMD                    = 0x02,
     FLASH_QUAD_PAGE_PROGRAM_CMD        = 0x32, //may different for different flash
     FLASH_SECT_ERASE_CMD               = 0x20,
+    FLASH_32K_BLOCK_ERASE_CMD          = 0x52,
+    FLASH_64K_BLOCK_ERASE_CMD          = 0xd8,
     FLASH_WRITE_SECURITY_REGISTERS_CMD = 0x42,
     FLASH_ERASE_SECURITY_REGISTERS_CMD = 0x44,
     FLASH_WRITE_STATUS_CMD_LOWBYTE     = 0x01,
@@ -198,6 +200,44 @@ static inline void flash_change_rw_func(flash_handler_t read, flash_handler_t wr
  *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
  */
 _attribute_text_sec_ void flash_erase_sector(unsigned long addr);
+
+/**
+ * @brief       This function serves to erase a block of 32k.
+ * @param[in]   addr    - must be 0 or a multiple of 0x8000.
+ * @return      none.
+ * @note        Attention: The block erase takes a long time, please pay attention to feeding the dog in advance.
+ *              The maximum block erase time is listed at the beginning of this document and is available for viewing.
+ *
+ *              Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
+ *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.
+ *              Taking into account the factors such as power supply fluctuations, the safe voltage value needs to be greater
+ *              than the minimum chip operating voltage. For the specific value, please make a reasonable setting according
+ *              to the specific application and hardware circuit.
+ *
+ *              Risk description: When the chip power supply voltage is relatively low, due to the unstable power supply,
+ *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
+ *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
+ */
+_attribute_text_sec_ void flash_erase_block_32k(unsigned long addr);
+
+/**
+ * @brief       This function serves to erase a block of 64k.
+ * @param[in]   addr    - must be 0 or a multiple of 0x10000.
+ * @return      none.
+ * @note        Attention: The block erase takes a long time, please pay attention to feeding the dog in advance.
+ *              The maximum block erase time is listed at the beginning of this document and is available for viewing.
+ *
+ *              Attention: Before calling the FLASH function, please check the power supply voltage of the chip.
+ *              Only if the detected voltage is greater than the safe voltage value, the FLASH function can be called.
+ *              Taking into account the factors such as power supply fluctuations, the safe voltage value needs to be greater
+ *              than the minimum chip operating voltage. For the specific value, please make a reasonable setting according
+ *              to the specific application and hardware circuit.
+ *
+ *              Risk description: When the chip power supply voltage is relatively low, due to the unstable power supply,
+ *              there may be a risk of error in the operation of the flash (especially for the write and erase operations.
+ *              If an abnormality occurs, the firmware and user data may be rewritten, resulting in the final Product failure)
+ */
+_attribute_text_sec_ void flash_erase_block_64k(unsigned long addr);
 
 /**
  * @brief       This function reads the content from a page to the buf with dual read mode.

@@ -23,10 +23,9 @@
  *******************************************************************************************************/
 #pragma once
 
-#ifdef MCU_CORE_D25F_ENABLE
 #include "types.h"
-#include "stack/ble/ble_multi/ble_common.h"
-#endif
+#include "ble_common.h"
+
 
 #include "att.h"
 
@@ -50,18 +49,7 @@ typedef struct __attribute__((packed))
 typedef int (*atts_r_cb_t)(u16 connHandle, u8 opcode, u16 attrHandle, u8 **outValue, u16 *outValueLen);
 typedef int (*atts_w_cb_t)(u16 connHandle, u8 opcode, u16 attrHandle, u8 *writeValue, u16 valueLen);
 
-#ifdef MCU_CORE_D25F_ENABLE
-typedef struct __attribute__((packed)) atts_group_old
-{
-    struct atts_group_old  *pNext;
-    const atts_attribute_t *pAttr;
 
-    atts_r_cb_t readCback;
-    atts_w_cb_t writeCback;
-    u16         startHandle;
-    u16         endHandle;
-} atts_group_t;
-#else
 typedef struct __attribute__((packed)) atts_group
 {
     struct atts_group      *pNext;
@@ -72,7 +60,7 @@ typedef struct __attribute__((packed)) atts_group
     u16         startHandle;
     u16         endHandle;
 } atts_group_t;
-#endif
+
 typedef struct __attribute__((packed))
 {
     u8   serviceNum;  //the number of the service uuid found

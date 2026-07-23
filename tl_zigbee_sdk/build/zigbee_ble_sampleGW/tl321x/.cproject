@@ -14,7 +14,7 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactName="${ConfigName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release" cleanCommand="${cross_rm} -rf" description="" id="ilg.gnumcueclipse.managedbuild.cross.riscv.config.elf.release.1605871670" name="zigbee_ble_sampleGW_tl321x" optionalBuildProperties="org.eclipse.cdt.docker.launcher.containerbuild.property.selectedvolumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.volumes=" parent="ilg.gnumcueclipse.managedbuild.cross.riscv.config.elf.release" postbuildStep="&quot;../../../../tools/tl_check_fw.sh&quot; ${ConfigName} iot_riscv" prebuildStep="&quot;../../../../tools/tl_link_load.sh&quot; &quot;../../../../platform/boot/tl321x/boot_tl321x.link&quot; &quot;${workspace_loc:/${ProjName}}/boot.link&quot;">
+				<configuration artifactName="${ConfigName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release" cleanCommand="${cross_rm} -rf" description="" id="ilg.gnumcueclipse.managedbuild.cross.riscv.config.elf.release.1605871670" name="zigbee_ble_sampleGW_tl321x" optionalBuildProperties="org.eclipse.cdt.docker.launcher.containerbuild.property.selectedvolumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.volumes=" parent="ilg.gnumcueclipse.managedbuild.cross.riscv.config.elf.release" postbuildStep="&quot;${workspace_loc:/${ProjName}}/../../../tools/tl_check_fw.sh&quot; ${ConfigName} iot_riscv" prebuildStep="&quot;${workspace_loc:/${ProjName}}/../../../tools/tl_link_load.sh&quot; &quot;${workspace_loc:/${ProjName}}/../../../platform/boot/tl321x/boot_tl321x.link&quot; &quot;${workspace_loc:/${ProjName}}/boot.link&quot;">
 					<folderInfo id="ilg.gnumcueclipse.managedbuild.cross.riscv.config.elf.release.1605871670." name="/" resourcePath="">
 						<toolChain id="ilg.gnumcueclipse.managedbuild.cross.riscv.toolchain.elf.release.1112629160" name="RISC-V Cross GCC" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.toolchain.elf.release">
 							<option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.addtools.createflash.449550983" name="Create flash image" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.addtools.createflash" value="true" valueType="boolean"/>
@@ -57,7 +57,7 @@
 									<listOptionValue builtIn="false" value="../../../../apps/common"/>
 									<listOptionValue builtIn="false" value="../../../../apps/zigbee/sampleGW"/>
 								</option>
-								<option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.assembler.other.1403643083" name="Other assembler flags" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.assembler.other" useByScannerDiscovery="false" value="-mcpu=d25f -mext-dsp -fomit-frame-pointer -fno-strict-aliasing -fno-jump-tables -fno-fat-lto-objects -fuse-ld=bfd -fno-builtin -fshort-wchar" valueType="string"/>
+								<option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.assembler.other.1403643083" name="Other assembler flags" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.assembler.other" useByScannerDiscovery="false" value="-mcpu=d25f -mext-dsp -fomit-frame-pointer -fno-strict-aliasing -fno-jump-tables -fno-fat-lto-objects -fuse-ld=bfd -fno-builtin" valueType="string"/>
 								<inputType id="ilg.gnumcueclipse.managedbuild.cross.riscv.tool.assembler.input.476761592" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.tool.assembler.input"/>
 							</tool>
 							<tool id="ilg.gnumcueclipse.managedbuild.cross.riscv.tool.c.compiler.1161589425" name="GNU RISC-V Cross C Compiler" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.tool.c.compiler">
@@ -94,10 +94,11 @@
 									<listOptionValue builtIn="false" value="../../../../stack/zigbee/zb_hci"/>
 									<listOptionValue builtIn="false" value="../../../../stack/ble/ble_multi/hal/hal_TL321X"/>
 									<listOptionValue builtIn="false" value="../../../../stack/ble"/>
+									<listOptionValue builtIn="false" value="../../../../stack/ble/ble_multi"/>
 									<listOptionValue builtIn="false" value="../../../../"/>
 								</option>
 								<option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.compiler.std.1012496176" name="Language standard" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.compiler.std" useByScannerDiscovery="true" value="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.compiler.std.c99" valueType="enumerated"/>
-								<option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.compiler.other.2128657051" name="Other compiler flags" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.compiler.other" useByScannerDiscovery="true" value="-mcpu=d25f -mext-dsp -fomit-frame-pointer -fno-strict-aliasing -fno-jump-tables -fno-fat-lto-objects -fuse-ld=bfd -fno-builtin -fshort-wchar" valueType="string"/>
+								<option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.compiler.other.2128657051" name="Other compiler flags" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.compiler.other" useByScannerDiscovery="true" value="-mcpu=d25f -mext-dsp -fomit-frame-pointer -fno-strict-aliasing -fno-jump-tables -fno-fat-lto-objects -fuse-ld=bfd -fno-builtin" valueType="string"/>
 								<inputType id="ilg.gnumcueclipse.managedbuild.cross.riscv.tool.c.compiler.input.1602127451" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.tool.c.compiler.input"/>
 							</tool>
 							<tool id="ilg.gnumcueclipse.managedbuild.cross.riscv.tool.cpp.compiler.1694115529" name="GNU RISC-V Cross C++ Compiler" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.tool.cpp.compiler"/>
@@ -107,7 +108,7 @@
 									<listOptionValue builtIn="false" value="../boot.link"/>
 								</option>
 								<option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.linker.nostart.1180770469" name="Do not use standard start files (-nostartfiles)" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.linker.nostart" useByScannerDiscovery="false" value="true" valueType="boolean"/>
-								<option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.linker.other.1721268956" name="Other linker flags" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.linker.other" useByScannerDiscovery="false" value="-mcpu=d25f -mext-dsp -fomit-frame-pointer -fno-strict-aliasing -fno-jump-tables -fno-fat-lto-objects -fuse-ld=bfd" valueType="string"/>
+								<option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.linker.other.1721268956" name="Other linker flags" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.linker.other" useByScannerDiscovery="false" value="-mcpu=d25f -mext-dsp -fomit-frame-pointer -fno-strict-aliasing -fno-jump-tables -fno-fat-lto-objects -fuse-ld=bfd -fno-builtin" valueType="string"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.linker.libs.208554629" name="Libraries (-l)" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.linker.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="zb_coordinator"/>
 									<listOptionValue builtIn="false" value="ble_tl321x"/>
@@ -163,7 +164,7 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactName="${ConfigName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release" cleanCommand="${cross_rm} -rf" description="" id="ilg.gnumcueclipse.managedbuild.cross.riscv.config.elf.release.1605871670.1126648669" name="zigbee_bleController_sampleGW_tl321x" optionalBuildProperties="org.eclipse.cdt.docker.launcher.containerbuild.property.selectedvolumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.volumes=" parent="ilg.gnumcueclipse.managedbuild.cross.riscv.config.elf.release" postbuildStep="&quot;../../../../tools/tl_check_fw.sh&quot; ${ConfigName} iot_riscv" prebuildStep="&quot;../../../../tools/tl_link_load.sh&quot; &quot;../../../../platform/boot/tl321x/boot_tl321x.link&quot; &quot;${workspace_loc:/${ProjName}}/boot.link&quot;">
+				<configuration artifactName="${ConfigName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release" cleanCommand="${cross_rm} -rf" description="" id="ilg.gnumcueclipse.managedbuild.cross.riscv.config.elf.release.1605871670.1126648669" name="zigbee_bleController_sampleGW_tl321x" optionalBuildProperties="org.eclipse.cdt.docker.launcher.containerbuild.property.selectedvolumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.volumes=" parent="ilg.gnumcueclipse.managedbuild.cross.riscv.config.elf.release" postbuildStep="&quot;${workspace_loc:/${ProjName}}/../../../tools/tl_check_fw.sh&quot; ${ConfigName} iot_riscv" prebuildStep="&quot;${workspace_loc:/${ProjName}}/../../../tools/tl_link_load.sh&quot; &quot;${workspace_loc:/${ProjName}}/../../../platform/boot/tl321x/boot_tl321x.link&quot; &quot;${workspace_loc:/${ProjName}}/boot.link&quot;">
 					<folderInfo id="ilg.gnumcueclipse.managedbuild.cross.riscv.config.elf.release.1605871670.1126648669." name="/" resourcePath="">
 						<toolChain id="ilg.gnumcueclipse.managedbuild.cross.riscv.toolchain.elf.release.1555923542" name="RISC-V Cross GCC" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.toolchain.elf.release">
 							<option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.addtools.createflash.1132901931" name="Create flash image" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.addtools.createflash" useByScannerDiscovery="false" value="true" valueType="boolean"/>
@@ -208,7 +209,7 @@
 									<listOptionValue builtIn="false" value="../../../../apps/common"/>
 									<listOptionValue builtIn="false" value="../../../../apps/zigbee/sampleGW"/>
 								</option>
-								<option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.assembler.other.1333343955" name="Other assembler flags" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.assembler.other" useByScannerDiscovery="false" value="-mcpu=d25f -mext-dsp -fomit-frame-pointer -fno-strict-aliasing -fno-jump-tables -fno-fat-lto-objects -fuse-ld=bfd -fno-builtin -fshort-wchar" valueType="string"/>
+								<option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.assembler.other.1333343955" name="Other assembler flags" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.assembler.other" useByScannerDiscovery="false" value="-mcpu=d25f -mext-dsp -fomit-frame-pointer -fno-strict-aliasing -fno-jump-tables -fno-fat-lto-objects -fuse-ld=bfd -fno-builtin" valueType="string"/>
 								<inputType id="ilg.gnumcueclipse.managedbuild.cross.riscv.tool.assembler.input.62625089" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.tool.assembler.input"/>
 							</tool>
 							<tool id="ilg.gnumcueclipse.managedbuild.cross.riscv.tool.c.compiler.580244035" name="GNU RISC-V Cross C Compiler" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.tool.c.compiler">
@@ -248,10 +249,11 @@
 									<listOptionValue builtIn="false" value="../../../../stack/zigbee/zb_hci"/>
 									<listOptionValue builtIn="false" value="../../../../stack/ble/ble_multi/hal/hal_TL321X"/>
 									<listOptionValue builtIn="false" value="../../../../stack/ble"/>
+									<listOptionValue builtIn="false" value="../../../../stack/ble/ble_multi"/>
 									<listOptionValue builtIn="false" value="../../../../"/>
 								</option>
 								<option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.compiler.std.1091807430" name="Language standard" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.compiler.std" useByScannerDiscovery="true" value="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.compiler.std.c99" valueType="enumerated"/>
-								<option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.compiler.other.1679165864" name="Other compiler flags" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.compiler.other" useByScannerDiscovery="true" value="-mcpu=d25f -mext-dsp -fomit-frame-pointer -fno-strict-aliasing -fno-jump-tables -fno-fat-lto-objects -fuse-ld=bfd -fno-builtin -fshort-wchar" valueType="string"/>
+								<option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.compiler.other.1679165864" name="Other compiler flags" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.compiler.other" useByScannerDiscovery="true" value="-mcpu=d25f -mext-dsp -fomit-frame-pointer -fno-strict-aliasing -fno-jump-tables -fno-fat-lto-objects -fuse-ld=bfd -fno-builtin" valueType="string"/>
 								<inputType id="ilg.gnumcueclipse.managedbuild.cross.riscv.tool.c.compiler.input.798108261" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.tool.c.compiler.input"/>
 							</tool>
 							<tool id="ilg.gnumcueclipse.managedbuild.cross.riscv.tool.cpp.compiler.1068209259" name="GNU RISC-V Cross C++ Compiler" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.tool.cpp.compiler"/>
@@ -261,7 +263,7 @@
 									<listOptionValue builtIn="false" value="../boot.link"/>
 								</option>
 								<option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.linker.nostart.2010687000" name="Do not use standard start files (-nostartfiles)" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.linker.nostart" useByScannerDiscovery="false" value="true" valueType="boolean"/>
-								<option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.linker.other.313076067" name="Other linker flags" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.linker.other" useByScannerDiscovery="false" value="-mcpu=d25f -mext-dsp -fomit-frame-pointer -fno-strict-aliasing -fno-jump-tables -fno-fat-lto-objects -fuse-ld=bfd" valueType="string"/>
+								<option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.linker.other.313076067" name="Other linker flags" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.linker.other" useByScannerDiscovery="false" value="-mcpu=d25f -mext-dsp -fomit-frame-pointer -fno-strict-aliasing -fno-jump-tables -fno-fat-lto-objects -fuse-ld=bfd -fno-builtin" valueType="string"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.linker.libs.2061103948" name="Libraries (-l)" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.linker.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="zb_coordinator"/>
 									<listOptionValue builtIn="false" value="ble_tl321x"/>
@@ -317,7 +319,7 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactName="${ConfigName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release" cleanCommand="${cross_rm} -rf" description="" id="ilg.gnumcueclipse.managedbuild.cross.riscv.config.elf.release.1605871670.715765151" name="zigbee_direct_sampleGW_tl321x" optionalBuildProperties="org.eclipse.cdt.docker.launcher.containerbuild.property.selectedvolumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.volumes=" parent="ilg.gnumcueclipse.managedbuild.cross.riscv.config.elf.release" postbuildStep="&quot;../../../../tools/tl_check_fw.sh&quot; ${ConfigName} iot_riscv" prebuildStep="&quot;../../../../tools/tl_link_load.sh&quot; &quot;../../../../platform/boot/tl321x/boot_tl321x.link&quot; &quot;${workspace_loc:/${ProjName}}/boot.link&quot;">
+				<configuration artifactName="${ConfigName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release" cleanCommand="${cross_rm} -rf" description="" id="ilg.gnumcueclipse.managedbuild.cross.riscv.config.elf.release.1605871670.715765151" name="zigbee_direct_sampleGW_tl321x" optionalBuildProperties="org.eclipse.cdt.docker.launcher.containerbuild.property.selectedvolumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.volumes=" parent="ilg.gnumcueclipse.managedbuild.cross.riscv.config.elf.release" postbuildStep="&quot;${workspace_loc:/${ProjName}}/../../../tools/tl_check_fw.sh&quot; ${ConfigName} iot_riscv" prebuildStep="&quot;${workspace_loc:/${ProjName}}/../../../tools/tl_link_load.sh&quot; &quot;${workspace_loc:/${ProjName}}/../../../platform/boot/tl321x/boot_tl321x.link&quot; &quot;${workspace_loc:/${ProjName}}/boot.link&quot;">
 					<folderInfo id="ilg.gnumcueclipse.managedbuild.cross.riscv.config.elf.release.1605871670.715765151." name="/" resourcePath="">
 						<toolChain id="ilg.gnumcueclipse.managedbuild.cross.riscv.toolchain.elf.release.1347763997" name="RISC-V Cross GCC" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.toolchain.elf.release">
 							<option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.addtools.createflash.1197005968" name="Create flash image" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.addtools.createflash" useByScannerDiscovery="false" value="true" valueType="boolean"/>
@@ -361,7 +363,7 @@
 									<listOptionValue builtIn="false" value="../../../../apps/common"/>
 									<listOptionValue builtIn="false" value="../../../../apps/zigbee/sampleGW"/>
 								</option>
-								<option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.assembler.other.1935441302" name="Other assembler flags" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.assembler.other" useByScannerDiscovery="false" value="-mcpu=d25f -mext-dsp -fomit-frame-pointer -fno-strict-aliasing -fno-jump-tables -fno-fat-lto-objects -fuse-ld=bfd -fno-builtin -fshort-wchar" valueType="string"/>
+								<option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.assembler.other.1935441302" name="Other assembler flags" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.assembler.other" useByScannerDiscovery="false" value="-mcpu=d25f -mext-dsp -fomit-frame-pointer -fno-strict-aliasing -fno-jump-tables -fno-fat-lto-objects -fuse-ld=bfd -fno-builtin" valueType="string"/>
 								<inputType id="ilg.gnumcueclipse.managedbuild.cross.riscv.tool.assembler.input.1744483161" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.tool.assembler.input"/>
 							</tool>
 							<tool id="ilg.gnumcueclipse.managedbuild.cross.riscv.tool.c.compiler.752257903" name="GNU RISC-V Cross C Compiler" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.tool.c.compiler">
@@ -399,11 +401,12 @@
 									<listOptionValue builtIn="false" value="../../../../stack/zigbee/zb_hci"/>
 									<listOptionValue builtIn="false" value="../../../../stack/ble/ble_multi/hal/hal_TL321X"/>
 									<listOptionValue builtIn="false" value="../../../../stack/ble"/>
+									<listOptionValue builtIn="false" value="../../../../stack/ble/ble_multi"/>
 									<listOptionValue builtIn="false" value="../../../../stack/zigbee_direct"/>
 									<listOptionValue builtIn="false" value="../../../../"/>
 								</option>
 								<option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.compiler.std.619572518" name="Language standard" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.compiler.std" useByScannerDiscovery="true" value="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.compiler.std.c99" valueType="enumerated"/>
-								<option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.compiler.other.341903875" name="Other compiler flags" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.compiler.other" useByScannerDiscovery="true" value="-mcpu=d25f -mext-dsp -fomit-frame-pointer -fno-strict-aliasing -fno-jump-tables -fno-fat-lto-objects -fuse-ld=bfd -fno-builtin -fshort-wchar" valueType="string"/>
+								<option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.compiler.other.341903875" name="Other compiler flags" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.compiler.other" useByScannerDiscovery="true" value="-mcpu=d25f -mext-dsp -fomit-frame-pointer -fno-strict-aliasing -fno-jump-tables -fno-fat-lto-objects -fuse-ld=bfd -fno-builtin" valueType="string"/>
 								<inputType id="ilg.gnumcueclipse.managedbuild.cross.riscv.tool.c.compiler.input.693842742" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.tool.c.compiler.input"/>
 							</tool>
 							<tool id="ilg.gnumcueclipse.managedbuild.cross.riscv.tool.cpp.compiler.1071639612" name="GNU RISC-V Cross C++ Compiler" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.tool.cpp.compiler"/>
@@ -413,7 +416,7 @@
 									<listOptionValue builtIn="false" value="../boot.link"/>
 								</option>
 								<option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.linker.nostart.2009051091" name="Do not use standard start files (-nostartfiles)" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.linker.nostart" useByScannerDiscovery="false" value="true" valueType="boolean"/>
-								<option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.linker.other.725636156" name="Other linker flags" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.linker.other" useByScannerDiscovery="false" value="-mcpu=d25f -mext-dsp -fomit-frame-pointer -fno-strict-aliasing -fno-jump-tables -fno-fat-lto-objects -fuse-ld=bfd" valueType="string"/>
+								<option id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.linker.other.725636156" name="Other linker flags" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.linker.other" useByScannerDiscovery="false" value="-mcpu=d25f -mext-dsp -fomit-frame-pointer -fno-strict-aliasing -fno-jump-tables -fno-fat-lto-objects -fuse-ld=bfd -fno-builtin" valueType="string"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.linker.libs.1490090496" name="Libraries (-l)" superClass="ilg.gnumcueclipse.managedbuild.cross.riscv.option.c.linker.libs" useByScannerDiscovery="false" valueType="libs">
 									<listOptionValue builtIn="false" value="zb_coordinator"/>
 									<listOptionValue builtIn="false" value="ble_tl321x"/>

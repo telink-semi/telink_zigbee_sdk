@@ -251,7 +251,7 @@ static void xyToRGB(u16 currentX, u16 currentY, u8 level, u8 *R, u8 *G, u8 *B)
     //lookup table?
     return;
 #elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || \
-      defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+      defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
     float x, y, z;
     float X, Y, Z;
     float r, g, b;
@@ -329,7 +329,7 @@ static void temperatureToRGB(u16 temperatureMireds, u8 level, u8 *R, u8 *G, u8 *
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     return;
 #elif defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || \
-      defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+      defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
     float r, g, b;
     u16 tR, tG, tB;
 
@@ -449,7 +449,7 @@ static void light_colorUpdate(void)
     } else
 #endif
     {
-		//do nothing
+        //do nothing
     }
 }
 

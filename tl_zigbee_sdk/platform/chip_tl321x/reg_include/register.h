@@ -56,4 +56,6 @@
 #if(COMPATIBLE_WITH_TL321X_AND_TL323X == 0)
 #include "ir_learn_reg.h"
 #endif
+#include "pem_reg.h"
+
 #endif

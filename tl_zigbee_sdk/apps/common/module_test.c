@@ -47,6 +47,9 @@
 #elif defined(MCU_CORE_TL323X)
     #define UART_TX_PIN         GPIO_PB4
     #define UART_RX_PIN         GPIO_PB5
+#elif defined(MCU_CORE_TL521X)
+    #define UART_TX_PIN         GPIO_PB3
+    #define UART_RX_PIN         GPIO_PB2
 #else
     #error "undefined TEST_MODULE"
 #endif
@@ -183,6 +186,8 @@ void moduleTest_forUart(void)
     #define TEST_GPIO           GPIO_PD2
 #elif defined(MCU_CORE_TL323X)
     #define TEST_GPIO           GPIO_PC2
+#elif defined(MCU_CORE_TL521X)
+    #define TEST_GPIO           GPIO_PA3
 #else
     #error "undefined TEST_MODULE"
 #endif
@@ -211,6 +216,8 @@ u8 nv_test_buf_0[32] = {
 u8 nv_test_buf_1[200];
 u8 test_chk_buf[256];
 
+volatile u8 T_DBG_nv_err = 0;
+
 static void nv_dataStoreSet(void)
 {
     u16 flag = 0x5a5a;
@@ -238,44 +245,60 @@ void moduleTest_NV(void)
     nv_sts_t ret = nv_flashReadNew(1, NV_MODULE_APP, TEST_ITEM0, sizeof(nv_test_buf_0), test_chk_buf);
     if (ret != NV_SUCC) {
         if (nv_dataStoreCheck()) {
+            T_DBG_nv_err = 1;
             while(1);
         }
 
         if (nv_flashWriteNew(1, NV_MODULE_APP, TEST_ITEM0, sizeof(nv_test_buf_0), nv_test_buf_0) != NV_SUCC) {
+            T_DBG_nv_err = 2;
             while(1);
         }
 
         nv_dataStoreSet();
     } else {
         if (memcmp(nv_test_buf_0, test_chk_buf, sizeof(nv_test_buf_0))) {
+            T_DBG_nv_err = 3;
             while(1);
         }
     }
 
     while (1) {
+        if (nv_flashReadNew(1, NV_MODULE_APP, TEST_ITEM0, sizeof(nv_test_buf_0), test_chk_buf) != NV_SUCC) {
+            T_DBG_nv_err = 10;
+            while(1);
+        }
+
+        nv_flashReadNew(1, NV_MODULE_APP, TEST_ITEM1, sizeof(nv_test_buf_t), (u8 *)&nv_test_buf);
         nv_test_buf.cnt++;
+
         if (nv_flashWriteNew(1, NV_MODULE_APP, TEST_ITEM1, sizeof(nv_test_buf_t), (u8 *)&nv_test_buf) != NV_SUCC) {
+            T_DBG_nv_err = 4;
             while(1);
         }
 
         if (nv_flashReadNew(1, NV_MODULE_APP, TEST_ITEM1, sizeof(nv_test_buf_t), test_chk_buf) != NV_SUCC) {
+            T_DBG_nv_err = 5;
             while(1);
         }
 
         if (memcmp((u8 *)&nv_test_buf, test_chk_buf, sizeof(nv_test_buf_t))) {
+            T_DBG_nv_err = 6;
             while(1);
         }
 
         drv_generateRandomData(nv_test_buf_1, sizeof(nv_test_buf_1));
         if (nv_flashWriteNew(1, NV_MODULE_APP, TEST_ITEM2, sizeof(nv_test_buf_1), nv_test_buf_1) != NV_SUCC) {
+            T_DBG_nv_err = 7;
             while(1);
         }
 
         if (nv_flashReadNew(1, NV_MODULE_APP, TEST_ITEM2, sizeof(nv_test_buf_1), test_chk_buf) != NV_SUCC) {
+            T_DBG_nv_err = 8;
             while(1);
         }
 
         if (memcmp(nv_test_buf_1, test_chk_buf, sizeof(nv_test_buf_1))) {
+            T_DBG_nv_err = 9;
             while(1);
         }
 
@@ -329,7 +352,7 @@ void moduleTest_PM(void)
 #if defined(MCU_CORE_826x)
     mode = PM_SLEEP_MODE_SUSPEND;
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91) || \
-      defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+      defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
     mode = PM_SLEEP_MODE_DEEP_WITH_RETENTION;
 #endif
 
@@ -371,6 +394,8 @@ void moduleTest_PM(void)
     #define TEST_GPIO           GPIO_PD0
 #elif defined(MCU_CORE_TL323X)
     #define TEST_GPIO           GPIO_PC0
+#elif defined(MCU_CORE_TL521X)
+    #define TEST_GPIO           GPIO_PA0
 #else
     #error "undefined TEST_MODULE"
 #endif
@@ -394,8 +419,6 @@ void moduleTest_RF(void)
     ZB_RADIO_TRX_CFG(144);
 
     ZB_RADIO_RX_BUF_SET(rx_packet);
-
-    drv_enable_irq();
 
 #if TX
     ZB_RADIO_TRX_SWITCH(RF_MODE_TX, 50); //2450, channel 20
@@ -438,7 +461,10 @@ void moduleTest_hash(void)
     T_DBG_insCodeCRC = tl_bdbInstallCodeCRC16(T_DBG_installCode, 16);
     T_DBG_installCode[16] = (u8)(T_DBG_insCodeCRC & 0xff);
     T_DBG_installCode[17] = (u8)(T_DBG_insCodeCRC >> 8);
+
+    extern void ss_mmoHash(u8 *data, u8 len, u8 *result);
     ss_mmoHash(T_DBG_installCode, 18, T_DBG_hashOut);
+
     while(1);
 }
 #endif
@@ -529,6 +555,9 @@ void moduleTest_challenge(void)
 #endif
 
 #define MODULE_TEST_X25519      0
+
+#include "zb_common.h"
+
 #if MODULE_TEST_X25519
 u8 alice_privateKey[32] = {
     0x41, 0x6C, 0x69, 0x63, 0x65, 0x41, 0x6C, 0x69, 0x63, 0x65, 0x41, 0x6C, 0x69, 0x63, 0x65, 0x41,
@@ -643,6 +672,9 @@ void moduleTest_adc(void)
 #elif defined(MCU_CORE_TL323X)
     #define TEST_GPIO_0         GPIO_PC0
     #define TEST_GPIO_1         GPIO_PC1
+#elif defined(MCU_CORE_TL521X)
+    #define TEST_GPIO_0         GPIO_PA0
+    #define TEST_GPIO_1         GPIO_PA2
 #else
     #error "undefined TEST_MODULE"
 #endif
@@ -1032,6 +1064,12 @@ void moduleTest_i2c(void)
     #define TEST_SW1            GPIO_PC6
     #define TEST_SW2            GPIO_PC7
     #define TEST_GPIO           GPIO_PA6
+#elif defined(MCU_CORE_TL521X)  //TL521X EVK
+    #define TEST_LED1           GPIO_PA0
+    #define TEST_LED2           GPIO_PA2
+    #define TEST_SW1            GPIO_PA1
+    #define TEST_SW2            GPIO_PB4
+    #define TEST_GPIO           GPIO_PC6
 #else
     #error "undefined TEST_MODULE"
 #endif
@@ -1059,23 +1097,25 @@ void moduleTest_gpioIrqCb3(void)
     if (drv_gpio_read(TEST_GPIO)) {
 #if defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
         drv_gpio_up_down_resistor(TEST_GPIO, GPIO_PIN_PULLUP_10K);
+#elif defined(MCU_CORE_TL521X)
+        drv_gpio_up_down_resistor(TEST_GPIO, GPIO_PIN_PULLUP_20K);
 #else
         drv_gpio_up_down_resistor(TEST_GPIO, PM_PIN_PULLUP_10K);
 #endif
 
-#if defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#if defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
         drv_gpio_irq_config(GPIO_IRQ0, TEST_GPIO, GPIO_FALLING_EDGE, moduleTest_gpioIrqCb3);
 #else
         drv_gpio_irq_config(GPIO_IRQ_MODE, TEST_GPIO, GPIO_FALLING_EDGE, moduleTest_gpioIrqCb3);
 #endif
     } else {
-#if defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#if defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
         drv_gpio_up_down_resistor(TEST_GPIO, GPIO_PIN_PULLDOWN_100K);
 #else
         drv_gpio_up_down_resistor(TEST_GPIO, PM_PIN_PULLDOWN_100K);
 #endif
 
-#if defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#if defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
         drv_gpio_irq_config(GPIO_IRQ0, TEST_GPIO, GPIO_RISING_EDGE, moduleTest_gpioIrqCb3);
 #else
         drv_gpio_irq_config(GPIO_IRQ_MODE, TEST_GPIO, GPIO_RISING_EDGE, moduleTest_gpioIrqCb3);
@@ -1103,11 +1143,13 @@ void moduleTest_gpioIrq(void)
     drv_gpio_input_en(TEST_SW1, 1);
 #if defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
     drv_gpio_up_down_resistor(TEST_SW1, GPIO_PIN_PULLUP_10K);
+#elif defined(MCU_CORE_TL521X)
+    drv_gpio_up_down_resistor(TEST_SW1, GPIO_PIN_PULLUP_20K);
 #else
     drv_gpio_up_down_resistor(TEST_SW1, PM_PIN_PULLUP_10K);
 #endif
 
-#if defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#if defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
     drv_gpio_irq_config(GPIO_IRQ1, TEST_SW1, GPIO_FALLING_EDGE, moduleTest_gpioIrqCb1);
     drv_gpio_irq_en(TEST_SW1);
 #else
@@ -1123,11 +1165,13 @@ void moduleTest_gpioIrq(void)
     drv_gpio_input_en(TEST_SW2, 1);
 #if defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
     drv_gpio_up_down_resistor(TEST_SW2, GPIO_PIN_PULLUP_10K);
+#elif defined(MCU_CORE_TL521X)
+    drv_gpio_up_down_resistor(TEST_SW2, GPIO_PIN_PULLUP_20K);
 #else
     drv_gpio_up_down_resistor(TEST_SW2, PM_PIN_PULLUP_10K);
 #endif
 
-#if defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#if defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
     drv_gpio_irq_config(GPIO_IRQ2, TEST_SW2, GPIO_FALLING_EDGE, moduleTest_gpioIrqCb2);
     drv_gpio_irq_en(TEST_SW2);
 #else
@@ -1143,24 +1187,26 @@ void moduleTest_gpioIrq(void)
     if (drv_gpio_read(TEST_GPIO)) {
 #if defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
         drv_gpio_up_down_resistor(TEST_GPIO, GPIO_PIN_PULLUP_10K);
+#elif defined(MCU_CORE_TL521X)
+        drv_gpio_up_down_resistor(TEST_GPIO, GPIO_PIN_PULLUP_20K);
 #else
         drv_gpio_up_down_resistor(TEST_GPIO, PM_PIN_PULLUP_10K);
 #endif
 
-#if defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#if defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
         drv_gpio_irq_config(GPIO_IRQ0, TEST_GPIO, GPIO_FALLING_EDGE, moduleTest_gpioIrqCb3);
 #else
         drv_gpio_irq_config(GPIO_IRQ_MODE, TEST_GPIO, GPIO_FALLING_EDGE, moduleTest_gpioIrqCb3);
 #endif
         drv_gpio_write(TEST_LED1, 1);
     } else {
-#if defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#if defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
         drv_gpio_up_down_resistor(TEST_GPIO, GPIO_PIN_PULLDOWN_100K);
 #else
         drv_gpio_up_down_resistor(TEST_GPIO, PM_PIN_PULLDOWN_100K);
 #endif
 
-#if defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#if defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
         drv_gpio_irq_config(GPIO_IRQ0, TEST_GPIO, GPIO_RISING_EDGE, moduleTest_gpioIrqCb3);
 #else
         drv_gpio_irq_config(GPIO_IRQ_MODE, TEST_GPIO, GPIO_RISING_EDGE, moduleTest_gpioIrqCb3);

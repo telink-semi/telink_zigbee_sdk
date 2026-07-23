@@ -36,9 +36,6 @@
 typedef void (*rf_pa_callback_t)(int type);
 extern rf_pa_callback_t  blc_rf_pa_cb;
 
-/*
- * addr - only 0x00012 ~ 0x00021 can be used !!! */
-#define write_log32(err_code)           write_sram32(0x00014, err_code)
 
 /******************************* pke_start ******************************************************************/
 #define ismemzero4(a, len)              uint32_BigNum_Check_Zero(a, len)    //For compatible with B91
@@ -68,27 +65,28 @@ extern rf_pa_callback_t  blc_rf_pa_cb;
 /******************************* core_end ********************************************************************/
 
 
+
 /******************************* mac start ************************************************************/
 extern drv_api_status_e efuse_get_ieee_addr(unsigned char *buf);
 static inline bool get_device_mac_address(u8* mac_read, int length)
- {
+{
     unsigned char mac[8];
-   efuse_get_ieee_addr(mac);
+    efuse_get_ieee_addr(mac);
 
-   u8 empty_8_byte_0[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-   u8 empty_8_byte_F[8] = {0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF};
-   if(memcmp(mac, empty_8_byte_0, 8) && memcmp(mac, empty_8_byte_F, 8)){
-       if(length > 8){
+    u8 empty_8_byte_0[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+    u8 empty_8_byte_F[8] = {0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF};
+    if(memcmp(mac, empty_8_byte_0, 8) && memcmp(mac, empty_8_byte_F, 8)){
+        if(length > 8){
            length = 8;
-       }
-       memcpy(mac_read, (u8*)mac, 6);
+        }
+        memcpy(mac_read, (u8*)mac, 6);
 
-       return TRUE;
-   }
-   else{
+        return TRUE;
+    }
+    else{
         return FALSE;
-   }
- }
+    }
+}
 /******************************* mac end **************************************************************/
 
 
@@ -177,24 +175,6 @@ void rf_set_channel_power_enable(unsigned char enable);
 #endif
 
 /******************************* rf end  **********************************************************************/
-
-
-
-
-/******************************* trng_start ******************************************************************/
-
-#define random_generator_init       trng_init
-
-
-/**
- * @brief     This function performs to generate a series of random numbers
- * @param[in]  len - data length
- * @param[out] data - data pointer
- * @return    none
- **/
-void generateRandomNum(int len, unsigned char *data);
-
-/******************************* trng_end ********************************************************************/
 
 
 /******************************* stimer start ******************************************************************/

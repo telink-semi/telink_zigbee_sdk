@@ -536,10 +536,11 @@ void user_ble_normal_init(void)
      *   is about to exceed the sector threshold, this sector must be erased, and all useful information
      *   should re_stored) , so it must be done after battery check */
     //blc_smp_setParingMethods (LE_Secure_Connection);
-#if (APP_SECURITY_ENABLE)
+
     //re-configure the nv address for ble paring info, must before blc_smp_peripheral_init
     bls_smp_configParingSecurityInfoStorageAddr(FLASH_SMP_PAIRING_ADDR);
 
+#if (APP_SECURITY_ENABLE)
     blc_smp_peripheral_init();
 
     // Hid device on android7.0/7.1 or later version

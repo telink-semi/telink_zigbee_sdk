@@ -234,7 +234,8 @@ void ev_timer_update(u32 updateTime)
 #if PM_ENABLE
 #if defined(MCU_CORE_8258)
     prevSleepTick = pm_get_32k_tick();
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
+      defined(MCU_CORE_TL521X)
     prevSleepTick = clock_get_32k_tick();
 #endif
 #endif

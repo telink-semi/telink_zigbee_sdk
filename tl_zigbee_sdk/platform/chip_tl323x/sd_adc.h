@@ -34,18 +34,18 @@ extern volatile unsigned short g_sd_adc_downsample_rate;
 /**
  * Since the voltage at the input P and N terminals, after voltage divider, must be <= 1.2V,
  * the detection ranges of the different modes are as follows:
-    +--------------+---------+-----------------+
-    | Sample Mode  | Divider | Detection Range |
-    +--------------+---------+-----------------+
-    |   GPIO_MODE  |   off   |    -1.2-1.2V    |
-    |              |   1/2   |    -2.4-2.4V    |
-    |              |   1/4   |    -3.6-3.6V    |
-    +--------------+---------+-----------------+
-    |   VBAT_MODE  |   1/2   |     2.2-4.5V    |
-    |              |   1/4   |     2.2-4.5V    |
-    +--------------+---------+-----------------+
-    |   TEMP_MODE  |    \    |  -40-85Celsius  |
-    +--------------+---------+-----------------+
+    +--------------+---------+-------------------------------------------------------------------+
+    | Sample Mode  | Divider |                        Detection Range                            |
+    +--------------+---------+-------------------------------------------------------------------+
+    |   GPIO_MODE  |   off   |                           0 ~ 1.2V                                |
+    |              |   1/2   |  PB0-4: 0 ~ 2.4V  PB5-6,PD0-1: 0 ~ (vbat*60%)V (but NOT > 2.4v)   | 
+    |              |   1/4   |  PB0-4: 0 ~ 3.6V  PB5-6,PD0-1: 0 ~ (vbat*60%)V (but NOT > 3.6v)   |
+    +--------------+---------+-------------------------------------------------------------------+
+    |   VBAT_MODE  |   1/2   |                           2.0-2.4V                                |
+    |              |   1/4   |                           2.0-4.5V                                |
+    +--------------+---------+-------------------------------------------------------------------+
+    |   TEMP_MODE  |    \    |                         -40-85Celsius                             |
+    +--------------+---------+-------------------------------------------------------------------+
  */
 
 #ifndef SD_ADC_INTERNAL_TEST_FUNC_EN
@@ -57,8 +57,8 @@ extern volatile unsigned short g_sd_adc_downsample_rate;
  */
 typedef enum
 {
-    SD_ADC_VBG_POWER_DOWN,
-    SD_ADC_VBG_POWER_ON,
+    SD_ADC_VMID_POWER_DOWN,
+    SD_ADC_VMID_POWER_ON,
 } sd_adc_vmid_power_switch_e;
 
 typedef enum{
@@ -590,6 +590,7 @@ signed int sd_adc_div_switch_adjust_rescale(signed int raw_result, sd_adc_result
 /**********************************************************************************************************************
  *                                         Audio and SD_ADC common interface                                              *
  **********************************************************************************************************************/
+
 /**
  * @brief     This function servers to power on SD_ADC.
  * @param[in] mode -sd_adc_mode_e

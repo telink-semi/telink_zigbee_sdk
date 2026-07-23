@@ -732,9 +732,9 @@
                                                 } while(0)
 #endif
 
-#elif defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#elif defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)|| defined(MCU_CORE_TL521X)
 /*******************************************************************************************************
- *                      Radio interface for TL321X and TL323X
+ *                      Radio interface for TL321X, TL323X and TL521X
  ******************************************************************************************************/
 /* radio module reset */
 #define ZB_RADIO_RESET()
@@ -870,6 +870,9 @@
 #define ZB_RADIO_TX_0DBM                        RF_POWER_INDEX_P0p08dBm
 #define ZB_DEFAULT_TX_POWER_IDX                 RF_POWER_INDEX_P10p78dBm
 #elif defined(MCU_CORE_TL323X)
+#define ZB_RADIO_TX_0DBM                        RF_POWER_INDEX_P0p00dBm
+#define ZB_DEFAULT_TX_POWER_IDX                 RF_POWER_INDEX_P10p00dBm
+#elif defined(MCU_CORE_TL521X)
 #define ZB_RADIO_TX_0DBM                        RF_POWER_INDEX_P0p00dBm
 #define ZB_DEFAULT_TX_POWER_IDX                 RF_POWER_INDEX_P10p00dBm
 #endif

@@ -76,7 +76,7 @@ void lpc_gpio_vol_detect_init(lpc_mode_e mode, lpc_input_channel_e pin, lpc_refe
 void lpc_flash_prot_config(lpc_input_channel_e chn)
 {
     /**
-     * The priority of flash operations has been set to the IRQ_PRI_LEV2 by default in flash.c.
+     * The priority of flash operations has been set to the IRQ_PRI_LEV2 by default in flash.c.​
      */
     plic_set_priority(IRQ_PM_LVL,3);//Setting the interrupt priority of LPC(PM) to highest IRQ_PRI_LEV3.
     plic_preempt_feature_en(CORE_PREEMPT_PRI_MODE0);//enable preemptive priority interrupt feature.

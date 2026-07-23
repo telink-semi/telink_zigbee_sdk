@@ -28,9 +28,19 @@
 #include "../driver.h"
 #include <stdbool.h>
 
+/******************************* pa_start ******************************************************************/
+#define PA_TYPE_OFF                                                     0
+#define PA_TYPE_TX_ON                                           1
+#define PA_TYPE_RX_ON                                           2
+
+
+typedef void (*rf_pa_callback_t)(int type);
+extern rf_pa_callback_t  blc_rf_pa_cb;
+/******************************* pa_end ********************************************************************/
+
 /*
  * addr - only 0x00012 ~ 0x00021 can be used !!! */
-#define write_log32(err_code)           write_sram32(0x00014, err_code)
+//#define write_log32(err_code)           write_sram32(0x00014, err_code)
 
 /******************************* pke_start ******************************************************************/
 #define ismemzero4(a, len)              uint32_BigNum_Check_Zero(a, len)    //For compatible with B91
@@ -54,8 +64,8 @@
 
 
 /******************************* mac start ************************************************************/
- static inline bool get_device_mac_address(u8* mac_read, int length)
- {
+static inline bool get_device_mac_address(u8* mac_read, int length)
+{
     unsigned char mac[8];
     efuse_get_ieee_addr(mac);
 
@@ -72,7 +82,7 @@
     else{
         return FALSE;
     }
- }
+}
 /******************************* mac end **************************************************************/
 
 
@@ -81,6 +91,19 @@
 /******************************* gpio start ******************************************************************/
 
 #define reg_gpio_out    reg_gpio_out_set_clear
+
+#if 0
+/**
+ * @brief     This function read a pin's cache from the buffer.
+ * @param[in] pin - the pin needs to read.
+ * @param[in] p - the buffer from which to read the pin's level.
+ * @return    the state of the pin.
+ */
+static inline unsigned int gpio_read_cache(gpio_pin_e pin, unsigned char *p)
+{
+    return p[pin>>8] & (pin & 0xff);
+}
+#endif
 
 /**
  * @brief      This function read all the pins' input level.
@@ -126,10 +149,6 @@ void gpio_setup_up_down_resistor(gpio_pin_e gpio, gpio_pull_type up_down);
  */
 void rf_drv_ble_init(void);
 
-void rf_drv_tx_hpmc_compensate(void);
-
-void rf_drv_dcoc_cali_sw(void);
-
 #define RF_POWER_P3dBm   RF_POWER_INDEX_P3p03dBm
 #define RF_POWER_P0dBm   RF_POWER_INDEX_P0p08dBm
 #define RF_POWER_P9dBm   RF_POWER_INDEX_P9p10dBm
@@ -159,15 +178,6 @@ void rf_set_channel_power_enable(unsigned char enable);
 #define sleep_ms(x)                 delay_ms(x)
 /******************************* stimer end ********************************************************************/
 
-/******************************* pa_start ******************************************************************/
-#define PA_TYPE_OFF							0
-#define PA_TYPE_TX_ON						1
-#define PA_TYPE_RX_ON						2
-
-
-typedef void (*rf_pa_callback_t)(int type);
-extern rf_pa_callback_t  blc_rf_pa_cb;
-/******************************* pa_end ********************************************************************/
 
 /******************************* usb_end *********************************************************************/
 #define reg_usb_irq                 REG_ADDR8(0x100839)

@@ -233,8 +233,11 @@ void gpio_shutdown(gpio_pin_e pin)
 void gpio_set_irq(gpio_pin_e pin, gpio_irq_trigger_type_e trigger_type)
 {
     /*
-        When selecting pull-up resistance and rising edge to trigger gpio interrupt, gpio_irq_en should be placed before setting gpio_set_irq,
-        otherwise an interrupt will be triggered by mistake.
+     * Incorrect sequence during GPIO interrupt configuration often leads to spurious interrupts. 
+     * The configuration must strictly follow the following sequence (jira DRIV-4162):
+     * Enable irq first (before setting Polarity)  
+     * Set irq config
+     * Finally, clear the interrupt status flag 
      */
     gpio_irq_en(pin);
     switch (trigger_type) {

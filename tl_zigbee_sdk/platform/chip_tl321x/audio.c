@@ -618,14 +618,13 @@ void audio_set_codec_stream0_sample_rate(codec_stream0_input_src_e source, audio
 {
     if (source & BIT(3)) {
         /* When the sampling rate is greater than or equal to 32K there is a data channel reversal problem,
-        * so reg_codec_cfg bit[5] need to be configured to adjust the direction,
-        * when sampling rate is less than 32K there is no reversal problem, so clear the bit.
+        * so reg_codec_cfg bit[5] need to be configured to adjust the direction.
+        * Moreover, this bit is also recommended to be configured for scenarios with less than 32k sampling rate,
+        * and in this case, the direction will not be flipped.
         */
+        reg_codec_cfg |= FLD_R_NEG;
         if (rate >= AUDIO_32K) {
             rate += 3;
-            reg_codec_cfg |= FLD_R_NEG;
-        } else {
-            reg_codec_cfg &= ~FLD_R_NEG;
         }
     }
     reg_codec_clkcfg = (reg_codec_clkcfg & (~FLD_CLK_SR)) | (audio_codec_rate[rate] << 0x01);

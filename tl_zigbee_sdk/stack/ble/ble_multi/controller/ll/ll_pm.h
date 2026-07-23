@@ -26,6 +26,7 @@
 
 #include "types.h"
 
+#if !defined(TLK_ONLY_BLE_HOST)
 /**
  *  @brief
  */
@@ -45,6 +46,8 @@ typedef enum
 
     PM_SLEEP_CIS_PERIPHR = BIT(8),
     PM_SLEEP_CIS_CENTRAL = BIT(9),
+
+    PM_SLEEP_CS = BIT(10),
 } sleep_mask_t;
 
 typedef enum
@@ -172,4 +175,28 @@ void blc_pm_registerAppWakeupLowPowerCb(pm_appWakeupLowPower_callback_t cb);
  * @return  none
  */
 void blc_ll_enOsPowerManagement_module(void);
+
+/**
+ *@brief      This function is used to tell stack that application have not task to handle immediately.
+ *            According to the stack situation,stack can stall MCU to reduce power consumption.
+ *            If application have emergency tasks that need to handle in time, user can close MCU stall function by setting parameter to 0.
+ *
+ *@param[in]  en - 1: allow stack to stall MCU;
+ *                 0: stack can not stall MCU
+ *@return     none
+ */
+void blc_ll_appAllowMCUstall(u8 en);
+
+/**
+ *@brief      for 2.4G to set application wake up tick
+ *@param[in]  wakeup_tick  - low power mode wake up time
+ *@return     none
+ */
+void p24g_pm_process_sleep_wakeup(uint32_t wakeup_tick);
+
+
+void blc_ll_recoverSuspend(int wakeup_src);
+
+#endif //#if !defined(TLK_ONLY_BLE_HOST)
+
 #endif /* LL_PM_H_ */

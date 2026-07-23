@@ -24,6 +24,7 @@
 #ifndef __FLASH_COMMON_H__
 #define __FLASH_COMMON_H__
 #include "flash_type.h"
+#include "lib/include/flash_lib.h"
 typedef unsigned char (*flash_write_status_fp)(unsigned short, unsigned int);
 typedef unsigned char (*flash_lock_fp)(unsigned int);
 typedef unsigned char (*flash_unlock_fp)(void);

@@ -26,8 +26,7 @@
 #include "zcl_include.h"
 #include "sampleGateway.h"
 #include "hci_tr.h"
-
-#include "stack/ble/ble_multi/hci/hci_vendor.h"
+#include "hci/hci_vendor.h"
 
 int central_smp_pending = 0;        // SMP: security & encryption;
 unsigned int  tlk_flash_mid = 0;
@@ -355,7 +354,7 @@ void user_ble_init(bool isRetention)
     u32 error_code = blc_contr_checkControllerInitialization();
     if (error_code != INIT_SUCCESS) {
         /* It's recommended that user set some UI alarm to know the exact error, e.g. LED shine, print log */
-        write_log32(0x88880000 | error_code);
+        //write_log32(0x88880000 | error_code);
         tlkapi_send_string_data(APP_LOG_EN, "[APP][INI] Controller INIT ERROR", &error_code, 1);
         while(1);
     }

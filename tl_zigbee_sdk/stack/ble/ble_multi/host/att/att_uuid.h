@@ -24,8 +24,8 @@
 #ifndef _ATT_UUID_H_
 #define _ATT_UUID_H_
 
-#include "common/utility.h"
-#include "common/types.h"
+#include "tl_common.h"
+
 
 /** @Bluetooth UUID Lengths */
 #define ATT_16_UUID_LEN  2  /*!< \brief Length in bytes of a 16 bit UUID */

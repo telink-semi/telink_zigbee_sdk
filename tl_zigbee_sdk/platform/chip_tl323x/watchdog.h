@@ -61,6 +61,11 @@ typedef enum
     WK_32K_CLK_WIDTH_8388608MS  = 0x60,
 } wd_32k_clk_sel_e;
 
+typedef struct {
+    wd_32k_clk_sel_e clk_sel;
+    unsigned int width_ms;
+} wd_32k_gear_t;
+
 /**
  * @brief     start watchdog.
  * @return    none

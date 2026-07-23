@@ -43,6 +43,10 @@
       If tRES1 > 150us, this flash model cannot be used, because the chip hardware boot program only waits for 150us.
  **/
 const flash_hal_handler_t flash_list[] = {
+    //128K
+    {0x1151cd, flash_get_lock_block_mid1151cd, flash_unlock_mid1151cd, flash_lock_mid1151cd, FLASH_LOCK_LOW_64K_MID1151CD,   flash_write_status_mid1151cd, FLASH_NO_QE_SUPPORT_MID1151CD, FLASH_NO_QE_SUPPORT_MID1151CD, FLASH_NO_QE_SUPPORT_MID1151CD},
+    //256K
+    {0x1271cd, flash_get_lock_block_mid1271cd, flash_unlock_mid1271cd, flash_lock_mid1271cd, FLASH_LOCK_LOW_128K_MID1271CD, flash_write_status_mid1271cd, FLASH_NO_QE_SUPPORT_MID1271CD, FLASH_NO_QE_SUPPORT_MID1271CD, FLASH_NO_QE_SUPPORT_MID1271CD},
     //512K
     {0x136085, flash_get_lock_block_mid136085, flash_unlock_mid136085, flash_lock_mid136085, FLASH_LOCK_LOW_256K_MID136085, flash_write_status_mid136085, FLASH_WRITE_STATUS_QE_MID136085, FLASH_QE_ENABLE_MID136085, FLASH_QE_DISABLE_MID136085},
     //1M

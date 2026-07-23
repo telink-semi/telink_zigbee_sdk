@@ -26,10 +26,14 @@
 
 #include "flash.h"
 #include "flash_mid146085.h" // P25Q80SU (untest)
+#include "flash_mid1471cd.h" // TH25Q80U (untest)
 #include "flash_mid156085.h" // P25Q16SU (untest)
 #include "flash_mid1460c8.h" // GD25LE80E(untest)
 #include "flash_mid1560c8.h" // GD25LE16E(untest)
 #include "flash_mid166085.h" // P25Q32SU(untest)
+#include "flash_mid1660cd.h" // TH25Q32U(untest)
+#include "flash_mid1571cd.h" // TH25Q16U(untest)
+
 /**
  * @brief       This function reads the status of flash.
  * @param[in]   cmd     - the cmd of read status. FLASH_READ_STATUS_CMD_LOWBYTE or FLASH_READ_STATUS_CMD_HIGHBYTE.

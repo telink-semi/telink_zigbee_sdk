@@ -53,7 +53,7 @@
  * 
  * | Power Supply Mode | Power Source                          | Output Power Characteristics                                                                 | Advantage                                  |
  * |-------------------|---------------------------------------|------------------------------------------------------------------------------------------------|-------------------------------------------|
- * | VBAT mode         | Directly powered by VBAT              | Maximum output power varies with VBAT voltage (higher VBAT higher available power)          | Simple power path, suitable for high-power scenarios |
+ * | VBAT mode         | Directly powered by VBAT              | Maximum output power varies with VBAT voltage (higher VBAT -> higher available power)          | Simple power path, suitable for high-power scenarios |
  * | VANT mode         | Powered by embedded DCDC + LDO        | Output power is stable (independent of VBAT voltage)                                          | Lower power consumption at the same transmit power |
  * 
  * @subsection rf_power_table TX Power Table (Driver-Provided)
@@ -100,19 +100,7 @@
  * @brief       This define for ble debug the effect of rx_dly.
  *              when this function turn on the time of rx_dly will shorten 6.3us,
  */
-#define RF_RX_SHORT_MODE_EN         1 //In order to debug whether the problem is caused by rx_dly.
-#define RF_RX_DCOC_SOFTWARE_CAL_EN  1 //BLE move the macro here.
-
-/*
-*This macro is defined to restore the use of hardware HPMC when debugging software issues.
-*Note: According to the given design scheme, it is necessary to enable HPMC fitting+compensation values and only use this macro definition
-*Used for internal debugging. When it is necessary to restore hardware HPMC, set this macro to 0 (modified by kun.he, confirmed by wenfeng.lou, 20250310)
-*/
-/* BLE move the macro here. */
-#define RF_TX_HPMC_COMPENSATE_EN    1
-#define RF_TX_HPMC_LINEAR_FIT_EN    0
-#define RF_TX_HPMC_COMP_VAL         80
-
+#define RF_RX_SHORT_MODE_EN 1 //In order to debug whether the problem is caused by rx_dly.
 /**
  *  @brief This define serve to calculate the DMA length of packet.
  */

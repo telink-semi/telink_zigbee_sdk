@@ -29,9 +29,9 @@ typedef struct __attribute__((packed))
     unsigned char data[0];
 } attr_pkt_t;
 
-#ifndef MCU_CORE_D25F_ENABLE
-#include "stack/ble/ble_multi/host/ble_host.h"
-#endif
+
+#include "host/ble_host.h"
+
 #include "att_cmd.h"
 #include "atts.h"
 #include "attc.h"

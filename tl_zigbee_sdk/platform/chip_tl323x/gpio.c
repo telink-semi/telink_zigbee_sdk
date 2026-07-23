@@ -41,6 +41,28 @@
  *                                              global variable                                                       *
  *********************************************************************************************************************/
 
+/**
+ * @brief      This setting serves to set the configuration of stimer PEM event.
+ */
+pem_event_config_t gpio_pem_event_config = {
+    .module      = PEM_EVENT_GPIO,
+    .sig_sel     = 0,
+    .clk_sel     = ASYNC_CLK,
+    .lvl         = LEVEL,
+    .edge_detect = 0,
+    .inv         = 0,
+};
+
+/**
+ * @brief      This setting serves to set the configuration of stimer PEM task.
+ */
+pem_task_config_t gpio_pem_task_config = {
+    .module  = PEM_TASK_GPIO,
+    .sig_sel = 0,
+    .clk_sel = PCLK,
+    .lvl     = PULSE,
+};
+
 /**********************************************************************************************************************
  *                                              local variable                                                     *
  *********************************************************************************************************************/
@@ -305,11 +327,16 @@ void gpio_shutdown(gpio_pin_e pin)
 void gpio_set_irq(gpio_irq_num_e irq, gpio_pin_e pin, gpio_irq_trigger_type_e trigger_type)
 {
     /*
-        When selecting pull-up resistance and rising edge to trigger gpio interrupt, gpio_irq_en should be placed before setting gpio_set_irq,
-        otherwise an interrupt will be triggered by mistake.
+     * Incorrect sequence during GPIO interrupt configuration often leads to spurious interrupts. 
+     * The configuration must strictly follow the following sequence (jira DRIV-4162):
+     * Enable irq first (before setting Polarity)  
+     * Set irq config
+     * Finally, clear the interrupt status flag 
      */
     gpio_irq_en(pin, irq);
-    gpio_clr_irq_status((gpio_irq_e)BIT(irq)); //must clear cause to unexpected interrupt.
+    if (irq == GPIO_IRQ0) {
+        reg_gpio_irq_ctrl |= FLD_GPIO_CORE_INTERRUPT_EN; //Only GPIO_IRQ0 needs to enable FLD_GPIO_CORE_INTERRUPT_EN.
+    }
     switch (trigger_type) {
     case INTR_RISING_EDGE:
         BM_CLR(reg_gpio_pol(pin), pin & 0xff);
@@ -328,9 +355,7 @@ void gpio_set_irq(gpio_irq_num_e irq, gpio_pin_e pin, gpio_irq_trigger_type_e tr
         BM_SET(reg_gpio_irq_level, BIT(irq));
         break;
     }
-    if (irq == GPIO_IRQ0) {
-        reg_gpio_irq_ctrl |= FLD_GPIO_CORE_INTERRUPT_EN; //Only GPIO_IRQ0 needs to enable FLD_GPIO_CORE_INTERRUPT_EN.
-    }
+    gpio_clr_irq_status((gpio_irq_e)BIT(irq));
 }
 
 /**
@@ -381,6 +406,47 @@ void gpio_set_probe_clk_function(gpio_func_pin_e pin, probe_clk_sel_e sel_clk)
     reg_probe_clk_sel = (reg_probe_clk_sel & 0xe0) | sel_clk; //probe_clk_sel_e
     gpio_set_mux_function(pin, DBG_PROBE_CLK);                //sel probe_clk function
     gpio_function_dis((gpio_pin_e)pin);
+}
+
+/**
+ * @brief      This function serves to configure the GPIO PEM event.
+ * @param[in]  chn - to select the PEM channel.
+ * @param[in]  pin - the GPIO event signal selection.
+ * @param[in]  pol - the GPIO event signal edge selection
+ * @return     none.
+ */
+void gpio_set_pem_event(pem_chn_e chn, gpio_event_e pin, pem_event_pol_e pol)
+{
+    unsigned char group = (pin & 0xf00) >> 8;
+    unsigned char bit   = pin & 0xff;
+
+    reg_gpio_irq_ctrl |= FLD_GPIO_PEM_EVENT_EN;
+
+    reg_gpio_pem_ctrl1 = (reg_gpio_pem_ctrl1&0x0f)|group;
+
+    gpio_pem_event_config.sig_sel = bit;
+    gpio_pem_event_config.edge_detect = pol&0x01;
+    gpio_pem_event_config.inv = (pol&0x04)>>2;
+    pem_event_config(chn, gpio_pem_event_config);
+}
+
+/**
+ * @brief      This function serves to configure the GPIO PEM task.
+ * @param[in]  chn - to select the PEM channel.
+ * @param[in]  pin - the GPIO task signal selection.
+ * @return     none.
+ */
+void gpio_set_pem_task(pem_chn_e chn, gpio_task_e pin)
+{
+    unsigned short group = (pin & 0xf00) >> 8;
+    unsigned char  bit   = pin & 0xff;
+
+    reg_gpio_pem_ctrl0 |= (1 << bit);
+
+    reg_gpio_pem_ctrl1 = (reg_gpio_pem_ctrl1&0xf0)|(group << 4);
+
+    gpio_pem_task_config.sig_sel = bit;
+    pem_task_config(chn, gpio_pem_task_config);
 }
 
 /**

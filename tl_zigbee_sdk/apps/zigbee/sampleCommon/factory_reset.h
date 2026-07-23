@@ -25,8 +25,8 @@
 #ifndef FACTORY_RESET_H
 #define FACTORY_RESET_H
 
-#define FACTORY_RESET_POWER_CNT_THRESHOLD       10 //times
-#define FACTORY_RESET_TIMEOUT                   2  //second
+#define FACTORY_RESET_POWER_CNT_THRESHOLD       5 //times
+#define FACTORY_RESET_TIMEOUT                   2 //second
 
 typedef void (*factoryRstFn_t)(void);
 

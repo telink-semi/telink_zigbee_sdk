@@ -27,8 +27,7 @@
 #include "sampleSwitch.h"
 #include "device_manage.h"
 #include "zigbee_ble_switch.h"
-
-#include "stack/ble/ble_multi/controller/ll/adv/leg_adv.h"
+#include "controller/ll/adv/leg_adv.h"
 
 _attribute_ble_data_retention_      int central_smp_pending = 0;        // SMP: security & encryption;
 _attribute_data_retention_  unsigned int  tlk_flash_mid = 0;
@@ -991,8 +990,8 @@ _attribute_ram_code_ void  app_set_kb_wakeup (u8 e, u8 *p, int n)
 void user_ble_normal_init(void)
 {
 //////////////////////////// BLE stack Initialization  Begin //////////////////////////////////
-    u8  mac_public[6];
-    u8  mac_random_static[6];
+    u8 mac_public[6];
+    u8 mac_random_static[6];
 
     blc_initMacAddress(CFG_MAC_ADDRESS, mac_public, mac_random_static);
 
@@ -1068,9 +1067,7 @@ void user_ble_normal_init(void)
     blc_gatt_register_data_handler(app_gatt_data_handler);
 
     /* SMP Initialization */
-    #if (ACL_PERIPHR_SMP_ENABLE || ACL_CENTRAL_SMP_ENABLE)
-        blc_smp_configPairingSecurityInfoStorageAddressAndSize(FLASH_SMP_PAIRING_ADDR, FLASH_SMP_PAIRING_MAX_SIZE);
-    #endif
+    blc_smp_configPairingSecurityInfoStorageAddressAndSize(FLASH_SMP_PAIRING_ADDR, FLASH_SMP_PAIRING_MAX_SIZE);
 
     #if (ACL_PERIPHR_SMP_ENABLE)  //Peripheral SMP Enable
         blc_smp_setSecurityLevel_periphr(Unauthenticated_Pairing_with_Encryption);  //LE_Security_Mode_1_Level_2
@@ -1132,33 +1129,40 @@ void user_ble_normal_init(void)
         blc_pm_setDeepsleepRetentionEnable(PM_DeepRetn_Enable);
         blc_pm_setDeepsleepRetentionThreshold(95);
 
-        #if defined(MCU_CORE_TL321X)
-            #if VOLTAGE_DETECT_ENABLE
-                blc_pm_setDeepsleepRetentionEarlyWakeupTiming(1300);    //enable voltage detect
-            #else
-                blc_pm_setDeepsleepRetentionEarlyWakeupTiming(1050); //for tl321x 48M
-            #endif
-            blc_pm_setDeepsleepRetentionType(DEEPSLEEP_MODE_RET_SRAM_LOW96K);
-        #elif defined(MCU_CORE_TL721X)
+        #if defined(MCU_CORE_TL721X)
             #if VOLTAGE_DETECT_ENABLE
                 blc_pm_setDeepsleepRetentionEarlyWakeupTiming(1275); //enable voltage detect
             #else
                 blc_pm_setDeepsleepRetentionEarlyWakeupTiming(930); //for tl721x 120M
             #endif
             blc_pm_setDeepsleepRetentionType(DEEPSLEEP_MODE_RET_SRAM_LOW128K);
-		#elif defined(MCU_CORE_TL323X)
-			#if VOLTAGE_DETECT_ENABLE
-				blc_pm_setDeepsleepRetentionEarlyWakeupTiming(1980); //enable voltage detect
-			#else
-				blc_pm_setDeepsleepRetentionEarlyWakeupTiming(1180); //for tl323x 48M
-			#endif
-			blc_pm_setDeepsleepRetentionType(DEEPSLEEP_MODE_RET_SRAM_LOW96K);
+        #elif defined(MCU_CORE_TL321X)
+            #if VOLTAGE_DETECT_ENABLE
+                blc_pm_setDeepsleepRetentionEarlyWakeupTiming(1300); //enable voltage detect
+            #else
+                blc_pm_setDeepsleepRetentionEarlyWakeupTiming(1050); //for tl321x 48M
+            #endif
+            blc_pm_setDeepsleepRetentionType(DEEPSLEEP_MODE_RET_SRAM_LOW96K);
+        #elif defined(MCU_CORE_TL323X)
+            #if VOLTAGE_DETECT_ENABLE
+                blc_pm_setDeepsleepRetentionEarlyWakeupTiming(1980); //enable voltage detect
+            #else
+                blc_pm_setDeepsleepRetentionEarlyWakeupTiming(1180); //for tl323x 48M
+            #endif
+            blc_pm_setDeepsleepRetentionType(DEEPSLEEP_MODE_RET_SRAM_LOW96K);
+        #elif defined(MCU_CORE_TL521X)
+            #if VOLTAGE_DETECT_ENABLE
+                blc_pm_setDeepsleepRetentionEarlyWakeupTiming(1980); //enable voltage detect
+            #else
+                blc_pm_setDeepsleepRetentionEarlyWakeupTiming(1180); //for tl521x 72M
+            #endif
+            blc_pm_setDeepsleepRetentionType(DEEPSLEEP_MODE_RET_SRAM_LOW128K);
         #endif
     #else
         blc_pm_setDeepsleepRetentionEnable(PM_DeepRetn_Disable);
     #endif
 
-    blc_ll_registerTelinkControllerEventCallback (BLT_EV_FLAG_SLEEP_ENTER, &app_set_kb_wakeup);
+    blc_ll_registerTelinkControllerEventCallback(BLT_EV_FLAG_SLEEP_ENTER, &app_set_kb_wakeup);
 #endif
 
 #if (BLE_OTA_SERVER_ENABLE)

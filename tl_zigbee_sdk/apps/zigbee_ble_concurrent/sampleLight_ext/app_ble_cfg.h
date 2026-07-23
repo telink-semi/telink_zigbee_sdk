@@ -35,6 +35,7 @@ extern "C" {
  */
 //ble_single_conn
 #if defined(MCU_CORE_8258) || defined(MCU_CORE_B91)
+
 #if ZIGBEE_DIRECT_ENABLE    //only support for b91
 #define ZCL_ZBD_SUPPORT                             1
 #define ZIGBEE_DIRECT_TUNNEL_ENABLE                 1
@@ -61,7 +62,8 @@ extern "C" {
 #endif
 
 //ble_multi_conn
-#elif defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#elif defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
+
 #define ACL_CENTRAL_MAX_NUM                         0 // ACL central maximum number
 #define ACL_PERIPHR_MAX_NUM                         1 // ACL peripheral maximum number
 

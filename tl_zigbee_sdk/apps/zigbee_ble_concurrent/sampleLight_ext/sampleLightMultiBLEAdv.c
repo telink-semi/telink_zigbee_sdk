@@ -26,8 +26,7 @@
 #include "zcl_include.h"
 #include "sampleLight.h"
 #include "device_manage.h"
-
-#include "stack/ble/ble_multi/controller/ll/adv/leg_adv.h"
+#include "controller/ll/adv/leg_adv.h"
 
 int central_smp_pending = 0;        // SMP: security & encryption;
 unsigned int  tlk_flash_mid = 0;

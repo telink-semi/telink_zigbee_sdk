@@ -4,9 +4,9 @@
  * @brief   This is the header file for board_tl323x_dongle
  *
  * @author  Zigbee Group
- * @date    2026
+ * @date    2025
  *
- * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2025, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,20 +36,20 @@ extern "C" {
 #define BRIGHTNESS_SUPPORT      0
 /***************************************************************/
 
-// BUTTON
-#define BUTTON1                     GPIO_PA2    //SW1
-#define PA2_FUNC                    AS_GPIO
-#define PA2_OUTPUT_ENABLE           0
-#define PA2_INPUT_ENABLE            1
-#define PULL_WAKEUP_SRC_PA2         GPIO_PIN_PULLUP_10K
+//BUTTON
+#define BUTTON1                 GPIO_PA2//SW1
+#define PA2_FUNC                AS_GPIO
+#define PA2_OUTPUT_ENABLE       0
+#define PA2_INPUT_ENABLE        1
+#define PULL_WAKEUP_SRC_PA2     GPIO_PIN_PULLUP_10K
 
-#define BUTTON2                     GPIO_PA4    //SW2
-#define PA4_FUNC                    AS_GPIO
-#define PA4_OUTPUT_ENABLE           0
-#define PA4_INPUT_ENABLE            1
-#define PULL_WAKEUP_SRC_PA4         GPIO_PIN_PULLUP_10K
+#define BUTTON2                 GPIO_PA4//SW2
+#define PA4_FUNC                AS_GPIO
+#define PA4_OUTPUT_ENABLE       0
+#define PA4_INPUT_ENABLE        1
+#define PULL_WAKEUP_SRC_PA4     GPIO_PIN_PULLUP_10K
 
-// LED
+//LED
 /***************************************************************
 * LED_R	        GPIO_PB0        //D2  -- red    PWM0
 * LED_G	        GPIO_PB1        //D1  -- green  PWM1
@@ -234,8 +234,8 @@ extern "C" {
 #define VOLTAGE_DETECT_ADC_PIN  SD_ADC_GPIO_PB7P
 #endif
 
-// UART
-#if ZBHCI_UART
+//UART
+#if MODULE_UART_ENABLE
 #error please configurate uart PIN!!!!!!
 #endif
 
@@ -248,28 +248,23 @@ extern "C" {
 #define CONSOLE_UART_RX_PIN     GPIO_PB7
 #endif
 
-// USB
-#if ZBHCI_USB_PRINT || ZBHCI_USB_CDC || ZBHCI_USB_HID
-#warning "TL323X does not support."
-#endif
-
-
-enum{
+enum {
     VK_SW1 = 0x01,
     VK_SW2 = 0x02,
-    VK_SW3 = 0x03,
-    VK_SW4 = 0x04,
+    VK_SW3 = 0x03, //unused
+    VK_SW4 = 0x04, //unused
 };
 
-#define KB_MAP_NORMAL   {\
-        {VK_SW2,}, \
-        {VK_SW1,}, }
+#define KB_MAP_NORMAL           { \
+                                    {VK_SW2,}, \
+                                    {VK_SW1,}, \
+                                }
 
-#define KB_MAP_NUM      KB_MAP_NORMAL
-#define KB_MAP_FN       KB_MAP_NORMAL
+#define KB_MAP_NUM              KB_MAP_NORMAL
+#define KB_MAP_FN               KB_MAP_NORMAL
 
-#define KB_DRIVE_PINS   {0}
-#define KB_SCAN_PINS    {BUTTON1, BUTTON2}
+#define KB_DRIVE_PINS           {0}
+#define KB_SCAN_PINS            {BUTTON1, BUTTON2}
 
 /* Disable C linkage for C++ Compilers: */
 #if defined(__cplusplus)

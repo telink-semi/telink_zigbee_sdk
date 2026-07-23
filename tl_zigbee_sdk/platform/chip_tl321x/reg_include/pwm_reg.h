@@ -296,5 +296,16 @@ enum
 
 };
 
+#define reg_pwm_pem_ctrl  REG_ADDR8(REG_PWM_BASE + 0x4f)
+
+typedef enum
+{
+    FLD_PWM_PEM_EVENT1_SEL = BIT(0), /**<pem sub sel.*/
+    FLD_PWM_PEM_EVENT1_EN  = BIT(1),
+    FLD_PWM_PEM_EVENT0_EN  = BIT(2),
+    FLD_PWM_PEM_TASK1_EN   = BIT(3),
+    FLD_PWM_PEM_TASK0_EN   = BIT(4),
+} pwm_pem_ctrl_e;
+
 
 #endif

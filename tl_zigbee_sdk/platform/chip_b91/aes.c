@@ -160,8 +160,12 @@ int aes_encrypt_bt_en(unsigned char *key, unsigned char *plaintext, unsigned cha
     }
 
     if (aes_correct) {
-        memcpy(result, temp_result[i], 16);
-        return 1;
+        if (i < AES_MAX_CNT) {
+            memcpy(result, temp_result[i], 16);
+            return 1;
+        } else {
+            return 0;
+        }
     }
     return 0;
 }

@@ -25,7 +25,7 @@
 #define BLE_FORMAT_H
 
 
-#include "stack/ble/ble_common.h"
+#include "ble_common.h"
 
 //data type definitions and formats, used Advertising Data(AD), Scan Response(SRD), Additional Controller Advertising Data(ACAD).
 

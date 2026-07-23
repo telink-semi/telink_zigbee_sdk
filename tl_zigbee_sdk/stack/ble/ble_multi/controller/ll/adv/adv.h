@@ -29,9 +29,9 @@
  */
 typedef enum
 {
-    MAX_DELAY_10MS  = 512,
-    MAX_DELAY_5MS   = 256,
-    MAX_DELAY_2P5MS = 128,
+    MAX_DELAY_10MS  = 0x10,
+    MAX_DELAY_5MS   = 0X08,
+    MAX_DELAY_2P5MS = 0X04,
     MAX_DELAY_0MS   = 0,
 } adv_max_delay_t;
 
@@ -45,5 +45,14 @@ typedef enum
  */
 void blc_ll_setMaxAdvDelay_for_AdvEvent(adv_max_delay_t max_delay);
 
+
+/**
+* @brief       This function is used to set whether to check the adv_interval.
+*              ADV interval is checked for undirected ADV by default according to BLE Core Specification.
+*              User can use this API to bypass the rule if they want some none standard ADV interval being used for undirected ADV.
+* @param[in]   enable -  1: check ADV interval; 0: not check ADV interval
+* @return      none
+*/
+void        blc_ll_setAdvIntervalCheckEnable(u8 enable);
 
 #endif /* ADV_H_ */

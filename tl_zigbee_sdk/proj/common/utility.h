@@ -111,6 +111,7 @@
 
 #define everyN(i, n)                    ++(i); (i)=((i) < N ? (i) : 0); if(0 == (i))
 
+#define TL_UNUSED(x)                    ((void)(x))
 
 #define HI_UINT16(a)                    (((a) >> 8) & 0xFF)
 #define LO_UINT16(a)                    ((a) & 0xFF)

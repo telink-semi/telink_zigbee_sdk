@@ -36,7 +36,7 @@ static unsigned char g_sd_adc_vbat_mode = 0;
 /**
  * @brief Structure to store raw ADC voltage readings at four calibrated VBAT points.
  *
- * These values represent the measured ADC codes (in millivolts × 10, i.e., 0.1 mV resolution)
+ * These values represent the measured ADC codes (in millivolts * 10, i.e., 0.1 mV resolution)
  * corresponding to four known reference voltages: 2.200V, 2.225V, 2.250V, and 2.275V.
  */
 typedef struct
@@ -51,7 +51,7 @@ typedef struct
  *
  * Each gain is derived from a two-point linear regression between adjacent
  * calibration points. Note: Only three gains are stored, as they correspond to
- * the slopes between (2.200V–2.225V), (2.225V–2.250V), and (2.250V–2.275V).
+ * the slopes between (2.200V - 2.225V), (2.225V - 2.250V), and (2.250V - 2.275V).
  */
 typedef struct
 {
@@ -218,20 +218,20 @@ void sd_adc_set_mux_control(sd_adc_mux_mode_e mode)
 }
 
 /**
- * @brief      This function serves to set adc vbg reference voltage.
+ * @brief      This function serves to set SD ADC VMID reference voltage.
  * @param[in]  en - SD_ADC_VBG_POWER_DOWN or SD_ADC_VBG_POWER_ON.
  * @return     none.
  */
-void sd_adc_set_vbg(sd_adc_vmid_power_switch_e en)
+void sd_adc_set_vmid(sd_adc_vmid_power_switch_e en)
 {
     if (en)
     {
-        /***enable vbg reference voltage***/
+        /***enable VMID reference voltage***/
         analog_write_reg8(areg_0x10f, (analog_read_reg8(areg_0x10f) | FLD_AUDIO_PD_VMID));
     }
     else
     {
-        /***disable vbg reference voltage***/
+        /***disable VMID reference voltage***/
         analog_write_reg8(areg_0x10f, (analog_read_reg8(areg_0x10f) & (~FLD_AUDIO_PD_VMID)));
     }
 }
@@ -277,8 +277,6 @@ void sd_adc_power_on(sd_adc_mode_e mode)
         }
     }
 
-    sd_adc_set_vbg(SD_ADC_VBG_POWER_ON);
-    BM_SET(reg_clk_en4, FLD_CLK4_DC_EN);//dc clk signal enable
     analog_write_reg8(areg_0x10e, analog_read_reg8(areg_0x10e) & (~FLD_L_PD_BUFFER));//power on two sd_adc buffer at the positive and negative.
     analog_write_reg8(areg_0x10f, (analog_read_reg8(areg_0x10f) & (~(FLD_AUDIO_PD_BIAS|FLD_AUDIO_PD_ADC))));
 
@@ -292,7 +290,6 @@ void sd_adc_power_on(sd_adc_mode_e mode)
 void sd_adc_power_off(sd_adc_mode_e mode)
 {
     (void)mode;
-    sd_adc_set_vbg(SD_ADC_VBG_POWER_DOWN);
     BM_CLR(reg_clk_en4, FLD_CLK4_DC_EN);//dc clk signal disable
     analog_write_reg8(areg_0x10e, analog_read_reg8(areg_0x10e) | FLD_L_PD_BUFFER);//power down two sd_adc buffer at the positive and negative.
     analog_write_reg8(areg_0x10f, (analog_read_reg8(areg_0x10f) | (FLD_AUDIO_PD_BIAS|FLD_AUDIO_PD_ADC)));

@@ -26,20 +26,19 @@
 
 #include "tl_common.h"
 #include "common/types.h"
-#include "stack/ble/ble_common.h"
+#include "ble_common.h"
 
 /**
  * @brief   Telink defined LinkLayer Event Callback
  */
 typedef void (*blt_event_callback_t)(u8 e, u8 *p, int n);
 typedef void (*user_irq_handler_cb_t)(void);
-extern  user_irq_handler_cb_t  usr_irq_handler_cb;
-typedef bool (*ll_module_pm_lowpowerCond_t)(void);
+extern user_irq_handler_cb_t usr_irq_handler_cb;
+
+
 typedef int (*ll_task_callback_0_t)(void);
 extern ll_task_callback_0_t ll_cs_rawData_process_cb;
 extern ll_task_callback_0_t ll_cs_hci_subevent_report_cb;
-
-#define    BLS_LINK_STATE_IDLE        0
 
 typedef enum
 {
@@ -50,6 +49,7 @@ typedef enum
     BLT_EV_FLAG_KEY_MISSING,
     BLT_EV_FLAG_WFI_ENTER,
     BLT_EV_FLAG_WFI_EXIT,
+    BLT_EV_FLAG_CHECK_BEFORE_SLEEP_ENTER,// Final check before entering PM sleep
     BLT_EV_MAX_NUM,
 } blt_ev_flag_t;
 
@@ -110,6 +110,15 @@ void blc_ll_initStandby_module(u8 *public_adr);
  *                     other: failed
  */
 ble_sts_t blc_ll_readBDAddr(u8 *addr);
+
+
+/**
+ * @brief      this function is used to set the LE Public Device Address in the Controller
+ * @param[in]  *randomAddr -  Public Device Address
+ * @return     status, 0x00:  succeed
+ *                     other: failed
+ */
+ble_sts_t blc_ll_writeBDAddr(u8 *addr);
 
 
 /**
@@ -194,6 +203,11 @@ bool blc_ll_isRfBusy(void);
  */
 ble_status_t blc_ll_getBleCurrentState(void);
 
+//#ifdef BLC_ZIGBEE_INTEGRATION
+typedef bool (*ll_module_pm_lowpowerCond_t)(void);
+
+#define    BLS_LINK_STATE_IDLE        0
+
 u32 get_ble_end_event_tick(void);
 u32 get_ble_next_event_tick(void);
 u32 get_ble_event_state(void);
@@ -205,32 +219,34 @@ void ble_radio_init(void);
 void ble_rf_fast_settle_recover(void);
 
 /**
- * @brief	    condition function if the ble is allowed to enter low power mode
- * @param[in]	cb the condition function
- * @return		1: allowed to enter low power mode
+ * @brief       condition function if the ble is allowed to enter low power mode
+ * @param[in]   cb the condition function
+ * @return      1: allowed to enter low power mode
  */
 void bls_pm_conditionCbRegister(ll_module_pm_lowpowerCond_t cb);
 
 /**
- * @brief		release the condition function, so that  the ble won't be allowed to enter low power mode
- * @param[in]	none
- * @return		none
+ * @brief       release the condition function, so that  the ble won't be allowed to enter low power mode
+ * @param[in]   none
+ * @return      none
  */
 void bls_pm_conditionCbUnregister(void);
 
 
 /**
- * @brief		if the callback for allowing to enter low power mode is valid
- * @param[in]	none
+ * @brief       if the callback for allowing to enter low power mode is valid
+ * @param[in]   none
  * @return
  */
 bool bls_pm_conditionCbIsValid(void);
 
 /**
- * @brief		if the callback for allowing to enter software low power mode is valid
- * @param[in]	1:enable, 0:disable
+ * @brief       if the callback for allowing to enter software low power mode is valid
+ * @param[in]   1:enable, 0:disable
  * @return
  */
 void  bls_pm_disableHardwarePm(u8 en);
+//#endif /* BLC_ZIGBEE_INTEGRATION */
+
 
 #endif /* LL_H_ */

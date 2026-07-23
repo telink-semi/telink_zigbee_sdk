@@ -25,10 +25,8 @@
 #define _HCI_H_
 
 
-#include "stack/ble/ble_common.h"
+#include "ble_common.h"
 
-typedef int (*blc_hci_rx_handler_t)(void);
-typedef int (*blc_hci_tx_handler_t)(void);
 typedef int (*blc_hci_user_handler_t)(u8 *p, u32 len);
 
 
@@ -38,7 +36,7 @@ typedef int (*blc_hci_user_handler_t)(u8 *p, u32 len);
 #define HCI_FLAG_EVENT_STACK               (1 << 26) //not used now
 #define HCI_FLAG_ACL_BT_STD                (1 << 27)
 #define HCI_FLAG_BT_HCI_CMD                (1 << 28) //HCI command
-#define HCI_FLAG_ISO_DATE_STD              (1 << 29)
+#define HCI_FLAG_ISO_DATA_STD              (1 << 29)
 #define HCI_FLAG_CIS_DATA                  (1 << 30)
 
 #define TLK_MODULE_EVENT_STATE_CHANGE      0x0730
@@ -53,10 +51,6 @@ typedef int (*blc_hci_user_handler_t)(u8 *p, u32 len);
 #define HCI_MAX_DATA_BUFFERS_MASTER        8
 
 #define HCI_ADV_REPORT_EVT_RSVD_FIFO       3
-
-extern blc_hci_rx_handler_t blc_hci_rx_handler;
-extern blc_hci_tx_handler_t blc_hci_tx_handler;
-
 
 //extern my_fifo_t hci_tx_iso_fifo;
 
@@ -147,6 +141,28 @@ typedef struct __attribute__((packed))
     u8 iso_sdu[1];
 } iso_data_load_2_t;
 
+
+
+typedef struct
+{
+    u16 pkt_seq_num; /*Packet_Sequence_Number*/
+    u16 iso_sdu_len; /*ISO_SDU_Length*/
+
+    u32 timestamp;   /*Time_Stamp*/
+    u16 sduOffset;
+    u8  numHciPkt;
+
+    u8 pkt_st        : 2; /*Packet_Status_Flag*/
+    u8 pb            : 2; /*PB_FLAG*/
+    u8 ts            : 1; /*TS_Flag*/
+    u8 numOfCmplt_en : 1;
+    u8 rsvd          : 2;
+
+    u8 isoHandle; /*connection_handle*/
+    u8 data[1];   /*SDU payload*/
+
+} sdu_packet_t;
+
 // Controller event handler
 typedef int (*hci_event_handler_t)(u32 h, u8 *para, int n);
 
@@ -156,7 +172,13 @@ typedef int (*hci_data_handler_t)(u16 conn, u8 *p);
 //Controller ISO data handler
 typedef int (*hci_iso_data_handle_t)(u8 *, int);
 
+typedef unsigned char hci_vendor_CmdParams_t;
 
+typedef unsigned char hci_vendor_EndStatusParam_t;
+
+typedef unsigned char (*hci_vendor_process_callback_t)(u8 pCmdparaLen, u8 opCode_ogf, u8 opCode_ocf, hci_vendor_CmdParams_t *pCmd, hci_vendor_EndStatusParam_t *pRetParam);
+
+/******************************* hci  global variable start*******************/
 // hci event
 extern u32                   hci_eventMask;
 extern u32                   hci_eventMask_2;
@@ -175,6 +197,23 @@ extern hci_fifo_t bltHci_outIsofifo;
 
 
 extern u16 gHciPortNum;
+
+typedef int (*blc_hci_rx_handler_t)(void);
+typedef int (*blc_hci_tx_handler_t)(void);
+extern blc_hci_rx_handler_t blc_hci_rx_handler;
+extern blc_hci_tx_handler_t blc_hci_tx_handler;
+
+/******************************* hci  global variable end *********************/
+
+#ifdef BLC_ZEPHYR_BLE_INTEGRATION
+/**
+ * @brief      this function is used to register HCI TX or RX handler callback function
+ * @param[in]  *prx - blc_hci_rx_handler
+ * @param[in]  *ptx - blc_hci_tx_handler
+ * @return     none.
+ */
+void blc_register_hci_handler(void *prx, void *ptx);
+#endif
 
 /**
  * @brief      set HCI reversion
@@ -239,13 +278,6 @@ int blc_hci_handler(u8 *p, int n);
 int blc_hci_send_event(u32 h, u8 *para, int n);
 
 
-/**
- * @brief      this function is used to process HCI events
- * @param[in]  none.
- * @return     0
- */
-int blc_hci_proc(void);
-
 
 /**
  * @brief      this function is used to set HCI EVENT mask
@@ -292,14 +324,6 @@ void blc_hci_registerControllerDataHandler(hci_data_handler_t handle);
 
 
 void blc_hci_registerControllerIsoDataHandler(hci_iso_data_handle_t handle);
-
-/**
- * @brief      this function is used to register HCI TX or RX handler callback function
- * @param[in]  *prx - blc_hci_rx_handler
- * @param[in]  *ptx - blc_hci_tx_handler
- * @return     none.
- */
-void blc_register_hci_handler(void *prx, void *ptx);
 
 /**
  * @brief      this function is used to register HCI user callback function
@@ -358,4 +382,6 @@ ble_sts_t blc_ll_initHciTxIsoDataFifo(u8 *pIsobuf, int fifo_size, int fifo_numbe
 
 ble_sts_t blc_setHciInBufferMaxOctets(u16 isoDataInFifo_size, u8 isoDataInFifo_num);
 
+
+void blc_hci_registerControllerVendorCmdProcess_Callback(hci_vendor_process_callback_t handler);
 #endif

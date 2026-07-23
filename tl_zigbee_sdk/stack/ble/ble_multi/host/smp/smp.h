@@ -24,7 +24,7 @@
 #ifndef BLE_SMP_H_
 #define BLE_SMP_H_
 
-#include "stack/ble/ble_common.h"
+#include "ble_common.h"
 
 /**
  * @brief SMP first pairing or connecting back definition
@@ -201,10 +201,12 @@ void blc_smp_configPairingRequestSending(PairReq_cfg newConn_cfg, PairReq_cfg re
 /**
  * @brief      This function is used to trigger central sending Pairing Request,
  *             when configured as PairReq_SEND_upon_SecReq but not received peripheral's Security Request.
- * @param[in]  none.
- * @return     none.
+ * @param[in]  connHandle - ACL connection handle wanted to trigger SMP.
+ * @return     0 - BLE_SUCCESS: trigger SMP ok.
+ *                 HCI_ERR_UNKNOWN_CONN_ID: The connHandle has not been connected.
+ *                 HCI_ERR_REPEATED_ATTEMPTS: The link has already encrypted.
  */
-void blc_smp_triggerCentralManualSmp(void);
+int blc_smp_triggerCentralManualSmp(u16 connHandle);
 
 
 /**

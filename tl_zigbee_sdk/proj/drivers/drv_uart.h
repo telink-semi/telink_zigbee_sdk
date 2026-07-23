@@ -27,7 +27,8 @@
 
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     #define UART_CLOCK_SOURCE           CLOCK_SYS_CLOCK_HZ
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
+      defined(MCU_CORE_TL521X)
     /* PCLK provides clock source for UART module. */
     #define UART_CLOCK_SOURCE           (sys_clk.pclk * 1000 * 1000)
     #ifndef UART_IDX

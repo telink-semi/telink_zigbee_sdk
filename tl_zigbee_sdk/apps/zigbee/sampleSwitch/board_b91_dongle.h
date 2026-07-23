@@ -58,7 +58,7 @@ extern "C" {
 #define PB0_OUTPUT_ENABLE       1
 #define PB0_INPUT_ENABLE        0
 
-#define LED_B1                  GPIO_PB7//D8
+#define LED_B                   GPIO_PB7//D8
 #define PB7_FUNC                AS_GPIO
 #define PB7_OUTPUT_ENABLE       1
 #define PB7_INPUT_ENABLE        0
@@ -74,6 +74,7 @@ extern "C" {
 #define PE3_INPUT_ENABLE        0
 
 #define LED_POWER               LED_R
+#define LED_PERMIT              LED_G
 
 //ADC
 #if VOLTAGE_DETECT_ENABLE

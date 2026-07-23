@@ -43,6 +43,7 @@
 #include "lib/include/plic.h"
 #include "lib/include/analog.h"
 #include "reg_include/gpio_reg.h"
+#include "pem.h"
 
 /**********************************************************************************************************************
  *                                         global constants                                                           *
@@ -71,8 +72,11 @@ typedef enum
 
 /**
  *  @brief  Define GPIO types
- *  @note   the following one point need to noticed when using GPIOF groups:
- *          Since these GPIOs are used for connecting the flash and have been occupied, they cannot be used as wake-up pins.
+ *  @note  the following points need to be noticed when using GPIO pins:
+ *          1. Since the GPIOF groups are used for connecting the flash and have been occupied, they cannot be used as wake-up pins;
+ *          2. Recommend using 1M internal pull-up, do not use 10K pull-up;
+ *          3. If 10K pull-up must be used, do not use this IO as low-level wakeup IO;
+ *          4. If this IO must be used as low-level wakeup IO, set 1M pull-up before entering sleep and restore 10K pull-up after wakeup;
  */
 typedef enum
 {
@@ -87,6 +91,7 @@ typedef enum
     GPIO_PA0  = GPIO_GROUPA | BIT(0),
     GPIO_PA1  = GPIO_GROUPA | BIT(1),
     /**
+     * NOTE:The following has been fixed in the A4 version.
       PA2 is not recommended
       Because its use is limited, it is necessary to ensure that the PA2 input function is disabled before the sys_init /pm_sleep_wakeup/pm_set_dig_module_power_switch functions,
       otherwise RF may not work properly.For details, refer to the comments of the functions mentioned above(BUT-53)
@@ -157,6 +162,148 @@ typedef enum
 
 } gpio_pin_e;
 
+typedef enum
+{
+    PA0_INPUT  = 0x0000,
+    PA1_INPUT,
+    PA2_INPUT,
+    PA3_INPUT,
+    PA4_INPUT,
+    PA5_INPUT,
+    PA6_INPUT,
+    PA7_INPUT,
+
+    PB0_INPUT  = 0x0100,
+    PB1_INPUT,
+    PB2_INPUT,
+    PB3_INPUT,
+    PB4_INPUT,
+    PB5_INPUT,
+    PB6_INPUT,
+    PB7_INPUT,
+
+    PC0_INPUT  = 0x0200,
+    PC1_INPUT,
+    PC2_INPUT,
+    PC3_INPUT,
+    PC4_INPUT,
+    PC5_INPUT,
+    PC6_INPUT,
+    PC7_INPUT,
+
+    PD0_INPUT  = 0x0300,
+    PD1_INPUT,
+    PD2_INPUT,
+    PD3_INPUT,
+    PD4_INPUT,
+    PD5_INPUT,
+    PD6_INPUT,
+    PD7_INPUT,
+
+    PE0_INPUT  = 0x0400,
+    PE1_INPUT,
+    PE2_INPUT,
+    PE3_INPUT,
+    PE4_INPUT,
+    PE5_INPUT,
+    PE6_INPUT,
+    PE7_INPUT,
+
+    PF0_INPUT  = 0x0500,
+    PF1_INPUT,
+    PF2_INPUT,
+    PF3_INPUT,
+    PF4_INPUT,
+    PF5_INPUT,
+    PF6_INPUT,
+    PF7_INPUT,
+
+    PG0_INPUT  = 0x0600,
+    PG1_INPUT,
+    PG2_INPUT,
+    PG3_INPUT,
+    PG4_INPUT,
+    PG5_INPUT,
+
+    GPIO_IRQ  = 0x0700,
+    GPIO2RISC0,
+    GPIO2RISC1,
+
+    GPIO_IRQ_GROUP0  = 0x0800,
+    GPIO_IRQ_GROUP1,
+    GPIO_IRQ_GROUP2,
+    GPIO_IRQ_GROUP3,
+    GPIO_IRQ_GROUP4,
+    GPIO_IRQ_GROUP5,
+    GPIO_IRQ_GROUP6,
+    GPIO_IRQ_GROUP7,
+
+} gpio_event_e;
+
+typedef enum
+{
+    PA0_TOGGLE  = 0x0000,
+    PA1_TOGGLE,
+    PA2_TOGGLE,
+    PA3_TOGGLE,
+    PA4_TOGGLE,
+    PA5_TOGGLE,
+    PA6_TOGGLE,
+    PA7_TOGGLE,
+
+    PB0_TOGGLE  = 0x0100,
+    PB1_TOGGLE,
+    PB2_TOGGLE,
+    PB3_TOGGLE,
+    PB4_TOGGLE,
+    PB5_TOGGLE,
+    PB6_TOGGLE,
+    PB7_TOGGLE,
+
+    PC0_TOGGLE  = 0x0200,
+    PC1_TOGGLE,
+    PC2_TOGGLE,
+    PC3_TOGGLE,
+    PC4_TOGGLE,
+    PC5_TOGGLE,
+    PC6_TOGGLE,
+    PC7_TOGGLE,
+
+    PD0_TOGGLE  = 0x0300,
+    PD1_TOGGLE,
+    PD2_TOGGLE,
+    PD3_TOGGLE,
+    PD4_TOGGLE,
+    PD5_TOGGLE,
+    PD6_TOGGLE,
+    PD7_TOGGLE,
+
+    PE0_TOGGLE  = 0x0400,
+    PE1_TOGGLE,
+    PE2_TOGGLE,
+    PE3_TOGGLE,
+    PE4_TOGGLE,
+    PE5_TOGGLE,
+    PE6_TOGGLE,
+    PE7_TOGGLE,
+
+    PF0_TOGGLE  = 0x0500,
+    PF1_TOGGLE,
+    PF2_TOGGLE,
+    PF3_TOGGLE,
+    PF4_TOGGLE,
+    PF5_TOGGLE,
+    PF6_TOGGLE,
+    PF7_TOGGLE,
+
+    PG0_TOGGLE  = 0x0600,
+    PG1_TOGGLE,
+    PG2_TOGGLE,
+    PG3_TOGGLE,
+    PG4_TOGGLE,
+    PG5_TOGGLE,
+} gpio_task_e;
+
 /**
  *  @brief  Define GPIO function pin types.
  */
@@ -166,6 +313,7 @@ typedef enum
     GPIO_FC_PA0 = GPIO_PA0,
     GPIO_FC_PA1 = GPIO_PA1,
     /**
+     * NOTE:The following has been fixed in the A4 version.
       PA2 is not recommended
       Because its use is limited, it is necessary to ensure that the PA2 input function is disabled before the sys_init /pm_sleep_wakeup/pm_set_dig_module_power_switch functions,
       otherwise RF may not work properly.For details, refer to the comments of the functions mentioned above(BUT-53)
@@ -769,6 +917,23 @@ void gpio_set_up_down_res(gpio_pin_e pin, gpio_pull_type_e up_down_res);
  * @return    none.
  */
 void gpio_set_probe_clk_function(gpio_func_pin_e pin, probe_clk_sel_e sel_clk);
+
+/**
+ * @brief      This function serves to configure the GPIO PEM event.
+ * @param[in]  chn - to select the PEM channel.
+ * @param[in]  pin - the GPIO event signal selection.
+ * @param[in]  pol - the GPIO event signal edge selection
+ * @return     none.
+ */
+void gpio_set_pem_event(pem_chn_e chn, gpio_event_e pin, pem_event_pol_e pol);
+
+/**
+ * @brief      This function serves to configure the GPIO PEM task.
+ * @param[in]  chn - to select the PEM channel.
+ * @param[in]  pin - the GPIO task signal selection.
+ * @return     none.
+ */
+void gpio_set_pem_task(pem_chn_e chn, gpio_task_e pin);
 
 /**
  * @brief     This function serves to set jtag(4 wires) pin , Where, PC[4]; PC[5]; PC[6]; PC[7] correspond to TDI; TDO; TMS; TCK functions mux respectively.

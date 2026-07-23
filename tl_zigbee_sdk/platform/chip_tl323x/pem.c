@@ -24,28 +24,6 @@
 #include "pem.h"
 
 /**
- * @brief      This setting serves to set the configuration of stimer PEM event.
- */
-pem_event_config_t g_pem_event_config = {
-    .module      = PEM_EVENT_PWM_0,
-    .sig_sel     = 0,
-    .clk_sel     = PCLK,
-    .lvl         = PULSE,
-    .edge_detect = RISING_EDGE,
-    .inv         = 0,
-};
-
-/**
- * @brief      This setting serves to set the configuration of stimer PEM task.
- */
-pem_task_config_t g_pem_task_config = {
-    .module  = PEM_TASK_STIMER,
-    .sig_sel = 0,
-    .clk_sel = PCLK,
-    .lvl     = PULSE,
-};
-
-/**
  * @brief      This function serves to enable pem function.
  * @return     none.
  */
@@ -58,27 +36,21 @@ void pem_init(void)
 /**
  * @brief     This function servers to configure PEM channel and some configures.
  * @param[in] chn - to select the PEM channel.
- * @param[in] event_signal - to select the event signal.
- * @param[in] event_module - to select the event module.
+ * @param[in] pem_event_config -  to setting serves to set the configuration of PEM event.
  * @return    none
  */
-void pem_event_config(pem_chn_e chn, unsigned int event_signal, pem_event_module_sel_e event_module)
+void pem_event_config(pem_chn_e chn, pem_event_config_t pem_event_config)
 {
-    g_pem_event_config.module  = event_module;
-    g_pem_event_config.sig_sel = event_signal;
-    reg_pem_ctr(chn)           = (reg_pem_ctr(chn) & (~(FLD_PEM_EVENT_MODULE_SEL | FLD_PEM_EVENT_SIG_SEL | FLD_PEM_EVENT_CLK_SEL | FLD_PEM_EVENT_CHANGE_LVL_TO_EDGE_SEL | FLD_PEM_EVENT_LVL))) | (*(unsigned int *)&g_pem_event_config);
+    reg_pem_ctr(chn) = (reg_pem_ctr(chn) & (~(FLD_PEM_EVENT_MODULE_SEL | FLD_PEM_EVENT_SIG_SEL | FLD_PEM_EVENT_CLK_SEL | FLD_PEM_BOTH_EDGE_DETECT | FLD_PEM_INV | FLD_PEM_EVENT_LVL))) | (*(unsigned int *)&pem_event_config);
 }
 
 /**
  * @brief     This function servers to configure PEM channel and some configures.
  * @param[in] chn - to select the PEM channel.
- * @param[in] event_signal - to select the event signal.
- * @param[in] task_module - to select the task module.
+ * @param[in] pem_task_config - to setting serves to set the configuration of PEM task.
  * @return    none
  */
-void pem_task_config(pem_chn_e chn, unsigned int task_signal, pem_task_module_sel_e task_module)
+void pem_task_config(pem_chn_e chn, pem_task_config_t pem_task_config)
 {
-    g_pem_task_config.module  = task_module;
-    g_pem_task_config.sig_sel = task_signal;
-    reg_pem_ctr(chn)          = (reg_pem_ctr(chn) & (~(FLD_PEM_TASK_MODULE_SEL | FLD_PEM_TASK_SIG_SEL | FLD_PEM_TASK_LVL | FLD_PEM_TASK_CLK_SEL))) | (*(unsigned int *)&g_pem_task_config);
+    reg_pem_ctr(chn) = (reg_pem_ctr(chn) & (~(FLD_PEM_TASK_MODULE_SEL | FLD_PEM_TASK_SIG_SEL | FLD_PEM_TASK_LVL | FLD_PEM_TASK_CLK_SEL))) | (*(unsigned int *)&pem_task_config);
 }

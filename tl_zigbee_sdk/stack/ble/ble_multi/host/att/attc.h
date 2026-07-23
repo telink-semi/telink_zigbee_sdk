@@ -23,7 +23,7 @@
  *******************************************************************************************************/
 #pragma once
 
-
+#include "ble_common.h"
 /**
  * @brief       Send ATT Mtu Size Exchange Request.
  * @param[in]   connHandle - connection handle.

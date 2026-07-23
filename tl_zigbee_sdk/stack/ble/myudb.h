@@ -24,7 +24,9 @@
 #ifndef     __MYUDB_H__
 #define     __MYUDB_H__
 
-#if defined(MCU_CORE_8258) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL323X)
+#if defined(MCU_CORE_8258) || defined(MCU_CORE_TL721X) || \
+    defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
+    defined(MCU_CORE_TL521X)
 #pragma once
 
 #include "types.h"
@@ -79,10 +81,10 @@ void usb_send_str_u32s (char *str, u32 d0, u32 d1, u32 d2, u32 d3);
 #define         my_irq_restore()        core_restore_interrupt(rie)
 
 //#define           log_uart(d)             uart_send_byte_dma(0,d)
-#if defined(MCU_CORE_8258) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL721X)
-#define         log_uart(d)             (reg_usb_ep8_dat = d)
+#if defined(MCU_CORE_8258) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
+#define log_uart(d)             (reg_usb_ep8_dat = d)
 #elif defined(MCU_CORE_TL323X)
-#define log_uart(d) do { (void)(d); } while (0)
+#define log_uart(d)             do { (void)(d); } while (0)
 #endif
 
 #define log_hw_ref()             if(VCD_EN){my_irq_disable();log_ref_gpio_h();log_uart(0x20);int t=clock_time();log_uart(t);log_uart(t>>8);log_uart(t>>16);log_ref_gpio_l();my_irq_restore();}

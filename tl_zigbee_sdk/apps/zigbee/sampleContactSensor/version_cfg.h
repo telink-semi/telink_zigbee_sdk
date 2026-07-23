@@ -33,7 +33,7 @@
         #define CHIP_TYPE               TLSR_8267
     #endif
 #elif defined(MCU_CORE_8258)
-        #define CHIP_TYPE               TLSR_8258_1M
+        #define CHIP_TYPE               TLSR_8258_1M//TLSR_8258_512K
     #if (CHIP_TYPE == TLSR_8258_1M)
         #define FLASH_CAP_SIZE_1M       1
     #endif
@@ -48,6 +48,9 @@
         #define FLASH_CAP_SIZE_1M       1
 #elif defined(MCU_CORE_TL323X)
         #define CHIP_TYPE               TLSR_TL323X
+        #define FLASH_CAP_SIZE_1M       1
+#elif defined(MCU_CORE_TL521X)
+        #define CHIP_TYPE               TLSR_TL521X
         #define FLASH_CAP_SIZE_1M       1
 #endif
 

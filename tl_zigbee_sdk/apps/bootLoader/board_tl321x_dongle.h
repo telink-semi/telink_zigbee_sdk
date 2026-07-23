@@ -86,13 +86,12 @@ extern "C" {
 #define UART_IDX                UART0
 #define UART_TX_PIN             GPIO_PA0
 #define UART_RX_PIN             GPIO_PA1
-
 #define UART_PIN_CFG()          drv_uart_pin_set(UART_TX_PIN, UART_RX_PIN)
 #endif
 
 //DEBUG
 #if GSUART_PRINTF_MODE
-#define	CONSOLE_GPIO_TX_PIN     GPIO_PC6//print
+#define CONSOLE_GPIO_TX_PIN     GPIO_PC6//print
 #elif UART_PRINTF_MODE
 #define CONSOLE_UART_IDX        UART1
 #define CONSOLE_UART_TX_PIN     GPIO_PC6

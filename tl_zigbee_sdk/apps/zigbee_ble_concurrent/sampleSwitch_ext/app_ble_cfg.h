@@ -49,7 +49,7 @@ extern "C" {
 #define APP_DIRECT_ADV_ENABLE                       1
 #endif
 
-#elif defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#elif defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
 #define ACL_CENTRAL_MAX_NUM                         0 // ACL central maximum number
 #define ACL_PERIPHR_MAX_NUM                         1 // ACL peripheral maximum number
 

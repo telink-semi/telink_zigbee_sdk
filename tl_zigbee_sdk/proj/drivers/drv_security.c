@@ -36,7 +36,7 @@ _attribute_ram_code_ void drv_aes_encrypt(u8 *key, u8 *plain, u8 *result)
 
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91)
     aes_encrypt(key, plain, result);
-#elif defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#elif defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
     ske_lp_aes128_ecb_one_block(SKE_CRYPTO_ENCRYPT, (unsigned int *)key, (unsigned int *)plain, (unsigned int *)result);
 #endif
 
@@ -53,7 +53,7 @@ _attribute_ram_code_ void drv_aes_decrypt(u8 *key, u8 *cipher, u8 *result)
 
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91)
     aes_decrypt(key, cipher, result);
-#elif defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#elif defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
     ske_lp_aes128_ecb_one_block(SKE_CRYPTO_DECRYPT, (unsigned int *)key, (unsigned int *)cipher, (unsigned int *)result);
 #endif
 

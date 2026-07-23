@@ -25,7 +25,7 @@
 #define HCI_EVENT_H_
 
 
-#include "stack/ble/ble_multi/ble_common.h"
+#include "ble_common.h"
 
 /**
  *  @brief  Definition for general HCI event packet
@@ -959,6 +959,34 @@ typedef struct __attribute__((packed))
     pawrRspReportDat_t rspReportDat[0];
 } hci_le_periodicAdvRspReportEvt_t;
 
+/**
+ *  @brief  Event Parameters for "7.7.65.38 LE Read All Remote Features Complete event"
+ */
+typedef struct __attribute__((packed))
+{
+    u8  subEventCode;
+    u8  status;
+    u16 connHandle;
+    u8  max_remote_page;
+    u8  max_valid_page;
+    u8  feature[248];
+} hci_le_readAllRemoteFeaturesCompleteEvt_t;
+
+
+/**
+ *  @brief  Event Parameters for "7.7.65.X LE Connection Rate Complete event"
+ */
+typedef struct {
+    u8  subEventCode;
+    u8  status;
+    u16 connHandle;
+    u16 connInterval;
+    u16 subrate_factor;
+    u16 peripheral_latency;
+    u16 conti_num;
+    u16 supervisionTimeout;
+} hci_le_connectionRateCompleteEvt_t;
+
 typedef struct __attribute__((packed))
 {
     u8  Subevent_Code;
@@ -1046,6 +1074,29 @@ typedef struct __attribute__((packed))
     u16 Procedure_Count;
     u16 Max_Procedure_Len;
 } hci_le_csProcedureEnableCompleteEvt_t;
+
+typedef enum
+{
+    CS_DISABLED_REACH_MAX_PROCEDURE_COUNT = 1,
+    CS_DISABLED_RECEIVE_TERMINATE = 2,
+    CS_DISABLED_DUE_TO_ACL_DISCONN = 3,
+} cs_procedure_disable_reason_t;
+
+typedef struct __attribute__((packed))
+{
+    u8  subevent_code;
+    u16 connection_handle;
+    u16 disabled_procedure_count;
+    u8  disabled_config_id;
+    u8  disabled_reason; // refer to cs_procedure_disable_reason_t
+}hci_le_csProcedureDisabledCompleteEvt_t;
+
+typedef struct __attribute__((packed))
+{
+    u8 subevent_code;
+    u16 connection_handle;
+    u8  configID;
+}hci_le_csHandleDataEvt_t;
 
 typedef struct __attribute__((packed))
 {
@@ -1179,6 +1230,7 @@ typedef struct __attribute__((packed))
 typedef struct __attribute__((packed))
 {
     u8  subEventCode;
+    u8  vendorEventCode;
     u8  status;
     u16 connHandle;
     u8  role;
@@ -1196,6 +1248,7 @@ typedef struct __attribute__((packed))
 typedef struct __attribute__((packed))
 {
     u8 subEventCode;
+    u8 vendorEventCode;
     u8 fail_reason;
     u8 create_conn_cnt;
 } hci_tlk_createConnFailEvt_t;
@@ -1233,6 +1286,7 @@ int hci_le_connectionUpdateComplete_evt(u8 status, u16 connHandle, u16 connInter
 
 int hci_le_directAdvertisingReport_evt(u8 addr_type, u8 *addr, u8 *direct_addr, s8 rssi);
 int hci_le_readRemoteFeaturesComplete_evt(u8 status, u16 connHandle, u8 *feature);
+int hci_le_readAllRemoteFeaturesComplete_evt(u8 status, u16 connHandle);
 int hci_le_channel_selection_algorithm_evt(u16 connhandle, u8 channel_selection_alg);
 int hci_le_phyUpdateComplete_evt(u16 connhandle, u8 status, u8 new_phy);
 int hci_le_data_len_update_evt(u16 connhandle, u16 effTxOctets, u16 effRxOctets, u16 maxtxtime, u16 maxrxtime);
@@ -1253,6 +1307,8 @@ int hci_le_csConfigComplete_evt(u8 status, u16 connHandle, u8 *data);
 int hci_le_csSecurityEnableComplete_evt(u8 status, u16 connHandle);
 int hci_le_csSubeventResult_evt(u16 connhandle, u8 config_id, u8 *data, u32 data_length);
 int hci_le_csSubeventResultContinue_evt(u16 connhandle, u8 config_id, u8 *dtat, u32 data_length);
+int hci_le_csProcedureDisabledComplete_evt(u16 connHandle, u8 config_Id, u8 reason);
+int hci_le_csHandleData_evt(u16 conn_handle, u8 configID, u8 subevent_code);
 int hci_le_csTestEndComplete_evt(u8 status);
 
 int hci_le_monitoredAdvertisersReport_evt(u8 addr_type, u8* addr, u8 condition);

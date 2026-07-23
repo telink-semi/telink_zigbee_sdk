@@ -56,7 +56,7 @@ extern app_dualModeInfo_t g_dualModeInfo;
 #define APP_BLE_STATE_SET(state)        (g_dualModeInfo.bleState = state)
 #define APP_BLE_STATE_GET()             (g_dualModeInfo.bleState)
 #define APP_BLE_STATE_IDLE()            (APP_BLE_STATE_GET() == BLS_LINK_STATE_IDLE)
-#elif defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#elif defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
 #define APP_BLE_STATE_IDLE()            (blc_ll_isBleTaskIdle())
 #endif
 

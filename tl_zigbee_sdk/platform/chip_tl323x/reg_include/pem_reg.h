@@ -36,7 +36,9 @@ enum
     FLD_PEM_EVENT_SIG_SEL                = BIT_RNG(16, 18),
     FLD_PEM_TASK_SIG_SEL                 = BIT_RNG(19, 21),
     FLD_PEM_EVENT_CLK_SEL                = BIT_RNG(22, 23),
-    FLD_PEM_EVENT_CHANGE_LVL_TO_EDGE_SEL = BIT_RNG(24, 26),
+    FLD_PEM_BOTH_EDGE_DETECT             = BIT(24),
+    //
+    FLD_PEM_INV                          = BIT(26),
     FLD_PEM_CH_EN                        = BIT(27),
     FLD_PEM_EVENT_LVL                    = BIT(28),
     FLD_PEM_TASK_LVL                     = BIT(29),

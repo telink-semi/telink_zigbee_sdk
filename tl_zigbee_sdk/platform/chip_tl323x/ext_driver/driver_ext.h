@@ -27,16 +27,12 @@
 #include "mcu_config.h"
 #include "ext_pm.h"
 #include "ext_misc.h"
-//#include "software_pa.h"
 #include "mcu_boot.h"
-#include "ext_flash.h"
 #include "ext_hci_uart.h"
+#include "ext_flash.h"
 
 
 /*********************************************************/
-//Remove when file merge to SDK //
-#include "driver_internal/ext_lib.h"
-#include "driver_internal/driver_internal.h"
 
 /*********************************************************/
 

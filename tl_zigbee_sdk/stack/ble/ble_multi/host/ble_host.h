@@ -25,43 +25,52 @@
 #define STACK_BLE_HOST_BLE_HOST_H_
 
 
-#include "stack/ble/ble_common.h"
-#include "stack/ble/ble_multi/ble_format.h"
+#include "ble_common.h"
+#include "ble_format.h"
 
 
 /* ATT/GATT old version */
-#include "stack/ble/ble_multi/host/att/att_v0/att_v0.h"
-#include "stack/ble/ble_multi/host/att/att_v0/gatt_v0.h"
+#include "host/att/att_v0/att_v0.h"
+#include "host/att/att_v0/gatt_v0.h"
 
 /* ATT/GATT new version */
-#include "stack/ble/ble_multi/host/att/att.h"
-#include "stack/ble/ble_multi/host/att/att.h"
-#include "stack/ble/ble_multi/host/att/atts.h"
-#include "stack/ble/ble_multi/host/att/attc.h"
-#include "stack/ble/ble_multi/host/att/att_uuid.h"
-#include "stack/ble/ble_multi/host/att/att_cmd.h"
-#include "stack/ble/ble_multi/host/gatt/gatt.h"
-#include "stack/ble/ble_multi/host/gatt/gatts.h"
-#include "stack/ble/ble_multi/host/gatt/gattc.h"
+#include "host/att/att.h"
+#include "host/att/att.h"
+#include "host/att/atts.h"
+#include "host/att/attc.h"
+#include "host/att/att_uuid.h"
+#include "host/att/att_cmd.h"
+#include "host/gatt/gatt.h"
+#include "host/gatt/gatts.h"
+#include "host/gatt/gattc.h"
 
 
-#include "stack/ble/ble_multi/host/smp/smp.h"
-#include "stack/ble/ble_multi/host/smp/smp_storage.h"
+#include "host/smp/smp.h"
+#include "host/smp/smp_storage.h"
 
-#include "stack/ble/ble_multi/host/gap/gap.h"
-#include "stack/ble/ble_multi/host/gap/gapc.h"
-#include "stack/ble/ble_multi/host/gap/gap_event.h"
+#include "host/gap/gap.h"
+#include "host/gap/gapc.h"
+#include "host/gap/gap_event.h"
 
-#include "stack/ble/ble_multi/host/host_comp.h"
+#include "host/host_comp.h"
 
-#include "stack/ble/ble_multi/host/l2cap/l2cap.h"
-#include "stack/ble/ble_multi/host/signaling/signaling.h"
+#include "host/l2cap/l2cap.h"
+#include "host/signaling/signaling.h"
 
+#include "debug/debug.h"
+
+#ifdef TLK_ONLY_BLE_HOST
+#include "host/hci/hci_simu_ll/hci_simu_ll_api.h"
+#include "host/hci/hci_simu_ll/hci_simu_ll_acl_conn.h"
+#include "host/hci/hci_simu_ll/hci_simu_ll_leg_adv.h"
+#endif
 /*********************************************************/
 
 
 /* ATT/GATT old version */
 /* ATT/GATT new version */
+
+
 
 /*********************************************************/
 

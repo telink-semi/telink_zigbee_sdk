@@ -88,9 +88,15 @@
 /* Offset */
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 #define FLASH_TLNK_FLAG_OFFSET          8
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
+      defined(MCU_CORE_TL521X)
 #define FLASH_TLNK_FLAG_OFFSET          32
 #endif
+
+/************************************************************************
+ * Flash address of APP firmware.
+ */
+#define FLASH_ADDR_OF_APP_FW            APP_IMAGE_ADDR
 
 /* Flash Base Address define */
 /************************************************************************
@@ -121,8 +127,13 @@ extern u32 g_u32CfgFlashAddr;
 /* 8 bytes for MAC address. */
 #define CFG_MAC_ADDRESS                 (MAC_BASE_ADD)
 
-#if !ZB_TEST_ENABLE
 /* 2 bytes for USB ID. */
+#if ZB_TEST_ENABLE
+#if !defined(BOOT_LOADER_MODE) || (BOOT_LOADER_MODE == 0)
+#define FLASH_USB_PID_ZBTEST            (0xFB000)
+#define CFG_TELINK_USB_ID               (FLASH_USB_PID_ZBTEST)
+#endif
+#else
 #define CFG_TELINK_USB_ID               (MAC_BASE_ADD + 0x40)
 #endif
 
@@ -163,53 +174,32 @@ extern u32 g_u32CfgFlashAddr;
  * The following is the detailed user configure information (U_CFG_Info).
  */
 /* 16 bytes for pre-install code. */
-#if FLASH_CAP_SIZE_1M
-#define CFG_PRE_INSTALL_CODE            (0xFD000)
-#elif FLASH_CAP_SIZE_2M
-#define CFG_PRE_INSTALL_CODE            (0x1FD000)
-#elif FLASH_CAP_SIZE_4M
-#define CFG_PRE_INSTALL_CODE            (0x3FD000)
-#endif
+//1M Flash: 0xFE000  - 0x1000 = 0xFD000
+//2M Flash: 0x1FE000 - 0x1000 = 0x1FD000
+//4M Flash: 0x3FE000 - 0x1000 = 0x3FD000
+#define CFG_PRE_INSTALL_CODE            (FACTORY_CFG_BASE_ADD - 0x1000)
 
 /* 1 byte for factory reset.
  * If not 0xFF, means the device is doing factory reset(erase NV).
  * The device will check this byte when powered on, if it is not 0xFF,
  * it will erase NV first.
  */
-#if FLASH_CAP_SIZE_1M
-#define CFG_FACTORY_RST_CNT             (0xFC000)
-#elif FLASH_CAP_SIZE_2M
-#define CFG_FACTORY_RST_CNT             (0x1FC000)
-#elif FLASH_CAP_SIZE_4M
-#define CFG_FACTORY_RST_CNT             (0x3FC000)
-#endif
-
-#if ZB_TEST_ENABLE
-#if !defined(BOOT_LOADER_MODE) || (BOOT_LOADER_MODE == 0)
-#define FLASH_USB_PID_ZBTEST            (0xFB000)
-/* 2 bytes for USB ID. */
-#define CFG_TELINK_USB_ID               (FLASH_USB_PID_ZBTEST)
-#endif
-#endif
-
-/************************************************************************
- * Flash address of APP firmware.
- */
-#define FLASH_ADDR_OF_APP_FW            APP_IMAGE_ADDR
+//1M Flash: 0xFE000  - 0x2000 = 0xFC000
+//2M Flash: 0x1FE000 - 0x2000 = 0x1FC000
+//4M Flash: 0x3FE000 - 0x2000 = 0x3FC000
+#define CFG_FACTORY_RST_CNT             (FACTORY_CFG_BASE_ADD - 0x2000)
 
 /************************************************************************
  * Flash address of NV module.
  */
-#if FLASH_CAP_SIZE_1M
-    #define NV_BASE_ADDRESS_BLE         (0xE4000)
-    #define NV_BASE_ADDRESS_ZB          (0xE6000)
-#elif FLASH_CAP_SIZE_2M
-    #define NV_BASE_ADDRESS_BLE         (0x1E4000)
-    #define NV_BASE_ADDRESS_ZB          (0x1E6000)
-#elif FLASH_CAP_SIZE_4M
-    #define NV_BASE_ADDRESS_BLE         (0x3E4000)
-    #define NV_BASE_ADDRESS_ZB          (0x3E6000)
-#endif
+//1M Flash: 0xFE000  - 0x18000 = 0xE6000
+//2M Flash: 0x1FE000 - 0x18000 = 0x1E6000
+//4M Flash: 0x3FE000 - 0x18000 = 0x3E6000
+#define NV_BASE_ADDRESS_ZB              (FACTORY_CFG_BASE_ADD - 0x18000)
+//1M Flash: 0xFE000  - 0x1A000 = 0xE4000
+//2M Flash: 0x1FE000 - 0x1A000 = 0x1E4000
+//4M Flash: 0x3FE000 - 0x1A000 = 0x3E4000
+#define NV_BASE_ADDRESS_BLE             (FACTORY_CFG_BASE_ADD - 0x1A000)
 
 #define FLASH_SMP_PAIRING_ADDR          (NV_BASE_ADDRESS_BLE)
 #define FLASH_SMP_PAIRING_MAX_SIZE      (4096)
@@ -217,28 +207,25 @@ extern u32 g_u32CfgFlashAddr;
 /************************************************************************
  * Flash address of OTA image.
  */
-#if FLASH_CAP_SIZE_1M
-    #define FLASH_ADDR_OTA_IMAGE_END    (NV_BASE_ADDRESS_BLE)
-#elif FLASH_CAP_SIZE_2M
-    #define FLASH_ADDR_OTA_IMAGE_END    (0x100000)
-#elif FLASH_CAP_SIZE_4M
-    #define FLASH_ADDR_OTA_IMAGE_END    (0x100000)
-#endif
+//1M Flash: 0xE4000
+//2M Flash: 0x100000
+//4M Flash: 0x100000
+#define FLASH_ADDR_OTA_IMAGE_END        ((MAC_BASE_ADD > 0x100000) ? 0x100000 : NV_BASE_ADDRESS_BLE)
 
 #if !defined(BOOT_LOADER_MODE) || (BOOT_LOADER_MODE == 0)
-    //unchangeable address
-    #define FLASH_ADDR_OF_OTA_IMAGE     (0x80000)
-    //1M Flash: max size = 0xE4000  - 0x80000 = 400K
-    //2M Flash: max size = 0x100000 - 0x80000 = 512K
-    //4M Flash: max size = 0x100000 - 0x80000 = 512K
-    #define FLASH_OTA_IMAGE_MAX_SIZE    (FLASH_ADDR_OTA_IMAGE_END - FLASH_ADDR_OF_OTA_IMAGE)
+//unchangeable address
+#define FLASH_ADDR_OF_OTA_IMAGE         (0x80000)
+//1M Flash: max size = 0xE4000  - 0x80000 = 400K
+//2M Flash: max size = 0x100000 - 0x80000 = 512K
+//4M Flash: max size = 0x100000 - 0x80000 = 512K
+#define FLASH_OTA_IMAGE_MAX_SIZE        (FLASH_ADDR_OTA_IMAGE_END - FLASH_ADDR_OF_OTA_IMAGE)
 #else
-    //1M Flash: max size = (0xE4000  - 0x8000) / 2 = 440k
-    //2M Flash: max size = (0x100000 - 0x8000) / 2 = 496k
-    //4M Flash: max size = (0x100000 - 0x8000) / 2 = 496k
-    #define FLASH_OTA_IMAGE_MAX_SIZE    ((FLASH_ADDR_OTA_IMAGE_END - FLASH_ADDR_OF_APP_FW) / 2)
-    //1M Flash: ota addr = 0x8000 + 440k = 0x76000
-    //2M Flash: ota addr = 0x8000 + 496k = 0x84000
-    //4M Flash: ota addr = 0x8000 + 496k = 0x84000
-    #define FLASH_ADDR_OF_OTA_IMAGE     (FLASH_ADDR_OF_APP_FW + FLASH_OTA_IMAGE_MAX_SIZE)
+//1M Flash: max size = (0xE4000  - 0x8000) / 2 = 440k
+//2M Flash: max size = (0x100000 - 0x8000) / 2 = 496k
+//4M Flash: max size = (0x100000 - 0x8000) / 2 = 496k
+#define FLASH_OTA_IMAGE_MAX_SIZE        ((FLASH_ADDR_OTA_IMAGE_END - FLASH_ADDR_OF_APP_FW) / 2)
+//1M Flash: ota addr = 0x8000 + 440k = 0x76000
+//2M Flash: ota addr = 0x8000 + 496k = 0x84000
+//4M Flash: ota addr = 0x8000 + 496k = 0x84000
+#define FLASH_ADDR_OF_OTA_IMAGE         (FLASH_ADDR_OF_APP_FW + FLASH_OTA_IMAGE_MAX_SIZE)
 #endif

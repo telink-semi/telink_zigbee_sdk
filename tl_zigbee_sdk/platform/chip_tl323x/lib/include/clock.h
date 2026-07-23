@@ -63,7 +63,7 @@ typedef enum
 /**
  * The following chart lists the maximum operating frequency that each clock source can operate at different voltage levels.
  * (But if it is related to peripherals, this frequency will be related to the whole system, such as MSPI-->
- *  If it is built-in flash, the maximum speed of mspi is 64M,If it is an external flash, the maximum speed
+ *  If it is built-in flash, the maximum speed of mspi is 64M, If it is an external flash, the maximum speed
  *  of mspi needs to be based on the board test.)
  *
  * :-------------------------------- Voltage versus frequency table --------------------------------------------------------------------------

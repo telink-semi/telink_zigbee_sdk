@@ -31,7 +31,7 @@ typedef enum {
     GPIO_IRQ_RISC0_MODE,
     GPIO_IRQ_RISC1_MODE,
 } drv_gpioIrqMode_e;
-#elif defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#elif defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
 typedef gpio_irq_num_e drv_gpioIrqMode_e;
 #endif
 
@@ -58,7 +58,7 @@ int drv_gpio_irq_config(drv_gpioIrqMode_e mode, u32 pin, drv_gpioPoll_e polarity
 
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91)
 void drv_gpio_irq_handler(void);
-#elif defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#elif defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
 void drv_gpio_irq_handler(gpio_irq_num_e irq);
 #endif
 void drv_gpio_irq_risc0_handler(void);

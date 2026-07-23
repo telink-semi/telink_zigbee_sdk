@@ -27,8 +27,7 @@
 #include "zcl_include.h"
 #include "sampleLight.h"
 #include "device_manage.h"
-
-#include "stack/ble/ble_multi/controller/ll/adv/leg_adv.h"
+#include "controller/ll/adv/leg_adv.h"
 
 int central_smp_pending = 0;        // SMP: security & encryption;
 unsigned int  tlk_flash_mid = 0;
@@ -173,7 +172,7 @@ _attribute_ble_data_retention_  u8 app_per_l2cap_tx_buf[ACL_PERIPHR_MAX_NUM * PE
 
 u8 g_ble_txPowerSet = RF_POWER_P3dBm;
 
-static u16  g_appBleInterval = CONN_INTERVAL_50MS;
+static u16 g_appBleInterval = CONN_INTERVAL_50MS;
 static u16 g_appBleLatency = 19;
 static u16 g_bleSlaveConnHandle = 0;
 /***************** ACL connection L2CAP RX & TX data Buffer allocation, End ****************************************/
@@ -1071,9 +1070,7 @@ void user_ble_init(bool isRetention)
     blc_gatt_register_data_handler(app_gatt_data_handler);
 
     /* SMP Initialization */
-    #if (ACL_PERIPHR_SMP_ENABLE || ACL_CENTRAL_SMP_ENABLE)
-        blc_smp_configPairingSecurityInfoStorageAddressAndSize(FLASH_SMP_PAIRING_ADDR, FLASH_SMP_PAIRING_MAX_SIZE);
-    #endif
+    blc_smp_configPairingSecurityInfoStorageAddressAndSize(FLASH_SMP_PAIRING_ADDR, FLASH_SMP_PAIRING_MAX_SIZE);
 
     #if (ACL_PERIPHR_SMP_ENABLE)  //Peripheral SMP Enable
         blc_smp_setSecurityLevel_periphr(Unauthenticated_Pairing_with_Encryption);  //LE_Security_Mode_1_Level_2

@@ -180,16 +180,6 @@
 			<locationURI>PARENT-3-PROJECT_LOC/stack/ble/ble.h</locationURI>
 		</link>
 		<link>
-			<name>stack/ble/ble_common.h</name>
-			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/stack/ble/ble_common.h</locationURI>
-		</link>
-		<link>
-			<name>stack/ble/ble_config.h</name>
-			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/stack/ble/ble_config.h</locationURI>
-		</link>
-		<link>
 			<name>stack/ble/ble_multi</name>
 			<type>2</type>
 			<locationURI>PARENT-3-PROJECT_LOC/stack/ble/ble_multi</locationURI>

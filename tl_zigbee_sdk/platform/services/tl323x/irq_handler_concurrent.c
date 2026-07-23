@@ -77,7 +77,7 @@ void timer1_irq_handler(void)
 
 _attribute_ram_code_ void stimer_irq_handler(void)
 {
-	T_DBG_testIrq[10]++;
+    T_DBG_testIrq[10]++;
     if (CURRENT_SLOT_GET() == DUALMODE_SLOT_ZIGBEE) {
         if (stimer_get_irq_status(FLD_SYSTEM_IRQ)) {
             if (rf_busyFlag != BIT(1)) {  //rf_busyFlag != TX_BUSY
@@ -93,7 +93,7 @@ _attribute_ram_code_ void stimer_irq_handler(void)
             }
         }
     } else {
-        blc_sdk_irq_handler ();
+        blc_sdk_irq_handler();
         T_DBG_testIrq[12]++;
     }
 }

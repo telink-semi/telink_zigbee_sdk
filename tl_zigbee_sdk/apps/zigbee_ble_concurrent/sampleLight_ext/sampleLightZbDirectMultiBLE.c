@@ -28,8 +28,7 @@
 #include "sampleLight.h"
 #include "zbd_include.h"
 #include "device_manage.h"
-
-#include "stack/ble/ble_multi/controller/ll/adv/leg_adv.h"
+#include "controller/ll/adv/leg_adv.h"
 
 int central_smp_pending = 0;        // SMP: security & encryption;
 unsigned int  tlk_flash_mid = 0;
@@ -952,7 +951,7 @@ static s32 app_bleIntervalChange(void *arg)
     return -1;
 }
 
-/*Negotiate the connection interval after 10 seconds to increase the probability of successful negotiation*/
+/*Negotiate the connection interval after 10 seconds to increase the probability of successful negoatiation*/
 void app_bleConnIntervalSet(u8 interval, u16 latency)
 {
     g_appBleInterval = interval;
@@ -1436,9 +1435,7 @@ void user_ble_init(bool isRetention)
     blc_att_enableWriteReqReject(1);
     
     /* SMP Initialization */
-    #if (ACL_PERIPHR_SMP_ENABLE || ACL_CENTRAL_SMP_ENABLE)
-        blc_smp_configPairingSecurityInfoStorageAddressAndSize(FLASH_SMP_PAIRING_ADDR, FLASH_SMP_PAIRING_MAX_SIZE);
-    #endif
+    blc_smp_configPairingSecurityInfoStorageAddressAndSize(FLASH_SMP_PAIRING_ADDR, FLASH_SMP_PAIRING_MAX_SIZE);
 
     #if (ACL_PERIPHR_SMP_ENABLE)  //Peripheral SMP Enable
         blc_smp_setSecurityLevel_periphr(Unauthenticated_Pairing_with_Encryption);  //LE_Security_Mode_1_Level_2

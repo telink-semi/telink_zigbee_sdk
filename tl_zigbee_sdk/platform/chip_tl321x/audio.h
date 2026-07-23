@@ -547,6 +547,7 @@ typedef struct
  * @name   External interface
  * @{
  */
+
 /**
  *  @brief      This function serves to rxfifo enable.
  *  @param[in]  fifo_chn - fifo channel.
@@ -929,6 +930,21 @@ static inline codec_in_pga_gain_e audio_get_adc_pga_gain(void)
  */
 static inline void audio_set_stream0_dig_gain(codec_in_path_digital_gain_e d_gain)
 {
+    /*
+     * Due to the internal digital update of the DMIC of A4 chip, the DMIC path of A4
+     * has an additional gain of 15.5dB compared to previous tl321x chip (1->6, -1->-6, 20lg6=15.5dB)
+     * (in fact, the gain has been fixed on A4 to approach 0 for a 20 bit scenario).
+     * However, in order to ensure that the same dgain macro has the same effect in A4 and previous tl321x chip,
+     * while also considering the previous chip, the gain of A4 is modified here.
+     */
+    if ((CHIP_VERSION_A4 == g_chip_version) && (reg_codec_vol & FLD_MIC_SEL))
+    {
+        if (d_gain >= CODEC_IN_D_GAIN_m30_DB)
+        {
+            d_gain -= 10;
+        }
+    }
+
     reg_codec_vol = ((reg_codec_vol & (~FLD_DEC_VOL)) | d_gain);
 }
 
@@ -940,6 +956,20 @@ static inline codec_in_path_digital_gain_e audio_get_stream0_dig_gain(void)
 {
     codec_in_path_digital_gain_e val;
     val = reg_codec_vol & FLD_DEC_VOL;
+
+    if ((CHIP_VERSION_A4 == g_chip_version) && (reg_codec_vol & FLD_MIC_SEL))
+    {
+        /* Refer to the modification of audio_set_stream0_dig_gain interface and
+         * make corresponding adjustments to this interface as well.
+         */
+        if ((CODEC_IN_D_GAIN_m48_DB == val) || (CODEC_IN_D_GAIN_m42_DB == val) || (CODEC_IN_D_GAIN_m36_DB == val))
+        {}
+        else
+        {
+            val += 10;
+        }
+    }
+
     return val;
 }
 
@@ -1626,6 +1656,7 @@ void audio_codec_init(void);
  *            CLK_USB_MODE_ON:  codec input sample rate using 125 downsampling
  *            Therefore, changing this configuration requires a simultaneous modification of the codec's clock
  *            in order to get the corresponding sample rate.
+ *            Need to be placed after audio_codec_stream0_input_init.
  */
 void audio_reset_audio_clk(unsigned short div_numerator, unsigned short div_denominator, codec_clk_usb_mode_e clk_usb_mode, audio_sample_rate_e rate);
 

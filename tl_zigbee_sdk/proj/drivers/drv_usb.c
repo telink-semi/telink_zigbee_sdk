@@ -24,41 +24,36 @@
  *******************************************************************************************************/
 #include "../tl_common.h"
 
-#if defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X)
+bool g_usbInit = FALSE;
+
+#if defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL521X)
 static void usb_edp_en(void)
 {
-#if defined(MCU_CORE_TL321X)
+#if defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL521X)
     usbhw_init();
     usbhw_set_ctrl_ep_size(SIZE_64_BYTE);
 #endif
-    usbhw_set_eps_en(FLD_USB_EDP8_EN |
-                     FLD_USB_EDP1_EN |
-                     FLD_USB_EDP2_EN |
-                     FLD_USB_EDP3_EN |
-                     FLD_USB_EDP4_EN |
-                     FLD_USB_EDP5_EN |
-                     FLD_USB_EDP6_EN |
-                     FLD_USB_EDP7_EN);
+    usbhw_set_eps_en(FLD_USB_EDP8_EN | FLD_USB_EDP1_EN |
+                     FLD_USB_EDP2_EN | FLD_USB_EDP3_EN |
+                     FLD_USB_EDP4_EN | FLD_USB_EDP5_EN |
+                     FLD_USB_EDP6_EN | FLD_USB_EDP7_EN);
 #if defined(MCU_CORE_B91)
     usbhw_set_irq_mask(USB_IRQ_RESET_MASK | USB_IRQ_SUSPEND_MASK);
 #endif
 }
 #endif
 
-#if !defined(MCU_CORE_TL323X)
-static bool g_usbInit = FALSE;
 void drv_usb_init(void)
 {
+#if defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL521X)
     if (g_usbInit) {
         return;
     }
 
     usb_set_pin_en();
 
-#if defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X)
     usb_edp_en();
-#endif
 
     g_usbInit = TRUE;
-}
 #endif
+}

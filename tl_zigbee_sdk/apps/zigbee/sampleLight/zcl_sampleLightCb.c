@@ -216,7 +216,6 @@ static void sampleLight_zclWriteRspCmd(zclIncoming_t *pInMsg)
 }
 #endif
 
-
 /*********************************************************************
  * @fn      sampleLight_zclDfltRspCmd
  *
@@ -434,6 +433,7 @@ static void sampleLight_zclIdentifyQueryRspCmdHandler(u8 endpoint, u16 srcAddr, 
     }
 #endif
 }
+
 /*********************************************************************
  * @fn      sampleLight_identifyCb
  *

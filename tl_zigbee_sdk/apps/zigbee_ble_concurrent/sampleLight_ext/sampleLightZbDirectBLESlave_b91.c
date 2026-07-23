@@ -900,6 +900,8 @@ void user_ble_init(bool isRetention)
 
     blc_gap_registerHostEventHandler( app_host_event_callback );
 
+    //re-configure the nv address for ble paring info, must before blc_smp_peripheral_init
+    bls_smp_configParingSecurityInfoStorageAddr(FLASH_SMP_PAIRING_ADDR);
     blc_smp_setSecurityLevel(No_Security);
     //////////// Host Initialization  End /////////////////////////
 

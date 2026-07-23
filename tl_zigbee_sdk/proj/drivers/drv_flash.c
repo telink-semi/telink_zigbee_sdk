@@ -89,6 +89,15 @@ const drv_flash_opt_t c_flashOptList[] = {
     {0x1560c8, flash_unlock_mid1560c8, flash_lock_mid1560c8, FLASH_LOCK_LOW_1M_MID1560C8},
     //4M
     {0x166085, flash_unlock_mid166085, flash_lock_mid166085, FLASH_LOCK_LOW_1M_MID166085},
+#elif defined(MCU_CORE_TL521X)
+    //1M
+    {0x146085, flash_unlock_mid146085, flash_lock_mid146085, FLASH_LOCK_LOW_896K_MID146085},
+    {0x1460c8, flash_unlock_mid1460c8, flash_lock_mid1460c8, FLASH_LOCK_LOW_896K_MID1460C8},
+    //2M
+    {0x156085, flash_unlock_mid156085, flash_lock_mid156085, FLASH_LOCK_LOW_1M_MID156085},
+    {0x1560c8, flash_unlock_mid1560c8, flash_lock_mid1560c8, FLASH_LOCK_LOW_1M_MID1560C8},
+    //4M
+    {0x1660cd, flash_unlock_mid1660cd, flash_lock_mid1660cd, FLASH_LOCK_LOW_1M_MID1660CD},
 #else
     {0, NULL, NULL, 0}
 #endif
@@ -101,7 +110,7 @@ void flash_loadOpt(void)
 {
 #if FLASH_PROTECT_ENABLE
 #if defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91) || \
-    defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+    defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
     g_flashOptTable.mid = flash_read_mid();
 #else
     return;
@@ -134,7 +143,7 @@ void flash_lock(void)
         }
 
 #if defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91) || \
-    defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+    defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
         if (pFlashOpt->lock(pFlashOpt->blockSize) == 1) {
             g_flashLocked = TRUE;
         }
@@ -152,7 +161,7 @@ void flash_unlock(void)
         }
 
 #if defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91) || \
-    defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+    defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
         if (pFlashOpt->unlock() == 1) {
             g_flashLocked = FALSE;
         }

@@ -25,7 +25,7 @@
 #define HCI_CMD_H_
 
 
-#include "stack/ble/ble_multi/ble_format.h"
+#include "ble_format.h"
 
 /**
  *  @brief  Command Parameters for "7.1.6 Disconnect command"
@@ -459,6 +459,11 @@ typedef enum
  * Notice that these are just part of but not all Connection_Interval value */
 typedef enum
 {
+    CONN_INTERVAL_1P25MS  = 1,
+    CONN_INTERVAL_2P5MS   = 2,
+    CONN_INTERVAL_3P75MS  = 3,
+    CONN_INTERVAL_5MS     = 4,
+    CONN_INTERVAL_6P25MS  = 5,
     CONN_INTERVAL_7P5MS   = 6,
     CONN_INTERVAL_8P75MS  = 7,
     CONN_INTERVAL_10MS    = 8,
@@ -520,6 +525,12 @@ typedef enum
     CONN_INTERVAL_300MS   = 240,
     CONN_INTERVAL_320MS   = 256,
 } conn_inter_t;
+
+enum{
+    CONN_10MS_TICK  = 10*SYSTEM_TIMER_TICK_1MS,
+    CONN_200MS_TICK = 200*SYSTEM_TIMER_TICK_1MS,//CONN_INTERVAL_200MS*SYSTEM_TIMER_TICK_1250US,
+    CONN_100MS_TICK = 100*SYSTEM_TIMER_TICK_1MS,//CONN_INTERVAL_100MS*SYSTEM_TIMER_TICK_1250US,
+};
 
 /* Supervision_Timeout, Time = N * 10 ms,
  * Notice that these are just part of but not all Supervision_Timeout value */
@@ -762,6 +773,12 @@ typedef enum
 
 typedef enum
 {
+    LE_PHY_CODING_SEL_S8 = 0x03,
+    LE_PHY_CODING_SEL_S2 = 0x04,
+} le_phy_coding_selection_type_t;
+
+typedef enum
+{
     HOST_NO_PREFER_REQUIRE_CODED_PHY,
     HOST_PREFER_S2_CODED_PHY,  //prefer
     HOST_PREFER_S8_CODED_PHY,
@@ -843,7 +860,7 @@ typedef enum
 } le_phy_option_prefer_t;
 
 /**
- *  @brief  Command Parameters for "7.8.53 LE Set Extended Advertising Parameters command"
+ *  @brief  Command Parameters for "7.8.53 LE Set Extended Advertising Parameters command" [v1]
  */
 typedef struct __attribute__((packed))
 {
@@ -863,6 +880,30 @@ typedef struct __attribute__((packed))
     u8  adv_sid;
     u8  scan_req_notify_en;
 } hci_le_setExtAdvParam_cmdParam_t;
+
+/**
+ *  @brief  Command Parameters for "7.8.53 LE Set Extended Advertising Parameters command" [v2]
+ */
+typedef struct __attribute__((packed))
+{
+    u8  adv_handle;
+    u16 advEvt_props;
+    u8  pri_advIntMin[3];
+    u8  pri_advIntMax[3];
+    u8  pri_advChnMap;
+    u8  ownAddrType;
+    u8  peerAddrType;
+    u8  peerAddr[6];
+    u8  advFilterPolicy;
+    u8  adv_tx_pow;
+    u8  pri_adv_phy;
+    u8  sec_adv_max_skip;
+    u8  sec_adv_phy;
+    u8  adv_sid;
+    u8  scan_req_notify_en;
+    u8  prim_adv_phy_options;
+    u8  secd_adv_phy_options;
+} hci_le_setExtAdvParamV2_cmdParam_t;
 
 /* Advertising_Handle */
 typedef enum
@@ -1415,6 +1456,43 @@ typedef struct __attribute__((packed))
     u16 conn_handle;
     u8  rsp_enable;
 } hci_le_cteRspEn_t;
+
+typedef struct __attribute__((packed))
+{
+    u16 Connection_Handle;
+    u16 Connection_Interval_Min;
+
+    u16 Connection_Interval_Max;
+    u16 Subrate_Min;
+
+    u16 Subrate_Max;
+    u16 Max_Latency;
+
+    u16 Continuation_Number;
+    u16 Supervision_Timeout;
+}hci_le_sci_connRateReq;
+
+typedef struct __attribute__((packed))
+{
+    u16 Connection_Interval_Min;
+    u16 Connection_Interval_Max;
+
+    u16 Subrate_Min;
+    u16 Subrate_Max;
+
+    u16 Max_Latency;
+    u16 Continuation_Number;
+
+    u16 Supervision_Timeout;
+    u8  host_setDefaultParam_flag;
+    u8  rsvd;
+}hci_le_sci_setDefaultRateParam;
+
+typedef struct __attribute__((packed))
+{
+    u16 bit_number;
+    u8 bit_value;
+}hci_le_sci_setHostFeatureParam;
 
 /* Options */
 typedef enum
@@ -2324,6 +2402,28 @@ ble_sts_t blc_hci_le_createBigParamsTest(hci_le_createBigParamsTest_t *pCmdParam
  *                     other: failed
  */
 ble_sts_t blc_hci_le_terminateBig(hci_le_terminateBigParams_t *pCmdParam);
+
+
+/**
+ *  @brief   for "7.8.128 LE Read All Local Supported Features command"
+ */
+typedef struct __attribute__((packed))
+{
+    u8 status;
+    u8 max_page;
+    u8 le_features[248];
+} hci_le_readAllLocalSupportedFeatures_retParam_t;
+
+
+/**
+ *  @brief   for "7.8.129 LE Read All Remote Features command"
+ */
+typedef struct __attribute__((packed))
+{
+    u16 conn_handle;
+    u8 pages_requested;
+} hci_le_readAllRemoteFeatures_cmdParam_t;
+
 
 typedef struct __attribute__((packed))
 {

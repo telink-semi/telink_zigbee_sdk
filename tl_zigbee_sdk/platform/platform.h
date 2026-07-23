@@ -47,5 +47,9 @@
 #include "chip_tl323x/driver.h"
 #include "chip_tl323x/gpio_default.h"
 #include "chip_tl323x/ext_driver/driver_ext.h"
+#elif defined (MCU_CORE_TL521X)
+#include "chip_tl521x/driver.h"
+#include "chip_tl521x/gpio_default.h"
+#include "chip_tl521x/ext_driver/driver_ext.h"
 #endif
 

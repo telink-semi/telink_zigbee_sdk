@@ -28,12 +28,17 @@
 #include "ble_common.h"
 #include "ble_format.h"
 
+#ifndef TLK_ONLY_BLE_HOST
 #include "controller/ble_controller.h"
+#else
+#include "stack/pm/pm_sys.h"
+#endif
+
 #include "host/ble_host.h"
+//#include "profile/ble_profile.h"
 
 #include "hci/hci.h"
 #include "hci/hci_const.h"
-#include "hci/hci_vendor.h"
 #include "hci/hci_cmd.h"
 #include "hci/hci_event.h"
 
@@ -44,7 +49,7 @@
 #include "service/uuid.h"
 
 
-#include "stack/ble/ble_multi/debug/debug.h"
+#include "debug/debug.h"
 
 
 /*********************************************************/

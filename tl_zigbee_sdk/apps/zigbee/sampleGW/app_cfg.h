@@ -29,7 +29,7 @@
 extern "C" {
 #endif
 
-#define ZB_TEST_ENABLE                          0//1
+#define ZB_TEST_ENABLE                          0
 
 /**********************************************************************
  * App configuration
@@ -120,6 +120,7 @@ extern "C" {
 #define BOARD_TL321X_DONGLE                     15
 #define BOARD_TL323X_EVK                        16
 #define BOARD_TL323X_DONGLE                     17
+#define BOARD_TL521X_EVK                        18
 
 /* Board define */
 #if defined(MCU_CORE_826x)
@@ -144,6 +145,9 @@ extern "C" {
 #elif defined(MCU_CORE_TL323X)
     #define BOARD                               BOARD_TL323X_DONGLE//BOARD_TL323X_EVK
     #define CLOCK_SYS_CLOCK_HZ                  48000000
+#elif defined(MCU_CORE_TL521X)
+    #define BOARD                               BOARD_TL521X_EVK
+    #define CLOCK_SYS_CLOCK_HZ                  72000000
 #else
     #error "MCU is undefined!"
 #endif
@@ -184,6 +188,8 @@ extern "C" {
     #include "board_tl323x_evk.h"
 #elif (BOARD == BOARD_TL323X_DONGLE)
     #include "board_tl323x_dongle.h"
+#elif (BOARD == BOARD_TL521X_EVK)
+    #include "board_tl521x_evk.h"
 #endif
 
 /**********************************************************************

@@ -157,12 +157,13 @@ void zbdemo_bdbInitCb(u8 status, u8 joinedNetwork)
             ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
 #endif
         } else {
+            //do classic join by UI instead of power on
             //sampleSensor_classicJoinStart();
         }
     } else {
         if (joinedNetwork) {
-            //printf("start rejoin\n");
-            //zb_rejoinReq(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
+            //do rejoin
+            zb_rejoinReq(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
         }
     }
 }
@@ -298,7 +299,7 @@ void sampleSensor_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf)
             WaitMs(200);
         }
 
-    	SYSTEM_RESET();
+        SYSTEM_RESET();
     }
 }
 

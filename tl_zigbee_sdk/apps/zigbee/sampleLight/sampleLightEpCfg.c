@@ -54,7 +54,7 @@
                                 ZCL_COLOR_CAPABILITIES_BIT_COLOR_LOOP
 #define COLOR_MODE_INIT         ZCL_COLOR_MODE_CURRENT_HUE_SATURATION
 #endif
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
 #if COLOR_CCT_SUPPORT
 #define COLOR_CAPABILITIES      ZCL_COLOR_CAPABILITIES_BIT_HUE_SATURATION |     \
                                 ZCL_COLOR_CAPABILITIES_BIT_ENHANCED_HUE |       \

@@ -37,12 +37,12 @@
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     #define MCU_RAM_START_ADDR              0x840000
 #else
-	//do not care
+    //do not care
 #endif
 
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     #define REBOOT()                        WRITE_REG8(0x602, 0x88)
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
     #define REBOOT()                        ((void(*)(void))(FLASH_R_BASE_ADDR + APP_IMAGE_ADDR))()
 #endif
 

@@ -23,7 +23,7 @@
  *******************************************************************************************************/
 #pragma once
 
-#include "stack/ble/ble_multi/host/att/att_uuid.h"
+#include "host/att/att_uuid.h"
 
 /**
  *  @brief Definition for GATT Services UUID
@@ -98,8 +98,7 @@
 #define SERVICE_UUID_GAMING_AUDIO                   0x1858 //Gaming Audio Service
 #define SERVICE_UUID_MESH_PROXY_SOLICITATION        0x1859 //Mesh Proxy Solicitation Service
 #define SERVICE_UUID_RANGING                        0x185B //Ranging Service
-//TODO: Ultra Low Latency HID service has not been confirmed yet. by qihang.mou
-#define SERVICE_UUID_ULL_HID 0x7F8D //Ultra Low Latency HID Service
+#define SERVICE_UUID_HID_ISO                        0x185C //HID ISO Service
 
 /**
  *  @brief Definition for Declaration UUID
@@ -599,9 +598,8 @@
 #define CHARACTERISTIC_UUID_CONTROL_POINT                       0x2C17 //Control Point
 #define CHARACTERISTIC_UUID_RANGING_DATA_READY                  0x2C18 //Ranging Data Ready
 #define CHARACTERISTIC_UUID_RANGING_DATA_OVERWRITTEN            0x2C19 //Ranging Data Overwritten
-//TODO: Ultra Low Latency HID service has not been confirmed yet. by qihang.mou
-#define CHARACTERISTIC_UUID_ULL_HID_PROPERTIES    0x7F8C //Ultra Low Latency HID Properties
-#define CHARACTERISTIC_UUID_LE_HID_OPERATION_MODE 0x7F8B //LE HID Operation mode
+#define CHARACTERISTIC_UUID_HID_ISO_PROPERTIES                  0x2C23 //Ultra Low Latency HID Properties
+#define CHARACTERISTIC_UUID_LE_HID_OPERATION_MODE               0x2C24 //LE HID Operation mode
 //TODO: Coordinated Set Name Characteristic has not been confirmed yet.
 #define CHARACTERISTIC_UUID_COORDINATED_SET_NAME 0x7FE6 //Coordinated Set Name
 
@@ -674,8 +672,8 @@
 #define AUDIO_GOOGL_CTL_CHAR_UUID     0x64, 0xB6, 0x17, 0xF6, 0x01, 0xAF, 0x7D, 0xBC, 0x05, 0x4F, 0x21, 0x5A, 0x04, 0x00, 0x5E, 0xAB
 
 // google defined 128bit uuid for special ranging seeting
-#define CHARACTERISTIC_UUID_SRS_READ_CAP   0xF1, 0x35, 0x9C, 0x5F, 0x80, 0x00, 0x00, 0x80, 0x00, 0x10,0x00, 0x00, 0x01, 0x8F, 0x00, 0x00
-#define CHARACTERISTIC_UUID_SRS_SEND_CMD   0xF1, 0x35, 0x9C, 0x5F, 0x80, 0x00, 0x00, 0x80, 0x00, 0x10,0x00, 0x00, 0x02, 0x8F, 0x00, 0x00
+#define CHARACTERISTIC_UUID_SRS_READ_CAP 0xF1, 0x35, 0x9C, 0x5F, 0x80, 0x00, 0x00, 0x80, 0x00, 0x10, 0x00, 0x00, 0x01, 0x8F, 0x00, 0x00
+#define CHARACTERISTIC_UUID_SRS_SEND_CMD 0xF1, 0x35, 0x9C, 0x5F, 0x80, 0x00, 0x00, 0x80, 0x00, 0x10, 0x00, 0x00, 0x02, 0x8F, 0x00, 0x00
 
 extern const unsigned char serviceGenericAccessUuid[ATT_16_UUID_LEN];
 extern const unsigned char serviceGenericAttributeUuid[ATT_16_UUID_LEN];
@@ -749,7 +747,7 @@ extern const unsigned char serviceMeshProxySolicitationUuid[ATT_16_UUID_LEN];
 //TODO: Ranging profile has not been confirmed yet. by junhui.hu
 extern const unsigned char serviceRangingUuid[ATT_16_UUID_LEN];
 //TODO: Ultra Low Latency HID service has not been confirmed yet. by qihang.mou
-extern const unsigned char serviceUllhidUuid[ATT_16_UUID_LEN];
+extern const unsigned char serviceHidIsoUuid[ATT_16_UUID_LEN];
 
 extern const unsigned char declarationsPrimaryServiceUuid[ATT_16_UUID_LEN];
 extern const unsigned char declarationsSecondaryServiceUuid[ATT_16_UUID_LEN];
@@ -1237,7 +1235,7 @@ extern const unsigned char characteristicRangingDataOverwrittenUuid[ATT_16_UUID_
 extern const unsigned char characteristicGoogleSrsReadCapUuid[ATT_128_UUID_LEN];
 extern const unsigned char characteristicGoogleSrsSendCmdUuid[ATT_128_UUID_LEN];
 //TODO: Ultra Low Latency HID service has not been confirmed yet. by qihang.mou
-extern const unsigned char characteristicUllHidPropertiesUuid[ATT_16_UUID_LEN];
+extern const unsigned char characteristicHidIsoPropertiesUuid[ATT_16_UUID_LEN];
 extern const unsigned char characteristicLeHidOperationModeUuid[ATT_16_UUID_LEN];
 
 

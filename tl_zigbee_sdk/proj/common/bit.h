@@ -30,7 +30,8 @@
 
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 #define BIT(n)                          (1 << (n))
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
+      defined(MCU_CORE_TL521X)
 #define BIT(n)                          (1ULL << (n))
 #endif
 

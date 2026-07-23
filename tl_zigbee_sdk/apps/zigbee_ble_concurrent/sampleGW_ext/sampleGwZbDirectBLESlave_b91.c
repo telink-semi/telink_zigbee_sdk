@@ -794,6 +794,8 @@ void user_ble_init(bool isRetention)
     /* L2CAP Initialization */
     blc_l2cap_register_handler (blc_l2cap_packet_receive);
 
+    //re-configure the nv address for ble paring info, must before blc_smp_peripheral_init
+    bls_smp_configParingSecurityInfoStorageAddr(FLASH_SMP_PAIRING_ADDR);
     blc_smp_setSecurityLevel(No_Security);
     //////////// Host Initialization  End /////////////////////////
 
