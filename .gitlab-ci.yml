@@ -66,7 +66,7 @@ checkLicense:
 build_iotStudio:
   variables:
     BUILD_DEMOS: "sampleGW sampleLight sampleSwitch"
-    BUILD_PLATFORMS: "b91 tl321x tl323x"
+    BUILD_PLATFORMS: "b91 tl321x tl323x tl521x"
   stage: build_iotStudio
   tags:
     - TELINKIDE_LINUX
