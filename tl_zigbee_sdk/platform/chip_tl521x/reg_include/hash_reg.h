@@ -1,7 +1,7 @@
 /********************************************************************************************************
  * @file    hash_reg.h
  *
- * @brief   This is the header file for tl751x
+ * @brief   This is the header file for tl521x
  *
  * @author  Driver Group
  * @date    2025

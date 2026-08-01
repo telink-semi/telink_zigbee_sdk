@@ -41,7 +41,7 @@ dma_config_t i2c_tx_dma_config[1] = {
     .priority       = 0,
     .write_num_en   = 0,
     .auto_en        = 0, //must 0
-  },
+  }
 
 };
 dma_config_t i2c_rx_dma_config[1] = {
@@ -59,7 +59,7 @@ dma_config_t i2c_rx_dma_config[1] = {
     .priority       = 0,
     .write_num_en   = 1,
     .auto_en        = 0, //must 0
-  },
+  }
 };
 
 i2c_timeout_error_t g_i2c_timeout_error[1] = {
@@ -67,7 +67,7 @@ i2c_timeout_error_t g_i2c_timeout_error[1] = {
      .g_i2c_error_timeout_us   = 0xffffffff,
      .i2c_timeout_handler      = i2c0_timeout_handler,
      .g_i2c_error_timeout_code = I2C_API_ERROR_TIMEOUT_NONE,
-     },
+     }
 };
 
 /**
@@ -423,7 +423,9 @@ void i2c_master_write_dma(i2c_chn_e chn,unsigned char id, unsigned char *data, u
 {
     i2c_clr_irq_status(chn,I2C_TX_BUF_STATUS);
     reg_i2c_id(chn)= (id & (~FLD_I2C_WRITE_READ_BIT)); //BIT(0):R:High  W:Low
-
+    if (chn >= I2C_CHN_NUM){
+       return;
+    }
     dma_set_size(i2c_dma_tx_chn[chn], len, DMA_WORD_WIDTH);
     dma_set_address(i2c_dma_tx_chn[chn], (unsigned int)(data), reg_i2c_data_buf0_addr(chn));
     dma_chn_en(i2c_dma_tx_chn[chn]);
@@ -448,7 +450,9 @@ void i2c_master_read_dma(i2c_chn_e chn,unsigned char id, unsigned char *rx_data,
     i2c_clr_irq_status(chn,I2C_RX_BUF_STATUS);
     reg_i2c_id(chn) = id | FLD_I2C_WRITE_READ_BIT; //BIT(0):R:High  W:Low
     reg_i2c_ctrl3(chn) |= FLD_I2C_RNCK_EN;         //i2c rnck enable.
-
+    if (chn >= I2C_CHN_NUM){
+        return;
+    }
     dma_set_wnum_dis(i2c_dma_rx_chn[chn]);         //The data received by the master is the same length as the data sent, so there is no need for a writer_num.
     dma_set_size(i2c_dma_rx_chn[chn], len, DMA_WORD_WIDTH);
     dma_set_address(i2c_dma_rx_chn[chn], reg_i2c_data_buf0_addr(chn), (unsigned int)(rx_data));
@@ -469,6 +473,9 @@ void i2c_master_read_dma(i2c_chn_e chn,unsigned char id, unsigned char *rx_data,
 void i2c_slave_set_tx_dma(i2c_chn_e chn,unsigned char *data, unsigned int len)
 {
     i2c_clr_irq_status(chn,I2C_TX_BUF_STATUS);
+    if (chn >= I2C_CHN_NUM){
+        return;
+    }
     dma_set_address(i2c_dma_tx_chn[chn], (unsigned int)(data), reg_i2c_data_buf0_addr(chn));
     dma_set_size(i2c_dma_tx_chn[chn], len, DMA_WORD_WIDTH);
     dma_chn_en(i2c_dma_tx_chn[chn]);
@@ -489,6 +496,9 @@ void i2c_slave_set_tx_dma(i2c_chn_e chn,unsigned char *data, unsigned int len)
 */
 void i2c_slave_set_rx_dma(i2c_chn_e chn,unsigned char *data, unsigned int len)
 {
+    if (chn >= I2C_CHN_NUM){
+        return;
+    }
     dma_chn_dis(i2c_dma_rx_chn[chn]);
     i2c_clr_irq_status(chn,I2C_RX_BUF_STATUS);
     dma_set_address(i2c_dma_rx_chn[chn], reg_i2c_data_buf0_addr(chn), (unsigned int)(data));

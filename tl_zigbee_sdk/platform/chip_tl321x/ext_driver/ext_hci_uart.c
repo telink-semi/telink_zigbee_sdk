@@ -192,5 +192,9 @@ void ext_hci_uartReceData(unsigned char *addr, unsigned int len)
     ReceAddr = addr;
 }
 
+void ext_hci_uartDisRxIrq(void)
+{
+   //todo
+}
 
 #endif

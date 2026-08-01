@@ -1,7 +1,7 @@
 /********************************************************************************************************
  * @file    gpio.c
  *
- * @brief   This is the source file for tl323x
+ * @brief   This is the source file for tl521x
  *
  * @author  Driver Group
  * @date    2025

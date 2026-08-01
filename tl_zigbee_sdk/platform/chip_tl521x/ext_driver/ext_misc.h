@@ -142,7 +142,7 @@ typedef enum {
     PM_PIN_UP_DOWN_FLOAT    = 0,
     PM_PIN_PULLUP_1M        = 1,
     PM_PIN_PULLDOWN_100K    = 2,
-    PM_PIN_PULLUP_10K       = 3,
+    PM_PIN_PULLUP_20K       = 3,
 }gpio_pull_type;
 
 /**

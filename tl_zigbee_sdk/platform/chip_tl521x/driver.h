@@ -1,7 +1,7 @@
 /********************************************************************************************************
  * @file    driver.h
  *
- * @brief   This is the header file for tl323x
+ * @brief   This is the header file for tl521x
  *
  * @author  Driver Group
  * @date    2025
@@ -57,6 +57,8 @@
 #include "lib/include/mspi.h"
 #include "sd_adc.h"
 #include "qdec.h"
+#include "plic_sw.h"
+#include "plmt.h"
 #include "pem.h"
 #include "flash/flash_type.h"
 #include "flash/flash_common.h"

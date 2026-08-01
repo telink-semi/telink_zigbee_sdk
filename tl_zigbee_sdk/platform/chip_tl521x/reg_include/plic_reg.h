@@ -1,7 +1,7 @@
 /********************************************************************************************************
  * @file    plic_reg.h
  *
- * @brief   This is the header file for TL521X
+ * @brief   This is the header file for tl521x
  *
  * @author  Driver Group
  * @date    2025

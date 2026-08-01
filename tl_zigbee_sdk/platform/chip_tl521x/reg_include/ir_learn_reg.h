@@ -1,7 +1,7 @@
 /********************************************************************************************************
  * @file    ir_learn_reg.h
  *
- * @brief   This is the header file for TL521X
+ * @brief   This is the header file for tl521x
  *
  * @author  Driver Group
  * @date    2025
@@ -21,7 +21,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #ifndef IR_LEARN_REG_H
 #define IR_LEARN_REG_H
 #include "soc.h"

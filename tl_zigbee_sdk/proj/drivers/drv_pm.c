@@ -195,10 +195,12 @@ void drv_pm_sleep(drv_pm_sleep_mode_e mode, drv_pm_wakeup_src_e src, u32 tick)
     } else if (mode == PM_SLEEP_MODE_DEEPSLEEP) {
         sleep_mode = DEEPSLEEP_MODE;
     } else if (mode == PM_SLEEP_MODE_DEEP_WITH_RETENTION) {
-#if defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
-        sleep_mode = DEEPSLEEP_MODE_RET_SRAM_LOW96K;
-#else
+#if defined(MCU_CORE_B91)
         sleep_mode = DEEPSLEEP_MODE_RET_SRAM_LOW64K;
+#elif defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+        sleep_mode = DEEPSLEEP_MODE_RET_SRAM_LOW96K;
+#elif defined(MCU_CORE_TL521X)
+        sleep_mode = DEEPSLEEP_MODE_RET_SRAM_LOW128K;
 #endif
     } else {
         return;
@@ -283,10 +285,12 @@ void drv_pm_longSleep(drv_pm_sleep_mode_e mode, drv_pm_wakeup_src_e src, u32 tic
     } else if (mode == PM_SLEEP_MODE_DEEPSLEEP) {
         sleep_mode = DEEPSLEEP_MODE;
     } else if (mode == PM_SLEEP_MODE_DEEP_WITH_RETENTION) {
-#if defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
-        sleep_mode = DEEPSLEEP_MODE_RET_SRAM_LOW96K;
-#else
+#if defined(MCU_CORE_B91)
         sleep_mode = DEEPSLEEP_MODE_RET_SRAM_LOW64K;
+#elif defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+        sleep_mode = DEEPSLEEP_MODE_RET_SRAM_LOW96K;
+#elif defined(MCU_CORE_TL521X)
+        sleep_mode = DEEPSLEEP_MODE_RET_SRAM_LOW128K;
 #endif
     } else {
         return;

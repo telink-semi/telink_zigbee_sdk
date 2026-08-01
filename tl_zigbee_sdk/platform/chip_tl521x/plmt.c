@@ -1,7 +1,7 @@
 /********************************************************************************************************
  * @file    plmt.c
  *
- * @brief   This is the source file for TL521X
+ * @brief   This is the source file for tl521x
  *
  * @author  Driver Group
  * @date    2025

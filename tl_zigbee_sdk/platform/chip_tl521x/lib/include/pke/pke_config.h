@@ -1,7 +1,7 @@
 /********************************************************************************************************
  * @file    pke_config.h
  *
- * @brief   This is the header file for tl323X
+ * @brief   This is the header file for tl521x
  *
  * @author  Driver Group
  * @date    2025

@@ -37,17 +37,6 @@
  *  API Reference
  *  ===============
  *  Header File: spi.h
- */
-
-/** @page SPI
- *
- *  Introduction
- *  ===============
- *  TL521X supports two spi: GSPI and GSPI1
- *
- *  API Reference
- *  ===============
- *  Header File: spi.h
  *  How to use this driver
  *  ==============
   -# SPI Initialization and Configuration
@@ -447,7 +436,7 @@ static inline void spi_hw_fsm_reset(spi_sel_e spi_sel)
         reg_rst1 &= (~FLD_RST1_GSPI);
         reg_rst1 |= FLD_RST1_GSPI;
     }
-    g_spi_timeout_error[spi_sel].g_spi_error_timeout_code = SPI_API_ERROR_TIMEOUT_NONE;
+    g_spi_timeout_error[spi_sel - 1].g_spi_error_timeout_code = SPI_API_ERROR_TIMEOUT_NONE;
 }
 
 /**
@@ -1473,28 +1462,6 @@ void spi_master_write_read_full_duplex(spi_sel_e spi_sel, unsigned char *write_d
  * @return      none.
  */
 void spi_master_read(spi_sel_e spi_sel, unsigned char *data, unsigned int len);
-
-/**
- * @brief       This function serves to set master rx dma burst size
- * @param[in]   spi_sel      - the spi module.
- * @param[in]   burst_size   - dma burst size.
- * @return      none.
- * @note        - gpsi tx dma only support burst1.
- *              - If the set burst size is larger than burst1 (burst2/burst4), the length of the dma transfer must be a multiple of the corresponding burst size,e.g., burst size= burst2,  dma transfer length must be a multiple of 8 bytes.
- *              - Must be configured after spi_set_tx_dma_config().
- */
-void spi_set_dma_tx_burst(spi_sel_e spi_sel, dma_burst_size_e burst_size);
-
-/**
- * @brief       This function serves to set master rx dma burst size
- * @param[in]   spi_sel     - the spi module.
- * @param[in]   burst_size   - dma burst size
- * @return      none.
- * @note        - gpsi rx dma only support burst1.
- *              - If the set burst size is larger than burst1 (burst2), the length of the dma transfer must be a multiple of the corresponding burst size,e.g., burst size= burst2,  dma transfer length must be a multiple of 8 bytes.
- *              - Must be configured after spi_set_master_rx_dma_config().
- */
-void spi_set_dma_rx_burst(spi_sel_e spi_sel, dma_burst_size_e burst_size);
 
 /**
   * @brief     This function serves to config slave rx_dma channel llp.

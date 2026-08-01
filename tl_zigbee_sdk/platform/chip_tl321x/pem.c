@@ -1,7 +1,7 @@
 /********************************************************************************************************
  * @file    pem.c
  *
- * @brief   This is the source file for tl321x
+ * @brief   This is the source file for TL321X
  *
  * @author  Driver Group
  * @date    2025

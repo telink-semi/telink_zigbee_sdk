@@ -1169,7 +1169,7 @@ unsigned char can_read_rx_mb(can_chn_e chn,unsigned char mb_index,can_frame_t* f
  *            0           - Rx Message Buffer is already overflowed and has been read successfully.
  */
 unsigned char canfd_read_rx_mb(can_chn_e chn,unsigned char mb_index,can_fd_frame_t* frame){
-    unsigned char status;
+    unsigned char status = 0xff;
     unsigned int cs_temp;
     unsigned int can_id;
     unsigned char rx_code;

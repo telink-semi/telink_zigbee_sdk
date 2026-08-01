@@ -1,7 +1,7 @@
 /********************************************************************************************************
  * @file    error_handler.c
  *
- * @brief   This is the source file for tl323x
+ * @brief   This is the source file for tl521x
  *
  * @author  Driver Group
  * @date    2025
@@ -21,7 +21,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #include "error_handler/error_handler.h"
 #include "lib/include/pm/pm.h"
 

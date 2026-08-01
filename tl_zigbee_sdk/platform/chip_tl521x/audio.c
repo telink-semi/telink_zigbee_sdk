@@ -1,7 +1,7 @@
 /********************************************************************************************************
  * @file    audio.c
  *
- * @brief   This is the source file for tl322x
+ * @brief   This is the source file for tl521x
  *
  * @author  Driver Group
  * @date    2024

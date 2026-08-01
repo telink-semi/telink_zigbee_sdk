@@ -1,7 +1,7 @@
 /********************************************************************************************************
  * @file    ir_learn.c
  *
- * @brief   This is the source file for TL521X
+ * @brief   This is the source file for tl521x
  *
  * @author  Driver Group
  * @date    2025
@@ -21,7 +21,6 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-
 #include "ir_learn.h"
 
 static dma_config_t g_irlearn_dma_rx_config = {

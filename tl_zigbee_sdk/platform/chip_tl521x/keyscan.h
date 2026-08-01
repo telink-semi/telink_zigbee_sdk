@@ -1,7 +1,7 @@
 /********************************************************************************************************
  * @file    keyscan.h
  *
- * @brief   This is the source file for tl521x
+ * @brief   This is the header file for tl521x
  *
  * @author  Driver Group
  * @date    2026

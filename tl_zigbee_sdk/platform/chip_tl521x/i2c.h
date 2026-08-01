@@ -159,6 +159,7 @@ extern unsigned char i2c_slave_rx_index[2];
 
 typedef enum{
     I2C0=0,
+    I2C_CHN_NUM=1
 }i2c_chn_e;
 /**
  *  @brief  Define UART IRQ BIT MASK

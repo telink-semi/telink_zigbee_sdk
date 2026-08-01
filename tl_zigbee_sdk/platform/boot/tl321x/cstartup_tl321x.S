@@ -1,7 +1,7 @@
 /********************************************************************************************************
  * @file    cstartup_tl321x.S
  *
- * @brief   This is the boot file for tl321x
+ * @brief   This is the boot file for TL321X
  *
  * @author  Driver & Zigbee Group
  * @date    2024
@@ -50,11 +50,13 @@
 
 .extern gpio_shutdown_flashcode_for_asm
 .extern gpio_shutdown_ramcode_for_asm
+.extern rf_sw_config
 
 //According to the current internal seal flash model of Telink RISC-V MCU, the maximum time between the flash awakening and the operating flash is 20us, which leaves some margin and is set to 25us.
 //When adding flash later, if tRES1 is greater than 25us, this waiting time needs to be updated. (flash tRES1, which can be viewed in the comments of the variable flash_support_mid.)
 //(add by weihua.zhang 20230811)
 #define EFUSE_LOAD_AND_FLASH_WAKEUP_LOOP_NUM        320 //25us
+#define FLASH_LOOP_NUM_TEST                         0
 
     .section .vectors, "ax"
 
@@ -140,14 +142,14 @@ _START:
     lui     t0, 0x80100
     addi    t0 , t0 , 0x700
     li      t1, 0x00
-    sb      t1, 0x501(t0)  //0x80100c01 -> 0x00  <7>: 0 swire_usb_dis
+    sb      t1, 0x501(t0)  //0x80100c01 -> 0x00  <7>: 0 swire_usb_dis 
 #endif
 
     /* Initialize stack pointer */
     la     t0, _STACK_TOP
     mv     sp, t0
 
-    /* This code should be placed before the following gpio_shutdown_flashcode_for_asm interface because
+    /* This code should be placed before the following gpio_shutdown_flashcode_for_asm interface because 
     when using the Os compilation option, the gpio_shutdown_flashcode_for_asm will use the EXEC.IT table. */
 #ifdef __nds_execit
     /* Initialize EXEC.IT table */
@@ -222,12 +224,26 @@ _RAMCODE_INIT:
     la     t2, _RAMCODE_VMA_START
     la     t3, _RAMCODE_VMA_END
 _RAMCODE_INIT_BEGIN:
+#ifndef SKIP_RF_DRV
+    bleu   t3, t2, _RF_SW_CONFIG
+#else
     bleu   t3, t2, _DATA_INIT
+#endif
     lw     t0, 0(t1)
     sw     t0, 0(t2)
     addi   t1, t1, 4
     addi   t2, t2, 4
     j      _RAMCODE_INIT_BEGIN
+
+#ifndef SKIP_RF_DRV   // BQB_EMI_Demo, RF_Demo, rf_sw_config must be used. 
+    //note:RF initialization uses large stack space; invoke it here upfront to avoid stack overflow crashes.
+    //All applications that use RF peripherals must call this function. 
+    //If this function is called without using RF peripherals, it will increase the FLASH usage by 4040 bytes.
+    //Calling this function takes approximately 7.7 ms.
+_RF_SW_CONFIG:
+    la     t0, rf_sw_config
+    jalr   t0
+#endif
 
     /* Move Data from flash to sram */
 _DATA_INIT:
@@ -335,14 +351,14 @@ _ISTART:
     lui     t0, 0x80100
     addi    t0 , t0 , 0x700
     li      t1, 0x00
-    sb      t1, 0x501(t0)  //0x80100c01 -> 0x00  <7>: 0 swire_usb_dis
+    sb      t1, 0x501(t0)  //0x80100c01 -> 0x00  <7>: 0 swire_usb_dis 
 #endif
 
     /* Initialize stack pointer */
     la     t0, _STACK_TOP
     mv     sp, t0
 
-    /* This code should be placed before the following gpio_shutdown_ramcode_for_asm interface because
+    /* This code should be placed before the following gpio_shutdown_ramcode_for_asm interface because 
     when using the Os compilation option, the gpio_shutdown_ramcode_for_asm will use the EXEC.IT table. */
 #ifdef __nds_execit
     /* Initialize EXEC.IT table */
@@ -421,6 +437,16 @@ _MSPI_WAIT_2:
     li      t1, 0x0a
     sb      t1, 0x78c(t0)       //xip_enable        :0xA3FFFF1c = 0x0a
 
+#if FLASH_LOOP_NUM_TEST
+    // add debug, PB4 output 1
+    lui     t0, 0x80140
+    addi    t0, t0, 0x790
+    li      t1, 0xef
+    li      t2, 0x10
+    sb      t1, 0x482(t0)       //0x80140c12  PB oen     =  0xef
+    sb      t2, 0x484(t0)       //0x80140c14  PB output  =  0x10
+#endif
+
     /*flash wakeup need delay about 20us */
     /*efuse load need delay about 6us */
     li      t0, 0
@@ -428,6 +454,14 @@ _MSPI_WAIT_2:
 _WAIT_EFUSE_LOAD_AND_FLASH_WAKEUP_FINISH:
     addi    t0, t0, 1
     bgeu    t1, t0, _WAIT_EFUSE_LOAD_AND_FLASH_WAKEUP_FINISH
+
+#if FLASH_LOOP_NUM_TEST
+    // add debug, PB4 output 0
+    lui     t0, 0x80140
+    addi    t0, t0, 0x790
+    li      t2, 0x10
+    sb      t2, 0x485(t0)       //0x80140c15  PB output  =  0x10
+#endif
 
 _MULTI_ADDRESS_BEGIN:
     lui     t0, 0xA3FFF

@@ -1,7 +1,7 @@
 /********************************************************************************************************
  * @file    rf_ble.h
  *
- * @brief   This is the header file for tl323x
+ * @brief   This is the header file for tl521x
  *
  * @author  Driver Group
  * @date    2025

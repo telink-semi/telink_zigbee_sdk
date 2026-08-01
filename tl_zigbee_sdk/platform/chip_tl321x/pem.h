@@ -1,7 +1,7 @@
 /********************************************************************************************************
  * @file    pem.h
  *
- * @brief   This is the header file for tl321x
+ * @brief   This is the header file for TL321X
  *
  * @author  Driver Group
  * @date    2025

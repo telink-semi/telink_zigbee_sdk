@@ -1,7 +1,7 @@
 /********************************************************************************************************
  * @file    boot_tl321x.link
  *
- * @brief   This is the link file for tl321x
+ * @brief   This is the link file for TL321X
  *
  * @author  Driver & Zigbee Group
  * @date    2024
