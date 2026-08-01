@@ -405,9 +405,9 @@ class Blewindow(QtWidgets.QMainWindow, Ui_MainWindow):
             return
 
         if self.comboBox_derived.currentIndex() == 0:
-            self.session.wetherDerived = True
+            self.session.whetherDerived = True
         else:
-            self.session.wetherDerived = False
+            self.session.whetherDerived = False
         
         self.session.presharedSecretType = self.comboBox_keyEnum.currentIndex()
         if self.session.presharedSecretType == 5:
@@ -737,7 +737,7 @@ class Blewindow(QtWidgets.QMainWindow, Ui_MainWindow):
             if dataInputStr:
                 dataInput, dataLen = line_edit_str2int(dataInputStr)
                 if dataLen != self.comm.nwkAddrLen:
-                    QMessageBox.warning(self, 'Join-MAC Assiciation', "Wrong nwk short address to set!")
+                    QMessageBox.warning(self, 'Join-MAC Association', "Wrong nwk short address to set!")
                     return
                 else:
                     joinData.extend(tlv_construct(self.comm.nwkAddrTlvId, dataInput, dataLen))      

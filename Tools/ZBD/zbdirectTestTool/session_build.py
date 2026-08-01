@@ -133,7 +133,7 @@ class SessBuild:
         self.sessionType = ''
         self.preSessionType = '(Provisioning session)'
         self.adminKeyPre = []
-        self.wetherDerived = False
+        self.whetherDerived = False
         self.testVector = False
 
     def ss_mmoHash_local(self, data, len, result):
@@ -196,9 +196,9 @@ class SessBuild:
                 else:
                     # print("len(self.presharedSecret) != 0")
                     # print(len(self.presharedSecret))
-                    # print(self.wetherDerived)
+                    # print(self.whetherDerived)
                     # print(self.presharedSecret)
-                    if len(self.presharedSecret) != 0 and self.wetherDerived == False:
+                    if len(self.presharedSecret) != 0 and self.whetherDerived == False:
                         hashout_assign = True
                         for i in range(16):
                             hashOut_out[i] = self.presharedSecret[i]
@@ -503,13 +503,13 @@ class SessBuild:
         enData.append((self.outgoingFramecounter >> 24) & 0xff)
 
         self.outgoingFramecounter += 1
-        converData = struct.unpack("!%dB" % len(plainData), plainData)
+        convertData = struct.unpack("!%dB" % len(plainData), plainData)
         for i in range(len(plainData)):
-            enData.append(converData[i])
+            enData.append(convertData[i])
         
-        converData = struct.unpack("!%dB" % len(claMic), claMic)
+        convertData = struct.unpack("!%dB" % len(claMic), claMic)
         for i in range(4):
-            enData.append(converData[i])
+            enData.append(convertData[i])
         
         return 0, enData
 
@@ -559,9 +559,9 @@ class SessBuild:
 
         self.incomingFramecounter = incomCounter
         
-        converData = struct.unpack("!%dB" % len(encryData), encryData)
+        convertData = struct.unpack("!%dB" % len(encryData), encryData)
         for i in range(len(encryData)):
-            plainData.append(converData[i])
+            plainData.append(convertData[i])
         
         return 0, plainData              
 
