@@ -24,15 +24,6 @@
 #ifndef HCI_CONST_H_
 #define HCI_CONST_H_
 
-/****HCI INFO****/
-#define HCI_VERSION           0x09      //Bluetooth Core Specification 5.0
-#define HCI_REVISION          0x0002    //Revision of the Current HCI in the BR/EDR Controller
-#define HCI_LMP_VERSION       0x09      //Version of the Current LMP or PAL in the Controller, Bluetooth Core Specification 5.0
-#define HCI_MANUFACTURER_NAME VENDOR_ID //Manufacturer Name of the BR/EDR Controller
-#define HCI_LMP_SUBVERSION    0x0001    //Subversion of the Current LMP or PAL in the Controller
-
-#define LMP_FEATURES          0x0000000000000000
-
 
 /****Events****/
 #define HCI_EVT_DISCONNECTION_COMPLETE        0x05

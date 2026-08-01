@@ -116,6 +116,19 @@ typedef struct __attribute__((packed))
 } hci_readLocSupFeatures_retParam_t;
 
 /**
+ *  @brief  Return Parameters for "7.4.1 Read Local Version Information command"
+ */
+typedef struct __attribute__((packed))
+{
+    u8 status;
+    u8 hci_ver;
+    u16 hci_rev;
+    u8 lmp_ver;
+    u16 manufacturer;
+    u16 lmp_subver;
+} hci_readLocVerInfo_retParam_t;
+
+/**
  *  @brief  Return Parameters for "7.4.6 Read BD_ADDR command"
  */
 typedef struct __attribute__((packed))

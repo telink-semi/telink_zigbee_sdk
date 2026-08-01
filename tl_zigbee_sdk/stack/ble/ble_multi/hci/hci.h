@@ -64,6 +64,11 @@ typedef struct __attribute__((packed))
     u8 *p;
 } hci_fifo_t;
 
+extern hci_fifo_t bltHci_rxfifo;
+extern hci_fifo_t bltHci_txfifo;
+
+extern hci_fifo_t bltHci_outIsofifo;
+
 /**
  *  @brief  Definition for HCI packet type & HCI packet indicator
  */
@@ -177,33 +182,6 @@ typedef unsigned char hci_vendor_CmdParams_t;
 typedef unsigned char hci_vendor_EndStatusParam_t;
 
 typedef unsigned char (*hci_vendor_process_callback_t)(u8 pCmdparaLen, u8 opCode_ogf, u8 opCode_ocf, hci_vendor_CmdParams_t *pCmd, hci_vendor_EndStatusParam_t *pRetParam);
-
-/******************************* hci  global variable start*******************/
-// hci event
-extern u32                   hci_eventMask;
-extern u32                   hci_eventMask_2;
-extern u32                   hci_eventMaskPage2;
-extern u32                   hci_eventMaskPage2_2;
-extern u32                   hci_le_eventMask;
-extern u32                   hci_le_eventMask_2;
-extern hci_event_handler_t   blc_hci_event_handler;
-extern hci_data_handler_t    blc_hci_data_handler;
-extern hci_iso_data_handle_t blt_hci_iso_data_handler;
-
-extern hci_fifo_t bltHci_rxfifo;
-extern hci_fifo_t bltHci_txfifo;
-
-extern hci_fifo_t bltHci_outIsofifo;
-
-
-extern u16 gHciPortNum;
-
-typedef int (*blc_hci_rx_handler_t)(void);
-typedef int (*blc_hci_tx_handler_t)(void);
-extern blc_hci_rx_handler_t blc_hci_rx_handler;
-extern blc_hci_tx_handler_t blc_hci_tx_handler;
-
-/******************************* hci  global variable end *********************/
 
 #ifdef BLC_ZEPHYR_BLE_INTEGRATION
 /**

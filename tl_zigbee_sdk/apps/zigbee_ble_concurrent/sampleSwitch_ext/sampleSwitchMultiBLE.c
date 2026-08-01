@@ -176,7 +176,7 @@ _attribute_ble_data_retention_  u8 app_per_l2cap_tx_buf[ACL_PERIPHR_MAX_NUM * PE
 
 u8 g_ble_txPowerSet = RF_POWER_P3dBm;
 
-static u16  g_appBleInterval = CONN_INTERVAL_50MS;
+static u16 g_appBleInterval = CONN_INTERVAL_50MS;
 static u16 g_appBleLatency = 19;
 static u16 g_bleSlaveConnHandle = 0;
 /***************** ACL connection L2CAP RX & TX data Buffer allocation, End ****************************************/
@@ -579,7 +579,7 @@ int app_le_adv_report_event_handle(u8 *p)
 
 static s32 app_bleIntervalChange(void *arg)
 {
-    bls_l2cap_requestConnParamUpdate (g_bleSlaveConnHandle, g_appBleInterval, g_appBleInterval, g_appBleLatency, CONN_TIMEOUT_4S);  // 1 S
+    bls_l2cap_requestConnParamUpdate(g_bleSlaveConnHandle, g_appBleInterval, g_appBleInterval, g_appBleLatency, CONN_TIMEOUT_4S);  // 1 S
 
     return -1;
 }
@@ -601,6 +601,8 @@ void app_bleConnIntervalSet(u8 interval, u16 latency)
 int app_le_connection_complete_event_handle(u8 *p)
 {
     hci_le_connectionCompleteEvt_t *pConnEvt = (hci_le_connectionCompleteEvt_t *)p;
+
+    tlkapi_send_string_data(APP_LOG_EN, "[APP][EVT] Connection Complete Event", &pConnEvt->connHandle, 10);
 
     if (pConnEvt->status == BLE_SUCCESS) {
         dev_char_info_insert_by_conn_event(pConnEvt);
@@ -664,7 +666,9 @@ int app_disconnect_event_handle(u8 *p)
 int app_le_connection_update_complete_event_handle(u8 *p)
 {
     hci_le_connectionUpdateCompleteEvt_t *pUpt = (hci_le_connectionUpdateCompleteEvt_t *)p;
+
     tlkapi_send_string_data(APP_LOG_EN, "[APP][EVT] Connection Update Event", &pUpt->connHandle, 8);
+
     task_begin_tick = clock_time();
 
     if (pUpt->status == BLE_SUCCESS) {
@@ -1223,7 +1227,8 @@ void app_process_power_management(void)
 #endif
 }
 
-int blt_sdk_main_loop(void){
+int blt_sdk_main_loop(void)
+{
     ////////////////////////////////////// BLE entry /////////////////////////////////
     blc_sdk_main_loop();
 
@@ -1238,7 +1243,8 @@ int blt_sdk_main_loop(void){
  * @param      none
  * @return     none
  */
-_attribute_ram_code_ u32 blt_pm_proc(void){
+_attribute_ram_code_ u32 blt_pm_proc(void)
+{
     if ((ble_no_task_deepsleep == 2) && (APP_BLE_STATE_IDLE())) {  //Terminate OK
         return 1;
     }
@@ -1251,7 +1257,7 @@ _attribute_ram_code_ u32 blt_pm_proc(void){
 #endif
 
     if (!APP_BLE_STATE_IDLE() && clock_time_exceed(task_begin_tick , TASK_IDLE_ENTER_DEEP_TIME * 1000000)) {
-        blc_ll_setScanEnable (BLC_SCAN_DISABLE, DUP_FILTER_DISABLE);
+        blc_ll_setScanEnable(BLC_SCAN_DISABLE, DUP_FILTER_DISABLE);
         blc_ll_setAdvEnable(BLC_ADV_DISABLE);  //ADV disable
 
         for (u8 i = 0; i < DEVICE_CHAR_INFO_MAX_NUM; i++) {
@@ -1271,6 +1277,7 @@ _attribute_ram_code_ u32 blt_pm_proc(void){
     return 0;
 }
 
-void ble_advertiseTickUpdate(void){
+void ble_advertiseTickUpdate(void)
+{
     task_begin_tick = clock_time();
 }

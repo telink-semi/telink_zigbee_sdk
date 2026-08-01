@@ -255,7 +255,7 @@ u8 ble_task_stop(void)
     if (!APP_BLE_STATE_IDLE()) {
         ble_sts_t ret1 = BLE_SUCCESS;
         ret = blc_ll_setAdvEnable(BLC_ADV_DISABLE);
-        ret = blc_ll_setScanEnable (BLC_SCAN_DISABLE, DUP_FILTER_DISABLE);
+        ret = blc_ll_setScanEnable(BLC_SCAN_DISABLE, DUP_FILTER_DISABLE);
 
         for (u8 i = 0; i < DEVICE_CHAR_INFO_MAX_NUM; i++) {
             if (conn_dev_list[i].conn_state == 1) {

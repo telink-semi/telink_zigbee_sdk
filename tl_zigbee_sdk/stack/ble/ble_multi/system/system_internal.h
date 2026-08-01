@@ -41,7 +41,7 @@
 #endif
 
 #ifndef  TLK_SCH_ACCESS_CODE_TASK_DISABLE
-#define  TLK_SCH_ACCESS_CODE_TASK_DISABLE                    0
+#define  TLK_SCH_ACCESS_CODE_TASK_DISABLE                    1
 #endif
 
 /******************************* ll_schedule config end *************************************************************************/

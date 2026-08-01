@@ -498,17 +498,12 @@ unsigned short blt_Crc16ComputeInternal (unsigned char *pD, int len);
 
 
 /**
- * @brief      get SDK and library version information
- * @param[in]  pbuf - the pointer to the version information string.
- *             eg. "V4.0.4.4_P0001 C0.0 Develop 105b2c862 Thu Jun 19 21:09:30 2025 +0800 Dirty 2025-06-19 23:29:58"
- *             The format is
- *                SDK Version: V4.0.4.4_P0001
- *                Custom Version: C0.0    //Only specific customers will use this
- *                Lib version: Branch CID LogTime GitStatus BuildTime     //When users feedback issues, this will be more helpful
- * @param[in]  number - the size of the string user give.
- * @return     the actual length or version information string.
+ * @brief      get library build information (branch, commit, timestamps)
+ * @param[in]  pbuf - the pointer to the lib info string.
+ *             eg. "develop 105b2c862 Thu Jun 19 21:09:30 2025 +0800 Dirty 2025-06-19 23:29:58"
+ * @param[in]  number - the size of the buffer.
+ * @return     the actual length of lib info string.
  */
-unsigned char blc_get_sdk_version(unsigned char *pbuf, unsigned char number);
-
+unsigned char blc_get_sdk_ble_lib_info(unsigned char *pbuf, unsigned char number);
 
 #endif
