@@ -1148,6 +1148,13 @@ _CODE_BDB_ static void bdb_retrieveTCLKDone(u8 status)
     }
 }
 
+_CODE_BDB_ static void bdb_exchangeTCLKDone(u8 status)
+{
+    if (status == BDB_COMMISSION_STA_SUCCESS) {
+        bdb_retrieveTCLKDone(status);
+    }
+}
+
 #if (ZB_STACK_COMPLIANCE_REVISION == STACK_RVE_23)
 _CODE_BDB_ static void bdb_keyNegotiationDone(u8 status)
 {
@@ -1197,7 +1204,7 @@ _CODE_BDB_ static void bdb_nodeDescRespHandler(void *arg)
             requestKey.dstAddr.shortAddr = 0x0000;
             requestKey.dstAddrMode = ZB_ADDR_16BIT_DEV_OR_BROADCAST;
 
-            if (zb_apsmeRequestKeyReq(&requestKey, bdb_retrieveTCLKDone) == RET_OK) {
+            if (zb_apsmeRequestKeyReq(&requestKey, bdb_exchangeTCLKDone) == RET_OK) {
                 if (bdb_retrieveTimerMode == RETRRIEVE_TCLK_TIMER_MODE_AFTER_STEER) {
                     g_bdbAttrs.nodeIsOnANetwork = 0;
                 }
