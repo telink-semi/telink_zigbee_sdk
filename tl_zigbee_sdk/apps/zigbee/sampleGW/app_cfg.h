@@ -123,14 +123,7 @@ extern "C" {
 #define BOARD_TL521X_EVK                        18
 
 /* Board define */
-#if defined(MCU_CORE_826x)
-#if !PA_ENABLE
-    #define BOARD                               BOARD_826x_DONGLE
-#else
-    #define BOARD                               BOARD_826x_DONGLE_PA
-#endif
-    #define CLOCK_SYS_CLOCK_HZ                  32000000
-#elif defined(MCU_CORE_8258)
+#if defined(MCU_CORE_8258)
     #define BOARD                               BOARD_8258_DONGLE//BOARD_8258_EVK_V1P2
     #define CLOCK_SYS_CLOCK_HZ                  48000000
 #elif defined(MCU_CORE_8278)
@@ -160,13 +153,7 @@ extern "C" {
 /**********************************************************************
  * Board configuration
  */
-#if (BOARD == BOARD_826x_EVK)
-    #include "board_826x_evk.h"
-#elif (BOARD == BOARD_826x_DONGLE)
-    #include "board_826x_dongle.h"
-#elif (BOARD == BOARD_826x_DONGLE_PA)
-    #include "board_826x_dongle_pa.h"
-#elif (BOARD == BOARD_8258_DONGLE)
+#if (BOARD == BOARD_8258_DONGLE)
     #include "board_8258_dongle.h"
 #elif (BOARD == BOARD_8258_EVK)
     #include "board_8258_evk.h"//DEPRECATED

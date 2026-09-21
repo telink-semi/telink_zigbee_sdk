@@ -50,7 +50,7 @@ void rf_irq_handler(void)
             rf_clr_irq_status(0xffff);
         }
     } else {
-        irq_blt_sdk_handler ();
+        irq_blt_sdk_handler();
     }
 }
 
@@ -90,7 +90,7 @@ void stimer_irq_handler(void)
             }
         }
     } else {
-        irq_blt_sdk_handler ();
+        irq_blt_sdk_handler();
     }
 }
 

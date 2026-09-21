@@ -81,7 +81,7 @@ extern "C" {
 
 //DEBUG
 #if GSUART_PRINTF_MODE
-#define	CONSOLE_GPIO_TX_PIN     GPIO_PB5//print
+#define CONSOLE_GPIO_TX_PIN     GPIO_PB5//print
 #elif UART_PRINTF_MODE
 #warning "Not Supported."
 #endif

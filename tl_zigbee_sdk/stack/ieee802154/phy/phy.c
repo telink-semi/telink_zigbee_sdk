@@ -829,7 +829,7 @@ void restore_zb_rf_context(void)
 
     ZB_RADIO_INIT();
     ZB_RADIO_TRX_CFG(RF_PKT_BUFF_LEN);
-    ZB_RADIO_RX_BUF_SET((u8*)rf_rxBuf);
+    ZB_RADIO_RX_BUF_SET((u8 *)rf_rxBuf);
 
     rf_setChannel(rf_getChannel());
     rf_setTrxState(rfMode);

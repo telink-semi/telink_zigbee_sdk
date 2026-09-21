@@ -71,7 +71,7 @@ extern "C" {
 
 //DEBUG
 #if GSUART_PRINTF_MODE
-#define	CONSOLE_GPIO_TX_PIN     GPIO_PC6//print
+#define CONSOLE_GPIO_TX_PIN     GPIO_PC6//print
 #elif UART_PRINTF_MODE
 #if MODULE_UART_ENABLE
 #warning "The serial port is occupied."

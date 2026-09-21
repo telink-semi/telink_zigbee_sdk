@@ -34,25 +34,25 @@ extern "C" {
 #define PB2_FUNC                AS_GPIO
 #define PB2_OUTPUT_ENABLE       0
 #define PB2_INPUT_ENABLE        1
-#define	PULL_WAKEUP_SRC_PB2     PM_PIN_PULLDOWN_100K
+#define PULL_WAKEUP_SRC_PB2     PM_PIN_PULLDOWN_100K
 
 #define BUTTON2                 GPIO_PB3
 #define PB3_FUNC                AS_GPIO
 #define PB3_OUTPUT_ENABLE       0
 #define PB3_INPUT_ENABLE        1
-#define	PULL_WAKEUP_SRC_PB3     PM_PIN_PULLDOWN_100K
+#define PULL_WAKEUP_SRC_PB3     PM_PIN_PULLDOWN_100K
 
 #define BUTTON3                 GPIO_PB4
 #define PB4_FUNC                AS_GPIO
 #define PB4_OUTPUT_ENABLE       0
 #define PB4_INPUT_ENABLE        1
-#define	PULL_WAKEUP_SRC_PB4     PM_PIN_PULLUP_10K
+#define PULL_WAKEUP_SRC_PB4     PM_PIN_PULLUP_10K
 
 #define BUTTON4                 GPIO_PB5
 #define PB5_FUNC                AS_GPIO
 #define PB5_OUTPUT_ENABLE       0
 #define PB5_INPUT_ENABLE        1
-#define	PULL_WAKEUP_SRC_PB5     PM_PIN_PULLUP_10K
+#define PULL_WAKEUP_SRC_PB5     PM_PIN_PULLUP_10K
 
 //LED
 #define LED_G                   GPIO_PD3
@@ -92,19 +92,19 @@ enum {
     VK_SW4 = 0x04
 };
 
-#define	KB_MAP_NORMAL           { \
+#define KB_MAP_NORMAL           { \
                                     {VK_SW1, VK_SW3}, \
                                     {VK_SW2, VK_SW4}, \
                                 }
 
-#define	KB_MAP_NUM              KB_MAP_NORMAL
-#define	KB_MAP_FN               KB_MAP_NORMAL
+#define KB_MAP_NUM              KB_MAP_NORMAL
+#define KB_MAP_FN               KB_MAP_NORMAL
 
 #define KB_DRIVE_PINS           {BUTTON1, BUTTON2}
 #define KB_SCAN_PINS            {BUTTON3, BUTTON4}
 
-#define	KB_LINE_MODE            0
-#define	KB_LINE_HIGH_VALID      0
+#define KB_LINE_MODE            0
+#define KB_LINE_HIGH_VALID      0
 
 #if PM_ENABLE
 #define BUTTON_WAKEUP_CFG       { \

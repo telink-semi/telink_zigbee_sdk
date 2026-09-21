@@ -40,7 +40,7 @@
  * of the flash at hand.
  *
  * If BOOT_LOADER_MODE is 0, it means that the SDK uses Normal Mode,
- * hardware multi-address (0x0000 or 0x40000) startup mode.
+ * hardware multi-address (0x0000 or 0x80000) startup mode.
  * If BOOT_LOADER_MODE is 1, it means that the SDK uses Boot Loader Mode.
  *
  * Normal mode is used by default.

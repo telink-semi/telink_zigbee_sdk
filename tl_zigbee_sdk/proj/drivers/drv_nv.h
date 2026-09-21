@@ -64,17 +64,17 @@ typedef struct _attribute_packed_ {
 
 /*****************************************************************************************************************************
  * Store zigbee information in flash.
- *   Module ID                  |            1M Flash               |            2M Flash             |
- * -----------------------------|-----------------------------------|---------------------------------|
- * NV_MODULE_ZB_INFO            |        0xE6000 - 0xE7FFF          |	    0x1E6000 - 0x1E7FFF       |
- * NV_MODULE_ADDRESS_TABLE      |        0xE8000 - 0xE9FFF          |       0x1E8000 - 0x1E9FFF       |
- * NV_MODULE_APS                |        0xEA000 - 0xEBFFF          |       0x1EA000 - 0x1EBFFF       |
- * NV_MODULE_ZCL                |        0xEC000 - 0xEDFFF          |       0x1EC000 - 0x1EDFFF       |
- * NV_MODULE_NWK_FRAME_COUNT	|        0xEE000 - 0xEFFFF          |       0x1EE000 - 0x1EFFFF       |
- * NV_MODULE_OTA                |        0xF0000 - 0xF1FFF          |       0x1F0000 - 0x1F1FFF       |
- * NV_MODULE_APP                |        0xF2000 - 0xF3FFF          |       0x1F2000 - 0x1F3FFF       |
- * NV_MODULE_KEYPAIR            |        0xF4000 - 0xFBFFF          |       0x1F4000 - 0x1FBFFF       |
- *                              |    *16K - can store 127 nodes     |    *32K - can store 302 nodes   |
+ *   Module ID               |          1M Flash          |          2M Flash          |          4M Flash          |
+ * --------------------------|----------------------------|----------------------------|----------------------------|
+ * NV_MODULE_ZB_INFO         |      0xE6000 - 0xE7FFF     |     0x1E6000 - 0x1E7FFF    |     0x3E6000 - 0x1E7FFF    |
+ * NV_MODULE_ADDRESS_TABLE   |      0xE8000 - 0xE9FFF     |     0x1E8000 - 0x1E9FFF    |     0x3E8000 - 0x1E9FFF    |
+ * NV_MODULE_APS             |      0xEA000 - 0xEBFFF     |     0x1EA000 - 0x1EBFFF    |     0x3EA000 - 0x1EBFFF    |
+ * NV_MODULE_ZCL             |      0xEC000 - 0xEDFFF     |     0x1EC000 - 0x1EDFFF    |     0x3EC000 - 0x1EDFFF    |
+ * NV_MODULE_NWK_FRAME_COUNT |      0xEE000 - 0xEFFFF     |     0x1EE000 - 0x1EFFFF    |     0x3EE000 - 0x1EFFFF    |
+ * NV_MODULE_OTA             |      0xF0000 - 0xF1FFF     |     0x1F0000 - 0x1F1FFF    |     0x3F0000 - 0x1F1FFF    |
+ * NV_MODULE_APP             |      0xF2000 - 0xF3FFF     |     0x1F2000 - 0x1F3FFF    |     0x3F2000 - 0x1F3FFF    |
+ * NV_MODULE_KEYPAIR         |      0xF4000 - 0xFBFFF     |     0x1F4000 - 0x1FBFFF    |     0x3F4000 - 0x1FBFFF    |
+ *                           | *16K - can store 127 nodes | *32K - can store 302 nodes | *32K - can store 302 nodes |
  * NV_MAX_MODULS
  */
 typedef enum {
@@ -172,8 +172,8 @@ typedef enum {
 
 #define MODULES_START_ADDR(id)                  (NV_BASE_ADDRESS_ZB + FLASH_SECTOR_SIZE * (2 * id))
 #define NV_SECTOR_SIZE(id)                      ((id == NV_MODULE_KEYPAIR) ? (4 * FLASH_SECTOR_SIZE) : FLASH_SECTOR_SIZE)
-#define MODULE_INFO_SIZE(id)                    ((id == NV_MODULE_OTA || id == NV_MODULE_KEYPAIR || id == NV_MODULE_ADDRESS_TABLE) \
-                                                    ? ((id == NV_MODULE_KEYPAIR) ? (12 * FLASH_PAGE_SIZE) : (4 * FLASH_PAGE_SIZE)) : (2 * FLASH_PAGE_SIZE))
+#define MODULE_INFO_SIZE(id)                    ((id == NV_MODULE_OTA || id == NV_MODULE_KEYPAIR || id == NV_MODULE_ADDRESS_TABLE) ? \
+                                                ((id == NV_MODULE_KEYPAIR) ? (12 * FLASH_PAGE_SIZE) : (4 * FLASH_PAGE_SIZE)) : (2 * FLASH_PAGE_SIZE))
 
 #define MODULE_SECTOR_NUM                       (2)
 

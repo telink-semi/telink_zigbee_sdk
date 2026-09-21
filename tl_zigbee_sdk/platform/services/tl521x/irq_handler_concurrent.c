@@ -53,7 +53,7 @@ _attribute_ram_code_ void rf_irq_handler(void)
         }
     } else {
         T_DBG_testIrq[4]++;
-        if(rf_get_irq_status(FLD_RF_IRQ_ALL)){
+        if (rf_get_irq_status(FLD_RF_IRQ_ALL)) {
             blc_sdk_irq_handler();
         }
     }
@@ -127,7 +127,7 @@ void uart0_irq_handler(void)
         drv_uart_tx_irq_handler();
     }
 
-#if 0 //tl321x uses dma rx irq instead of uart irq
+#if 0 //tl521x uses dma rx irq instead of uart irq
     if (uart_get_irq_status(UART0, UART_RXDONE_IRQ_STATUS)) {
         T_DBG_testIrq[9]++;
         drv_uart_rx_irq_handler();
