@@ -52,6 +52,8 @@
 
 /* UART */
 #if MODULE_UART_ENABLE
+#define BL_UART_BAUDRATE                    115200
+
 #define UART_TX_BUF_SIZE                    64
 #define UART_RX_BUF_SIZE                    64
 
@@ -592,7 +594,7 @@ void bootloader_init(bool isBoot)
 
 #if MODULE_UART_ENABLE
         UART_PIN_CFG();
-        drv_uart_init(115200, uartRxBuf, UART_RX_BUF_SIZE, bootloader_uartRxHandler);
+        drv_uart_init(BL_UART_BAUDRATE, uartRxBuf, UART_RX_BUF_SIZE, bootloader_uartRxHandler);
 
         ev_queue_init(&msgQ, NULL);
         ev_on_poll(EV_POLL_UART_PROC, bootloader_uartRxDataProc);
@@ -604,7 +606,7 @@ void bootloader_init(bool isBoot)
         drv_enable_irq();
 
         //start a timer delay for waiting for uart messages.
-        bootloader_ota_check_delay(2000);
+        bootloader_ota_check_delay(1000);
 #else
         bootloader_ota_check_delay(0);
 #endif
@@ -616,9 +618,14 @@ void bootloader_init(bool isBoot)
 void bootloader_loop(void)
 {
     if (noAppFlg) {
-        gpio_toggle(LED_POWER);
-        gpio_toggle(LED_PERMIT);
-        WaitMs(100);
+        for (u8 i = 0; i < 10; i++) {
+            gpio_toggle(LED_POWER);
+            gpio_toggle(LED_PERMIT);
+            WaitMs(100);
+        }
+#if PM_ENABLE
+        drv_pm_lowPowerEnter();
+#endif
     }
 }
 

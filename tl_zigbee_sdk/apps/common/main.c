@@ -25,6 +25,8 @@
 #include "tl_common.h"
 #include "app.h"
 
+#define MODULE_TEST     0
+
 /*
  * main:
  * */
@@ -32,7 +34,7 @@ int main(void)
 {
     startup_state_e state = drv_platform_init(IS_BOOT_LOADER_IMAGE ? FALSE : TRUE);
 
-#if 0
+#if MODULE_TEST
     u8 isRetention = (state == SYSTEM_DEEP_RETENTION) ? 1 : 0;
     ev_init(!isRetention);
 
