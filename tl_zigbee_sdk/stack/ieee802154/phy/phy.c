@@ -50,6 +50,20 @@
 #define RF_DROP_REASON_FILTER_LEN               0x07
 #define RF_DROP_REASON_INVALIC_FRAME_TYPE       0x08
 
+
+#if defined(MCU_CORE_TL721X)
+#define ZB_TICK_US                              8
+#define ZB_CURRENT_TICK()                       rf_bb_timer_get_tick()
+#else
+#define ZB_TICK_US                              S_TIMER_CLOCK_1US
+#define ZB_CURRENT_TICK()                       clock_time()
+#endif
+
+#define ZB_PHR_LENGTH                           1
+#define ZB_OCTET_DURATION_US                    32
+#define ZB_PACKET_TIMESTAMP_GET(len)            ((len + ZB_PHR_LENGTH) * ZB_OCTET_DURATION_US * ZB_TICK_US)
+#define ZB_ACK_TX_WAIT_US                       (128 + 32)
+
 /**********************************************************************
  * LOCAL TYPEDEFS
  */
@@ -647,8 +661,6 @@ void rf_rx_irq_handler(void)
     u8 *p = (u8 *)rf_rxBuf;
     u8 fAck = 0;
     u8 fDrop = 0;
-    s32 txTime = 0;
-    s32 txDelayUs = 0;
 
     if (RF_DMA_BUSY()) {
     	return;
@@ -673,6 +685,7 @@ void rf_rx_irq_handler(void)
     //parse necessary field to be used later
     u8 len = (u8)ZB_RADIO_ACTUAL_PAYLOAD_LEN(p);
     u8 *macPld = p + ZB_RADIO_RX_HDR_LEN;
+    u32 timestamp = ZB_RADIO_TIMESTAMP_GET(p) + ZB_PACKET_TIMESTAMP_GET(len);
 
     //do filter
     u8 *pSrcAddr = zb_macDataFilter(macPld, len, &fDrop, &fAck);
@@ -689,7 +702,6 @@ void rf_rx_irq_handler(void)
     //switch to TX in advance to let the pll stable
     if (macPld[0] & MAC_FCF_ACK_REQ_BIT) {
         ZB_SWITCH_TO_TXMODE();
-        txTime = clock_time();
     }
 
     //have no enough buffer, use current rxBuf, and drop it
@@ -748,10 +760,11 @@ void rf_rx_irq_handler(void)
         (void)pSrcAddr;
 #endif
 
-        txDelayUs = (clock_time() - txTime) / S_TIMER_CLOCK_1US;
+        u32 txDelayUs = (ZB_CURRENT_TICK() - timestamp) / ZB_TICK_US;
+
         u32 curTick = clock_time();
-        if (txDelayUs < ZB_TX_WAIT_US) {
-            while(!clock_time_exceed(curTick, (ZB_TX_WAIT_US - txDelayUs)));
+        if (txDelayUs < ZB_ACK_TX_WAIT_US) {
+            while(!clock_time_exceed(curTick, (ZB_ACK_TX_WAIT_US - txDelayUs)));
         }
 
         //clear RF irq_mask
