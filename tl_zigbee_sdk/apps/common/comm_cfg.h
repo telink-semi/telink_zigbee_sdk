@@ -54,7 +54,7 @@
 
 /* APP image address. */
 #if BOOT_LOADER_MODE
-#define APP_IMAGE_ADDR                  0x8000
+#define APP_IMAGE_ADDR                  0x10000
 #else
 #define APP_IMAGE_ADDR                  0x0000
 #endif

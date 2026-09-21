@@ -30,7 +30,7 @@
  * #if !defined(BOOT_LOADER_MODE) || (BOOT_LOADER_MODE == 0)
  *
  *                1M                             2M                            4M
- * 0x100000  ------------         0x200000  ------------         0x400000  ------------
+ *  0xFFFFF  ------------         0x1FFFFF  ------------         0x3FFFFF  ------------
  *          |  MAC_Addr  |                 |  MAC_Addr  |                 |  MAC_Addr  |
  *  0xFF000 |------------|        0x1FF000 |------------|        0x3FF000 |------------|
  *          | F_CFG_Info |                 | F_CFG_Info |                 | F_CFG_Info |
@@ -57,7 +57,7 @@
  * #else
  *
  *               1M                              2M                            4M
- * 0x100000  ------------         0x200000  ------------         0x400000  ------------
+ *  0xFFFFF  ------------         0x1FFFFF  ------------         0x3FFFFF  ------------
  *          |  MAC_Addr  |                 |  MAC_Addr  |                 |  MAC_Addr  |
  *  0xFF000 |------------|        0x1FF000 |------------|        0x3FF000 |------------|
  *          | F_CFG_Info |                 | F_CFG_Info |                 | F_CFG_Info |
@@ -71,15 +71,15 @@
  *          |            |                 |  Reserved  |                 |  Reserved  |
  *          |            |        0x100000 |------------|        0x100000 |------------|
  *          |  OTA_Image |                 |            |                 |            |
- *          |   (440k)   |                 |  OTA_Image |                 |  OTA_Image |
- *          |            |                 |   (496k)   |                 |   (496k)   |
- *  0x76000 |------------|                 |            |                 |            |
- *          |            |         0x84000 |------------|         0x84000 |------------|
+ *          |   (424k)   |                 |  OTA_Image |                 |  OTA_Image |
+ *          |            |                 |   (480k)   |                 |   (480k)   |
+ *  0x7A000 |------------|                 |            |                 |            |
+ *          |            |         0x88000 |------------|         0x88000 |------------|
  *          |            |                 |            |                 |            |
  *          |  Firmware  |                 |  Firmware  |                 |  Firmware  |
- *          |   (440k)   |                 |   (496k)   |                 |   (496k)   |
+ *          |   (424k)   |                 |   (480k)   |                 |   (480k)   |
  *          |            |                 |            |                 |            |
- *  0x08000 |------------|         0x08000 |------------|         0x08000 |------------|
+ *  0x10000 |------------|         0x10000 |------------|         0x10000 |------------|
  *          | BootLoader |                 | BootLoader |                 | BootLoader |
  *  0x00000  ------------          0x00000  ------------          0x00000  ------------
  *
@@ -233,12 +233,12 @@ extern u32 g_u32CfgFlashAddr;
 //4M Flash: max size = 0x100000 - 0x80000 = 512K
 #define FLASH_OTA_IMAGE_MAX_SIZE        (FLASH_ADDR_OTA_IMAGE_END - FLASH_ADDR_OF_OTA_IMAGE)
 #else
-//1M Flash: max size = (0xE4000  - 0x8000) / 2 = 440k
-//2M Flash: max size = (0x100000 - 0x8000) / 2 = 496k
-//4M Flash: max size = (0x100000 - 0x8000) / 2 = 496k
+//1M Flash: max size = (0xE4000  - 0x10000) / 2 = 424k
+//2M Flash: max size = (0x100000 - 0x10000) / 2 = 480k
+//4M Flash: max size = (0x100000 - 0x10000) / 2 = 480k
 #define FLASH_OTA_IMAGE_MAX_SIZE        ((FLASH_ADDR_OTA_IMAGE_END - FLASH_ADDR_OF_APP_FW) / 2)
-//1M Flash: ota addr = 0x8000 + 440k = 0x76000
-//2M Flash: ota addr = 0x8000 + 496k = 0x84000
-//4M Flash: ota addr = 0x8000 + 496k = 0x84000
+//1M Flash: ota addr = 0x10000 + 424k = 0x7A000
+//2M Flash: ota addr = 0x10000 + 480k = 0x88000
+//4M Flash: ota addr = 0x10000 + 480k = 0x88000
 #define FLASH_ADDR_OF_OTA_IMAGE         (FLASH_ADDR_OF_APP_FW + FLASH_OTA_IMAGE_MAX_SIZE)
 #endif
