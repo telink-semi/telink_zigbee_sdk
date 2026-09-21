@@ -503,7 +503,7 @@ void blc_flash_read_mid_get_vendor_set_capacity(void)
 
 void user_ble_normal_init(void)
 {
-    bls_smp_configPairingSecurityInfoStorageAddr(CFG_NV_START_FOR_BLE);
+    bls_smp_configPairingSecurityInfoStorageAddr(FLASH_SMP_PAIRING_ADDR);
      //blc_app_loadCustomizedParameters();  //load customized freq_offset cap value
 
 ////////////////// BLE stack initialization ////////////////////////////////////

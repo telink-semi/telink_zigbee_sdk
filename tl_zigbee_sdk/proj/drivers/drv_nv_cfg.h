@@ -85,6 +85,17 @@
  *
  * #endif
  */
+
+#if defined(MCU_CORE_8258)
+    #if (CHIP_TYPE == TLSR_8258_512K)
+        #error "B85(512k) not support"
+    #elif (CHIP_TYPE == TLSR_8258_1M)
+        #if !BOOT_LOADER_MODE
+        #error "B85(1M) only support bootloader mode"
+        #endif
+    #endif
+#endif
+
 /* Offset */
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 #define FLASH_TLNK_FLAG_OFFSET          8

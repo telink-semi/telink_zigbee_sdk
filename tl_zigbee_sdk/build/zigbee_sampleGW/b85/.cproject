@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+	<storageModule moduleId="org.eclipse.cdt.core.settings">
+		<cconfiguration id="com.telink.tc32eclipse.configuration.app.release.1555243913">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.telink.tc32eclipse.configuration.app.release.1555243913" moduleId="org.eclipse.cdt.core.settings" name="sampleGW_b85">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.MakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactName="${ConfigName}" buildArtefactType="com.telink.tc32eclipse.buildArtefactType.app" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=com.telink.tc32eclipse.buildArtefactType.app,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release" description="" id="com.telink.tc32eclipse.configuration.app.release.1555243913" name="sampleGW_b85" optionalBuildProperties="org.eclipse.cdt.docker.launcher.containerbuild.property.selectedvolumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.volumes=" parent="com.telink.tc32eclipse.configuration.app.release" postbuildStep="&quot;${workspace_loc:/${ProjName}}/../../../tools/tl_check_fw.sh&quot; ${ConfigName} tc32" prebuildStep="&quot;${workspace_loc:/${ProjName}}/../../../tools/tl_link_load.sh&quot; &quot;${workspace_loc:/${ProjName}}/../../../platform/boot/8258/boot_8258.link&quot; &quot;${workspace_loc:/${ProjName}}/boot.link&quot;">
+					<folderInfo id="com.telink.tc32eclipse.configuration.app.release.1555243913." name="/" resourcePath="">
+						<toolChain id="com.telink.tc32eclipse.toolchain.TC32Win.app.release.188925386" name="TC32-GCC Toolchain" superClass="com.telink.tc32eclipse.toolchain.TC32Win.app.release">
+							<option id="com.telink.tc32eclipse.toolchain.options.toolchain.objcopy.flash.app.release.48271260" name="Generate binary file for Flash memory" superClass="com.telink.tc32eclipse.toolchain.options.toolchain.objcopy.flash.app.release" useByScannerDiscovery="false"/>
+							<option id="com.telink.tc32eclipse.toolchain.options.toolchain.objdump.app.release.1426269675" name="Generate Extended Listing (Source + generated Assembler)" superClass="com.telink.tc32eclipse.toolchain.options.toolchain.objdump.app.release" useByScannerDiscovery="false"/>
+							<option id="com.telink.tc32eclipse.toolchain.options.toolchain.size.app.release.3601041" name="Print Size" superClass="com.telink.tc32eclipse.toolchain.options.toolchain.size.app.release" useByScannerDiscovery="false"/>
+							<targetPlatform id="com.telink.tc32eclipse.targetplatform.TC32Win.app.release.16436906" name="TC32 Cross-Target" superClass="com.telink.tc32eclipse.targetplatform.TC32Win.app.release"/>
+							<builder arguments="-j4" buildPath="${workspace_loc:/zigbee_sampleGW_b85}/Release" command="make" id="com.telink.tc32eclipse.target.builder.TC32Win.app.release.579590611" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="GNU Make Builder" stopOnErr="false" superClass="com.telink.tc32eclipse.target.builder.TC32Win.app.release"/>
+							<tool id="com.telink.tc32eclipse.tool.assembler.TC32Win.app.release.1472210809" name="TC32 CC/Assembler" superClass="com.telink.tc32eclipse.tool.assembler.TC32Win.app.release">
+								<option id="com.telink.tc32eclipse.assembler.option.debug.level.189991032" name="Generate Debugging Info" superClass="com.telink.tc32eclipse.assembler.option.debug.level" useByScannerDiscovery="false" value="com.telink.tc32eclipse.assembler.option.debug.level.none" valueType="enumerated"/>
+								<option id="com.telink.tc32eclipse.asm.option.flags.1400285584" name="Other GCC Flags" superClass="com.telink.tc32eclipse.asm.option.flags" useByScannerDiscovery="false" value="-DMCU_CORE_8258 -DMCU_STARTUP_8258 -DBOOT_LOADER_MODE" valueType="string"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.telink.tc32eclipse.asm.option.include.paths.720325326" name="#include paths for preprocessor(-I)" superClass="com.telink.tc32eclipse.asm.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="../../../../apps/common"/>
+									<listOptionValue builtIn="false" value="../../../../apps/zigbee/sampleGW"/>
+								</option>
+								<inputType id="com.telink.tc32eclipse.tool.assembler.input.516440104" superClass="com.telink.tc32eclipse.tool.assembler.input"/>
+							</tool>
+							<tool command="tc32-elf-gcc -ffunction-sections -fdata-sections" id="com.telink.tc32eclipse.tool.compiler.TC32Win.app.release.476659707" name="TC32 Compiler" superClass="com.telink.tc32eclipse.tool.compiler.TC32Win.app.release">
+								<option id="com.telink.tc32eclipse.compiler.option.debug.level.1744054779" name="Generate Debugging Info" superClass="com.telink.tc32eclipse.compiler.option.debug.level" useByScannerDiscovery="false" value="com.telink.tc32eclipse.compiler.option.debug.level.none" valueType="enumerated"/>
+								<option id="com.telink.tc32eclipse.compiler.option.optimize.204382699" name="Optimization Level" superClass="com.telink.tc32eclipse.compiler.option.optimize" useByScannerDiscovery="false" value="com.telink.tc32eclipse.compiler.optimize.two" valueType="enumerated"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.telink.tc32eclipse.compiler.option.incpath.651457366" name="Include Paths (-I)" superClass="com.telink.tc32eclipse.compiler.option.incpath" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="../../../../apps/common"/>
+									<listOptionValue builtIn="false" value="../../../../apps/zigbee/sampleCommon"/>
+									<listOptionValue builtIn="false" value="../../../../apps/zigbee/sampleGW"/>
+									<listOptionValue builtIn="false" value="../../../../platform/chip_8258"/>
+									<listOptionValue builtIn="false" value="../../../../platform/tc32"/>
+									<listOptionValue builtIn="false" value="../../../../platform"/>
+									<listOptionValue builtIn="false" value="../../../../proj/common"/>
+									<listOptionValue builtIn="false" value="../../../../proj"/>
+									<listOptionValue builtIn="false" value="../../../../stack/common/includes"/>
+									<listOptionValue builtIn="false" value="../../../../stack/ieee802154/mac/includes"/>
+									<listOptionValue builtIn="false" value="../../../../stack/ieee802154/phy"/>
+									<listOptionValue builtIn="false" value="../../../../stack/zigbee/common/includes"/>
+									<listOptionValue builtIn="false" value="../../../../stack/zigbee/mac"/>
+									<listOptionValue builtIn="false" value="../../../../stack/zigbee/zbapi"/>
+									<listOptionValue builtIn="false" value="../../../../stack/zigbee/bdb/includes"/>
+									<listOptionValue builtIn="false" value="../../../../stack/zigbee/gp"/>
+									<listOptionValue builtIn="false" value="../../../../stack/zigbee/zcl"/>
+									<listOptionValue builtIn="false" value="../../../../stack/zigbee/ota"/>
+									<listOptionValue builtIn="false" value="../../../../stack/zigbee/wwah"/>
+									<listOptionValue builtIn="false" value="../../../../stack/hci"/>
+									<listOptionValue builtIn="false" value="../../../../stack/zigbee/zb_hci"/>
+								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.telink.tc32eclipse.compiler.option.def.2016772702" name="Define Syms (-D)" superClass="com.telink.tc32eclipse.compiler.option.def" useByScannerDiscovery="false" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="MCU_CORE_8258=1"/>
+									<listOptionValue builtIn="false" value="COORDINATOR=1"/>
+									<listOptionValue builtIn="false" value="ZB_STACK_USED=1"/>
+									<listOptionValue builtIn="false" value="__PROJECT_TL_GW__=1"/>
+									<listOptionValue builtIn="false" value="BOOT_LOADER_MODE=1"/>
+								</option>
+								<option id="com.telink.tc32eclipse.compiler.option.optimize.packstruct.1395705734" name="Pack structs (-fpack-struct)" superClass="com.telink.tc32eclipse.compiler.option.optimize.packstruct" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								<option id="com.telink.tc32eclipse.compiler.option.optimize.shortenums.760014465" name="Short enums (-fshort-enums)" superClass="com.telink.tc32eclipse.compiler.option.optimize.shortenums" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								<option id="com.telink.tc32eclipse.compiler.option.optimize.other.372623478" name="Other Optimization Flags" superClass="com.telink.tc32eclipse.compiler.option.optimize.other" useByScannerDiscovery="false" value="-finline-small-functions" valueType="string"/>
+								<option id="com.telink.tc32eclipse.compiler.option.std.1675262244" name="Language Standard" superClass="com.telink.tc32eclipse.compiler.option.std" useByScannerDiscovery="false" value="com.telink.tc32eclipse.compiler.option.std.gnu99" valueType="enumerated"/>
+								<option id="com.telink.tc32eclipse.compiler.option.otherflags.881456411" name="Other flags" superClass="com.telink.tc32eclipse.compiler.option.otherflags" useByScannerDiscovery="false" value="-fshort-wchar -fms-extensions" valueType="string"/>
+								<inputType id="com.telink.tc32eclipse.compiler.TC32Win.input.1996970095" name="C Source Files" superClass="com.telink.tc32eclipse.compiler.TC32Win.input"/>
+							</tool>
+							<tool command="tc32-elf-ld --gc-sections" id="com.telink.tc32eclipse.tool.linker.TC32Win.app.release.336512883" name="TC32 C Linker" superClass="com.telink.tc32eclipse.tool.linker.TC32Win.app.release">
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.telink.tc32eclipse.linker.option.libs.1326922945" name="Libraries (-l)" superClass="com.telink.tc32eclipse.linker.option.libs" useByScannerDiscovery="false" valueType="libs">
+									<listOptionValue builtIn="false" value="firmware_encrypt"/>
+									<listOptionValue builtIn="false" value="drivers_b85"/>
+									<listOptionValue builtIn="false" value="zb_coordinator"/>
+								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.telink.tc32eclipse.linker.option.libpath.1817858959" name="Libraries Path (-L)" superClass="com.telink.tc32eclipse.linker.option.libpath" useByScannerDiscovery="false" valueType="stringList">
+									<listOptionValue builtIn="false" value="../../../../platform/tc32"/>
+									<listOptionValue builtIn="false" value="../../../../platform/lib"/>
+									<listOptionValue builtIn="false" value="../../../../stack/zigbee/lib/tc32_gcc"/>
+								</option>
+								<inputType id="com.telink.tc32eclipse.tool.linker.input.521939700" name="OBJ Files" superClass="com.telink.tc32eclipse.tool.linker.input">
+									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
+									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
+								</inputType>
+							</tool>
+							<tool id="com.telink.tc32eclipse.tool.archiver.TC32Win.base.753966927" name="TC32 Archiver" superClass="com.telink.tc32eclipse.tool.archiver.TC32Win.base"/>
+							<tool id="com.telink.tc32eclipse.tool.objdump.TC32Win.app.release.14036405" name="TC32 Create Extended Listing" superClass="com.telink.tc32eclipse.tool.objdump.TC32Win.app.release">
+								<option id="com.telink.tc32eclipse.objdump.option.output.1136613926" name="Output Filename" superClass="com.telink.tc32eclipse.objdump.option.output" useByScannerDiscovery="false" value="${ConfigName}.lst" valueType="string"/>
+							</tool>
+							<tool id="com.telink.tc32eclipse.tool.objcopy.flash.TC32Win.app.release.152971548" name="TC32 Create Flash image" superClass="com.telink.tc32eclipse.tool.objcopy.flash.TC32Win.app.release">
+								<option id="com.telink.tc32eclipse.objcopy.flash.option.output.2021477444" name="Output Filename" superClass="com.telink.tc32eclipse.objcopy.flash.option.output" useByScannerDiscovery="false" value="" valueType="string"/>
+								<option id="com.telink.tc32eclipse.objcopy.option.flash.stdopts.603248370" name="Options to create flash image" superClass="com.telink.tc32eclipse.objcopy.option.flash.stdopts" useByScannerDiscovery="false" value="" valueType="string"/>
+							</tool>
+							<tool id="com.telink.tc32eclipse.tool.size.TC32Win.app.release.695598067" name="Print Size" superClass="com.telink.tc32eclipse.tool.size.TC32Win.app.release"/>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+			<storageModule moduleId="ilg.gnuarmeclipse.managedbuild.packs"/>
+		</cconfiguration>
+	</storageModule>
+	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+		<project id="zigbee_sampleGW_b85.com.telink.tc32eclipse.project.TC32Win.elf_0.1.0.1710578483" name="TC32 Cross Target Application" projectType="com.telink.tc32eclipse.project.TC32Win.elf_0.1.0"/>
+	</storageModule>
+	<storageModule moduleId="scannerConfiguration">
+		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		<scannerConfigBuildInfo instanceId="com.telink.tc32eclipse.configuration.app.release.1555243913;com.telink.tc32eclipse.configuration.app.release.1555243913.;com.telink.tc32eclipse.tool.compiler.TC32Win.app.release.476659707;com.telink.tc32eclipse.compiler.TC32Win.input.1996970095">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.telink.tc32eclipse.core.TC32GCCManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="com.telink.tc32eclipse.configuration.app.release.1555243913;com.telink.tc32eclipse.configuration.app.release.1555243913.">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.telink.tc32eclipse.core.TC32GCCManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="sampleGW_b85">
+			<resource resourceType="PROJECT" workspacePath="/zigbee_sampleGW_b85"/>
+		</configuration>
+		<configuration configurationName="Release">
+			<resource resourceType="PROJECT" workspacePath="/zigbee_sampleGW_b85"/>
+		</configuration>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
+</cproject>

@@ -35,6 +35,9 @@
 #elif defined(MCU_CORE_B91)
     #define CHIP_TYPE                   TLSR_B91
     #define FLASH_CAP_SIZE_1M           1
+#elif defined(MCU_CORE_TL721X)
+    #define CHIP_TYPE                   TLSR_TL721X
+    #define FLASH_CAP_SIZE_1M           1
 #elif defined(MCU_CORE_TL321X)
     #define CHIP_TYPE                   TLSR_TL321X
     #define FLASH_CAP_SIZE_1M           1

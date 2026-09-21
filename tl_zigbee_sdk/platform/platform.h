@@ -39,6 +39,10 @@
 #include "chip_b91/driver.h"
 #include "chip_b91/gpio_default.h"
 #include "chip_b91/ext_driver/driver_ext.h"
+#elif defined (MCU_CORE_TL721X)
+#include "chip_tl721x/driver.h"
+#include "chip_tl721x/gpio_default.h"
+#include "chip_tl721x/ext_driver/driver_ext.h"
 #elif defined (MCU_CORE_TL321X)
 #include "chip_tl321x/driver.h"
 #include "chip_tl321x/gpio_default.h"

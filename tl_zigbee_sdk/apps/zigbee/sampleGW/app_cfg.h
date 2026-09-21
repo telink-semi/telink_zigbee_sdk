@@ -132,6 +132,9 @@ extern "C" {
 #elif defined(MCU_CORE_B91)
     #define BOARD                               BOARD_B91_DONGLE//BOARD_B91_EVK
     #define CLOCK_SYS_CLOCK_HZ                  48000000
+#elif defined(MCU_CORE_TL721X)
+    #define BOARD                               BOARD_TL721X_DONGLE//BOARD_TL721X_EVK
+    #define CLOCK_SYS_CLOCK_HZ                  120000000
 #elif defined(MCU_CORE_TL321X)
     #define BOARD                               BOARD_TL321X_DONGLE//BOARD_TL321X_EVK
     #define CLOCK_SYS_CLOCK_HZ                  48000000
@@ -167,6 +170,10 @@ extern "C" {
     #include "board_b91_evk.h"
 #elif (BOARD == BOARD_B91_DONGLE)
     #include "board_b91_dongle.h"
+#elif (BOARD == BOARD_TL721X_EVK)
+    #include "board_tl721x_evk.h"
+#elif (BOARD == BOARD_TL721X_DONGLE)
+    #include "board_tl721x_dongle.h"
 #elif (BOARD == BOARD_TL321X_EVK)
     #include "board_tl321x_evk.h"
 #elif (BOARD == BOARD_TL321X_DONGLE)

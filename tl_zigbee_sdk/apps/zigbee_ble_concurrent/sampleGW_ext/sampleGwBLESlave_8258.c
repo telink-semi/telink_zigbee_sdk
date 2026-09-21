@@ -448,7 +448,7 @@ void user_ble_init(bool isRetention)
 {
     (void)isRetention;
 
-    bls_smp_configPairingSecurityInfoStorageAddr(CFG_NV_START_FOR_BLE);
+    bls_smp_configPairingSecurityInfoStorageAddr(FLASH_SMP_PAIRING_ADDR);
 
     ////////////////// BLE stack initialization ////////////////////////////////////
     u8 mac_public[6];
