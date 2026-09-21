@@ -151,6 +151,7 @@ typedef enum
     MID156085 = 0x156085, //P25Q16SU
     MID166085 = 0x166085, //P25Q32SU
     MID182085 = 0x182085, //PY25Q128H
+    MID14345E = 0x14345e, //ZB25WQ80A
 } flash_mid_e;
 
 typedef struct

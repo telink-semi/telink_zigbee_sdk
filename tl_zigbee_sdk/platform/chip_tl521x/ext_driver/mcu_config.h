@@ -89,7 +89,7 @@
 /**
  * @brief   Hardware secure debug
  */
-#define HARDWARE_SECURE_DEBUG_SUPPORT_EN                        1
+#define HARDWARE_SECURE_DEBUG_SUPPORT_EN                        0
 
 
 

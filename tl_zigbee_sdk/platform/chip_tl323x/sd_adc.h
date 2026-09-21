@@ -578,6 +578,7 @@ signed short sd_adc_calculate_temperature(signed int sd_adc_code);
  * @brief       Automatically adjusts the ADC input divider based on measured voltage thresholds.
  * @param[in]   raw_result - The measured voltage value (either in 0.1mV or 1mV units).
  * @param[in]   type       - The type of result (SD_ADC_VOLTAGE_10X_MV or SD_ADC_VOLTAGE_MV).
+ * @param[in]   n_pin      - This pin is used to determine whether it is a differential mode.
  * @param[in,out] gpio_div - Pointer to the current divider. Will be updated if a switch occurs.
  * @return      1: Divider switched, hardware stopped and range updated.
  * 0: No switch needed.
@@ -585,7 +586,7 @@ signed short sd_adc_calculate_temperature(signed int sd_adc_code);
  * - If voltage < 50mV, switch to 1:1 (DIV_OFF) for higher resolution.
  * - If voltage > 200mV, switch back to 1:4 (DIV_1F4) to prevent signal overflow.
  */
-signed int sd_adc_div_switch_adjust_rescale(signed int raw_result, sd_adc_result_type_e type, sd_adc_gpio_chn_div_e *gpio_div);
+signed int sd_adc_div_switch_adjust_rescale(signed int raw_result, sd_adc_result_type_e type, sd_adc_n_input_pin_def_e n_pin, sd_adc_gpio_chn_div_e *gpio_div);
 
 /**********************************************************************************************************************
  *                                         Audio and SD_ADC common interface                                              *

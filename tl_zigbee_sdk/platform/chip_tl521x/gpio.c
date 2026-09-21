@@ -22,6 +22,7 @@
  *
  *******************************************************************************************************/
 #include "gpio.h"
+#include "gpio_default.h"
 
 /**********************************************************************************************************************
  *                                            local constants                                                       *
@@ -112,7 +113,7 @@ void gpio_input_en(gpio_pin_e pin)
  * @param[in]  value - the level of driving strength.
  * @note        | DS1(PIN2) | DS0(PIN1) | Drv Strength                                              |
                 | --------- | ----------| --------------------------------------------------------- |
-                | 0         | 0         | 2.2mA(1.8v), 3.6mA(2.5v), 4.7mA(3.3v);          |
+                | 0         | 0         | 2.2mA(1.8v), 3.6mA(2.5v), 4.7mA(3.3v);                    |
                 | 0         | 1         | 4.4mA(1.8v), 7.2mA(2.5v), 9.4A(3.3v);                     |
                 | 1         | 0         | 6.6mA(1.8v), 10.8mA(2.5v), 14.1mA(3.3v);                  |
                 | 1         | 1         | 8.8mA(1.8v), 14.4mA(2.5v), 18.8mA(3.3v);                  |
@@ -126,7 +127,6 @@ void gpio_set_data_strength(gpio_pin_e pin, gpio_drv_strength_e value)
         if (DRV_STRENGTH_4P7MA == value) {
             analog_write_reg8(areg_gpio_pb_pin0, analog_read_reg8(areg_gpio_pb_pin0) & (~bit));
             analog_write_reg8(areg_gpio_pb_pin1, analog_read_reg8(areg_gpio_pb_pin1) & (~bit));
-
         } else if (DRV_STRENGTH_9P4MA == value) {
             analog_write_reg8(areg_gpio_pb_pin0, analog_read_reg8(areg_gpio_pb_pin0) | bit);
             analog_write_reg8(areg_gpio_pb_pin1, analog_read_reg8(areg_gpio_pb_pin1) & (~bit));
@@ -159,11 +159,11 @@ void gpio_set_data_strength(gpio_pin_e pin, gpio_drv_strength_e value)
             BM_CLR(reg_gpio_pin0(pin), bit);
             BM_CLR(reg_gpio_pin1(pin), bit);
         } else if (DRV_STRENGTH_9P4MA == value) {
-            BM_CLR(reg_gpio_pin0(pin), bit);
-            BM_SET(reg_gpio_pin1(pin), bit);
-        } else if (DRV_STRENGTH_14P1MA == value) {
             BM_SET(reg_gpio_pin0(pin), bit);
             BM_CLR(reg_gpio_pin1(pin), bit);
+        } else if (DRV_STRENGTH_14P1MA == value) {
+            BM_CLR(reg_gpio_pin0(pin), bit);
+            BM_SET(reg_gpio_pin1(pin), bit);
         } else if (DRV_STRENGTH_18P8MA == value) {
             BM_SET(reg_gpio_pin0(pin), bit);
             BM_SET(reg_gpio_pin1(pin), bit);
@@ -437,7 +437,11 @@ _attribute_flash_code_sec_noinline_ void gpio_shutdown_flashcode_for_asm(void)
     reg_gpio_pa_ie = 0x80; //SWS
     reg_gpio_pb_ie &= 0xf0;
 
+#if JTAG_CLOSE
     reg_gpio_pd_ie = 0x00;
+#else
+    reg_gpio_pd_ie &= 0xF0;
+#endif
     reg_gpio_pe_ie = 0x00;
 
     reg_rst1 |= FLD_RST1_ALGM;
@@ -478,7 +482,11 @@ _attribute_ram_code_sec_optimize_o2_ void gpio_shutdown_ramcode_for_asm(void)
     reg_gpio_pa_ie = 0x80; //SWS
     reg_gpio_pb_ie &= 0xf0;
 
+#if JTAG_CLOSE
     reg_gpio_pd_ie = 0x00;
+#else
+    reg_gpio_pd_ie &= 0xF0;
+#endif
     reg_gpio_pe_ie = 0x00;
 
     reg_rst1 |= FLD_RST1_ALGM;
@@ -516,7 +524,6 @@ _attribute_ram_code_sec_optimize_o2_ void gpio_shutdown_ramcode_for_asm(void)
 void jtag_sdp_set_pin(gpio_pin_e pin)
 {
     gpio_input_en(pin);
-    gpio_output_en(pin);
     gpio_set_mux_function((gpio_func_pin_e)pin, TDI_I);
     gpio_function_dis(pin);
 }

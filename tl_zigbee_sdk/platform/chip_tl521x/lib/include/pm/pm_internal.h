@@ -73,7 +73,6 @@
     #define CRYSTAL32768_TICK_PER_64CYCLE 46875
 #endif
 
-
 extern _attribute_data_retention_sec_ unsigned int  g_pm_tick_32k_calib;
 extern _attribute_data_retention_sec_ unsigned int  g_pm_tick_cur;
 extern _attribute_data_retention_sec_ unsigned int  g_pm_tick_32k_cur;
@@ -86,16 +85,14 @@ extern _attribute_data_retention_sec_ unsigned char g_pm_long_suspend;
 typedef struct
 {
     unsigned char low_speed_ldo_lp25;
-    unsigned char low_speed_ldo_dig_ldo;
-    unsigned char high_speed_ldo_lp25;
-    unsigned char high_speed_ldo_dig_ldo;
-
     unsigned char low_speed_dcdc_lp25;
-    unsigned char low_speed_dcdc_dig_ldo;
-    unsigned char high_speed_dcdc_lp25;
-    unsigned char high_speed_dcdc_dig_ldo;
+    unsigned char low_speed_dig_ldo;
+    unsigned char resv0;
 
-    unsigned char is_cal;
+    unsigned char high_speed_ldo_lp25;
+    unsigned char high_speed_dcdc_lp25;
+    unsigned char high_speed_dig_ldo;
+    unsigned char resv1;
 } pm_voltage_cal_t;
 extern _attribute_data_retention_sec_ pm_voltage_cal_t g_pm_voltage_cal;
 

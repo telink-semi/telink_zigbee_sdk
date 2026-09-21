@@ -61,8 +61,8 @@ typedef enum
     LPC_REF_923MV = 2,
     LPC_REF_872MV = 3,
     LPC_REF_820MV = 4,
-    LPC_REF_PB0   = 5,
-    LPC_REF_PB3   = 6,
+    LPC_REF_PB4   = 5,
+    LPC_REF_PB7   = 6,
 } lpc_reference_e;
 
 /**

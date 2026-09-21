@@ -705,6 +705,8 @@ unsigned int flash_get_vendor(unsigned int flash_mid)
     switch (flash_mid & 0x0000ffff) {
     case 0x0000325E:
         return FLASH_ETOX_ZB;
+    case 0x0000345E:
+        return FLASH_ETOX_ZB;
     case 0x000060C8:
         return FLASH_ETOX_GD;
     case 0x00004051:

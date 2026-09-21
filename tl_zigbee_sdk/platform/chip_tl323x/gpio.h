@@ -90,9 +90,7 @@ typedef enum
     GPIO_PA3  = GPIO_GROUPA | BIT(3),
     GPIO_PA4  = GPIO_GROUPA | BIT(4),
     GPIO_PA5  = GPIO_GROUPA | BIT(5),
-    GPIO_DM   = GPIO_PA5,
     GPIO_PA6  = GPIO_GROUPA | BIT(6),
-    GPIO_DP   = GPIO_PA6,
     GPIO_PA7  = GPIO_GROUPA | BIT(7),
     GPIO_SWS  = GPIO_PA7,
     GPIOA_ALL = GPIO_GROUPA | 0x00ff,
@@ -282,6 +280,8 @@ typedef enum
     GPIO_FC_PA2 = GPIO_PA2,
     GPIO_FC_PA3 = GPIO_PA3,
     GPIO_FC_PA4 = GPIO_PA4,
+    GPIO_FC_PA5 = GPIO_PA5,
+    GPIO_FC_PA6 = GPIO_PA6,
 
     GPIO_FC_PB0 = GPIO_PB0,
     GPIO_FC_PB1 = GPIO_PB1,

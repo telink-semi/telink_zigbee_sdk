@@ -178,13 +178,6 @@ _attribute_ram_code_sec_noinline_ void wd_32k_clear_status(void);
 
 /**
  * @brief     This function set the watchdog trigger time.
- * @param[in] period_ms - The watchdog trigger time. Unit is  millisecond.
- * @return    none.
- */
-_attribute_ram_code_sec_noinline_ void wd_32k_set_target_value(wd_32k_clk_sel_e wd_32k_clk_sel, unsigned char wd_32k_target);
-
-/**
- * @brief     This function set the watchdog trigger time.
  * @param[in] period_ms - The watchdog trigger time. Unit is millisecond.
  * @return    none.
  * @note      | period(ms)                   | 256-8192 | 8192-262144 |  262144-8388608 | 8388608-268435456 |

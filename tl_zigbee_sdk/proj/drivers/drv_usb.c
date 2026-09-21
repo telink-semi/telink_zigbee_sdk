@@ -26,10 +26,11 @@
 
 bool g_usbInit = FALSE;
 
-#if defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL521X)
+#if defined(MCU_CORE_B91) || defined(MCU_CORE_TL721X) || \
+    defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL521X)
 static void usb_edp_en(void)
 {
-#if defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL521X)
+#if defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL521X)
     usbhw_init();
     usbhw_set_ctrl_ep_size(SIZE_64_BYTE);
 #endif
@@ -45,13 +46,17 @@ static void usb_edp_en(void)
 
 void drv_usb_init(void)
 {
-#if defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL521X)
     if (g_usbInit) {
         return;
     }
 
+#if defined(MCU_CORE_8258)
     usb_set_pin_en();
 
+    g_usbInit = TRUE;
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL721X) || \
+      defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL521X)
+    usb_set_pin_en();
     usb_edp_en();
 
     g_usbInit = TRUE;

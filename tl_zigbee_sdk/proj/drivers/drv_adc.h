@@ -60,9 +60,9 @@ u16 drv_get_adc_data(void);
 void drv_adc_mode_pin_set(drv_adc_mode_e mode, ADC_InputPTypeDef pin);
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 void drv_adc_mode_pin_set(drv_adc_mode_e mode, GPIO_PinTypeDef pin);
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
 void drv_adc_mode_pin_set(drv_adc_mode_e mode, adc_input_pin_def_e pin);
-#elif defined(MCU_CORE_TL323X)
+#elif defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
 void drv_adc_mode_pin_set(drv_adc_mode_e mode, sd_adc_p_input_pin_def_e pin);
 #endif
 

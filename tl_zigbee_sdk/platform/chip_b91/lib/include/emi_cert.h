@@ -1,12 +1,12 @@
 /********************************************************************************************************
- * @file    emi_internal.h
+ * @file    emi_cert.h
  *
- * @brief   This is the header file for tl521x
+ * @brief   This is the header file for B91
  *
  * @author  Driver Group
- * @date    2025
+ * @date    2019
  *
- * @par     Copyright (c) 2025, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -21,10 +21,10 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-#ifndef EMI_INTERNAL_H_
-#define EMI_INTERNAL_H_
+#ifndef EMI_CERT_H_
+#define EMI_CERT_H_
 
-#include "lib/include/rf/rf_common.h"
+#include "lib/include/rf.h"
 
 #define EMI_ACCESS_CODE_V1 0x29417671
 
@@ -93,6 +93,5 @@ void rf_emi_tx_burst_loop_v1(void);
  * @note The V1 version can modify RF related configurations through the emi_cfg_param_t structure
  */
 void rf_emi_tx_burst_setup_v1(void);
-
 
 #endif

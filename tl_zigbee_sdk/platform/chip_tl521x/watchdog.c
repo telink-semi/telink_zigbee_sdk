@@ -99,7 +99,7 @@ _attribute_ram_code_sec_noinline_ void wd_32k_clear_status(void)
  * @param[in] wd_wd_32k_target - The number of ticks under this level.
  * @return    none.
  */
-_attribute_ram_code_sec_noinline_ void wd_32k_set_target_value(wd_32k_clk_sel_e wd_32k_clk_sel, unsigned char wd_32k_target)
+_attribute_ram_code_sec_noinline_ static void wd_32k_set_target_value(wd_32k_clk_sel_e wd_32k_clk_sel, unsigned char wd_32k_target)
 {
     unsigned int r  = core_interrupt_disable();
     analog_write_reg8(0x79, analog_read_reg8(0x79) & 0x7f);
@@ -117,32 +117,6 @@ _attribute_ram_code_sec_noinline_ void wd_32k_set_target_value(wd_32k_clk_sel_e 
  */
 _attribute_ram_code_sec_noinline_ void wd_32k_set_interval_ms(unsigned int period_ms)
 {
-#if 0
-    if(period_ms < 256)
-    {
-        wd_32k_set_target_value(WK_32K_CLK_WIDTH_256MS, 1);
-    }
-    else if(period_ms < 8064)//8192-128
-    {
-        wd_32k_set_target_value(WK_32K_CLK_WIDTH_256MS, (period_ms + 128) / 256);//256ms
-    }
-    else if(period_ms < 258048)//262144-4096
-    {
-        wd_32k_set_target_value(WK_32K_CLK_WIDTH_8192MS, (period_ms + 4096) / 8192);//8.2s
-    }
-    else if(period_ms < 8,257536)//8388608-131072
-    {
-        wd_32k_set_target_value(WK_32K_CLK_WIDTH_262144MS, (period_ms + 131072) / 262144);//4.4m
-    }
-    else if(period_ms < 264241152)//268435456-4194304
-    {
-        wd_32k_set_target_value(WK_32K_CLK_WIDTH_8388608MS, (period_ms + 4194304) / 8388608);//2.3h
-    }
-    else
-    {
-        wd_32k_set_target_value(WK_32K_CLK_WIDTH_8388608MS, 31);
-    }
-#else
     if (period_ms < 256) {
         wd_32k_set_target_value(WK_32K_CLK_WIDTH_256MS, 1);
         return;
@@ -159,5 +133,4 @@ _attribute_ram_code_sec_noinline_ void wd_32k_set_interval_ms(unsigned int perio
 
     /* period_ms exceeds all g_wd_gears, use max gear with max target */
     wd_32k_set_target_value(WK_32K_CLK_WIDTH_8388608MS, 31);
-#endif
 }

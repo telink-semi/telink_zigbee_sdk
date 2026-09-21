@@ -1,5 +1,5 @@
 /********************************************************************************************************
- * @file    emi_internal.h
+ * @file    emi_cert.h
  *
  * @brief   This is the header file for tl323x
  *
@@ -21,8 +21,8 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-#ifndef EMI_INTERNAL_H_
-#define EMI_INTERNAL_H_
+#ifndef EMI_CERT_H_
+#define EMI_CERT_H_
 
 #include "lib/include/rf/rf_common.h"
 

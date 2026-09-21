@@ -375,6 +375,7 @@ void sd_adc_gpio_pin_init(sd_adc_dc_chn_e  chn, sd_adc_p_input_pin_def_e p_pin,s
  * @brief       Automatically adjusts the ADC input divider based on measured voltage thresholds.
  * @param[in]   raw_result - The measured voltage value (either in 0.1mV or 1mV units).
  * @param[in]   type       - The type of result (SD_ADC_VOLTAGE_10X_MV or SD_ADC_VOLTAGE_MV).
+ * @param[in]   n_pin      - This pin is used to determine whether it is a differential mode.
  * @param[in,out] gpio_div - Pointer to the current divider. Will be updated if a switch occurs.
  * @return      1: Divider switched, hardware stopped and range updated.
  * 0: No switch needed.
@@ -382,9 +383,9 @@ void sd_adc_gpio_pin_init(sd_adc_dc_chn_e  chn, sd_adc_p_input_pin_def_e p_pin,s
  * - If voltage < 50mV, switch to 1:1 (DIV_OFF) for higher resolution.
  * - If voltage > 1000mV, switch back to 1:4 (DIV_1F4) to prevent signal overflow.
  */
-signed int sd_adc_div_switch_adjust_rescale(signed int raw_result, sd_adc_result_type_e type, sd_adc_gpio_chn_div_e *gpio_div)
+signed int sd_adc_div_switch_adjust_rescale(signed int raw_result, sd_adc_result_type_e type, sd_adc_n_input_pin_def_e n_pin, sd_adc_gpio_chn_div_e *gpio_div)
 {
-    if (gpio_div == 0 || *gpio_div == SD_ADC_GPIO_CHN_DIV_1F2 || !g_sd_adc_gpio_div_off_flag) return 0;
+    if (gpio_div == 0 || *gpio_div == SD_ADC_GPIO_CHN_DIV_1F2 || !g_sd_adc_gpio_div_off_flag || n_pin != SD_ADC_GNDN) return 0;
 
     signed int current_vol = (type == SD_ADC_VOLTAGE_10X_MV) ? (raw_result / 10) : raw_result;
     sd_adc_gpio_chn_div_e target_div = *gpio_div;

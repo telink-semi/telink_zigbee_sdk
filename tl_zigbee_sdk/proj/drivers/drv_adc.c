@@ -27,17 +27,19 @@
 #if defined(MCU_CORE_826x)
     #define ADC_VALUE_GET_WITH_BASE_MODE(v)     (3300 * (v - 128)/(16384 - 256))//Vref(mV) * (v - 128)/(2^14 - 2^8)
     #define ADC_VALUE_GET_WITH_VBAT_MODE(v)     (3*(1428*(v - 128)/(16384 - 256)))
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
     #define ADC_SAMPLE_NUM                      8
     #define ADC_SAMPLE_FREQ                     ADC_SAMPLE_FREQ_96K
     #define ADC_SAMPLE_NDMA_DELAY_TIME          ((1000 / ( 6 * (2 << (ADC_SAMPLE_FREQ)))) + 1)//delay 2 sample
     #define ADC_PRESCALE                        ADC_PRESCALE_1F4
     #define ADC_VREF                            ADC_VREF_1P2V
-#elif defined(MCU_CORE_TL323X)
+#elif defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
     #define ADC_SAMPLE_NUM                      8
 #endif
 
-#if defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#if defined(MCU_CORE_B91) || defined(MCU_CORE_TL721X) || \
+    defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
+    defined(MCU_CORE_TL521X)
 /*********************************************************************
  * @brief  This function serves to get adc sample code by manual and convert to voltage value.
  *
@@ -47,11 +49,11 @@
  */
 static u16 adc_get_voltage(void)
 {
-#if defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X)
+#if defined(MCU_CORE_B91) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
     u16 adc_sample_buffer[ADC_SAMPLE_NUM] = {0};
     u16 adc_code_average = 0;
     u16 adc_temp = 0;
-#elif defined(MCU_CORE_TL323X)
+#elif defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
     s32 adc_sample_buffer[ADC_SAMPLE_NUM] = {0};
     s32 adc_code_average = 0;
     s32 adc_temp = 0;
@@ -64,7 +66,7 @@ static u16 adc_get_voltage(void)
         delay_us(ADC_SAMPLE_NDMA_DELAY_TIME);
         adc_sample_buffer[cnt] = adc_get_code();
     }
-#elif defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
     adc_start_sample_nodma(); //start
 
     u8 cnt = 0;
@@ -82,7 +84,7 @@ static u16 adc_get_voltage(void)
             cnt++;
         }
     }
-#elif defined(MCU_CORE_TL323X)
+#elif defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
     sd_adc_sample_start(); //start
 
     u8 cnt = 0;
@@ -115,9 +117,9 @@ static u16 adc_get_voltage(void)
 
 #if defined(MCU_CORE_B91)
     return adc_calculate_voltage(adc_code_average);
-#elif defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
     return adc_calculate_voltage(ADC_M_CHANNEL, adc_code_average);
-#elif defined(MCU_CORE_TL323X)
+#elif defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
     return (u16)sd_adc_calculate_voltage(adc_code_average, SD_ADC_VOLTAGE_MV);
 #endif
 }
@@ -139,9 +141,9 @@ bool drv_adc_init(void)
     adc_init();
 #elif defined(MCU_CORE_B91)
     //do nothing
-#elif defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
     adc_init(NDMA_M_CHN);
-#elif defined(MCU_CORE_TL323X)
+#elif defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
     sd_adc_init(SD_ADC_SINGLE_DC_MODE);
 #endif
     return TRUE;
@@ -168,7 +170,9 @@ u16 drv_get_adc_data(void)
     return (u16)ADC_VALUE_GET_WITH_VBAT_MODE(tmpSum);
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     return (u16)adc_sample_and_get_result();
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL721X) || \
+      defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
+      defined(MCU_CORE_TL521X)
     return adc_get_voltage();
 #else
     return 0;
@@ -215,7 +219,7 @@ void drv_adc_mode_pin_set(drv_adc_mode_e mode, adc_input_pin_def_e pin)
         adc_battery_voltage_sample_init();
     }
 }
-#elif defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
 void drv_adc_mode_pin_set(drv_adc_mode_e mode, adc_input_pin_def_e pin)
 {
     if (mode == DRV_ADC_BASE_MODE) {
@@ -231,7 +235,7 @@ void drv_adc_mode_pin_set(drv_adc_mode_e mode, adc_input_pin_def_e pin)
         adc_vbat_sample_init(ADC_M_CHANNEL);
     }
 }
-#elif defined(MCU_CORE_TL323X)
+#elif defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
 void drv_adc_mode_pin_set(drv_adc_mode_e mode, sd_adc_p_input_pin_def_e pin)
 {
     if (mode == DRV_ADC_BASE_MODE) {
@@ -267,16 +271,16 @@ void drv_adc_enable(bool enable)
     }
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     adc_power_on_sar_adc((unsigned char)enable);
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
     if (enable) {
         adc_power_on();
-#if defined(MCU_CORE_TL321X)
+#if defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X)
         delay_us(100);//Wait >100us after adc_power_on() for ADC to be stable.
 #endif
     } else {
         adc_power_off();
     }
-#elif defined(MCU_CORE_TL323X)
+#elif defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
     if (enable) {
         sd_adc_power_on(SD_ADC_SAMPLE_MODE);
         delay_us(200);//must delay 200us for the ADC to stabilize

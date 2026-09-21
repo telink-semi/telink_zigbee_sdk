@@ -1,12 +1,12 @@
 /********************************************************************************************************
- * @file    emi_internal.h
+ * @file    emi_cert.h
  *
- * @brief   This is the header file for TL321X
+ * @brief   This is the header file for tl521x
  *
  * @author  Driver Group
- * @date    2024
+ * @date    2025
  *
- * @par     Copyright (c) 2024, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2025, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@
  *          limitations under the License.
  *
  *******************************************************************************************************/
-#ifndef EMI_INTERNAL_H_
-#define EMI_INTERNAL_H_
+#ifndef EMI_CERT_H_
+#define EMI_CERT_H_
 
 #include "lib/include/rf/rf_common.h"
 
@@ -64,7 +64,6 @@ void rf_emi_rx_loop_v1(void);
  */
 unsigned int rf_emi_get_rxpkt_cnt_v1(void);
 
-
 /**
  * @brief    This function serves to get the RSSI of packets received
  * @return   the RSSI of packets received
@@ -95,11 +94,5 @@ void rf_emi_tx_burst_loop_v1(void);
  */
 void rf_emi_tx_burst_setup_v1(void);
 
-/**
- * @brief        This function is used in RF current test configurations where only RF modules work
- * @param[in]    none.
- * @return       none.
- */
-_attribute_ram_code_sec_noinline_ void rf_current_test_cfg(void);
 
 #endif

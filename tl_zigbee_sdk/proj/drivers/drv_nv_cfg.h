@@ -88,7 +88,8 @@
 /* Offset */
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 #define FLASH_TLNK_FLAG_OFFSET          8
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL721X) || \
+      defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
       defined(MCU_CORE_TL521X)
 #define FLASH_TLNK_FLAG_OFFSET          32
 #endif
@@ -149,8 +150,9 @@ extern u32 g_u32CfgFlashAddr;
 /* Not supported for current SDK. */
 #define CFG_32K_COUNTER_CALIBRATION     (FACTORY_CFG_BASE_ADD + 0x80)
 
-/* Not supported for current SDK. */
-#define CFG_ADC_CALIBRATION             (FACTORY_CFG_BASE_ADD + 0xC0)
+/* ADC calibration. */
+#define CFG_SAR_ADC_CALIBRATION         (FACTORY_CFG_BASE_ADD + 0xC0)
+#define CFG_SD_ADC_CALIBRATION          (FACTORY_CFG_BASE_ADD + 0xE0)
 
 /* Not supported for current SDK. */
 #define CFG_24M_CRYSTAL_CALIBRATION     (FACTORY_CFG_BASE_ADD + 0x100)

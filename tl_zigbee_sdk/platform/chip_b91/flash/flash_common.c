@@ -34,6 +34,7 @@
     |   Internal   | P25Q80U    |   0x4b  | 0x146085 |  PUYA   |           8us                   |        20ms       |             \              |  (2)  |
     |              | P25Q16SU   |   0x4b  | 0x156085 |  PUYA   |           8us                   |        30ms       |            1988us          |       |
     |              | P25Q32SU   |   0x4b  | 0x166085 |  PUYA   |           8us                   |        30ms       |            1738us          |       |
+    |              | ZB25WQ80A  |   0x4b  | 0x14345e |  ZBIT   |           8us                   |        300ms      |            2400us          |       |
     +--------------+------------+---------+----------+---------+---------------------------------+-------------------+----------------------------+-------+
     |   External   | PY25Q128H  |   0x4b  | 0x182085 |  PUYA   |           20us                  |        240ms      |            153us           |  (3)  |
     +--------------+------------+---------+----------+---------+---------------------------------+-------------------+----------------------------+-------+
@@ -54,6 +55,7 @@
 const flash_hal_handler_t flash_list[] = {
     //1M
     {0x146085, flash_get_lock_block_mid146085, flash_unlock_mid146085, flash_lock_mid146085, FLASH_LOCK_LOW_512K_MID146085, flash_write_status_mid146085, FLASH_WRITE_STATUS_QE_MID146085, FLASH_QE_ENABLE_MID146085, FLASH_QE_DISABLE_MID146085},
+    {0x14345e, flash_get_lock_block_mid14345e, flash_unlock_mid14345e, flash_lock_mid14345e, FLASH_LOCK_LOW_512K_MID14345E, flash_write_status_mid14345e, FLASH_WRITE_STATUS_QE_MID14345E, FLASH_QE_ENABLE_MID14345E, FLASH_QE_DISABLE_MID14345E},
     //2M
     {0x156085, flash_get_lock_block_mid156085, flash_unlock_mid156085, flash_lock_mid156085, FLASH_LOCK_LOW_1M_MID156085,   flash_write_status_mid156085, FLASH_WRITE_STATUS_QE_MID156085, FLASH_QE_ENABLE_MID156085, FLASH_QE_DISABLE_MID156085},
     //4M

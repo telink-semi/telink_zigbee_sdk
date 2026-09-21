@@ -670,12 +670,12 @@
 #define ZB_TIMESTAMP_ENABLE
 
 /* get time timestamp */
-#define ZB_RADIO_TIMESTAMP_GET(p)               ( p[rf_zigbee_dma_rx_offset_time_stamp(p)] | \
-                                                  p[rf_zigbee_dma_rx_offset_time_stamp(p)+1] | \
-                                                  p[rf_zigbee_dma_rx_offset_time_stamp(p)+2] | \
-                                                  p[rf_zigbee_dma_rx_offset_time_stamp(p)+3] )
+#define ZB_RADIO_TIMESTAMP_GET(p)               (p[rf_zigbee_dma_rx_offset_time_stamp(p)] | \
+                                                (p[rf_zigbee_dma_rx_offset_time_stamp(p)+1]<<8)  | \
+                                                (p[rf_zigbee_dma_rx_offset_time_stamp(p)+2]<<16) | \
+                                                (p[rf_zigbee_dma_rx_offset_time_stamp(p)+3]<<24))
 
-#define ZB_RADION_PKT_RSSI_GET(p)               ( p[rf_zigbee_dma_rx_offset_rssi(p)] )
+#define ZB_RADION_PKT_RSSI_GET(p)               (p[rf_zigbee_dma_rx_offset_rssi(p)])
 
 /* tx power */
 #define ZB_RADIO_TX_0DBM                        RF_POWER_INDEX_P0p01dBm
@@ -732,9 +732,9 @@
                                                 } while(0)
 #endif
 
-#elif defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)|| defined(MCU_CORE_TL521X)
+#elif defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
 /*******************************************************************************************************
- *                      Radio interface for TL321X, TL323X and TL521X
+ *                      Radio interface for TL721X, TL321X, TL323X and TL521X
  ******************************************************************************************************/
 /* radio module reset */
 #define ZB_RADIO_RESET()
@@ -866,7 +866,10 @@
 #define ZB_RADION_PKT_RSSI_GET(p)               (p[rf_zigbee_dma_rx_offset_rssi(p)])
 
 /* tx power */
-#if defined(MCU_CORE_TL321X)
+#if defined(MCU_CORE_TL721X)
+#define ZB_RADIO_TX_0DBM                        RF_POWER_INDEX_P0p03dBm
+#define ZB_DEFAULT_TX_POWER_IDX                 RF_POWER_INDEX_P10p00dBm
+#elif defined(MCU_CORE_TL321X)
 #define ZB_RADIO_TX_0DBM                        RF_POWER_INDEX_P0p08dBm
 #define ZB_DEFAULT_TX_POWER_IDX                 RF_POWER_INDEX_P10p78dBm
 #elif defined(MCU_CORE_TL323X)

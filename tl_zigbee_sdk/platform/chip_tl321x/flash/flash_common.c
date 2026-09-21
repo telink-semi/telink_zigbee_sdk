@@ -4,9 +4,9 @@
  * @brief   This is the source file for TL321X
  *
  * @author  Driver Group
- * @date    2024
+ * @date    2026
  *
- * @par     Copyright (c) 2024, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2026, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -47,6 +47,7 @@ const flash_hal_handler_t flash_list[] = {
     {0x1151cd, flash_get_lock_block_mid1151cd, flash_unlock_mid1151cd, flash_lock_mid1151cd, FLASH_LOCK_LOW_64K_MID1151CD,   flash_write_status_mid1151cd, FLASH_NO_QE_SUPPORT_MID1151CD, FLASH_NO_QE_SUPPORT_MID1151CD, FLASH_NO_QE_SUPPORT_MID1151CD},
     //256K
     {0x1271cd, flash_get_lock_block_mid1271cd, flash_unlock_mid1271cd, flash_lock_mid1271cd, FLASH_LOCK_LOW_128K_MID1271CD, flash_write_status_mid1271cd, FLASH_NO_QE_SUPPORT_MID1271CD, FLASH_NO_QE_SUPPORT_MID1271CD, FLASH_NO_QE_SUPPORT_MID1271CD},
+    {0x124585, flash_get_lock_block_mid124585, flash_unlock_mid124585, flash_lock_mid124585, FLASH_LOCK_LOW_128K_MID124585, flash_write_status_mid124585, FLASH_NO_QE_SUPPORT_MID124585, FLASH_NO_QE_SUPPORT_MID124585, FLASH_NO_QE_SUPPORT_MID124585},
     //512K
     {0x136085, flash_get_lock_block_mid136085, flash_unlock_mid136085, flash_lock_mid136085, FLASH_LOCK_LOW_256K_MID136085, flash_write_status_mid136085, FLASH_WRITE_STATUS_QE_MID136085, FLASH_QE_ENABLE_MID136085, FLASH_QE_DISABLE_MID136085},
     //1M
@@ -107,7 +108,7 @@ _attribute_text_sec_ int flash_read_mid_uid_with_check(unsigned int *flash_mid, 
 /**
  * @brief       This function is used to enable the four-wire function of flash.
  * @param[in]   flash_mid   - the mid of flash.
- * @return      1: success, 0: error, 2: parameter error, 3: mid is not supported.
+ * @return      1: success, 0: error, 2: parameter error, 3: mid is not supported or flash does not support quad spi.
  */
 unsigned char flash_4line_en(unsigned int flash_mid)
 {
@@ -115,6 +116,9 @@ unsigned char flash_4line_en(unsigned int flash_mid)
 
     for (i = 0; i < FLASH_CNT; i++) {
         if (flash_list[i].mid == flash_mid) {
+            if (0 == flash_list[i].flash_qe_mask) { //flash does not support quad spi
+                return 3;
+            }
             return flash_list[i].flash_write_status(flash_list[i].qe_en, flash_list[i].flash_qe_mask);
         }
     }
@@ -124,7 +128,7 @@ unsigned char flash_4line_en(unsigned int flash_mid)
 /**
  * @brief       This function is used to disable the four-wire function of flash.
  * @param[in]   flash_mid   - the mid of flash.
- * @return      1: success, 0: error, 2: parameter error, 3: mid is not supported.
+ * @return      1: success, 0: error, 2: parameter error, 3: mid is not supported or flash does not support quad spi.
  */
 unsigned char flash_4line_dis(unsigned int flash_mid)
 {
@@ -132,6 +136,9 @@ unsigned char flash_4line_dis(unsigned int flash_mid)
 
     for (i = 0; i < FLASH_CNT; i++) {
         if (flash_list[i].mid == flash_mid) {
+            if (0 == flash_list[i].flash_qe_mask) { //flash does not support quad spi
+                return 3;
+            }
             return flash_list[i].flash_write_status(flash_list[i].qe_dis, flash_list[i].flash_qe_mask);
         }
     }

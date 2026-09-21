@@ -284,6 +284,7 @@ u32 get_ble_event_state(void);
 void restore_ble_rf_context(void);
 void backup_ble_rf_context(void);
 void ble_radio_init(void);
+u8 blt_state_get(void);
 
 /**
  * @brief	    condition function if the ble is allowed to enter low power mode

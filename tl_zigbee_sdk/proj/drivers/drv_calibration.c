@@ -24,6 +24,21 @@
  *******************************************************************************************************/
 #include "../tl_common.h"
 
+#if defined(MCU_CORE_B91) || defined(MCU_CORE_TL721X) || \
+    defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
+    defined(MCU_CORE_TL521X)
+static void drv_calib_freq_offset(void)
+{
+    u8 freq_offset_value = 0xff;
+
+    flash_read(CFG_FREQUENCY_OFFSET, 1, &freq_offset_value);
+
+    if (freq_offset_value != 0xff) {
+        rf_update_internal_cap(freq_offset_value);
+    }
+}
+#endif
+
 #if defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
 static void drv_calib_adc_verf(void)
 {
@@ -31,7 +46,7 @@ static void drv_calib_adc_verf(void)
     u16 gpio_calib_vref = 0;
     s8 gpio_calib_vref_offset = 0;
 
-    flash_read(CFG_ADC_CALIBRATION, 7, adc_vref_calib_value);
+    flash_read(CFG_SAR_ADC_CALIBRATION, 7, adc_vref_calib_value);
 
     //Check the two-point gpio calibration value whether is exist
     if ((adc_vref_calib_value[4] >= 0) && (adc_vref_calib_value[4] <= 127) &&
@@ -66,6 +81,7 @@ static void drv_calib_adc_verf(void)
     }
 #endif
 }
+
 #elif defined(MCU_CORE_B91)
 static void drv_calib_adc_verf(void)
 {
@@ -73,7 +89,7 @@ static void drv_calib_adc_verf(void)
     u16 gpio_calib_vref = 0;
     s8 gpio_calib_vref_offset = 0;
 
-    flash_read(CFG_ADC_CALIBRATION, 7, adc_vref_calib_value);
+    flash_read(CFG_SAR_ADC_CALIBRATION, 7, adc_vref_calib_value);
 
     //Check the two-point gpio calibration value whether is exist
     if ((adc_vref_calib_value[4] != 0xff) && (adc_vref_calib_value[4] <= 0x7f) &&
@@ -108,17 +124,6 @@ static void drv_calib_adc_verf(void)
     }
 }
 
-static void drv_calib_freq_offset(void)
-{
-    u8 freq_offset_value = 0xff;
-
-    flash_read(CFG_FREQUENCY_OFFSET, 1, &freq_offset_value);
-
-    if (freq_offset_value != 0xff) {
-        rf_update_internal_cap(freq_offset_value);
-    }
-}
-
 static void drv_calib_rf_rx_dcoc(void)
 {
     u16 flash_iq_code = 0xffff;
@@ -131,15 +136,57 @@ static void drv_calib_rf_rx_dcoc(void)
         rf_update_rx_dcoc_calib_code(flash_iq_code);
     }
 }
-#elif defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
-static void drv_calib_freq_offset(void)
+
+#elif defined(MCU_CORE_TL521X)
+static s8 user_set_sd_adc_calib_value(u16 gain, s16 offset, void (*calib_func)(u16, s16))
 {
-    u8 freq_offset_value = 0xff;
+    /**
+     * The legal range of gain for both gpio and vbat in efuse is [8000,12000],
+     * and the legal range of offset for both gpio and vbat is [-1000,1000].
+     */
+    if ((gain >= 8000) && (gain <= 12000) && (offset >= -1000) && (offset <= 1000)) {
+        (*calib_func)(gain, offset);
+        return 0;
+    }
+    return -1;
+}
 
-    flash_read(CFG_FREQUENCY_OFFSET, 1, &freq_offset_value);
+static void drv_calib_adc_verf(void)
+{
+    /* 3 groups to calibrate: single-gpio / vbat / diff-gpio. */
+    u8 need_efuse_single_gpio = 0;
+    u8 need_efuse_vbat        = 0;
+    u8 need_efuse_diff_gpio   = 0;
 
-    if (freq_offset_value != 0xff) {
-        rf_update_internal_cap(freq_offset_value);
+    /*
+     * Flash layout (12 bytes = 3 groups x 4 bytes), each group stores:
+     *   [gain: unsigned short][offset: signed short]
+     *   [0..3]  single-gpio group
+     *   [4..7]  vbat group
+     *   [8..11] diff-gpio group
+     */
+    u8 flash_calib[12] = {0};
+    flash_read(CFG_SD_ADC_CALIBRATION, sizeof(flash_calib), flash_calib);
+
+    /*
+     * Apply each group's flash value only when it is within the legal range
+     * (user_set_sd_adc_calib_value returns 0). Otherwise mark that group so
+     * it can be recovered from efuse later.
+     */
+    if (user_set_sd_adc_calib_value(*(u16 *)(flash_calib + 0), *(s16 *)(flash_calib + 2), sd_adc_set_single_gpio_calib_vref) != 0) {
+        need_efuse_single_gpio = 1;
+    }
+    if (user_set_sd_adc_calib_value(*(u16 *)(flash_calib + 4), *(s16 *)(flash_calib + 6), sd_adc_set_vbat_calib_vref) != 0) {
+        need_efuse_vbat = 1;
+    }
+    if (user_set_sd_adc_calib_value(*(u16 *)(flash_calib + 8), *(s16 *)(flash_calib + 10), sd_adc_set_diff_gpio_calib_vref) != 0) {
+        need_efuse_diff_gpio = 1;
+    }
+
+    /* Only fall back to efuse for the groups whose flash values were invalid. */
+    if (need_efuse_single_gpio || need_efuse_vbat || need_efuse_diff_gpio) {
+        extern drv_api_status_e efuse_calib_sd_adc_vref(unsigned char calib_single_gpio_flag, unsigned char calib_vbat_flag, unsigned char calib_diff_gpio_flag);
+        efuse_calib_sd_adc_vref(need_efuse_single_gpio, need_efuse_vbat, need_efuse_diff_gpio);
     }
 }
 #endif
@@ -162,6 +209,15 @@ void drv_calibration(void)
         drv_calib_freq_offset();
         drv_calib_rf_rx_dcoc();
     }
+#elif defined(MCU_CORE_TL721X)
+    u32 flash_mid = 0;
+    u8 flash_uid[16] = {0};
+
+    otp_calib_adc_vref();
+
+    if (flash_read_mid_uid_with_check_with_device_num(SLAVE0, &flash_mid, flash_uid)) {
+        drv_calib_freq_offset();
+    }
 #elif defined(MCU_CORE_TL321X)
     u32 flash_mid = 0;
     u8 flash_uid[16] = {0};
@@ -183,18 +239,32 @@ void drv_calibration(void)
     if (flash_read_mid_uid_with_check(&flash_mid, flash_uid)) {
         drv_calib_freq_offset();
     }
+#elif defined(MCU_CORE_TL521X)
+    u32 flash_mid = 0;
+    u8 flash_uid[16] = {0};
+
+    drv_calib_adc_verf();
+
+    if (flash_read_mid_uid_with_check(&flash_mid, flash_uid)) {
+        drv_calib_freq_offset();
+    }
 #endif
 }
 
 bool drv_get_primary_ieee_addr(u8 *addr)
 {
-#if defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
+#if defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
     u8 addr_zero[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     u8 addr_invalid[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
     u8 buf[8];
 
+#if defined(MCU_CORE_TL721X)
+    /* xx xx xx 28 22 38 xx xx */
+    otp_get_ieee_addr(buf); //get IEEE address from OTP
+#else
     /* xx xx xx C7 A3 C0 xx xx */
     efuse_get_ieee_addr(buf);
+#endif
 
     if (!memcmp(buf, addr_zero, 8) || !memcmp(buf, addr_invalid, 8)) {
         return FALSE;

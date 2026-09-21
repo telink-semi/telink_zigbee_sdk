@@ -32,8 +32,8 @@ static void console_uart_set(u32 tx, u32 rx)
     uart_gpio_set(tx, rx);
 #elif defined(MCU_CORE_B91)
     uart_set_pin(tx, rx);
-#elif defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
-      defined(MCU_CORE_TL521X)
+#elif defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X) || \
+      defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
     uart_set_pin(CONSOLE_UART_IDX, tx, rx);
 #endif
 }
@@ -43,8 +43,8 @@ static void console_uart_baudrate_set(u32 baudrate)
 #if defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     uart_reset();
     uart_init_baudrate(baudrate, UART_CLOCK_SOURCE, PARITY_NONE, STOP_BIT_ONE);
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
-      defined(MCU_CORE_TL521X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL721X) || \
+      defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
     u16 div = 0;
     u8 bwpc = 0;
     uart_reset(CONSOLE_UART_IDX);
@@ -57,8 +57,8 @@ static void console_uart_putc(const u8 byte)
 {
 #if defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     uart_send_byte(byte);
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
-      defined(MCU_CORE_TL521X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL721X) || \
+      defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
     uart_send_byte(CONSOLE_UART_IDX, byte);
 #endif
 }

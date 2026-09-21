@@ -677,6 +677,8 @@ unsigned int flash_get_vendor(unsigned int flash_mid)
         return FLASH_ETOX_GD;
     case 0x00006085:
         return FLASH_SONOS_PUYA;
+    case 0x00004585:
+        return FLASH_SONOS_PUYA;
     case 0x000060EB:
         return FLASH_SONOS_TH;
     case 0x000060CD:

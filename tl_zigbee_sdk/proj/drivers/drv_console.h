@@ -35,7 +35,8 @@
         #define DEBUG_INFO_TX_PIN                       CONSOLE_GPIO_TX_PIN
     #endif
 #elif UART_PRINTF_MODE
-    #if defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
+    #if defined(MCU_CORE_B91) || defined(MCU_CORE_TL721X) || \
+        defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
         defined(MCU_CORE_TL521X)
         #ifndef CONSOLE_UART_IDX
             #define CONSOLE_UART_IDX                    UART1

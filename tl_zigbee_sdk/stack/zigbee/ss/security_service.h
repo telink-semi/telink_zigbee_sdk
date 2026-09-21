@@ -517,10 +517,10 @@ typedef struct {
 } ss_tc_keyPair_t;
 
 typedef struct {
+    ev_timer_event_t *pTimeoutEvt;
     u8 privateKey[32];
     ss_dev_pair_set_t keyPair;
     ss_dev_pair_set_add_t keyPairAdd;
-    ev_timer_event_t *pTimeoutEvt;
 } ss_dev_keyPair_t;
 
 typedef void (*apsConfirmKeyCb_t)(u8 status);

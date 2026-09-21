@@ -1269,7 +1269,7 @@ enum
     do {                               \
         reg_rf_irq_status    = 0xffff; \
         reg_rf_irq_status_h  = 0xff;   \
-        reg_rf_irq_status_h1 = 0x07;   \
+        reg_rf_irq_status_h1 = 0x0f;   \
     } while (0)
 
 typedef enum
@@ -1308,7 +1308,9 @@ typedef enum
     FLD_RF_IRQ_RX_FREQ_HOP_FIXED = BIT(24), /*Auto/Manual:When Zigbee performs dual-channel detection, the interrupt is generated when it stays in one of the channels to successfully receive packets and fixes the interrupt when it continues to receive over-the-air packets in this channel.*/
     FLD_RF_IRQ_TRX_FCAL_DONE     = BIT(25), /*After RF is turned on, the interrupt generated at the moment of fcal calibration is completed at tx or rx (including switching channels during dual-channel detection by zigbee).*/
     FLD_RF_IRQ_RADIO_DONE        = BIT(26), /*TODO:This function interface is not available at this time, and will be updated in subsequent releases.(unverified)*/
-    FLD_RF_IRQ_ALL               = 0x7ffffff,
+    FLD_RF_IRQ_SW_CRYPT          = BIT(27), 
+
+    FLD_RF_IRQ_ALL               = 0x0fffffff,
 } rf_irq_e;
 
 #define reg_rf_ll_pid_l REG_ADDR8(REG_BB_LL_BASE_ADDR + 0x22)

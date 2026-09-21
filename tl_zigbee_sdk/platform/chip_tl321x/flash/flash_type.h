@@ -4,9 +4,9 @@
  * @brief   This is the header file for TL321X
  *
  * @author  Driver Group
- * @date    2024
+ * @date    2026
  *
- * @par     Copyright (c) 2024, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2026, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@
 #include "flash_mid1560c8.h" // GD25LE16E
 #include "flash_mid1151cd.h" // TH25D10UB(untest) 4-line read is not supported
 #include "flash_mid1271cd.h" // TH25D20UB(untest) 4-line read is not supported
+#include "flash_mid124585.h" // P25D24U(untest) 4-line read is not supported
 
 /**
  * @brief       This function reads the status of flash.

@@ -28,7 +28,8 @@
 
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     #define SYSTEM_RESET()              mcu_reset()
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL721X) || \
+      defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
       defined(MCU_CORE_TL521X)
     #define SYSTEM_RESET()              sys_reboot()
 #endif

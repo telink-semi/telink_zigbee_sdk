@@ -329,6 +329,26 @@ enum
     FLD_GSPI1_DIV_IN_SEL = BIT_RNG(8, 9), //0:rc24m   1:xtl 24m  2:pll
 };
 
+#define reg_lpd_ctrl REG_ADDR8(SC_BASE_ADDR + 0x58)
+enum
+{
+    FLD_LPD_FLASH_SEL = BIT(0),
+    FLD_LPD_FLASH_POL = BIT(1),
+    FLD_LPD_FLASH_EN = BIT(2),
+    FLD_LPD_FLASH_MASK = BIT(3),
+    FLD_LPD_FLASH_RST_MCU = BIT(4),
+};
+
+#define reg_lpd_int_status REG_ADDR8(SC_BASE_ADDR + 0x59)
+enum
+{
+    FLD_LPD_FLASH_STATUS = BIT(0),
+    FLD_CMP_RESULT  = BIT(1),
+    FLD_LPD_RESULT = BIT(2),
+};
+#define reg_lpd_ctrl2 REG_ADDR8(SC_BASE_ADDR + 0x5a)
+
+
 #define reg_cclk_sel REG_ADDR8(SC_BASE_ADDR + 0x28)
 
 enum

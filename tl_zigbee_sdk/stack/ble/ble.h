@@ -27,10 +27,10 @@
 
 #if defined(MCU_CORE_8258)
 #include "ble_8258/ble.h"
-#define BLE_BLT_STATE_GET()             blmsParam.blt_state
+#define BLE_BLT_STATE_GET()             blt_state_get()
 #elif defined(MCU_CORE_B91)
 #include "ble_b91/ble.h"
-#define BLE_BLT_STATE_GET()             bltParam.blt_state
+#define BLE_BLT_STATE_GET()             blt_state_get()
 #elif defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
 #include "ble_multi/ble.h"
 #define BLE_BLT_STATE_GET()             (!blc_ll_isBleTaskIdle())

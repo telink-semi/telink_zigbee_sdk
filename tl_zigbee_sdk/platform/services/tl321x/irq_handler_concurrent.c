@@ -47,7 +47,7 @@ _attribute_ram_code_ void rf_irq_handler(void)
             rf_tx_irq_handler();
         } else {
             T_DBG_testIrq[3]++;
-            rf_clr_irq_status(0xffff);
+            rf_clr_irq_status(FLD_RF_IRQ_ALL);
         }
     } else {
         T_DBG_testIrq[12]++;

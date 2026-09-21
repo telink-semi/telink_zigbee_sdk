@@ -223,7 +223,6 @@ typedef struct
     unsigned char LDO_RXTXHF_TRIM;
     unsigned char LDO_RXTXLF_TRIM;
     unsigned char LDO_PLL_TRIM;
-    unsigned char LDO_VCO_TRIM;
 } rf_ldo_trim_t;
 
 /**
@@ -252,8 +251,7 @@ typedef struct
     rf_ldo_trim_t  ldo_trim;
     rf_dcoc_cal_t  dcoc_cal;
     rf_rccal_cal_t rccal_cal;
-    unsigned char  tx_fcal[8];
-    unsigned char  rx_fcal[8];
+    unsigned char  fcal[81];
 } rf_fast_settle_t;
 
 /**
@@ -547,8 +545,7 @@ static inline void rf_set_irq_mask(rf_irq_e mask)
 {
     BM_SET(reg_rf_irq_mask, mask);
     BM_SET(reg_rf_ll_irq_mask_h, (mask & 0xff0000) >> 16);
-    BM_SET(reg_rf_ll_cmd, (mask & 0x5000000) >> 20);
-    BM_SET(reg_rf_ll_irq_mask_h1, (mask & 0x2000000) >> 24);
+    BM_SET(reg_rf_ll_irq_mask_h1, (mask & 0x07000000) >> 24);
 }
 
 /**
@@ -560,8 +557,7 @@ static inline void rf_clr_irq_mask(rf_irq_e mask)
 {
     BM_CLR(reg_rf_irq_mask, mask);
     BM_CLR(reg_rf_ll_irq_mask_h, (mask & 0xff0000) >> 16);
-    BM_CLR(reg_rf_ll_cmd, (mask & 0x5000000) >> 20);
-    BM_CLR(reg_rf_ll_irq_mask_h1, (mask & 0x2000000) >> 24);
+    BM_CLR(reg_rf_ll_irq_mask_h1, (mask & 0x07000000) >> 24);
 }
 
 /**
@@ -587,7 +583,7 @@ static inline void rf_clr_irq_status(rf_irq_e status)
 {
     reg_rf_irq_status    = status;
     reg_rf_irq_status_h  = (status & 0xff0000) >> 16;
-    reg_rf_irq_status_h1 = (status & 0x7000000) >> 24;
+    reg_rf_irq_status_h1 = (status & 0x07000000) >> 24;
 }
 
 /**
@@ -1411,5 +1407,12 @@ void rf_set_rx_modulation_index(rf_mi_value_e mi_value);
  * @return      none.
  */
 void rf_set_tx_modulation_index(rf_mi_value_e mi_value);
+
+/**
+ * @brief      This function is mainly used to set the fcal value.
+ * @param[in]  fcal_value- variables are used to set the fcal value.
+ * @return     none.
+ */
+void rf_set_fcal_value(unsigned char fcal_value);
 
 #endif

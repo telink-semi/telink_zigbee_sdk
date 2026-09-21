@@ -29,7 +29,7 @@
 #include <stdbool.h>
 
 /******************************* pa_start ******************************************************************/
-#define PA_TYPE_OFF                                                     0
+#define PA_TYPE_OFF                                             0
 #define PA_TYPE_TX_ON                                           1
 #define PA_TYPE_RX_ON                                           2
 

@@ -4,9 +4,9 @@
  * @brief   This is the header file for TL321X
  *
  * @author  Driver Group
- * @date    2024
+ * @date    2026
  *
- * @par     Copyright (c) 2024, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2026, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -77,14 +77,14 @@ _attribute_text_sec_ int flash_read_mid_uid_with_check(unsigned int *flash_mid, 
 /**
  * @brief       This function is used to enable the four-wire function of flash.
  * @param[in]   flash_mid   - the mid of flash.
- * @return      1: success, 0: error, 2: parameter error, 3: mid is not supported.
+ * @return      1: success, 0: error, 2: parameter error, 3: mid is not supported or flash does not support quad spi.
  */
 unsigned char flash_4line_en(unsigned int flash_mid);
 
 /**
  * @brief       This function is used to disable the four-wire function of flash.
  * @param[in]   flash_mid   - the mid of flash.
- * @return      1: success, 0: error, 2: parameter error, 3: mid is not supported.
+ * @return      1: success, 0: error, 2: parameter error, 3: mid is not supported or flash does not support quad spi.
  */
 unsigned char flash_4line_dis(unsigned int flash_mid);
 #endif

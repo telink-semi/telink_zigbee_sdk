@@ -925,4 +925,20 @@ void jtag_set_pin_en(void);
                detecting a high level is configured as sdp.  the level of PB0 can not be configured internally by the software, and can only be input externally.
  */
 void sdp_set_pin_en(void);
+
+
+/**
+ * @brief      This function set the pin's driving strength.
+ * @param[in]  pin - the pin needs to set the driving strength.
+ *             Each call to this function can set only one pin.
+ * @param[in]  value - the level of driving strength.
+ * @note        | DS1(PIN2) | DS0(PIN1) | Drv Strength                                              |
+                | --------- | ----------| --------------------------------------------------------- |
+                | 0         | 0         | 2.2mA(1.8v), 3.6mA(2.5v), 4.7mA(3.3v);                    |
+                | 0         | 1         | 4.4mA(1.8v), 7.2mA(2.5v), 9.4A(3.3v);                     |
+                | 1         | 0         | 6.6mA(1.8v), 10.8mA(2.5v), 14.1mA(3.3v);                  |
+                | 1         | 1         | 8.8mA(1.8v), 14.4mA(2.5v), 18.8mA(3.3v);                  |
+ * @return     none
+ */
+void gpio_set_data_strength(gpio_pin_e pin, gpio_drv_strength_e value);
 #endif

@@ -36,7 +36,8 @@ static inline void usb_clear_irq_reset(void)
     reg_irq_src = FLD_IRQ_USB_RST_EN;
 }
 
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL521X)
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL721X) || \
+      defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL521X)
 
 static inline u8 usb_is_irq_reset(void)
 {

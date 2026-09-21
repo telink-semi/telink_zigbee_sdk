@@ -124,6 +124,13 @@ void uart0_irq_handler(void)
         T_DBG_testIrq[8]++;
         drv_uart_tx_irq_handler();
     }
+
+#if 0 //tl521x uses dma rx irq instead of uart irq
+    if (uart_get_irq_status(UART0, UART_RXDONE_IRQ_STATUS)) {
+        T_DBG_testIrq[9]++;
+        drv_uart_rx_irq_handler();
+    }
+#endif
 }
 
 void dma_irq_handler(void)

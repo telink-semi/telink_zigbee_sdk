@@ -31,7 +31,8 @@
 #include "phy.h"
 #if defined(MCU_CORE_826x)
     #define RF_RECOVERY()
-#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91) || \
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || \
+      defined(MCU_CORE_B91) || defined(MCU_CORE_TL721X) || \
       defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
     /* radio and DMA need to be reconfigured */
     #define RF_RECOVERY()                       do { \
@@ -53,7 +54,7 @@
 #elif defined(MCU_CORE_B91)
     #define PM_ANA_REG_FRAME_COUNTER_FLAG       PM_ANA_REG_POWER_ON_CLR_BUF1
     #define PM_ANA_REG_FRAME_COUNTER            PM_ANA_REG_POWER_ON_CLR_BUF2
-#elif defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
+#elif defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
     #define PM_ANA_REG_FRAME_COUNTER_FLAG       PM_ANA_REG_POWER_ON_CLR_BUF1
     #define PM_ANA_REG_FRAME_COUNTER            PM_ANA_REG_WD_CLR_BUF1
 #endif
@@ -67,7 +68,8 @@ void drv_pm_sleepTime_get(u32 *sleepMs, u32 *sleepUsTick)
 
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     sleepTick32k = pm_get_32k_tick() - prevSleepTick;
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL721X) || \
+      defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
       defined(MCU_CORE_TL521X)
     sleepTick32k = clock_get_32k_tick() - prevSleepTick;
 #endif
@@ -98,7 +100,8 @@ void drv_pm_deepSleep_frameCnt_set(u32 frameCounter)
     analog_write(PM_ANA_REG_FRAME_COUNTER + 1, frameCounter >> 8);
     analog_write(PM_ANA_REG_FRAME_COUNTER + 2, frameCounter >> 16);
     analog_write(PM_ANA_REG_FRAME_COUNTER + 3, frameCounter >> 24);
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL721X) || \
+      defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
       defined(MCU_CORE_TL521X)
     analog_write_reg8(PM_ANA_REG_FRAME_COUNTER_FLAG, PM_FC_SET_FLAG);
 
@@ -117,7 +120,8 @@ u32 drv_pm_deepSleep_frameCnt_get(void)
             (analog_read(PM_ANA_REG_FRAME_COUNTER + 2) << 16) |
             (analog_read(PM_ANA_REG_FRAME_COUNTER + 1) << 8) |
             (analog_read(PM_ANA_REG_FRAME_COUNTER)));
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL721X) || \
+      defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
       defined(MCU_CORE_TL521X)
     analog_write_reg8(PM_ANA_REG_FRAME_COUNTER_FLAG, PM_FC_CLR_FLAG);
     return ((analog_read_reg8(PM_ANA_REG_FRAME_COUNTER + 3) << 24) |
@@ -133,7 +137,8 @@ bool drv_pm_deepSleep_flag_get(void)
 {
 #if defined(MCU_CORE_826x) || defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     return ((pm_get_mcu_status() == MCU_STATUS_DEEP_BACK) && (analog_read(PM_ANA_REG_FRAME_COUNTER_FLAG) == PM_FC_SET_FLAG));
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL721X) || \
+      defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
       defined(MCU_CORE_TL521X)
     return ((g_pm_status_info.mcu_status == MCU_STATUS_DEEP_BACK) && (analog_read_reg8(PM_ANA_REG_FRAME_COUNTER_FLAG) == PM_FC_SET_FLAG));
 #else
@@ -185,7 +190,8 @@ void drv_pm_sleep(drv_pm_sleep_mode_e mode, drv_pm_wakeup_src_e src, u32 tick)
     }
 
     cpu_sleep_wakeup(sleep_mode, srcType, tick);
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL721X) || \
+      defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
       defined(MCU_CORE_TL521X)
     pm_sleep_mode_e sleep_mode = SUSPEND_MODE;
     pm_sleep_wakeup_src_e srcType = 0;
@@ -199,7 +205,7 @@ void drv_pm_sleep(drv_pm_sleep_mode_e mode, drv_pm_wakeup_src_e src, u32 tick)
         sleep_mode = DEEPSLEEP_MODE_RET_SRAM_LOW64K;
 #elif defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
         sleep_mode = DEEPSLEEP_MODE_RET_SRAM_LOW96K;
-#elif defined(MCU_CORE_TL521X)
+#elif defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL521X)
         sleep_mode = DEEPSLEEP_MODE_RET_SRAM_LOW128K;
 #endif
     } else {
@@ -275,7 +281,8 @@ void drv_pm_longSleep(drv_pm_sleep_mode_e mode, drv_pm_wakeup_src_e src, u32 tic
     }
 
     cpu_long_sleep_wakeup(sleep_mode, srcType, tick);
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL721X) || \
+      defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
       defined(MCU_CORE_TL521X)
     pm_sleep_mode_e sleep_mode = SUSPEND_MODE;
     pm_sleep_wakeup_src_e srcType = 0;
@@ -289,7 +296,7 @@ void drv_pm_longSleep(drv_pm_sleep_mode_e mode, drv_pm_wakeup_src_e src, u32 tic
         sleep_mode = DEEPSLEEP_MODE_RET_SRAM_LOW64K;
 #elif defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X)
         sleep_mode = DEEPSLEEP_MODE_RET_SRAM_LOW96K;
-#elif defined(MCU_CORE_TL521X)
+#elif defined(MCU_CORE_TL721X) || defined(MCU_CORE_TL521X)
         sleep_mode = DEEPSLEEP_MODE_RET_SRAM_LOW128K;
 #endif
     } else {
@@ -322,7 +329,8 @@ static void pm_wakeup_pad_cfg(u32 pin, drv_pm_wakeup_level_e pol, int en)
     PM_PadSet(pin, pol, en);
 #elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278)
     cpu_set_gpio_wakeup(pin, pol, en);
-#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
+#elif defined(MCU_CORE_B91) || defined(MCU_CORE_TL721X) || \
+      defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
       defined(MCU_CORE_TL521X)
     pm_set_gpio_wakeup(pin, pol, en);
 #endif
@@ -403,7 +411,8 @@ void drv_pm_lowPowerEnter(void)
 
 #if defined(MCU_CORE_826x)
     drv_pm_sleep_mode_e sleepMode = (wakeupSrc & PM_WAKEUP_SRC_TIMER) ? PM_SLEEP_MODE_SUSPEND : PM_SLEEP_MODE_DEEPSLEEP;
-#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || defined(MCU_CORE_B91) || \
+#elif defined(MCU_CORE_8258) || defined(MCU_CORE_8278) || \
+      defined(MCU_CORE_B91) || defined(MCU_CORE_TL721X) || \
       defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
     drv_pm_sleep_mode_e sleepMode = (wakeupSrc & PM_WAKEUP_SRC_TIMER) ? PM_SLEEP_MODE_DEEP_WITH_RETENTION : PM_SLEEP_MODE_DEEPSLEEP;
 #endif

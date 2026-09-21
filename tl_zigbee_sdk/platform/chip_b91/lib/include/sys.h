@@ -37,6 +37,8 @@
 #include "reg_include/stimer_reg.h"
 #include "compiler.h"
 
+#define  INTERNAL_SIMULATION_DEBUG    0
+
 
 /**********************************************************************************************************************
  *                                         global constants                                                           *

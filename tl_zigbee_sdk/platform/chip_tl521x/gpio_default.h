@@ -26,6 +26,10 @@
 
 #include "compiler.h"
 #include "gpio.h"
+
+#ifndef JTAG_CLOSE
+    #define JTAG_CLOSE 1
+#endif
 /**********************************************************************************************************************
  *                                           GPIO   setting                                                            *
  *********************************************************************************************************************/
@@ -481,16 +485,32 @@
     #define PD3_INPUT_ENABLE 0
 #endif
 #ifndef PD4_INPUT_ENABLE
-    #define PD4_INPUT_ENABLE 0
+    #if JTAG_CLOSE
+        #define PD4_INPUT_ENABLE 0
+    #else
+        #define PD4_INPUT_ENABLE 1
+    #endif
 #endif
 #ifndef PD5_INPUT_ENABLE
-    #define PD5_INPUT_ENABLE 0
+    #if JTAG_CLOSE
+        #define PD5_INPUT_ENABLE 0
+    #else
+        #define PD5_INPUT_ENABLE 1
+    #endif
 #endif
 #ifndef PD6_INPUT_ENABLE
-    #define PD6_INPUT_ENABLE 0
+    #if JTAG_CLOSE
+        #define PD6_INPUT_ENABLE 0
+    #else
+        #define PD6_INPUT_ENABLE 1
+    #endif
 #endif
 #ifndef PD7_INPUT_ENABLE
-    #define PD7_INPUT_ENABLE 0
+    #if JTAG_CLOSE
+        #define PD7_INPUT_ENABLE 0
+    #else
+        #define PD7_INPUT_ENABLE 1
+    #endif
 #endif
 #ifndef PD0_OUTPUT_ENABLE
     #define PD0_OUTPUT_ENABLE 0
@@ -578,16 +598,32 @@
     #define PD3_FUNC AS_GPIO
 #endif
 #ifndef PD4_FUNC
-    #define PD4_FUNC AS_GPIO
+    #if JTAG_CLOSE
+        #define PD4_FUNC AS_GPIO
+    #else
+        #define PD4_FUNC AS_TDI
+    #endif
 #endif
 #ifndef PD5_FUNC
-    #define PD5_FUNC AS_GPIO
+    #if JTAG_CLOSE
+        #define PD5_FUNC AS_GPIO
+    #else
+        #define PD5_FUNC AS_TDO
+    #endif
 #endif
 #ifndef PD6_FUNC
-    #define PD6_FUNC AS_GPIO
+    #if JTAG_CLOSE
+        #define PD6_FUNC AS_GPIO
+    #else
+        #define PD6_FUNC AS_TMS
+    #endif
 #endif
 #ifndef PD7_FUNC
-    #define PD7_FUNC AS_GPIO
+    #if JTAG_CLOSE
+        #define PD7_FUNC AS_GPIO
+    #else
+        #define PD7_FUNC AS_TCK
+    #endif
 #endif
 #ifndef PULL_WAKEUP_SRC_PD0
     #define PULL_WAKEUP_SRC_PD0 0
@@ -602,16 +638,28 @@
     #define PULL_WAKEUP_SRC_PD3 0
 #endif
 #ifndef PULL_WAKEUP_SRC_PD4
-    #define PULL_WAKEUP_SRC_PD4 0
+    #if JTAG_CLOSE
+        #define PULL_WAKEUP_SRC_PD4 0
+    #else
+        #define PULL_WAKEUP_SRC_PD4 2 //GPIO_PIN_PULLDOWN_100K
+    #endif
 #endif
 #ifndef PULL_WAKEUP_SRC_PD5
     #define PULL_WAKEUP_SRC_PD5 0
 #endif
 #ifndef PULL_WAKEUP_SRC_PD6
-    #define PULL_WAKEUP_SRC_PD6 0
+    #if JTAG_CLOSE
+        #define PULL_WAKEUP_SRC_PD6 0
+    #else
+        #define PULL_WAKEUP_SRC_PD6 3 //GPIO_PIN_PULLUP_20K
+    #endif
 #endif
 #ifndef PULL_WAKEUP_SRC_PD7
-    #define PULL_WAKEUP_SRC_PD7 0
+    #if JTAG_CLOSE
+        #define PULL_WAKEUP_SRC_PD7 0
+    #else
+        #define PULL_WAKEUP_SRC_PD7 3 //GPIO_PIN_PULLUP_20K
+    #endif
 #endif
 
 /************************************************************PE*******************************************************/

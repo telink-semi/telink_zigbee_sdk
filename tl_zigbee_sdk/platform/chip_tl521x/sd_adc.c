@@ -106,15 +106,12 @@ void sd_adc_set_mux_control(sd_adc_mux_mode_e mode)
     switch (mode) {
     case SD_ADC_GPIO_MODE:
         analog_write_reg8(areg_0x10e,(analog_read_reg8(areg_0x10e) &(~FLD_L_SEL_DIVOUT_P))|(FLD_DIVOUT_P_GPIO));
-        analog_write_reg8(areg_0x10f, analog_read_reg8(areg_0x10f) & (~FLD_EN_VBATDIV));
         break;
     case SD_ADC_VBAT_MODE:
         analog_write_reg8(areg_0x10e,(analog_read_reg8(areg_0x10e) &(~FLD_L_SEL_DIVOUT_P))|(FLD_DIVOUT_P_VBAT));
-        analog_write_reg8(areg_0x10f, analog_read_reg8(areg_0x10f) | FLD_EN_VBATDIV);
         break;
     case SD_ADC_TEMP_MODE:
         analog_write_reg8(areg_0x10e,(analog_read_reg8(areg_0x10e) &(~FLD_L_SEL_DIVOUT_P))|(FLD_DIVOUT_P_TEMP));
-        analog_write_reg8(areg_0x10f, analog_read_reg8(areg_0x10f) & (~FLD_EN_VBATDIV));
         break;
     default:
         break;
@@ -256,7 +253,7 @@ void sd_adc_init(sd_dc_op_mode_e mode)
     BM_SET(reg_rst4, FLD_RST4_DC);//dc rst signal enable
     sd_adc_data_weighted_average_en();
     sd_adc_set_op_mode(SD_ADC_2DC_MODE);
-    sd_adc_set_each_dc_chn_sample_num(512);
+    sd_adc_set_each_dc_chn_sample_num(256);
     analog_write_reg8(areg_sel_ana_input_div, (analog_read_reg8(areg_sel_ana_input_div) | FLD_L_ADC_OPMODE));
 }
 

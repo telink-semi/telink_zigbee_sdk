@@ -40,7 +40,7 @@ void tl_printf_putChar(const unsigned char byte)
     }
 }
 
-#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || \
+#if defined(MCU_CORE_B91) || defined(MCU_CORE_B92) || defined(MCU_CORE_TL721X) || \
     defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || defined(MCU_CORE_TL521X)
 __attribute__((used)) int _write(int fd, const unsigned char *buf, int size)
 {

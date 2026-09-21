@@ -43,7 +43,8 @@ typedef struct {
     u16 size;
     u8 itemId;
     u8 usedState;
-#if defined(MCU_CORE_B91) || defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
+#if defined(MCU_CORE_B91) || defined(MCU_CORE_TL721X) || \
+    defined(MCU_CORE_TL321X) || defined(MCU_CORE_TL323X) || \
     defined(MCU_CORE_TL521X)
     u8 resv[8]; // PUYA flash only supports re-write 64 times
 #endif
