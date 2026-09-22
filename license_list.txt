@@ -149,7 +149,7 @@
 ./tl_zigbee_sdk/platform/chip_b91/lib/include/pke/pke_common.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_b91/lib/include/pke/x25519.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_b91/lib/include/emi.h			TELINK_APACHE 
-./tl_zigbee_sdk/platform/chip_b91/lib/include/emi_internal.h			TELINK_APACHE 
+./tl_zigbee_sdk/platform/chip_b91/lib/include/emi_cert.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_b91/lib/include/plic.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_b91/lib/include/pm.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_b91/lib/include/rf.h			TELINK_APACHE 
@@ -215,7 +215,7 @@
 ./tl_zigbee_sdk/platform/chip_tl321x/lib/include/core.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_tl321x/lib/include/efuse.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_tl321x/lib/include/emi.h			TELINK_APACHE 
-./tl_zigbee_sdk/platform/chip_tl321x/lib/include/emi_internal.h			TELINK_APACHE 
+./tl_zigbee_sdk/platform/chip_tl321x/lib/include/emi_cert.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_tl321x/lib/include/flash_base.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_tl321x/lib/include/mspi.h			TELINK_APACHE 
 ./tl_zigbee_sdk/platform/chip_tl321x/lib/include/plic.h			TELINK_APACHE 
