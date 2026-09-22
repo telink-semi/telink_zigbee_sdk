@@ -1,12 +1,14 @@
 # telink\_zigbee\_sdk README
 
-* [中文版](./doc/telink_zigbee_sdk_readme_cn.md)
+* [中文版](./README_CN.md)
 
 # SDK Introduction
 
 telink_zigbee_sdk is a Zigbee 4.0 software development platform for Telink's SoCs, including TL321x, TL323x, TLSR921x, and other series, specifically designed for low-power, long-range, self-organizing, and self-healing network application scenarios, enabling efficient development of Zigbee products for smart homes, industrial control, and other applications.
 
 The SDK provides a complete software system, including low-level chip drivers, adaptation-layer drivers, a Zigbee/BLE dual-mode protocol stack, rich engineering examples, ZGC (Zigbee Gateway Controller) function demonstration tools, and OTA (Over-The-Air) upgrade tools, fully supporting the entire R&D cycle from product prototyping to mass production.
+
+![](./SDK_Architecture.svg)
 
 **Core Competencies**
 
