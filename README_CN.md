@@ -8,7 +8,7 @@ telink\_zigbee\_sdk 是一款基于泰凌微电子 TL321x、TL323x、TLSR921x �
 
 本 SDK 提供了完备的软件体系，包括芯片底层驱动、适配层驱动、Zigbee/BLE 双模协议栈、丰富的示例工程，以及 ZGC （Zigbee Gateway Controller）功能演示工具和 OTA （Over-The-Air）升级工具，全面支持从产品原型设计到量产部署的整个研发周期。
 
-![](./SDK_Architecture.svg)
+![](./SDK_Architecture.jpg)
 
 **核心能力**
 
