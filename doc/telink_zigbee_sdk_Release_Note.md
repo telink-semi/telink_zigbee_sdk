@@ -1,3 +1,150 @@
+## V4.0.2.0(PR)
+
+### Version
+* Chips
+  - TC32: TLSR8258(B85)
+  - RISCV: TLSR921x/TL721x/TL321x/TL323x/TL521x
+* Hardware Version
+  - TLSR8258: C1T139A30_V1_2/C1T139A3_V2.0A
+  - TLSR921x: C1T213A20_V1_3/C1T213A3_V1_1
+  - TL721x: C1T315A20_V1_2/C1T315A3_V1_1
+  - TL321x: C1T335A20_V1_3/C1T335A3_V1_0
+  - TL323x: C1T388A20_V1_1/C1T388A3_V1_0
+  - TL521x: C1T416A20_V1_0
+* Driver Version
+  - tl_platform_sdk V4.0.1
+* BLE Version
+  - tl_ble_sdk V4.0.4.8(Patch_0001)
+* Toolchain Version
+  - TLSR8258(B85): TC32 ELF GCC4.3
+  - TLSR921x(B91): TL32 ELF MCULIB V5F GCC7.4
+  - TL721x: TL32 ELF MCULIB V5F GCC12.2
+  - TL321x: TL32 ELF MCULIB V5 GCC12.2
+  - TL323x: TL32 ELF MCULIB V5F GCC12.2
+  - TL521x: TL32 ELF MCULIB V5F GCC12.2
+* IDE
+  - [Telink IoT Studio](https://www.telink-semi.com/development-tools)
+* VSCode extension
+  - [Telink Extension](https://doc.telink-semi.cn/tools/vsc/tlk-0.3.9.vsix)
+### Features
+* Supports the TL721x and B85(1M Flash) platforms.
+* Update the drivers.
+* Update the BLE stack.
+### Bug Fixes
+* Fix the issue with key exchange timeout.
+### Performance
+* Optimize ACK sending timing to improve compatibility.
+### Code Refactoring
+* N/A
+### BREAKING CHANGES
+* Adjust the flash layout. In bootloader mode, change the APP position from 0x8000 to 0x10000.
+### CodeSize
+* Zigbee single-mode (Units: KBytes)
+
+|   chip   | sampleGW (RAM/FLASH Size) | sampleLight (RAM/FLASH Size) | sampleSwitch (RAM/FLASH Size) |
+| :------- | :-----------------------: | :--------------------------: | :---------------------------: |
+| TLSR8258 | 36 / 192                  | 34 / 224                     | 23 / 165                      |
+| TLSR921x | 42 / 180                  | 40 / 210                     | 28 / 153                      |
+| TL721x   | 49 / 190                  | 46 / 221                     | 39 / 168                      |
+| TL321x   | 46 / 194                  | 44 / 225                     | 36 / 171                      |
+| TL323x   | 48 / 193                  | 45 / 224                     | 38 / 171                      |
+| TL521x   | 47 / 189                  | 44 / 219                     | 36 / 167                      |
+
+* Zigbee+BLE dual-mode (Units: KBytes)
+
+|   chip   | sampleGW_ble (RAM/FLASH Size) | sampleLight_ble (RAM/FLASH Size) | sampleSwitch_ble (RAM/FLASH Size) |
+| :------- | :-----------------------: | :--------------------------: | :---------------------------: |
+| TLSR8258 | 46 / 248                  | 43 / 260                     | 32 / 202                      |
+| TLSR921x | 50 / 227                  | 48 / 239                     | 38 / 186                      |
+| TL721x   | 81 / 272                  | 77 / 286                     | 70 / 236                      |
+| TL321x   | 78 / 276                  | 76 / 290                     | 68 / 239                      |
+| TL323x   | 82 / 277                  | 79 / 291                     | 71 / 241                      |
+| TL521x   | 80 / 272                  | 77 / 286                     | 69 / 236                      |
+
+* Zigbee Direct (Units: KBytes)
+
+|   chip   | sampleGW_Direct (RAM/FLASH Size) | sampleLight_Direct (RAM/FLASH Size) | sampleSwitch_Direct (RAM/FLASH Size) |
+| :------- | :-----------------------: | :--------------------------: | :---------------------------: |
+| TLSR8258 |  - / -                    |  - / -                       |  - / -                        |
+| TLSR921x | 51 / 220                  | 49 / 255                     | 39 / 197                      |
+| TL721x   | 83 / 270                  | 81 / 307                     | 72 / 251                      |
+| TL321x   | 80 / 273                  | 78 / 309                     | 69 / 254                      |
+| TL323x   | 84 / 275                  | 81 / 311                     | 73 / 256                      |
+| TL521x   | 81 / 269                  | 79 / 305                     | 71 / 250                      |
+
+### Version
+* 芯片
+  - TC32: TLSR8258(B85)
+  - RISCV: TLSR921x/TL721x/TL321x/TL323x/TL521x
+* 硬件版本
+  - TLSR8258: C1T139A30_V1_2/C1T139A3_V2.0A
+  - TLSR921x: C1T213A20_V1_3/C1T213A3_V1_1
+  - TL721x: C1T315A20_V1_2/C1T315A3_V1_1
+  - TL321x: C1T335A20_V1_3/C1T335A3_V1_0
+  - TL323x: C1T388A20_V1_1/C1T388A3_V1_0
+  - TL521x: C1T416A20_V1_0
+* 驱动版本
+  - tl_platform_sdk V4.0.1
+* BLE版本
+  - tl_ble_sdk V4.0.4.8(Patch_0001)
+* 工具链版本
+  - TLSR8258(B85): TC32 ELF GCC4.3
+  - TLSR921x(B91): TL32 ELF MCULIB V5F GCC7.4
+  - TL721x: TL32 ELF MCULIB V5F GCC12.2
+  - TL321x: TL32 ELF MCULIB V5 GCC12.2
+  - TL323x: TL32 ELF MCULIB V5F GCC12.2
+  - TL521x: TL32 ELF MCULIB V5F GCC12.2
+* IDE
+  - [Telink IoT Studio](https://www.telink-semi.com/development-tools)
+* VSCode插件
+  - [Telink Extension](https://doc.telink-semi.cn/tools/vsc/tlk-0.3.9.vsix)
+### Features
+* 支持TL721x和B85(1M Flash)平台。
+* 更新驱动。
+* 更新BLE协议栈。
+### Bug Fixes
+* 修复密钥交换超时的问题。
+### Performance
+* 优化ACK发送时机以提高兼容性。
+### Code Refactoring
+* N/A
+### BREAKING CHANGES
+* 调整Flash布局。在bootloader模式下，将应用程序位置从0x8000改到0x10000。
+### CodeSize
+* Zigbee single-mode (Units: KBytes)
+
+|   chip   | sampleGW (RAM/FLASH Size) | sampleLight (RAM/FLASH Size) | sampleSwitch (RAM/FLASH Size) |
+| :------- | :-----------------------: | :--------------------------: | :---------------------------: |
+| TLSR8258 | 36 / 192                  | 34 / 224                     | 23 / 165                      |
+| TLSR921x | 42 / 180                  | 40 / 210                     | 28 / 153                      |
+| TL721x   | 49 / 190                  | 46 / 221                     | 39 / 168                      |
+| TL321x   | 46 / 194                  | 44 / 225                     | 36 / 171                      |
+| TL323x   | 48 / 193                  | 45 / 224                     | 38 / 171                      |
+| TL521x   | 47 / 189                  | 44 / 219                     | 36 / 167                      |
+
+* Zigbee+BLE dual-mode (Units: KBytes)
+
+|   chip   | sampleGW_ble (RAM/FLASH Size) | sampleLight_ble (RAM/FLASH Size) | sampleSwitch_ble (RAM/FLASH Size) |
+| :------- | :-----------------------: | :--------------------------: | :---------------------------: |
+| TLSR8258 | 46 / 248                  | 43 / 260                     | 32 / 202                      |
+| TLSR921x | 50 / 227                  | 48 / 239                     | 38 / 186                      |
+| TL721x   | 81 / 272                  | 77 / 286                     | 70 / 236                      |
+| TL321x   | 78 / 276                  | 76 / 290                     | 68 / 239                      |
+| TL323x   | 82 / 277                  | 79 / 291                     | 71 / 241                      |
+| TL521x   | 80 / 272                  | 77 / 286                     | 69 / 236                      |
+
+* Zigbee Direct (Units: KBytes)
+
+|   chip   | sampleGW_Direct (RAM/FLASH Size) | sampleLight_Direct (RAM/FLASH Size) | sampleSwitch_Direct (RAM/FLASH Size) |
+| :------- | :-----------------------: | :--------------------------: | :---------------------------: |
+| TLSR8258 |  - / -                    |  - / -                       |  - / -                        |
+| TLSR921x | 51 / 220                  | 49 / 255                     | 39 / 197                      |
+| TL721x   | 83 / 270                  | 81 / 307                     | 72 / 251                      |
+| TL321x   | 80 / 273                  | 78 / 309                     | 69 / 254                      |
+| TL323x   | 84 / 275                  | 81 / 311                     | 73 / 256                      |
+| TL521x   | 81 / 269                  | 79 / 305                     | 71 / 250                      |
+
+
 ## V4.0.1.0(PR)
 
 ### Version
