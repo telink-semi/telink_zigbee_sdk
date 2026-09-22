@@ -59,7 +59,11 @@
  * Refer to ZCL OTA specification for details.
  */
 #define MANUFACTURER_CODE               MANUFACTURER_CODE_TELINK//Telink ID
+#if BLE_CONCURRENT_MODE
+#define IMAGE_TYPE                      ((CHIP_TYPE << 8) | IMAGE_TYPE_CONTACT_SENSOR_EXT)
+#else
 #define	IMAGE_TYPE                      ((CHIP_TYPE << 8) | IMAGE_TYPE_CONTACT_SENSOR)
+#endif
 #define	FILE_VERSION                    ((APP_RELEASE << 24) | (APP_BUILD << 16) | (STACK_RELEASE << 8) | STACK_BUILD)
 
 /* Pre-compiled link configuration. */
