@@ -32,6 +32,7 @@
 * Update the BLE stack.
 ### Bug Fixes
 * Fix the issue with key exchange timeout.
+* Fix the issue with differentiating firmware types.
 ### Performance
 * Optimize ACK sending timing to improve compatibility.
 ### Code Refactoring
@@ -104,6 +105,7 @@
 * 更新BLE协议栈。
 ### Bug Fixes
 * 修复密钥交换超时的问题。
+* 修复区分固件类型问题。
 ### Performance
 * 优化ACK发送时机以提高兼容性。
 ### Code Refactoring
