@@ -8,7 +8,7 @@ telink_zigbee_sdk is a Zigbee 4.0 software development platform for Telink's SoC
 
 The SDK provides a complete software system, including low-level chip drivers, adaptation-layer drivers, a Zigbee/BLE dual-mode protocol stack, rich engineering examples, ZGC (Zigbee Gateway Controller) function demonstration tools, and OTA (Over-The-Air) upgrade tools, fully supporting the entire R&D cycle from product prototyping to mass production.
 
-![](./SDK_Architecture.jpg)
+![](./SDK_Architecture.svg)
 
 **Core Competencies**
 
