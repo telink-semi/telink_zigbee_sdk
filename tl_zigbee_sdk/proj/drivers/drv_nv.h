@@ -171,10 +171,19 @@ typedef enum {
 #define ITEM_HDR_FIELD_VALID_CHECKSUM           0x5A
 #define ITEM_HDR_FIELD_VALID_CHECKCRC           0x7A
 
+#if SDK_B85_512K_DUAL_BOOT
+/* Restore the 3.x split map and the smaller key-pair banks. NV payload
+ * compatibility with a provisioned 3.x device still needs hardware tests. */
+#define MODULES_START_ADDR(id) ((id < 6) ? (NV_BASE_ADDRESS_ZB + FLASH_SECTOR_SIZE * (2 * id)) : (0x7A000 + FLASH_SECTOR_SIZE * (2 * (id - 6))))
+#define NV_SECTOR_SIZE(id) ((id == NV_MODULE_KEYPAIR) ? (2 * FLASH_SECTOR_SIZE) : FLASH_SECTOR_SIZE)
+#define MODULE_INFO_SIZE(id) ((id == NV_MODULE_OTA || id == NV_MODULE_KEYPAIR || id == NV_MODULE_ADDRESS_TABLE) ? (4 * FLASH_PAGE_SIZE) : (2 * FLASH_PAGE_SIZE))
+#else
 #define MODULES_START_ADDR(id)                  (NV_BASE_ADDRESS_ZB + FLASH_SECTOR_SIZE * (2 * id))
 #define NV_SECTOR_SIZE(id)                      ((id == NV_MODULE_KEYPAIR) ? (4 * FLASH_SECTOR_SIZE) : FLASH_SECTOR_SIZE)
 #define MODULE_INFO_SIZE(id)                    ((id == NV_MODULE_OTA || id == NV_MODULE_KEYPAIR || id == NV_MODULE_ADDRESS_TABLE) ? \
                                                 ((id == NV_MODULE_KEYPAIR) ? (12 * FLASH_PAGE_SIZE) : (4 * FLASH_PAGE_SIZE)) : (2 * FLASH_PAGE_SIZE))
+
+#endif /* SDK_B85_512K_DUAL_BOOT */
 
 #define MODULE_SECTOR_NUM                       (2)
 

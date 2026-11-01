@@ -196,6 +196,10 @@ _attribute_ram_code_sec_noinline_ unsigned char flash_mspi_write_ram(unsigned ch
  */
 void flash_erase_sector(unsigned long addr)
 {
+#if SDK_B85_512K_DUAL_BOOT && BLE_CONCURRENT_MODE
+    extern int drv_b85_flash_allow(unsigned int,unsigned int);
+    if(!drv_b85_flash_allow(addr, 4096)) return;
+#endif
     flash_mspi_write_ram(FLASH_SECT_ERASE_CMD, addr, 1, NULL, 0);
 }
 
@@ -245,6 +249,10 @@ void flash_read_data(unsigned long addr, unsigned long len, unsigned char *buf)
  */
 void flash_page_program(unsigned long addr, unsigned long len, unsigned char *buf)
 {
+#if SDK_B85_512K_DUAL_BOOT && BLE_CONCURRENT_MODE
+    extern int drv_b85_flash_allow(unsigned int,unsigned int);
+    if(!drv_b85_flash_allow(addr, len)) return;
+#endif
     unsigned int ns = PAGE_SIZE - (addr & (PAGE_SIZE - 1));
     int nw = 0;
     unsigned int is_flash_addr = ((unsigned int)buf < RAM_ADDR_BASE) ? 1 : 0;
