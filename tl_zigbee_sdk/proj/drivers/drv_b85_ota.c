@@ -16,6 +16,7 @@ static u8 first_packet[32] __attribute__((aligned(4)));
 static drv_b85_ota_start_cb start_cb;
 static drv_b85_ota_result_cb result_cb;
 static drv_b85_ota_progress_cb progress_cb;
+static int (*voltage_check)(void);
 static u16 le16(const u8 *p) { return p[0] | (u16)p[1]<<8; }
 static u32 le32(const u8 *p) { return le16(p) | (u32)le16(p+2)<<16; }
 
@@ -39,6 +40,11 @@ int drv_b85_flash_allow(u32 address,u32 length)
     /* Vendor activation writes exactly one byte to invalidate the old image. */
     return activation && address==active+8 && length==1;
 }
+void drv_b85_flash_set_voltage_check(int (*check)(void)) { voltage_check=check; }
+int drv_b85_flash_can_write(u32 address,u32 length)
+{
+    return drv_b85_flash_allow(address,length) && (!voltage_check || voltage_check());
+}
 static void started(void) { transfer_busy=1; if(start_cb) start_cb(); }
 static void completed(int result)
 {
@@ -51,6 +57,7 @@ int drv_b85_ota_prepare(u16 manufacturer,u16 image_type,drv_b85_ota_start_cb sta
 {
     drv_b85_flash_guard_init();
     if(target==0xffffffff || ((flash_read_mid()>>16)&0xff)!=0x13) return 0;
+    if(voltage_check && !voltage_check()) return 0;
     expected_manufacturer=manufacturer; expected_image=image_type;
     start_cb=start; result_cb=result; progress_cb=progress;
     header_valid=first_pending=transfer_busy=0; pdu_size=16;

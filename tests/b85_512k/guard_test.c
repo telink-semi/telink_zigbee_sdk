@@ -55,6 +55,8 @@ static void data(u16 index,const u8 *bytes,unsigned n) {
     u16 crc=crc16(pkt.data,n+2); pkt.data[n+2]=crc; pkt.data[n+3]=crc>>8;
     drv_b85_ota_write(&pkt);
 }
+static int supply_ok;
+static int fresh_supply(void) { return supply_ok; }
 int main(void) {
     for(u32 slot=0;;slot=0x40000) {
         reset(slot);
@@ -90,5 +92,12 @@ int main(void) {
     reset(0); start(); data(0,header,16); data(0,header,16);
     assert(results==1 && last_result==1 && forwarded==1);
     reset(0); start(); pkt.l2cap=1; drv_b85_ota_write(&pkt); assert(forwarded==1);
+    reset(0); drv_b85_flash_set_voltage_check(fresh_supply);
+    supply_ok=0; assert(!drv_b85_flash_can_write(0x40000,16));
+    assert(!drv_b85_flash_can_write(0x7a000,16));
+    assert(!drv_b85_ota_prepare(0x1141,0x0101,0,result,0));
+    supply_ok=1; assert(drv_b85_ota_prepare(0x1141,0x0101,0,result,0));
+    assert(drv_b85_flash_can_write(0x40000,16));
+    assert(!drv_b85_flash_can_write(0,16));
     puts("PASS B85 512K guard: slots, overflow, activation, header gate, repeat START");
 }

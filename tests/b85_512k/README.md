@@ -16,7 +16,9 @@ The default 1/2/4 MiB configurations are unchanged. The BLE OTA library is uncha
 
 Call `blc_ota_setFirmwareSizeAndBootAddress(208, MULTI_BOOT_ADDR_0x40000)`
 before `drv_platform_init`. Call `drv_b85_flash_guard_init` after cold platform
-initialization. Compile `proj/drivers/drv_b85_ota.c` in the application and use
+initialization. Install `drv_b85_flash_set_voltage_check` with a fresh flash-VDD
+measurement callback before application NV/OTA initialization; it runs before
+each permitted low-level erase/program and before OTA preparation. Compile `proj/drivers/drv_b85_ota.c` in the application and use
 `drv_b85_ota_prepare` when opening a physical update window. Route that window's
 OTA GATT writes through `drv_b85_ota_write`; normal vendor sequencing, CRC,
 flash writes, cleanup and activation remain in `libble_b85.a`. The progress callback
