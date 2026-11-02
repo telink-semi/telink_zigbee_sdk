@@ -103,6 +103,14 @@ int main(void) {
     reset(0); start(); data(0,header,16); data(0,header,16);
     assert(results==1 && last_result==1 && forwarded==1);
     reset(0); start(); pkt.l2cap=1; drv_b85_ota_write(&pkt); assert(forwarded==1);
+    /* blt_ll_pack delivers reassembled GATT data with a zero LL header. */
+    reset(0); memset(&pkt,0,sizeof(pkt)); pkt.l2cap=23; pkt.rf_len=27;
+    pkt.data[0]=3; pkt.data[1]=0xff; pkt.data[2]=80; drv_b85_ota_write(&pkt);
+    memset(&pkt,0,sizeof(pkt)); pkt.l2cap=87; memcpy(pkt.data+2,header,32);
+    u16 crc=crc16(pkt.data,82); pkt.data[82]=crc; pkt.data[83]=crc>>8;
+    drv_b85_ota_write(&pkt); assert(forwarded==2 && !results);
+    pkt.rf_len=1; drv_b85_ota_write(&pkt); assert(forwarded==2);
+    pkt.rf_len=0; pkt.type=2; drv_b85_ota_write(&pkt); assert(forwarded==2);
     reset(0); drv_b85_flash_set_voltage_check(fresh_supply);
     supply_ok=0; assert(!drv_b85_flash_can_write(0x40000,16));
     assert(!drv_b85_flash_can_write(0x7a000,16));

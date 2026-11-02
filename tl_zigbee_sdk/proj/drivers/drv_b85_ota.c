@@ -109,7 +109,11 @@ int drv_b85_ota_write(void *packet)
 {
     if(!session) return 0;
     rf_packet_att_data_t *p=packet;
-    if(p->l2cap<5 || p->l2cap>247 || p->rf_len!=p->l2cap+4) return 0;
+    if(p->l2cap<5 || p->l2cap>247) return 0;
+    /* The SDK's blt_ll_pack clears the LL header after fragment reassembly.
+     * At this GATT callback boundary the complete length is in l2cap; rf_len
+     * describes a complete packet only when it arrived in a single LL PDU. */
+    if(p->rf_len!=p->l2cap+4 && (p->type || p->rf_len)) return 0;
     u8 *data=(u8 *)packet+9;
     unsigned length=p->l2cap-3;
     u16 command=le16(data);
