@@ -45,7 +45,9 @@ the caller. It is not cryptographic authentication or a downgrade policy. Use th
 vendor CRC postprocessor on every delivered image. B85 accepts extended PDUs
 16/32/48/64/80; larger PDUs return OTA_MCU_NOT_SUPPORTED, despite the common header's
 240-byte description. The final PDU is padded to a multiple of 16, not necessarily
-the negotiated full PDU size.
+the negotiated full PDU size. The transfer timeout is 1000 seconds to allow a
+full 208 KiB legacy image over slow host-selected BLE connection intervals;
+the separate five-second packet timeout still rejects stalled transfers.
 
 ## Verification
 

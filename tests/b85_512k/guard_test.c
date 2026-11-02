@@ -34,7 +34,7 @@ u32 flash_read_mid(void) { return mid; }
 void blc_ota_initOtaServer_module(void) { ++initialized; }
 void blc_ota_registerOtaStartCmdCb(void (*cb)(void)) { vendor_start=cb; }
 void blc_ota_registerOtaResultIndicationCb(void (*cb)(int)) { vendor_result=cb; }
-int blc_ota_setOtaProcessTimeout(int n) { assert(n==300); return 0; }
+int blc_ota_setOtaProcessTimeout(int n) { assert(n==1000); return 0; }
 int blc_ota_setOtaDataPacketTimeout(int n) { assert(n==5); return 0; }
 u16 crc16(const u8 *p,int n) { u16 c=0xffff; while(n--) c=(c<<1)^*p++; return c; }
 int otaWrite(void *p) {

@@ -66,7 +66,9 @@ int drv_b85_ota_prepare(u16 manufacturer,u16 image_type,drv_b85_ota_start_cb sta
     blc_ota_initOtaServer_module();
     blc_ota_registerOtaStartCmdCb(started);
     blc_ota_registerOtaResultIndicationCb(completed);
-    blc_ota_setOtaProcessTimeout(300);
+    /* Legacy 16-byte Web Bluetooth PDUs can take over five minutes at the
+     * host-selected connection interval. The packet timeout still catches stalls. */
+    blc_ota_setOtaProcessTimeout(1000);
     blc_ota_setOtaDataPacketTimeout(5);
     return 1;
 }
