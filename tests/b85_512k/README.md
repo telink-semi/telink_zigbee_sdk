@@ -21,15 +21,19 @@ measurement callback before application NV/OTA initialization; it runs before
 each permitted low-level erase/program and before OTA preparation. Compile `proj/drivers/drv_b85_ota.c` in the application and use
 `drv_b85_ota_prepare` when opening a physical update window. Route that window's
 OTA GATT writes through `drv_b85_ota_write`; normal vendor sequencing, CRC,
-flash writes, cleanup and activation remain in `libble_b85.a`. The progress callback
+flash transfer and cleanup remain in `libble_b85.a`. Its weak successful-activation
+hook `blt_ota_writeBootMark` is implemented by this driver: write and read back the
+new marker, permit the single old-marker clear, then close that permission. The
+vendor verifies the image before calling this hook and calls the result callback
+only afterwards. The progress callback
 receives 1 after readback and 2 before END verification. The application owns
 advertising, battery admission, local controls, feedback and retry policy.
 
 Preparation checks the flash JEDEC capacity and requires exactly one valid boot
 marker. It sets `ota_program_offset` explicitly; the configured alternate boot
 address is not evidence of the running slot. Both/no-marker states refuse OTA
-without erasing either image. Successful activation alone permits the vendor's
-one-byte invalidation of the old image. Page programming and sector erase check
+without erasing either image. Only the vendor success hook temporarily permits the
+one-byte invalidation of the old image; result callbacks never open this permission. Page programming and sector erase check
 the policy at the actual B85 flash driver entry points. Normal NV writes remain
 possible; addresses crossing image boundaries or the 512 KiB end are rejected.
 This is software protection. Coarse hardware block locks cannot independently

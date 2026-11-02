@@ -24,6 +24,12 @@ u32 ota_program_offset;
 static void (*vendor_start)(void); static void (*vendor_result)(int);
 static int forwarded,results,last_result,initialized;
 void flash_read_page(u32 a,u32 n,u8 *p) { assert(a+n<=sizeof(flash)); memcpy(p,flash+a,n); }
+int drv_b85_flash_can_write(u32,u32);
+static void guarded_program(u32 a,u32 n,u8 *p) {
+    assert(a+n<=sizeof(flash));
+    if(drv_b85_flash_can_write(a,n)) for(u32 i=0;i<n;++i) flash[a+i]&=p[i];
+}
+void (*flash_write_page)(u32,u32,u8 *)=guarded_program;
 u32 flash_read_mid(void) { return mid; }
 void blc_ota_initOtaServer_module(void) { ++initialized; }
 void blc_ota_registerOtaStartCmdCb(void (*cb)(void)) { vendor_start=cb; }
@@ -70,7 +76,7 @@ int main(void) {
         assert(drv_b85_flash_allow(0x34000,0xc000));
         assert(drv_b85_flash_allow(0x74000,0xc000));
         vendor_result(3); assert(!drv_b85_flash_allow(slot+8,1));
-        vendor_result(0); assert(drv_b85_flash_allow(slot+8,1));
+        vendor_result(0); assert(!drv_b85_flash_allow(slot+8,1));
         assert(!drv_b85_flash_allow(slot+8,2));
         memcpy(flash+(slot ? 0 : 0x40000)+8,"KNLT",4);
         int old=initialized;
@@ -86,6 +92,11 @@ int main(void) {
     data(0,header,16); assert(forwarded==1); /* hold until the model is known */
     start(); assert(forwarded==1); /* repeated START cannot reset transfer */
     data(1,header+16,16); assert(forwarded==3 && !results);
+    memcpy(flash+0x40009,"NLT",3);
+    blt_ota_writeBootMark(); /* vendor success hook precedes result callback */
+    assert(!memcmp(flash+0x40008,"KNLT",4));
+    assert(!memcmp(flash+8,"\0NLT",4));
+    assert(!drv_b85_flash_allow(8,1));
     reset(0); start(); data(0,header,16); header[20]=2;
     data(1,header+16,16); assert(results==1 && last_result==10 && forwarded==1);
     header[20]=1;

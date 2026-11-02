@@ -49,7 +49,7 @@ static void started(void) { transfer_busy=1; if(start_cb) start_cb(); }
 static void completed(int result)
 {
     /* Keep inactive-slot cleanup enabled after a failed transfer. */
-    activation=result==OTA_SUCCESS; transfer_busy=0;
+    activation=0; transfer_busy=0;
     if(result_cb) result_cb(result);
 }
 int drv_b85_ota_prepare(u16 manufacturer,u16 image_type,drv_b85_ota_start_cb start,
@@ -69,6 +69,23 @@ int drv_b85_ota_prepare(u16 manufacturer,u16 image_type,drv_b85_ota_start_cb sta
     blc_ota_setOtaProcessTimeout(300);
     blc_ota_setOtaDataPacketTimeout(5);
     return 1;
+}
+/* libble_b85.a exposes this weak success hook. The vendor calls it only
+ * after image verification, BEFORE the result callback. Keep its two-write
+ * activation sequence here, with readback and a narrowly scoped permission.
+ * A result callback is too late to authorize retiring the previous slot. */
+void blt_ota_writeBootMark(void)
+{
+    if(!session || !header_valid || !transfer_busy || ota_program_offset!=target) return;
+    u8 value=0x4b;
+    u32 marker;
+    flash_write_page(target+8,1,&value);
+    flash_read_page(target+8,4,(u8 *)&marker);
+    if(marker!=MARKER) return;
+    value=0;
+    activation=1;
+    flash_write_page(active+8,1,&value);
+    activation=0;
 }
 static int reject_image(int result)
 {
