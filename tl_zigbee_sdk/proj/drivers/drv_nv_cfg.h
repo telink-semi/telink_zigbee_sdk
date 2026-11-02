@@ -88,7 +88,11 @@
 
 #if defined(MCU_CORE_8258)
     #if (CHIP_TYPE == TLSR_8258_512K)
-        #error "B85(512k) not support"
+        #if !SDK_B85_512K_DUAL_BOOT
+        #error "B85(512k) requires SDK_B85_512K_DUAL_BOOT"
+        #elif BOOT_LOADER_MODE
+        #error "512K uses hardware dual boot, not the 1M bootloader layout"
+        #endif
     #elif (CHIP_TYPE == TLSR_8258_1M)
         #if !BOOT_LOADER_MODE
         #error "B85(1M) only support bootloader mode"
@@ -115,6 +119,9 @@
  * Flash address of factory setting parameters,
  * where are stored the MAC ADDRESS and CALIBRATION information.
  */
+//512K legacy factory sectors (experimental port)
+#define FLASH_ADDR_OF_MAC_ADDR_512K     0x76000
+#define FLASH_ADDR_OF_F_CFG_INFO_512K   0x77000
 //1M flash
 #define FLASH_ADDR_OF_MAC_ADDR_1M       0xFF000
 #define FLASH_ADDR_OF_F_CFG_INFO_1M     0xFE000
@@ -126,6 +133,9 @@
 #define FLASH_ADDR_OF_F_CFG_INFO_4M     0x3FE000
 
 /************************************************************************/
+#if SDK_B85_512K_DUAL_BOOT && (!defined(MCU_CORE_8258) || CHIP_TYPE != TLSR_8258_512K || BOOT_LOADER_MODE)
+#error "SDK_B85_512K_DUAL_BOOT requires B85 512K and hardware dual boot"
+#endif
 extern u32 g_u32MacFlashAddr;
 extern u32 g_u32CfgFlashAddr;
 
@@ -190,7 +200,11 @@ extern u32 g_u32CfgFlashAddr;
 //1M Flash: 0xFE000  - 0x1000 = 0xFD000
 //2M Flash: 0x1FE000 - 0x1000 = 0x1FD000
 //4M Flash: 0x3FE000 - 0x1000 = 0x3FD000
+#if SDK_B85_512K_DUAL_BOOT
+#define CFG_PRE_INSTALL_CODE (0x78000)
+#else
 #define CFG_PRE_INSTALL_CODE            (FACTORY_CFG_BASE_ADD - 0x1000)
+#endif
 
 /* 1 byte for factory reset.
  * If not 0xFF, means the device is doing factory reset(erase NV).
@@ -200,7 +214,11 @@ extern u32 g_u32CfgFlashAddr;
 //1M Flash: 0xFE000  - 0x2000 = 0xFC000
 //2M Flash: 0x1FE000 - 0x2000 = 0x1FC000
 //4M Flash: 0x3FE000 - 0x2000 = 0x3FC000
+#if SDK_B85_512K_DUAL_BOOT
+#define CFG_FACTORY_RST_CNT (0x79000)
+#else
 #define CFG_FACTORY_RST_CNT             (FACTORY_CFG_BASE_ADD - 0x2000)
+#endif
 
 /************************************************************************
  * Flash address of NV module.
@@ -208,11 +226,19 @@ extern u32 g_u32CfgFlashAddr;
 //1M Flash: 0xFE000  - 0x18000 = 0xE6000
 //2M Flash: 0x1FE000 - 0x18000 = 0x1E6000
 //4M Flash: 0x3FE000 - 0x18000 = 0x3E6000
+#if SDK_B85_512K_DUAL_BOOT
+#define NV_BASE_ADDRESS_ZB (0x34000)
+#else
 #define NV_BASE_ADDRESS_ZB              (FACTORY_CFG_BASE_ADD - 0x18000)
+#endif
 //1M Flash: 0xFE000  - 0x1A000 = 0xE4000
 //2M Flash: 0x1FE000 - 0x1A000 = 0x1E4000
 //4M Flash: 0x3FE000 - 0x1A000 = 0x3E4000
+#if SDK_B85_512K_DUAL_BOOT
+#define NV_BASE_ADDRESS_BLE (0x74000)
+#else
 #define NV_BASE_ADDRESS_BLE             (FACTORY_CFG_BASE_ADD - 0x1A000)
+#endif
 
 #define FLASH_SMP_PAIRING_ADDR          (NV_BASE_ADDRESS_BLE)
 #define FLASH_SMP_PAIRING_MAX_SIZE      (4096)
@@ -223,11 +249,19 @@ extern u32 g_u32CfgFlashAddr;
 //1M Flash: 0xE4000
 //2M Flash: 0x100000
 //4M Flash: 0x100000
+#if SDK_B85_512K_DUAL_BOOT
+#define FLASH_ADDR_OTA_IMAGE_END (0x74000)
+#else
 #define FLASH_ADDR_OTA_IMAGE_END        ((MAC_BASE_ADD > 0x100000) ? 0x100000 : NV_BASE_ADDRESS_BLE)
+#endif
 
 #if !defined(BOOT_LOADER_MODE) || (BOOT_LOADER_MODE == 0)
 //unchangeable address
+#if SDK_B85_512K_DUAL_BOOT
+#define FLASH_ADDR_OF_OTA_IMAGE (0x40000)
+#else
 #define FLASH_ADDR_OF_OTA_IMAGE         (0x80000)
+#endif
 //1M Flash: max size = 0xE4000  - 0x80000 = 400K
 //2M Flash: max size = 0x100000 - 0x80000 = 512K
 //4M Flash: max size = 0x100000 - 0x80000 = 512K
